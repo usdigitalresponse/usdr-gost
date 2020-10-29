@@ -1,0 +1,5 @@
+services:
+- type: web
+  name: sample
+  env: docker
+  plan: standard
