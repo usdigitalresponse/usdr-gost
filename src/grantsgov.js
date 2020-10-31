@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-param-reassign */
 const got = require('got');
 
 function simplifyString(string) {
@@ -95,6 +97,22 @@ async function allOpportunities0(keyword, eligibilities, startRecordNum) {
     return res;
 }
 
+async function allOpportunities(keywords, eligibilities) {
+    const results = {};
+    for (const i in keywords) {
+        const thisKeyword = keywords[i];
+        const hits = await allOpportunities0(thisKeyword, eligibilities, 0);
+        hits.forEach((hit) => {
+            if (!results[hit.number]) {
+                results[hit.number] = hit;
+                results[hit.number].searchKeywords = [];
+            }
+            results[hit.number].searchKeywords.push(thisKeyword);
+        });
+    }
+    return Object.values(results);
+}
+
 // previous hits is array of [{id, number}]
 // all previous hits are always checked for updates to keywords
 async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, eligibilities) {
@@ -128,22 +146,6 @@ async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, elig
         }
     }
     return finalResults;
-}
-
-async function allOpportunities(keywords, eligibilities) {
-    const results = {};
-    for (const i in keywords) {
-        const thisKeyword = keywords[i];
-        const hits = await allOpportunities0(thisKeyword, eligibilities, 0);
-        hits.forEach((hit) => {
-            if (!results[hit.number]) {
-                results[hit.number] = hit;
-                results[hit.number].searchKeywords = [];
-            }
-            results[hit.number].searchKeywords.push(thisKeyword);
-        });
-    }
-    return Object.values(results);
 }
 
 module.exports = { allOpportunities, allOpportunitiesOnlyMatchDescription, getEligibilities };

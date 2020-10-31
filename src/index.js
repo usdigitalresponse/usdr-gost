@@ -10,7 +10,7 @@ async function updateFromGrantsGov(keywords, elCodes) {
     const previousHits = [];
     for (const oppNum in existingRows) {
         const id = parseInt(existingRows[oppNum].grant_id, 10);
-        if (id > 200 || isNaN(id)) {
+        if (id > 200 || Number.isNaN(id)) {
             previousHits.push({
                 id: existingRows[oppNum].grant_id,
                 number: oppNum,

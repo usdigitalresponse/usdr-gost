@@ -18,5 +18,22 @@ module.exports = {
         'no-mixed-spaces-and-tabs': 'off',
         quotes: ['error', 'single', { allowTemplateLiterals: true }],
         semi: ['error', 'always'],
+        'no-restricted-syntax': [
+            'error',
+            {
+                selector: 'ForOfStatement',
+                message: 'iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations.',
+            },
+            {
+                selector: 'LabeledStatement',
+                message: 'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
+            },
+            {
+                selector: 'WithStatement',
+                message: '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.',
+            },
+        ],
+        'guard-for-in': 'off',
+        'max-len': 'warn',
     },
 };
