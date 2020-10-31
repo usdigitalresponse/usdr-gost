@@ -1,9 +1,9 @@
 require('dotenv').config();
 
-const db = require('./db');
-const grantsgov = require('./grantsgov');
+const db = require('../../db');
+const grantsgov = require('../grantsgov');
 
-const { TABLES } = require('./db/constants');
+const { TABLES } = require('../../db/constants');
 
 async function updateFromGrantsGov(keywords, elCodes) {
     const existingRows = await db.getGrants();
@@ -93,4 +93,6 @@ async function run() {
     }
 }
 
-run();
+module.exports = {
+    run,
+};
