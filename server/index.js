@@ -13,4 +13,4 @@ const job = new CronJob(
     '* 30 * * * *',
     grantscraper.run,
 );
-job.run();
+job.start();
