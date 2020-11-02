@@ -87,9 +87,6 @@ async function run() {
         await updateFromGrantsGov(keywords, elCodes);
     } catch (err) {
         console.error(err);
-        process.exit(1);
-    } finally {
-        await db.close();
     }
 }
 
