@@ -7,4 +7,5 @@ module.exports = (app) => {
     app.use(morgan('common'));
     app.use(bodyParser.json());
     app.use('/api/grants', require('./routes/grants'));
+    app.use('/api/refresh', require('./routes/refresh'));
 };
