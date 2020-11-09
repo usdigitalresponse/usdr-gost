@@ -6,13 +6,27 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '/',
+    name: 'Home',
+    component: () => import('../views/Home.vue'),
+  },
+  {
+    path: '/grants',
     name: 'Grants',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Grants.vue'),
+    component: () => import('../views/Grants.vue'),
+  },
+  {
+    path: '/eligibility-codes',
+    name: 'EligibilityCodes',
+    component: () => import('../views/EligibilityCodes.vue'),
+  },
+  {
+    path: '/keywords',
+    name: 'Keywords',
+    component: () => import('../views/Keywords.vue'),
   },
 ];
 
 const router = new VueRouter({
-  mode: 'history',
   base: process.env.BASE_URL,
   routes,
 });

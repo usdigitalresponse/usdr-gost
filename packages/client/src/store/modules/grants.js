@@ -1,6 +1,3 @@
-console.log(process.env);
-console.log('process.env.VUE_APP_GRANTS_API_URL');
-console.log(process.env.VUE_APP_GRANTS_API_URL);
 export function get(url) {
   const options = {
   };
@@ -29,6 +26,8 @@ export function post(url, body) {
 function initialState() {
   return {
     grants: [],
+    eligibilityCodes: [],
+    keywords: [],
   };
 }
 
@@ -37,6 +36,8 @@ export default {
   state: initialState,
   getters: {
     grants: (state) => state.grants,
+    eligibilityCodes: (state) => state.eligibilityCodes,
+    keywords: (state) => state.keywords,
   },
   actions: {
     fetchGrants({ commit }) {
@@ -44,10 +45,26 @@ export default {
         .then((r) => r.json())
         .then((data) => commit('SET_GRANTS', data));
     },
+    fetchEligibilityCodes({ commit }) {
+      get('/api/eligibility-codes')
+        .then((r) => r.json())
+        .then((data) => commit('SET_ELIGIBILITY_CODES', data));
+    },
+    fetchKeywords({ commit }) {
+      get('/api/keywords')
+        .then((r) => r.json())
+        .then((data) => commit('SET_KEYWORDS', data));
+    },
   },
   mutations: {
     SET_GRANTS(state, grants) {
       state.grants = grants;
+    },
+    SET_ELIGIBILITY_CODES(state, eligibilityCodes) {
+      state.eligibilityCodes = eligibilityCodes;
+    },
+    SET_KEYWORDS(state, keywords) {
+      state.keywords = keywords;
     },
   },
 };

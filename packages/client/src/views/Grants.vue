@@ -19,22 +19,6 @@ import { mapActions, mapGetters } from 'vuex';
 export default {
   data() {
     return {
-      //       grant_id
-      // grant_number
-      // title
-      // status
-      // agency_code
-      // award_ceiling
-      // cost_sharing
-      // cfda_list
-      // open_date
-      // close_date
-      // reviewer_name
-      // opportunity_category
-      // search_terms
-      // notes
-      // created_at
-      // updated_at
       columns: [
         {
           field: 'grant_id',
@@ -57,9 +41,45 @@ export default {
           label: 'Status',
         },
         {
+          field: 'agency_code',
+          label: 'Agency Code',
+        },
+        {
+          field: 'cost_sharing',
+          label: 'Cost Sharing',
+        },
+        {
+          field: 'cfda_list',
+          label: 'CFDA List',
+        },
+        {
+          field: 'open_date',
+          label: 'Open Date',
+        },
+        {
+          field: 'close_date',
+          label: 'Close Date',
+        },
+        {
+          field: 'opportunity_category',
+          label: 'Opportunity Category',
+        },
+        {
+          field: 'search_terms',
+          label: 'Search Terms',
+        },
+        {
+          field: 'notes',
+          label: 'Notes',
+        },
+        {
           field: 'created_at',
-          label: 'Date',
+          label: 'Created At',
           sortable: true,
+        },
+        {
+          field: 'updated_at',
+          label: 'Updated At',
         },
       ],
     };
