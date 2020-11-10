@@ -13,6 +13,7 @@
     "bootstrap": "lerna bootstrap",
     "setup": "yarn install && yarn run bootstrap",
     "start": "lerna run start --stream",
+    "serve": "lerna run serve --stream",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "lerna run lint",
     "pre-commit": "yarn lint"
