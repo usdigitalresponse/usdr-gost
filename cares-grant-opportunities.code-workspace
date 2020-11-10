@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "✨ cares-grant-opportunities",
+			"path": "."
+		},
+		{
+			"name": "📦 client",
+			"path": "packages/client"
+		},
+		{
+			"name": "📦 server",
+			"path": "packages/server"
+		}
+	],
+	"settings": {}
+}
