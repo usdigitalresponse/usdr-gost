@@ -1,52 +1,33 @@
 <template>
-<section class="section">
-    <div class="container">
-      <h1 class="title">Keywords</h1>
-      <h2 class="subtitle">
-      </h2>
-      <b-table :data="keywords" :columns="columns"
-      :sticky-header="true" :height="600"
-      :debounce-search="800"
-      ></b-table>
-    </div>
-  </section>
+<section class="container-fluid">
+  <h2>Keywords</h2>
+  <DataTable v-if="keywords" :table="table" :rows="keywords" />
+</section>
 </template>
 
 <script>
 
 import { mapActions, mapGetters } from 'vuex';
 
+import DataTable from '@/components/Table/DataTable.vue';
+
 export default {
+  components: {
+    DataTable,
+  },
   data() {
     return {
-      columns: [
-        {
-          field: 'id',
-          label: 'id',
-        },
-        {
-          field: 'mode',
-          label: 'Mode',
-          searchable: true,
-        },
-        {
-          field: 'search_term',
-          label: 'Search Term',
-        },
-        {
-          field: 'notes',
-          label: 'Notes',
-        },
-        {
-          field: 'created_at',
-          label: 'Created At',
-          sortable: true,
-        },
-        {
-          field: 'updated_at',
-          label: 'Updated At',
-        },
-      ],
+      table: {
+        views: [],
+        columns: [
+          { name: 'id' },
+          { name: 'mode' },
+          { name: 'search_term' },
+          { name: 'notes' },
+          { name: 'created_at' },
+          { name: 'updated_at' },
+        ],
+      },
     };
   },
   mounted() {

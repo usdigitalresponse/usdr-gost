@@ -1,48 +1,32 @@
 <template>
-<section class="section">
-    <div class="container">
-      <h1 class="title">Eligibility Codes</h1>
-      <h2 class="subtitle">
-      </h2>
-      <b-table :data="eligibilityCodes" :columns="columns"
-      :sticky-header="true" :height="600"
-      :debounce-search="800"
-      ></b-table>
-    </div>
-  </section>
+<section class="container-fluid">
+  <h2>Eligibility Codes</h2>
+  <DataTable v-if="eligibilityCodes" :table="table" :rows="eligibilityCodes" />
+</section>
 </template>
 
 <script>
 
 import { mapActions, mapGetters } from 'vuex';
 
+import DataTable from '@/components/Table/DataTable.vue';
+
 export default {
+  components: {
+    DataTable,
+  },
   data() {
     return {
-      columns: [
-        {
-          field: 'code',
-          label: 'Code',
-        },
-        {
-          field: 'label',
-          label: 'Label',
-          searchable: true,
-        },
-        {
-          field: 'enabled',
-          label: 'Enabled',
-        },
-        {
-          field: 'created_at',
-          label: 'Created At',
-          sortable: true,
-        },
-        {
-          field: 'updated_at',
-          label: 'Updated At',
-        },
-      ],
+      table: {
+        views: [],
+        columns: [
+          { name: 'code' },
+          { name: 'label' },
+          { name: 'enabled' },
+          { name: 'created_at' },
+          { name: 'updated_at' },
+        ],
+      },
     };
   },
   mounted() {

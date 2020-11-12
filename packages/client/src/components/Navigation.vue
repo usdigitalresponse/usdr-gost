@@ -1,30 +1,51 @@
 <template>
 <div>
-  <b-navbar>
-        <template slot="brand">
-            <b-navbar-item tag="router-link" :to="{ path: '/' }">
-                <img
-                    src="https://www.usdigitalresponse.org/wp-content/uploads/2020/05/logo_usdr_website_black_700.png"
-                >
-            </b-navbar-item>
-        </template>
-    </b-navbar>
-    <section class="section">
-  <div class="columns">
-    <aside class="column is-2 is-fullheight">
-      <b-menu>
-      <b-menu-list label="Menu">
-        <b-menu-item icon="" label="Grants" href="#/grants"></b-menu-item>
-        <b-menu-item icon="" label="Eligibility Codes" href="#/eligibility-codes"></b-menu-item>
-        <b-menu-item icon="" label="Keywords" href="#/keywords"></b-menu-item>
-      </b-menu-list>
-    </b-menu>
-    </aside>
-    <div class="column is-10 container">
-      <router-view />
+  <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">USDR</a>
+  </nav>
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <div class="sidebar-sticky">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <router-link
+                to="/grants"
+                v-slot="{ href, navigate, isActive }"
+              >
+                  <a :class="['nav-link', isActive && 'active']" :href="href" @click="navigate">
+                  Grants
+                </a>
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link
+                to="/eligibility-codes"
+                v-slot="{ href, navigate, isActive }"
+              >
+                  <a :class="['nav-link', isActive && 'active']" :href="href" @click="navigate">
+                  Eligibility Codes
+                </a>
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link
+                to="/keywords"
+                v-slot="{ href, navigate, isActive }"
+              >
+                  <a :class="['nav-link', isActive && 'active']" :href="href" @click="navigate">
+                  Keywords
+                </a>
+              </router-link>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        <router-view/>
+      </main>
     </div>
   </div>
-</section>
 </div>
 </template>
 
