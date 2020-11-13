@@ -14,6 +14,9 @@ module.exports = (app) => {
     app.use(cors());
     app.use(morgan('common'));
     app.use(bodyParser.json());
+    app.use('/api/users', require('./routes/users'));
+    app.use('/api/sessions', require('./routes/sessions'));
+    app.use('/api/agencies', require('./routes/agencies'));
     app.use('/api/grants', require('./routes/grants'));
     app.use('/api/eligibility-codes', require('./routes/eligibilityCodes'));
     app.use('/api/keywords', require('./routes/keywords'));
