@@ -1,7 +1,7 @@
 <template>
 <section class="container-fluid">
   <h2>Keywords</h2>
-  <DataTable v-if="keywords" :table="table" :rows="keywords" />
+  <b-table sticky-header="600px" hover :items="keywords" :fields="fields"></b-table>
 </section>
 </template>
 
@@ -9,25 +9,31 @@
 
 import { mapActions, mapGetters } from 'vuex';
 
-import DataTable from '@/components/Table/DataTable.vue';
-
 export default {
   components: {
-    DataTable,
   },
   data() {
     return {
-      table: {
-        views: [],
-        columns: [
-          { name: 'id' },
-          { name: 'mode' },
-          { name: 'search_term' },
-          { name: 'notes' },
-          { name: 'created_at' },
-          { name: 'updated_at' },
-        ],
-      },
+      fields: [
+        {
+          key: 'id',
+        },
+        {
+          key: 'mode',
+        },
+        {
+          key: 'search_term',
+        },
+        {
+          key: 'notes',
+        },
+        {
+          key: 'created_at',
+        },
+        {
+          key: 'updated_at',
+        },
+      ],
     };
   },
   mounted() {

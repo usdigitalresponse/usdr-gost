@@ -4,6 +4,7 @@
       <h1 class="title">Welcome</h1>
       <h2 class="subtitle">
       </h2>
+          <b-alert show>Default Alert</b-alert>
     </div>
   </section>
 </template>
