@@ -1,7 +1,7 @@
 <template>
 <section class="container-fluid">
   <h2>Eligibility Codes</h2>
-  <DataTable v-if="eligibilityCodes" :table="table" :rows="eligibilityCodes" />
+  <b-table sticky-header="600px" hover :items="eligibilityCodes" :fields="fields"></b-table>
 </section>
 </template>
 
@@ -9,24 +9,31 @@
 
 import { mapActions, mapGetters } from 'vuex';
 
-import DataTable from '@/components/Table/DataTable.vue';
-
 export default {
   components: {
-    DataTable,
   },
   data() {
     return {
-      table: {
-        views: [],
-        columns: [
-          { name: 'code' },
-          { name: 'label' },
-          { name: 'enabled' },
-          { name: 'created_at' },
-          { name: 'updated_at' },
-        ],
-      },
+      fields: [
+        {
+          key: 'code',
+          sortable: true,
+          stickyColumn: true,
+        },
+        {
+          key: 'label',
+          sortable: false,
+        },
+        {
+          key: 'enabled',
+        },
+        {
+          key: 'created_at',
+        },
+        {
+          key: 'updated_at',
+        },
+      ],
     };
   },
   mounted() {
