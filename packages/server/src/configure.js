@@ -11,7 +11,16 @@ const publicPath = resolve(__dirname, '../../client/dist');
 const staticConf = { maxAge: '1y', etag: false };
 
 module.exports = (app) => {
-    app.use(cors());
+    app.use(cors({
+        credentials: true,
+        origin: (origin, callback) => {
+            // if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+            // } else {
+            //     callback(new Error(`Origin: ${origin} is now allowed`));
+            // }
+        },
+    }));
     app.use(morgan('common'));
     app.use(bodyParser.json());
     app.use('/api/users', require('./routes/users'));

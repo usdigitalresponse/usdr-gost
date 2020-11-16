@@ -101,19 +101,37 @@ function getKeywords() {
         .select('*');
 }
 
-function getGrants() {
-    return knex(TABLES.grants)
-        .select('*');
+async function getGrants({ currentPage, perPage } = {}) {
+    const { data, pagination } = await knex(TABLES.grants)
+        .select('*').paginate({ currentPage, perPage, isLengthAware: true });
+    const viewedBy = await knex(TABLES.agencies)
+        .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
+        .whereIn('grant_id', data.map((grant) => grant.grant_id))
+        .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name`);
+    const dataWithAgency = data.map((grant) => {
+        const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
+        return {
+            ...grant,
+            viewed_by_agencies: viewedByAgencies,
+            viewed_by_agencies_formatted: viewedByAgencies.map((v) => v.name).join(', '),
+        };
+    });
+    return { data: dataWithAgency, pagination };
+}
+
+function markGrantAsViewed({ grantId, agencyId }) {
+    return knex(TABLES.grants_viewed)
+        .insert({ agency_id: agencyId, grant_id: grantId });
 }
 
 function getAgencies() {
-    return knex('agencies')
+    return knex(TABLES.agencies)
         .select('*')
         .orderBy('name');
 }
 
 function getAgencyByCode(code) {
-    return knex('agencies')
+    return knex(TABLES.agencies)
         .select('*')
         .where({ code });
 }
@@ -200,6 +218,7 @@ module.exports = {
     getAgencyByCode,
     getKeywords,
     getGrants,
+    markGrantAsViewed,
     getElegibilityCodes,
     sync,
     getAllRows,

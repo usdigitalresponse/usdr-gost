@@ -1,9 +1,9 @@
 require('dotenv').config();
 
-const adminList = (process.env.INITIAL_ADMIN_EMAILS || '').split(/\s*,\s*/);
+const adminList = (process.env.INITIAL_ADMIN_EMAILS || '').split(/\s*,\s*/).filter((s) => s);
 const agencyUserList = (process.env.INITIAL_AGENCY_EMAILS || '').split(
     /\s*,\s*/,
-);
+).filter((s) => s);
 
 exports.seed = async function (knex) {
     // Deletes ALL existing admins
