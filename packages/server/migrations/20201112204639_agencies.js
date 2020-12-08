@@ -3,10 +3,14 @@ exports.up = function (knex) {
         .createTable('agencies', (table) => {
             table.increments('id').primary();
             table.text('name').notNullable().unique();
-            table.text('abbreviation').notNullable().unique();
+            table.string('abbreviation');
+            table.integer('parent').unsigned();
+
+            table.foreign('parent').references('agencies.id');
         })
         .table('users', (table) => {
             table.integer('agency_id').unsigned();
+
             table.foreign('agency_id').references('agencies.id');
         });
 };

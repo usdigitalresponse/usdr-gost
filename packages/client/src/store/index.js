@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import grants from './modules/grants';
-import user from './modules/user';
+import users from './modules/users';
 
 Vue.use(Vuex);
 
@@ -12,6 +12,6 @@ export default new Vuex.Store({
   strict: debug,
   modules: {
     grants,
-    user,
+    users,
   },
 });

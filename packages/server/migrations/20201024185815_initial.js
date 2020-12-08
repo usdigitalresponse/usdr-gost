@@ -3,7 +3,7 @@ exports.up = function (knex) {
         .createTable('grants', (table) => {
             table.string('grant_id').primary();
             table.string('grant_number');
-            table.string('title');
+            table.text('title');
             table.string('status');
             table.string('agency_code');
             table.string('award_ceiling');

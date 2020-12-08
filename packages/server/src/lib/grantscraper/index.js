@@ -24,7 +24,8 @@ async function updateFromGrantsGov(keywords, elCodes) {
         grant_id: hit.id,
         grant_number: hit.number,
         agency_code: hit.agencyCode,
-        award_ceiling: (hit.awardCeiling && parseInt(hit.awardCeiling, 10)) ? parseInt(hit.awardCeiling, 10) : undefined,
+        award_ceiling: (hit.awardCeiling && parseInt(hit.awardCeiling, 10))
+            ? parseInt(hit.awardCeiling, 10) : undefined,
         cost_sharing: hit.costSharing ? 'Yes' : 'No',
         title: hit.title,
         cfda_list: (hit.cfdaList && hit.cfdaList.join(', ')),
@@ -34,6 +35,9 @@ async function updateFromGrantsGov(keywords, elCodes) {
         search_terms: `${hit.matchingKeywords.map((kw) => `${kw} [in title/desc]\n`).join('')}${hit.searchKeywords.filter((kw) => hit.matchingKeywords.indexOf(kw) === -1).join('\n')}`,
         reviewer_name: 'none',
         opportunity_category: hit.opportunityCategory,
+        description: hit.description,
+        eligibility_codes: hit.eligibilityCodes,
+        raw_body: hit.rawBody,
     }));
     await db.sync(
         TABLES.grants,
@@ -44,6 +48,9 @@ async function updateFromGrantsGov(keywords, elCodes) {
             'award_ceiling',
             'close_date',
             'opportunity_category',
+            'eligibility_codes',
+            'description',
+            'raw_body',
         ],
         rows,
     );
@@ -51,7 +58,8 @@ async function updateFromGrantsGov(keywords, elCodes) {
 }
 
 async function getKeywords() {
-    const rows = await db.getKeywords();
+    // get global keywords (agencyId === null)
+    const rows = await db.getAgencyKeywords(null);
     return rows.map((row) => {
         if (row.mode && row.search_term) {
             return {

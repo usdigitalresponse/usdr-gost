@@ -3,12 +3,12 @@ const _ = require('lodash-checkit');
 
 const router = express.Router();
 const {
-    getUserAndRole,
+    getUser,
     getAccessToken,
     createAccessToken,
     markAccessTokenUsed,
 } = require('../db');
-const { sendPasscode } = require('../lib/email');
+// const { sendPasscode } = require('../lib/email');
 
 router.get('/', (req, res) => {
     const { passcode } = req.query;
@@ -20,12 +20,12 @@ router.get('/', (req, res) => {
             } else {
                 markAccessTokenUsed(passcode).then(() => {
                     res.cookie('userId', token.user_id, { signed: true });
-                    res.redirect('/');
+                    res.redirect(process.env.WEBSITE_DOMAIN || '/');
                 });
             }
         });
-    } else if (req.signedCookies.userId) {
-        getUserAndRole(req.signedCookies.userId).then((user) => res.json({ user }));
+    } else if (req.signedCookies && req.signedCookies.userId) {
+        getUser(req.signedCookies.userId).then((user) => res.json({ user }));
     } else {
         res.json({ message: 'No session' });
     }
@@ -48,9 +48,13 @@ router.post('/', async (req, res, next) => {
     }
     try {
         const passcode = await createAccessToken(email);
-        await sendPasscode(email, passcode, req.headers.origin);
+        const apiDomain = process.env.API_DOMAIN || req.headers.origin;
+        // await sendPasscode(email, passcode, websiteDomain);
         res.json({
             success: true,
+            // REMOVE ME, for debugging purposes until we get sendgrid api key
+            passcode,
+            link: `${apiDomain}/api/sessions?passcode=${passcode}`,
             message: `Email sent to ${email}. Check your inbox`,
         });
     } catch (e) {

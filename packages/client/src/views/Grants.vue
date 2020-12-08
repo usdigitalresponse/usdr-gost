@@ -5,6 +5,7 @@
     id="grants-table"
     sticky-header="600px" hover :items="grants" :fields="fields"
     selectable
+    striped
     select-mode="single"
     :table-busy="loading"
     @row-selected="onRowSelected"/>
@@ -12,8 +13,7 @@
       v-model="currentPage"
       :total-rows="totalRows"
       :per-page="perPage"
-      aria-controls="grants-table"
-      align="fill"/>
+      aria-controls="grants-table"/>
    <!-- Info modal -->
   <b-modal v-model="showGrantModal"
     ok-only
@@ -85,6 +85,7 @@ export default {
         {
           key: 'grant_id',
           stickyColumn: true,
+          variant: 'dark',
         },
         {
           key: 'grant_number',
@@ -131,7 +132,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      agency: 'user/agency',
+      agency: 'users/agency',
       grants: 'grants/grants',
       grantsPagination: 'grants/grantsPagination',
     }),

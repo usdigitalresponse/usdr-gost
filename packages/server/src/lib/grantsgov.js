@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-param-reassign */
 const got = require('got');
+const delay = require('util').promisify(setTimeout);
 
 function simplifyString(string) {
     return string.toLowerCase().replace(/&nbsp;/g, '').replace(/[ \-_.;&"']/g, '');
@@ -21,8 +22,12 @@ async function enrichHitWithDetails(keywords, hit) {
         let desc = null;
         if (resp.body.synopsis) {
             desc = resp.body.synopsis.synopsisDesc;
+            hit.description = desc;
             hit.awardCeiling = resp.body.synopsis.awardCeiling;
             hit.costSharing = resp.body.synopsis.costSharing;
+            if (resp.body.synopsis.applicantTypes) {
+                hit.eligibilityCodes = resp.body.synopsis.applicantTypes.map((appl) => appl.id).join(' ');
+            }
         } else {
             desc = resp.body.forecast.forecastDesc;
             hit.awardCeiling = resp.body.forecast.awardCeiling;
@@ -40,6 +45,7 @@ async function enrichHitWithDetails(keywords, hit) {
                 hit.matchingKeywords.push(kw);
             }
         });
+        hit.rawBody = JSON.stringify(resp.body);
     } else {
         console.log(`unexpected response: ${resp.body}`);
     }
@@ -133,6 +139,7 @@ async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, elig
         let hit = newHits[i];
         try {
             await enrichHitWithDetails(allKeywords.slice(0), hit);
+            await delay(700);
         } catch (err) {
             console.log(`attempted to enrich hit but failed with ${err}`);
             hit = null;

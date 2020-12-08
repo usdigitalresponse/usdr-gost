@@ -1,4 +1,4 @@
-const { getUserAndRole } = require('../db');
+const { getUser } = require('../db');
 
 function requireUser(req, res, next) {
     if (!req.signedCookies.userId) {
@@ -12,7 +12,7 @@ function requireAdminUser(req, res, next) {
     if (!req.signedCookies.userId) {
         res.sendStatus(403);
     } else {
-        getUserAndRole(req.signedCookies.userId).then((user) => {
+        getUser(req.signedCookies.userId).then((user) => {
             console.log('user:', user);
             if (user.role !== 'admin') {
                 res.sendStatus(403);

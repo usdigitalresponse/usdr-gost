@@ -24,26 +24,39 @@ function createUser(user) {
         }));
 }
 
-function getUser(id) {
-    return knex('users')
-        .select('*')
-        .where('id', id)
-        .then((r) => r[0]);
-}
-
-function getUserAndRole(id) {
-    return knex('users')
-        .join('roles', 'roles.name', 'users.role')
+async function getUser(id) {
+    const [user] = await knex('users')
         .select(
             'users.id',
             'users.email',
-            'users.role',
+            'users.role_id',
+            'roles.name as role_name',
+            'roles.rules as role_rules',
             'users.agency_id',
+            'agencies.name as agency_name',
+            'agencies.abbreviation as agency_abbreviation',
+            'agencies.parent as agency_parent_id_id',
             'users.tags',
-            'roles.rules',
         )
-        .where('users.id', id)
-        .then((r) => r[0]);
+        .leftJoin('roles', 'roles.id', 'users.role_id')
+        .leftJoin('agencies', 'agencies.id', 'users.agency_id')
+        .where('users.id', id);
+    if (user.role_id) {
+        user.role = {
+            id: user.role_id,
+            name: user.role_name,
+            rules: user.role_rules,
+        };
+    }
+    if (user.agency_id) {
+        user.agency = {
+            id: user.agency_id,
+            name: user.agency_name,
+            abbreviation: user.agency_abbreviation,
+            agency_parent_id: user.agency_parent_id,
+        };
+    }
+    return user;
 }
 
 function getRoles() {
@@ -101,9 +114,20 @@ function getKeywords() {
         .select('*');
 }
 
-async function getGrants({ currentPage, perPage } = {}) {
+async function getGrants({ currentPage, perPage, filters } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
-        .select('*').paginate({ currentPage, perPage, isLengthAware: true });
+        .select('*')
+        .modify((queryBuilder) => {
+            if (filters) {
+                if (filters.eligibilityCodes) {
+                    queryBuilder.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
+                }
+                if (filters.keywords) {
+                    queryBuilder.where('description', '~', filters.keywords.join('|'));
+                }
+            }
+        })
+        .paginate({ currentPage, perPage, isLengthAware: true });
     const viewedBy = await knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
@@ -130,10 +154,19 @@ function getAgencies() {
         .orderBy('name');
 }
 
-function getAgencyByCode(code) {
+function getAgencyEligibilityCodes(agencyId) {
     return knex(TABLES.agencies)
+        .join(TABLES.agency_eligibility_codes, `${TABLES.agencies}.id`, '=', `${TABLES.agency_eligibility_codes}.agency_id`)
+        .join(TABLES.eligibility_codes, `${TABLES.eligibility_codes}.code`, '=', `${TABLES.agency_eligibility_codes}.code`)
+        .select('eligibility_codes.code', 'eligibility_codes.label', 'agency_eligibility_codes.enabled',
+            'agency_eligibility_codes.created_at', 'agency_eligibility_codes.updated_at')
+        .where('agencies.id', agencyId);
+}
+
+function getAgencyKeywords(agencyId) {
+    return knex(TABLES.keywords)
         .select('*')
-        .where({ code });
+        .where('agency_id', agencyId);
 }
 
 async function createRecord(tableName, row) {
@@ -209,14 +242,14 @@ module.exports = {
     getUsers,
     createUser,
     getUser,
-    getUserAndRole,
     getRoles,
     createAccessToken,
     getAccessToken,
     markAccessTokenUsed,
     getAgencies,
-    getAgencyByCode,
+    getAgencyEligibilityCodes,
     getKeywords,
+    getAgencyKeywords,
     getGrants,
     markGrantAsViewed,
     getElegibilityCodes,

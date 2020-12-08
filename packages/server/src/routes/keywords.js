@@ -1,10 +1,11 @@
 const express = require('express');
 
 const router = express.Router();
-const { getKeywords } = require('../db');
+const { getAgencyKeywords, getUser } = require('../db');
 
 router.get('/', async (req, res) => {
-    const keywords = await getKeywords();
+    const user = await getUser(req.signedCookies.userId);
+    const keywords = await getAgencyKeywords(user.agency.id);
     res.json(keywords);
 });
 

@@ -1,10 +1,11 @@
 const express = require('express');
 
 const router = express.Router();
-const { getElegibilityCodes } = require('../db');
+const { getUser, getAgencyEligibilityCodes } = require('../db');
 
 router.get('/', async (req, res) => {
-    const elegibilityCodes = await getElegibilityCodes();
+    const user = await getUser(req.signedCookies.userId);
+    const elegibilityCodes = await getAgencyEligibilityCodes(user.agency.id);
     res.json(elegibilityCodes);
 });
 

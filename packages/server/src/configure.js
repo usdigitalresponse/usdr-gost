@@ -2,6 +2,7 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const cors = require('cors');
 const history = require('connect-history-api-fallback');
@@ -13,6 +14,7 @@ const staticConf = { maxAge: '1y', etag: false };
 module.exports = (app) => {
     app.use(cors({
         credentials: true,
+        exposedHeaders: ['set-cookie'],
         origin: (origin, callback) => {
             // if (allowedOrigins.includes(origin)) {
             callback(null, true);
@@ -22,6 +24,7 @@ module.exports = (app) => {
         },
     }));
     app.use(morgan('common'));
+    app.use(cookieParser(process.env.COOKIE_SECRET));
     app.use(bodyParser.json());
     app.use('/api/users', require('./routes/users'));
     app.use('/api/sessions', require('./routes/sessions'));

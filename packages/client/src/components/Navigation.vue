@@ -1,8 +1,25 @@
 <template>
 <div>
-  <nav class="navbar navbar-dark bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">USDR</a>
-  </nav>
+   <b-navbar type="dark" variant="dark">
+    <b-navbar-brand href="#">USDR</b-navbar-brand>
+
+    <b-collapse id="nav-collapse" is-nav>
+
+      <!-- Right aligned nav items -->
+      <b-navbar-nav class="ml-auto">
+
+        <b-nav-text>{{agency ? agency.name : ''}}</b-nav-text>
+
+        <b-nav-item-dropdown right v-if="loggedInUser">
+          <!-- Using 'button-content' slot -->
+          <template #button-content>
+            <em>User</em>
+          </template>
+          <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
+        </b-nav-item-dropdown>
+      </b-navbar-nav>
+    </b-collapse>
+  </b-navbar>
   <div class="container-fluid">
     <div class="row">
       <nav class="col-md-2 d-none d-md-block bg-light sidebar">
@@ -50,6 +67,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'Navigation',
@@ -61,8 +79,18 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      agency: 'users/agency',
+      loggedInUser: 'users/loggedInUser',
+    }),
   },
   methods: {
+    logout(e) {
+      e.preventDefault();
+      this.$store
+        .dispatch('users/logout')
+        .then(() => this.$router.push({ path: '/login' }));
+    },
   },
 };
 </script>
@@ -129,34 +157,5 @@ export default {
 
 [role="main"] {
   padding-top: 48px;
-}
-
-/*
- * Navbar
- */
-
-.navbar-brand {
-  padding-top: .75rem;
-  padding-bottom: .75rem;
-  font-size: 1rem;
-  background-color: rgba(0, 0, 0, .25);
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
-}
-
-.navbar .form-control {
-  padding: .75rem 1rem;
-  border-width: 0;
-  border-radius: 0;
-}
-
-.form-control-dark {
-  color: #fff;
-  background-color: rgba(255, 255, 255, .1);
-  border-color: rgba(255, 255, 255, .1);
-}
-
-.form-control-dark:focus {
-  border-color: transparent;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
 </style>
