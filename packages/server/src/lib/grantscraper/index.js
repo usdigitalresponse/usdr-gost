@@ -5,19 +5,7 @@ const grantsgov = require('../grantsgov');
 
 const { TABLES } = require('../../db/constants');
 
-async function updateFromGrantsGov(keywords, elCodes) {
-    const existingRows = await db.getGrants();
-    const previousHits = [];
-    for (const oppNum in existingRows) {
-        const id = parseInt(existingRows[oppNum].grant_id, 10);
-        if (id > 200 || Number.isNaN(id)) {
-            previousHits.push({
-                id: existingRows[oppNum].grant_id,
-                number: oppNum,
-            });
-        }
-    }
-    const hits = await grantsgov.allOpportunitiesOnlyMatchDescription(previousHits, keywords, elCodes);
+async function syncGrants(hits) {
     console.log(`found ${hits.length} total results on grants.gov`);
     const rows = hits.map((hit) => ({
         status: 'inbox',
@@ -54,6 +42,21 @@ async function updateFromGrantsGov(keywords, elCodes) {
         ],
         rows,
     );
+}
+
+async function updateFromGrantsGov(keywords, elCodes) {
+    const existingRows = await db.getGrants();
+    const previousHits = [];
+    for (const oppNum in existingRows) {
+        const id = parseInt(existingRows[oppNum].grant_id, 10);
+        if (id > 200 || Number.isNaN(id)) {
+            previousHits.push({
+                id: existingRows[oppNum].grant_id,
+                number: oppNum,
+            });
+        }
+    }
+    await grantsgov.allOpportunitiesOnlyMatchDescription(previousHits, keywords, elCodes, syncGrants);
     console.log('sync complete!');
 }
 

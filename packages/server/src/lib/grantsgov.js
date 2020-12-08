@@ -125,7 +125,7 @@ async function allOpportunities(keywords, eligibilities) {
 
 // previous hits is array of [{id, number}]
 // all previous hits are always checked for updates to keywords
-async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, eligibilities) {
+async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, eligibilities, syncFn) {
     const insertKeywords = keywords.filter((v) => v.insertMode).map((v) => v.term);
     const insertAllKeywords = keywords.filter((v) => v.insertMode && v.insertAll).map((v) => v.term);
     const allKeywords = keywords.map((v) => v.term);
@@ -139,6 +139,7 @@ async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, elig
         }
     });
     const finalResults = [];
+    let currentUnsyncResults = [];
     for (const i in newHits) {
         let hit = newHits[i];
         try {
@@ -153,7 +154,12 @@ async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, elig
             const searchedInsertAllKeywords = hit.searchKeywords.filter((kw) => insertAllKeywords.indexOf(kw) >= 0);
             if (matchingInsertKeywords.length > 0 || searchedInsertAllKeywords.length > 0 || previousHitIds[hit.id]) {
                 finalResults.push(hit);
+                currentUnsyncResults.push(hit);
             }
+        }
+        if (finalResults.length % 20 === 0) {
+            await syncFn(currentUnsyncResults);
+            currentUnsyncResults = [];
         }
     }
     return finalResults;
