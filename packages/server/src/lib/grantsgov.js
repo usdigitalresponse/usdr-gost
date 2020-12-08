@@ -3,6 +3,8 @@
 const got = require('got');
 const delay = require('util').promisify(setTimeout);
 
+const REQUEST_DELAY = process.env.GRANTS_SCRAPER_DELAY || 500;
+
 function simplifyString(string) {
     return string.toLowerCase().replace(/&nbsp;/g, '').replace(/[ \-_.;&"']/g, '');
 }
@@ -89,14 +91,16 @@ async function allOpportunities0(keyword, eligibilities, startRecordNum) {
     const resp = await search({
         startRecordNum,
         keyword,
+        dateRange: process.env.GRANTS_SCRAPER_DATE_RANGE || 56,
         eligibilities,
         oppNum: '',
         cfda: '',
-        oppStatuses: 'posted|closed|archived',
+        oppStatuses: 'posted|forecasted',
         sortBy: 'openDate|desc',
     });
     const res = resp.body.oppHits.filter((hit) => !hit.closeDate || hit.closeDate.match(/202[0-9]$/));
     if (startRecordNum + 25 < resp.body.hitCount) {
+        await delay(REQUEST_DELAY);
         const hits = await allOpportunities0(keyword, eligibilities, startRecordNum + 25);
         return res.concat(hits);
     }
@@ -139,7 +143,7 @@ async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, elig
         let hit = newHits[i];
         try {
             await enrichHitWithDetails(allKeywords.slice(0), hit);
-            await delay(700);
+            await delay(REQUEST_DELAY);
         } catch (err) {
             console.log(`attempted to enrich hit but failed with ${err}`);
             hit = null;
