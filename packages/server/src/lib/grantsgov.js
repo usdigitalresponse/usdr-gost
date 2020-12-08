@@ -4,6 +4,7 @@ const got = require('got');
 const delay = require('util').promisify(setTimeout);
 
 const REQUEST_DELAY = process.env.GRANTS_SCRAPER_DELAY || 500;
+const HTTP_TIMEOUT = parseInt(process.env.GRANTS_SCRAPER_HTTP_TIMEOUT, 10) || 20000;
 
 function simplifyString(string) {
     return string.toLowerCase().replace(/&nbsp;/g, '').replace(/[ \-_.;&"']/g, '');
@@ -17,6 +18,7 @@ async function enrichHitWithDetails(keywords, hit) {
         form: {
             oppId: hit.id,
         },
+        timeout: HTTP_TIMEOUT,
     });
 
     hit.matchingKeywords = [];
@@ -58,6 +60,7 @@ async function search(postBody) {
         url: 'https://www.grants.gov/grantsws/rest/opportunities/search/',
         json: postBody,
         responseType: 'json',
+        timeout: HTTP_TIMEOUT,
     });
 
     if (resp.statusCode < 200 || resp.statusCode >= 300) {
