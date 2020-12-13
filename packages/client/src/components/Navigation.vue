@@ -55,6 +55,16 @@
                 </a>
               </router-link>
             </li>
+            <li class="nav-item" v-if="loggedInUser.role.name === 'admin'">
+              <router-link
+                to="/users"
+                v-slot="{ href, navigate, isActive }"
+              >
+                  <a :class="['nav-link', isActive && 'active']" :href="href" @click="navigate">
+                  Users
+                </a>
+              </router-link>
+            </li>
           </ul>
         </div>
       </nav>

@@ -27,6 +27,7 @@ module.exports = (app) => {
     app.use(cookieParser(process.env.COOKIE_SECRET));
     app.use(bodyParser.json());
     app.use('/api/users', require('./routes/users'));
+    app.use('/api/roles', require('./routes/roles'));
     app.use('/api/sessions', require('./routes/sessions'));
     app.use('/api/agencies', require('./routes/agencies'));
     app.use('/api/grants', require('./routes/grants'));

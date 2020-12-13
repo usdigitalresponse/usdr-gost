@@ -6,10 +6,42 @@ const { v4 } = require('uuid');
 const knex = require('./connection');
 const { TABLES } = require('./constants');
 
-function getUsers() {
+async function getUsers() {
+    const users = await knex('users')
+        .select(
+            'users.*',
+            'roles.name as role_name',
+            'roles.rules as role_rules',
+            'agencies.name as agency_name',
+            'agencies.abbreviation as agency_abbreviation',
+            'agencies.parent as agency_parent_id_id',
+        )
+        .leftJoin('roles', 'roles.id', 'users.role_id')
+        .leftJoin('agencies', 'agencies.id', 'users.agency_id');
+    return users.map((user) => {
+        const u = { ...user };
+        if (user.role_id) {
+            u.role = {
+                id: user.role_id,
+                name: user.role_name,
+                rules: user.role_rules,
+            };
+        }
+        if (user.agency_id) {
+            u.agency = {
+                id: user.agency_id,
+                name: user.agency_name,
+                abbreviation: user.agency_abbreviation,
+                agency_parent_id: user.agency_parent_id,
+            };
+        }
+        return u;
+    });
+}
+function deleteUser(id) {
     return knex('users')
-        .select('*')
-        .orderBy('email');
+        .where('id', id)
+        .del();
 }
 
 function createUser(user) {
@@ -241,6 +273,7 @@ function close() {
 module.exports = {
     getUsers,
     createUser,
+    deleteUser,
     getUser,
     getRoles,
     createAccessToken,

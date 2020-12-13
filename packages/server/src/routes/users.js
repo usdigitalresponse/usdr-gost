@@ -2,22 +2,22 @@ const express = require('express');
 
 const router = express.Router();
 const { requireAdminUser } = require('../lib/access-helpers');
-const { createUser } = require('../db');
+const db = require('../db');
 
 router.post('/', requireAdminUser, (req, res, next) => {
     console.log('POST /users');
     console.log(req.body);
-    const { email, role, agency_id } = req.body;
-    if (!email) {
+    if (!req.body.email) {
         res.status(400).send('User email is required');
         return;
     }
     const user = {
         email: req.body.email.toLowerCase(),
-        role,
-        agency_id,
+        name: req.body.name,
+        role_id: req.body.role,
+        agency_id: req.body.agency,
     };
-    createUser(user)
+    db.createUser(user)
         .then((result) => res.json({ user: result }))
         .catch((e) => {
             if (e.message.match(/violates unique constraint/)) {
@@ -26,6 +26,16 @@ router.post('/', requireAdminUser, (req, res, next) => {
                 next(e);
             }
         });
+});
+
+router.get('/', requireAdminUser, (req, res) => {
+    db.getUsers()
+        .then((result) => res.json(result));
+});
+
+router.delete('/:userId', requireAdminUser, (req, res) => {
+    db.deleteUser(req.params.userId)
+        .then((result) => res.json(result));
 });
 
 module.exports = router;

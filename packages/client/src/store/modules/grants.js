@@ -20,20 +20,17 @@ export default {
   actions: {
     fetchGrants({ commit }, { currentPage, perPage }) {
       fetchApi.get(`/api/grants?currentPage=${currentPage}&perPage=${perPage}`)
-        .then((r) => r.json())
         .then((data) => commit('SET_GRANTS', data));
     },
-    markGrantAsViewed(test, { grantId, agencyId }) {
+    markGrantAsViewed(context, { grantId, agencyId }) {
       fetchApi.put(`/api/grants/${grantId}/view/${agencyId}`);
     },
     fetchEligibilityCodes({ commit }) {
       fetchApi.get('/api/eligibility-codes')
-        .then((r) => r.json())
         .then((data) => commit('SET_ELIGIBILITY_CODES', data));
     },
     fetchKeywords({ commit }) {
       fetchApi.get('/api/keywords')
-        .then((r) => r.json())
         .then((data) => commit('SET_KEYWORDS', data));
     },
   },

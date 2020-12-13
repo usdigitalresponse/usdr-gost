@@ -3,6 +3,8 @@ import Vuex from 'vuex';
 
 import grants from './modules/grants';
 import users from './modules/users';
+import roles from './modules/roles';
+import agencies from './modules/agencies';
 
 Vue.use(Vuex);
 
@@ -13,5 +15,7 @@ export default new Vuex.Store({
   modules: {
     grants,
     users,
+    roles,
+    agencies,
   },
 });
