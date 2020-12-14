@@ -3,8 +3,10 @@
   <b-row>
     <b-col><h2>Users</h2></b-col>
     <b-col></b-col>
-    <b-col>
+    <b-col class="d-flex justify-content-end">
+      <div>
         <b-button variant="success" @click="openAddUserModal">Add</b-button>
+      </div>
     </b-col>
   </b-row>
   <b-table sticky-header="600px" hover :items="formattedUsers" :fields="fields">
@@ -43,7 +45,11 @@ export default {
           sortable: true,
         },
         {
-          key: 'agency',
+          key: 'agency_name',
+          sortable: true,
+        },
+        {
+          key: 'agency_abbrv',
           sortable: true,
         },
         {
@@ -64,7 +70,8 @@ export default {
     formattedUsers() {
       return this.users.map((user) => ({
         ...user,
-        agency: user.agency.name,
+        agency_name: user.agency.name,
+        agency_abbrv: user.agency.abbreviation,
         role: user.role.name,
       }));
     },

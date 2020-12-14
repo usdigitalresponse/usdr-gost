@@ -27,7 +27,7 @@ async function getUsers() {
                 rules: user.role_rules,
             };
         }
-        if (user.agency_id) {
+        if (user.agency_id !== null) {
             u.agency = {
                 id: user.agency_id,
                 name: user.agency_name,

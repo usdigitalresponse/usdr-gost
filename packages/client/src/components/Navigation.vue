@@ -55,7 +55,7 @@
                 </a>
               </router-link>
             </li>
-            <li class="nav-item" v-if="loggedInUser.role.name === 'admin'">
+            <li class="nav-item" v-if="loggedInUser && loggedInUser.role.name === 'admin'">
               <router-link
                 to="/users"
                 v-slot="{ href, navigate, isActive }"
