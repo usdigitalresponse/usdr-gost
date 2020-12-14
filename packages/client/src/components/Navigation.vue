@@ -65,6 +65,16 @@
                 </a>
               </router-link>
             </li>
+            <li class="nav-item">
+              <router-link
+                to="/agencies"
+                v-slot="{ href, navigate, isActive }"
+              >
+                  <a :class="['nav-link', isActive && 'active']" :href="href" @click="navigate">
+                  Agencies
+                </a>
+              </router-link>
+            </li>
           </ul>
         </div>
       </nav>

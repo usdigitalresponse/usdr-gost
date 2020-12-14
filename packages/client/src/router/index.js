@@ -53,6 +53,14 @@ const routes = [
       requiresAuth: true,
     },
   },
+  {
+    path: '/agencies',
+    name: 'Agencies',
+    component: () => import('../views/Agencies.vue'),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];
 
 const router = new VueRouter({
