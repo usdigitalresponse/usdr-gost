@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import Vuelidate from 'vuelidate';
 
 import App from './App.vue';
 import router from './router';
@@ -11,11 +12,11 @@ const fetchApi = require('@/helpers/fetchApi');
 Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
+Vue.use(Vuelidate);
 
 Vue.config.productionTip = false;
 
 fetchApi.get('/api/sessions')
-  .then((r) => r.json())
   .then((data) => {
     if (data && data.user) {
       store.dispatch('users/login', data.user);

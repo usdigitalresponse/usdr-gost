@@ -2,7 +2,29 @@ export function get(url) {
   const options = {
     credentials: 'include',
   };
-  return fetch(`${process.env.VUE_APP_GRANTS_API_URL}${url}`, options);
+  return fetch(`${process.env.VUE_APP_GRANTS_API_URL}${url}`, options).then((r) => {
+    if (r.ok) {
+      return r.json();
+    }
+    return r
+      .text()
+      .then((text) => Promise.reject(new Error(text || r.statusText)));
+  });
+}
+
+export function deleteRequest(url) {
+  const options = {
+    method: 'DELETE',
+    credentials: 'include',
+  };
+  return fetch(`${process.env.VUE_APP_GRANTS_API_URL}${url}`, options).then((r) => {
+    if (r.ok) {
+      return r.json();
+    }
+    return r
+      .text()
+      .then((text) => Promise.reject(new Error(text || r.statusText)));
+  });
 }
 
 export function post(url, body) {
