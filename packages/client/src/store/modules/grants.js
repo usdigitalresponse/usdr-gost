@@ -12,7 +12,7 @@ export default {
   namespaced: true,
   state: initialState,
   getters: {
-    grants: (state) => state.grantsPaginated.data,
+    grants: (state) => state.grantsPaginated.data || [],
     grantsPagination: (state) => state.grantsPaginated.pagination,
     eligibilityCodes: (state) => state.eligibilityCodes,
     keywords: (state) => state.keywords,
@@ -25,13 +25,27 @@ export default {
     markGrantAsViewed(context, { grantId, agencyId }) {
       fetchApi.put(`/api/grants/${grantId}/view/${agencyId}`);
     },
+    markGrantAsInterested(context, { grantId, agencyId }) {
+      fetchApi.put(`/api/grants/${grantId}/interested/${agencyId}`);
+    },
     fetchEligibilityCodes({ commit }) {
       fetchApi.get('/api/eligibility-codes')
         .then((data) => commit('SET_ELIGIBILITY_CODES', data));
     },
+    async setEligibilityCodeEnabled(context, { code, enabled }) {
+      await fetchApi.put(`/api/eligibility-codes/${code}/enable/${enabled}`);
+    },
     fetchKeywords({ commit }) {
       fetchApi.get('/api/keywords')
         .then((data) => commit('SET_KEYWORDS', data));
+    },
+    async createKeyword({ dispatch }, keyword) {
+      await fetchApi.post('/api/keywords', keyword);
+      dispatch('fetchKeywords');
+    },
+    async deleteKeyword({ dispatch }, keywordId) {
+      await fetchApi.deleteRequest(`/api/keywords/${keywordId}`);
+      dispatch('fetchKeywords');
     },
   },
   mutations: {

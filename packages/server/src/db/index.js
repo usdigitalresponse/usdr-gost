@@ -141,9 +141,36 @@ function getElegibilityCodes() {
         .select('*');
 }
 
+function setAgencyEligibilityCodeEnabled(code, agencyId, enabled) {
+    return knex(TABLES.agency_eligibility_codes)
+        .where({
+            agency_id: agencyId,
+            code,
+        })
+        .update({ enabled });
+}
+
 function getKeywords() {
     return knex(TABLES.keywords)
         .select('*');
+}
+
+function createKeyword(keyword) {
+    return knex
+        .insert(keyword)
+        .into(TABLES.keywords)
+        .returning(['id', 'created_at'])
+        .then((response) => ({
+            ...keyword,
+            id: response[0].id,
+            created_at: response[0].created_at,
+        }));
+}
+
+function deleteKeyword(id) {
+    return knex(TABLES.keywords)
+        .where('id', id)
+        .del();
 }
 
 async function getGrants({ currentPage, perPage, filters } = {}) {
@@ -163,21 +190,30 @@ async function getGrants({ currentPage, perPage, filters } = {}) {
     const viewedBy = await knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
-        .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name`);
+        .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
+    const interestedBy = await knex(TABLES.agencies)
+        .join(TABLES.grants_interested, `${TABLES.agencies}.id`, '=', `${TABLES.grants_interested}.agency_id`)
+        .whereIn('grant_id', data.map((grant) => grant.grant_id))
+        .select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
+        const agenciesInterested = interestedBy.filter((intested) => intested.grant_id === grant.grant_id);
         return {
             ...grant,
             viewed_by_agencies: viewedByAgencies,
-            viewed_by_agencies_formatted: viewedByAgencies.map((v) => v.name).join(', '),
+            interested_agencies: agenciesInterested,
         };
     });
     return { data: dataWithAgency, pagination };
 }
 
-function markGrantAsViewed({ grantId, agencyId }) {
+function markGrantAsViewed({ grantId, agencyId, userId }) {
     return knex(TABLES.grants_viewed)
-        .insert({ agency_id: agencyId, grant_id: grantId });
+        .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
+}
+function markGrantAsInterested({ grantId, agencyId, userId }) {
+    return knex(TABLES.grants_interested)
+        .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
 }
 
 function getAgencies() {
@@ -192,7 +228,8 @@ function getAgencyEligibilityCodes(agencyId) {
         .join(TABLES.eligibility_codes, `${TABLES.eligibility_codes}.code`, '=', `${TABLES.agency_eligibility_codes}.code`)
         .select('eligibility_codes.code', 'eligibility_codes.label', 'agency_eligibility_codes.enabled',
             'agency_eligibility_codes.created_at', 'agency_eligibility_codes.updated_at')
-        .where('agencies.id', agencyId);
+        .where('agencies.id', agencyId)
+        .orderBy('code');
 }
 
 function getAgencyKeywords(agencyId) {
@@ -281,10 +318,14 @@ module.exports = {
     markAccessTokenUsed,
     getAgencies,
     getAgencyEligibilityCodes,
+    setAgencyEligibilityCodeEnabled,
     getKeywords,
     getAgencyKeywords,
+    createKeyword,
+    deleteKeyword,
     getGrants,
     markGrantAsViewed,
+    markGrantAsInterested,
     getElegibilityCodes,
     sync,
     getAllRows,

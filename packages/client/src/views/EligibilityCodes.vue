@@ -1,7 +1,13 @@
 <template>
 <section class="container-fluid">
   <h2>Eligibility Codes</h2>
-  <b-table sticky-header="600px" hover :items="eligibilityCodes" :fields="fields"></b-table>
+  <b-table sticky-header="600px" hover :items="eligibilityCodes" :fields="fields">
+    <template #cell(enabled)="data">
+        <b-form-checkbox
+          :checked="data.item.enabled"
+          @input="updateEnabled(data.item.code, $event)"/>
+    </template>
+  </b-table>
 </section>
 </template>
 
@@ -47,7 +53,11 @@ export default {
   methods: {
     ...mapActions({
       fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+      setEligibilityCodeEnabled: 'grants/setEligibilityCodeEnabled',
     }),
+    updateEnabled(code, enabled) {
+      this.setEligibilityCodeEnabled({ code, enabled });
+    },
   },
 };
 </script>

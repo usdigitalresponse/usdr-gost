@@ -3,7 +3,7 @@
   <h2>Grants</h2>
   <b-table
     id="grants-table"
-    sticky-header="600px" hover :items="grants" :fields="fields"
+    sticky-header="600px" hover :items="formattedGrants" :fields="fields"
     selectable
     striped
     select-mode="single"
@@ -59,6 +59,8 @@
     <b-col class="text-right">
       <b-button v-if="alreadyViewed" variant="dark" disabled>Viewed</b-button>
       <b-button v-else variant="outline-success" @click="markGrantAsViewed">Mark as Viewed</b-button>
+      <b-button v-if="interested" variant="dark" disabled>Interested</b-button>
+      <b-button v-else variant="outline-success" @click="markGrantAsInterested">Mark as Interested</b-button>
     </b-col>
   </b-row>
     <h6>Valid from: {{selectedGrant.open_date}}-{{selectedGrant.close_date}}</h6>
@@ -97,7 +99,10 @@ export default {
           key: 'status',
         },
         {
-          key: 'viewed_by_agencies_formatted',
+          key: 'viewed_by_agencies',
+        },
+        {
+          key: 'interested_agencies',
         },
         {
           key: 'agency_code',
@@ -123,6 +128,7 @@ export default {
         },
       ],
       viewedConfirmed: false,
+      interestedConfirmed: false,
       showGrantModal: false,
       selectedGrant: null,
     };
@@ -145,6 +151,19 @@ export default {
       }
       return this.viewedConfirmed || this.selectedGrant.viewed_by_agencies.find((viewed) => viewed.agency_id === this.agency.id);
     },
+    interested() {
+      if (!this.selectedGrant || !this.selectedGrant) {
+        return false;
+      }
+      return this.interestedConfirmed || this.selectedGrant.interested_agencies.find((interested) => interested.agency_id === this.agency.id);
+    },
+    formattedGrants() {
+      return this.grants.map((grant) => ({
+        ...grant,
+        interested_agencies: grant.interested_agencies.map((v) => v.abbreviation).join(', '),
+        viewed_by_agencies: grant.viewed_by_agencies.map((v) => v.abbreviation).join(', '),
+      }));
+    },
   },
   watch: {
     currentPage() {
@@ -155,6 +174,7 @@ export default {
     ...mapActions({
       fetchGrants: 'grants/fetchGrants',
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
+      markGrantAsInterestedAction: 'grants/markGrantAsInterested',
     }),
     async paginatedGrants() {
       try {
@@ -170,6 +190,10 @@ export default {
       await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
       this.viewedConfirmed = true;
     },
+    async markGrantAsInterested() {
+      await this.markGrantAsInterestedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
+      this.interestedConfirmed = true;
+    },
     showModal() {
       this.$refs['my-modal'].show();
     },
@@ -179,13 +203,15 @@ export default {
     onRowSelected(items) {
       const [row] = items;
       if (row) {
-        this.selectedGrant = row;
-        this.showGrantModal = true;
+        const grant = this.grants.find((g) => row.grant_id === g.grant_id);
+        this.selectedGrant = grant;
+        this.showGrantModal = Boolean(grant);
       }
     },
     resetSelectedGrant() {
       this.showGrantModal = false;
       this.viewedConfirmed = false;
+      this.interestedConfirmed = false;
       this.selectedGrant = null;
     },
   },

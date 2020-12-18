@@ -1,20 +1,17 @@
 const express = require('express');
 
 const router = express.Router();
-const {
-    getGrants, markGrantAsViewed, getUser, getAgencyEligibilityCodes, getAgencyKeywords,
-} = require('../db');
+const db = require('../db');
 
 router.get('/', async (req, res) => {
-    const user = await getUser(req.signedCookies.userId);
-    const eligibilityCodes = await getAgencyEligibilityCodes(user.agency.id);
-    const keywords = await getAgencyKeywords(user.agency.id);
-    console.log({ user });
-    console.log({ eligibilityCodes, keywords });
-    const grants = await getGrants({
+    const user = await db.getUser(req.signedCookies.userId);
+    const eligibilityCodes = await db.getAgencyEligibilityCodes(user.agency.id, { enabled: true });
+    const enabledECodes = eligibilityCodes.filter((e) => e.enabled);
+    const keywords = await db.getAgencyKeywords(user.agency.id);
+    const grants = await db.getGrants({
         ...req.query,
         filters: {
-            eligibilityCodes: eligibilityCodes.map((c) => c.code),
+            eligibilityCodes: enabledECodes.map((c) => c.code),
             keywords: keywords.map((c) => c.search_term),
         },
     });
@@ -22,8 +19,16 @@ router.get('/', async (req, res) => {
 });
 
 router.put('/:grantId/view/:agencyId', async (req, res) => {
+    const user = await db.getUser(req.signedCookies.userId);
     const { agencyId, grantId } = req.params;
-    await markGrantAsViewed({ grantId, agencyId });
+    await db.markGrantAsViewed({ grantId, agencyId, userId: user.id });
+    res.json({});
+});
+
+router.put('/:grantId/interested/:agencyId', async (req, res) => {
+    const user = await db.getUser(req.signedCookies.userId);
+    const { agencyId, grantId } = req.params;
+    await db.markGrantAsInterested({ grantId, agencyId, userId: user.id });
     res.json({});
 });
 

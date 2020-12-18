@@ -5,8 +5,6 @@ const { requireAdminUser } = require('../lib/access-helpers');
 const db = require('../db');
 
 router.post('/', requireAdminUser, (req, res, next) => {
-    console.log('POST /users');
-    console.log(req.body);
     if (!req.body.email) {
         res.status(400).send('User email is required');
         return;
