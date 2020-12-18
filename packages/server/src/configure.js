@@ -9,7 +9,6 @@ const history = require('connect-history-api-fallback');
 const { resolve } = require('path');
 
 const publicPath = resolve(__dirname, '../../client/dist');
-const staticConf = { maxAge: '1y', etag: false };
 
 module.exports = (app) => {
     app.use(cors({
@@ -35,7 +34,21 @@ module.exports = (app) => {
     app.use('/api/keywords', require('./routes/keywords'));
     app.use('/api/refresh', require('./routes/refresh'));
 
-    const staticMiddleware = express.static(publicPath, staticConf);
+    const staticMiddleware = express.static(publicPath, {
+        etag: true,
+        lastModified: true,
+        setHeaders: (res, path) => {
+            const hashRegExp = new RegExp('\\.[0-9a-f]{8}\\.');
+
+            if (path.endsWith('.html')) {
+                // All of the project's HTML files end in .html
+                res.setHeader('Cache-Control', 'no-cache');
+            } else if (hashRegExp.test(path)) {
+                // If the RegExp matched, then we have a versioned URL.
+                res.setHeader('Cache-Control', 'max-age=31536000');
+            }
+        },
+    });
     app.use(staticMiddleware);
     app.use(
         history({

@@ -9,11 +9,20 @@
     select-mode="single"
     :table-busy="loading"
     @row-selected="onRowSelected"/>
-  <b-pagination
-      v-model="currentPage"
-      :total-rows="totalRows"
-      :per-page="perPage"
-      aria-controls="grants-table"/>
+    <b-row align-v="center">
+      <b-pagination class="m-0"
+        v-model="currentPage"
+        :total-rows="totalRows"
+        :per-page="perPage"
+        first-number
+        last-number
+        first-text="First"
+        prev-text="Prev"
+        next-text="Next"
+        last-text="Last"
+        aria-controls="grants-table"/>
+        <b-button class="ml-2" variant="outline-primary disabled">{{grants.length}} of {{totalRows}}</b-button>
+    </b-row>
    <!-- Info modal -->
   <b-modal v-model="showGrantModal"
     ok-only
@@ -57,8 +66,6 @@
       <h3>{{selectedGrant.grant_number}}</h3>
     </b-col>
     <b-col class="text-right">
-      <b-button v-if="alreadyViewed" variant="dark" disabled>Viewed</b-button>
-      <b-button v-else variant="outline-success" @click="markGrantAsViewed">Mark as Viewed</b-button>
       <b-button v-if="interested" variant="dark" disabled>Interested</b-button>
       <b-button v-else variant="outline-success" @click="markGrantAsInterested">Mark as Interested</b-button>
     </b-col>
@@ -99,7 +106,7 @@ export default {
           key: 'status',
         },
         {
-          key: 'viewed_by_agencies',
+          key: 'viewed_by',
         },
         {
           key: 'interested_agencies',
@@ -161,13 +168,18 @@ export default {
       return this.grants.map((grant) => ({
         ...grant,
         interested_agencies: grant.interested_agencies.map((v) => v.abbreviation).join(', '),
-        viewed_by_agencies: grant.viewed_by_agencies.map((v) => v.abbreviation).join(', '),
+        viewed_by: grant.viewed_by_agencies.map((v) => v.abbreviation).join(', '),
       }));
     },
   },
   watch: {
     currentPage() {
       this.paginatedGrants();
+    },
+    async alreadyViewed() {
+      if (!this.alreadyViewed && this.selectedGrant) {
+        await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
+      }
     },
   },
   methods: {
@@ -188,17 +200,10 @@ export default {
     },
     async markGrantAsViewed() {
       await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
-      this.viewedConfirmed = true;
     },
     async markGrantAsInterested() {
       await this.markGrantAsInterestedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
       this.interestedConfirmed = true;
-    },
-    showModal() {
-      this.$refs['my-modal'].show();
-    },
-    hideModal() {
-      this.$refs['my-modal'].hide();
     },
     onRowSelected(items) {
       const [row] = items;
@@ -213,6 +218,7 @@ export default {
       this.viewedConfirmed = false;
       this.interestedConfirmed = false;
       this.selectedGrant = null;
+      this.paginatedGrants();
     },
   },
 };
