@@ -8,12 +8,14 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
 
-        <b-nav-text>{{agency ? agency.name : ''}}</b-nav-text>
+        <b-nav-text>
+          <b-badge>{{agency ? agency.name : ''}}</b-badge>
+        </b-nav-text>
 
         <b-nav-item-dropdown right v-if="loggedInUser">
           <!-- Using 'button-content' slot -->
           <template #button-content>
-            <em>User</em>
+            <em>{{loggedInUser.email}}</em>
           </template>
           <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
         </b-nav-item-dropdown>

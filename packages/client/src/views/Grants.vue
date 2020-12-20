@@ -35,44 +35,21 @@
     footer-bg-variant="dark"
     footer-text-variant="light">
     <div v-if="selectedGrant">
-          <b-row>
-      <!-- {
-  "grant_id": "328943",
-  "grant_number": "HRSA-21-023",
-  "title": "National Telehealth Resource Center Program",
-  "status": "inbox",
-  "agency_code": "HHS-HRSA",
-  "award_ceiling": "325000",
-  "cost_sharing": "No",
-  "cfda_list": "93.211",
-  "open_date": "10/23/2020",
-  "close_date": "01/21/2021",
-  "reviewer_name": "none",
-  "opportunity_category": "Discretionary",
-  "search_terms": "Covid [in title/desc]\nCOVID-19 [in title/desc]\n",
-  "notes": "auto-inserted by script",
-  "created_at": "2020-10-27T01:21:39.100Z",
-  "updated_at": "2020-10-31T00:53:37.407Z",
-  "viewed_by_agencies": [
-    {
-      "grant_id": "328943",
-      "agency_id": 1,
-      "name": "department of health"
-    }
-  ],
-  "viewed_by_agencies_formatted": "department of health"
-} -->
-    <b-col>
-      <h3>{{selectedGrant.grant_number}}</h3>
-    </b-col>
-    <b-col class="text-right">
-      <b-button v-if="interested" variant="dark" disabled>Interested</b-button>
-      <b-button v-else variant="outline-success" @click="markGrantAsInterested">Mark as Interested</b-button>
-    </b-col>
-  </b-row>
-    <h6>Valid from: {{selectedGrant.open_date}}-{{selectedGrant.close_date}}</h6>
-    <br/>
-    <pre>{{ selectedGrant }}</pre>
+      <b-row>
+        <b-col>
+          <h3>{{selectedGrant.grant_number}}</h3>
+        </b-col>
+        <b-col class="text-right">
+          <b-button v-if="interested" variant="dark" disabled>Interested</b-button>
+          <b-button v-else variant="outline-success" @click="markGrantAsInterested">Mark as Interested</b-button>
+        </b-col>
+      </b-row>
+      <h6>Valid from: {{selectedGrant.open_date}}-{{selectedGrant.close_date}}</h6>
+      <div v-for="field in dialogFields" :key="field">
+        <p><span style="font-weight:bold">{{titleize(field)}}</span>: {{selectedGrant[field]}}</p>
+      </div>
+      <h6>Description</h6>
+      <p>{{removeTags(selectedGrant.description)}}</p>
     </div>
   </b-modal>
 </section>
@@ -81,6 +58,8 @@
 <script>
 
 import { mapActions, mapGetters } from 'vuex';
+
+import { titleize } from '@/helpers/form-helpers';
 
 export default {
   components: {
@@ -102,9 +81,9 @@ export default {
         {
           key: 'title',
         },
-        {
-          key: 'status',
-        },
+        // {
+        //   key: 'status',
+        // },
         {
           key: 'viewed_by',
         },
@@ -121,12 +100,13 @@ export default {
           key: 'open_date',
         },
         {
+          key: 'close_date',
+        },
+        {
           key: 'opportunity_category',
         },
-        { key: 'search_terms' },
-        { key: 'notes' },
-        { key: 'created_at' },
-        { key: 'updated_at' },
+        // { key: 'search_terms' },
+        // { key: 'notes' },
         {
           key: 'created_at',
         },
@@ -138,6 +118,7 @@ export default {
       interestedConfirmed: false,
       showGrantModal: false,
       selectedGrant: null,
+      dialogFields: ['grant_id', 'agency_code', 'award_ceiling', 'cfda_list', 'opportunity_category'],
     };
   },
   mounted() {
@@ -169,6 +150,8 @@ export default {
         ...grant,
         interested_agencies: grant.interested_agencies.map((v) => v.abbreviation).join(', '),
         viewed_by: grant.viewed_by_agencies.map((v) => v.abbreviation).join(', '),
+        created_at: new Date(grant.created_at).toLocaleString(),
+        updated_at: new Date(grant.updated_at).toLocaleString(),
       }));
     },
   },
@@ -188,6 +171,7 @@ export default {
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
     }),
+    titleize,
     async paginatedGrants() {
       try {
         this.loading = true;
@@ -219,6 +203,9 @@ export default {
       this.interestedConfirmed = false;
       this.selectedGrant = null;
       this.paginatedGrants();
+    },
+    removeTags(str) {
+      return str.replace(/(<([^>]+)>)/ig, '').replace(/&nbsp;/, '');
     },
   },
 };

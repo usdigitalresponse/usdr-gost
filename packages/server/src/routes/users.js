@@ -2,6 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 const { requireAdminUser } = require('../lib/access-helpers');
+const { sendWelcomeEmail } = require('../lib/email');
 const db = require('../db');
 
 router.post('/', requireAdminUser, (req, res, next) => {
@@ -17,6 +18,7 @@ router.post('/', requireAdminUser, (req, res, next) => {
     };
     db.createUser(user)
         .then((result) => res.json({ user: result }))
+        .then(() => sendWelcomeEmail(user.email, req.headers.origin))
         .catch((e) => {
             if (e.message.match(/violates unique constraint/)) {
                 res.status(400).send('User with that email already exists');

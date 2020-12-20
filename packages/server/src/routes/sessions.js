@@ -1,5 +1,6 @@
 const express = require('express');
 const _ = require('lodash-checkit');
+const { sendPasscode } = require('../lib/email');
 
 const router = express.Router();
 const {
@@ -8,7 +9,6 @@ const {
     createAccessToken,
     markAccessTokenUsed,
 } = require('../db');
-// const { sendPasscode } = require('../lib/email');
 
 router.get('/', (req, res) => {
     const { passcode } = req.query;
@@ -33,7 +33,7 @@ router.get('/', (req, res) => {
 
 router.get('/logout', (req, res) => {
     res.clearCookie('userId');
-    res.redirect('/login');
+    res.json({});
 });
 
 router.post('/', async (req, res, next) => {
@@ -49,12 +49,9 @@ router.post('/', async (req, res, next) => {
     try {
         const passcode = await createAccessToken(email);
         const apiDomain = process.env.API_DOMAIN || req.headers.origin;
-        // await sendPasscode(email, passcode, websiteDomain);
+        await sendPasscode(email, passcode, apiDomain);
         res.json({
             success: true,
-            // REMOVE ME, for debugging purposes until we get sendgrid api key
-            passcode,
-            link: `${apiDomain}/api/sessions?passcode=${passcode}`,
             message: `Email sent to ${email}. Check your inbox`,
         });
     } catch (e) {

@@ -13,14 +13,14 @@ const routes = [
     name: 'Login',
     component: Login,
   },
-  {
-    path: '/',
-    name: 'Home',
-    component: () => import('../views/Home.vue'),
-    meta: {
-      requiresAuth: true,
-    },
-  },
+  // {
+  //   path: '/',
+  //   name: 'Home',
+  //   component: () => import('../views/Home.vue'),
+  //   meta: {
+  //     requiresAuth: true,
+  //   },
+  // },
   {
     path: '/grants',
     name: 'Grants',
@@ -57,6 +57,14 @@ const routes = [
     path: '/agencies',
     name: 'Agencies',
     component: () => import('../views/Agencies.vue'),
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '*',
+    name: 'Grants',
+    component: () => import('../views/Grants.vue'),
     meta: {
       requiresAuth: true,
     },
