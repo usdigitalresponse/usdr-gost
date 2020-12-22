@@ -25,6 +25,7 @@ async function syncGrants(hits) {
         opportunity_category: hit.opportunityCategory,
         description: hit.description,
         eligibility_codes: hit.eligibilityCodes,
+        opportunity_status: hit.oppStatus,
         raw_body: hit.rawBody,
     }));
     await db.sync(
@@ -38,6 +39,7 @@ async function syncGrants(hits) {
             'opportunity_category',
             'eligibility_codes',
             'description',
+            'opportunity_status',
             'raw_body',
         ],
         rows,
