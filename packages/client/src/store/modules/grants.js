@@ -18,8 +18,8 @@ export default {
     keywords: (state) => state.keywords,
   },
   actions: {
-    fetchGrants({ commit }, { currentPage, perPage }) {
-      fetchApi.get(`/api/grants?currentPage=${currentPage}&perPage=${perPage}`)
+    fetchGrants({ commit }, { currentPage, perPage, orderBy }) {
+      fetchApi.get(`/api/grants?currentPage=${currentPage}&perPage=${perPage}&orderBy=${orderBy}`)
         .then((data) => commit('SET_GRANTS', data));
     },
     markGrantAsViewed(context, { grantId, agencyId }) {

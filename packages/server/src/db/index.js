@@ -173,7 +173,9 @@ function deleteKeyword(id) {
         .del();
 }
 
-async function getGrants({ currentPage, perPage, filters } = {}) {
+async function getGrants({
+    currentPage, perPage, filters, orderBy,
+} = {}) {
     const { data, pagination } = await knex(TABLES.grants)
         .select('*')
         .modify((queryBuilder) => {
@@ -184,6 +186,10 @@ async function getGrants({ currentPage, perPage, filters } = {}) {
                 if (filters.keywords) {
                     queryBuilder.where('description', '~', filters.keywords.join('|'));
                 }
+            }
+            if (orderBy && orderBy !== 'undefined') {
+                const orderArgs = orderBy.split('|');
+                queryBuilder.orderBy(...orderArgs);
             }
         })
         .paginate({ currentPage, perPage, isLengthAware: true });

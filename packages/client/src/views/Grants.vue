@@ -8,7 +8,9 @@
     striped
     select-mode="single"
     :table-busy="loading"
-    @row-selected="onRowSelected"/>
+    no-local-sorting
+    @row-selected="onRowSelected"
+    @sort-changed="sortingChanged"/>
     <b-row align-v="center">
       <b-pagination class="m-0"
         v-model="currentPage"
@@ -81,9 +83,6 @@ export default {
         {
           key: 'title',
         },
-        // {
-        //   key: 'status',
-        // },
         {
           key: 'viewed_by',
         },
@@ -97,13 +96,20 @@ export default {
           key: 'cost_sharing',
         },
         {
-          key: 'open_date',
+          // key: 'open_date',
+          key: 'posted_date',
+          sortable: true,
         },
         {
           key: 'close_date',
+          sortable: true,
         },
         {
           key: 'opportunity_category',
+        },
+        {
+          // opportunity_status
+          key: 'status',
         },
         // { key: 'search_terms' },
         // { key: 'notes' },
@@ -150,6 +156,9 @@ export default {
         ...grant,
         interested_agencies: grant.interested_agencies.map((v) => v.abbreviation).join(', '),
         viewed_by: grant.viewed_by_agencies.map((v) => v.abbreviation).join(', '),
+        status: grant.opportunity_status,
+        posted_date: new Date(grant.open_date).toLocaleDateString('en-US'),
+        close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
         created_at: new Date(grant.created_at).toLocaleString(),
         updated_at: new Date(grant.updated_at).toLocaleString(),
       }));
@@ -172,15 +181,18 @@ export default {
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
     }),
     titleize,
-    async paginatedGrants() {
+    async paginatedGrants({ orderBy } = {}) {
       try {
         this.loading = true;
-        this.fetchGrants({ perPage: this.perPage, currentPage: this.currentPage });
+        this.fetchGrants({ perPage: this.perPage, currentPage: this.currentPage, orderBy });
       } catch (e) {
         console.log(e);
       } finally {
         this.loading = false;
       }
+    },
+    sortingChanged(ctx) {
+      this.paginatedGrants({ orderBy: `${ctx.sortBy}|${ctx.sortDesc ? 'desc' : 'asc'}` });
     },
     async markGrantAsViewed() {
       await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
