@@ -48,7 +48,7 @@
           <b-button v-else variant="outline-success" @click="markGrantAsInterested">Mark as Interested</b-button>
         </b-col>
       </b-row>
-      <h6>Valid from: {{selectedGrant.open_date}}-{{selectedGrant.close_date}}</h6>
+      <h6>Valid from: {{new Date(selectedGrant.open_date).toLocaleDateString('en-US')}}-{{new Date(selectedGrant.close_date).toLocaleDateString('en-US')}}</h6>
       <div v-for="field in dialogFields" :key="field">
         <p><span style="font-weight:bold">{{titleize(field)}}</span>: {{selectedGrant[field]}}</p>
       </div>
