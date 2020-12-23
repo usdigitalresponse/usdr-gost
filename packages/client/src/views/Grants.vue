@@ -10,7 +10,8 @@
     :table-busy="loading"
     no-local-sorting
     @row-selected="onRowSelected"
-    @sort-changed="sortingChanged"/>
+    @sort-changed="sortingChanged">
+  </b-table>
     <b-row align-v="center">
       <b-pagination class="m-0"
         v-model="currentPage"
@@ -30,6 +31,7 @@
     ok-only
     :title="selectedGrant && selectedGrant.title"
     @hide="resetSelectedGrant"
+    scrollable
     header-bg-variant="primary"
     header-text-variant="light"
     body-bg-variant="light"
@@ -51,7 +53,9 @@
         <p><span style="font-weight:bold">{{titleize(field)}}</span>: {{selectedGrant[field]}}</p>
       </div>
       <h6>Description</h6>
-      <p>{{removeTags(selectedGrant.description)}}</p>
+      <div style="max-height: 170px; overflow-y: scroll">
+        <p>{{removeTags(selectedGrant.description)}}</p>
+      </div>
     </div>
   </b-modal>
 </section>
@@ -96,8 +100,8 @@ export default {
           key: 'cost_sharing',
         },
         {
-          // key: 'open_date',
-          key: 'posted_date',
+          label: 'Posted Date',
+          key: 'open_date',
           sortable: true,
         },
         {
@@ -111,8 +115,6 @@ export default {
           // opportunity_status
           key: 'status',
         },
-        // { key: 'search_terms' },
-        // { key: 'notes' },
         {
           key: 'created_at',
         },
@@ -125,6 +127,7 @@ export default {
       showGrantModal: false,
       selectedGrant: null,
       dialogFields: ['grant_id', 'agency_code', 'award_ceiling', 'cfda_list', 'opportunity_category'],
+      orderBy: '',
     };
   },
   mounted() {
@@ -157,7 +160,7 @@ export default {
         interested_agencies: grant.interested_agencies.map((v) => v.abbreviation).join(', '),
         viewed_by: grant.viewed_by_agencies.map((v) => v.abbreviation).join(', '),
         status: grant.opportunity_status,
-        posted_date: new Date(grant.open_date).toLocaleDateString('en-US'),
+        open_date: new Date(grant.open_date).toLocaleDateString('en-US'),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
         created_at: new Date(grant.created_at).toLocaleString(),
         updated_at: new Date(grant.updated_at).toLocaleString(),
@@ -166,6 +169,9 @@ export default {
   },
   watch: {
     currentPage() {
+      this.paginatedGrants();
+    },
+    orderBy() {
       this.paginatedGrants();
     },
     async alreadyViewed() {
@@ -181,10 +187,10 @@ export default {
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
     }),
     titleize,
-    async paginatedGrants({ orderBy } = {}) {
+    async paginatedGrants() {
       try {
         this.loading = true;
-        this.fetchGrants({ perPage: this.perPage, currentPage: this.currentPage, orderBy });
+        this.fetchGrants({ perPage: this.perPage, currentPage: this.currentPage, orderBy: this.orderBy });
       } catch (e) {
         console.log(e);
       } finally {
@@ -192,7 +198,8 @@ export default {
       }
     },
     sortingChanged(ctx) {
-      this.paginatedGrants({ orderBy: `${ctx.sortBy}|${ctx.sortDesc ? 'desc' : 'asc'}` });
+      this.orderBy = `${ctx.sortBy}|${ctx.sortDesc ? 'desc' : 'asc'}`;
+      this.currentPage = 1;
     },
     async markGrantAsViewed() {
       await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
@@ -217,7 +224,7 @@ export default {
       this.paginatedGrants();
     },
     removeTags(str) {
-      return str.replace(/(<([^>]+)>)/ig, '').replace(/&nbsp;/, '');
+      return str.replace(/(<([^>]+)>)/ig, '').replace(/&nbsp;/ig, '');
     },
   },
 };
