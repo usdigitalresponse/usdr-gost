@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
@@ -188,19 +189,28 @@ async function getGrants({
                 }
             }
             if (orderBy && orderBy !== 'undefined') {
-                const orderArgs = orderBy.split('|');
-                queryBuilder.orderBy(...orderArgs);
+                if (orderBy.includes('interested_agencies')) {
+                    queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
+                    queryBuilder.distinct(`${TABLES.grants}.grant_id`);
+                    const orderArgs = orderBy.split('|');
+                    queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
+                } else if (orderBy.includes('viewed_by')) {
+                    queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
+                    queryBuilder.distinct(`${TABLES.grants}.grant_id`);
+                    const orderArgs = orderBy.split('|');
+                    queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
+                } else {
+                    const orderArgs = orderBy.split('|');
+                    queryBuilder.orderBy(...orderArgs);
+                }
             }
         })
         .paginate({ currentPage, perPage, isLengthAware: true });
     const viewedBy = await knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
-        .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
-    const interestedBy = await knex(TABLES.agencies)
-        .join(TABLES.grants_interested, `${TABLES.agencies}.id`, '=', `${TABLES.grants_interested}.agency_id`)
-        .whereIn('grant_id', data.map((grant) => grant.grant_id))
-        .select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
+        .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
+    const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id) });
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
         const agenciesInterested = interestedBy.filter((intested) => intested.grant_id === grant.grant_id);
@@ -217,6 +227,16 @@ function markGrantAsViewed({ grantId, agencyId, userId }) {
     return knex(TABLES.grants_viewed)
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
 }
+function getInterestedAgencies({ grantIds }) {
+    return knex(TABLES.agencies)
+        .join(TABLES.grants_interested, `${TABLES.agencies}.id`, '=', `${TABLES.grants_interested}.agency_id`)
+        .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.grants_interested}.user_id`)
+        .whereIn('grant_id', grantIds)
+        .select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
+            `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+            `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`);
+}
+
 function markGrantAsInterested({ grantId, agencyId, userId }) {
     return knex(TABLES.grants_interested)
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
@@ -331,6 +351,7 @@ module.exports = {
     deleteKeyword,
     getGrants,
     markGrantAsViewed,
+    getInterestedAgencies,
     markGrantAsInterested,
     getElegibilityCodes,
     sync,

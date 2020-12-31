@@ -32,6 +32,7 @@
     :title="selectedGrant && selectedGrant.title"
     @hide="resetSelectedGrant"
     scrollable
+    size="lg"
     header-bg-variant="primary"
     header-text-variant="light"
     body-bg-variant="light"
@@ -39,23 +40,30 @@
     footer-bg-variant="dark"
     footer-text-variant="light">
     <div v-if="selectedGrant">
+      <h3>{{selectedGrant.grant_number}}</h3>
+      <p><span style="font-weight:bold">Valid from:</span> {{new Date(selectedGrant.open_date).toLocaleDateString('en-US')}}-{{new Date(selectedGrant.close_date).toLocaleDateString('en-US')}}</p>
+      <div v-for="field in dialogFields" :key="field">
+        <p><span style="font-weight:bold">{{titleize(field)}}:</span> {{selectedGrant[field]}}</p>
+      </div>
+      <h6>Description</h6>
+      <div style="max-height: 170px; overflow-y: scroll">
+        <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
+      </div>
+      <br/>
       <b-row>
         <b-col>
-          <h3>{{selectedGrant.grant_number}}</h3>
+          <h4>Interested Agencies</h4>
         </b-col>
         <b-col class="text-right">
           <b-button v-if="interested" variant="dark" disabled>Interested</b-button>
           <b-button v-else variant="outline-success" @click="markGrantAsInterested">Mark as Interested</b-button>
         </b-col>
       </b-row>
-      <h6>Valid from: {{new Date(selectedGrant.open_date).toLocaleDateString('en-US')}}-{{new Date(selectedGrant.close_date).toLocaleDateString('en-US')}}</h6>
-      <div v-for="field in dialogFields" :key="field">
-        <p><span style="font-weight:bold">{{titleize(field)}}</span>: {{selectedGrant[field]}}</p>
-      </div>
-      <h6>Description</h6>
-      <div style="max-height: 170px; overflow-y: scroll">
-        <p>{{removeTags(selectedGrant.description)}}</p>
-      </div>
+      <br/>
+      <b-table
+        :items="selectedGrant.interested_agencies"
+        :fields="interestedAgenciesFields"
+      />
     </div>
   </b-modal>
 </section>
@@ -89,9 +97,11 @@ export default {
         },
         {
           key: 'viewed_by',
+          sortable: true,
         },
         {
           key: 'interested_agencies',
+          sortable: true,
         },
         {
           key: 'agency_code',
@@ -122,15 +132,31 @@ export default {
           key: 'updated_at',
         },
       ],
-      viewedConfirmed: false,
-      interestedConfirmed: false,
       showGrantModal: false,
       selectedGrant: null,
+      selectedGrantIndex: null,
       dialogFields: ['grant_id', 'agency_code', 'award_ceiling', 'cfda_list', 'opportunity_category'],
       orderBy: '',
+      interestedAgenciesFields: [
+        {
+          key: 'agency_name',
+        },
+        {
+          key: 'agency_abbreviation',
+        },
+        {
+          label: 'Name',
+          key: 'user_name',
+        },
+        {
+          label: 'Email',
+          key: 'user_email',
+        },
+      ],
     };
   },
   mounted() {
+    document.addEventListener('keyup', this.changeSelectedGrantIndex);
     this.paginatedGrants();
   },
   computed: {
@@ -142,23 +168,26 @@ export default {
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
     },
+    lastPage() {
+      return this.grantsPagination ? this.grantsPagination.lastPage : 0;
+    },
     alreadyViewed() {
-      if (!this.selectedGrant || !this.selectedGrant) {
+      if (!this.selectedGrant) {
         return false;
       }
-      return this.viewedConfirmed || this.selectedGrant.viewed_by_agencies.find((viewed) => viewed.agency_id === this.agency.id);
+      return this.selectedGrant.viewed_by_agencies.find((viewed) => viewed.agency_id === this.agency.id);
     },
     interested() {
-      if (!this.selectedGrant || !this.selectedGrant) {
+      if (!this.selectedGrant) {
         return false;
       }
-      return this.interestedConfirmed || this.selectedGrant.interested_agencies.find((interested) => interested.agency_id === this.agency.id);
+      return this.selectedGrant.interested_agencies.find((interested) => interested.agency_id === this.agency.id);
     },
     formattedGrants() {
       return this.grants.map((grant) => ({
         ...grant,
-        interested_agencies: grant.interested_agencies.map((v) => v.abbreviation).join(', '),
-        viewed_by: grant.viewed_by_agencies.map((v) => v.abbreviation).join(', '),
+        interested_agencies: grant.interested_agencies.map((v) => v.agency_abbreviation).join(', '),
+        viewed_by: grant.viewed_by_agencies.map((v) => v.agency_abbreviation).join(', '),
         status: grant.opportunity_status,
         open_date: new Date(grant.open_date).toLocaleDateString('en-US'),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
@@ -174,10 +203,19 @@ export default {
     orderBy() {
       this.paginatedGrants();
     },
-    async alreadyViewed() {
-      if (!this.alreadyViewed && this.selectedGrant) {
-        await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
+    async selectedGrant() {
+      if (this.selectedGrant) {
+        if (!this.alreadyViewed) {
+          this.markGrantAsViewed();
+        }
       }
+    },
+    selectedGrantIndex() {
+      this.changeSelectedGrant();
+    },
+    // when we fetch grants, refresh selectedGrant reference
+    grants() {
+      this.changeSelectedGrant();
     },
   },
   methods: {
@@ -203,28 +241,57 @@ export default {
     },
     async markGrantAsViewed() {
       await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
+      await this.paginatedGrants();
     },
     async markGrantAsInterested() {
       await this.markGrantAsInterestedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
-      this.interestedConfirmed = true;
+      await this.paginatedGrants();
     },
     onRowSelected(items) {
       const [row] = items;
       if (row) {
         const grant = this.grants.find((g) => row.grant_id === g.grant_id);
         this.selectedGrant = grant;
+        this.selectedGrantIndex = this.grants.findIndex((g) => row.grant_id === g.grant_id);
         this.showGrantModal = Boolean(grant);
       }
     },
     resetSelectedGrant() {
       this.showGrantModal = false;
-      this.viewedConfirmed = false;
-      this.interestedConfirmed = false;
       this.selectedGrant = null;
-      this.paginatedGrants();
     },
-    removeTags(str) {
-      return str.replace(/(<([^>]+)>)/ig, '').replace(/&nbsp;/ig, '');
+    changeSelectedGrant() {
+      if (this.showGrantModal) {
+        const grant = this.grants[this.selectedGrantIndex];
+        this.onRowSelected([grant]);
+      }
+    },
+    changeSelectedGrantIndex(event) {
+      if (event.keyCode === 37) {
+        // left key
+        if (this.currentPage === 1 && this.selectedGrantIndex === 0) {
+          return;
+        }
+        if (this.currentPage !== 1 && this.selectedGrantIndex === 0) {
+          // fetch previous page of grants
+          this.currentPage -= 1;
+          this.selectedGrantIndex = 0;
+          return;
+        }
+        this.selectedGrantIndex -= 1;
+      } else if (event.keyCode === 39) {
+        // right key
+        if (this.currentPage === this.lastPage) {
+          return;
+        }
+        if (this.selectedGrantIndex + 1 === this.perPage) {
+          // fetch next page of grants
+          this.currentPage += 1;
+          this.selectedGrantIndex = 0;
+          return;
+        }
+        this.selectedGrantIndex += 1;
+      }
     },
   },
 };

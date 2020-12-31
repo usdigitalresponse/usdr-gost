@@ -23,10 +23,13 @@ export default {
         .then((data) => commit('SET_GRANTS', data));
     },
     markGrantAsViewed(context, { grantId, agencyId }) {
-      fetchApi.put(`/api/grants/${grantId}/view/${agencyId}`);
+      return fetchApi.put(`/api/grants/${grantId}/view/${agencyId}`);
+    },
+    fetchInterestedAgencies(context, { grantId }) {
+      return fetchApi.get(`/api/grants/${grantId}/interested`);
     },
     markGrantAsInterested(context, { grantId, agencyId }) {
-      fetchApi.put(`/api/grants/${grantId}/interested/${agencyId}`);
+      return fetchApi.put(`/api/grants/${grantId}/interested/${agencyId}`);
     },
     fetchEligibilityCodes({ commit }) {
       fetchApi.get('/api/eligibility-codes')

@@ -25,6 +25,12 @@ router.put('/:grantId/view/:agencyId', async (req, res) => {
     res.json({});
 });
 
+router.get('/:grantId/interested', async (req, res) => {
+    const { grantId } = req.params;
+    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId] });
+    res.json(interestedAgencies);
+});
+
 router.put('/:grantId/interested/:agencyId', async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
     const { agencyId, grantId } = req.params;
