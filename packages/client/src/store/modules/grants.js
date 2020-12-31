@@ -19,7 +19,7 @@ export default {
   },
   actions: {
     fetchGrants({ commit }, { currentPage, perPage, orderBy }) {
-      fetchApi.get(`/api/grants?currentPage=${currentPage}&perPage=${perPage}&orderBy=${orderBy}`)
+      return fetchApi.get(`/api/grants?currentPage=${currentPage}&perPage=${perPage}&orderBy=${orderBy}`)
         .then((data) => commit('SET_GRANTS', data));
     },
     markGrantAsViewed(context, { grantId, agencyId }) {

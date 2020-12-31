@@ -178,7 +178,7 @@ async function getGrants({
     currentPage, perPage, filters, orderBy,
 } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
-        .select('*')
+        .select(`${TABLES.grants}.*`)
         .modify((queryBuilder) => {
             if (filters) {
                 if (filters.eligibilityCodes) {
@@ -191,14 +191,16 @@ async function getGrants({
             if (orderBy && orderBy !== 'undefined') {
                 if (orderBy.includes('interested_agencies')) {
                     queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
-                    queryBuilder.distinct(`${TABLES.grants}.grant_id`);
+                    queryBuilder.distinctOn(`${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
                     const orderArgs = orderBy.split('|');
                     queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
+                    queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
                 } else if (orderBy.includes('viewed_by')) {
                     queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
-                    queryBuilder.distinct(`${TABLES.grants}.grant_id`);
+                    queryBuilder.distinctOn(`${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
                     const orderArgs = orderBy.split('|');
                     queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
+                    queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
                 } else {
                     const orderArgs = orderBy.split('|');
                     queryBuilder.orderBy(...orderArgs);

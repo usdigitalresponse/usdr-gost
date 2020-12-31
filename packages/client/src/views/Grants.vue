@@ -7,10 +7,16 @@
     selectable
     striped
     select-mode="single"
-    :table-busy="loading"
+    :busy="loading"
     no-local-sorting
     @row-selected="onRowSelected"
     @sort-changed="sortingChanged">
+    <template #table-busy>
+      <div class="text-center text-danger my-2">
+        <b-spinner class="align-middle"></b-spinner>
+        <strong> Loading...</strong>
+      </div>
+    </template>
   </b-table>
     <b-row align-v="center">
       <b-pagination class="m-0"
@@ -228,7 +234,7 @@ export default {
     async paginatedGrants() {
       try {
         this.loading = true;
-        this.fetchGrants({ perPage: this.perPage, currentPage: this.currentPage, orderBy: this.orderBy });
+        await this.fetchGrants({ perPage: this.perPage, currentPage: this.currentPage, orderBy: this.orderBy });
       } catch (e) {
         console.log(e);
       } finally {
