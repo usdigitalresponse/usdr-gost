@@ -20,6 +20,7 @@ fetchApi.get('/api/sessions')
   .then((data) => {
     if (data && data.user) {
       store.dispatch('users/login', data.user);
+      store.dispatch('grants/fetchInterestedCodes');
     }
     new Vue({
       router,
@@ -28,5 +29,6 @@ fetchApi.get('/api/sessions')
     }).$mount('#app');
   })
   .catch((e) => {
+    store.dispatch('users/logout');
     console.log(e);
   });

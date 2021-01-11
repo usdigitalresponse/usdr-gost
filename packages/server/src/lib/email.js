@@ -13,12 +13,12 @@ function sendPasscode(email, passcode, httpOrigin) {
         Message: {
             Subject: {
                 Charset: 'UTF-8',
-                Data: 'CARES Grants Access Link',
+                Data: 'Nevada Grant Notification and Coordination Tool Access Link',
             },
             Body: {
                 Html: {
                     Charset: 'UTF-8',
-                    Data: `<p>Your link to access the CARES Grants is
+                    Data: `<p>Your link to access the Nevada Grant Notification and Coordination Tool is
      <a href="${httpOrigin}/api/sessions?passcode=${passcode}">${httpOrigin}/api/sessions/?passcode=${passcode}</a>.
      It expires in ${expiryMinutes} minutes</p>`,
                 },

@@ -5,7 +5,7 @@ const { requireAdminUser } = require('../lib/access-helpers');
 const { sendWelcomeEmail } = require('../lib/email');
 const db = require('../db');
 
-router.post('/', requireAdminUser, (req, res, next) => {
+router.post('/', requireAdminUser, async (req, res, next) => {
     if (!req.body.email) {
         res.status(400).send('User email is required');
         return;
@@ -16,26 +16,27 @@ router.post('/', requireAdminUser, (req, res, next) => {
         role_id: req.body.role,
         agency_id: req.body.agency,
     };
-    db.createUser(user)
-        .then((result) => res.json({ user: result }))
-        .then(() => sendWelcomeEmail(user.email, req.headers.origin))
-        .catch((e) => {
-            if (e.message.match(/violates unique constraint/)) {
-                res.status(400).send('User with that email already exists');
-            } else {
-                next(e);
-            }
-        });
+    try {
+        const result = await db.createUser(user);
+        res.json({ user: result });
+        await sendWelcomeEmail(user.email, req.headers.origin);
+    } catch (e) {
+        if (e.message.match(/violates unique constraint/)) {
+            res.status(400).send('User with that email already exists');
+        } else {
+            next(e);
+        }
+    }
 });
 
-router.get('/', requireAdminUser, (req, res) => {
-    db.getUsers()
-        .then((result) => res.json(result));
+router.get('/', requireAdminUser, async (req, res) => {
+    const users = await db.getUsers();
+    res.json(users);
 });
 
-router.delete('/:userId', requireAdminUser, (req, res) => {
-    db.deleteUser(req.params.userId)
-        .then((result) => res.json(result));
+router.delete('/:userId', requireAdminUser, async (req, res) => {
+    await db.deleteUser(req.params.userId);
+    res.json({});
 });
 
 module.exports = router;

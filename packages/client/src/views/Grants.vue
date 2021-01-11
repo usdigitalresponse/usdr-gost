@@ -74,8 +74,21 @@
           <h4>Interested Agencies</h4>
         </b-col>
         <b-col class="text-right">
-          <b-button v-if="interested" variant="dark" disabled>Interested</b-button>
-          <b-button v-else variant="outline-success" @click="markGrantAsInterested">Mark as Interested</b-button>
+          <b-row v-if="!interested">
+            <b-col cols="9">
+              <b-form-select v-model="selectedInterestedCode">
+                <b-form-select-option-group label="Interested">
+                  <b-form-select-option v-for="code in interestedCodes.interested"  :key="code.id" :value="code.id">{{code.name}}</b-form-select-option>
+                </b-form-select-option-group>
+                <b-form-select-option-group label="Rejections">
+                  <b-form-select-option v-for="code in interestedCodes.rejections"  :key="code.id" :value="code.id">{{code.name}}</b-form-select-option>
+                </b-form-select-option-group>
+              </b-form-select>
+            </b-col>
+            <b-col cols="3" class="text-right">
+              <b-button variant="outline-success" @click="markGrantAsInterested">Submit</b-button>
+            </b-col>
+          </b-row>
         </b-col>
       </b-row>
       <br/>
@@ -171,7 +184,12 @@ export default {
           label: 'Email',
           key: 'user_email',
         },
+        {
+          label: 'Interested Code',
+          key: 'interested_code_name',
+        },
       ],
+      selectedInterestedCode: null,
     };
   },
   mounted() {
@@ -183,6 +201,7 @@ export default {
       agency: 'users/agency',
       grants: 'grants/grants',
       grantsPagination: 'grants/grantsPagination',
+      interestedCodes: 'grants/interestedCodes',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -255,7 +274,11 @@ export default {
       }
     },
     sortingChanged(ctx) {
-      this.orderBy = `${ctx.sortBy}|${ctx.sortDesc ? 'desc' : 'asc'}`;
+      if (!ctx.sortBy) {
+        this.orderBy = '';
+      } else {
+        this.orderBy = `${ctx.sortBy}|${ctx.sortDesc ? 'desc' : 'asc'}`;
+      }
       this.currentPage = 1;
     },
     async markGrantAsViewed() {
@@ -263,8 +286,14 @@ export default {
       await this.paginatedGrants();
     },
     async markGrantAsInterested() {
-      await this.markGrantAsInterestedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.agency.id });
-      await this.paginatedGrants();
+      if (this.selectedInterestedCode !== null) {
+        await this.markGrantAsInterestedAction({
+          grantId: this.selectedGrant.grant_id,
+          agencyId: this.agency.id,
+          interestedCode: this.selectedInterestedCode,
+        });
+        await this.paginatedGrants();
+      }
     },
     onRowSelected(items) {
       const [row] = items;

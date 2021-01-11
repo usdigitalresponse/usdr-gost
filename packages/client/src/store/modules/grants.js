@@ -5,6 +5,7 @@ function initialState() {
     grantsPaginated: {},
     eligibilityCodes: [],
     keywords: [],
+    interestedCodes: [],
   };
 }
 
@@ -15,6 +16,10 @@ export default {
     grants: (state) => state.grantsPaginated.data || [],
     grantsPagination: (state) => state.grantsPaginated.pagination,
     eligibilityCodes: (state) => state.eligibilityCodes,
+    interestedCodes: (state) => ({
+      rejections: state.interestedCodes.filter((c) => c.is_rejection),
+      interested: state.interestedCodes.filter((c) => !c.is_rejection),
+    }),
     keywords: (state) => state.keywords,
   },
   actions: {
@@ -28,12 +33,18 @@ export default {
     fetchInterestedAgencies(context, { grantId }) {
       return fetchApi.get(`/api/grants/${grantId}/interested`);
     },
-    markGrantAsInterested(context, { grantId, agencyId }) {
-      return fetchApi.put(`/api/grants/${grantId}/interested/${agencyId}`);
+    markGrantAsInterested(context, { grantId, agencyId, interestedCode }) {
+      return fetchApi.put(`/api/grants/${grantId}/interested/${agencyId}`, {
+        interestedCode,
+      });
     },
     fetchEligibilityCodes({ commit }) {
       fetchApi.get('/api/eligibility-codes')
         .then((data) => commit('SET_ELIGIBILITY_CODES', data));
+    },
+    fetchInterestedCodes({ commit }) {
+      fetchApi.get('/api/interested-codes')
+        .then((data) => commit('SET_INTERESTED_CODES', data));
     },
     async setEligibilityCodeEnabled(context, { code, enabled }) {
       await fetchApi.put(`/api/eligibility-codes/${code}/enable/${enabled}`);
@@ -57,6 +68,9 @@ export default {
     },
     SET_ELIGIBILITY_CODES(state, eligibilityCodes) {
       state.eligibilityCodes = eligibilityCodes;
+    },
+    SET_INTERESTED_CODES(state, interestedCodes) {
+      state.interestedCodes = interestedCodes;
     },
     SET_KEYWORDS(state, keywords) {
       state.keywords = keywords;

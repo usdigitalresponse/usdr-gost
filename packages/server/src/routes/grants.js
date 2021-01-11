@@ -34,7 +34,16 @@ router.get('/:grantId/interested', async (req, res) => {
 router.put('/:grantId/interested/:agencyId', async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
     const { agencyId, grantId } = req.params;
-    await db.markGrantAsInterested({ grantId, agencyId, userId: user.id });
+    let interestedCode = null;
+    if (req.body && req.body.interestedCode) {
+        interestedCode = req.body.interestedCode;
+    }
+    await db.markGrantAsInterested({
+        grantId,
+        agencyId,
+        userId: user.id,
+        interestedCode,
+    });
     res.json({});
 });
 

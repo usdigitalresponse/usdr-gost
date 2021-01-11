@@ -10,22 +10,21 @@ const {
     markAccessTokenUsed,
 } = require('../db');
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
     const { passcode } = req.query;
     if (passcode) {
-        getAccessToken(passcode).then((token) => {
-            if (!token) {
-                console.log('invalid passcode');
-                res.redirect('/login');
-            } else {
-                markAccessTokenUsed(passcode).then(() => {
-                    res.cookie('userId', token.user_id, { signed: true });
-                    res.redirect(process.env.WEBSITE_DOMAIN || '/');
-                });
-            }
-        });
+        const token = await getAccessToken(passcode);
+        if (!token) {
+            console.log('invalid passcode');
+            res.redirect('/login');
+        } else {
+            await markAccessTokenUsed(passcode);
+            res.cookie('userId', token.user_id, { signed: true });
+            res.redirect(process.env.WEBSITE_DOMAIN || '/');
+        }
     } else if (req.signedCookies && req.signedCookies.userId) {
-        getUser(req.signedCookies.userId).then((user) => res.json({ user }));
+        const user = await getUser(req.signedCookies.userId);
+        res.json({ user });
     } else {
         res.json({ message: 'No session' });
     }

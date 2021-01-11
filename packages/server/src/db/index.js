@@ -45,16 +45,16 @@ function deleteUser(id) {
         .del();
 }
 
-function createUser(user) {
-    return knex
+async function createUser(user) {
+    const response = await knex
         .insert(user)
         .into('users')
-        .returning(['id', 'created_at'])
-        .then((response) => ({
-            ...user,
-            id: response[0].id,
-            created_at: response[0].created_at,
-        }));
+        .returning(['id', 'created_at']);
+    return {
+        ...user,
+        id: response[0].id,
+        created_at: response[0].created_at,
+    };
 }
 
 async function getUser(id) {
@@ -98,11 +98,11 @@ function getRoles() {
         .orderBy('name');
 }
 
-function getAccessToken(passcode) {
-    return knex('access_tokens')
+async function getAccessToken(passcode) {
+    const result = await knex('access_tokens')
         .select('*')
-        .where('passcode', passcode)
-        .then((r) => r[0]);
+        .where('passcode', passcode);
+    return result[0];
 }
 
 function markAccessTokenUsed(passcode) {
@@ -156,16 +156,16 @@ function getKeywords() {
         .select('*');
 }
 
-function createKeyword(keyword) {
-    return knex
+async function createKeyword(keyword) {
+    const response = await knex
         .insert(keyword)
         .into(TABLES.keywords)
-        .returning(['id', 'created_at'])
-        .then((response) => ({
-            ...keyword,
-            id: response[0].id,
-            created_at: response[0].created_at,
-        }));
+        .returning(['id', 'created_at']);
+    return {
+        ...keyword,
+        id: response[0].id,
+        created_at: response[0].created_at,
+    };
 }
 
 function deleteKeyword(id) {
@@ -196,9 +196,9 @@ async function getGrants({
                     queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
                     queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
                 } else if (orderBy.includes('viewed_by')) {
+                    const orderArgs = orderBy.split('|');
                     queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
                     queryBuilder.distinctOn(`${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
-                    const orderArgs = orderBy.split('|');
                     queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
                     queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
                 } else {
@@ -233,15 +233,30 @@ function getInterestedAgencies({ grantIds }) {
     return knex(TABLES.agencies)
         .join(TABLES.grants_interested, `${TABLES.agencies}.id`, '=', `${TABLES.grants_interested}.agency_id`)
         .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.grants_interested}.user_id`)
+        .leftJoin(TABLES.interested_codes, `${TABLES.interested_codes}.id`, '=', `${TABLES.grants_interested}.interested_code_id`)
         .whereIn('grant_id', grantIds)
         .select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
             `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
-            `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`);
+            `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,
+            `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`);
 }
 
-function markGrantAsInterested({ grantId, agencyId, userId }) {
+function markGrantAsInterested({
+    grantId, agencyId, userId, interestedCode,
+}) {
     return knex(TABLES.grants_interested)
-        .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
+        .insert({
+            agency_id: agencyId,
+            grant_id: grantId,
+            user_id: userId,
+            interested_code_id: interestedCode,
+        });
+}
+
+function getInterestedCodes() {
+    return knex(TABLES.interested_codes)
+        .select('*')
+        .orderBy('name');
 }
 
 function getAgencies() {
@@ -354,6 +369,7 @@ module.exports = {
     getGrants,
     markGrantAsViewed,
     getInterestedAgencies,
+    getInterestedCodes,
     markGrantAsInterested,
     getElegibilityCodes,
     sync,

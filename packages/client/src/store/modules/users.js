@@ -21,7 +21,8 @@ export default {
     },
     logout({ commit }) {
       return fetchApi.get('/api/sessions/logout')
-        .then(() => commit('SET_LOGGED_IN_USER', null));
+        .then(() => commit('SET_LOGGED_IN_USER', null))
+        .catch(() => commit('SET_LOGGED_IN_USER', null));
     },
     fetchUsers({ commit }) {
       return fetchApi.get('/api/users')

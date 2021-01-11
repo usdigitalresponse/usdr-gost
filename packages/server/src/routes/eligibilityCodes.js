@@ -12,8 +12,8 @@ router.get('/', async (req, res) => {
 
 router.put('/:code/enable/:value', requireAdminUser, async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
-    db.setAgencyEligibilityCodeEnabled(req.params.code, user.agency.id, req.params.value === 'true')
-        .then((result) => res.json(result));
+    const result = await db.setAgencyEligibilityCodeEnabled(req.params.code, user.agency.id, req.params.value === 'true');
+    res.json(result);
 });
 
 module.exports = router;

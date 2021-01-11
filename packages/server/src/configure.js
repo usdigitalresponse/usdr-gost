@@ -1,5 +1,6 @@
 /* eslint-disable global-require */
 require('dotenv').config();
+require('express-async-errors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -31,6 +32,7 @@ module.exports = (app) => {
     app.use('/api/agencies', require('./routes/agencies'));
     app.use('/api/grants', require('./routes/grants'));
     app.use('/api/eligibility-codes', require('./routes/eligibilityCodes'));
+    app.use('/api/interested-codes', require('./routes/interestedCodes'));
     app.use('/api/keywords', require('./routes/keywords'));
     app.use('/api/refresh', require('./routes/refresh'));
 
@@ -56,4 +58,9 @@ module.exports = (app) => {
             verbose: true,
         }),
     );
+    app.use((err, req, res) => {
+        console.error(err.stack);
+        res.status(500);
+        res.json({ status: 500, message: 'Internal Server Error' });
+    });
 };
