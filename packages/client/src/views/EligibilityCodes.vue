@@ -5,6 +5,7 @@
     <template #cell(enabled)="data">
         <b-form-checkbox
           :checked="data.item.enabled"
+          :disabled="userRole === 'staff'"
           @input="updateEnabled(data.item.code, $event)"/>
     </template>
   </b-table>
@@ -48,6 +49,7 @@ export default {
   computed: {
     ...mapGetters({
       eligibilityCodes: 'grants/eligibilityCodes',
+      userRole: 'users/userRole',
     }),
   },
   methods: {

@@ -1,7 +1,7 @@
 <template>
 <div>
    <b-navbar type="dark" variant="dark">
-    <b-navbar-brand href="#">USDR</b-navbar-brand>
+    <b-navbar-brand href="#">Grants Identification Tool</b-navbar-brand>
 
     <b-collapse id="nav-collapse" is-nav>
 
@@ -57,7 +57,8 @@
                 </a>
               </router-link>
             </li>
-            <li class="nav-item" v-if="loggedInUser && loggedInUser.role.name === 'admin'">
+            <!-- TODO: implement permissions instead of using hardcoded roles -->
+            <li class="nav-item" v-if="userRole === 'admin'">
               <router-link
                 to="/users"
                 v-slot="{ href, navigate, isActive }"
@@ -104,6 +105,7 @@ export default {
     ...mapGetters({
       agency: 'users/agency',
       loggedInUser: 'users/loggedInUser',
+      userRole: 'users/userRole',
     }),
   },
   methods: {

@@ -185,7 +185,7 @@ async function getGrants({
                     queryBuilder.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
                 }
                 if (filters.keywords) {
-                    queryBuilder.where('description', '~', filters.keywords.join('|'));
+                    queryBuilder.where('description', '~*', filters.keywords.join('|'));
                 }
             }
             if (orderBy && orderBy !== 'undefined') {

@@ -1,6 +1,16 @@
 <template>
 <section class="container-fluid">
   <h2>Grants</h2>
+  <!-- <b-row class="mt-3 mb-3">
+    <b-col cols="5">
+      <b-input-group size="md">
+        <b-input-group-text>
+            <b-icon icon="search" />
+        </b-input-group-text>
+        <b-form-input type="search" v-model="searchInput"></b-form-input>
+      </b-input-group>
+    </b-col>
+  </b-row> -->
   <b-table
     id="grants-table"
     sticky-header="600px" hover :items="formattedGrants" :fields="fields"
@@ -32,7 +42,7 @@
         aria-controls="grants-table"/>
         <b-button class="ml-2" variant="outline-primary disabled">{{grants.length}} of {{totalRows}}</b-button>
     </b-row>
-   <!-- Info modal -->
+   <!-- TODO: make the dialog a component-->
   <b-modal v-model="showGrantModal"
     ok-only
     :title="selectedGrant && selectedGrant.title"
@@ -102,8 +112,8 @@
 </template>
 
 <script>
-
 import { mapActions, mapGetters } from 'vuex';
+import { debounce } from 'lodash';
 
 import { titleize } from '@/helpers/form-helpers';
 
@@ -190,6 +200,8 @@ export default {
         },
       ],
       selectedInterestedCode: null,
+      searchInput: null,
+      debouncedSearchInput: null,
     };
   },
   mounted() {
@@ -255,6 +267,9 @@ export default {
     grants() {
       this.changeSelectedGrant();
     },
+    searchInput: debounce(function bounce(newVal) {
+      this.debouncedSearchInput = newVal;
+    }, 500),
   },
   methods: {
     ...mapActions({

@@ -5,13 +5,13 @@
     <b-col></b-col>
     <b-col class="d-flex justify-content-end">
       <div>
-        <b-button variant="success" @click="openAddKeywordModal">Add</b-button>
+        <b-button v-if="userRole === 'admin'" variant="success" @click="openAddKeywordModal">Add</b-button>
       </div>
     </b-col>
   </b-row>
   <b-table sticky-header="600px" hover :items="keywords" :fields="fields">
     <template #cell(actions)="row">
-      <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
+      <b-button v-if="userRole === 'admin'" variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
         <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
       </b-button>
     </template>
@@ -56,6 +56,7 @@ export default {
   computed: {
     ...mapGetters({
       keywords: 'grants/keywords',
+      userRole: 'users/userRole',
     }),
   },
   methods: {
