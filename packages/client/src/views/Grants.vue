@@ -1,16 +1,16 @@
 <template>
 <section class="container-fluid">
   <h2>Grants</h2>
-  <!-- <b-row class="mt-3 mb-3">
+  <b-row class="mt-3 mb-3">
     <b-col cols="5">
       <b-input-group size="md">
         <b-input-group-text>
             <b-icon icon="search" />
         </b-input-group-text>
-        <b-form-input type="search" v-model="searchInput"></b-form-input>
+        <b-form-input type="search" @input="debounceSearchInput"></b-form-input>
       </b-input-group>
     </b-col>
-  </b-row> -->
+  </b-row>
   <b-table
     id="grants-table"
     sticky-header="600px" hover :items="formattedGrants" :fields="fields"
@@ -267,9 +267,9 @@ export default {
     grants() {
       this.changeSelectedGrant();
     },
-    searchInput: debounce(function bounce(newVal) {
-      this.debouncedSearchInput = newVal;
-    }, 500),
+    debouncedSearchInput() {
+      this.paginatedGrants();
+    },
   },
   methods: {
     ...mapActions({
@@ -278,10 +278,18 @@ export default {
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
     }),
     titleize,
+    debounceSearchInput: debounce(function bounce(newVal) {
+      this.debouncedSearchInput = newVal;
+    }, 500),
     async paginatedGrants() {
       try {
         this.loading = true;
-        await this.fetchGrants({ perPage: this.perPage, currentPage: this.currentPage, orderBy: this.orderBy });
+        await this.fetchGrants({
+          perPage: this.perPage,
+          currentPage: this.currentPage,
+          orderBy: this.orderBy,
+          searchTerm: this.debouncedSearchInput,
+        });
       } catch (e) {
         console.log(e);
       } finally {

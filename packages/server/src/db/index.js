@@ -175,11 +175,16 @@ function deleteKeyword(id) {
 }
 
 async function getGrants({
-    currentPage, perPage, filters, orderBy,
+    currentPage, perPage, filters, orderBy, searchTerm,
 } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
         .modify((queryBuilder) => {
+            if (searchTerm && searchTerm !== 'null') {
+                queryBuilder.orWhere('grant_id', '~*', searchTerm);
+                queryBuilder.orWhere('grant_number', '~*', searchTerm);
+                queryBuilder.orWhere('title', '~*', searchTerm);
+            }
             if (filters) {
                 if (filters.eligibilityCodes) {
                     queryBuilder.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));

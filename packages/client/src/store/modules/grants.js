@@ -23,8 +23,10 @@ export default {
     keywords: (state) => state.keywords,
   },
   actions: {
-    fetchGrants({ commit }, { currentPage, perPage, orderBy }) {
-      return fetchApi.get(`/api/grants?currentPage=${currentPage}&perPage=${perPage}&orderBy=${orderBy}`)
+    fetchGrants({ commit }, {
+      currentPage, perPage, orderBy, searchTerm,
+    }) {
+      return fetchApi.get(`/api/grants?currentPage=${currentPage}&perPage=${perPage}&orderBy=${orderBy}&searchTerm=${searchTerm}`)
         .then((data) => commit('SET_GRANTS', data));
     },
     markGrantAsViewed(context, { grantId, agencyId }) {
