@@ -1,7 +1,6 @@
 <template>
   <div class="login">
-    <h1>Funding Opportunities</h1>
-    <h4>Login</h4>
+    <h1>Grants Identification Tool</h1>
     <form @submit="login">
       <div class="form-group">
         <input
@@ -15,7 +14,7 @@
       </div>
       <div class="form-group">
         <button class="btn btn-primary" type="Submit" @click="login">
-          Send email with login link
+          Login
         </button>
       </div>
     </form>
