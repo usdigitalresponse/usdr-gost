@@ -230,6 +230,38 @@ async function getGrants({
     return { data: dataWithAgency, pagination };
 }
 
+async function getTotalGrants() {
+    const rows = await knex(TABLES.grants).count();
+    return rows[0].count;
+}
+
+async function getTotalViewedGrants() {
+    const rows = await knex(TABLES.grants_viewed).count();
+    return rows[0].count;
+}
+
+async function getTotalInteresedGrants() {
+    const rows = await knex(TABLES.grants_interested).count();
+    return rows[0].count;
+}
+
+async function getTotalInterestedGrantsByAgencies() {
+    const rows = await knex(TABLES.grants_interested)
+        .select(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`)
+        .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
+        .count(`${TABLES.grants_interested}.agency_id`)
+        .groupBy(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
+    return rows;
+}
+
+async function getTotalGrantsBetweenDates(from, to) {
+    const rows = await knex(TABLES.grants)
+        .where('created_at', '>=', new Date(from))
+        .where('created_at', '<=', new Date(to))
+        .count();
+    return rows[0].count;
+}
+
 function markGrantAsViewed({ grantId, agencyId, userId }) {
     return knex(TABLES.grants_viewed)
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
@@ -372,6 +404,11 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getTotalGrants,
+    getTotalViewedGrants,
+    getTotalInteresedGrants,
+    getTotalGrantsBetweenDates,
+    getTotalInterestedGrantsByAgencies,
     markGrantAsViewed,
     getInterestedAgencies,
     getInterestedCodes,

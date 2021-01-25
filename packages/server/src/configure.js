@@ -31,6 +31,7 @@ module.exports = (app) => {
     app.use('/api/sessions', require('./routes/sessions'));
     app.use('/api/agencies', require('./routes/agencies'));
     app.use('/api/grants', require('./routes/grants'));
+    app.use('/api/dashboard', require('./routes/dashboard'));
     app.use('/api/eligibility-codes', require('./routes/eligibilityCodes'));
     app.use('/api/interested-codes', require('./routes/interestedCodes'));
     app.use('/api/keywords', require('./routes/keywords'));

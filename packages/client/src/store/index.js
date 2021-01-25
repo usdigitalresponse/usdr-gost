@@ -5,6 +5,7 @@ import grants from './modules/grants';
 import users from './modules/users';
 import roles from './modules/roles';
 import agencies from './modules/agencies';
+import dashboard from './modules/dashboard';
 
 Vue.use(Vuex);
 
@@ -17,5 +18,6 @@ export default new Vuex.Store({
     users,
     roles,
     agencies,
+    dashboard,
   },
 });

@@ -24,6 +24,14 @@ const routes = [
     },
     children: [
       {
+        path: '/dashboard',
+        name: 'dashboard',
+        component: () => import('../views/Dashboard.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
         path: '/grants',
         name: 'grants',
         component: () => import('../views/Grants.vue'),
@@ -67,7 +75,7 @@ const routes = [
   },
   {
     path: '*',
-    redirect: '/grants',
+    redirect: '/dashboard',
   },
 ];
 

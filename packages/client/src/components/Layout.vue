@@ -23,6 +23,7 @@
       </b-collapse>
     </b-navbar>
     <b-nav tabs justified style="margin-top: 20px">
+        <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
         <b-nav-item to="/grants" exact exact-active-class="active">Grants</b-nav-item>
         <b-nav-item to="/eligibility-codes" exact exact-active-class="active">Eligibility Codes</b-nav-item>
         <b-nav-item to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
