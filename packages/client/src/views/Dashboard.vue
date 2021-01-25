@@ -13,10 +13,10 @@
         <b-card bg-variant="secondary" text-variant="white" header="Total Grants Last 24hrs" class="text-center">
           <h3>{{totalGrantsBetweenDates}}</h3>
         </b-card>
-        <b-card title="Total Interested Grants by Agencies">
+    </b-card-group>
+    <b-card title="Total Interested Grants by Agencies">
       <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields"></b-table>
     </b-card>
-    </b-card-group>
   </section>
 </template>
 
@@ -41,7 +41,16 @@ export default {
           sortable: true,
         },
         {
+          label: 'Total',
           key: 'count',
+          sortable: true,
+        },
+        {
+          key: 'interested',
+          sortable: true,
+        },
+        {
+          key: 'rejections',
           sortable: true,
         },
       ],

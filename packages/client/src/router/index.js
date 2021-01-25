@@ -17,7 +17,7 @@ const routes = [
   {
     path: '/',
     name: 'layout',
-    redirect: '/grants',
+    redirect: '/dashboard',
     component: Layout,
     meta: {
       requiresAuth: true,
