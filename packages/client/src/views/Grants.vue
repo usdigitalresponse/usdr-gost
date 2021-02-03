@@ -99,6 +99,11 @@
               <b-button variant="outline-success" @click="markGrantAsInterested">Submit</b-button>
             </b-col>
           </b-row>
+          <b-row v-if="interested && !interested.interested_is_rejection">
+            <b-col>
+              <b-button variant="primary" @click="generateSpoc">Generate SPOC</b-button>
+            </b-col>
+          </b-row>
         </b-col>
       </b-row>
       <br/>
@@ -275,6 +280,7 @@ export default {
     ...mapActions({
       fetchGrants: 'grants/fetchGrants',
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
+      generateGrantForm: 'grants/generateGrantForm',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
     }),
     titleize,
@@ -318,6 +324,11 @@ export default {
         await this.paginatedGrants();
       }
     },
+    async generateSpoc() {
+      await this.generateGrantForm({
+        grantId: this.selectedGrant.grant_id,
+      });
+    },
     onRowSelected(items) {
       const [row] = items;
       if (row) {
@@ -337,6 +348,7 @@ export default {
         this.onRowSelected([grant]);
       }
     },
+    // able to navigate through grants using left and right arrow keys
     changeSelectedGrantIndex(event) {
       if (event.keyCode === 37) {
         // left key

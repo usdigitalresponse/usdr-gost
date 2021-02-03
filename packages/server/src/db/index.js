@@ -62,6 +62,7 @@ async function getUser(id) {
         .select(
             'users.id',
             'users.email',
+            'users.name',
             'users.role_id',
             'roles.name as role_name',
             'roles.rules as role_rules',
@@ -230,6 +231,13 @@ async function getGrants({
     return { data: dataWithAgency, pagination };
 }
 
+async function getGrant({ grantId }) {
+    const results = await knex.table(TABLES.grants)
+        .select('*')
+        .where({ grant_id: grantId });
+    return results[0];
+}
+
 async function getTotalGrants() {
     const rows = await knex(TABLES.grants).count();
     return rows[0].count;
@@ -278,7 +286,7 @@ function getInterestedAgencies({ grantIds }) {
         .select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
             `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
             `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,
-            `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`);
+            `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`, `${TABLES.interested_codes}.is_rejection as interested_is_rejection`);
 }
 
 function markGrantAsInterested({
@@ -407,6 +415,7 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getGrant,
     getTotalGrants,
     getTotalViewedGrants,
     getTotalInteresedGrants,

@@ -26,6 +26,7 @@
     "knex-paginate": "^1.2.3",
     "lodash-checkit": "^2.3.3",
     "morgan": "^1.10.0",
+    "pdf-lib": "^1.16.0",
     "pg": "^8.4.1",
     "uuid": "^8.3.1"
   },

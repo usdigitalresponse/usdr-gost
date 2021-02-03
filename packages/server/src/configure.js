@@ -53,13 +53,15 @@ module.exports = (app) => {
         },
     });
     app.use(staticMiddleware);
+    app.use('/static', express.static(`${__dirname}/static`));
     app.use(
         history({
             disableDotRule: true,
             verbose: true,
         }),
     );
-    app.use((err, req, res) => {
+    // eslint-disable-next-line no-unused-vars
+    app.use((err, req, res, next) => {
         console.error(err.stack);
         res.status(500);
         res.json({ status: 500, message: 'Internal Server Error' });

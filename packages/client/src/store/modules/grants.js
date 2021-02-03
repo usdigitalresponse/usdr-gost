@@ -32,6 +32,16 @@ export default {
     markGrantAsViewed(context, { grantId, agencyId }) {
       return fetchApi.put(`/api/grants/${grantId}/view/${agencyId}`);
     },
+    async generateGrantForm(context, { grantId }) {
+      const response = await fetchApi.get(`/api/grants/${grantId}/form/nevada_spoc`);
+      const link = document.createElement('a');
+      link.href = response.filePath;
+      const filePath = `${process.env.VUE_APP_GRANTS_API_URL}${response.filePath}`;
+      link.setAttribute('download', filePath);
+      link.setAttribute('target', '_blank');
+      document.body.appendChild(link);
+      link.click();
+    },
     fetchInterestedAgencies(context, { grantId }) {
       return fetchApi.get(`/api/grants/${grantId}/interested`);
     },

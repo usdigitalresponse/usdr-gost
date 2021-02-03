@@ -1,5 +1,7 @@
 const express = require('express');
 const { CronJob } = require('cron');
+const fs = require('fs').promises;
+const path = require('path');
 
 const configureAPI = require('./configure');
 const grantscraper = require('./lib/grantscraper');
@@ -16,3 +18,12 @@ if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
     );
     job.start();
 }
+
+const cleanGeneratedPdfCron = new CronJob(
+    '* 1 * * *',
+    async () => {
+        await fs.rmdir(path.resolve(__dirname, './static/forms/generated'), { recursive: true });
+        console.log('directory removed!');
+    },
+);
+cleanGeneratedPdfCron.start();
