@@ -36,8 +36,7 @@ export default {
       const response = await fetchApi.get(`/api/grants/${grantId}/form/nevada_spoc`);
       const link = document.createElement('a');
       link.href = response.filePath;
-      const filePath = `${process.env.VUE_APP_GRANTS_API_URL}${response.filePath}`;
-      link.setAttribute('download', filePath);
+      link.setAttribute('download', response.filePath);
       link.setAttribute('target', '_blank');
       document.body.appendChild(link);
       link.click();
