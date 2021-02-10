@@ -141,7 +141,6 @@ async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, elig
             newHits.push(hit);
         }
     });
-    const finalResults = [];
     let currentUnsyncResults = [];
     for (const i in newHits) {
         let hit = newHits[i];
@@ -156,16 +155,14 @@ async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, elig
             const matchingInsertKeywords = hit.matchingKeywords.filter((kw) => insertKeywords.indexOf(kw) >= 0);
             const searchedInsertAllKeywords = hit.searchKeywords.filter((kw) => insertAllKeywords.indexOf(kw) >= 0);
             if (matchingInsertKeywords.length > 0 || searchedInsertAllKeywords.length > 0 || previousHitIds[hit.id]) {
-                finalResults.push(hit);
                 currentUnsyncResults.push(hit);
             }
         }
-        if (finalResults.length % 20 === 0) {
+        if (currentUnsyncResults.length === 20) {
             await syncFn(currentUnsyncResults);
             currentUnsyncResults = [];
         }
     }
-    return finalResults;
 }
 
 module.exports = { allOpportunities, allOpportunitiesOnlyMatchDescription, getEligibilities };
