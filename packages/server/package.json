@@ -6,7 +6,8 @@
   "author": "Pol Abellas, Rafael A <rafael.polabellas@dematic.com>",
   "license": "Apache-2.0",
   "scripts": {
-    "start": "nodemon src",
+    "start": "node src",
+    "serve": "nodemon src",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint \"**/*.js\"",
     "pre-commit": "yarn lint"

@@ -388,7 +388,7 @@ async function sync(tableName, syncKey, updateCols, newRows) {
                 await createRecord(tableName, newRow);
                 console.log(`created ${newRow[syncKey]} in ${tableName}`);
             } catch (err) {
-                console.error(`knex error when creating a new row with ${JSON.stringify(newRow)}: ${err}`);
+                console.error(`knex error when creating a new row with key ${newRow[syncKey]}`);
             }
         }
     }

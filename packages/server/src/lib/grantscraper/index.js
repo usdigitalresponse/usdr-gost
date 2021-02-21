@@ -47,17 +47,17 @@ async function syncGrants(hits) {
 }
 
 async function updateFromGrantsGov(keywords, elCodes) {
-    const existingRows = await db.getGrants();
+    // const existingRows = await db.getGrants();
     const previousHits = [];
-    for (const oppNum in existingRows) {
-        const id = parseInt(existingRows[oppNum].grant_id, 10);
-        if (id > 200 || Number.isNaN(id)) {
-            previousHits.push({
-                id: existingRows[oppNum].grant_id,
-                number: oppNum,
-            });
-        }
-    }
+    // for (const oppNum in existingRows) {
+    //     const id = parseInt(existingRows[oppNum].grant_id, 10);
+    //     if (id > 200 || Number.isNaN(id)) {
+    //         previousHits.push({
+    //             id: existingRows[oppNum].grant_id,
+    //             number: oppNum,
+    //         });
+    //     }
+    // }
     await grantsgov.allOpportunitiesOnlyMatchDescription(previousHits, keywords, elCodes, syncGrants);
     console.log('sync complete!');
 }
@@ -66,7 +66,7 @@ async function getKeywords() {
     // get global keywords (agencyId === null)
     const rows = await db.getAgencyKeywords(null);
     return rows.map((row) => {
-        if (row.mode && row.search_term) {
+        if (row.mode) {
             return {
                 term: row.search_term,
                 insertMode: !!row.mode.match(/^autoinsert/),
@@ -83,8 +83,14 @@ async function getEligibilities() {
     return enabledCodes.join('|');
 }
 
+let isRunning = false;
+
 async function run() {
+    if (isRunning) {
+        return;
+    }
     try {
+        isRunning = true;
         const res = await grantsgov.getEligibilities();
         const rows = Object.entries(res).map(([key, value]) => ({
             code: key,
@@ -101,6 +107,7 @@ async function run() {
     } catch (err) {
         console.error(err);
     }
+    isRunning = false;
 }
 
 module.exports = {

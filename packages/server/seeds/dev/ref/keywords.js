@@ -24,7 +24,12 @@ const globalKeywords = [
     },
 ];
 
-module.exports = globalKeywords.concat(...agencies.map((agency) => globalKeywords.map((k) => ({
+module.exports = [
+    {
+
+        mode: 'autoinsert ALL keywords matches', search_term: '', notes: '', agency_id: null,
+    },
+].concat(...agencies.map((agency) => globalKeywords.map((k) => ({
     ...k,
     agency_id: agency.id,
 }))));
