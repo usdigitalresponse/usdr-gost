@@ -4,6 +4,8 @@ const ses = new AWS.SES({ region: process.env.SES_REGION });
 const fromEmail = process.env.NOTIFICATIONS_EMAIL;
 const expiryMinutes = 30;
 
+const stateName = process.env.STATE_NAME || '';
+
 function sendPasscode(email, passcode, httpOrigin) {
     const params = {
         Destination: {
@@ -13,12 +15,12 @@ function sendPasscode(email, passcode, httpOrigin) {
         Message: {
             Subject: {
                 Charset: 'UTF-8',
-                Data: 'Nevada Grant Notification and Coordination Tool Access Link',
+                Data: `${stateName} Grant Notification and Coordination Tool Access Link`,
             },
             Body: {
                 Html: {
                     Charset: 'UTF-8',
-                    Data: `<p>Your link to access the Nevada Grant Notification and Coordination Tool is
+                    Data: `<p>Your link to access the ${stateName} Grant Notification and Coordination Tool is
      <a href="${httpOrigin}/api/sessions?passcode=${passcode}">${httpOrigin}/api/sessions/?passcode=${passcode}</a>.
      It expires in ${expiryMinutes} minutes</p>`,
                 },
