@@ -106,3 +106,63 @@ After installing depedencies, IntelliJ should start using eslint automatically:
 
 > By default, IntelliJ IDEA marks the detected errors and warnings based on the severity levels from the ESLint configuration
 https://www.jetbrains.com/help/idea/eslint.html#ws_js_linters_eslint_install
+
+# Deployment
+
+## Render
+
+1. Create web service
+
+![create-web-service](docs/img/create-web-service.png)
+
+2. Create database
+
+![create-database](docs/img/create-database.png)
+
+3. Update web service environment variables
+
+![update-web-env-vars](docs/img/update-web-env-vars.png)
+
+```
+POSTGRES_URL=<POSTGRE_CONNECTION_STRING> # Render Internal connection string ie postgres://cares_opportunity_user:<pass>@<domain>/cares_opportunity_1e53
+
+COOKIE_SECRET=<RANDOM_ALPHANUMERIC_SECRET>
+
+API_DOMAIN=<WEB_SERVICE_URL> # Render web service url ie. https://cares-grant-opportunities-qi8i.onrender.com
+VUE_APP_GRANTS_API_URL=<WEB_SERVICE_URL> # ie. https://cares-grant-opportunities-qi8i.onrender.com
+
+STATE_NAME=Nevada
+
+NOTIFICATIONS_EMAIL="grants-identification@usdigitalresponse.org"
+SES_REGION="us-east-1"
+AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID>
+AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY>
+
+ENABLE_GRANTS_SCRAPER=true
+GRANTS_SCRAPER_DATE_RANGE=7 # date range of grants that will be scraped
+GRANTS_SCRAPER_DELAY=1000 # delay in milliseconds for scraper
+
+NODE_OPTIONS=--max_old_space_size=1024 # increase node max memory, had problems with node not using all of renders server memory. This will depend on the plan
+```
+
+## DB Migrations
+
+1. Get the postgres external connection string from render. Set it as an environment variable
+
+`export POSTGRES_URL="postgres://user:{pass}@{domain}/{db}?ssl=true"`
+
+NOTE: must add `?ssl=true`
+
+2. Change directory to packages/server
+
+3. Update seeds/dev files accordingly
+   - seeds/dev/ref/agencies.js - list of agencies to be created. You can update this with the state provided agency. Note: We add a special USDR agency for our accounts in the system
+   - seeds/dev/index.js - Update the admin list variable accordingly
+4. Run the following commands
+
+```
+npx knex migrate:latest 
+npx knex seed:run
+```
+
+After that you should be able to access the site and login with the users set in the migration.
