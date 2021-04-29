@@ -182,17 +182,23 @@ async function getGrants({
         .select(`${TABLES.grants}.*`)
         .modify((queryBuilder) => {
             if (searchTerm && searchTerm !== 'null') {
-                queryBuilder.orWhere('grant_id', '~*', searchTerm);
-                queryBuilder.orWhere('grant_number', '~*', searchTerm);
-                queryBuilder.orWhere('title', '~*', searchTerm);
+                queryBuilder.andWhere(
+                    (qb) => qb.where('grant_id', '~*', searchTerm)
+                        .orWhere('grant_number', '~*', searchTerm)
+                        .orWhere('title', '~*', searchTerm),
+                );
             }
             if (filters) {
-                if (filters.eligibilityCodes) {
-                    queryBuilder.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
-                }
-                if (filters.keywords) {
-                    queryBuilder.where('description', '~*', filters.keywords.join('|'));
-                }
+                queryBuilder.andWhere(
+                    (qb) => {
+                        if (filters.eligibilityCodes) {
+                            qb.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
+                        }
+                        if (filters.keywords) {
+                            qb.where('description', '~*', filters.keywords.join('|'));
+                        }
+                    },
+                );
             }
             if (orderBy && orderBy !== 'undefined') {
                 if (orderBy.includes('interested_agencies')) {
