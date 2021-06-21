@@ -24,9 +24,16 @@ export default {
   },
   actions: {
     fetchGrants({ commit }, {
-      currentPage, perPage, orderBy, searchTerm,
+      currentPage, perPage, orderBy, searchTerm, interestedByMe,
     }) {
-      return fetchApi.get(`/api/grants?currentPage=${currentPage}&perPage=${perPage}&orderBy=${orderBy}&searchTerm=${searchTerm}`)
+      const query = Object.entries({
+        currentPage, perPage, orderBy, searchTerm, interestedByMe,
+      })
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      return fetchApi.get(`/api/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
     },
     markGrantAsViewed(context, { grantId, agencyId }) {

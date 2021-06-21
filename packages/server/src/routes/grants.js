@@ -6,14 +6,22 @@ const pdf = require('../lib/pdf');
 
 router.get('/', async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
-    const eligibilityCodes = await db.getAgencyEligibilityCodes(user.agency.id, { enabled: true });
-    const enabledECodes = eligibilityCodes.filter((e) => e.enabled);
-    const keywords = await db.getAgencyKeywords(user.agency.id);
+    let enabledECodes = [];
+    let keywords = [];
+    // if we want interested grants for a user, do not filter by eligibility or keywords
+    if (!req.query.interestedByMe) {
+        const eligibilityCodes = await db.getAgencyEligibilityCodes(
+            user.agency.id, { enabled: true },
+        );
+        enabledECodes = eligibilityCodes.filter((e) => e.enabled);
+        keywords = await db.getAgencyKeywords(user.agency.id);
+    }
     const grants = await db.getGrants({
         ...req.query,
         filters: {
             eligibilityCodes: enabledECodes.map((c) => c.code),
             keywords: keywords.map((c) => c.search_term),
+            interestedByUser: req.query.interestedByMe ? user.id : null,
         },
     });
     res.json(grants);

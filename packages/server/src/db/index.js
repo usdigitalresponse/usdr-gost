@@ -183,12 +183,16 @@ async function getGrants({
         .modify((queryBuilder) => {
             if (searchTerm && searchTerm !== 'null') {
                 queryBuilder.andWhere(
-                    (qb) => qb.where('grant_id', '~*', searchTerm)
-                        .orWhere('grant_number', '~*', searchTerm)
-                        .orWhere('title', '~*', searchTerm),
+                    (qb) => qb.where(`${TABLES.grants}.grant_id`, '~*', searchTerm)
+                        .orWhere(`${TABLES.grants}.grant_number`, '~*', searchTerm)
+                        .orWhere(`${TABLES.grants}.title`, '~*', searchTerm),
                 );
             }
             if (filters) {
+                if (filters.interestedByUser) {
+                    queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
+                    queryBuilder.distinctOn(`${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
+                }
                 queryBuilder.andWhere(
                     (qb) => {
                         if (filters.eligibilityCodes) {
@@ -196,6 +200,9 @@ async function getGrants({
                         }
                         if (filters.keywords) {
                             qb.where('description', '~*', filters.keywords.join('|'));
+                        }
+                        if (filters.interestedByUser) {
+                            qb.where(`${TABLES.grants_interested}.user_id`, '=', filters.interestedByUser);
                         }
                     },
                 );
@@ -220,11 +227,13 @@ async function getGrants({
             }
         })
         .paginate({ currentPage, perPage, isLengthAware: true });
+
     const viewedBy = await knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
         .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id) });
+
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
         const agenciesInterested = interestedBy.filter((intested) => intested.grant_id === grant.grant_id);
