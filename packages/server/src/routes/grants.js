@@ -34,6 +34,29 @@ router.put('/:grantId/view/:agencyId', async (req, res) => {
     res.json({});
 });
 
+router.get('/:grantId/assign', async (req, res) => {
+    // const user = await db.getUser(req.signedCookies.userId);
+    const { grantId } = req.params;
+    const response = await db.getGrantAssignedUsers({ grantId });
+    res.json(response);
+});
+
+router.put('/:grantId/assign', async (req, res) => {
+    const user = await db.getUser(req.signedCookies.userId);
+    const { grantId } = req.params;
+    const { userIds } = req.body;
+    await db.assignGrantsToUsers({ grantId, userIds, userId: user.id });
+    res.json({});
+});
+
+router.delete('/:grantId/assign', async (req, res) => {
+    const user = await db.getUser(req.signedCookies.userId);
+    const { grantId } = req.params;
+    const { userIds } = req.body;
+    await db.unassignUsersToGrant({ grantId, userIds, userId: user.id });
+    res.json({});
+});
+
 router.get('/:grantId/interested', async (req, res) => {
     const { grantId } = req.params;
     const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId] });

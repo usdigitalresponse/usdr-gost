@@ -39,6 +39,19 @@ export default {
     markGrantAsViewed(context, { grantId, agencyId }) {
       return fetchApi.put(`/api/grants/${grantId}/view/${agencyId}`);
     },
+    getGrantAssignedUsers(context, { grantId }) {
+      return fetchApi.get(`/api/grants/${grantId}/assign`);
+    },
+    assignUsersToGrant(context, { grantId, userIds }) {
+      return fetchApi.put(`/api/grants/${grantId}/assign`, {
+        userIds,
+      });
+    },
+    unassignUsersToGrant(context, { grantId, userIds }) {
+      return fetchApi.deleteRequest(`/api/grants/${grantId}/assign`, {
+        userIds,
+      });
+    },
     async generateGrantForm(context, { grantId }) {
       const response = await fetchApi.get(`/api/grants/${grantId}/form/nevada_spoc`);
       const link = document.createElement('a');

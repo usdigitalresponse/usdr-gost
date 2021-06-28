@@ -111,6 +111,35 @@
         :items="selectedGrant.interested_agencies"
         :fields="interestedAgenciesFields"
       />
+      <b-row>
+        <b-col>
+          <h4>Assigned Users</h4>
+        </b-col>
+      </b-row>
+      <br/>
+      <b-row>
+        <b-col>
+          <multiselect v-model="selectedUsers" :options="users"
+          :multiple="true" :close-on-select="false"
+          :clear-on-select="false"
+          placeholder="Select users" label="name"
+          track-by="id">
+          </multiselect>
+        </b-col>
+        <b-col>
+          <b-button variant="outline-success" @click="assignUsersToGrant">Assign</b-button>
+        </b-col>
+      </b-row>
+      <b-table
+        :items="assignedUsers"
+        :fields="assignedUsersFields"
+      >
+      <template #cell(actions)="row">
+        <b-button variant="danger" class="mr-1" size="sm" @click="unassignUsersToGrant(row)">
+          <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+        </b-button>
+      </template>
+    </b-table>
     </div>
   </b-modal>
 </section>
@@ -119,12 +148,12 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { debounce } from 'lodash';
+import Multiselect from 'vue-multiselect';
 
 import { titleize } from '@/helpers/form-helpers';
 
 export default {
-  components: {
-  },
+  components: { Multiselect },
   data() {
     return {
       perPage: 10,
@@ -204,6 +233,20 @@ export default {
           key: 'interested_code_name',
         },
       ],
+      assignedUsersFields: [
+        {
+          key: 'name',
+        },
+        {
+          key: 'email',
+        },
+        {
+          key: 'created_at',
+        },
+        { key: 'actions', label: 'Actions' },
+      ],
+      assignedUsers: [],
+      selectedUsers: [],
       selectedInterestedCode: null,
       searchInput: null,
       debouncedSearchInput: null,
@@ -216,6 +259,7 @@ export default {
   computed: {
     ...mapGetters({
       agency: 'users/agency',
+      users: 'users/users',
       grants: 'grants/grants',
       grantsPagination: 'grants/grantsPagination',
       interestedCodes: 'grants/interestedCodes',
@@ -260,9 +304,13 @@ export default {
     },
     async selectedGrant() {
       if (this.selectedGrant) {
+        if (!this.users.length) {
+          this.fetchUsers();
+        }
         if (!this.alreadyViewed) {
           this.markGrantAsViewed();
         }
+        this.assignedUsers = await this.getGrantAssignedUsers({ grantId: this.selectedGrant.grant_id });
       }
     },
     selectedGrantIndex() {
@@ -282,6 +330,10 @@ export default {
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
       generateGrantForm: 'grants/generateGrantForm',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
+      getGrantAssignedUsers: 'grants/getGrantAssignedUsers',
+      assignUsersToGrantAction: 'grants/assignUsersToGrant',
+      unassignUsersToGrantAction: 'grants/unassignUsersToGrant',
+      fetchUsers: 'users/fetchUsers',
     }),
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
@@ -324,6 +376,22 @@ export default {
         await this.paginatedGrants();
       }
     },
+    async assignUsersToGrant() {
+      const userIds = this.selectedUsers.map((user) => user.id);
+      await this.assignUsersToGrantAction({
+        grantId: this.selectedGrant.grant_id,
+        userIds,
+      });
+      this.selectedUsers = [];
+      this.assignedUsers = await this.getGrantAssignedUsers({ grantId: this.selectedGrant.grant_id });
+    },
+    async unassignUsersToGrant(row) {
+      await this.unassignUsersToGrantAction({
+        grantId: this.selectedGrant.grant_id,
+        userIds: [row.item.id],
+      });
+      this.assignedUsers = await this.getGrantAssignedUsers({ grantId: this.selectedGrant.grant_id });
+    },
     async generateSpoc() {
       await this.generateGrantForm({
         grantId: this.selectedGrant.grant_id,
@@ -341,6 +409,8 @@ export default {
     resetSelectedGrant() {
       this.showGrantModal = false;
       this.selectedGrant = null;
+      this.assignedUsers = [];
+      this.selectedUsers = [];
     },
     changeSelectedGrant() {
       if (this.showGrantModal) {

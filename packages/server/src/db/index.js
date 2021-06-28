@@ -292,6 +292,32 @@ function markGrantAsViewed({ grantId, agencyId, userId }) {
     return knex(TABLES.grants_viewed)
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
 }
+
+function getGrantAssignedUsers({ grantId }) {
+    return knex(TABLES.assigned_grants_user)
+        .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.assigned_grants_user}.user_id`)
+        .where({ grant_id: grantId });
+}
+
+function assignGrantsToUsers({ grantId, userIds, userId }) {
+    const insertPayload = userIds.map((uId) => ({
+        user_id: uId,
+        grant_id: grantId,
+        assigned_by: userId,
+    }));
+    return knex(TABLES.assigned_grants_user)
+        .insert(insertPayload)
+        .onConflict(['user_id', 'grant_id'])
+        .ignore();
+}
+
+function unassignUsersToGrant({ grantId, userIds }) {
+    const deleteWhere = userIds.map((uId) => ([uId, grantId]));
+    return knex(TABLES.assigned_grants_user)
+        .whereIn(['user_id', 'grant_id'], deleteWhere)
+        .delete();
+}
+
 function getInterestedAgencies({ grantIds }) {
     return knex(TABLES.agencies)
         .join(TABLES.grants_interested, `${TABLES.agencies}.id`, '=', `${TABLES.grants_interested}.agency_id`)
@@ -440,6 +466,9 @@ module.exports = {
     getInterestedAgencies,
     getInterestedCodes,
     markGrantAsInterested,
+    getGrantAssignedUsers,
+    assignGrantsToUsers,
+    unassignUsersToGrant,
     getElegibilityCodes,
     sync,
     getAllRows,
