@@ -1,11 +1,13 @@
 /* global context */
 
-require('dotenv').config();
 const { expect } = require('chai');
 
+require('dotenv').config();
 const getTransport = require('../src/lib/email/service-email');
 
 const {
+    TEST_EMAIL_RECIPIENT,
+
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     SES_REGION,
@@ -15,23 +17,27 @@ const {
     NODEMAILER_PORT,
     NODEMAILER_EMAIL,
     NODEMAILER_EMAIL_PW,
-
-    TEST_EMAIL_RECIPIENT,
 } = process.env;
 
-delete process.env.AWS_ACCESS_KEY_ID;
-delete process.env.AWS_SECRET_ACCESS_KEY;
-delete process.env.SES_REGION;
-delete process.env.NOTIFICATIONS_EMAIL;
-
-delete process.env.NODEMAILER_HOST;
-delete process.env.NODEMAILER_PORT;
-delete process.env.NODEMAILER_EMAIL;
-delete process.env.NODEMAILER_EMAIL_PW;
+const testEmail = {
+    toAddress: TEST_EMAIL_RECIPIENT,
+    subject: 'Test email',
+    body: 'This is a test email.',
+};
 
 describe('Email module', () => {
-    context('AWS SES', () => {
+    context('Transport missing', () => {
         it('Throws with no transport', async () => {
+            delete process.env.AWS_ACCESS_KEY_ID;
+            delete process.env.AWS_SECRET_ACCESS_KEY;
+            delete process.env.SES_REGION;
+            delete process.env.NOTIFICATIONS_EMAIL;
+
+            delete process.env.NODEMAILER_HOST;
+            delete process.env.NODEMAILER_PORT;
+            delete process.env.NODEMAILER_EMAIL;
+            delete process.env.NODEMAILER_EMAIL_PW;
+
             const expects = 'No email transport provider credentials in environment';
             let err = { message: 'No error' };
             try {
@@ -41,7 +47,10 @@ describe('Email module', () => {
             }
             expect(err.message).to.equal(expects);
         });
+    });
+    context('AWS SES', () => {
         it('Works when AWS credentials are present', async () => {
+            testEmail.subject = 'Test aws email';
             process.env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID;
             process.env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY;
             process.env.SES_REGION = SES_REGION;
@@ -60,14 +69,9 @@ describe('Email module', () => {
             delete process.env.SES_REGION;
             const expects = 'Missing environment variable SES_REGION!';
             let err = { message: 'No error' };
-            const ses = getTransport();
 
             try {
-                await ses.send({
-                    toAddress: TEST_EMAIL_RECIPIENT,
-                    subject: 'Test aws email',
-                    body: 'Hello.',
-                });
+                await getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -78,14 +82,9 @@ describe('Email module', () => {
             delete process.env.AWS_SECRET_ACCESS_KEY;
             const expects = 'Missing environment variable AWS_SECRET_ACCESS_KEY!';
             let err = { message: 'No error' };
-            const ses = getTransport();
 
             try {
-                await ses.send({
-                    toAddress: TEST_EMAIL_RECIPIENT,
-                    subject: 'Test aws email',
-                    body: 'Hello.',
-                });
+                await getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -96,14 +95,9 @@ describe('Email module', () => {
             delete process.env.NOTIFICATIONS_EMAIL;
             const expects = 'Missing environment variable NOTIFICATIONS_EMAIL!';
             let err = { message: 'No error' };
-            const ses = getTransport();
 
             try {
-                await ses.send({
-                    toAddress: TEST_EMAIL_RECIPIENT,
-                    subject: 'Test aws email',
-                    body: 'Hello.',
-                });
+                await getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -113,15 +107,9 @@ describe('Email module', () => {
         it('Sends an email by AWS SES', async () => {
             const expects = 'No error';
             let err = { message: expects };
-            const ses = getTransport();
             let result;
-            const toAddress = TEST_EMAIL_RECIPIENT;
             try {
-                result = await ses.send({
-                    toAddress,
-                    subject: 'Test aws email',
-                    body: 'Hello.',
-                });
+                result = await getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -135,6 +123,8 @@ describe('Email module', () => {
             delete process.env.AWS_SECRET_ACCESS_KEY;
             delete process.env.SES_REGION;
             delete process.env.NOTIFICATIONS_EMAIL;
+
+            testEmail.subject = 'Test Nodemailer email';
             process.env.NODEMAILER_HOST = NODEMAILER_HOST;
             process.env.NODEMAILER_PORT = NODEMAILER_PORT;
             process.env.NODEMAILER_EMAIL = NODEMAILER_EMAIL;
@@ -153,14 +143,9 @@ describe('Email module', () => {
             delete process.env.NODEMAILER_PORT;
             const expects = 'Missing environment variable NODEMAILER_PORT!';
             let err = { message: 'No error' };
-            const nodemailer = getTransport();
 
             try {
-                await nodemailer.send({
-                    toAddress: TEST_EMAIL_RECIPIENT,
-                    subject: 'Test aws email',
-                    body: 'Hello.',
-                });
+                await getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -171,14 +156,9 @@ describe('Email module', () => {
             delete process.env.NODEMAILER_EMAIL;
             const expects = 'Missing environment variable NODEMAILER_EMAIL!';
             let err = { message: 'No error' };
-            const nodemailer = getTransport();
 
             try {
-                await nodemailer.send({
-                    toAddress: TEST_EMAIL_RECIPIENT,
-                    subject: 'Test aws email',
-                    body: 'Hello.',
-                });
+                await getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -189,14 +169,9 @@ describe('Email module', () => {
             delete process.env.NODEMAILER_EMAIL_PW;
             const expects = 'Missing environment variable NODEMAILER_EMAIL_PW!';
             let err = { message: 'No error' };
-            const nodemailer = getTransport();
 
             try {
-                await nodemailer.send({
-                    toAddress: TEST_EMAIL_RECIPIENT,
-                    subject: 'Test aws email',
-                    body: 'Hello.',
-                });
+                await getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -206,21 +181,16 @@ describe('Email module', () => {
         it('Sends an email by Nodemailer', async () => {
             const expects = 'No error';
             let err = { message: expects };
-            const nodemailer = getTransport();
+
             let result;
-            const toAddress = TEST_EMAIL_RECIPIENT;
             try {
-                result = await nodemailer.send({
-                    toAddress,
-                    subject: 'Test aws email',
-                    body: 'Hello.',
-                });
+                result = await getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
 
             expect(err.message).to.equal(expects);
-            expect(result.accepted[0]).to.equal(toAddress);
+            expect(result.accepted[0]).to.equal(TEST_EMAIL_RECIPIENT);
         });
     });
 });
