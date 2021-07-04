@@ -13,10 +13,11 @@
     "bootstrap": "lerna bootstrap",
     "setup": "yarn install && yarn run bootstrap",
     "start": "lerna run start --stream",
+    "start:op": "POSTGRES_URL=postgres://localhost/opportunities lerna run start --stream",
     "build": "lerna run build --stream",
     "serve": "lerna run serve --stream",
     "serve:server": "lerna run start --stream --scope server",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "lerna run test",
     "lint": "lerna run lint",
     "pre-commit": "yarn lint"
   },
