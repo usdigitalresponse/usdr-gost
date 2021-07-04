@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node src",
     "serve": "nodemon src",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha __tests__/*.test.js",
     "lint": "eslint \"**/*.js\"",
     "pre-commit": "yarn lint"
   },
@@ -27,6 +27,7 @@
     "knex-paginate": "^1.2.3",
     "lodash-checkit": "^2.3.3",
     "morgan": "^1.10.0",
+    "nodemailer": "^6.6.2",
     "pdf-lib": "^1.16.0",
     "pg": "^8.4.1",
     "uuid": "^8.3.1"
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
+    "chai": "^4.3.4",
     "eslint": "^7.12.1",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.21.2",
