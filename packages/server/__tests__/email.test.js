@@ -64,7 +64,7 @@ describe('Email module', () => {
 
             try {
                 await ses.send({
-                    toAddress: process.env.TEST_EMAIL_RECIPIENT,
+                    toAddress: TEST_EMAIL_RECIPIENT,
                     subject: 'Test aws email',
                     body: 'Hello.',
                 });
@@ -82,7 +82,7 @@ describe('Email module', () => {
 
             try {
                 await ses.send({
-                    toAddress: process.env.TEST_EMAIL_RECIPIENT,
+                    toAddress: TEST_EMAIL_RECIPIENT,
                     subject: 'Test aws email',
                     body: 'Hello.',
                 });
@@ -100,7 +100,7 @@ describe('Email module', () => {
 
             try {
                 await ses.send({
-                    toAddress: process.env.TEST_EMAIL_RECIPIENT,
+                    toAddress: TEST_EMAIL_RECIPIENT,
                     subject: 'Test aws email',
                     body: 'Hello.',
                 });
@@ -115,7 +115,7 @@ describe('Email module', () => {
             let err = { message: expects };
             const ses = getTransport();
             let result;
-            const toAddress = process.env.TEST_EMAIL_RECIPIENT;
+            const toAddress = TEST_EMAIL_RECIPIENT;
             try {
                 result = await ses.send({
                     toAddress,
@@ -157,7 +157,7 @@ describe('Email module', () => {
 
             try {
                 await nodemailer.send({
-                    toAddress: process.env.TEST_EMAIL_RECIPIENT,
+                    toAddress: TEST_EMAIL_RECIPIENT,
                     subject: 'Test aws email',
                     body: 'Hello.',
                 });
@@ -175,7 +175,7 @@ describe('Email module', () => {
 
             try {
                 await nodemailer.send({
-                    toAddress: process.env.TEST_EMAIL_RECIPIENT,
+                    toAddress: TEST_EMAIL_RECIPIENT,
                     subject: 'Test aws email',
                     body: 'Hello.',
                 });
@@ -193,7 +193,7 @@ describe('Email module', () => {
 
             try {
                 await nodemailer.send({
-                    toAddress: process.env.TEST_EMAIL_RECIPIENT,
+                    toAddress: TEST_EMAIL_RECIPIENT,
                     subject: 'Test aws email',
                     body: 'Hello.',
                 });
@@ -208,7 +208,7 @@ describe('Email module', () => {
             let err = { message: expects };
             const nodemailer = getTransport();
             let result;
-            const toAddress = process.env.TEST_EMAIL_RECIPIENT;
+            const toAddress = TEST_EMAIL_RECIPIENT;
             try {
                 result = await nodemailer.send({
                     toAddress,
