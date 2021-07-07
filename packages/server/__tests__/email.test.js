@@ -27,7 +27,7 @@ const testEmail = {
 
 describe('Email module', () => {
     context('Transport missing', () => {
-        it('Throws with no transport', async () => {
+        it('Fails with no transport', async () => {
             delete process.env.AWS_ACCESS_KEY_ID;
             delete process.env.AWS_SECRET_ACCESS_KEY;
             delete process.env.SES_REGION;
@@ -49,21 +49,12 @@ describe('Email module', () => {
         });
     });
     context('AWS SES', () => {
-        it('Works when AWS credentials are present', async () => {
-            testEmail.subject = 'Test aws email';
+        it('Populate environment for AWS-SES', async () => {
+            testEmail.subject = 'Test AWS-SES email';
             process.env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID;
             process.env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY;
             process.env.SES_REGION = SES_REGION;
             process.env.NOTIFICATIONS_EMAIL = NOTIFICATIONS_EMAIL;
-
-            const expects = 'No error';
-            let err = { message: expects };
-            try {
-                getTransport();
-            } catch (e) {
-                err = e;
-            }
-            expect(err.message).to.equal(expects);
         });
         it('Fails when SES_REGION is missing', async () => {
             delete process.env.SES_REGION;
@@ -104,7 +95,7 @@ describe('Email module', () => {
             process.env.NOTIFICATIONS_EMAIL = NOTIFICATIONS_EMAIL;
             expect(err.message).to.equal(expects);
         });
-        it('Sends an email by AWS SES', async () => {
+        it('Works when AWS credentials are valid', async () => {
             const expects = 'No error';
             let err = { message: expects };
             let result;
@@ -118,7 +109,7 @@ describe('Email module', () => {
         });
     });
     context('Nodemailer', () => {
-        it('Works when Nodemailer credentials are present', async () => {
+        it('Populate environment for  Nodemailer', async () => {
             delete process.env.AWS_ACCESS_KEY_ID;
             delete process.env.AWS_SECRET_ACCESS_KEY;
             delete process.env.SES_REGION;
@@ -129,15 +120,6 @@ describe('Email module', () => {
             process.env.NODEMAILER_PORT = NODEMAILER_PORT;
             process.env.NODEMAILER_EMAIL = NODEMAILER_EMAIL;
             process.env.NODEMAILER_EMAIL_PW = NODEMAILER_EMAIL_PW;
-
-            const expects = 'No error';
-            let err = { message: expects };
-            try {
-                getTransport();
-            } catch (e) {
-                err = e;
-            }
-            expect(err.message).to.equal(expects);
         });
         it('Fails when NODEMAILER_PORT is missing', async () => {
             delete process.env.NODEMAILER_PORT;
@@ -178,7 +160,7 @@ describe('Email module', () => {
             process.env.NODEMAILER_EMAIL_PW = NODEMAILER_EMAIL_PW;
             expect(err.message).to.equal(expects);
         });
-        it('Sends an email by Nodemailer', async () => {
+        it('Works when Nodemailer credentials are valid', async () => {
             const expects = 'No error';
             let err = { message: expects };
 
