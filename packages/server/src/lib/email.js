@@ -1,11 +1,11 @@
-const serviceEmail = require('./email/service-email');
+const getTransport = require('./email/service-email');
 
 const expiryMinutes = 30;
 
 const stateName = process.env.STATE_NAME || '';
 
 function sendPasscode(email, passcode, httpOrigin) {
-    return serviceEmail.send({
+    return getTransport().send({
         toAddress: email,
         subject: 'Welcome to CARES grants',
         body: `<p>Your link to access the ${stateName} Grant Notification and Coordination Tool is
@@ -15,7 +15,7 @@ function sendPasscode(email, passcode, httpOrigin) {
 }
 
 function sendWelcomeEmail(email, httpOrigin) {
-    return serviceEmail.send({
+    return getTransport().send({
         toAddress: email,
         subject: `${stateName} Grant Notification and Coordination Tool Access Link`,
         body: `<p>You have been granted access to the CARES Grants:
