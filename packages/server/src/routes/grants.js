@@ -76,7 +76,8 @@ router.put('/:grantId/interested/:agencyId', async (req, res) => {
         userId: user.id,
         interestedCode,
     });
-    res.json({});
+    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId] });
+    res.json(interestedAgencies);
 });
 
 const formFields = {
