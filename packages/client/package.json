@@ -17,7 +17,7 @@
     "lodash": "^4.17.21",
     "lodash-checkit": "^2.3.3",
     "numeral": "^2.0.6",
-    "vue": "^2.6.11",
+    "vue": "^2.6.13",
     "vue-router": "^3.5.1",
     "vuelidate": "^0.7.6",
     "vuex": "^3.6.2"
