@@ -34,8 +34,8 @@ const adminList = [
     //     role_id: roles[0].id,
     // },
     {
-        email: 'bindu@usdigitalresponse.org',
-        name: 'Bindu Gakhar',
+        email: 'michael@stanford.cc',
+        name: 'Michael Stanford',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
     },
