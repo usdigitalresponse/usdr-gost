@@ -191,7 +191,9 @@ async function getGrants({
             if (filters) {
                 if (filters.interestedByUser) {
                     queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
-                    queryBuilder.distinctOn(`${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
+                }
+                if (filters.assignedToUser) {
+                    queryBuilder.join(TABLES.assigned_grants_user, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_user}.grant_id`);
                 }
                 queryBuilder.andWhere(
                     (qb) => {
@@ -203,6 +205,9 @@ async function getGrants({
                         }
                         if (filters.interestedByUser) {
                             qb.where(`${TABLES.grants_interested}.user_id`, '=', filters.interestedByUser);
+                        }
+                        if (filters.assignedToUser) {
+                            qb.where(`${TABLES.assigned_grants_user}.user_id`, '=', filters.assignedToUser);
                         }
                     },
                 );

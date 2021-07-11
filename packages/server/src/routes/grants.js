@@ -8,8 +8,8 @@ router.get('/', async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
     let enabledECodes = [];
     let keywords = [];
-    // if we want interested grants for a user, do not filter by eligibility or keywords
-    if (!req.query.interestedByMe) {
+    // if we want interested or assigned grants for a user, do not filter by eligibility or keywords
+    if (!req.query.interestedByMe || !req.query.assignedToMe) {
         const eligibilityCodes = await db.getAgencyEligibilityCodes(
             user.agency.id, { enabled: true },
         );
@@ -22,6 +22,7 @@ router.get('/', async (req, res) => {
             eligibilityCodes: enabledECodes.map((c) => c.code),
             keywords: keywords.map((c) => c.search_term),
             interestedByUser: req.query.interestedByMe ? user.id : null,
+            assignedToUser: req.query.assignedToMe ? user.id : null,
         },
     });
     res.json(grants);

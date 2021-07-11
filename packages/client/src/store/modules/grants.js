@@ -24,10 +24,10 @@ export default {
   },
   actions: {
     fetchGrants({ commit }, {
-      currentPage, perPage, orderBy, searchTerm, interestedByMe,
+      currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToMe,
     }) {
       const query = Object.entries({
-        currentPage, perPage, orderBy, searchTerm, interestedByMe,
+        currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToMe,
       })
         // eslint-disable-next-line no-unused-vars
         .filter(([key, value]) => value)
