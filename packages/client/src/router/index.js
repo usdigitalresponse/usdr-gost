@@ -40,6 +40,14 @@ const routes = [
         },
       },
       {
+        path: '/my-grants',
+        name: 'myGrants',
+        component: () => import('../views/MyGrants.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
         path: '/eligibility-codes',
         name: 'eligibilityCodes',
         component: () => import('../views/EligibilityCodes.vue'),

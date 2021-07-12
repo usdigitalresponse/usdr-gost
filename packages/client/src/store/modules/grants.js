@@ -24,13 +24,33 @@ export default {
   },
   actions: {
     fetchGrants({ commit }, {
-      currentPage, perPage, orderBy, searchTerm,
+      currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToMe,
     }) {
-      return fetchApi.get(`/api/grants?currentPage=${currentPage}&perPage=${perPage}&orderBy=${orderBy}&searchTerm=${searchTerm}`)
+      const query = Object.entries({
+        currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToMe,
+      })
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      return fetchApi.get(`/api/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
     },
     markGrantAsViewed(context, { grantId, agencyId }) {
       return fetchApi.put(`/api/grants/${grantId}/view/${agencyId}`);
+    },
+    getGrantAssignedUsers(context, { grantId }) {
+      return fetchApi.get(`/api/grants/${grantId}/assign`);
+    },
+    assignUsersToGrant(context, { grantId, userIds }) {
+      return fetchApi.put(`/api/grants/${grantId}/assign`, {
+        userIds,
+      });
+    },
+    unassignUsersToGrant(context, { grantId, userIds }) {
+      return fetchApi.deleteRequest(`/api/grants/${grantId}/assign`, {
+        userIds,
+      });
     },
     async generateGrantForm(context, { grantId }) {
       const response = await fetchApi.get(`/api/grants/${grantId}/form/nevada_spoc`);
@@ -44,10 +64,11 @@ export default {
     fetchInterestedAgencies(context, { grantId }) {
       return fetchApi.get(`/api/grants/${grantId}/interested`);
     },
-    markGrantAsInterested(context, { grantId, agencyId, interestedCode }) {
-      return fetchApi.put(`/api/grants/${grantId}/interested/${agencyId}`, {
+    async markGrantAsInterested({ commit }, { grantId, agencyId, interestedCode }) {
+      const interestedAgencies = await fetchApi.put(`/api/grants/${grantId}/interested/${agencyId}`, {
         interestedCode,
       });
+      commit('UPDATE_GRANT', { grantId, data: { interested_agencies: interestedAgencies } });
     },
     fetchEligibilityCodes({ commit }) {
       fetchApi.get('/api/eligibility-codes')
@@ -76,6 +97,12 @@ export default {
   mutations: {
     SET_GRANTS(state, grants) {
       state.grantsPaginated = grants;
+    },
+    UPDATE_GRANT(state, { grantId, data }) {
+      const grant = state.grantsPaginated.data.find((g) => g.grant_id === grantId);
+      if (grant) {
+        Object.assign(grant, data);
+      }
     },
     SET_ELIGIBILITY_CODES(state, eligibilityCodes) {
       state.eligibilityCodes = eligibilityCodes;
