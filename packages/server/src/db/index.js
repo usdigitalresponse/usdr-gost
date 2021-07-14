@@ -93,6 +93,10 @@ async function getUser(id) {
     return user;
 }
 
+async function isSubOrganization(parent, candidateChild) {
+    throw new Error(`isSubOrganization(${parent}, ${candidateChild}) not implemented`);
+}
+
 function getRoles() {
     return knex('roles')
         .select('*')
@@ -113,7 +117,6 @@ function markAccessTokenUsed(passcode) {
 }
 
 async function generatePasscode(email) {
-    console.log('generatePasscode for :', email);
     const users = await knex('users')
         .select('*')
         .where('email', email);
@@ -237,10 +240,12 @@ async function getGrants({
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
         .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
+    // eslint-disable-next-line max-len
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id) });
 
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
+        // eslint-disable-next-line max-len
         const agenciesInterested = interestedBy.filter((intested) => intested.grant_id === grant.grant_id);
         return {
             ...grant,
@@ -421,6 +426,7 @@ async function sync(tableName, syncKey, updateCols, newRows) {
 
             if (Object.values(updatedFields).length > 0) {
                 try {
+                    // eslint-disable-next-line max-len
                     await updateRecord(tableName, syncKey, oldRows[syncKeyValue][syncKey], updatedFields);
                     console.log(`updated ${oldRows[syncKeyValue][syncKey]} in ${tableName}`);
                 } catch (err) {
@@ -444,11 +450,27 @@ function close() {
     return knex.destroy();
 }
 
+// So the test can send a signed cookie with its request
+// It would be better if we could read the signed cookie in the response
+// that Mocha gets to the login, but I can't figure out how to do that.
+async function writeTestCookie(cookie) {
+    const query = `
+        INSERT INTO test_cookie (key, cookie)
+            VALUES ('cookie', '${cookie}')
+        ON CONFLICT (key) DO UPDATE
+            SET cookie = '${cookie}'
+    ;`;
+
+    const result = await knex.raw(query);
+    return result.rows;
+}
+
 module.exports = {
     getUsers,
     createUser,
     deleteUser,
     getUser,
+    isSubOrganization,
     getRoles,
     createAccessToken,
     getAccessToken,
@@ -478,4 +500,5 @@ module.exports = {
     sync,
     getAllRows,
     close,
+    writeTestCookie,
 };

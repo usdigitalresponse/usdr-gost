@@ -1,3 +1,5 @@
+/* eslint-disable func-names */
+
 exports.up = async function (knex) {
     await knex.raw(`
   UPDATE grants SET open_date = null WHERE open_date like '%2100%';

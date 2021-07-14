@@ -101,6 +101,7 @@ const formFields = {
     },
 };
 
+// eslint-disable-next-line consistent-return
 router.get('/:grantId/form/:formName', async (req, res) => {
     if (req.params.formName !== 'nevada_spoc') {
         return res.status(400);

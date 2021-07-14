@@ -58,6 +58,7 @@ async function updateFromGrantsGov(keywords, elCodes) {
     //         });
     //     }
     // }
+    // eslint-disable-next-line max-len
     await grantsgov.allOpportunitiesOnlyMatchDescription(previousHits, keywords, elCodes, syncGrants);
     console.log('sync complete!');
 }
@@ -86,6 +87,9 @@ async function getEligibilities() {
 let isRunning = false;
 
 async function run() {
+    if (process.env.ENABLE_GRANTS_SCRAPER !== 'true') {
+        return;
+    }
     if (isRunning) {
         return;
     }

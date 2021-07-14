@@ -30,6 +30,7 @@ router.post('/', requireAdminUser, async (req, res, next) => {
 });
 
 router.get('/', requireAdminUser, async (req, res) => {
+    console.log(`organization is ${req.headers.organization}`);
     const users = await db.getUsers();
     res.json(users);
 });

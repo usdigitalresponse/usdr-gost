@@ -8,8 +8,12 @@ const {
     getAccessToken,
     createAccessToken,
     markAccessTokenUsed,
+    writeTestCookie,
 } = require('../db');
 
+// the validation URL is sent in the authentication email:
+//     http://localhost:3000/api/sessions/?passcode=97fa7091-77ae-4905-b62e-97a7b4699abd
+//
 router.get('/', async (req, res) => {
     const { passcode } = req.query;
     if (passcode) {
@@ -20,6 +24,7 @@ router.get('/', async (req, res) => {
         } else {
             await markAccessTokenUsed(passcode);
             res.cookie('userId', token.user_id, { signed: true });
+            writeTestCookie(res.getHeaders()['set-cookie']);
             res.redirect(process.env.WEBSITE_DOMAIN || '/');
         }
     } else if (req.signedCookies && req.signedCookies.userId) {
@@ -35,6 +40,7 @@ router.get('/logout', (req, res) => {
     res.json({});
 });
 
+// eslint-disable-next-line consistent-return
 router.post('/', async (req, res, next) => {
     if (!req.body.email) {
         res.statusMessage = 'No Email Address provided';

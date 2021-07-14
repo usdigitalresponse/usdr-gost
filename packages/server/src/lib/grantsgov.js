@@ -146,7 +146,9 @@ async function processGrants({
             grant = null;
         }
         if (grant) {
+            // eslint-disable-next-line max-len
             const matchingInsertKeywords = grant.matchingKeywords.filter((kw) => insertKeywords.indexOf(kw) >= 0);
+            // eslint-disable-next-line max-len
             const searchedInsertAllKeywords = grant.searchKeywords.filter((kw) => insertAllKeywords.indexOf(kw) >= 0);
             if (matchingInsertKeywords.length > 0 || searchedInsertAllKeywords.length > 0) {
                 grantsToSynch.push(grant);
@@ -190,6 +192,7 @@ async function synchGrants(insertKeywords, insertAllKeywords, allKeywords, eligi
 // all previous hits are always checked for updates to keywords
 async function allOpportunitiesOnlyMatchDescription(previousHits, keywords, eligibilities, syncFn) {
     const insertKeywords = keywords.filter((v) => v.insertMode).map((v) => v.term);
+    // eslint-disable-next-line max-len
     const insertAllKeywords = keywords.filter((v) => v.insertMode && v.insertAll).map((v) => v.term);
     const allKeywords = keywords.map((v) => v.term);
     await synchGrants(insertKeywords, insertAllKeywords, allKeywords, eligibilities, syncFn);

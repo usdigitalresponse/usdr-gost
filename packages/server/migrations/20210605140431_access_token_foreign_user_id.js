@@ -1,3 +1,5 @@
+/* eslint-disable func-names */
+
 exports.up = function (knex) {
     return knex.schema.table('access_tokens', (t) => {
         t.dropForeign('user_id');

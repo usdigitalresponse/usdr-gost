@@ -14,12 +14,14 @@
     "setup": "yarn install && yarn run bootstrap",
     "start": "lerna run start --stream",
     "start:op": "POSTGRES_URL=postgres://localhost/opportunities lerna run start --stream",
+    "serve:op": "POSTGRES_URL=postgres://localhost/opportunities lerna run start --stream",
     "build": "lerna run build --stream",
     "serve": "lerna run serve --stream",
     "serve:server": "lerna run start --stream --scope server",
     "test": "lerna run test",
     "lint": "lerna run lint",
-    "pre-commit": "yarn lint"
+    "pre-commit": "yarn lint",
+    "psql":"psql opportunities pg"
   },
   "dependencies": {
   },

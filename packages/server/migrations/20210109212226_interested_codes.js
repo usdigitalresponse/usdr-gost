@@ -1,3 +1,5 @@
+/* eslint-disable func-names */
+
 exports.up = function (knex) {
     return knex.schema
         .createTable('interested_codes', (table) => {
