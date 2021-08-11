@@ -2,7 +2,10 @@ const { getUser, isSubOrganization } = require('../db');
 
 async function checkOrganization(req) {
     const user = await getUser(req.signedCookies.userId);
-    if (!user.agency) { // USDR
+    if (!user.agency) { // error - user must have an agency
+        return false;
+    }
+    if (String(user.agency.id) === '0') { // USDR
         return user.role_name;
     }
     if (user.agency.id === req.headers.organization) {
