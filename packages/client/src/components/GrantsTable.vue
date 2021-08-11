@@ -60,6 +60,7 @@ export default {
   props: {
     showInterested: Boolean,
     showAssigned: Boolean,
+    showAging: Boolean,
   },
   data() {
     return {
@@ -139,7 +140,7 @@ export default {
     },
     formattedGrants() {
       function setCellVariants(grant) {
-        const agingThreshold = 1000 * 60 * 60 * 24 * (process.env.VUE_APP_AGING_THRESHOLD_DAYS || 21);
+        const agingThreshold = (process.env.VUE_APP_AGING_THRESHOLD_DAYS || 21) * 24 * 60 * 60 * 1000;
         const result = {};
         const diff = new Date(grant.close_date) - new Date();
         if (diff <= 0) {
@@ -204,6 +205,7 @@ export default {
           searchTerm: this.debouncedSearchInput,
           interestedByMe: this.showInterested,
           assignedToMe: this.showAssigned,
+          aging: this.showAging,
         });
       } catch (e) {
         console.log(e);

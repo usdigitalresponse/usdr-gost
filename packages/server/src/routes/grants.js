@@ -23,6 +23,7 @@ router.get('/', async (req, res) => {
             keywords: keywords.map((c) => c.search_term),
             interestedByUser: req.query.interestedByMe ? user.id : null,
             assignedToUser: req.query.assignedToMe ? user.id : null,
+            aging: req.query.aging,
         },
     });
     res.json(grants);
