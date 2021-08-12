@@ -12,10 +12,14 @@ export function get(url) {
   });
 }
 
-export function deleteRequest(url) {
+export function deleteRequest(url, body) {
   const options = {
     method: 'DELETE',
     credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
   };
   return fetch(`${process.env.VUE_APP_GRANTS_API_URL}${url}`, options).then((r) => {
     if (r.ok) {
