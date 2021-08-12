@@ -60,6 +60,7 @@ export default {
   props: {
     showInterested: Boolean,
     showAssigned: Boolean,
+    showAging: Boolean,
   },
   data() {
     return {
@@ -138,6 +139,18 @@ export default {
       return this.grantsPagination ? this.grantsPagination.lastPage : 0;
     },
     formattedGrants() {
+      function setCellVariants(grant) {
+        const agingThreshold = (process.env.VUE_APP_AGING_THRESHOLD_DAYS || 21) * 24 * 60 * 60 * 1000;
+        const result = {};
+        const diff = new Date(grant.close_date) - new Date();
+        if (diff <= 0) {
+          result.close_date = 'danger';
+        } else if (diff < agingThreshold) {
+          result.close_date = 'warning';
+        }
+        return result;
+      }
+
       return this.grants.map((grant) => ({
         ...grant,
         interested_agencies: grant.interested_agencies.map((v) => v.agency_abbreviation).join(', '),
@@ -147,6 +160,7 @@ export default {
         close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
         created_at: new Date(grant.created_at).toLocaleString(),
         updated_at: new Date(grant.updated_at).toLocaleString(),
+        _cellVariants: setCellVariants(grant),
       }));
     },
   },
@@ -191,6 +205,7 @@ export default {
           searchTerm: this.debouncedSearchInput,
           interestedByMe: this.showInterested,
           assignedToMe: this.showAssigned,
+          aging: this.showAging,
         });
       } catch (e) {
         console.log(e);
