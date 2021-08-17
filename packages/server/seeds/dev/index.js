@@ -16,6 +16,12 @@ const adminList = [
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
     },
+    {
+        email: 'michael@stanford.cc',
+        name: 'Michael Stanford',
+        agency_id: usdrAgency.id,
+        role_id: roles[0].id,
+    },
 ];
 const agencyUserList = [
     // update me with non admin agency user
