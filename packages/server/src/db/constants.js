@@ -1,5 +1,6 @@
 module.exports = {
     TABLES: {
+        roles: 'roles',
         users: 'users',
         agencies: 'agencies',
         grants: 'grants',

@@ -6,6 +6,7 @@ const { v4 } = require('uuid');
 
 const knex = require('./connection');
 const { TABLES } = require('./constants');
+const helpers = require('./helpers');
 
 async function getUsers() {
     const users = await knex('users')
@@ -91,6 +92,18 @@ async function getUser(id) {
         };
     }
     return user;
+}
+
+async function getAgencyCriteriaForUserId(userId) {
+    const user = await getUser(userId);
+    const eligibilityCodes = await getAgencyEligibilityCodes(user.agency.id);
+    const enabledECodes = eligibilityCodes.filter((e) => e.enabled);
+    const keywords = await getAgencyKeywords(user.agency.id);
+
+    return {
+        eligibilityCodes: enabledECodes.map((c) => c.code),
+        keywords: keywords.map((c) => c.search_term),
+    };
 }
 
 function getRoles() {
@@ -197,12 +210,8 @@ async function getGrants({
                 }
                 queryBuilder.andWhere(
                     (qb) => {
-                        if (filters.eligibilityCodes) {
-                            qb.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
-                        }
-                        if (filters.keywords) {
-                            qb.where('description', '~*', filters.keywords.join('|'));
-                        }
+                        helpers.whereAgencyCriteriaMatch(qb, filters.agencyCriteria);
+
                         if (filters.interestedByUser) {
                             qb.where(`${TABLES.grants_interested}.user_id`, '=', filters.interestedByUser);
                         }
@@ -212,6 +221,7 @@ async function getGrants({
                     },
                 );
             }
+
             if (orderBy && orderBy !== 'undefined') {
                 if (orderBy.includes('interested_agencies')) {
                     queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
@@ -258,8 +268,8 @@ async function getGrant({ grantId }) {
     return results[0];
 }
 
-async function getTotalGrants() {
-    const rows = await knex(TABLES.grants).count();
+async function getTotalGrants({ agencyCriteria } = {}) {
+    const rows = await knex(TABLES.grants).modify(helpers.whereAgencyCriteriaMatch, agencyCriteria).count();
     return rows[0].count;
 }
 
@@ -449,6 +459,7 @@ module.exports = {
     createUser,
     deleteUser,
     getUser,
+    getAgencyCriteriaForUserId,
     getRoles,
     createAccessToken,
     getAccessToken,
