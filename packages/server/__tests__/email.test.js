@@ -1,4 +1,4 @@
-/* global context */
+/**  global context */
 
 const { expect } = require('chai');
 

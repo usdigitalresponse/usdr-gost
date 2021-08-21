@@ -6,7 +6,7 @@ const fixtures = require('./seeds/fixtures');
 
 after(() => {
     knex.destroy();
-})
+});
 
 describe('db', () => {
     context('getTotalGrants', () => {
@@ -19,7 +19,7 @@ describe('db', () => {
             const agencyCriteria = {
                 eligibilityCodes: ['11'],
                 keywords: ['Covid'],
-            }
+            };
             const result = await db.getTotalGrants({ agencyCriteria });
 
             expect(result).to.equal('1');
@@ -28,7 +28,7 @@ describe('db', () => {
         it('gets total grant count matching eligibilityCodes only', async () => {
             const agencyCriteria = {
                 eligibilityCodes: ['25'],
-            }
+            };
             const result = await db.getTotalGrants({ agencyCriteria });
 
             expect(result).to.equal('2');
@@ -37,7 +37,7 @@ describe('db', () => {
         it('gets total grant count matching keywords only', async () => {
             const agencyCriteria = {
                 keywords: ['earth sciences'],
-            }
+            };
             const result = await db.getTotalGrants({ agencyCriteria });
 
             expect(result).to.equal('1');
@@ -53,7 +53,7 @@ describe('db', () => {
             expect(result).to.have.property('eligibilityCodes').with.lengthOf(1);
             expect(result.eligibilityCodes[0]).to.equal(fixtures.agencyEligibilityCodes.accountancyNative.code);
             expect(result).to.have.property('keywords').with.lengthOf(1);
-            expect(result.keywords[0]).to.equal(fixtures.keywords.accountancyCovid.search_term)
+            expect(result.keywords[0]).to.equal(fixtures.keywords.accountancyCovid.search_term);
         });
-    })
+    });
 });

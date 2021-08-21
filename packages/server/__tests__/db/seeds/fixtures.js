@@ -1,4 +1,3 @@
-const { LexModelBuildingService } = require('aws-sdk');
 const { TABLES } = require('../../../src/db/constants');
 
 const roles = {
@@ -139,7 +138,7 @@ module.exports = {
     users,
     agencyEligibilityCodes,
     keywords,
-}
+};
 
 module.exports.seed = async (knex) => {
     const deletions = Object.values(TABLES).map((tableName) => knex(tableName).del());
