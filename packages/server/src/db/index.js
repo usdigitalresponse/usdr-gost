@@ -7,7 +7,7 @@ const { v4 } = require('uuid');
 const knex = require('./connection');
 const { TABLES } = require('./constants');
 
-async function getUsers() {
+async function getUsers(agency_id) {
     const users = await knex('users')
         .select(
             'users.*',
@@ -18,7 +18,8 @@ async function getUsers() {
             'agencies.parent as agency_parent_id_id',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
-        .leftJoin('agencies', 'agencies.id', 'users.agency_id');
+        .leftJoin('agencies', 'agencies.id', 'users.agency_id')
+        .where('agencies.id', agency_id);
     return users.map((user) => {
         const u = { ...user };
         if (user.role_id) {
@@ -93,8 +94,29 @@ async function getUser(id) {
     return user;
 }
 
+/*    isSubOrganization(parent, candidateChild) returns true if
+    candidateChild is a child of parent.
+    Normally parent will be the agency_id of the logged in user, and
+    candidateChild will be the agency_id in the request header.
+    */
 async function isSubOrganization(parent, candidateChild) {
-    throw new Error(`isSubOrganization(${parent}, ${candidateChild}) not implemented`);
+    const query = `
+    with recursive hierarchy as (
+      select id, parent from agencies
+      where id = ?
+
+      union all
+
+      select agencies.id, agencies.parent from agencies
+      inner join hierarchy
+      on agencies.id = hierarchy.parent
+    )
+    select id from hierarchy;
+    `;
+
+    const result = await knex.raw(query, candidateChild);
+    // console.dir(result.rows.map((rec) => rec.id));
+    return result.rows.map((rec) => rec.id).indexOf(parent) !== -1;
 }
 
 function getRoles() {

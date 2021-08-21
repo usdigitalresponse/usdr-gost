@@ -33,7 +33,7 @@ module.exports = [
         role_id: roles[0].id,
     },
     {
-        email: 'michael+nv@stanford.cc',
+        email: 'michael@nv.gov', // fake email for testing
         name: 'Michael Stanford NV',
         agency_id: nevadaAgency.id,
         role_id: roles[0].id,
@@ -42,12 +42,6 @@ module.exports = [
         email: 'michael+nvpr@stanford.cc',
         name: 'Michael Stanford NV-Procurement',
         agency_id: procurementAgency.id,
-        role_id: roles[0].id,
-    },
-    {
-        email: 'dang.alex@gmail.com',
-        name: 'Alex Dang',
-        agency_id: usdrAgency.id,
         role_id: roles[0].id,
     },
     {
@@ -62,6 +56,43 @@ module.exports = [
         agency_id: procurementAgency.id,
         role_id: roles[0].id,
     },
+    {
+        email: 'user1@nv.gov', // fake email for testing
+        name: 'nv.gov User 1',
+        agency_id: nevadaAgency.id,
+        role_id: roles[1].id,
+    },
+    {
+        email: 'user2@nv.gov', // fake email for testing
+        name: 'nv.gov User 2',
+        agency_id: nevadaAgency.id,
+        role_id: roles[1].id,
+    },
+    {
+        email: 'user3@nv.gov', // fake email for testing
+        name: 'nv.gov User 3',
+        agency_id: nevadaAgency.id,
+        role_id: roles[1].id,
+    },
+    {
+        email: 'user1@npo.nv.gov', // fake email for testing
+        name: 'npo.nv.gov User 1',
+        agency_id: procurementAgency.id,
+        role_id: roles[1].id,
+    },
+    {
+        email: 'user2@npo.nv.gov', // fake email for testing
+        name: 'npo.nv.gov User 2',
+        agency_id: procurementAgency.id,
+        role_id: roles[1].id,
+    },
+    {
+        email: 'user3@npo.nv.gov', // fake email for testing
+        name: 'npo.nv.gov User 3',
+        agency_id: procurementAgency.id,
+        role_id: roles[1].id,
+    },
+
     // {
     //     email: 'rafael.pol+staff_asd@protonmail.com',
     //     name: 'rafa2',

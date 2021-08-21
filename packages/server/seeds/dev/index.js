@@ -5,24 +5,25 @@ const roles = require('./ref/roles');
 const eligibilityCodes = require('./ref/eligibilityCodes');
 const interestedCodes = require('./ref/interestedCodes');
 const keywords = require('./ref/keywords');
+const users = require('./ref/users');
 
-const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
+// const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
 
-const adminList = [
-    // Update me with the appropiate initial admin users
-    {
-        email: 'rafael.pol@protonmail.com',
-        name: 'Rafael Pol',
-        agency_id: usdrAgency.id,
-        role_id: roles[0].id,
-    },
-    {
-        email: 'michael@stanford.cc',
-        name: 'Michael Stanford',
-        agency_id: usdrAgency.id,
-        role_id: roles[0].id,
-    },
-];
+// const adminList = [
+//     // Update me with the appropiate initial admin users
+//     {
+//         email: 'rafael.pol@protonmail.com',
+//         name: 'Rafael Pol',
+//         agency_id: usdrAgency.id,
+//         role_id: roles[0].id,
+//     },
+//     {
+//         email: 'michael@stanford.cc',
+//         name: 'Michael Stanford',
+//         agency_id: usdrAgency.id,
+//         role_id: roles[0].id,
+//     },
+// ];
 const agencyUserList = [
     // update me with non admin agency user
 
@@ -47,7 +48,8 @@ exports.seed = async (knex) => {
     await knex('agencies').insert(agencies)
         .onConflict('id')
         .merge();
-    await knex('users').insert(adminList)
+    // await knex('users').insert(adminList)
+    await knex('users').insert(users)
         .onConflict('email')
         .merge();
 

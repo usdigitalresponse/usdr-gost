@@ -2,6 +2,9 @@
 const db_name = 'opportunities';
 const path = require('path');
 
+let { log } = console;
+let { dir } = console;
+
 function execShellCommand(cmd, options = {}) {
     // eslint-disable-next-line global-require
     const { exec } = require('child_process');
@@ -14,7 +17,7 @@ function execShellCommand(cmd, options = {}) {
                 reject(error);
                 return;
             } if (stdout) {
-                console.log(stdout);
+                log(stdout);
             } else {
                 console.log(stderr);
             }
@@ -23,8 +26,12 @@ function execShellCommand(cmd, options = {}) {
     });
 }
 
-async function resetDB(dbName = db_name) {
-    console.dir(__dirname);
+async function resetDB({ dbName = db_name, verbose = false }) {
+    if (!verbose) {
+        log = () => {};
+        dir = () => {};
+    }
+    dir(__dirname);
     const knexfile = path.resolve(__dirname, '../knexfile.js');
     const options = {
         env: process.env,

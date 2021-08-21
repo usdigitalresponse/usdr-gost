@@ -20,7 +20,7 @@ module.exports = [
     {
         id: 1,
         abbreviation: 'ADMIN',
-        name: 'Adminitration, Department of',
+        name: 'Administration, Department of',
         parent: 384,
     },
     {
