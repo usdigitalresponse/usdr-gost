@@ -16,6 +16,7 @@ router.get('/', async (req, res) => {
             agencyCriteria,
             interestedByUser: req.query.interestedByMe ? req.signedCookies.userId : null,
             assignedToUser: req.query.assignedToMe ? req.signedCookies.userId : null,
+            assignedToAgency: req.query.assignedToAgency ? req.query.assignedToAgency : null,
         },
     });
     res.json(grants);
@@ -28,14 +29,13 @@ router.put('/:grantId/view/:agencyId', async (req, res) => {
     res.json({});
 });
 
-router.get('/:grantId/assign', async (req, res) => {
-    // const user = await db.getUser(req.signedCookies.userId);
+router.get('/:grantId/assign/users', async (req, res) => {
     const { grantId } = req.params;
     const response = await db.getGrantAssignedUsers({ grantId });
     res.json(response);
 });
 
-router.put('/:grantId/assign', async (req, res) => {
+router.put('/:grantId/assign/users', async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
     const { grantId } = req.params;
     const { userIds } = req.body;
@@ -43,11 +43,33 @@ router.put('/:grantId/assign', async (req, res) => {
     res.json({});
 });
 
-router.delete('/:grantId/assign', async (req, res) => {
+router.delete('/:grantId/assign/users', async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
     const { grantId } = req.params;
     const { userIds } = req.body;
     await db.unassignUsersToGrant({ grantId, userIds, userId: user.id });
+    res.json({});
+});
+
+router.get('/:grantId/assign/agencies', async (req, res) => {
+    const { grantId } = req.params;
+    const response = await db.getGrantAssignedAgencies({ grantId });
+    res.json(response);
+});
+
+router.put('/:grantId/assign/agencies', async (req, res) => {
+    const user = await db.getUser(req.signedCookies.userId);
+    const { grantId } = req.params;
+    const { agencyIds } = req.body;
+    await db.assignGrantsToAgencies({ grantId, agencyIds, userId: user.id });
+    res.json({});
+});
+
+router.delete('/:grantId/assign/agencies', async (req, res) => {
+    const user = await db.getUser(req.signedCookies.userId);
+    const { grantId } = req.params;
+    const { agencyIds } = req.body;
+    await db.unassignAgenciesToGrant({ grantId, agencyIds, userId: user.id });
     res.json({});
 });
 

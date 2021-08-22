@@ -69,29 +69,29 @@
       />
       <b-row>
         <b-col>
-          <h4>Assigned Users</h4>
+          <h4>Assigned Agencies</h4>
         </b-col>
       </b-row>
       <br/>
       <b-row>
         <b-col>
-          <multiselect v-model="selectedUsers" :options="users"
+          <multiselect v-model="selectedAgencies" :options="agencies"
           :multiple="true" :close-on-select="false"
           :clear-on-select="false"
-          placeholder="Select users" label="name"
+          placeholder="Select agencies" label="name"
           track-by="id">
           </multiselect>
         </b-col>
         <b-col>
-          <b-button variant="outline-success" @click="assignUsersToGrant">Assign</b-button>
+          <b-button variant="outline-success" @click="assignAgenciesToGrant">Assign</b-button>
         </b-col>
       </b-row>
       <b-table
-        :items="assignedUsers"
-        :fields="assignedUsersFields"
+        :items="assignedAgencies"
+        :fields="assignedAgenciesFields"
       >
       <template #cell(actions)="row">
-        <b-button variant="danger" class="mr-1" size="sm" @click="unassignUsersToGrant(row)">
+        <b-button variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
           <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
         </b-button>
       </template>
@@ -137,20 +137,20 @@ export default {
           key: 'interested_code_name',
         },
       ],
-      assignedUsersFields: [
+      assignedAgenciesFields: [
         {
           key: 'name',
         },
         {
-          key: 'email',
+          key: 'abbreviation',
         },
         {
           key: 'created_at',
         },
         { key: 'actions', label: 'Actions' },
       ],
-      assignedUsers: [],
-      selectedUsers: [],
+      assignedAgencies: [],
+      selectedAgencies: [],
       selectedInterestedCode: null,
       searchInput: null,
       debouncedSearchInput: null,
@@ -161,6 +161,7 @@ export default {
   computed: {
     ...mapGetters({
       agency: 'users/agency',
+      agencies: 'agencies/agencies',
       users: 'users/users',
       interestedCodes: 'grants/interestedCodes',
     }),
@@ -181,14 +182,13 @@ export default {
     async selectedGrant() {
       this.showDialog = Boolean(this.selectedGrant);
       if (this.selectedGrant) {
-        // if users have not been loaded, load them
-        if (!this.users.length) {
-          this.fetchUsers();
+        if (!this.agencies.length) {
+          this.fetchAgencies();
         }
         if (!this.alreadyViewed) {
           this.markGrantAsViewed();
         }
-        this.assignedUsers = await this.getGrantAssignedUsers({ grantId: this.selectedGrant.grant_id });
+        this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
       }
     },
   },
@@ -197,10 +197,11 @@ export default {
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
       generateGrantForm: 'grants/generateGrantForm',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
-      getGrantAssignedUsers: 'grants/getGrantAssignedUsers',
-      assignUsersToGrantAction: 'grants/assignUsersToGrant',
-      unassignUsersToGrantAction: 'grants/unassignUsersToGrant',
+      getGrantAssignedAgencies: 'grants/getGrantAssignedAgencies',
+      assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
+      unassignAgenciesToGrantAction: 'grants/unassignAgenciesToGrant',
       fetchUsers: 'users/fetchUsers',
+      fetchAgencies: 'agencies/fetchAgencies',
     }),
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
@@ -218,21 +219,21 @@ export default {
         });
       }
     },
-    async assignUsersToGrant() {
-      const userIds = this.selectedUsers.map((user) => user.id);
-      await this.assignUsersToGrantAction({
+    async assignAgenciesToGrant() {
+      const agencyIds = this.selectedAgencies.map((agency) => agency.id);
+      await this.assignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
-        userIds,
+        agencyIds,
       });
-      this.selectedUsers = [];
-      this.assignedUsers = await this.getGrantAssignedUsers({ grantId: this.selectedGrant.grant_id });
+      this.selectedAgencies = [];
+      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
     },
-    async unassignUsersToGrant(row) {
-      await this.unassignUsersToGrantAction({
+    async unassignAgenciesToGrant(row) {
+      await this.unassignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
-        userIds: [row.item.id],
+        agencyIds: [row.item.id],
       });
-      this.assignedUsers = await this.getGrantAssignedUsers({ grantId: this.selectedGrant.grant_id });
+      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
     },
     async generateSpoc() {
       await this.generateGrantForm({
@@ -241,8 +242,8 @@ export default {
     },
     resetSelectedGrant() {
       this.$emit('update:selectedGrant', null);
-      this.assignedUsers = [];
-      this.selectedUsers = [];
+      this.assignedAgencies = [];
+      this.selectedAgencies = [];
     },
   },
 };

@@ -198,6 +198,7 @@ async function getGrants({
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
         .modify((queryBuilder) => {
+            queryBuilder.distinctOn(`${TABLES.grants}.grant_id`);
             if (searchTerm && searchTerm !== 'null') {
                 queryBuilder.andWhere(
                     (qb) => qb.where(`${TABLES.grants}.grant_id`, '~*', searchTerm)
@@ -211,6 +212,9 @@ async function getGrants({
                 }
                 if (filters.assignedToUser) {
                     queryBuilder.join(TABLES.assigned_grants_user, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_user}.grant_id`);
+                }
+                if (filters.assignedToAgency) {
+                    queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
                 }
                 queryBuilder.andWhere(
                     (qb) => {
@@ -229,14 +233,12 @@ async function getGrants({
             if (orderBy && orderBy !== 'undefined') {
                 if (orderBy.includes('interested_agencies')) {
                     queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
-                    queryBuilder.distinctOn(`${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
                     const orderArgs = orderBy.split('|');
                     queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
                     queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
                 } else if (orderBy.includes('viewed_by')) {
                     const orderArgs = orderBy.split('|');
                     queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
-                    queryBuilder.distinctOn(`${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
                     queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
                     queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
                 } else {
@@ -334,6 +336,31 @@ function unassignUsersToGrant({ grantId, userIds }) {
     const deleteWhere = userIds.map((uId) => ([uId, grantId]));
     return knex(TABLES.assigned_grants_user)
         .whereIn(['user_id', 'grant_id'], deleteWhere)
+        .delete();
+}
+
+function getGrantAssignedAgencies({ grantId }) {
+    return knex(TABLES.assigned_grants_agency)
+        .join(TABLES.agencies, `${TABLES.agencies}.id`, '=', `${TABLES.assigned_grants_agency}.agency_id`)
+        .where({ grant_id: grantId });
+}
+
+function assignGrantsToAgencies({ grantId, agencyIds, userId }) {
+    const insertPayload = agencyIds.map((aId) => ({
+        agency_id: aId,
+        grant_id: grantId,
+        assigned_by: userId,
+    }));
+    return knex(TABLES.assigned_grants_agency)
+        .insert(insertPayload)
+        .onConflict(['agency_id', 'grant_id'])
+        .ignore();
+}
+
+function unassignAgenciesToGrant({ grantId, agencyIds }) {
+    const deleteWhere = agencyIds.map((aId) => ([aId, grantId]));
+    return knex(TABLES.assigned_grants_agency)
+        .whereIn(['agency_id', 'grant_id'], deleteWhere)
         .delete();
 }
 
@@ -498,6 +525,9 @@ module.exports = {
     getGrantAssignedUsers,
     assignGrantsToUsers,
     unassignUsersToGrant,
+    getGrantAssignedAgencies,
+    assignGrantsToAgencies,
+    unassignAgenciesToGrant,
     getElegibilityCodes,
     sync,
     getAllRows,

@@ -59,7 +59,7 @@ export default {
   components: { GrantDetails },
   props: {
     showInterested: Boolean,
-    showAssigned: Boolean,
+    showAssignedToAgency: Number,
   },
   data() {
     return {
@@ -206,7 +206,7 @@ export default {
           orderBy: this.orderBy,
           searchTerm: this.debouncedSearchInput,
           interestedByMe: this.showInterested,
-          assignedToMe: this.showAssigned,
+          assignedToAgency: this.showAssignedToAgency,
         });
       } catch (e) {
         console.log(e);

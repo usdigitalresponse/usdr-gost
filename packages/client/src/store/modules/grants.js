@@ -24,10 +24,10 @@ export default {
   },
   actions: {
     fetchGrants({ commit }, {
-      currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToMe,
+      currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToMe, assignedToAgency,
     }) {
       const query = Object.entries({
-        currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToMe,
+        currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToMe, assignedToAgency,
       })
         // eslint-disable-next-line no-unused-vars
         .filter(([key, value]) => value)
@@ -40,16 +40,29 @@ export default {
       return fetchApi.put(`/api/grants/${grantId}/view/${agencyId}`);
     },
     getGrantAssignedUsers(context, { grantId }) {
-      return fetchApi.get(`/api/grants/${grantId}/assign`);
+      return fetchApi.get(`/api/grants/${grantId}/assign/users`);
     },
     assignUsersToGrant(context, { grantId, userIds }) {
-      return fetchApi.put(`/api/grants/${grantId}/assign`, {
+      return fetchApi.put(`/api/grants/${grantId}/assign/users`, {
         userIds,
       });
     },
     unassignUsersToGrant(context, { grantId, userIds }) {
-      return fetchApi.deleteRequest(`/api/grants/${grantId}/assign`, {
+      return fetchApi.deleteRequest(`/api/grants/${grantId}/assign/users`, {
         userIds,
+      });
+    },
+    getGrantAssignedAgencies(context, { grantId }) {
+      return fetchApi.get(`/api/grants/${grantId}/assign/agencies`);
+    },
+    assignAgenciesToGrant(context, { grantId, agencyIds }) {
+      return fetchApi.put(`/api/grants/${grantId}/assign/agencies`, {
+        agencyIds,
+      });
+    },
+    unassignAgenciesToGrant(context, { grantId, agencyIds }) {
+      return fetchApi.deleteRequest(`/api/grants/${grantId}/assign/agencies`, {
+        agencyIds,
       });
     },
     async generateGrantForm(context, { grantId }) {
