@@ -56,4 +56,16 @@ describe('db', () => {
             expect(result.keywords[0]).to.equal(fixtures.keywords.accountancyCovid.search_term);
         });
     });
+
+    context('getGrantsAssignedAgency', () => {
+        it('gets grants assigned to agency', async () => {
+            const result = await db.getGrants({
+                filters: {
+                    assignedToAgency: fixtures.users.staffUser.agency_id,
+                },
+            });
+            expect(result).to.have.property('data').with.lengthOf(1);
+            expect(result.data[0].grant_id).to.equal(fixtures.assignedAgencyGrants[0].grant_id);
+        });
+    });
 });

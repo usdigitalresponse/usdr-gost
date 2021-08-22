@@ -213,7 +213,8 @@ async function getGrants({
                 if (filters.assignedToUser) {
                     queryBuilder.join(TABLES.assigned_grants_user, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_user}.grant_id`);
                 }
-                if (filters.assignedToAgency) {
+                // assignedToAgency is a number, thus need the undefined check
+                if (filters.assignedToAgency !== undefined) {
                     queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
                 }
                 queryBuilder.andWhere(
