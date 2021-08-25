@@ -7,7 +7,8 @@ function initialState() {
     totalGrantsMatchingAgencyCriteria: null,
     totalViewedGrants: null,
     totalInterestedGrants: null,
-    totalGrantsBetweenDates: null,
+    totalGrantsInTimeframe: null,
+    totalGrantsInTimeframeMatchingCriteria: null,
     totalInterestedGrantsByAgencies: null,
   };
 }
@@ -21,18 +22,14 @@ export default {
     totalGrantsMatchingAgencyCriteria: (state) => state.totalGrantsMatchingAgencyCriteria,
     totalViewedGrants: (state) => state.totalViewedGrants,
     totalInterestedGrants: (state) => state.totalInterestedGrants,
-    totalGrantsBetweenDates: (state) => state.totalGrantsBetweenDates,
+    totalGrantsInTimeframe: (state) => state.totalGrantsInTimeframe,
+    totalGrantsInTimeframeMatchingCriteria: (state) => state.totalGrantsInTimeframeMatchingCriteria,
     totalInterestedGrantsByAgencies: (state) => state.totalInterestedGrantsByAgencies,
   },
   actions: {
     async fetchDashboard({ commit }) {
-      const date = new Date();
-      const today = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
-      const yesterday = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
-
-      yesterday.setDate(yesterday.getDate() - 1);
-      const dateQueryString = `${yesterday.toISOString().split('T')[0]}|${today.toISOString().split('T')[0]}`;
-      const result = await fetchApi.get(`/api/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&totalGrantsBetweenDates=${dateQueryString}&totalInterestedGrantsByAgencies=true`);
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const result = await fetchApi.get(`/api/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&totalGrantsFromTs=${twentyFourHoursAgo.toISOString()}&totalInterestedGrantsByAgencies=true`);
       if (result.totalGrants) {
         commit('SET_TOTAL_GRANTS', result.totalGrants);
       }
@@ -45,8 +42,11 @@ export default {
       if (result.totalInterestedGrants) {
         commit('SET_TOTAL_INTERESTED_GRANTS', result.totalInterestedGrants);
       }
-      if (result.totalGrantsBetweenDates) {
-        commit('SET_TOTAL_24HR_GRANTS', result.totalGrantsBetweenDates);
+      if (result.totalGrantsInTimeframe) {
+        commit('SET_TOTAL_24HR_GRANTS', result.totalGrantsInTimeframe);
+      }
+      if (result.totalGrantsInTimeframeMatchingCriteria) {
+        commit('SET_TOTAL_24HR_GRANTS_MATCHING_CRITERIA', result.totalGrantsInTimeframeMatchingCriteria);
       }
       if (result.totalInterestedGrantsByAgencies) {
         commit('SET_TOTAL_TOTAL_INTERESTED_GRANTS_BY_AGENCIES', result.totalInterestedGrantsByAgencies);
@@ -67,7 +67,10 @@ export default {
       state.totalInterestedGrants = data;
     },
     SET_TOTAL_24HR_GRANTS(state, data) {
-      state.totalGrantsBetweenDates = data;
+      state.totalGrantsInTimeframe = data;
+    },
+    SET_TOTAL_24HR_GRANTS_MATCHING_CRITERIA(state, data) {
+      state.totalGrantsInTimeframeMatchingCriteria = data;
     },
     SET_TOTAL_TOTAL_INTERESTED_GRANTS_BY_AGENCIES(state, data) {
       state.totalInterestedGrantsByAgencies = data;

@@ -5,14 +5,15 @@
           <h3>{{totalGrantsMatchingAgencyCriteria}} of {{totalGrants}}</h3>
           <b-link class="stretched-link" to="/grants" />
         </b-card>
+        <b-card bg-variant="secondary" text-variant="white" header="Total Grants Last 24hrs" class="text-center">
+          <h3>{{totalGrantsInTimeframeMatchingCriteria}} of {{totalGrantsInTimeframe}}</h3>
+          <b-link class="stretched-link" to="/grants" />
+        </b-card>
         <b-card bg-variant="secondary" text-variant="white" header="Total Viewed Grants" class="text-center">
           <h3>{{totalViewedGrants}}</h3>
         </b-card>
         <b-card bg-variant="secondary" text-variant="white" header="Total Interested Grants" class="text-center">
           <h3>{{totalInterestedGrants}}</h3>
-        </b-card>
-        <b-card bg-variant="secondary" text-variant="white" header="Total Grants Last 24hrs" class="text-center">
-          <h3>{{totalGrantsBetweenDates}}</h3>
         </b-card>
     </b-card-group>
     <b-card title="Total Interested Grants by Agencies">
@@ -67,7 +68,8 @@ export default {
       totalGrantsMatchingAgencyCriteria: 'dashboard/totalGrantsMatchingAgencyCriteria',
       totalViewedGrants: 'dashboard/totalViewedGrants',
       totalInterestedGrants: 'dashboard/totalInterestedGrants',
-      totalGrantsBetweenDates: 'dashboard/totalGrantsBetweenDates',
+      totalGrantsInTimeframe: 'dashboard/totalGrantsInTimeframe',
+      totalGrantsInTimeframeMatchingCriteria: 'dashboard/totalGrantsInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
     }),
   },
