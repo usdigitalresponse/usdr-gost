@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <template>
   <div>
     <b-modal

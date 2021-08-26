@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 const express = require('express');
 const _ = require('lodash-checkit');
 const { sendPasscode } = require('../lib/email');
@@ -15,8 +16,15 @@ router.get('/', async (req, res) => {
     if (passcode) {
         const token = await getAccessToken(passcode);
         if (!token) {
-            console.log('invalid passcode');
-            res.redirect('/login');
+            res.redirect(`/#/login?message=${encodeURIComponent('Invalid access token')}`);
+        } else if (new Date() > token.expires) {
+            res.redirect(
+                `/#/login?message=${encodeURIComponent('Access token has expired')}`,
+            );
+        } else if (token.used) {
+            res.redirect(`/#/login?message=${encodeURIComponent(
+                'Login link has already been used - please re-submit your email address',
+            )}`);
         } else {
             await markAccessTokenUsed(passcode);
             res.cookie('userId', token.user_id, { signed: true });

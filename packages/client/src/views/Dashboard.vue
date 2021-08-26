@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <template>
   <section class="m-4">
     <b-card-group columns>
