@@ -1,21 +1,30 @@
 <template>
-  <section class="m-4">
-    <b-card-group columns>
-        <b-card bg-variant="secondary" text-variant="white" header="Total Grants Matching Search Criteria" class="text-center">
+  <section class="m-3">
+    <b-row>
+      <b-col cols="4">
+        <b-card bg-variant="secondary" text-variant="white" header="Total Grants Matching Search Criteria" class="text-center mb-3">
           <h3>{{totalGrantsMatchingAgencyCriteria}} of {{totalGrants}}</h3>
           <b-link class="stretched-link" to="/grants" />
         </b-card>
-        <b-card bg-variant="secondary" text-variant="white" header="Total Grants Last 24hrs" class="text-center">
-          <h3>{{totalGrantsInTimeframeMatchingCriteria}} of {{totalGrantsInTimeframe}}</h3>
+        <b-card bg-variant="secondary" text-variant="white" header="New Grants Matching Search Criteria, Last 24Hrs" class="text-center mb-3">
+          <h3>{{grantsCreatedInTimeframeMatchingCriteria}} of {{grantsCreatedInTimeframe}}</h3>
           <b-link class="stretched-link" to="/grants" />
-        </b-card>
-        <b-card bg-variant="secondary" text-variant="white" header="Total Viewed Grants" class="text-center">
+          </b-card>
+        <b-card bg-variant="secondary" text-variant="white" header="Updated Grants Matching Search Criteria, Last 24Hrs" class="text-center mb-3">
+          <h3>{{grantsUpdatedInTimeframeMatchingCriteria}} of {{grantsUpdatedInTimeframe}}</h3>
+          <b-link class="stretched-link" to="/grants" />
+          </b-card>
+      </b-col>
+      <b-col cols="4">
+        <b-card bg-variant="secondary" text-variant="white" header="Total Viewed Grants" class="text-center mb-3">
           <h3>{{totalViewedGrants}}</h3>
         </b-card>
-        <b-card bg-variant="secondary" text-variant="white" header="Total Interested Grants" class="text-center">
+        <b-card bg-variant="secondary" text-variant="white" header="Total Interested Grants" class="text-center mb-3">
           <h3>{{totalInterestedGrants}}</h3>
+          <b-link class="stretched-link" to="/my-grants" />
         </b-card>
-    </b-card-group>
+        </b-col>
+    </b-row>
     <b-card title="Total Interested Grants by Agencies">
       <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields"></b-table>
     </b-card>
@@ -68,8 +77,10 @@ export default {
       totalGrantsMatchingAgencyCriteria: 'dashboard/totalGrantsMatchingAgencyCriteria',
       totalViewedGrants: 'dashboard/totalViewedGrants',
       totalInterestedGrants: 'dashboard/totalInterestedGrants',
-      totalGrantsInTimeframe: 'dashboard/totalGrantsInTimeframe',
-      totalGrantsInTimeframeMatchingCriteria: 'dashboard/totalGrantsInTimeframeMatchingCriteria',
+      grantsCreatedInTimeframe: 'dashboard/grantsCreatedInTimeframe',
+      grantsCreatedInTimeframeMatchingCriteria: 'dashboard/grantsCreatedInTimeframeMatchingCriteria',
+      grantsUpdatedInTimeframe: 'dashboard/grantsUpdatedInTimeframe',
+      grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
     }),
   },

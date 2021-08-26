@@ -20,17 +20,31 @@ router.get('/', async (req, res) => {
     if (req.query.totalInterestedGrantsByAgencies) {
         result.totalInterestedGrantsByAgencies = await db.getTotalInterestedGrantsByAgencies();
     }
-    if (req.query.totalGrantsFromTs) {
-        const fromTs = req.query.totalGrantsFromTs;
+    if (req.query.grantsCreatedFromTs) {
+        const fromTs = req.query.grantsCreatedFromTs;
         const criteria = agencyCriteria
             || await db.getAgencyCriteriaForUserId(req.signedCookies.userId);
 
-        result.totalGrantsInTimeframe = await db.getTotalGrants({
+        result.grantsCreatedInTimeframe = await db.getTotalGrants({
             createdTsBounds: { fromTs },
         });
 
-        result.totalGrantsInTimeframeMatchingCriteria = await db.getTotalGrants({
+        result.grantsCreatedInTimeframeMatchingCriteria = await db.getTotalGrants({
             createdTsBounds: { fromTs },
+            agencyCriteria: criteria,
+        });
+    }
+    if (req.query.grantsUpdatedFromTs) {
+        const fromTs = req.query.grantsUpdatedFromTs;
+        const criteria = agencyCriteria
+            || await db.getAgencyCriteriaForUserId(req.signedCookies.userId);
+
+        result.grantsUpdatedInTimeframe = await db.getTotalGrants({
+            updatedTsBounds: { fromTs },
+        });
+
+        result.grantsUpdatedInTimeframeMatchingCriteria = await db.getTotalGrants({
+            updatedTsBounds: { fromTs },
             agencyCriteria: criteria,
         });
     }

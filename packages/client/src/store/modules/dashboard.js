@@ -7,8 +7,10 @@ function initialState() {
     totalGrantsMatchingAgencyCriteria: null,
     totalViewedGrants: null,
     totalInterestedGrants: null,
-    totalGrantsInTimeframe: null,
-    totalGrantsInTimeframeMatchingCriteria: null,
+    grantsCreatedInTimeframe: null,
+    grantsCreatedInTimeframeMatchingCriteria: null,
+    grantsUpdatedInTimeframe: null,
+    grantsUpdatedInTimeframeMatchingCriteria: null,
     totalInterestedGrantsByAgencies: null,
   };
 }
@@ -22,14 +24,17 @@ export default {
     totalGrantsMatchingAgencyCriteria: (state) => state.totalGrantsMatchingAgencyCriteria,
     totalViewedGrants: (state) => state.totalViewedGrants,
     totalInterestedGrants: (state) => state.totalInterestedGrants,
-    totalGrantsInTimeframe: (state) => state.totalGrantsInTimeframe,
-    totalGrantsInTimeframeMatchingCriteria: (state) => state.totalGrantsInTimeframeMatchingCriteria,
+    grantsCreatedInTimeframe: (state) => state.grantsCreatedInTimeframe,
+    grantsCreatedInTimeframeMatchingCriteria: (state) => state.grantsCreatedInTimeframeMatchingCriteria,
+    grantsUpdatedInTimeframe: (state) => state.grantsUpdatedInTimeframe,
+    grantsUpdatedInTimeframeMatchingCriteria: (state) => state.grantsUpdatedInTimeframeMatchingCriteria,
     totalInterestedGrantsByAgencies: (state) => state.totalInterestedGrantsByAgencies,
   },
   actions: {
     async fetchDashboard({ commit }) {
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      const result = await fetchApi.get(`/api/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&totalGrantsFromTs=${twentyFourHoursAgo.toISOString()}&totalInterestedGrantsByAgencies=true`);
+      const timestampQueryString = twentyFourHoursAgo.toISOString();
+      const result = await fetchApi.get(`/api/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&grantsCreatedFromTs=${timestampQueryString}&grantsUpdatedFromTs=${timestampQueryString}&totalInterestedGrantsByAgencies=true`);
       if (result.totalGrants) {
         commit('SET_TOTAL_GRANTS', result.totalGrants);
       }
@@ -42,11 +47,17 @@ export default {
       if (result.totalInterestedGrants) {
         commit('SET_TOTAL_INTERESTED_GRANTS', result.totalInterestedGrants);
       }
-      if (result.totalGrantsInTimeframe) {
-        commit('SET_TOTAL_24HR_GRANTS', result.totalGrantsInTimeframe);
+      if (result.grantsCreatedInTimeframe) {
+        commit('SET_GRANTS_CREATED_IN_TIMEFRAME', result.grantsCreatedInTimeframe);
       }
-      if (result.totalGrantsInTimeframeMatchingCriteria) {
-        commit('SET_TOTAL_24HR_GRANTS_MATCHING_CRITERIA', result.totalGrantsInTimeframeMatchingCriteria);
+      if (result.grantsCreatedInTimeframeMatchingCriteria) {
+        commit('SET_GRANTS_CREATED_IN_TIMEFRAME_MATCHING_CRITERIA', result.grantsCreatedInTimeframeMatchingCriteria);
+      }
+      if (result.grantsUpdatedInTimeframe) {
+        commit('SET_GRANTS_UPDATED_IN_TIMEFRAME', result.grantsUpdatedInTimeframe);
+      }
+      if (result.grantsUpdatedInTimeframeMatchingCriteria) {
+        commit('SET_GRANTS_UPDATED_IN_TIMEFRAME_MATCHING_CRITERIA', result.grantsUpdatedInTimeframeMatchingCriteria);
       }
       if (result.totalInterestedGrantsByAgencies) {
         commit('SET_TOTAL_TOTAL_INTERESTED_GRANTS_BY_AGENCIES', result.totalInterestedGrantsByAgencies);
@@ -66,11 +77,17 @@ export default {
     SET_TOTAL_INTERESTED_GRANTS(state, data) {
       state.totalInterestedGrants = data;
     },
-    SET_TOTAL_24HR_GRANTS(state, data) {
-      state.totalGrantsInTimeframe = data;
+    SET_GRANTS_CREATED_IN_TIMEFRAME(state, data) {
+      state.grantsCreatedInTimeframe = data;
     },
-    SET_TOTAL_24HR_GRANTS_MATCHING_CRITERIA(state, data) {
-      state.totalGrantsInTimeframeMatchingCriteria = data;
+    SET_GRANTS_CREATED_IN_TIMEFRAME_MATCHING_CRITERIA(state, data) {
+      state.grantsCreatedInTimeframeMatchingCriteria = data;
+    },
+    SET_GRANTS_UPDATED_IN_TIMEFRAME(state, data) {
+      state.grantsUpdatedInTimeframe = data;
+    },
+    SET_GRANTS_UPDATED_IN_TIMEFRAME_MATCHING_CRITERIA(state, data) {
+      state.grantsUpdatedInTimeframeMatchingCriteria = data;
     },
     SET_TOTAL_TOTAL_INTERESTED_GRANTS_BY_AGENCIES(state, data) {
       state.totalInterestedGrantsByAgencies = data;
