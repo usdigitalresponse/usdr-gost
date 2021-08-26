@@ -91,6 +91,8 @@ const grants = {
         eligibility_codes: '25',
         opportunity_status: 'posted',
         raw_body: 'raw body',
+        created_at: '2021-08-11 11:30:38.89828-07',
+        updated_at: '2021-08-11 12:30:39.531-07',
     },
     healthAide: {
         status: 'inbox',
@@ -111,6 +113,8 @@ const grants = {
         eligibility_codes: '11 07 25',
         opportunity_status: 'posted',
         raw_body: 'raw body',
+        created_at: '2021-08-06 16:03:53.57025-07',
+        updated_at: '2021-08-11 12:35:42.562-07',
     },
     noDescOrEligibilityCodes: {
         status: 'inbox',
@@ -131,6 +135,8 @@ const grants = {
         eligibility_codes: '',
         opportunity_status: 'posted',
         raw_body: 'raw body',
+        created_at: '2021-08-06 16:03:53.57025-07',
+        updated_at: '2021-08-11 12:35:42.562-07',
     },
 };
 
