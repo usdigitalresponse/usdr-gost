@@ -132,6 +132,16 @@ async function getAccessToken(passcode) {
     return result[0];
 }
 
+async function incrementAccessTokenUses(passcode) {
+    const result = await knex('access_tokens')
+        .update({ uses: knex.raw('uses + 1') })
+        .where('passcode', passcode)
+        .then(() => knex('access_tokens')
+            .select('uses')
+            .where('passcode', passcode));
+    return result[0].uses;
+}
+
 function markAccessTokenUsed(passcode) {
     return knex('access_tokens')
         .where('passcode', passcode)
@@ -484,6 +494,7 @@ module.exports = {
     getRoles,
     createAccessToken,
     getAccessToken,
+    incrementAccessTokenUses,
     markAccessTokenUsed,
     getAgencies,
     getAgencyEligibilityCodes,

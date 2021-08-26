@@ -8,6 +8,7 @@ const {
     getUser,
     getAccessToken,
     createAccessToken,
+    incrementAccessTokenUses,
     markAccessTokenUsed,
 } = require('../db');
 
@@ -26,7 +27,10 @@ router.get('/', async (req, res) => {
                 'Login link has already been used - please re-submit your email address',
             )}`);
         } else {
-            await markAccessTokenUsed(passcode);
+            const uses = await incrementAccessTokenUses(passcode);
+            if (uses > 1) {
+                await markAccessTokenUsed(passcode);
+            }
             res.cookie('userId', token.user_id, { signed: true });
             res.redirect(process.env.WEBSITE_DOMAIN || '/');
         }
