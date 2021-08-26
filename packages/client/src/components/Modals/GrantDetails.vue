@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <template>
     <b-modal v-model="showDialog"
     ok-only

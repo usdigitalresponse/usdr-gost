@@ -1,6 +1,7 @@
 /* global context */
 /* eslint-disable func-names  */
 /* eslint-disable no-use-before-define */
+/* eslint-disable import/no-unresolved */
 
 const usdrAgency = 0;
 const nevadaAgency = 384;
@@ -31,7 +32,7 @@ describe('User permissions', () => {
         });
         it('Start the server', async () => {
             // eslint-disable-next-line global-require
-            server = await require('../src/index.js');
+            server = await require('../src/index');
         });
         it('Log in and get the cookie', async () => {
             // this.timeout(3000);
