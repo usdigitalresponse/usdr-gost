@@ -6,8 +6,12 @@ const db = require('../db');
 router.get('/', async (req, res) => {
     const result = {};
     let agencyCriteria;
-    if (req.query.totalGrants) {
+
+    if (req.query.totalGrants || req.query.grantsCreatedFromTs || req.query.grantsUpdatedFromTs) {
         agencyCriteria = await db.getAgencyCriteriaForUserId(req.signedCookies.userId);
+    }
+
+    if (req.query.totalGrants) {
         result.totalGrants = await db.getTotalGrants();
         result.totalGrantsMatchingAgencyCriteria = await db.getTotalGrants({ agencyCriteria });
     }
@@ -15,15 +19,13 @@ router.get('/', async (req, res) => {
         result.totalViewedGrants = await db.getTotalViewedGrants();
     }
     if (req.query.totalInterestedGrants) {
-        result.totalInterestedGrants = await db.getTotalInteresedGrants();
+        result.totalInterestedGrants = await db.getTotalInterestedGrants();
     }
     if (req.query.totalInterestedGrantsByAgencies) {
         result.totalInterestedGrantsByAgencies = await db.getTotalInterestedGrantsByAgencies();
     }
     if (req.query.grantsCreatedFromTs) {
         const fromTs = req.query.grantsCreatedFromTs;
-        const criteria = agencyCriteria
-            || await db.getAgencyCriteriaForUserId(req.signedCookies.userId);
 
         result.grantsCreatedInTimeframe = await db.getTotalGrants({
             createdTsBounds: { fromTs },
@@ -31,13 +33,11 @@ router.get('/', async (req, res) => {
 
         result.grantsCreatedInTimeframeMatchingCriteria = await db.getTotalGrants({
             createdTsBounds: { fromTs },
-            agencyCriteria: criteria,
+            agencyCriteria,
         });
     }
     if (req.query.grantsUpdatedFromTs) {
         const fromTs = req.query.grantsUpdatedFromTs;
-        const criteria = agencyCriteria
-            || await db.getAgencyCriteriaForUserId(req.signedCookies.userId);
 
         result.grantsUpdatedInTimeframe = await db.getTotalGrants({
             updatedTsBounds: { fromTs },
@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
 
         result.grantsUpdatedInTimeframeMatchingCriteria = await db.getTotalGrants({
             updatedTsBounds: { fromTs },
-            agencyCriteria: criteria,
+            agencyCriteria,
         });
     }
     res.json(result);

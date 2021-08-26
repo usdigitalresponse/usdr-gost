@@ -292,7 +292,7 @@ async function getTotalViewedGrants() {
     return rows[0].count;
 }
 
-async function getTotalInteresedGrants() {
+async function getTotalInterestedGrants() {
     const rows = await knex(TABLES.grants_interested).count();
     return rows[0].count;
 }
@@ -490,7 +490,7 @@ module.exports = {
     getGrant,
     getTotalGrants,
     getTotalViewedGrants,
-    getTotalInteresedGrants,
+    getTotalInterestedGrants,
     getTotalInterestedGrantsByAgencies,
     markGrantAsViewed,
     getInterestedAgencies,
