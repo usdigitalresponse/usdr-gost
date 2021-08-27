@@ -9,6 +9,6 @@ exports.up = function (knex) {
 exports.down = function (knex) {
     return knex.schema
         .table('access_tokens', (table) => {
-            table.dropForeign('uses');
+            table.dropColumn('uses');
         });
 };
