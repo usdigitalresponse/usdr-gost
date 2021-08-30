@@ -272,8 +272,18 @@ async function getGrant({ grantId }) {
     return results[0];
 }
 
-async function getTotalGrants({ agencyCriteria } = {}) {
-    const rows = await knex(TABLES.grants).modify(helpers.whereAgencyCriteriaMatch, agencyCriteria).count();
+async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
+    const rows = await knex(TABLES.grants)
+        .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
+        .modify((qb) => {
+            if (createdTsBounds && createdTsBounds.fromTs) {
+                qb.where('created_at', '>=', createdTsBounds.fromTs);
+            }
+            if (updatedTsBounds && updatedTsBounds.fromTs) {
+                qb.where('updated_at', '>=', updatedTsBounds.fromTs);
+            }
+        })
+        .count();
     return rows[0].count;
 }
 
@@ -282,7 +292,7 @@ async function getTotalViewedGrants() {
     return rows[0].count;
 }
 
-async function getTotalInteresedGrants() {
+async function getTotalInterestedGrants() {
     const rows = await knex(TABLES.grants_interested).count();
     return rows[0].count;
 }
@@ -297,14 +307,6 @@ async function getTotalInterestedGrantsByAgencies() {
         .count(`${TABLES.interested_codes}.is_rejection`)
         .groupBy(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
     return rows;
-}
-
-async function getTotalGrantsBetweenDates(from, to) {
-    const rows = await knex(TABLES.grants)
-        .where('created_at', '>=', new Date(from))
-        .where('created_at', '<=', new Date(to))
-        .count();
-    return rows[0].count;
 }
 
 function markGrantAsViewed({ grantId, agencyId, userId }) {
@@ -488,8 +490,7 @@ module.exports = {
     getGrant,
     getTotalGrants,
     getTotalViewedGrants,
-    getTotalInteresedGrants,
-    getTotalGrantsBetweenDates,
+    getTotalInterestedGrants,
     getTotalInterestedGrantsByAgencies,
     markGrantAsViewed,
     getInterestedAgencies,

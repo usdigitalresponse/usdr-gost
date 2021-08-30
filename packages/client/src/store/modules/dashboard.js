@@ -7,7 +7,10 @@ function initialState() {
     totalGrantsMatchingAgencyCriteria: null,
     totalViewedGrants: null,
     totalInterestedGrants: null,
-    totalGrantsBetweenDates: null,
+    grantsCreatedInTimeframe: null,
+    grantsCreatedInTimeframeMatchingCriteria: null,
+    grantsUpdatedInTimeframe: null,
+    grantsUpdatedInTimeframeMatchingCriteria: null,
     totalInterestedGrantsByAgencies: null,
   };
 }
@@ -21,18 +24,17 @@ export default {
     totalGrantsMatchingAgencyCriteria: (state) => state.totalGrantsMatchingAgencyCriteria,
     totalViewedGrants: (state) => state.totalViewedGrants,
     totalInterestedGrants: (state) => state.totalInterestedGrants,
-    totalGrantsBetweenDates: (state) => state.totalGrantsBetweenDates,
+    grantsCreatedInTimeframe: (state) => state.grantsCreatedInTimeframe,
+    grantsCreatedInTimeframeMatchingCriteria: (state) => state.grantsCreatedInTimeframeMatchingCriteria,
+    grantsUpdatedInTimeframe: (state) => state.grantsUpdatedInTimeframe,
+    grantsUpdatedInTimeframeMatchingCriteria: (state) => state.grantsUpdatedInTimeframeMatchingCriteria,
     totalInterestedGrantsByAgencies: (state) => state.totalInterestedGrantsByAgencies,
   },
   actions: {
     async fetchDashboard({ commit }) {
-      const date = new Date();
-      const today = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
-      const yesterday = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
-
-      yesterday.setDate(yesterday.getDate() - 1);
-      const dateQueryString = `${yesterday.toISOString().split('T')[0]}|${today.toISOString().split('T')[0]}`;
-      const result = await fetchApi.get(`/api/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&totalGrantsBetweenDates=${dateQueryString}&totalInterestedGrantsByAgencies=true`);
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const timestampQueryString = twentyFourHoursAgo.toISOString();
+      const result = await fetchApi.get(`/api/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&grantsCreatedFromTs=${timestampQueryString}&grantsUpdatedFromTs=${timestampQueryString}&totalInterestedGrantsByAgencies=true`);
       if (result.totalGrants) {
         commit('SET_TOTAL_GRANTS', result.totalGrants);
       }
@@ -45,8 +47,17 @@ export default {
       if (result.totalInterestedGrants) {
         commit('SET_TOTAL_INTERESTED_GRANTS', result.totalInterestedGrants);
       }
-      if (result.totalGrantsBetweenDates) {
-        commit('SET_TOTAL_24HR_GRANTS', result.totalGrantsBetweenDates);
+      if (result.grantsCreatedInTimeframe) {
+        commit('SET_GRANTS_CREATED_IN_TIMEFRAME', result.grantsCreatedInTimeframe);
+      }
+      if (result.grantsCreatedInTimeframeMatchingCriteria) {
+        commit('SET_GRANTS_CREATED_IN_TIMEFRAME_MATCHING_CRITERIA', result.grantsCreatedInTimeframeMatchingCriteria);
+      }
+      if (result.grantsUpdatedInTimeframe) {
+        commit('SET_GRANTS_UPDATED_IN_TIMEFRAME', result.grantsUpdatedInTimeframe);
+      }
+      if (result.grantsUpdatedInTimeframeMatchingCriteria) {
+        commit('SET_GRANTS_UPDATED_IN_TIMEFRAME_MATCHING_CRITERIA', result.grantsUpdatedInTimeframeMatchingCriteria);
       }
       if (result.totalInterestedGrantsByAgencies) {
         commit('SET_TOTAL_TOTAL_INTERESTED_GRANTS_BY_AGENCIES', result.totalInterestedGrantsByAgencies);
@@ -66,8 +77,17 @@ export default {
     SET_TOTAL_INTERESTED_GRANTS(state, data) {
       state.totalInterestedGrants = data;
     },
-    SET_TOTAL_24HR_GRANTS(state, data) {
-      state.totalGrantsBetweenDates = data;
+    SET_GRANTS_CREATED_IN_TIMEFRAME(state, data) {
+      state.grantsCreatedInTimeframe = data;
+    },
+    SET_GRANTS_CREATED_IN_TIMEFRAME_MATCHING_CRITERIA(state, data) {
+      state.grantsCreatedInTimeframeMatchingCriteria = data;
+    },
+    SET_GRANTS_UPDATED_IN_TIMEFRAME(state, data) {
+      state.grantsUpdatedInTimeframe = data;
+    },
+    SET_GRANTS_UPDATED_IN_TIMEFRAME_MATCHING_CRITERIA(state, data) {
+      state.grantsUpdatedInTimeframeMatchingCriteria = data;
     },
     SET_TOTAL_TOTAL_INTERESTED_GRANTS_BY_AGENCIES(state, data) {
       state.totalInterestedGrantsByAgencies = data;
