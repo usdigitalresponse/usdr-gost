@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <template>
   <section class="m-3">
     <b-row>
