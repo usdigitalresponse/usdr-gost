@@ -198,7 +198,6 @@ async function getGrants({
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
         .modify((queryBuilder) => {
-            queryBuilder.distinctOn(`${TABLES.grants}.grant_id`);
             if (searchTerm && searchTerm !== 'null') {
                 queryBuilder.andWhere(
                     (qb) => qb.where(`${TABLES.grants}.grant_id`, '~*', searchTerm)
@@ -210,11 +209,7 @@ async function getGrants({
                 if (filters.interestedByUser) {
                     queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
                 }
-                if (filters.assignedToUser) {
-                    queryBuilder.join(TABLES.assigned_grants_user, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_user}.grant_id`);
-                }
-                // assignedToAgency is a number, thus need the undefined check
-                if (filters.assignedToAgency !== undefined) {
+                if (filters.assignedToAgency) {
                     queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
                 }
                 queryBuilder.andWhere(
@@ -224,8 +219,8 @@ async function getGrants({
                         if (filters.interestedByUser) {
                             qb.where(`${TABLES.grants_interested}.user_id`, '=', filters.interestedByUser);
                         }
-                        if (filters.assignedToUser) {
-                            qb.where(`${TABLES.assigned_grants_user}.user_id`, '=', filters.assignedToUser);
+                        if (filters.assignedToAgency) {
+                            qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgency);
                         }
                     },
                 );
@@ -313,31 +308,6 @@ async function getTotalGrantsBetweenDates(from, to) {
 function markGrantAsViewed({ grantId, agencyId, userId }) {
     return knex(TABLES.grants_viewed)
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
-}
-
-function getGrantAssignedUsers({ grantId }) {
-    return knex(TABLES.assigned_grants_user)
-        .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.assigned_grants_user}.user_id`)
-        .where({ grant_id: grantId });
-}
-
-function assignGrantsToUsers({ grantId, userIds, userId }) {
-    const insertPayload = userIds.map((uId) => ({
-        user_id: uId,
-        grant_id: grantId,
-        assigned_by: userId,
-    }));
-    return knex(TABLES.assigned_grants_user)
-        .insert(insertPayload)
-        .onConflict(['user_id', 'grant_id'])
-        .ignore();
-}
-
-function unassignUsersToGrant({ grantId, userIds }) {
-    const deleteWhere = userIds.map((uId) => ([uId, grantId]));
-    return knex(TABLES.assigned_grants_user)
-        .whereIn(['user_id', 'grant_id'], deleteWhere)
-        .delete();
 }
 
 function getGrantAssignedAgencies({ grantId }) {
@@ -523,9 +493,6 @@ module.exports = {
     getInterestedAgencies,
     getInterestedCodes,
     markGrantAsInterested,
-    getGrantAssignedUsers,
-    assignGrantsToUsers,
-    unassignUsersToGrant,
     getGrantAssignedAgencies,
     assignGrantsToAgencies,
     unassignAgenciesToGrant,

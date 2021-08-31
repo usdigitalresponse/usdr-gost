@@ -6,8 +6,8 @@ const pdf = require('../lib/pdf');
 
 router.get('/', async (req, res) => {
     let agencyCriteria;
-    // if we want interested or assigned grants for a user, do not filter by eligibility or keywords
-    if (!req.query.interestedByMe || !req.query.assignedToMe) {
+    // if we want interested, assigned, grants for a user, do not filter by eligibility or keywords
+    if (!req.query.interestedByMe || !req.query.assignedToAgency) {
         agencyCriteria = await db.getAgencyCriteriaForUserId(req.signedCookies.userId);
     }
     const grants = await db.getGrants({
@@ -15,7 +15,6 @@ router.get('/', async (req, res) => {
         filters: {
             agencyCriteria,
             interestedByUser: req.query.interestedByMe ? req.signedCookies.userId : null,
-            assignedToUser: req.query.assignedToMe ? req.signedCookies.userId : null,
             assignedToAgency: req.query.assignedToAgency ? req.query.assignedToAgency : null,
         },
     });
@@ -26,28 +25,6 @@ router.put('/:grantId/view/:agencyId', async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
     const { agencyId, grantId } = req.params;
     await db.markGrantAsViewed({ grantId, agencyId, userId: user.id });
-    res.json({});
-});
-
-router.get('/:grantId/assign/users', async (req, res) => {
-    const { grantId } = req.params;
-    const response = await db.getGrantAssignedUsers({ grantId });
-    res.json(response);
-});
-
-router.put('/:grantId/assign/users', async (req, res) => {
-    const user = await db.getUser(req.signedCookies.userId);
-    const { grantId } = req.params;
-    const { userIds } = req.body;
-    await db.assignGrantsToUsers({ grantId, userIds, userId: user.id });
-    res.json({});
-});
-
-router.delete('/:grantId/assign/users', async (req, res) => {
-    const user = await db.getUser(req.signedCookies.userId);
-    const { grantId } = req.params;
-    const { userIds } = req.body;
-    await db.unassignUsersToGrant({ grantId, userIds, userId: user.id });
     res.json({});
 });
 

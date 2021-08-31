@@ -134,13 +134,13 @@ const grants = {
     },
 };
 
-const assignedAgencyGrants = [
-    {
+const assignedAgencyGrants = {
+    earFellowshipAccountAssign: {
         grant_id: grants.earFellowship.grant_id,
         agency_id: agencies.accountancy.id,
         assigned_by: users.adminUser.id,
     },
-];
+};
 
 module.exports = {
     users,
@@ -161,5 +161,5 @@ module.exports.seed = async (knex) => {
     await knex(TABLES.eligibility_codes).insert(Object.values(eligibilityCodes));
     await knex(TABLES.agency_eligibility_codes).insert(Object.values(agencyEligibilityCodes));
     await knex(TABLES.grants).insert(Object.values(grants));
-    await knex(TABLES.assigned_grants_agency).insert(assignedAgencyGrants);
+    await knex(TABLES.assigned_grants_agency).insert(Object.values(assignedAgencyGrants));
 };

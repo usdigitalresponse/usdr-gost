@@ -51,7 +51,8 @@ describe('db', () => {
             const result = await db.getAgencyCriteriaForUserId(staffUserId[0].id);
 
             expect(result).to.have.property('eligibilityCodes').with.lengthOf(1);
-            expect(result.eligibilityCodes[0]).to.equal(fixtures.agencyEligibilityCodes.accountancyNative.code);
+            expect(result.eligibilityCodes[0])
+                .to.equal(fixtures.agencyEligibilityCodes.accountancyNative.code);
             expect(result).to.have.property('keywords').with.lengthOf(1);
             expect(result.keywords[0]).to.equal(fixtures.keywords.accountancyCovid.search_term);
         });
@@ -61,11 +62,12 @@ describe('db', () => {
         it('gets grants assigned to agency', async () => {
             const result = await db.getGrants({
                 filters: {
-                    assignedToAgency: fixtures.users.staffUser.agency_id,
+                    assignedToAgency: fixtures.users.staffUser.agency_id.toString(),
                 },
             });
             expect(result).to.have.property('data').with.lengthOf(1);
-            expect(result.data[0].grant_id).to.equal(fixtures.assignedAgencyGrants[0].grant_id);
+            expect(result.data[0].grant_id)
+                .to.equal(fixtures.assignedAgencyGrants.earFellowshipAccountAssign.grant_id);
         });
     });
 });
