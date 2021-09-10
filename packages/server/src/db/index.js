@@ -325,6 +325,7 @@ async function getGrant({ grantId }) {
 }
 
 async function getTotalGrants({ agencyCriteria } = {}) {
+    // eslint-disable-next-line max-len
     const rows = await knex(TABLES.grants).modify(helpers.whereAgencyCriteriaMatch, agencyCriteria).count();
     return rows[0].count;
 }

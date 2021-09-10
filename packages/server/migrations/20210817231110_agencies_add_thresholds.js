@@ -1,3 +1,4 @@
+// eslint-disable-next-line func-names
 exports.up = async function (knex) {
     await knex.raw(`
   ALTER TABLE agencies ADD COLUMN warning_threshold INTEGER DEFAULT 30; 
@@ -7,6 +8,7 @@ exports.up = async function (knex) {
   `);
 };
 
+// eslint-disable-next-line func-names
 exports.down = async function (knex) {
     await knex.raw(`
   ALTER TABLE agencies DROP COLUMN warning_threshold;

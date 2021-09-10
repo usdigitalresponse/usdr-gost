@@ -12,6 +12,7 @@ module.exports = {
   },
   rules: {
     'max-len': ['warn', {
+      // eslint-disable-next-line max-len
       code: 120, comments: 120, tabWidth: 4, ignoreStrings: true, ignoreTemplateLiterals: true, ignoreRegExpLiterals: true,
     }],
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',

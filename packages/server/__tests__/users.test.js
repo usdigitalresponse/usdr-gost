@@ -1,4 +1,3 @@
-/* global context */
 /* eslint-disable func-names  */
 /* eslint-disable no-use-before-define */
 /* eslint-disable import/no-unresolved */
