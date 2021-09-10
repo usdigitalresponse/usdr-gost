@@ -4,6 +4,7 @@ function initialState() {
   return {
     dashboard: {},
     totalGrants: null,
+    totalGrantsMatchingAgencyCriteria: null,
     totalViewedGrants: null,
     totalInterestedGrants: null,
     totalGrantsBetweenDates: null,
@@ -17,6 +18,7 @@ export default {
   getters: {
     dashboard: (state) => state.dashboard,
     totalGrants: (state) => state.totalGrants,
+    totalGrantsMatchingAgencyCriteria: (state) => state.totalGrantsMatchingAgencyCriteria,
     totalViewedGrants: (state) => state.totalViewedGrants,
     totalInterestedGrants: (state) => state.totalInterestedGrants,
     totalGrantsBetweenDates: (state) => state.totalGrantsBetweenDates,
@@ -33,6 +35,9 @@ export default {
       const result = await fetchApi.get(`/api/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&totalGrantsBetweenDates=${dateQueryString}&totalInterestedGrantsByAgencies=true`);
       if (result.totalGrants) {
         commit('SET_TOTAL_GRANTS', result.totalGrants);
+      }
+      if (result.totalGrantsMatchingAgencyCriteria) {
+        commit('SET_TOTAL_GRANTS_MATCHING_AGENCY_CRITERIA', result.totalGrantsMatchingAgencyCriteria);
       }
       if (result.totalViewedGrants) {
         commit('SET_TOTAL_VIEWED_GRANTS', result.totalViewedGrants);
@@ -51,6 +56,9 @@ export default {
   mutations: {
     SET_TOTAL_GRANTS(state, data) {
       state.totalGrants = data;
+    },
+    SET_TOTAL_GRANTS_MATCHING_AGENCY_CRITERIA(state, data) {
+      state.totalGrantsMatchingAgencyCriteria = data;
     },
     SET_TOTAL_VIEWED_GRANTS(state, data) {
       state.totalViewedGrants = data;

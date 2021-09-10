@@ -24,9 +24,9 @@ const users = require('./ref/users');
 //         role_id: roles[0].id,
 //     },
 // ];
+
 const agencyUserList = [
     // update me with non admin agency user
-
 ];
 
 const globalCodes = [

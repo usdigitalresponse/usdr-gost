@@ -23,6 +23,7 @@
 </template>
 
 <script>
+/* eslint-disable import/no-unresolved */
 import _ from 'lodash-checkit';
 
 export default {

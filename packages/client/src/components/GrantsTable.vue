@@ -131,6 +131,7 @@ export default {
     ...mapGetters({
       grants: 'grants/grants',
       grantsPagination: 'grants/grantsPagination',
+      agency: 'users/agency',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -140,12 +141,17 @@ export default {
     },
     formattedGrants() {
       function setCellVariants(grant) {
-        const agingThreshold = (process.env.VUE_APP_AGING_THRESHOLD_DAYS || 21) * 24 * 60 * 60 * 1000;
+        const DAYS_TO_MILLISECS = 24 * 60 * 60 * 1000;
+        const warningThreshold = (this.agency.warning_threshold || 30) * DAYS_TO_MILLISECS;
+        const dangerThreshold = (this.agency.danger_threshold || 15) * DAYS_TO_MILLISECS;
+        const now = new Date();
+
         const result = {};
-        const diff = new Date(grant.close_date) - new Date();
-        if (diff <= 0) {
+
+        const diff = new Date(grant.close_date) - now;
+        if (diff <= dangerThreshold) {
           result.close_date = 'danger';
-        } else if (diff < agingThreshold) {
+        } else if (diff < warningThreshold) {
           result.close_date = 'warning';
         }
         return result;

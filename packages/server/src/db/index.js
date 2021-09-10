@@ -2,10 +2,20 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
-const { v4 } = require('uuid');
+let v4;
+try {
+    // eslint-disable-next-line global-require
+    const crypto = require('crypto');
+    v4 = crypto.randomUUID;
+} catch (err) {
+    console.log('Node lacks crypto support!');
+    // eslint-disable-next-line global-require
+    v4 = require('uuid').v4;
+}
 
 const knex = require('./connection');
 const { TABLES } = require('./constants');
+const helpers = require('./helpers');
 
 async function getUsers(agency_id) {
     const users = await knex('users')
@@ -71,6 +81,8 @@ async function getUser(id) {
             'agencies.name as agency_name',
             'agencies.abbreviation as agency_abbreviation',
             'agencies.parent as agency_parent_id_id',
+            'agencies.warning_threshold as agency_warning_threshold',
+            'agencies.danger_threshold as agency_danger_threshold',
             'users.tags',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
@@ -89,6 +101,8 @@ async function getUser(id) {
             name: user.agency_name,
             abbreviation: user.agency_abbreviation,
             agency_parent_id: user.agency_parent_id,
+            warning_threshold: user.agency_warning_threshold,
+            danger_threshold: user.agency_danger_threshold,
         };
     }
     return user;
@@ -119,6 +133,18 @@ async function isSubOrganization(parent, candidateChild) {
     return result.rows.map((rec) => rec.id).indexOf(parent) !== -1;
 }
 
+async function getAgencyCriteriaForUserId(userId) {
+    const user = await getUser(userId);
+    const eligibilityCodes = await getAgencyEligibilityCodes(user.agency.id);
+    const enabledECodes = eligibilityCodes.filter((e) => e.enabled);
+    const keywords = await getAgencyKeywords(user.agency.id);
+
+    return {
+        eligibilityCodes: enabledECodes.map((c) => c.code),
+        keywords: keywords.map((c) => c.search_term),
+    };
+}
+
 function getRoles() {
     return knex('roles')
         .select('*')
@@ -130,6 +156,16 @@ async function getAccessToken(passcode) {
         .select('*')
         .where('passcode', passcode);
     return result[0];
+}
+
+async function incrementAccessTokenUses(passcode) {
+    const result = await knex('access_tokens')
+        .update({ uses: knex.raw('uses + 1') })
+        .where('passcode', passcode)
+        .then(() => knex('access_tokens')
+            .select('uses')
+            .where('passcode', passcode));
+    return result[0].uses;
 }
 
 function markAccessTokenUsed(passcode) {
@@ -222,12 +258,8 @@ async function getGrants({
                 }
                 queryBuilder.andWhere(
                     (qb) => {
-                        if (filters.eligibilityCodes) {
-                            qb.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
-                        }
-                        if (filters.keywords) {
-                            qb.where('description', '~*', filters.keywords.join('|'));
-                        }
+                        helpers.whereAgencyCriteriaMatch(qb, filters.agencyCriteria);
+
                         if (filters.interestedByUser) {
                             qb.where(`${TABLES.grants_interested}.user_id`, '=', filters.interestedByUser);
                         }
@@ -243,6 +275,7 @@ async function getGrants({
                     },
                 );
             }
+
             if (orderBy && orderBy !== 'undefined') {
                 if (orderBy.includes('interested_agencies')) {
                     queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
@@ -291,8 +324,8 @@ async function getGrant({ grantId }) {
     return results[0];
 }
 
-async function getTotalGrants() {
-    const rows = await knex(TABLES.grants).count();
+async function getTotalGrants({ agencyCriteria } = {}) {
+    const rows = await knex(TABLES.grants).modify(helpers.whereAgencyCriteriaMatch, agencyCriteria).count();
     return rows[0].count;
 }
 
@@ -408,6 +441,14 @@ function getAgencyKeywords(agencyId) {
         .where('agency_id', agencyId);
 }
 
+function setAgencyThresholds(id, warning_threshold, danger_threshold) {
+    return knex(TABLES.agencies)
+        .where({
+            id,
+        })
+        .update({ warning_threshold, danger_threshold });
+}
+
 async function createRecord(tableName, row) {
     return knex(tableName).insert(row);
 }
@@ -499,15 +540,18 @@ module.exports = {
     deleteUser,
     getUser,
     isSubOrganization,
+    getAgencyCriteriaForUserId,
     getRoles,
     createAccessToken,
     getAccessToken,
+    incrementAccessTokenUses,
     markAccessTokenUsed,
     getAgencies,
     getAgencyEligibilityCodes,
     setAgencyEligibilityCodeEnabled,
     getKeywords,
     getAgencyKeywords,
+    setAgencyThresholds,
     createKeyword,
     deleteKeyword,
     getGrants,

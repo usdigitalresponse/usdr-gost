@@ -9,6 +9,7 @@
     "start": "node src",
     "serve": "nodemon src",
     "test": "mocha __tests__/*.test.js",
+    "test:db": "__tests__/db/run-tests.sh",
     "lint": "eslint \"**/*.js\"",
     "pre-commit": "yarn lint"
   },
