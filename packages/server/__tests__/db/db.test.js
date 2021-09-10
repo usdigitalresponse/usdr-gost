@@ -42,6 +42,33 @@ describe('db', () => {
 
             expect(result).to.equal('1');
         });
+
+        it('gets total grant count with created fromTs', async () => {
+            const createdTsBounds = { fromTs: new Date(2021, 7, 9) };
+
+            const result = await db.getTotalGrants({ createdTsBounds });
+
+            expect(result).to.equal('1');
+        });
+
+        it('gets total grant count with updated fromTs', async () => {
+            const updatedTsBounds = { fromTs: new Date(2021, 7, 9) };
+
+            const result = await db.getTotalGrants({ updatedTsBounds });
+
+            expect(result).to.equal('3');
+        });
+
+        it('gets total grant count with updated fromTs and matching agency criteria', async () => {
+            const updatedTsBounds = { fromTs: new Date(2021, 7, 9) };
+            const agencyCriteria = {
+                eligibilityCodes: ['25'],
+            };
+
+            const result = await db.getTotalGrants({ updatedTsBounds, agencyCriteria });
+
+            expect(result).to.equal('2');
+        });
     });
 
     context('getAgencyCriteriaForUserId', () => {

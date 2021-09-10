@@ -17,7 +17,7 @@ const knex = require('./connection');
 const { TABLES } = require('./constants');
 const helpers = require('./helpers');
 
-async function getUsers(agency_id) {
+async function getUsers() {
     const users = await knex('users')
         .select(
             'users.*',
@@ -28,8 +28,7 @@ async function getUsers(agency_id) {
             'agencies.parent as agency_parent_id_id',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
-        .leftJoin('agencies', 'agencies.id', 'users.agency_id')
-        .where('agencies.id', agency_id);
+        .leftJoin('agencies', 'agencies.id', 'users.agency_id');
     return users.map((user) => {
         const u = { ...user };
         if (user.role_id) {
@@ -108,31 +107,6 @@ async function getUser(id) {
     return user;
 }
 
-/*    isSubOrganization(parent, candidateChild) returns true if
-    candidateChild is a child of parent.
-    Normally parent will be the agency_id of the logged in user, and
-    candidateChild will be the agency_id in the request header.
-    */
-async function isSubOrganization(parent, candidateChild) {
-    const query = `
-    with recursive hierarchy as (
-      select id, parent from agencies
-      where id = ?
-
-      union all
-
-      select agencies.id, agencies.parent from agencies
-      inner join hierarchy
-      on agencies.id = hierarchy.parent
-    )
-    select id from hierarchy;
-    `;
-
-    const result = await knex.raw(query, candidateChild);
-    // console.dir(result.rows.map((rec) => rec.id));
-    return result.rows.map((rec) => rec.id).indexOf(parent) !== -1;
-}
-
 async function getAgencyCriteriaForUserId(userId) {
     const user = await getUser(userId);
     const eligibilityCodes = await getAgencyEligibilityCodes(user.agency.id);
@@ -175,6 +149,7 @@ function markAccessTokenUsed(passcode) {
 }
 
 async function generatePasscode(email) {
+    console.log('generatePasscode for :', email);
     const users = await knex('users')
         .select('*')
         .where('email', email);
@@ -266,12 +241,6 @@ async function getGrants({
                         if (filters.assignedToUser) {
                             qb.where(`${TABLES.assigned_grants_user}.user_id`, '=', filters.assignedToUser);
                         }
-                        if (filters.aging) {
-                            const now = new Date();
-                            const days = process.env.VUE_APP_AGING_THRESHOLD_DAYS || 21;
-                            const threshold = new Date(now.valueOf() + days * 24 * 60 * 60 * 1000);
-                            qb.where(`${TABLES.grants}.close_date`, '<', threshold.toISOString());
-                        }
                     },
                 );
             }
@@ -301,12 +270,10 @@ async function getGrants({
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
         .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
-    // eslint-disable-next-line max-len
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id) });
 
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
-        // eslint-disable-next-line max-len
         const agenciesInterested = interestedBy.filter((intested) => intested.grant_id === grant.grant_id);
         return {
             ...grant,
@@ -324,9 +291,18 @@ async function getGrant({ grantId }) {
     return results[0];
 }
 
-async function getTotalGrants({ agencyCriteria } = {}) {
-    // eslint-disable-next-line max-len
-    const rows = await knex(TABLES.grants).modify(helpers.whereAgencyCriteriaMatch, agencyCriteria).count();
+async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
+    const rows = await knex(TABLES.grants)
+        .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
+        .modify((qb) => {
+            if (createdTsBounds && createdTsBounds.fromTs) {
+                qb.where('created_at', '>=', createdTsBounds.fromTs);
+            }
+            if (updatedTsBounds && updatedTsBounds.fromTs) {
+                qb.where('updated_at', '>=', updatedTsBounds.fromTs);
+            }
+        })
+        .count();
     return rows[0].count;
 }
 
@@ -335,7 +311,7 @@ async function getTotalViewedGrants() {
     return rows[0].count;
 }
 
-async function getTotalInteresedGrants() {
+async function getTotalInterestedGrants() {
     const rows = await knex(TABLES.grants_interested).count();
     return rows[0].count;
 }
@@ -350,14 +326,6 @@ async function getTotalInterestedGrantsByAgencies() {
         .count(`${TABLES.interested_codes}.is_rejection`)
         .groupBy(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
     return rows;
-}
-
-async function getTotalGrantsBetweenDates(from, to) {
-    const rows = await knex(TABLES.grants)
-        .where('created_at', '>=', new Date(from))
-        .where('created_at', '<=', new Date(to))
-        .count();
-    return rows[0].count;
 }
 
 function markGrantAsViewed({ grantId, agencyId, userId }) {
@@ -496,7 +464,6 @@ async function sync(tableName, syncKey, updateCols, newRows) {
 
             if (Object.values(updatedFields).length > 0) {
                 try {
-                    // eslint-disable-next-line max-len
                     await updateRecord(tableName, syncKey, oldRows[syncKeyValue][syncKey], updatedFields);
                     console.log(`updated ${oldRows[syncKeyValue][syncKey]} in ${tableName}`);
                 } catch (err) {
@@ -520,27 +487,11 @@ function close() {
     return knex.destroy();
 }
 
-// So the test can send a signed cookie with its request
-// It would be better if we could read the signed cookie in the response
-// that Mocha gets to the login, but I can't figure out how to do that.
-async function writeTestCookie(cookie) {
-    const query = `
-        INSERT INTO test_cookie (key, cookie)
-            VALUES ('cookie', '${cookie}')
-        ON CONFLICT (key) DO UPDATE
-            SET cookie = '${cookie}'
-    ;`;
-
-    const result = await knex.raw(query);
-    return result.rows;
-}
-
 module.exports = {
     getUsers,
     createUser,
     deleteUser,
     getUser,
-    isSubOrganization,
     getAgencyCriteriaForUserId,
     getRoles,
     createAccessToken,
@@ -559,8 +510,7 @@ module.exports = {
     getGrant,
     getTotalGrants,
     getTotalViewedGrants,
-    getTotalInteresedGrants,
-    getTotalGrantsBetweenDates,
+    getTotalInterestedGrants,
     getTotalInterestedGrantsByAgencies,
     markGrantAsViewed,
     getInterestedAgencies,
@@ -573,5 +523,4 @@ module.exports = {
     sync,
     getAllRows,
     close,
-    writeTestCookie,
 };
