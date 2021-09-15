@@ -17,7 +17,7 @@ const knex = require('./connection');
 const { TABLES } = require('./constants');
 const helpers = require('./helpers');
 
-async function getUsers() {
+async function getUsers(agency_id) {
     const users = await knex('users')
         .select(
             'users.*',
@@ -28,7 +28,8 @@ async function getUsers() {
             'agencies.parent as agency_parent_id_id',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
-        .leftJoin('agencies', 'agencies.id', 'users.agency_id');
+        .leftJoin('agencies', 'agencies.id', 'users.agency_id')
+        .where('agencies.id', agency_id);
     return users.map((user) => {
         const u = { ...user };
         if (user.role_id) {
@@ -117,6 +118,29 @@ async function getAgencyCriteriaForUserId(userId) {
         eligibilityCodes: enabledECodes.map((c) => c.code),
         keywords: keywords.map((c) => c.search_term),
     };
+}
+
+/*  isSubOrganization(parent, candidateChild) returns true if
+    candidateChild is a child of parent.
+    Normally parent will be the agency_id of the logged in user, and
+    candidateChild will be the agency_id in the request header.
+*/
+async function isSubOrganization(parent, candidateChild) {
+    const query = `
+    with recursive hierarchy as (
+      select id, parent from agencies
+      where id = ?
+      union all
+      select agencies.id, agencies.parent from agencies
+      inner join hierarchy
+      on agencies.id = hierarchy.parent
+    )
+    select id from hierarchy;
+    `;
+
+    const result = await knex.raw(query, candidateChild);
+    // console.dir(result.rows.map((rec) => rec.id));
+    return result.rows.map((rec) => rec.id).indexOf(parent) !== -1;
 }
 
 function getRoles() {
@@ -483,6 +507,21 @@ async function sync(tableName, syncKey, updateCols, newRows) {
     }
 }
 
+// So the test can send a signed cookie with its request
+// It would be better if we could read the signed cookie in the response
+// that Mocha gets to the login, but I can't figure out how to do that.
+async function writeTestCookie(cookie) {
+    const query = `
+        INSERT INTO test_cookie (key, cookie)
+            VALUES ('cookie', '${cookie}')
+        ON CONFLICT (key) DO UPDATE
+            SET cookie = '${cookie}'
+    ;`;
+
+    const result = await knex.raw(query);
+    return result.rows;
+}
+
 function close() {
     return knex.destroy();
 }
@@ -493,6 +532,7 @@ module.exports = {
     deleteUser,
     getUser,
     getAgencyCriteriaForUserId,
+    isSubOrganization,
     getRoles,
     createAccessToken,
     getAccessToken,
@@ -522,5 +562,6 @@ module.exports = {
     getElegibilityCodes,
     sync,
     getAllRows,
+    writeTestCookie,
     close,
 };

@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-const db_name = 'opportunities';
 const path = require('path');
 
 let { log } = console;
@@ -26,21 +25,26 @@ function execShellCommand(cmd, options = {}) {
     });
 }
 
-async function resetDB({ dbName = db_name, verbose = false }) {
+async function resetDB({ verbose = false }) {
     if (!verbose) {
         log = () => {};
         dir = () => {};
     }
     dir(__dirname);
     const knexfile = path.resolve(__dirname, '../knexfile.js');
+    let url = process.env.POSTGRES_URL;
+    const dbName = url.substring(url.lastIndexOf('/') + 1);
+    url = url.substring(0, url.lastIndexOf('/'));
     const options = {
         env: process.env,
     };
-    options.env.POSTGRES_URL = `postgres://localhost/${dbName}`;
 
     try {
-        await execShellCommand(`psql -h localhost -U pg -w postgres -c "DROP DATABASE IF EXISTS ${dbName}"`);
-        await execShellCommand(`psql -h localhost -U pg -w postgres -c "CREATE DATABASE ${dbName}"`);
+        console.log(`Dropping database ${dbName}`);
+        await execShellCommand(`psql ${url} -c "DROP DATABASE IF EXISTS ${dbName}"`);
+        console.log(`Re-creating database ${dbName}`);
+        await execShellCommand(`psql ${url} -c "CREATE DATABASE ${dbName}"`);
+        console.log(`Seeding database ${dbName}`);
         await execShellCommand(`yarn knex migrate:latest`, options);
         await execShellCommand(`yarn knex --knexfile ${knexfile} seed:run`, options);
     } catch (err) {

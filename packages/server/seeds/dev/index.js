@@ -5,24 +5,27 @@ const roles = require('./ref/roles');
 const eligibilityCodes = require('./ref/eligibilityCodes');
 const interestedCodes = require('./ref/interestedCodes');
 const keywords = require('./ref/keywords');
+const userList = require('./ref/users');
 
-const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
+// const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
+// const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
 
 const adminList = [
     // Update me with the appropiate initial admin users
-    {
-        email: 'rafael.pol@protonmail.com',
-        name: 'Rafael Pol',
-        agency_id: usdrAgency.id,
-        role_id: roles[0].id,
-    },
-    {
-        email: 'michael@stanford.cc',
-        name: 'Michael Stanford',
-        agency_id: usdrAgency.id,
-        role_id: roles[0].id,
-    },
+    // {
+    //     email: 'rafael.pol@protonmail.com',
+    //     name: 'Rafael Pol',
+    //     agency_id: usdrAgency.id,
+    //     role_id: roles[0].id,
+    // },
+    // {
+    //     email: 'michael@stanford.cc',
+    //     name: 'Michael Stanford',
+    //     agency_id: usdrAgency.id,
+    //     role_id: roles[0].id,
+    // },
 ];
+
 const agencyUserList = [
     // update me with non admin agency user
 ];
@@ -43,12 +46,22 @@ exports.seed = async (knex) => {
     await knex('roles').insert(roles)
         .onConflict('id')
         .merge();
+
     await knex('agencies').insert(agencies)
         .onConflict('id')
         .merge();
-    await knex('users').insert(adminList)
-        .onConflict('email')
-        .merge();
+
+    if (adminList.length) {
+        await knex('users').insert(adminList)
+            .onConflict('email')
+            .merge();
+    }
+
+    if (userList.length) {
+        await knex('users').insert(userList)
+            .onConflict('email')
+            .merge();
+    }
 
     if (agencyUserList.length) {
         await knex('users').insert(agencyUserList)
@@ -63,6 +76,7 @@ exports.seed = async (knex) => {
     await knex('keywords').insert(keywords)
         .onConflict('id')
         .merge();
+
     await knex('agency_eligibility_codes').insert([].concat(...agencies
         .map(
             (agency) => eligibilityCodes.map((eC) => ({
@@ -71,6 +85,7 @@ exports.seed = async (knex) => {
         )))
         .onConflict(['agency_id', 'code'])
         .merge();
+
     await knex('interested_codes')
         .insert(interestedCodes)
         .onConflict('id')

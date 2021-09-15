@@ -37,6 +37,7 @@ router.get('/', async (req, res) => {
             }
             res.cookie('userId', token.user_id, { signed: true });
             writeTestCookie(res.getHeaders()['set-cookie']);
+            console.log(`redirecting to ${process.env.WEBSITE_DOMAIN || '/'}`);
             res.redirect(process.env.WEBSITE_DOMAIN || '/');
         }
     } else if (req.signedCookies && req.signedCookies.userId) {
