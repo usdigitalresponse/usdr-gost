@@ -10,6 +10,7 @@
     "serve": "nodemon src",
     "test": "mocha __tests__/*.test.js",
     "test:db": "__tests__/db/run-tests.sh",
+    "test:api": "node src > /dev/null & mocha --require __tests__/api/fixtures.js __tests__/api/*.test.js && pkill -fn 'node src'",
     "lint": "eslint \"**/*.js\"",
     "pre-commit": "yarn lint"
   },
@@ -42,6 +43,7 @@
     "eslint-plugin-import": "^2.21.2",
     "husky": "^4.3.0",
     "lint-staged": "^10.5.0",
+    "mocha": "^9.1.1",
     "node-fetch": "^2.6.1",
     "nodemon": "^2.0.6"
   }

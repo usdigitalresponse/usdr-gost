@@ -10,7 +10,6 @@ const {
     createAccessToken,
     incrementAccessTokenUses,
     markAccessTokenUsed,
-    writeTestCookie,
 } = require('../db');
 
 // the validation URL is sent in the authentication email:
@@ -36,8 +35,6 @@ router.get('/', async (req, res) => {
                 await markAccessTokenUsed(passcode);
             }
             res.cookie('userId', token.user_id, { signed: true });
-            writeTestCookie(res.getHeaders()['set-cookie']);
-            console.log(`redirecting to ${process.env.WEBSITE_DOMAIN || '/'}`);
             res.redirect(process.env.WEBSITE_DOMAIN || '/');
         }
     } else if (req.signedCookies && req.signedCookies.userId) {

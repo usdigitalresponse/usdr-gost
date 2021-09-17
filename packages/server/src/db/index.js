@@ -507,21 +507,6 @@ async function sync(tableName, syncKey, updateCols, newRows) {
     }
 }
 
-// So the test can send a signed cookie with its request
-// It would be better if we could read the signed cookie in the response
-// that Mocha gets to the login, but I can't figure out how to do that.
-async function writeTestCookie(cookie) {
-    const query = `
-        INSERT INTO test_cookie (key, cookie)
-            VALUES ('cookie', '${cookie}')
-        ON CONFLICT (key) DO UPDATE
-            SET cookie = '${cookie}'
-    ;`;
-
-    const result = await knex.raw(query);
-    return result.rows;
-}
-
 function close() {
     return knex.destroy();
 }
@@ -562,6 +547,5 @@ module.exports = {
     getElegibilityCodes,
     sync,
     getAllRows,
-    writeTestCookie,
     close,
 };

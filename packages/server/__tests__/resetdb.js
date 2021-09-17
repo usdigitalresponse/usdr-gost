@@ -1,18 +1,13 @@
-#!/usr/bin/env node
 const path = require('path');
+const { exec } = require('child_process');
 
 let { log } = console;
 let { dir } = console;
 
 function execShellCommand(cmd, options = {}) {
-    // eslint-disable-next-line global-require
-    const { exec } = require('child_process');
-    // eslint-disable-next-line no-param-reassign
-    options.maxBuffer = 1024 * 500;
     return new Promise((resolve, reject) => {
-        exec(cmd, options, (error, stdout, stderr) => {
+        exec(cmd, { maxBuffer: 1024 * 500, ...options }, (error, stdout, stderr) => {
             if (error) {
-                // console.warn(error);
                 reject(error);
                 return;
             } if (stdout) {
@@ -27,14 +22,22 @@ function execShellCommand(cmd, options = {}) {
 
 async function resetDB({ verbose = false }) {
     if (!verbose) {
-        log = () => {};
-        dir = () => {};
+        log = () => { };
+        dir = () => { };
     }
+
     dir(__dirname);
     const knexfile = path.resolve(__dirname, '../knexfile.js');
     let url = process.env.POSTGRES_URL;
     const dbName = url.substring(url.lastIndexOf('/') + 1);
     url = url.substring(0, url.lastIndexOf('/'));
+
+    if (!process.env.OK_TO_DROP_DB || process.env.OK_TO_DROP_DB !== 'TRUE') {
+        console.log(`For convenience, this process CAN automatically drop, recreate, and seed database '${dbName}'`);
+        console.log('For safety, this process WILL NOT take these steps unless you set environment variable: OK_TO_DROP_DB=TRUE\n');
+        process.exit(0);
+    }
+
     const options = {
         env: process.env,
     };
@@ -54,7 +57,6 @@ async function resetDB({ verbose = false }) {
     return null;
 }
 
-// resetDB();
 module.exports = resetDB;
 
 /*
