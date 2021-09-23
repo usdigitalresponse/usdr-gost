@@ -1,21 +1,15 @@
-const { getUser, isSubOrganization } = require('../db');
+const { getUser } = require('../db');
 
-async function checkOrganization(req) {
-    const user = await getUser(req.signedCookies.userId);
-    if (!user.agency) { // error - user must have an agency
-        return false;
-    }
-    if (String(user.agency.id) === '0') { // USDR
-        return user.role_name;
-    }
-    if (user.agency.id === req.headers.organization) {
-        return user.role_name;
-    }
-
-    if (await isSubOrganization(user.agency.id, req.headers.organization)) {
-        return user.role_name;
-    }
-    return false;
+/**
+ * Determine if a user is authorized for an agency.
+ *
+ * @param {Number} userId
+ * @param {Number} agencyId
+ * @returns {Boolean} true if the agency is the user's or a descendant; false otherwise
+ */
+async function isAuthorized(userId, agencyId) {
+    const user = await getUser(userId);
+    return user.agency.subagencies.indexOf(agencyId) >= 0;
 }
 
 async function requireUser(req, res, next) {
@@ -23,9 +17,10 @@ async function requireUser(req, res, next) {
         res.sendStatus(403);
         return;
     }
-    const role = await checkOrganization(req);
-    if (!role) {
-        res.sendStatus(403);
+
+    const user = await getUser(req.signedCookies.userId);
+    if (user.role_name === 'staff' && req.query.agency) {
+        res.sendStatus(403); // Staff may not change agency using query string
         return;
     }
     next();
@@ -34,14 +29,17 @@ async function requireUser(req, res, next) {
 async function requireAdminUser(req, res, next) {
     if (!req.signedCookies.userId) {
         res.sendStatus(403);
+        return;
+    }
+
+    const user = await getUser(req.signedCookies.userId);
+    if (user.role_name !== 'admin') {
+        res.sendStatus(403);
     } else {
-        const role_name = await checkOrganization(req);
-        if (role_name !== 'admin') {
-            res.sendStatus(403);
-        } else {
-            next();
-        }
+        next();
     }
 }
 
-module.exports = { requireAdminUser, requireUser };
+module.exports = {
+    requireAdminUser, requireUser, isAuthorized,
+};

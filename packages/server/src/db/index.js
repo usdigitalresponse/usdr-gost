@@ -50,7 +50,8 @@ async function getUsers(agency_id) {
         return u;
     });
 }
-function deleteUser(id) {
+
+async function deleteUser(id) {
     return knex('users')
         .where('id', id)
         .del();
@@ -96,6 +97,26 @@ async function getUser(id) {
         };
     }
     if (user.agency_id != null) {
+        const query = `
+WITH RECURSIVE subagencies AS (
+    SELECT
+        id
+    FROM
+        agencies
+    WHERE
+        id = ?
+    UNION
+        SELECT
+            a.id
+        FROM
+            agencies a
+        INNER JOIN subagencies s ON s.id = a.parent
+) SELECT
+    *
+FROM
+    subagencies;
+   `;
+        const result = await knex.raw(query, user.agency_id);
         user.agency = {
             id: user.agency_id,
             name: user.agency_name,
@@ -103,6 +124,7 @@ async function getUser(id) {
             agency_parent_id: user.agency_parent_id,
             warning_threshold: user.agency_warning_threshold,
             danger_threshold: user.agency_danger_threshold,
+            subagencies: result.rows.map((rec) => rec.id),
         };
     }
     return user;

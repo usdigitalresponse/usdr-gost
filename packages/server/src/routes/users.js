@@ -1,7 +1,7 @@
 const express = require('express');
 
 const router = express.Router();
-const { requireAdminUser } = require('../lib/access-helpers');
+const { requireAdminUser, isAuthorized } = require('../lib/access-helpers');
 const { sendWelcomeEmail } = require('../lib/email');
 const db = require('../db');
 
@@ -10,6 +10,14 @@ router.post('/', requireAdminUser, async (req, res, next) => {
         res.status(400).send('User email is required');
         return;
     }
+
+    // Is this admin user authorized for that agency?
+    const authorized = await isAuthorized(req.signedCookies.userId, req.body.agency);
+    if (!authorized) {
+        res.sendStatus(403);
+        return;
+    }
+
     const user = {
         email: req.body.email.toLowerCase(),
         name: req.body.name,
@@ -30,13 +38,42 @@ router.post('/', requireAdminUser, async (req, res, next) => {
 });
 
 router.get('/', requireAdminUser, async (req, res) => {
-    const users = await db.getUsers(req.headers.organization);
+    // Agency to filter results may be in query string.
+    let { agency } = req.query;
+    if (agency) {
+        // Is this admin user authorized for that agency ?
+        const authorized = await isAuthorized(req.signedCookies.userId, Number(agency));
+        if (!authorized) {
+            console.log('true.1');
+            res.sendStatus(403);
+            return;
+        }
+    } else {
+        // If not in query string, use this admin's agency.
+        const user = await db.getUser(req.signedCookies.userId);
+        agency = user.agency_id;
+    }
+    const users = await db.getUsers(agency);
     res.json(users);
 });
 
 router.delete('/:userId', requireAdminUser, async (req, res) => {
-    await db.deleteUser(req.params.userId);
-    res.json({});
+    // Get agency of user to be deleted.
+    const { agency_id } = await db.getUser(req.params.userId);
+
+    // Is this admin user authorized for that agency?
+    const authorized = await isAuthorized(req.signedCookies.userId, agency_id);
+    if (!authorized) {
+        res.sendStatus(403);
+        return;
+    }
+
+    const deleteCount = await db.deleteUser(req.params.userId);
+    if (deleteCount === 1) {
+        res.json({});
+    } else {
+        res.status(400).send('No such user');
+    }
 });
 
 module.exports = router;
