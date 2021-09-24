@@ -97,26 +97,7 @@ async function getUser(id) {
         };
     }
     if (user.agency_id != null) {
-        const query = `
-WITH RECURSIVE subagencies AS (
-    SELECT
-        id
-    FROM
-        agencies
-    WHERE
-        id = ?
-    UNION
-        SELECT
-            a.id
-        FROM
-            agencies a
-        INNER JOIN subagencies s ON s.id = a.parent
-) SELECT
-    *
-FROM
-    subagencies;
-   `;
-        const result = await knex.raw(query, user.agency_id);
+        const result = await getAgencies(user.agency_id);
         user.agency = {
             id: user.agency_id,
             name: user.agency_name,
@@ -124,7 +105,7 @@ FROM
             agency_parent_id: user.agency_parent_id,
             warning_threshold: user.agency_warning_threshold,
             danger_threshold: user.agency_danger_threshold,
-            subagencies: result.rows.map((rec) => rec.id),
+            subagencies: result.map((rec) => rec.id),
         };
     }
     return user;
@@ -434,10 +415,17 @@ function getInterestedCodes() {
         .orderBy('name');
 }
 
-function getAgencies() {
-    return knex(TABLES.agencies)
-        .select('*')
-        .orderBy('name');
+async function getAgencies(rootAgency) {
+    const query = `WITH RECURSIVE subagencies AS (
+    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+    FROM agencies WHERE id = ?
+    UNION
+        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold 
+        FROM agencies a INNER JOIN subagencies s ON s.id = a.parent
+    ) SELECT * FROM subagencies ORDER BY name; `;
+    const result = await knex.raw(query, rootAgency);
+
+    return result.rows;
 }
 
 function getAgencyEligibilityCodes(agencyId) {
