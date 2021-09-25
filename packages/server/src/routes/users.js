@@ -11,20 +11,13 @@ router.post('/', requireAdminUser, async (req, res, next) => {
         return;
     }
 
-    // Is this admin user authorized for that agency?
-    const authorized = await isAuthorized(req.signedCookies.userId, req.body.agency);
-    if (!authorized) {
-        res.sendStatus(403);
-        return;
-    }
-
-    const user = {
-        email: req.body.email.toLowerCase(),
-        name: req.body.name,
-        role_id: req.body.role,
-        agency_id: req.body.agency,
-    };
     try {
+        const user = {
+            email: req.body.email.toLowerCase(),
+            name: req.body.name,
+            role_id: req.body.role,
+            agency_id: req.body.agency,
+        };
         const result = await db.createUser(user);
         res.json({ user: result });
         await sendWelcomeEmail(user.email, req.headers.origin);
@@ -38,21 +31,13 @@ router.post('/', requireAdminUser, async (req, res, next) => {
 });
 
 router.get('/', requireAdminUser, async (req, res) => {
-    // Agency to filter results may be in query string.
     let { agency } = req.query;
-    if (agency) {
-        // Is this admin user authorized for that agency ?
-        const authorized = await isAuthorized(req.signedCookies.userId, Number(agency));
-        if (!authorized) {
-            console.log('true.1');
-            res.sendStatus(403);
-            return;
-        }
-    } else {
-        // If not in query string, use this admin's agency.
+    if (!agency) {
+        // Agency not in query string, so default to this admin's agency.
         const user = await db.getUser(req.signedCookies.userId);
         agency = user.agency_id;
     }
+
     const users = await db.getUsers(agency);
     res.json(users);
 });

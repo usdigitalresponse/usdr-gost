@@ -215,6 +215,13 @@ function setAgencyEligibilityCodeEnabled(code, agencyId, enabled) {
         .update({ enabled });
 }
 
+async function getKeyword(keywordId) {
+    const response = await knex(TABLES.keywords)
+        .select('*')
+        .where('id', keywordId);
+    return response[0];
+}
+
 function getKeywords() {
     return knex(TABLES.keywords)
         .select('*');
@@ -536,6 +543,7 @@ module.exports = {
     getAgencies,
     getAgencyEligibilityCodes,
     setAgencyEligibilityCodeEnabled,
+    getKeyword,
     getKeywords,
     getAgencyKeywords,
     setAgencyThresholds,

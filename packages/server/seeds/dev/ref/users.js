@@ -27,7 +27,7 @@ module.exports = [
     //     role_id: roles[0].id,
     // },
     {
-        email: 'michael@stanford.cc',
+        email: 'michael@stanford.notreal',
         name: 'Michael Stanford',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
