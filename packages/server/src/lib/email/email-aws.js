@@ -30,6 +30,8 @@ function createTransport() {
 }
 
 function send(message) {
+    if (process.env.SUPPRESS_EMAIL) return;
+
     const transport = createTransport();
     const params = {
         Destination: {

@@ -10,7 +10,7 @@
     "serve": "nodemon src",
     "test": "mocha __tests__/*.test.js",
     "test:db": "__tests__/db/run-tests.sh",
-    "test:api": "node src > /dev/null & mocha --require __tests__/api/fixtures.js __tests__/api/*.test.js && pkill -fn 'node src'",
+    "test:api": "SUPPRESS_EMAIL=TRUE node src > /dev/null & mocha --require __tests__/api/fixtures.js __tests__/api/*.test.js && pkill -fn 'node src'",
     "lint": "eslint \"**/*.js\"",
     "pre-commit": "yarn lint"
   },

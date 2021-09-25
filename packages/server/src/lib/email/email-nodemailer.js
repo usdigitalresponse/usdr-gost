@@ -42,6 +42,8 @@ function createTransport() {
 }
 
 async function send(message) {
+    if (process.env.SUPPRESS_EMAIL) return;
+
     const transport = createTransport();
     const params = {
         from: process.env.NODEMAILER_EMAIL, // sender address
