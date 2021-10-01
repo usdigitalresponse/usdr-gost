@@ -4,7 +4,7 @@
       <GrantsTable :showInterested="true"/>
     </b-tab>
     <b-tab title="Assigned">
-      <GrantsTable :showAssigned="true"/>
+      <GrantsTable :showAssignedToAgency="loggedInUser.agency.id"/>
     </b-tab>
     <b-tab title="Aging">
       <GrantsTable :showAging="true"/>
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 
 import GrantsTable from '@/components/GrantsTable.vue';
 
@@ -22,6 +23,11 @@ export default {
     return {
 
     };
+  },
+  computed: {
+    ...mapGetters({
+      loggedInUser: 'users/loggedInUser',
+    }),
   },
   methods: {},
 };
