@@ -57,12 +57,12 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
-import { debounce } from "lodash";
+import { mapActions, mapGetters } from 'vuex';
+import { debounce } from 'lodash';
 
-import { titleize } from "@/helpers/form-helpers";
+import { titleize } from '@/helpers/form-helpers';
 
-import GrantDetails from "@/components/Modals/GrantDetails.vue";
+import GrantDetails from '@/components/Modals/GrantDetails.vue';
 
 export default {
   components: { GrantDetails },
@@ -78,69 +78,69 @@ export default {
       loading: false,
       fields: [
         {
-          key: "grant_id",
+          key: 'grant_id',
           stickyColumn: true,
-          variant: "dark",
+          variant: 'dark',
         },
         {
-          key: "grant_number",
+          key: 'grant_number',
         },
         {
-          key: "title",
+          key: 'title',
         },
         {
-          key: "viewed_by",
+          key: 'viewed_by',
           sortable: true,
         },
         {
-          key: "interested_agencies",
+          key: 'interested_agencies',
           sortable: true,
         },
         {
-          key: "agency_code",
+          key: 'agency_code',
         },
         {
-          key: "cost_sharing",
+          key: 'cost_sharing',
         },
         {
-          label: "Posted Date",
-          key: "open_date",
+          label: 'Posted Date',
+          key: 'open_date',
           sortable: true,
         },
         {
-          key: "close_date",
+          key: 'close_date',
           sortable: true,
         },
         {
-          key: "opportunity_category",
+          key: 'opportunity_category',
         },
         {
           // opportunity_status
-          key: "status",
+          key: 'status',
         },
         {
-          key: "created_at",
+          key: 'created_at',
         },
         {
-          key: "updated_at",
+          key: 'updated_at',
         },
       ],
       selectedGrant: null,
       selectedGrantIndex: null,
-      orderBy: "",
+      orderBy: '',
       searchInput: null,
       debouncedSearchInput: null,
     };
   },
   mounted() {
-    document.addEventListener("keyup", this.changeSelectedGrantIndex);
+    document.addEventListener('keyup', this.changeSelectedGrantIndex);
     this.paginateGrants();
   },
   computed: {
     ...mapGetters({
-      grants: "grants/grants",
-      grantsPagination: "grants/grantsPagination",
-      agency: "users/agency",
+      grants: 'grants/grants',
+      grantsPagination: 'grants/grantsPagination',
+      agency: 'users/agency',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -151,19 +151,17 @@ export default {
     formattedGrants() {
       function setCellVariants(grant) {
         const DAYS_TO_MILLISECS = 24 * 60 * 60 * 1000;
-        const warningThreshold =
-          (this.agency.warning_threshold || 30) * DAYS_TO_MILLISECS;
-        const dangerThreshold =
-          (this.agency.danger_threshold || 15) * DAYS_TO_MILLISECS;
+        const warningThreshold = (this.agency.warning_threshold || 30) * DAYS_TO_MILLISECS;
+        const dangerThreshold = (this.agency.danger_threshold || 15) * DAYS_TO_MILLISECS;
         const now = new Date();
 
         const result = {};
 
         const diff = new Date(grant.close_date) - now;
         if (diff <= dangerThreshold) {
-          result.close_date = "danger";
+          result.close_date = 'danger';
         } else if (diff < warningThreshold) {
-          result.close_date = "warning";
+          result.close_date = 'warning';
         }
         return result;
       }
@@ -172,13 +170,13 @@ export default {
         ...grant,
         interested_agencies: grant.interested_agencies
           .map((v) => v.agency_abbreviation)
-          .join(", "),
+          .join(', '),
         viewed_by: grant.viewed_by_agencies
           .map((v) => v.agency_abbreviation)
-          .join(", "),
+          .join(', '),
         status: grant.opportunity_status,
-        open_date: new Date(grant.open_date).toLocaleDateString("en-US"),
-        close_date: new Date(grant.close_date).toLocaleDateString("en-US"),
+        open_date: new Date(grant.open_date).toLocaleDateString('en-US'),
+        close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
         created_at: new Date(grant.created_at).toLocaleString(),
         updated_at: new Date(grant.updated_at).toLocaleString(),
         _cellVariants: setCellVariants(grant),
@@ -210,7 +208,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      fetchGrants: "grants/fetchGrants",
+      fetchGrants: 'grants/fetchGrants',
     }),
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
@@ -236,9 +234,9 @@ export default {
     },
     sortingChanged(ctx) {
       if (!ctx.sortBy) {
-        this.orderBy = "";
+        this.orderBy = '';
       } else {
-        this.orderBy = `${ctx.sortBy}|${ctx.sortDesc ? "desc" : "asc"}`;
+        this.orderBy = `${ctx.sortBy}|${ctx.sortDesc ? 'desc' : 'asc'}`;
       }
       this.currentPage = 1;
     },
@@ -248,7 +246,7 @@ export default {
         const grant = this.grants.find((g) => row.grant_id === g.grant_id);
         this.selectedGrant = grant;
         this.selectedGrantIndex = this.grants.findIndex(
-          (g) => row.grant_id === g.grant_id
+          (g) => row.grant_id === g.grant_id,
         );
       }
     },
@@ -289,11 +287,11 @@ export default {
     async grantUpdated() {
       await this.paginateGrants();
       const grant = this.grants.find(
-        (g) => this.selectedGrant.grant_id === g.grant_id
+        (g) => this.selectedGrant.grant_id === g.grant_id,
       );
       this.selectedGrant = grant;
       this.selectedGrantIndex = this.grants.findIndex(
-        (g) => this.selectedGrant.grant_id === g.grant_id
+        (g) => this.selectedGrant.grant_id === g.grant_id,
       );
     },
   },
