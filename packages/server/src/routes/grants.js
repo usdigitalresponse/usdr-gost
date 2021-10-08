@@ -3,8 +3,9 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const pdf = require('../lib/pdf');
+const { requireUser } = require('../lib/access-helpers');
 
-router.get('/', async (req, res) => {
+router.get('/', requireUser, async (req, res) => {
     let agencyCriteria;
     // if we want interested, assigned, grants for a user, do not filter by eligibility or keywords
     if (!req.query.interestedByMe || !req.query.assignedToAgency) {
@@ -21,55 +22,90 @@ router.get('/', async (req, res) => {
     res.json(grants);
 });
 
-router.put('/:grantId/view/:agencyId', async (req, res) => {
-    const user = await db.getUser(req.signedCookies.userId);
+router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {
     const { agencyId, grantId } = req.params;
+    const user = await db.getUser(req.signedCookies.userId);
+    if (!user.agency.subagencies.includes(Number(agencyId))) {
+        res.sendStatus(403);
+        return;
+    }
     await db.markGrantAsViewed({ grantId, agencyId, userId: user.id });
     res.json({});
 });
 
-router.get('/:grantId/assign/agencies', async (req, res) => {
+router.get('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { grantId } = req.params;
-    const response = await db.getGrantAssignedAgencies({ grantId });
+    let agencies = [];
+    if (req.query.agency) {
+        agencies.push(req.query.agency);
+    } else {
+        const user = await db.getUser(req.signedCookies.userId);
+        agencies = user.agency.subagencies;
+    }
+    const response = await db.getGrantAssignedAgencies({ grantId, agencies });
     res.json(response);
 });
 
-router.put('/:grantId/assign/agencies', async (req, res) => {
+router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
     const { grantId } = req.params;
     const { agencyIds } = req.body;
+    if (!agencyIds.every((agencyId) => user.agency.subagencies.includes(agencyId))) {
+        res.sendStatus(403);
+        return;
+    }
+
     await db.assignGrantsToAgencies({ grantId, agencyIds, userId: user.id });
     res.json({});
 });
 
-router.delete('/:grantId/assign/agencies', async (req, res) => {
+router.delete('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
     const { grantId } = req.params;
     const { agencyIds } = req.body;
+    if (!agencyIds.every((agencyId) => user.agency.subagencies.includes(agencyId))) {
+        res.sendStatus(403);
+        return;
+    }
+
     await db.unassignAgenciesToGrant({ grantId, agencyIds, userId: user.id });
     res.json({});
 });
 
-router.get('/:grantId/interested', async (req, res) => {
+router.get('/:grantId/interested', requireUser, async (req, res) => {
     const { grantId } = req.params;
-    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId] });
+    let agencies = [];
+    if (req.query.agency) {
+        agencies.push(req.query.agency);
+    } else {
+        const user = await db.getUser(req.signedCookies.userId);
+        agencies = user.agency.subagencies;
+    }
+    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], agencies });
     res.json(interestedAgencies);
 });
 
-router.put('/:grantId/interested/:agencyId', async (req, res) => {
+router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
     const user = await db.getUser(req.signedCookies.userId);
     const { agencyId, grantId } = req.params;
     let interestedCode = null;
     if (req.body && req.body.interestedCode) {
         interestedCode = req.body.interestedCode;
     }
+
+    if (!user.agency.subagencies.includes(Number(agencyId))) {
+        res.sendStatus(403);
+        return;
+    }
+
     await db.markGrantAsInterested({
         grantId,
         agencyId,
         userId: user.id,
         interestedCode,
     });
-    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId] });
+
+    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], agencies: [agencyId] });
     res.json(interestedAgencies);
 });
 
@@ -94,7 +130,7 @@ const formFields = {
 };
 
 // eslint-disable-next-line consistent-return
-router.get('/:grantId/form/:formName', async (req, res) => {
+router.get('/:grantId/form/:formName', requireUser, async (req, res) => {
     if (req.params.formName !== 'nevada_spoc') {
         return res.status(400);
     }

@@ -6,6 +6,7 @@ const eligibilityCodes = require('./ref/eligibilityCodes');
 const interestedCodes = require('./ref/interestedCodes');
 const keywords = require('./ref/keywords');
 const userList = require('./ref/users');
+const { grants, assignedGrantsAgency, grantsInterested } = require('./ref/grants');
 
 // const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
 // const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
@@ -35,7 +36,7 @@ const globalCodes = [
 ];
 
 exports.seed = async (knex) => {
-    const tables = ['agency_eligibility_codes', 'keywords', 'eligibility_codes'];
+    const tables = ['agency_eligibility_codes', 'keywords', 'eligibility_codes', 'grants', 'assigned_grants_agency', 'grants_interested'];
 
     // eslint-disable-next-line no-restricted-syntax
     for (const table of tables) {
@@ -69,6 +70,10 @@ exports.seed = async (knex) => {
             .merge();
     }
 
+    // Postgres sequences can get "out of sync", e.g. after we INSERTed with explicit id values.
+    // Put the sequence back "in sync" to avoid duplicate key value errors.
+    await knex.raw('SELECT setval(\'users_id_seq\', (SELECT MAX(id) FROM users) + 1);');
+
     await knex('eligibility_codes').insert(eligibilityCodes)
         .onConflict('code')
         .merge();
@@ -90,4 +95,8 @@ exports.seed = async (knex) => {
         .insert(interestedCodes)
         .onConflict('id')
         .merge();
+
+    await knex('grants').insert(grants);
+    await knex('assigned_grants_agency').insert(assignedGrantsAgency);
+    await knex('grants_interested').insert(grantsInterested);
 };

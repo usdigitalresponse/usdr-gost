@@ -27,66 +27,77 @@ module.exports = [
     //     role_id: roles[0].id,
     // },
     {
+        id: 1,
         email: 'michael@stanford.notreal',
         name: 'Michael Stanford',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
     },
     {
+        id: 2,
         email: 'michael@nv.gov', // fake email for testing
         name: 'Michael Stanford NV',
         agency_id: nevadaAgency.id,
         role_id: roles[0].id,
     },
     {
+        id: 3,
         email: 'michael+nvpr@stanford.cc',
         name: 'Michael Stanford NV-Procurement',
         agency_id: procurementAgency.id,
         role_id: roles[0].id,
     },
     {
+        id: 4,
         email: 'rafael.pol@protonmail.com',
         name: 'Rafael Pol',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
     },
     {
+        id: 5,
         email: 'jsotak@admin.nv.gov',
         name: 'Jovon Sotak',
         agency_id: procurementAgency.id,
         role_id: roles[0].id,
     },
     {
+        id: 6,
         email: 'user1@nv.gov', // fake email for testing
         name: 'nv.gov User 1',
         agency_id: nevadaAgency.id,
         role_id: roles[1].id,
     },
     {
+        id: 7,
         email: 'user2@nv.gov', // fake email for testing
         name: 'nv.gov User 2',
         agency_id: nevadaAgency.id,
         role_id: roles[1].id,
     },
     {
+        id: 8,
         email: 'user3@nv.gov', // fake email for testing
         name: 'nv.gov User 3',
         agency_id: nevadaAgency.id,
         role_id: roles[1].id,
     },
     {
+        id: 9,
         email: 'user1@npo.nv.gov', // fake email for testing
         name: 'npo.nv.gov User 1',
         agency_id: procurementAgency.id,
         role_id: roles[1].id,
     },
     {
+        id: 10,
         email: 'user2@npo.nv.gov', // fake email for testing
         name: 'npo.nv.gov User 2',
         agency_id: procurementAgency.id,
         role_id: roles[1].id,
     },
     {
+        id: 11,
         email: 'user3@npo.nv.gov', // fake email for testing
         name: 'npo.nv.gov User 3',
         agency_id: procurementAgency.id,

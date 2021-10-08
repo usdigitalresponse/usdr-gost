@@ -28,6 +28,7 @@ async function resetDB({ verbose = false }) {
 
     dir(__dirname);
     const knexfile = path.resolve(__dirname, '../knexfile.js');
+
     let url = process.env.POSTGRES_URL;
     const dbName = url.substring(url.lastIndexOf('/') + 1);
     url = url.substring(0, url.lastIndexOf('/'));

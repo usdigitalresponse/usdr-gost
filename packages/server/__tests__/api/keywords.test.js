@@ -50,14 +50,14 @@ describe('`/api/keywords` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
                 expect(json.length).to.equal(UNIQUE_KEYWORDS);
-                expect((json.every((r) => r.agency_id === agencies.admin.own)));
+                expect((json.every((r) => r.agency_id === agencies.admin.own))).to.equal(true);
             });
             it('lists keywords of a subagency of this user\'s own agency', async () => {
                 const response = await fetch(`${endpoint}?agency=${agencies.admin.ownSub}`, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
                 expect(json.length).to.equal(UNIQUE_KEYWORDS);
-                expect((json.every((r) => r.agency_id === agencies.admin.ownSub)));
+                expect((json.every((r) => r.agency_id === agencies.admin.ownSub))).to.equal(true);
             });
             it('is forbidden for an agency outside this user\'s hierarchy', async () => {
                 const response = await fetch(`${endpoint}?agency=${agencies.admin.offLimits}`, fetchOptions.admin);
@@ -71,7 +71,7 @@ describe('`/api/keywords` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
                 expect(json.length).to.equal(UNIQUE_KEYWORDS);
-                expect((json.every((r) => r.agency_id === agencies.staff.own)));
+                expect((json.every((r) => r.agency_id === agencies.staff.own))).to.equal(true);
             });
             it('is forbidden for a subagency of this user\'s own agency', async () => {
                 const response = await fetch(`${endpoint}?agency=${agencies.staff.ownSub}`, fetchOptions.staff);

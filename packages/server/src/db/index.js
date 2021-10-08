@@ -97,7 +97,11 @@ async function getUser(id) {
         };
     }
     if (user.agency_id != null) {
-        const result = await getAgencies(user.agency_id);
+        let subagencies = [user.agency_id];
+        if (user.role.name === 'admin') {
+            const result = await getAgencies(user.agency_id);
+            subagencies = result.map((rec) => rec.id);
+        }
         user.agency = {
             id: user.agency_id,
             name: user.agency_name,
@@ -105,7 +109,7 @@ async function getUser(id) {
             agency_parent_id: user.agency_parent_id,
             warning_threshold: user.agency_warning_threshold,
             danger_threshold: user.agency_danger_threshold,
-            subagencies: result.map((rec) => rec.id),
+            subagencies,
         };
     }
     return user;
@@ -365,10 +369,11 @@ function markGrantAsViewed({ grantId, agencyId, userId }) {
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
 }
 
-function getGrantAssignedAgencies({ grantId }) {
+function getGrantAssignedAgencies({ grantId, agencies }) {
     return knex(TABLES.assigned_grants_agency)
         .join(TABLES.agencies, `${TABLES.agencies}.id`, '=', `${TABLES.assigned_grants_agency}.agency_id`)
-        .where({ grant_id: grantId });
+        .where({ grant_id: grantId })
+        .andWhere('agency_id', 'IN', agencies);
 }
 
 function assignGrantsToAgencies({ grantId, agencyIds, userId }) {
@@ -390,12 +395,13 @@ function unassignAgenciesToGrant({ grantId, agencyIds }) {
         .delete();
 }
 
-function getInterestedAgencies({ grantIds }) {
+function getInterestedAgencies({ grantIds, agencies }) {
     return knex(TABLES.agencies)
         .join(TABLES.grants_interested, `${TABLES.agencies}.id`, '=', `${TABLES.grants_interested}.agency_id`)
         .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.grants_interested}.user_id`)
         .leftJoin(TABLES.interested_codes, `${TABLES.interested_codes}.id`, '=', `${TABLES.grants_interested}.interested_code_id`)
         .whereIn('grant_id', grantIds)
+        .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
         .select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
             `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
             `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,

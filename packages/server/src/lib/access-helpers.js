@@ -9,7 +9,7 @@ const { getUser } = require('../db');
  */
 async function isAuthorized(userId, agencyId) {
     const user = await getUser(userId);
-    return user.agency.subagencies.indexOf(agencyId) >= 0;
+    return user.agency.subagencies.includes(agencyId);
 }
 
 async function requireAdminUser(req, res, next) {
@@ -24,14 +24,22 @@ async function requireAdminUser(req, res, next) {
         return;
     }
 
+    // Depending on the request, an agency ID may be specified in zero or one of:
+    //  the query string: ?agency=...
+    //  a route parameter :agency
+    //  a route parameter :agencyId
+    //  a body field named 'agency'
+    //  a body field named 'agency_id'
     const queryAgency = Number(req.query.agency);
     const paramAgency = Number(req.params.agency);
+    const paramAgencyId = Number(req.params.agencyId);
     const bodyAgency = Number(req.body.agency);
     const bodyAgencyId = Number(req.body.agency_id);
 
     let count = 0;
     if (!Number.isNaN(queryAgency)) count += 1;
     if (!Number.isNaN(paramAgency)) count += 1;
+    if (!Number.isNaN(paramAgencyId)) count += 1;
     if (!Number.isNaN(bodyAgency)) count += 1;
     if (!Number.isNaN(bodyAgencyId)) count += 1;
 
@@ -41,12 +49,12 @@ async function requireAdminUser(req, res, next) {
     } if (count === 1) {
         // Is this user an admin of the specified agency?
         const authorized = await isAuthorized(req.signedCookies.userId,
-            queryAgency || paramAgency || bodyAgency || bodyAgencyId || 0);
+            queryAgency || paramAgency || paramAgencyId || bodyAgency || bodyAgencyId || 0);
         if (!authorized) {
             res.sendStatus(403);
             return;
         }
-    }
+    } // when count === 0, no agency was specified; default to user's own agency
 
     next();
 }

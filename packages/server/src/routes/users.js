@@ -7,6 +7,7 @@ const db = require('../db');
 
 router.post('/', requireAdminUser, async (req, res, next) => {
     if (!req.body.email) {
+        console.log('1');
         res.status(400).send('User email is required');
         return;
     }
@@ -23,6 +24,7 @@ router.post('/', requireAdminUser, async (req, res, next) => {
         await sendWelcomeEmail(user.email, req.headers.origin);
     } catch (e) {
         if (e.message.match(/violates unique constraint/)) {
+            console.log(e.message);
             res.status(400).send('User with that email already exists');
         } else {
             next(e);
