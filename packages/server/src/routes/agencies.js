@@ -2,17 +2,24 @@ const express = require('express');
 
 const router = express.Router();
 const { requireAdminUser, requireUser } = require('../lib/access-helpers');
-const { getAgencies, setAgencyThresholds, getUser } = require('../db');
+const {
+    getAgency, getAgencies, setAgencyThresholds, getUser,
+} = require('../db');
 
 router.get('/', requireUser, async (req, res) => {
+    const user = await getUser(req.signedCookies.userId);
     let { agency } = req.query;
     if (!agency) {
         // Agency not in query string, so default to this user's agency.
-        const user = await getUser(req.signedCookies.userId);
         agency = user.agency_id;
     }
 
-    const response = await getAgencies(agency);
+    let response;
+    if (user.role.name === 'admin') {
+        response = await getAgencies(agency);
+    } else {
+        response = await getAgency(agency);
+    }
     res.json(response);
 });
 

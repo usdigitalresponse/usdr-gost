@@ -63,10 +63,12 @@ describe('`/api/agencies` endpoint', async () => {
         context('by a user with staff role', async () => {
             it('lists this user\'s own agency', async () => {
                 // Will default to user's own agency ID
+                console.log(`url: ${endpoint}`);
                 const response = await fetch(`${endpoint}`, fetchOptions.staff);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(327);
+                expect(json.length).to.equal(1);
+                expect(json[0].id).to.equal(agencies.staff.own);
             });
             it('is forbidden for a subagency of this user\'s own agency', async () => {
                 const response = await fetch(`${endpoint}?agency=${agencies.staff.ownSub}`, fetchOptions.staff);

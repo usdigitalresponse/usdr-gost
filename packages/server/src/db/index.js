@@ -426,6 +426,14 @@ function getInterestedCodes() {
         .orderBy('name');
 }
 
+async function getAgency(agencyId) {
+    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+    FROM agencies WHERE id = ?;`;
+    const result = await knex.raw(query, agencyId);
+
+    return result.rows;
+}
+
 async function getAgencies(rootAgency) {
     const query = `WITH RECURSIVE subagencies AS (
     SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
@@ -544,6 +552,7 @@ module.exports = {
     getAccessToken,
     incrementAccessTokenUses,
     markAccessTokenUsed,
+    getAgency,
     getAgencies,
     getAgencyEligibilityCodes,
     setAgencyEligibilityCodeEnabled,
