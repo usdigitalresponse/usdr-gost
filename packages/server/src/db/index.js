@@ -17,7 +17,9 @@ const knex = require('./connection');
 const { TABLES } = require('./constants');
 const helpers = require('./helpers');
 
-async function getUsers(agency_id) {
+async function getUsers(rootAgencyId) {
+    const subAgencies = await getAgencies(rootAgencyId);
+
     const users = await knex('users')
         .select(
             'users.*',
@@ -29,7 +31,7 @@ async function getUsers(agency_id) {
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
-        .where('agencies.id', agency_id);
+        .whereIn('agencies.id', subAgencies.map((subAgency) => subAgency.id));
     return users.map((user) => {
         const u = { ...user };
         if (user.role_id) {

@@ -5,21 +5,13 @@ const { requireAdminUser, requireUser, isAuthorized } = require('../lib/access-h
 const db = require('../db');
 
 router.post('/', requireAdminUser, async (req, res) => {
-    let { agency } = req.query;
-    if (!agency) {
-        // Agency not in query string, so use this user's agency.
-        const user = await db.getUser(req.signedCookies.userId);
-        agency = user.agency_id;
-    }
-
-    const keyword = {
+    const result = await db.createKeyword({
         search_term: req.body.searchTerm,
         mode: '',
         notes: req.body.notes,
-        agency_id: agency,
-    };
+        agency_id: req.session.agency,
+    });
 
-    const result = await db.createKeyword(keyword);
     res.json(result);
 });
 
@@ -43,14 +35,7 @@ router.delete('/:keywordId', requireAdminUser, async (req, res) => {
 });
 
 router.get('/', requireUser, async (req, res) => {
-    let { agency } = req.query;
-    if (!agency) {
-        // Agency not in query string, so default to this user's agency.
-        const user = await db.getUser(req.signedCookies.userId);
-        agency = user.agency_id;
-    }
-
-    const keywords = await db.getAgencyKeywords(agency);
+    const keywords = await db.getAgencyKeywords(req.session.agency);
     res.json(keywords);
 });
 

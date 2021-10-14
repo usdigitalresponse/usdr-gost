@@ -7,7 +7,6 @@ const db = require('../db');
 
 router.post('/', requireAdminUser, async (req, res, next) => {
     if (!req.body.email) {
-        console.log('1');
         res.status(400).send('User email is required');
         return;
     }
@@ -17,7 +16,7 @@ router.post('/', requireAdminUser, async (req, res, next) => {
             email: req.body.email.toLowerCase(),
             name: req.body.name,
             role_id: req.body.role,
-            agency_id: req.body.agency,
+            agency_id: req.session.agency,
         };
         const result = await db.createUser(user);
         res.json({ user: result });
@@ -33,14 +32,7 @@ router.post('/', requireAdminUser, async (req, res, next) => {
 });
 
 router.get('/', requireAdminUser, async (req, res) => {
-    let { agency } = req.query;
-    if (!agency) {
-        // Agency not in query string, so default to this admin's agency.
-        const user = await db.getUser(req.signedCookies.userId);
-        agency = user.agency_id;
-    }
-
-    const users = await db.getUsers(agency);
+    const users = await db.getUsers(req.session.agency);
     res.json(users);
 });
 

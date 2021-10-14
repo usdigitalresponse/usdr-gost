@@ -45,13 +45,17 @@ async function requireAdminUser(req, res, next) {
         return;
     } if (count === 1) {
         // Is this user an admin of the specified agency?
-        const authorized = await isAuthorized(req.signedCookies.userId,
-            queryAgency || paramAgency || paramAgencyId || bodyAgency || 0);
+        const requestAgency = queryAgency || paramAgency || paramAgencyId || bodyAgency || 0;
+        const authorized = await isAuthorized(req.signedCookies.userId, requestAgency);
         if (!authorized) {
             res.sendStatus(403);
             return;
         }
-    } // when count === 0, no agency was specified; default to user's own agency
+        req.session = { ...req.session, agency: requestAgency };
+    } else {
+        // no agency was specified; default to user's own agency
+        req.session = { ...req.session, agency: user.agency_id };
+    }
 
     next();
 }
@@ -67,6 +71,7 @@ async function requireUser(req, res, next) {
         res.sendStatus(403); // Staff are restricted to their own agency.
         return;
     }
+    req.session = { ...req.session, agency: user.agency_id };
 
     // User NOT required to be admin; but if they ARE, they must satisfy admin rules.
     if (user.role_name === 'admin') {

@@ -8,17 +8,11 @@ const {
 
 router.get('/', requireUser, async (req, res) => {
     const user = await getUser(req.signedCookies.userId);
-    let { agency } = req.query;
-    if (!agency) {
-        // Agency not in query string, so default to this user's agency.
-        agency = user.agency_id;
-    }
-
     let response;
     if (user.role.name === 'admin') {
-        response = await getAgencies(agency);
+        response = await getAgencies(req.session.agency);
     } else {
-        response = await getAgency(agency);
+        response = await getAgency(req.session.agency);
     }
     res.json(response);
 });
