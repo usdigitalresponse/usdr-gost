@@ -85,33 +85,36 @@ describe('`/api/keywords` endpoint', async () => {
     });
     context('POST /keywords (create a keyword for an agency)', async () => {
         const keyword = {
-            search_term: '',
+            search_term: 'test keyword',
             mode: '',
             notes: 'notes',
-            agency_id: undefined,
         };
         context('by a user with admin role', async () => {
             it('creates a keyword for this user\'s own agency', async () => {
                 const response = await fetch(`${endpoint}`, {
                     ...fetchOptions.admin,
                     method: 'post',
-                    body: JSON.stringify({ ...keyword, agency_id: agencies.admin.own }),
+                    body: JSON.stringify({ ...keyword }),
                 });
                 expect(response.statusText).to.equal('OK');
+                const json = await response.json();
+                expect(Number(json.agency_id)).to.equal(agencies.admin.own);
             });
             it('creates a keyword for a subagency of this user\'s own agency', async () => {
-                const response = await fetch(`${endpoint}`, {
+                const response = await fetch(`${endpoint}?agency=${agencies.admin.ownSub}`, {
                     ...fetchOptions.admin,
                     method: 'post',
-                    body: JSON.stringify({ ...keyword, agency_id: agencies.admin.ownSub }),
+                    body: JSON.stringify({ ...keyword }),
                 });
                 expect(response.statusText).to.equal('OK');
+                const json = await response.json();
+                expect(Number(json.agency_id)).to.equal(agencies.admin.ownSub);
             });
             it('is forbidden for an agency outside this user\'s hierarchy', async () => {
-                const response = await fetch(`${endpoint}`, {
+                const response = await fetch(`${endpoint}?agency=${agencies.admin.offLimits}`, {
                     ...fetchOptions.admin,
                     method: 'post',
-                    body: JSON.stringify({ ...keyword, agency_id: agencies.admin.offLimits }),
+                    body: JSON.stringify({ ...keyword }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
@@ -126,18 +129,18 @@ describe('`/api/keywords` endpoint', async () => {
                 expect(response.statusText).to.equal('Forbidden');
             });
             it('is forbidden for a subagency of this user\'s own agency', async () => {
-                const response = await fetch(`${endpoint}`, {
+                const response = await fetch(`${endpoint}?agency=${agencies.staff.ownSub}`, {
                     ...fetchOptions.staff,
                     method: 'post',
-                    body: JSON.stringify({ ...keyword, agency: agencies.staff.ownSub }),
+                    body: JSON.stringify({ ...keyword }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
             it('is forbidden for an agency outside this user\'s hierarchy', async () => {
-                const response = await fetch(`${endpoint}`, {
+                const response = await fetch(`${endpoint}?agency=${agencies.staff.offLimits}`, {
                     ...fetchOptions.staff,
                     method: 'post',
-                    body: JSON.stringify({ ...keyword, agency: agencies.staff.offLimits }),
+                    body: JSON.stringify({ ...keyword }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });

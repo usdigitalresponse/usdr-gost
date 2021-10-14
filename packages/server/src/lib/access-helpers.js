@@ -29,19 +29,16 @@ async function requireAdminUser(req, res, next) {
     //  a route parameter :agency
     //  a route parameter :agencyId
     //  a body field named 'agency'
-    //  a body field named 'agency_id'
     const queryAgency = Number(req.query.agency);
     const paramAgency = Number(req.params.agency);
     const paramAgencyId = Number(req.params.agencyId);
     const bodyAgency = Number(req.body.agency);
-    const bodyAgencyId = Number(req.body.agency_id);
 
     let count = 0;
     if (!Number.isNaN(queryAgency)) count += 1;
     if (!Number.isNaN(paramAgency)) count += 1;
     if (!Number.isNaN(paramAgencyId)) count += 1;
     if (!Number.isNaN(bodyAgency)) count += 1;
-    if (!Number.isNaN(bodyAgencyId)) count += 1;
 
     if (count > 1) {
         res.sendStatus(400); // ambiguous request
@@ -49,7 +46,7 @@ async function requireAdminUser(req, res, next) {
     } if (count === 1) {
         // Is this user an admin of the specified agency?
         const authorized = await isAuthorized(req.signedCookies.userId,
-            queryAgency || paramAgency || paramAgencyId || bodyAgency || bodyAgencyId || 0);
+            queryAgency || paramAgency || paramAgencyId || bodyAgency || 0);
         if (!authorized) {
             res.sendStatus(403);
             return;

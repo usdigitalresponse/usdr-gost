@@ -5,11 +5,18 @@ const { requireAdminUser, requireUser, isAuthorized } = require('../lib/access-h
 const db = require('../db');
 
 router.post('/', requireAdminUser, async (req, res) => {
+    let { agency } = req.query;
+    if (!agency) {
+        // Agency not in query string, so use this user's agency.
+        const user = await db.getUser(req.signedCookies.userId);
+        agency = user.agency_id;
+    }
+
     const keyword = {
         search_term: req.body.searchTerm,
         mode: '',
         notes: req.body.notes,
-        agency_id: req.body.agency_id,
+        agency_id: agency,
     };
 
     const result = await db.createKeyword(keyword);

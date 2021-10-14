@@ -20,8 +20,8 @@ const adminList = [
     //     role_id: roles[0].id,
     // },
     // {
-    //     email: 'michael@stanford.cc',
-    //     name: 'Michael Stanford',
+    //     email: 'xmattingly@fastmail.com',
+    //     name: 'Admin Mattingly',
     //     agency_id: usdrAgency.id,
     //     role_id: roles[0].id,
     // },
@@ -29,6 +29,12 @@ const adminList = [
 
 const agencyUserList = [
     // update me with non admin agency user
+    // {
+    //     email: 'xmattingly@fastmail.net',
+    //     name: 'Staff Mattingly',
+    //     agency_id: usdrAgency.id,
+    //     role_id: roles[1].id,
+    // },
 ];
 
 const globalCodes = [
@@ -52,14 +58,17 @@ exports.seed = async (knex) => {
         .onConflict('id')
         .merge();
 
-    if (adminList.length) {
-        await knex('users').insert(adminList)
-            .onConflict('email')
-            .merge();
-    }
-
     if (userList.length) {
         await knex('users').insert(userList)
+            .onConflict('email')
+            .merge();
+        // Postgres sequences can get "out of sync", e.g. after we INSERTed with explicit id values.
+        // Put the sequence back "in sync" to avoid duplicate key value errors.
+        await knex.raw('SELECT setval(\'users_id_seq\', (SELECT MAX(id) FROM users) + 1);');
+    }
+
+    if (adminList.length) {
+        await knex('users').insert(adminList)
             .onConflict('email')
             .merge();
     }
@@ -69,10 +78,6 @@ exports.seed = async (knex) => {
             .onConflict('email')
             .merge();
     }
-
-    // Postgres sequences can get "out of sync", e.g. after we INSERTed with explicit id values.
-    // Put the sequence back "in sync" to avoid duplicate key value errors.
-    await knex.raw('SELECT setval(\'users_id_seq\', (SELECT MAX(id) FROM users) + 1);');
 
     await knex('eligibility_codes').insert(eligibilityCodes)
         .onConflict('code')
