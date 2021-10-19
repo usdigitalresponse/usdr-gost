@@ -149,22 +149,10 @@ export default {
       return this.grantsPagination ? this.grantsPagination.lastPage : 0;
     },
     formattedGrants() {
-      function setCellVariants(grant) {
-        const DAYS_TO_MILLISECS = 24 * 60 * 60 * 1000;
-        const warningThreshold = (this.agency.warning_threshold || 30) * DAYS_TO_MILLISECS;
-        const dangerThreshold = (this.agency.danger_threshold || 15) * DAYS_TO_MILLISECS;
-        const now = new Date();
-
-        const result = {};
-
-        const diff = new Date(grant.close_date) - now;
-        if (diff <= dangerThreshold) {
-          result.close_date = 'danger';
-        } else if (diff < warningThreshold) {
-          result.close_date = 'warning';
-        }
-        return result;
-      }
+      const DAYS_TO_MILLISECS = 24 * 60 * 60 * 1000;
+      const warningThreshold = (this.agency.warning_threshold || 30) * DAYS_TO_MILLISECS;
+      const dangerThreshold = (this.agency.danger_threshold || 15) * DAYS_TO_MILLISECS;
+      const now = new Date();
 
       return this.grants.map((grant) => ({
         ...grant,
@@ -179,7 +167,16 @@ export default {
         close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
         created_at: new Date(grant.created_at).toLocaleString(),
         updated_at: new Date(grant.updated_at).toLocaleString(),
-        _cellVariants: setCellVariants(grant),
+        _cellVariants: (() => {
+          const diff = new Date(grant.close_date) - now;
+          if (diff <= dangerThreshold) {
+            return { close_date: 'danger' };
+          }
+          if (diff <= warningThreshold) {
+            return { close_date: 'warning' };
+          }
+          return {};
+        })(),
       }));
     },
   },
