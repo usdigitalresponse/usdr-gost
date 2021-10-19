@@ -89,6 +89,7 @@ describe('db', () => {
     context('getGrantsAssignedAgency', () => {
         it('gets grants assigned to agency', async () => {
             const result = await db.getGrants({
+                agencies: [],
                 filters: {
                     assignedToAgency: fixtures.users.staffUser.agency_id.toString(),
                 },

@@ -11,8 +11,16 @@ router.get('/', requireUser, async (req, res) => {
     if (!req.query.interestedByMe || !req.query.assignedToAgency) {
         agencyCriteria = await db.getAgencyCriteriaForUserId(req.signedCookies.userId);
     }
+    let agencies = [];
+    if (req.query.agency) {
+        agencies.push(req.query.agency);
+    } else {
+        const user = await db.getUser(req.signedCookies.userId);
+        agencies = user.agency.subagencies;
+    }
     const grants = await db.getGrants({
         ...req.query,
+        agencies,
         filters: {
             agencyCriteria,
             interestedByUser: req.query.interestedByMe ? req.signedCookies.userId : null,

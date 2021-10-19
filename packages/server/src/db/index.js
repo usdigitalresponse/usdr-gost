@@ -252,7 +252,7 @@ function deleteKeyword(id) {
 }
 
 async function getGrants({
-    currentPage, perPage, filters, orderBy, searchTerm,
+    currentPage, perPage, agencies, filters, orderBy, searchTerm,
 } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
@@ -307,8 +307,10 @@ async function getGrants({
     const viewedBy = await knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
+        .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
         .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
-    const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id) });
+
+    const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), agencies });
 
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
