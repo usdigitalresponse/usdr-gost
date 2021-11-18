@@ -1,14 +1,15 @@
 const express = require('express');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const db = require('../db');
+const { requireUser } = require('../lib/access-helpers');
 
-router.get('/', async (req, res) => {
+router.get('/', requireUser, async (req, res) => {
     const result = {};
     let agencyCriteria;
 
     if (req.query.totalGrants || req.query.grantsCreatedFromTs || req.query.grantsUpdatedFromTs) {
-        agencyCriteria = await db.getAgencyCriteriaForUserId(req.signedCookies.userId);
+        agencyCriteria = await db.getAgencyCriteriaForAgency(req.session.selectedAgency);
     }
 
     if (req.query.totalGrants) {

@@ -7,10 +7,14 @@ try {
     // eslint-disable-next-line global-require
     const crypto = require('crypto');
     v4 = crypto.randomUUID;
+    if (!v4) {
+        // node v12 doesnt have randomUUID
+        throw new Error();
+    }
 } catch (err) {
     console.log('Node lacks crypto support!');
     // eslint-disable-next-line global-require
-    v4 = require('uuid').v4;
+    ({ v4 } = require('uuid'));
 }
 
 const knex = require('./connection');
@@ -99,11 +103,6 @@ async function getUser(id) {
         };
     }
     if (user.agency_id != null) {
-        let subagencies = [user.agency_id];
-        if (user.role.name === 'admin') {
-            const result = await getAgencies(user.agency_id);
-            subagencies = result.map((rec) => rec.id);
-        }
         user.agency = {
             id: user.agency_id,
             name: user.agency_name,
@@ -111,17 +110,22 @@ async function getUser(id) {
             agency_parent_id: user.agency_parent_id,
             warning_threshold: user.agency_warning_threshold,
             danger_threshold: user.agency_danger_threshold,
-            subagencies,
         };
+        let subagencies = [];
+        if (user.role.name === 'admin') {
+            subagencies = await getAgencies(user.agency_id);
+        } else {
+            subagencies.push({ ...user.agency });
+        }
+        user.agency.subagencies = subagencies;
     }
     return user;
 }
 
-async function getAgencyCriteriaForUserId(userId) {
-    const user = await getUser(userId);
-    const eligibilityCodes = await getAgencyEligibilityCodes(user.agency.id);
+async function getAgencyCriteriaForAgency(agencyId) {
+    const eligibilityCodes = await getAgencyEligibilityCodes(agencyId);
     const enabledECodes = eligibilityCodes.filter((e) => e.enabled);
-    const keywords = await getAgencyKeywords(user.agency.id);
+    const keywords = await getAgencyKeywords(agencyId);
 
     return {
         eligibilityCodes: enabledECodes.map((c) => c.code),
@@ -549,7 +553,7 @@ module.exports = {
     createUser,
     deleteUser,
     getUser,
-    getAgencyCriteriaForUserId,
+    getAgencyCriteriaForAgency,
     isSubOrganization,
     getRoles,
     createAccessToken,

@@ -1,7 +1,7 @@
 const { expect } = require('chai');
-const fetch = require('node-fetch');
-const { getSessionCookie } = require('./utils');
 require('dotenv').config();
+
+const { getSessionCookie, fetchApi } = require('./utils');
 
 /*
     In general, these tests ...
@@ -10,8 +10,6 @@ require('dotenv').config();
 */
 
 describe('`/api/grants` endpoint', async () => {
-    const endpoint = `${process.env.API_DOMAIN}/api/grants`;
-
     const agencies = {
         own: 384,
         ownSub: 2,
@@ -42,23 +40,23 @@ describe('`/api/grants` endpoint', async () => {
 
     context('PUT api/grants/:grantId/view/:agencyId', async () => {
         context('by a user with admin role', async () => {
-            const viewEndpoint = `${endpoint}/335255/view`;
+            const viewEndpoint = `335255/view`;
             it('marks the grant viewed for this user\'s own agency', async () => {
-                const response = await fetch(`${viewEndpoint}/${agencies.own}`, {
+                const response = await fetchApi(`/grants/${viewEndpoint}/${agencies.own}`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'put',
                 });
                 expect(response.statusText).to.equal('OK');
             });
             it('marks the grant viewed for a subagency of this user\'s own agency', async () => {
-                const response = await fetch(`${viewEndpoint}/${agencies.ownSub}`, {
+                const response = await fetchApi(`/grants/${viewEndpoint}/${agencies.ownSub}`, agencies.ownSub, {
                     ...fetchOptions.admin,
                     method: 'put',
                 });
                 expect(response.statusText).to.equal('OK');
             });
             it('forbids requests for any agency outside this user\'s hierarchy', async () => {
-                const response = await fetch(`${viewEndpoint}/${agencies.offLimits}`, {
+                const response = await fetchApi(`/grants/${viewEndpoint}/${agencies.offLimits}`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'put',
                 });
@@ -66,22 +64,22 @@ describe('`/api/grants` endpoint', async () => {
             });
         });
         context('by a user with staff role', async () => {
-            const viewEndpoint = `${endpoint}/333333/view`;
+            const viewEndpoint = `/333333/view`;
             it('marks the grant viewed for this user\'s own agency', async () => {
-                const response = await fetch(`${viewEndpoint}/${agencies.own}`, {
+                const response = await fetchApi(`/grants/${viewEndpoint}/${agencies.own}`, agencies.own, {
                     ...fetchOptions.staff,
                     method: 'put',
                 });
                 expect(response.statusText).to.equal('OK');
             });
             it('forbids requests for any agency outside this user\'s hierarchy', async () => {
-                let response = await fetch(`${viewEndpoint}/${agencies.ownSub}`, {
+                let response = await fetchApi(`/grants/${viewEndpoint}/${agencies.ownSub}`, agencies.ownSub, {
                     ...fetchOptions.staff,
                     method: 'put',
                 });
                 expect(response.statusText).to.equal('Forbidden');
 
-                response = await fetch(`${viewEndpoint}/${agencies.offLimits}`, {
+                response = await fetchApi(`/grants/${viewEndpoint}/${agencies.offLimits}`, agencies.offLimits, {
                     ...fetchOptions.staff,
                     method: 'put',
                 });
@@ -90,12 +88,12 @@ describe('`/api/grants` endpoint', async () => {
         });
     });
     context('GET /api/grants/:grantId/assign/agencies', async () => {
-        const assignedEndpoint = `${endpoint}/335255/assign/agencies`;
+        const assignedEndpoint = `335255/assign/agencies`;
         context('by a user with admin role', async () => {
             let response;
             let json;
             before(async () => {
-                response = await fetch(assignedEndpoint, fetchOptions.admin);
+                response = await fetchApi(`/grants/${assignedEndpoint}`, agencies.own, fetchOptions.admin);
                 json = await response.json();
             });
             it('includes this user\'s own agency when it is assigned to the grant', async () => {
@@ -111,14 +109,14 @@ describe('`/api/grants` endpoint', async () => {
                 expect(json.every((r) => r.agency_id !== agencies.offLimits)).to.equal(true);
             });
             it('includes only the queried subagency of this user\'s own agency when the subagency is assigned to the grant', async () => {
-                const queryResponse = await fetch(`${assignedEndpoint}?agency=${agencies.ownSub}`, fetchOptions.admin);
+                const queryResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.ownSub, fetchOptions.admin);
                 expect(queryResponse.statusText).to.equal('OK');
                 const queryJson = await queryResponse.json();
                 expect(queryJson.length).to.equal(1);
                 expect(queryJson[0].agency_id).to.equal(agencies.ownSub);
             });
             it('forbids requests for agencies outside this user\'s hierarchy', async () => {
-                const badResponse = await fetch(`${assignedEndpoint}?agency=${agencies.offLimits}`, fetchOptions.admin);
+                const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.offLimits, fetchOptions.admin);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
         });
@@ -126,7 +124,7 @@ describe('`/api/grants` endpoint', async () => {
             let response;
             let json;
             before(async () => {
-                response = await fetch(assignedEndpoint, fetchOptions.staff);
+                response = await fetchApi(`/grants/${assignedEndpoint}`, agencies.own, fetchOptions.staff);
                 json = await response.json();
             });
             it('includes this user\'s own agency when it is assigned to the grant', async () => {
@@ -142,16 +140,16 @@ describe('`/api/grants` endpoint', async () => {
                 expect(json.every((r) => r.agency_id !== agencies.offLimits)).to.equal(true);
             });
             it('forbids requests for any agency except this user\'s own agency', async () => {
-                const badResponse = await fetch(`${assignedEndpoint}?agency=${agencies.ownSub}`, fetchOptions.staff);
+                const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.ownSub, fetchOptions.staff);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
         });
     });
     context('PUT /api/grants/:grantId/assign/agencies', async () => {
-        const assignEndpoint = `${endpoint}/333816/assign/agencies`;
+        const assignEndpoint = `333816/assign/agencies`;
         context('by a user with admin role', async () => {
             it('assigns this user\'s own agency to a grant', async () => {
-                const response = await fetch(assignEndpoint, {
+                const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.own] }),
@@ -159,39 +157,25 @@ describe('`/api/grants` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
             });
             it('assigns subagencies of this user\'s own agency to a grant', async () => {
-                const response = await fetch(assignEndpoint, {
+                const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.ownSub, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.ownSub] }),
                 });
                 expect(response.statusText).to.equal('OK');
             });
-            it('completes valid assignment requests without regard to agency in query string', async () => {
-                const response = await fetch(`${assignEndpoint}?agency=${agencies.ownSub}`, {
-                    ...fetchOptions.admin,
-                    method: 'put',
-                    body: JSON.stringify({ agencyIds: [agencies.own] }),
-                });
-                expect(response.statusText).to.equal('OK');
-            });
             it('forbids requests for any agency outside this user\'s hierarchy', async () => {
-                let response = await fetch(assignEndpoint, {
+                const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.offLimits] }),
-                });
-                expect(response.statusText).to.equal('Forbidden');
-                response = await fetch(`${assignEndpoint}?agency=${agencies.offLimits}`, {
-                    ...fetchOptions.admin,
-                    method: 'put',
-                    body: JSON.stringify({ agencyIds: [agencies.own] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
         context('by a user with staff role', async () => {
             it('assigns this user\'s own agency to a grant', async () => {
-                const response = await fetch(assignEndpoint, {
+                const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.own, {
                     ...fetchOptions.staff,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.own] }),
@@ -199,32 +183,26 @@ describe('`/api/grants` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
             });
             it('forbids requests for any agency except this user\'s own agency', async () => {
-                let response = await fetch(assignEndpoint, {
+                let response = await fetchApi(`/grants/${assignEndpoint}`, agencies.ownSub, {
                     ...fetchOptions.staff,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.ownSub] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
-                response = await fetch(assignEndpoint, {
-                    ...fetchOptions.staff,
+                response = await fetchApi(`/grants/${assignEndpoint}`, agencies.offLimits, {
+                    ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.offLimits] }),
-                });
-                expect(response.statusText).to.equal('Forbidden');
-                response = await fetch(`${assignEndpoint}?agency=${agencies.offLimits}`, {
-                    ...fetchOptions.staff,
-                    method: 'put',
-                    body: JSON.stringify({ agencyIds: [agencies.own] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
     });
     context('DELETE /api/grants/:grantId/assign/agencies', async () => {
-        const unassignEndpoint = `${endpoint}/333816/assign/agencies`;
+        const unassignEndpoint = `333816/assign/agencies`;
         context('by a user with admin role', async () => {
             it('unassigns this user\'s own agency from a grant', async () => {
-                const response = await fetch(unassignEndpoint, {
+                const response = await fetchApi(`/grants/${unassignEndpoint}`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'delete',
                     body: JSON.stringify({ agencyIds: [agencies.own] }),
@@ -232,39 +210,25 @@ describe('`/api/grants` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
             });
             it('unassigns subagencies of this user\'s own agency from a grant', async () => {
-                const response = await fetch(unassignEndpoint, {
+                const response = await fetchApi(`/grants/${unassignEndpoint}`, agencies.ownSub, {
                     ...fetchOptions.admin,
                     method: 'delete',
                     body: JSON.stringify({ agencyIds: [agencies.ownSub] }),
                 });
                 expect(response.statusText).to.equal('OK');
             });
-            it('completes valid unassignment requests without regard to agency in query string', async () => {
-                const response = await fetch(`${unassignEndpoint}?agency=${agencies.ownSub}`, {
-                    ...fetchOptions.admin,
-                    method: 'delete',
-                    body: JSON.stringify({ agencyIds: [agencies.own] }),
-                });
-                expect(response.statusText).to.equal('OK');
-            });
             it('forbids requests for any agency outside this user\'s hierarchy', async () => {
-                let response = await fetch(unassignEndpoint, {
+                const response = await fetchApi(`/grants/${unassignEndpoint}`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'delete',
                     body: JSON.stringify({ agencyIds: [agencies.offLimits] }),
-                });
-                expect(response.statusText).to.equal('Forbidden');
-                response = await fetch(`${unassignEndpoint}?agency=${agencies.offLimits}`, {
-                    ...fetchOptions.admin,
-                    method: 'delete',
-                    body: JSON.stringify({ agencyIds: [agencies.own] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
         context('by a user with staff role', async () => {
             it('unassigns this user\'s own agency to a grant', async () => {
-                const response = await fetch(unassignEndpoint, {
+                const response = await fetchApi(`/grants/${unassignEndpoint}`, agencies.own, {
                     ...fetchOptions.staff,
                     method: 'delete',
                     body: JSON.stringify({ agencyIds: [agencies.own] }),
@@ -272,34 +236,28 @@ describe('`/api/grants` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
             });
             it('forbids requests for any agency except this user\'s own agency', async () => {
-                let response = await fetch(unassignEndpoint, {
+                let response = await fetchApi(`/grants/${unassignEndpoint}`, agencies.ownSub, {
                     ...fetchOptions.staff,
                     method: 'delete',
                     body: JSON.stringify({ agencyIds: [agencies.ownSub] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
-                response = await fetch(unassignEndpoint, {
+                response = await fetchApi(`/grants/${unassignEndpoint}`, agencies.offLimits, {
                     ...fetchOptions.staff,
                     method: 'delete',
                     body: JSON.stringify({ agencyIds: [agencies.offLimits] }),
-                });
-                expect(response.statusText).to.equal('Forbidden');
-                response = await fetch(`${unassignEndpoint}?agency=${agencies.offLimits}`, {
-                    ...fetchOptions.staff,
-                    method: 'delete',
-                    body: JSON.stringify({ agencyIds: [agencies.own] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
     });
     context('GET /api/grants/:grantId/interested', async () => {
-        const interestEndpoint = `${endpoint}/335255/interested`;
+        const interestEndpoint = `335255/interested`;
         context('by a user with admin role', async () => {
             let response;
             let json;
             before(async () => {
-                response = await fetch(interestEndpoint, fetchOptions.admin);
+                response = await fetchApi(`/grants/${interestEndpoint}`, agencies.own, fetchOptions.admin);
                 json = await response.json();
             });
             it('includes this user\'s own agency when it is interested in the grant', async () => {
@@ -315,14 +273,14 @@ describe('`/api/grants` endpoint', async () => {
                 expect(json.every((r) => r.agency_id !== agencies.offLimits)).to.equal(true);
             });
             it('includes only the queried subagency of this user\'s own agency when the subagency is interested in the grant', async () => {
-                const queryResponse = await fetch(`${interestEndpoint}?agency=${agencies.ownSub}`, fetchOptions.admin);
+                const queryResponse = await fetchApi(`/grants/${interestEndpoint}`, agencies.ownSub, fetchOptions.admin);
                 expect(queryResponse.statusText).to.equal('OK');
                 const queryJson = await queryResponse.json();
                 expect(queryJson.length).to.equal(1);
                 expect(queryJson[0].agency_id).to.equal(agencies.ownSub);
             });
             it('forbids requests for agencies outside this user\'s hierarchy', async () => {
-                const badResponse = await fetch(`${interestEndpoint}?agency=${agencies.offLimits}`, fetchOptions.admin);
+                const badResponse = await fetchApi(`/grants/${interestEndpoint}`, agencies.offLimits, fetchOptions.admin);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
         });
@@ -330,7 +288,7 @@ describe('`/api/grants` endpoint', async () => {
             let response;
             let json;
             before(async () => {
-                response = await fetch(interestEndpoint, fetchOptions.staff);
+                response = await fetchApi(`/grants/${interestEndpoint}`, agencies.own, fetchOptions.staff);
                 json = await response.json();
             });
             it('includes this user\'s own agency when it is interested in the grant', async () => {
@@ -346,16 +304,16 @@ describe('`/api/grants` endpoint', async () => {
                 expect(json.every((r) => r.agency_id !== agencies.offLimits)).to.equal(true);
             });
             it('forbids requests for any agency except this user\'s own agency', async () => {
-                const badResponse = await fetch(`${interestEndpoint}?agency=${agencies.ownSub}`, fetchOptions.staff);
+                const badResponse = await fetchApi(`/grants/${interestEndpoint}`, agencies.ownSub, fetchOptions.staff);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
         });
     });
     context('PUT /api/grants/:grantId/interested/:agencyId', async () => {
         context('by a user with admin role', async () => {
-            const interestEndpoint = `${endpoint}/0/interested`;
+            const interestEndpoint = `0/interested`;
             it('records this user\'s own agency\'s interest in a grant', async () => {
-                const response = await fetch(`${interestEndpoint}/${agencies.own}`, {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.own}`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ interestedCode: 1 }),
@@ -363,23 +321,15 @@ describe('`/api/grants` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
             });
             it('records this user\'s own agency\'s subagencies\' interest in a grant', async () => {
-                const response = await fetch(`${interestEndpoint}/${agencies.ownSub}`, {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.ownSub}`, agencies.ownSub, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ interestedCode: 1 }),
                 });
                 expect(response.statusText).to.equal('OK');
             });
-            it('rejects requests with agency in query string', async () => {
-                const response = await fetch(`${interestEndpoint}/${agencies.ownSubAlternate}?agency=${agencies.own}`, {
-                    ...fetchOptions.admin,
-                    method: 'put',
-                    body: JSON.stringify({ interestedCode: 1 }),
-                });
-                expect(response.statusText).to.equal('Bad Request');
-            });
             it('forbids requests for any agency outside this user\'s hierarchy', async () => {
-                const response = await fetch(`${interestEndpoint}/${agencies.offLimits}`, {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.offLimits}`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ interestedCode: 1 }),
@@ -388,31 +338,23 @@ describe('`/api/grants` endpoint', async () => {
             });
         });
         context('by a user with staff role', async () => {
-            const interestEndpoint = `${endpoint}/333333/interested`;
+            const interestEndpoint = `333333/interested`;
             it('records this user\'s own agency\'s interest in a grant', async () => {
-                const response = await fetch(`${interestEndpoint}/${agencies.own}`, {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.own}`, agencies.own, {
                     ...fetchOptions.staff,
                     method: 'put',
                     body: JSON.stringify({ interestedCode: 1 }),
                 });
                 expect(response.statusText).to.equal('OK');
             });
-            it('forbids requests with agency in query string', async () => {
-                const response = await fetch(`${interestEndpoint}/${agencies.ownSubAlternate}?agency=${agencies.own}`, {
-                    ...fetchOptions.staff,
-                    method: 'put',
-                    body: JSON.stringify({ interestedCode: 1 }),
-                });
-                expect(response.statusText).to.equal('Forbidden');
-            });
             it('forbids requests for any agency except this user\'s own agency', async () => {
-                let response = await fetch(`${interestEndpoint}/${agencies.ownSub}`, {
+                let response = await fetchApi(`/grants/${interestEndpoint}/${agencies.ownSub}`, agencies.ownSub, {
                     ...fetchOptions.staff,
                     method: 'put',
                     body: JSON.stringify({ interestedCode: 1 }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
-                response = await fetch(`${interestEndpoint}/${agencies.offLimits}`, {
+                response = await fetchApi(`/grants/${interestEndpoint}/${agencies.offLimits}`, agencies.offLimits, {
                     ...fetchOptions.staff,
                     method: 'put',
                     body: JSON.stringify({ interestedCode: 1 }),

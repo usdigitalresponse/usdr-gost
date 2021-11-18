@@ -1,5 +1,9 @@
 const { getUser } = require('../db');
 
+function isPartOfAgency(agencies, agencyId) {
+    return agencies.find((s) => s.id === Number(agencyId));
+}
+
 /**
  * Determine if a user is authorized for an agency.
  *
@@ -9,7 +13,7 @@ const { getUser } = require('../db');
  */
 async function isAuthorized(userId, agencyId) {
     const user = await getUser(userId);
-    return user.agency.subagencies.includes(agencyId);
+    return isPartOfAgency(user.agency.subagencies, agencyId);
 }
 
 async function requireAdminUser(req, res, next) {
@@ -23,38 +27,19 @@ async function requireAdminUser(req, res, next) {
         res.sendStatus(403);
         return;
     }
+    const paramAgencyId = req.params.organizationId;
 
-    // Depending on the request, an agency ID may be specified in zero or one of:
-    //  the query string: ?agency=...
-    //  a route parameter :agency
-    //  a route parameter :agencyId
-    //  a body field named 'agency'
-    const queryAgency = Number(req.query.agency);
-    const paramAgency = Number(req.params.agency);
-    const paramAgencyId = Number(req.params.agencyId);
-    const bodyAgency = Number(req.body.agency);
+    const requestAgency = Number(paramAgencyId);
 
-    let count = 0;
-    if (!Number.isNaN(queryAgency)) count += 1;
-    if (!Number.isNaN(paramAgency)) count += 1;
-    if (!Number.isNaN(paramAgencyId)) count += 1;
-    if (!Number.isNaN(bodyAgency)) count += 1;
-
-    if (count > 1) {
-        res.sendStatus(400); // ambiguous request
-        return;
-    } if (count === 1) {
-        // Is this user an admin of the specified agency?
-        const requestAgency = queryAgency || paramAgency || paramAgencyId || bodyAgency || 0;
+    if (!Number.isNaN(requestAgency)) {
         const authorized = await isAuthorized(req.signedCookies.userId, requestAgency);
         if (!authorized) {
             res.sendStatus(403);
             return;
         }
-        req.session = { ...req.session, agency: requestAgency };
+        req.session = { ...req.session, user, selectedAgency: requestAgency };
     } else {
-        // no agency was specified; default to user's own agency
-        req.session = { ...req.session, agency: user.agency_id };
+        req.session = { ...req.session, user, selectedAgency: user.agency_id };
     }
 
     next();
@@ -67,11 +52,10 @@ async function requireUser(req, res, next) {
     }
 
     const user = await getUser(req.signedCookies.userId);
-    if (req.query.agency && user.role_name === 'staff') {
+    if (req.params.organizationId && user.role_name === 'staff' && (req.params.organizationId !== user.agency_id.toString())) {
         res.sendStatus(403); // Staff are restricted to their own agency.
         return;
     }
-    req.session = { ...req.session, agency: user.agency_id };
 
     // User NOT required to be admin; but if they ARE, they must satisfy admin rules.
     if (user.role_name === 'admin') {
@@ -79,9 +63,11 @@ async function requireUser(req, res, next) {
         return;
     }
 
+    req.session = { ...req.session, user, selectedAgency: user.agency_id };
+
     next();
 }
 
 module.exports = {
-    requireAdminUser, requireUser, isAuthorized,
+    requireAdminUser, requireUser, isAuthorized, isPartOfAgency,
 };

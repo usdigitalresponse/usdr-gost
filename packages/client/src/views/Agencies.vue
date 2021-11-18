@@ -61,12 +61,13 @@ export default {
     };
   },
   mounted() {
-    this.fetchAgencies();
+    this.setup();
   },
   computed: {
     ...mapGetters({
       agencies: 'agencies/agencies',
       userRole: 'users/userRole',
+      selectedAgency: 'users/selectedAgency',
     }),
     formattedAgencies() {
       return this.agencies.map((agency) => ({
@@ -74,10 +75,18 @@ export default {
       }));
     },
   },
+  watch: {
+    selectedAgency() {
+      this.setup();
+    },
+  },
   methods: {
     ...mapActions({
       fetchAgencies: 'agencies/fetchAgencies',
     }),
+    setup() {
+      this.fetchAgencies();
+    },
     openEditAgencyModal(agency) {
       this.editingAgency = agency;
       this.showEditAgencyModal = true;

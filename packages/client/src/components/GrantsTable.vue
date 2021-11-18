@@ -69,7 +69,7 @@ export default {
   props: {
     showInterested: Boolean,
     showAging: Boolean,
-    showAssignedToAgency: Number,
+    showAssignedToAgency: String,
   },
   data() {
     return {
@@ -134,13 +134,14 @@ export default {
   },
   mounted() {
     document.addEventListener('keyup', this.changeSelectedGrantIndex);
-    this.paginateGrants();
+    this.setup();
   },
   computed: {
     ...mapGetters({
       grants: 'grants/grants',
       grantsPagination: 'grants/grantsPagination',
       agency: 'users/agency',
+      selectedAgency: 'users/selectedAgency',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -181,6 +182,9 @@ export default {
     },
   },
   watch: {
+    selectedAgency() {
+      this.setup();
+    },
     currentPage() {
       this.paginateGrants();
     },
@@ -207,6 +211,9 @@ export default {
     ...mapActions({
       fetchGrants: 'grants/fetchGrants',
     }),
+    setup() {
+      this.paginateGrants();
+    },
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;

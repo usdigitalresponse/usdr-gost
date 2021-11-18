@@ -1,6 +1,6 @@
 const express = require('express');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const grantscraper = require('../lib/grantscraper');
 
 router.get('/grants', async (req, res) => {

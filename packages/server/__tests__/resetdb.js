@@ -3,6 +3,10 @@ const { exec } = require('child_process');
 
 let { log } = console;
 let { dir } = console;
+dir(__dirname);
+const knexfilePath = path.resolve(__dirname, '../knexfile.js');
+// eslint-disable-next-line import/no-dynamic-require
+const knexfile = require(path.resolve(__dirname, '../knexfile.js'));
 
 function execShellCommand(cmd, options = {}) {
     return new Promise((resolve, reject) => {
@@ -26,18 +30,13 @@ async function resetDB({ verbose = false }) {
         dir = () => { };
     }
 
-    dir(__dirname);
-    const knexfile = path.resolve(__dirname, '../knexfile.js');
-
-    let url = process.env.POSTGRES_URL;
-    const dbName = url.substring(url.lastIndexOf('/') + 1);
-    url = url.substring(0, url.lastIndexOf('/'));
-
-    if (!process.env.OK_TO_DROP_DB || process.env.OK_TO_DROP_DB !== 'TRUE') {
-        console.log(`For convenience, this process CAN automatically drop, recreate, and seed database '${dbName}'`);
-        console.log('For safety, this process WILL NOT take these steps unless you set environment variable: OK_TO_DROP_DB=TRUE\n');
+    let url = knexfile.test.connection;
+    if (!url) {
+        console.log('You must set POSTGRES_TEST_URL as an environment variable');
         process.exit(0);
     }
+    const dbName = url.substring(url.lastIndexOf('/') + 1);
+    url = url.substring(0, url.lastIndexOf('/'));
 
     const options = {
         env: process.env,
@@ -49,8 +48,8 @@ async function resetDB({ verbose = false }) {
         console.log(`Re-creating database ${dbName}`);
         await execShellCommand(`psql ${url} -c "CREATE DATABASE ${dbName}"`);
         console.log(`Seeding database ${dbName}`);
-        await execShellCommand(`yarn knex migrate:latest`, options);
-        await execShellCommand(`yarn knex --knexfile ${knexfile} seed:run`, options);
+        await execShellCommand(`yarn knex --knexfile ${knexfilePath} migrate:latest`, options);
+        await execShellCommand(`yarn knex --knexfile ${knexfilePath} seed:run`, options);
     } catch (err) {
         console.dir(err);
         return err;

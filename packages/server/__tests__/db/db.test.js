@@ -71,12 +71,11 @@ describe('db', () => {
         });
     });
 
-    context('getAgencyCriteriaForUserId', () => {
-        it('gets agency criteria associated with a userId', async () => {
+    context('getAgencyCriteriaForAgency', () => {
+        it('gets agency criteria associated with an agency', async () => {
             // eslint-disable-next-line max-len
-            const staffUserId = await knex(TABLES.users).select('id').where('email', fixtures.users.staffUser.email);
-
-            const result = await db.getAgencyCriteriaForUserId(staffUserId[0].id);
+            const staffUserId = await knex(TABLES.users).where('email', fixtures.users.staffUser.email);
+            const result = await db.getAgencyCriteriaForAgency(staffUserId[0].agency_id);
 
             expect(result).to.have.property('eligibilityCodes').with.lengthOf(1);
             expect(result.eligibilityCodes[0])

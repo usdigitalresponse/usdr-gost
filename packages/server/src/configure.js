@@ -26,16 +26,16 @@ module.exports = (app) => {
     app.use(morgan('common'));
     app.use(cookieParser(process.env.COOKIE_SECRET));
     app.use(bodyParser.json());
-    app.use('/api/users', require('./routes/users'));
-    app.use('/api/roles', require('./routes/roles'));
+    app.use('/api/organizations/:organizationId/users', require('./routes/users'));
+    app.use('/api/organizations/:organizationId/roles', require('./routes/roles'));
     app.use('/api/sessions', require('./routes/sessions'));
-    app.use('/api/agencies', require('./routes/agencies'));
-    app.use('/api/grants', require('./routes/grants'));
-    app.use('/api/dashboard', require('./routes/dashboard'));
-    app.use('/api/eligibility-codes', require('./routes/eligibilityCodes'));
-    app.use('/api/interested-codes', require('./routes/interestedCodes'));
-    app.use('/api/keywords', require('./routes/keywords'));
-    app.use('/api/refresh', require('./routes/refresh'));
+    app.use('/api/organizations/:organizationId/agencies', require('./routes/agencies'));
+    app.use('/api/organizations/:organizationId/grants', require('./routes/grants'));
+    app.use('/api/organizations/:organizationId/dashboard', require('./routes/dashboard'));
+    app.use('/api/organizations/:organizationId/eligibility-codes', require('./routes/eligibilityCodes'));
+    app.use('/api/organizations/:organizationId/interested-codes', require('./routes/interestedCodes'));
+    app.use('/api/organizations/:organizationId/keywords', require('./routes/keywords'));
+    app.use('/api/organizations/:organizationId/refresh', require('./routes/refresh'));
 
     const staticMiddleware = express.static(publicPath, {
         etag: true,

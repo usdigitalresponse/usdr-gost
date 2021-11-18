@@ -14,7 +14,7 @@ export default {
   },
   actions: {
     fetchRoles({ commit }) {
-      fetchApi.get('/api/roles').then((data) => commit('SET_ROLES', data));
+      fetchApi.get('/api/organizations/:organizationId/roles').then((data) => commit('SET_ROLES', data));
     },
   },
   mutations: {

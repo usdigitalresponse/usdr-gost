@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const knex = require('knex')({
     client: 'pg',
-    connection: process.env.POSTGRES_URL,
+    connection: process.env.POSTGRES_TEST_URL,
 });
 
 async function getSessionCookie(email) {
@@ -30,6 +30,15 @@ async function getSessionCookie(email) {
     return response.headers.raw()['set-cookie'];
 }
 
+function getEndpoint({ agencyId, url }) {
+    return `${process.env.API_DOMAIN}/api/organizations/${agencyId}${url}`;
+}
+
+function fetchApi(url, agencyId, fetchOptions) {
+    return fetch(getEndpoint({ agencyId, url }), fetchOptions);
+}
+
 module.exports = {
     getSessionCookie,
+    fetchApi,
 };

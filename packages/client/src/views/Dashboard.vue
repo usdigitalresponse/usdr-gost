@@ -70,7 +70,7 @@ export default {
   },
   mixins: [resizableTableMixin],
   mounted() {
-    this.fetchDashboard();
+    this.setup();
   },
   computed: {
     ...mapGetters({
@@ -83,12 +83,21 @@ export default {
       grantsUpdatedInTimeframe: 'dashboard/grantsUpdatedInTimeframe',
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
+      selectedAgency: 'users/selectedAgency',
     }),
+  },
+  watch: {
+    selectedAgency() {
+      this.setup();
+    },
   },
   methods: {
     ...mapActions({
       fetchDashboard: 'dashboard/fetchDashboard',
     }),
+    setup() {
+      this.fetchDashboard();
+    },
   },
 };
 </script>

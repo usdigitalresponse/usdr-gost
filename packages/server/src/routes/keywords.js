@@ -1,6 +1,6 @@
 const express = require('express');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const { requireAdminUser, requireUser, isAuthorized } = require('../lib/access-helpers');
 const db = require('../db');
 
@@ -9,7 +9,7 @@ router.post('/', requireAdminUser, async (req, res) => {
         search_term: req.body.searchTerm,
         mode: '',
         notes: req.body.notes,
-        agency_id: req.session.agency,
+        agency_id: req.session.selectedAgency,
     });
 
     res.json(result);
@@ -35,7 +35,7 @@ router.delete('/:keywordId', requireAdminUser, async (req, res) => {
 });
 
 router.get('/', requireUser, async (req, res) => {
-    const keywords = await db.getAgencyKeywords(req.session.agency);
+    const keywords = await db.getAgencyKeywords(req.session.selectedAgency);
     res.json(keywords);
 });
 

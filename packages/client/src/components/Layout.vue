@@ -9,7 +9,7 @@
         <b-navbar-nav class="ml-auto">
 
           <b-nav-text>
-            <b-badge>{{agency ? agency.name : ''}}</b-badge>
+            <b-badge>{{selectedAgency ? selectedAgency.name : ''}}</b-badge>
           </b-nav-text>
 
           <b-nav-item-dropdown right v-if="loggedInUser">
@@ -17,6 +17,7 @@
             <template #button-content>
               <em>{{loggedInUser.email}}</em>
             </template>
+            <b-dropdown-item-button href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
             <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -34,18 +35,24 @@
     <div style="margin-top: 10px">
       <router-view />
     </div>
+    <ProfileSettingsModal
+     :showModal.sync="showProfileSettingModal"/>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
 
+import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
+
 export default {
   name: 'Layout',
   components: {
+    ProfileSettingsModal,
   },
   data() {
     return {
+      showProfileSettingModal: false,
     };
   },
   computed: {
@@ -53,6 +60,7 @@ export default {
       agency: 'users/agency',
       loggedInUser: 'users/loggedInUser',
       userRole: 'users/userRole',
+      selectedAgency: 'users/selectedAgency',
     }),
   },
   methods: {
@@ -61,6 +69,9 @@ export default {
       this.$store
         .dispatch('users/logout')
         .then(() => this.$router.push({ path: '/login' }));
+    },
+    settingsClicked() {
+      this.showProfileSettingModal = true;
     },
   },
 };

@@ -34,7 +34,7 @@ export default {
     async fetchDashboard({ commit }) {
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const timestampQueryString = twentyFourHoursAgo.toISOString();
-      const result = await fetchApi.get(`/api/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&grantsCreatedFromTs=${timestampQueryString}&grantsUpdatedFromTs=${timestampQueryString}&totalInterestedGrantsByAgencies=true`);
+      const result = await fetchApi.get(`/api/organizations/:organizationId/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&grantsCreatedFromTs=${timestampQueryString}&grantsUpdatedFromTs=${timestampQueryString}&totalInterestedGrantsByAgencies=true`);
       if (result.totalGrants) {
         commit('SET_TOTAL_GRANTS', result.totalGrants);
       }

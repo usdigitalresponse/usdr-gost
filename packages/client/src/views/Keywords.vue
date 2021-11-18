@@ -51,19 +51,28 @@ export default {
     };
   },
   mounted() {
-    this.fetchKeywords();
+    this.setup();
   },
   computed: {
     ...mapGetters({
       keywords: 'grants/keywords',
       userRole: 'users/userRole',
+      selectedAgency: 'users/selectedAgency',
     }),
+  },
+  watch: {
+    selectedAgency() {
+      this.setup();
+    },
   },
   methods: {
     ...mapActions({
       fetchKeywords: 'grants/fetchKeywords',
       deleteKeyword: 'grants/deleteKeyword',
     }),
+    setup() {
+      this.fetchKeywords();
+    },
     openAddKeywordModal() {
       this.showAddKeywordModal = true;
     },

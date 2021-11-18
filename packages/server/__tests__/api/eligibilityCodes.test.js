@@ -1,11 +1,9 @@
 const { expect } = require('chai');
-const fetch = require('node-fetch');
-const { getSessionCookie } = require('./utils');
 require('dotenv').config();
 
-describe('`/api/eligibility-codes` endpoint', async () => {
-    const endpoint = `${process.env.API_DOMAIN}/api/eligibility-codes`;
+const { getSessionCookie, fetchApi } = require('./utils');
 
+describe('`/api/eligibility-codes` endpoint', async () => {
     const UNIQUE_CODES = 17; // all agencies have same number of codes
 
     const agencies = {
@@ -46,36 +44,36 @@ describe('`/api/eligibility-codes` endpoint', async () => {
         context('by a user with admin role', async () => {
             it('lists eligibility codes of this user\'s agency', async () => {
                 // Will default to user's own agency ID
-                const response = await fetch(`${endpoint}`, fetchOptions.admin);
+                const response = await fetchApi('/eligibility-codes', agencies.admin.own, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
                 expect(json.length).to.equal(UNIQUE_CODES);
             });
             it('lists eligibility codes of a subagency of this user\'s agency', async () => {
-                const response = await fetch(`${endpoint}?agency=${agencies.admin.ownSub}`, fetchOptions.admin);
+                const response = await fetchApi('/eligibility-codes', agencies.admin.ownSub, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
                 expect(json.length).to.equal(UNIQUE_CODES);
             });
             it('is forbidden for an agency outside this user\'s hierarchy', async () => {
-                const response = await fetch(`${endpoint}?agency=${agencies.admin.offLimits}`, fetchOptions.admin);
+                const response = await fetchApi('/eligibility-codes', agencies.admin.offLimits, fetchOptions.admin);
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
         context('by a user with staff role', async () => {
             it('lists eligibility codes of this user\'s own agency', async () => {
                 // Will default to user's own agency ID
-                const response = await fetch(`${endpoint}`, fetchOptions.staff);
+                const response = await fetchApi('/eligibility-codes', agencies.staff.own, fetchOptions.staff);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
                 expect(json.length).to.equal(UNIQUE_CODES);
             });
             it('is forbidden for a subagency of this user\'s own agency', async () => {
-                const response = await fetch(`${endpoint}?agency=${agencies.staff.ownSub}`, fetchOptions.staff);
+                const response = await fetchApi('/eligibility-codes', agencies.staff.ownSub, fetchOptions.staff);
                 expect(response.statusText).to.equal('Forbidden');
             });
             it('is forbidden for an agency outside this user\'s hierarchy', async () => {
-                const response = await fetch(`${endpoint}?agency=${agencies.staff.offLimits}`, fetchOptions.staff);
+                const response = await fetchApi('/eligibility-codes', agencies.staff.offLimits, fetchOptions.staff);
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
@@ -84,30 +82,30 @@ describe('`/api/eligibility-codes` endpoint', async () => {
         context('by a user with admin role', async () => {
             it('updates an eligibility code of this user\'s own agency', async () => {
                 // Will default to user's own agency ID
-                const response = await fetch(`${endpoint}/01/enable/false`, { ...fetchOptions.admin, method: 'put' });
+                const response = await fetchApi('/eligibility-codes/01/enable/false', agencies.admin.own, { ...fetchOptions.admin, method: 'put' });
                 expect(response.statusText).to.equal('OK');
             });
             it('updates an eligibility code of a subagency of this user\'s own agency', async () => {
-                const response = await fetch(`${endpoint}/02/enable/false?agency=${agencies.admin.ownSub}`, { ...fetchOptions.admin, method: 'put' });
+                const response = await fetchApi('/eligibility-codes/02/enable/false', agencies.admin.ownSub, { ...fetchOptions.admin, method: 'put' });
                 expect(response.statusText).to.equal('OK');
             });
             it('is forbidden for agencies outside this user\'s hierarchy', async () => {
-                const response = await fetch(`${endpoint}/04/enable/false?agency=${agencies.admin.offLimits}`, { ...fetchOptions.admin, method: 'put' });
+                const response = await fetchApi('/eligibility-codes/04/enable/false', agencies.admin.offLimits, { ...fetchOptions.admin, method: 'put' });
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
         context('by a user with staff role', async () => {
             it('is forbidden for this user\'s own agency', async () => {
                 // Will default to user's own agency ID
-                const response = await fetch(`${endpoint}/01/enable/false`, { ...fetchOptions.staff, method: 'put' });
+                const response = await fetchApi('/eligibility-codes/01/enable/false', agencies.staff.own, { ...fetchOptions.staff, method: 'put' });
                 expect(response.statusText).to.equal('Forbidden');
             });
             it('is forbidden for a subagency of this user\'s own agency', async () => {
-                const response = await fetch(`${endpoint}/02/enable/false?agency=${agencies.staff.ownSub}`, { ...fetchOptions.staff, method: 'put' });
+                const response = await fetchApi('/eligibility-codes/02/enable/false', agencies.staff.ownSub, { ...fetchOptions.staff, method: 'put' });
                 expect(response.statusText).to.equal('Forbidden');
             });
             it('is forbidden for agencies outside this user\'s hierarchy', async () => {
-                const response = await fetch(`${endpoint}/04/enable/false?agency=${agencies.staff.offLimits}`, { ...fetchOptions.staff, method: 'put' });
+                const response = await fetchApi('/eligibility-codes/04/enable/false', agencies.staff.offLimits, { ...fetchOptions.staff, method: 'put' });
                 expect(response.statusText).to.equal('Forbidden');
             });
         });

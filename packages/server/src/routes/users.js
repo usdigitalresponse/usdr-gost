@@ -1,6 +1,6 @@
 const express = require('express');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const { requireAdminUser, isAuthorized } = require('../lib/access-helpers');
 const { sendWelcomeEmail } = require('../lib/email');
 const db = require('../db');
@@ -16,7 +16,7 @@ router.post('/', requireAdminUser, async (req, res, next) => {
             email: req.body.email.toLowerCase(),
             name: req.body.name,
             role_id: req.body.role,
-            agency_id: req.session.agency,
+            agency_id: req.session.selectedAgency,
         };
         const result = await db.createUser(user);
         res.json({ user: result });
@@ -32,16 +32,15 @@ router.post('/', requireAdminUser, async (req, res, next) => {
 });
 
 router.get('/', requireAdminUser, async (req, res) => {
-    const users = await db.getUsers(req.session.agency);
+    const users = await db.getUsers(req.session.selectedAgency);
     res.json(users);
 });
 
 router.delete('/:userId', requireAdminUser, async (req, res) => {
-    // Get agency of user to be deleted.
-    const { agency_id } = await db.getUser(req.params.userId);
+    const userToDelete = await db.getUser(req.params.userId);
 
-    // Is this admin user authorized for that agency?
-    const authorized = await isAuthorized(req.signedCookies.userId, agency_id);
+    // Is this admin user able to delete a user in their agency
+    const authorized = await isAuthorized(req.signedCookies.userId, userToDelete.agency_id);
     if (!authorized) {
         res.sendStatus(403);
         return;

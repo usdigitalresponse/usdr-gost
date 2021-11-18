@@ -66,6 +66,7 @@ export default {
   computed: {
     ...mapGetters({
       users: 'users/users',
+      selectedAgency: 'users/selectedAgency',
     }),
     formattedUsers() {
       return this.users.map((user) => ({
@@ -76,11 +77,19 @@ export default {
       }));
     },
   },
+  watch: {
+    selectedAgency() {
+      this.setup();
+    },
+  },
   methods: {
     ...mapActions({
       fetchUsers: 'users/fetchUsers',
       deleteUser: 'users/deleteUser',
     }),
+    setup() {
+      this.fetchUsers();
+    },
     openAddUserModal() {
       this.showAddUserModal = true;
     },

@@ -4,10 +4,7 @@
       <GrantsTable :showInterested="true"/>
     </b-tab>
     <b-tab title="Assigned">
-      <GrantsTable :showAssignedToAgency="loggedInUser.agency.id"/>
-    </b-tab>
-    <b-tab title="Aging">
-      <GrantsTable :showAging="true"/>
+      <GrantsTable :showAssignedToAgency="selectedAgencyId"/>
     </b-tab>
   </b-tabs>
 </template>
@@ -26,7 +23,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      loggedInUser: 'users/loggedInUser',
+      selectedAgencyId: 'users/selectedAgencyId',
     }),
   },
   methods: {},
