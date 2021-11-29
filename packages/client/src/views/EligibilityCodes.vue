@@ -35,9 +35,6 @@ export default {
           key: 'enabled',
         },
         {
-          key: 'created_at',
-        },
-        {
           key: 'updated_at',
         },
       ],

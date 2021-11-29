@@ -44,7 +44,7 @@ export default {
       commit('SET_LOGGED_IN_USER', user);
     },
     async logout({ commit }) {
-      await fetchApi.get('/api/organizations/:organizationId/sessions/logout');
+      await fetchApi.get('/api/sessions/logout');
       commit('SET_LOGGED_IN_USER', null);
       localStorage.removeItem('selectedAgencyId');
     },

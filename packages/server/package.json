@@ -8,6 +8,8 @@
   "scripts": {
     "start": "node src",
     "serve": "nodemon src",
+    "db:migrate": "knex migrate:latest",
+    "db:seed": "knex seed:run",
     "test": "mocha __tests__/*.test.js",
     "test:db": "__tests__/db/run-tests.sh",
     "test:api": "NODE_ENV=test SUPPRESS_EMAIL=TRUE node src > test.log & NODE_ENV=test mocha --require __tests__/api/fixtures.js __tests__/api/*.test.js && pkill -fn 'node src'",
