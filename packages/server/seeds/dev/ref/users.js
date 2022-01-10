@@ -6,6 +6,7 @@ const roles = require('./roles');
 const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
 const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
 const procurementAgency = agencies.find((a) => a.abbreviation === 'NPO');
+const dallasAgency = agencies.find((a) => a.abbreviation === 'DLA');
 
 module.exports = [
     // {
@@ -102,6 +103,13 @@ module.exports = [
         name: 'npo.nv.gov User 3',
         agency_id: procurementAgency.id,
         role_id: roles[1].id,
+    },
+    {
+        id: 12,
+        email: 'user1@dallas.gov', // fake email for testing
+        name: 'dallas.gov User 1',
+        agency_id: dallasAgency.id,
+        role_id: roles[0].id,
     },
 
     // {

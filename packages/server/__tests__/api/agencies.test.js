@@ -45,7 +45,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
                 const response = await fetchApi('/agencies', agencies.admin.own, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(329);
+                expect(json.length).to.equal(330);
             });
             it('lists a subagency of this user\'s own agency and that subagency\'s subagencies', async () => {
                 const response = await fetchApi('/agencies', agencies.admin.ownSub, fetchOptions.admin);

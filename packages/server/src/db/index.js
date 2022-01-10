@@ -88,6 +88,7 @@ async function getUser(id) {
             'agencies.name as agency_name',
             'agencies.abbreviation as agency_abbreviation',
             'agencies.parent as agency_parent_id_id',
+            'agencies.main_agency_id as agency_main_agency_id',
             'agencies.warning_threshold as agency_warning_threshold',
             'agencies.danger_threshold as agency_danger_threshold',
             'users.tags',
@@ -110,6 +111,7 @@ async function getUser(id) {
             agency_parent_id: user.agency_parent_id,
             warning_threshold: user.agency_warning_threshold,
             danger_threshold: user.agency_danger_threshold,
+            main_agency_id: user.agency_main_agency_id,
         };
         let subagencies = [];
         if (user.role.name === 'admin') {

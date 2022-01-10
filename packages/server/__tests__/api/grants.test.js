@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 const { expect } = require('chai');
 require('dotenv').config();
 
@@ -15,6 +16,7 @@ describe('`/api/grants` endpoint', async () => {
         ownSub: 2,
         ownSubAlternate: 1,
         offLimits: 0,
+        dallasAdmin: 386,
     };
 
     const fetchOptions = {
@@ -30,12 +32,19 @@ describe('`/api/grants` endpoint', async () => {
                 cookie: undefined,
             },
         },
+        dallasAdmin: {
+            headers: {
+                'Content-Type': 'application/json',
+                cookie: undefined,
+            },
+        },
     };
 
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('michael@nv.gov');
         fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
+        fetchOptions.dallasAdmin.headers.cookie = await getSessionCookie('user1@dallas.gov');
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', async () => {
@@ -108,12 +117,13 @@ describe('`/api/grants` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
                 expect(json.every((r) => r.agency_id !== agencies.offLimits)).to.equal(true);
             });
-            it('includes only the queried subagency of this user\'s own agency when the subagency is assigned to the grant', async () => {
+            it('includes all agencies part of main_agency of this user\'s agency', async () => {
                 const queryResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.ownSub, fetchOptions.admin);
                 expect(queryResponse.statusText).to.equal('OK');
                 const queryJson = await queryResponse.json();
-                expect(queryJson.length).to.equal(1);
-                expect(queryJson[0].agency_id).to.equal(agencies.ownSub);
+                expect(queryJson.length).to.equal(2);
+                expect(queryJson.find((a) => a.agency_id === agencies.ownSub)).to.be.ok;
+                expect(queryJson.find((a) => a.agency_id === agencies.own)).to.be.ok;
             });
             it('forbids requests for agencies outside this user\'s hierarchy', async () => {
                 const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.offLimits, fetchOptions.admin);
@@ -131,9 +141,9 @@ describe('`/api/grants` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
                 expect((json.some((r) => r.agency_id === agencies.own))).to.equal(true);
             });
-            it('excludes a subagency of this user\'s own agency when the subagency is assigned to the grant', async () => {
+            it('includes a subagency of this user\'s own agency when the subagency is assigned to the grant', async () => {
                 expect(response.statusText).to.equal('OK');
-                expect(json.every((r) => r.agency_id !== agencies.ownSub)).to.equal(true);
+                expect(json.find((r) => r.agency_id === agencies.ownSub)).to.be.ok;
             });
             it('excludes assigned agencies outside this user\'s hierarchy', async () => {
                 expect(response.statusText).to.equal('OK');
@@ -141,6 +151,12 @@ describe('`/api/grants` endpoint', async () => {
             });
             it('forbids requests for any agency except this user\'s own agency', async () => {
                 const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.ownSub, fetchOptions.staff);
+                expect(badResponse.statusText).to.equal('Forbidden');
+            });
+        });
+        context('by a user with admin role in another organization', async () => {
+            it('forbids requests for any agency outside of the main agency hierarchy', async () => {
+                const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.own, fetchOptions.dallasAdmin);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
         });
@@ -276,8 +292,7 @@ describe('`/api/grants` endpoint', async () => {
                 const queryResponse = await fetchApi(`/grants/${interestEndpoint}`, agencies.ownSub, fetchOptions.admin);
                 expect(queryResponse.statusText).to.equal('OK');
                 const queryJson = await queryResponse.json();
-                expect(queryJson.length).to.equal(1);
-                expect(queryJson[0].agency_id).to.equal(agencies.ownSub);
+                expect(queryJson.length).to.equal(2);
             });
             it('forbids requests for agencies outside this user\'s hierarchy', async () => {
                 const badResponse = await fetchApi(`/grants/${interestEndpoint}`, agencies.offLimits, fetchOptions.admin);
@@ -297,7 +312,7 @@ describe('`/api/grants` endpoint', async () => {
             });
             it('excludes a subagency of this user\'s own agency when the subagency is interested in the grant', async () => {
                 expect(response.statusText).to.equal('OK');
-                expect(json.every((r) => r.agency_id !== agencies.ownSub)).to.equal(true);
+                expect(json.find((r) => r.agency_id === agencies.ownSub)).to.be.ok;
             });
             it('excludes interested agencies outside this user\'s hierarchy', async () => {
                 expect(response.statusText).to.equal('OK');

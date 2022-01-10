@@ -147,7 +147,9 @@ describe('`/api/keywords` endpoint', async () => {
     context('DELETE /keywords/:id (delete a keyword for an agency)', async () => {
         context('by a user with admin role', async () => {
             it('deletes a keyword of this user\'s own agency', async () => {
-                const response = await fetchApi(`/keywords/16`, agencies.admin.own, {
+                // TODO: the keywords ID might change if new agencies are added, we should query the db to find
+                // the correct ids to use instead of hardcoding it
+                const response = await fetchApi(`/keywords/23`, agencies.admin.own, {
                     ...fetchOptions.admin,
                     method: 'delete',
                 });
