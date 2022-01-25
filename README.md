@@ -30,18 +30,20 @@ The scripts will install yarn and download npm dependencies for all yarn workspa
 
 Install postgres DB. I personally used https://postgresapp.com/
 
-Create database called cares_grant.
+Create database called usdr_grants.
 
 ```
 psql -h localhost -p 5432
-> CREATE DATABASE cares_grant;
+> CREATE DATABASE usdr_grants;
 ```
 
 Create .env file in server workspace based on the .env.example. See Deployment section for more information on the .env file.
 
+Also create .env file in client workspace based on the .env.example. 
+
 Set environment variable pointing to local postgrest DB, this is used for migrations
 
-`export POSTGRES_URL="postgresql://localhost:5432/cares_grant"`
+`export POSTGRES_URL="postgresql://localhost:5432/usdr_grants"`
 
 In server workspace, run migrations
 
