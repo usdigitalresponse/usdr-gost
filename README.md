@@ -1,6 +1,10 @@
 [![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg?style=flat)](./CODE_OF_CONDUCT.md)
 
-# CARES Grant Opportunities
+# USDR Grant Opportunities
+
+A grant identification tool enabling partners to search for and track available grants. 
+
+This application is currently hosted at gost-grants-tools.onrender.com and also at grants.usdigitalresponse.org. Changes made to the main branch will be reflected immediately.
 
 # Project structure
 
