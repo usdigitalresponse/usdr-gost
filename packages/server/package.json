@@ -40,7 +40,7 @@
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
     "chai": "^4.3.4",
-    "eslint": "^7.12.1",
+    "eslint": "^8.8.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.21.2",
     "husky": "^4.3.0",
