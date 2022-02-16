@@ -3,6 +3,7 @@ module.exports = {
         roles: 'roles',
         users: 'users',
         agencies: 'agencies',
+        tenants: 'tenants',
         grants: 'grants',
         grants_viewed: 'grants_viewed',
         grants_interested: 'grants_interested',
