@@ -7,6 +7,7 @@ import roles from './modules/roles';
 import agencies from './modules/agencies';
 import dashboard from './modules/dashboard';
 import organization from './modules/organization';
+import tenants from './modules/tenants';
 
 Vue.use(Vuex);
 
@@ -21,5 +22,6 @@ export default new Vuex.Store({
     agencies,
     dashboard,
     organization,
+    tenants,
   },
 });

@@ -7,6 +7,7 @@ const interestedCodes = require('./ref/interestedCodes');
 const keywords = require('./ref/keywords');
 const userList = require('./ref/users');
 const { grants, assignedGrantsAgency, grantsInterested } = require('./ref/grants');
+const tenants = require('./ref/tenants');
 
 // const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
 // const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
@@ -42,7 +43,7 @@ const globalCodes = [
 ];
 
 exports.seed = async (knex) => {
-    const tables = ['agency_eligibility_codes', 'keywords', 'eligibility_codes', 'grants', 'assigned_grants_agency', 'grants_interested'];
+    const tables = ['agency_eligibility_codes', 'keywords', 'eligibility_codes', 'grants', 'assigned_grants_agency', 'grants_interested', 'tenants'];
 
     // eslint-disable-next-line no-restricted-syntax
     for (const table of tables) {
@@ -57,6 +58,8 @@ exports.seed = async (knex) => {
     await knex('agencies').insert(agencies)
         .onConflict('id')
         .merge();
+
+    await knex('tenants').insert(tenants);
 
     if (userList.length) {
         await knex('users').insert(userList)

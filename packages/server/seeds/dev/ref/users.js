@@ -2,51 +2,42 @@
 
 const agencies = require('./agencies');
 const roles = require('./roles');
+const tenants = require('./tenants');
 
 const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
 const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
 const procurementAgency = agencies.find((a) => a.abbreviation === 'NPO');
 const dallasAgency = agencies.find((a) => a.abbreviation === 'DLA');
 
+const usdrTenant = tenants.find((t) => t.display_name === 'USDR Tenant');
+const nevadaenant = tenants.find((t) => t.display_name === 'Nevada Tenant');
+const procurementTenant = tenants.find((t) => t.display_name === 'NPO Tenant');
+const dallasTenant = tenants.find((t) => t.display_name === 'Dallas Agency');
+
 module.exports = [
-    // {
-    //     email: 'rafael.pol+admin_admin@protonmail.com',
-    //     name: 'rafa1',
-    //     agency_id: agencies[1].id,
-    //     role_id: roles[0].id,
-    // },
-    // {
-    //     email: 'bindu+admin_admin@usdigitalresponse.org',
-    //     name: 'bindu',
-    //     agency_id: agencies[1].id,
-    //     role_id: roles[0].id,
-    // },
-    // {
-    //     email: 'rafael.pol+admin_sba@protonmail.com',
-    //     name: 'rafa1',
-    //     agency_id: agencies[0].id,
-    //     role_id: roles[0].id,
-    // },
     {
         id: 1,
-        email: 'michael@stanford.notreal',
-        name: 'Michael Stanford',
+        email: 'christina@usdigitalresponse.org',
+        name: 'Christina Roberts',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
+        tenant_id: usdrTenant.id,
     },
     {
         id: 2,
-        email: 'michael@nv.gov', // fake email for testing
-        name: 'Michael Stanford NV',
-        agency_id: nevadaAgency.id,
+        email: 'mindy@usdigitalresponse.org', // fake email for testing
+        name: 'Mindy Huant',
+        agency_id: usdrAgency.id,
         role_id: roles[0].id,
+        tenant_id: usdrTenant.id,
     },
     {
         id: 3,
-        email: 'michael+nvpr@stanford.cc',
-        name: 'Michael Stanford NV-Procurement',
-        agency_id: procurementAgency.id,
+        email: 'joecomeau01@gmail.com',
+        name: 'Joe Comeau',
+        agency_id: usdrAgency.id,
         role_id: roles[0].id,
+        tenant_id: usdrTenant.id,
     },
     {
         id: 4,
@@ -54,13 +45,15 @@ module.exports = [
         name: 'Rafael Pol',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
+        tenant_id: usdrTenant.id,
     },
     {
         id: 5,
-        email: 'jsotak@admin.nv.gov',
-        name: 'Jovon Sotak',
-        agency_id: procurementAgency.id,
+        email: 'alex@usdigitalresponse.org',
+        name: 'Alex Allain',
+        agency_id: usdrAgency.id,
         role_id: roles[0].id,
+        tenant_id: usdrTenant.id,
     },
     {
         id: 6,
@@ -68,6 +61,7 @@ module.exports = [
         name: 'nv.gov User 1',
         agency_id: nevadaAgency.id,
         role_id: roles[1].id,
+        tenant_id: nevadaenant.id,
     },
     {
         id: 7,
@@ -75,6 +69,7 @@ module.exports = [
         name: 'nv.gov User 2',
         agency_id: nevadaAgency.id,
         role_id: roles[1].id,
+        tenant_id: nevadaenant.id,
     },
     {
         id: 8,
@@ -82,6 +77,7 @@ module.exports = [
         name: 'nv.gov User 3',
         agency_id: nevadaAgency.id,
         role_id: roles[1].id,
+        tenant_id: nevadaenant.id,
     },
     {
         id: 9,
@@ -89,6 +85,7 @@ module.exports = [
         name: 'npo.nv.gov User 1',
         agency_id: procurementAgency.id,
         role_id: roles[1].id,
+        tenant_id: procurementTenant.id,
     },
     {
         id: 10,
@@ -96,6 +93,7 @@ module.exports = [
         name: 'npo.nv.gov User 2',
         agency_id: procurementAgency.id,
         role_id: roles[1].id,
+        tenant_id: procurementTenant.id,
     },
     {
         id: 11,
@@ -103,6 +101,7 @@ module.exports = [
         name: 'npo.nv.gov User 3',
         agency_id: procurementAgency.id,
         role_id: roles[1].id,
+        tenant_id: procurementTenant.id,
     },
     {
         id: 12,
@@ -110,12 +109,6 @@ module.exports = [
         name: 'dallas.gov User 1',
         agency_id: dallasAgency.id,
         role_id: roles[0].id,
+        tenant_id: dallasTenant.id,
     },
-
-    // {
-    //     email: 'rafael.pol+staff_asd@protonmail.com',
-    //     name: 'rafa2',
-    //     agency_id: agencies[2].id,
-    //     role_id: roles[1].id,
-    // },
 ];

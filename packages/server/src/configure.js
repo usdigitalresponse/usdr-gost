@@ -30,6 +30,7 @@ module.exports = (app) => {
     app.use('/api/organizations/:organizationId/roles', require('./routes/roles'));
     app.use('/api/sessions', require('./routes/sessions'));
     app.use('/api/organizations/:organizationId/agencies', require('./routes/agencies'));
+    app.use('/api/organizations/:organizationId/tenants', require('./routes/tenants'));
     app.use('/api/organizations/:organizationId/grants', require('./routes/grants'));
     app.use('/api/organizations/:organizationId/dashboard', require('./routes/dashboard'));
     app.use('/api/organizations/:organizationId/eligibility-codes', require('./routes/eligibilityCodes'));

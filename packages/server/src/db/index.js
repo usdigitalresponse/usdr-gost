@@ -460,6 +460,15 @@ async function getAgencies(rootAgency) {
     return result.rows;
 }
 
+// Use agency id for lookup for now
+async function getTenant(main_agency_id) {
+    const query = `SELECT id, display_name, main_agency_id 
+    FROM tenants WHERE main_agency_id = ?;`;
+    const result = await knex.raw(query, main_agency_id);
+
+    return result.rows;
+}
+
 async function getAgencyEligibilityCodes(agencyId) {
     const eligibilityCodes = await knex(TABLES.eligibility_codes).orderBy('code');
     const agencyEligibilityCodes = await knex(TABLES.agency_eligibility_codes)
@@ -510,6 +519,14 @@ function setAgencyThresholds(id, warning_threshold, danger_threshold) {
             id,
         })
         .update({ warning_threshold, danger_threshold });
+}
+
+function setTenantDisplayName(id, display_name) {
+    return knex(TABLES.tenants)
+        .where({
+            id,
+        })
+        .update({ display_name });
 }
 
 async function createRecord(tableName, row) {
@@ -595,12 +612,14 @@ module.exports = {
     markAccessTokenUsed,
     getAgency,
     getAgencies,
+    getTenant,
     getAgencyEligibilityCodes,
     setAgencyEligibilityCodeEnabled,
     getKeyword,
     getKeywords,
     getAgencyKeywords,
     setAgencyThresholds,
+    setTenantDisplayName,
     createKeyword,
     deleteKeyword,
     getGrants,
