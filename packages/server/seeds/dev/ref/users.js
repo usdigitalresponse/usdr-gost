@@ -17,27 +17,27 @@ const dallasTenant = tenants.find((t) => t.display_name === 'Dallas Agency');
 module.exports = [
     {
         id: 1,
-        email: 'michael@stanford.notreal',
-        name: 'Michael Stanford',
+        email: 'christina@usdigitalresponse.org',
+        name: 'Christina Roberts',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
         tenant_id: usdrTenant.id,
     },
     {
         id: 2,
-        email: 'michael@nv.gov', // fake email for testing
-        name: 'Michael Stanford NV',
-        agency_id: nevadaAgency.id,
+        email: 'mindy@usdigitalresponse.org', // fake email for testing
+        name: 'Mindy Huant',
+        agency_id: usdrAgency.id,
         role_id: roles[0].id,
-        tenant_id: nevadaenant.id,
+        tenant_id: usdrTenant.id,
     },
     {
         id: 3,
-        email: 'michael+nvpr@stanford.cc',
-        name: 'Michael Stanford NV-Procurement',
-        agency_id: procurementAgency.id,
+        email: 'joecomeau01@gmail.com',
+        name: 'Joe Comeau',
+        agency_id: usdrAgency.id,
         role_id: roles[0].id,
-        tenant_id: procurementTenant.id,
+        tenant_id: usdrTenant.id,
     },
     {
         id: 4,
@@ -49,11 +49,11 @@ module.exports = [
     },
     {
         id: 5,
-        email: 'jsotak@admin.nv.gov',
-        name: 'Jovon Sotak',
-        agency_id: procurementAgency.id,
+        email: 'alex@usdigitalresponse.org',
+        name: 'Alex Allain',
+        agency_id: usdrAgency.id,
         role_id: roles[0].id,
-        tenant_id: procurementTenant.id,
+        tenant_id: usdrTenant.id,
     },
     {
         id: 6,

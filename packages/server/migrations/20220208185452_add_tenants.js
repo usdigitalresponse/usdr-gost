@@ -21,11 +21,11 @@ exports.up = function (knex) {
 
 exports.down = function (knex) {
     return knex.schema
-        .dropTable('tenants')
         .table('agencies', (table) => {
             table.dropColumn('tenant_id');
         })
         .table('users', (table) => {
             table.dropColumn('tenant_id');
-        });
+        })
+        .dropTable('tenants');
 };
