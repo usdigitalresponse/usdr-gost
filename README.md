@@ -45,8 +45,6 @@ psql -h localhost -p 5432
 
 Create .env file in server workspace based on the .env.example. See Deployment section for more information on the .env file.
 
-Also create .env file in client workspace based on the .env.example. 
-
 Set environment variable pointing to local postgrest DB, this is used for migrations
 
 `export POSTGRES_URL="postgresql://localhost:5432/usdr_grants"`
