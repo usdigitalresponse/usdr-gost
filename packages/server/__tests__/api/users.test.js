@@ -27,7 +27,7 @@ describe('`/api/users` endpoint', async () => {
 
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('michael@nv.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('test-user+nevada.admin@usdigitalresponse.org');
         fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
     });
 
@@ -99,13 +99,13 @@ describe('`/api/users` endpoint', async () => {
                 const response = await fetchApi(`/users`, agencies.own, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(11);
+                expect(json).to.have.lengthOf(7);
             });
             it('lists users for a subagency of this user\'s own agency', async () => {
                 const response = await fetchApi(`/users`, agencies.ownSub, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(6);
+                expect(json).to.have.lengthOf(3);
             });
             it('is forbidden for an agency outside this user\'s hierarchy', async () => {
                 const response = await fetchApi(`/users`, agencies.offLimits, fetchOptions.admin);

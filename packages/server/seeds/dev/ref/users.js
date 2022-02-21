@@ -25,7 +25,7 @@ module.exports = [
     },
     {
         id: 2,
-        email: 'mindy@usdigitalresponse.org', // fake email for testing
+        email: 'mindy@usdigitalresponse.org',
         name: 'Mindy Huant',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
@@ -55,9 +55,11 @@ module.exports = [
         role_id: roles[0].id,
         tenant_id: usdrTenant.id,
     },
+
+    // Fake users for testing ------------------------------------------------
     {
         id: 6,
-        email: 'user1@nv.gov', // fake email for testing
+        email: 'user1@nv.gov',
         name: 'nv.gov User 1',
         agency_id: nevadaAgency.id,
         role_id: roles[1].id,
@@ -65,7 +67,7 @@ module.exports = [
     },
     {
         id: 7,
-        email: 'user2@nv.gov', // fake email for testing
+        email: 'user2@nv.gov',
         name: 'nv.gov User 2',
         agency_id: nevadaAgency.id,
         role_id: roles[1].id,
@@ -73,7 +75,7 @@ module.exports = [
     },
     {
         id: 8,
-        email: 'user3@nv.gov', // fake email for testing
+        email: 'user3@nv.gov',
         name: 'nv.gov User 3',
         agency_id: nevadaAgency.id,
         role_id: roles[1].id,
@@ -81,7 +83,7 @@ module.exports = [
     },
     {
         id: 9,
-        email: 'user1@npo.nv.gov', // fake email for testing
+        email: 'user1@npo.nv.gov',
         name: 'npo.nv.gov User 1',
         agency_id: procurementAgency.id,
         role_id: roles[1].id,
@@ -89,7 +91,7 @@ module.exports = [
     },
     {
         id: 10,
-        email: 'user2@npo.nv.gov', // fake email for testing
+        email: 'user2@npo.nv.gov',
         name: 'npo.nv.gov User 2',
         agency_id: procurementAgency.id,
         role_id: roles[1].id,
@@ -97,7 +99,7 @@ module.exports = [
     },
     {
         id: 11,
-        email: 'user3@npo.nv.gov', // fake email for testing
+        email: 'user3@npo.nv.gov',
         name: 'npo.nv.gov User 3',
         agency_id: procurementAgency.id,
         role_id: roles[1].id,
@@ -105,10 +107,26 @@ module.exports = [
     },
     {
         id: 12,
-        email: 'user1@dallas.gov', // fake email for testing
+        email: 'user1@dallas.gov',
         name: 'dallas.gov User 1',
         agency_id: dallasAgency.id,
         role_id: roles[0].id,
         tenant_id: dallasTenant.id,
+    },
+    {
+        id: 13,
+        email: 'test-user@usdigitalresponse.org',
+        name: 'Test User',
+        agency_id: usdrAgency.id,
+        role_id: roles[0].id,
+        tenant_id: usdrTenant.id,
+    },
+    {
+        id: 14,
+        email: 'test-user+nevada.admin@usdigitalresponse.org',
+        name: 'Test Nevada Admin',
+        agency_id: nevadaAgency.id,
+        role_id: roles[0].id,
+        tenant_id: nevadaenant.id,
     },
 ];

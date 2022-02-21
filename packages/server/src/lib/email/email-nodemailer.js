@@ -42,7 +42,7 @@ function createTransport() {
 }
 
 async function send(message) {
-    if (process.env.SUPPRESS_EMAIL) return;
+    if (process.env.SUPPRESS_EMAIL) return Promise.resolve();
 
     const transport = createTransport();
     const params = {

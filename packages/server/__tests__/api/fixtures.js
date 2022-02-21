@@ -1,14 +1,14 @@
 const resetDB = require('../resetdb');
+const { disconnectDb } = require('./utils');
 
 async function mochaGlobalSetup() {
-    const err = await resetDB({ verbose: false });
-    if (err) {
-        throw (err);
-    }
+    await resetDB({ verbose: false });
 }
 
 async function mochaGlobalTeardown() {
-    process.exit(0);
+    // The tests use a global pool of database connections, so we need to
+    // disconnect manually after all tests are done.
+    await disconnectDb();
 }
 
 module.exports = {
