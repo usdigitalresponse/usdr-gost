@@ -95,6 +95,11 @@ jobs:
       - name: Run unit tests
         env:
           POSTGRES_TEST_URL: 'postgresql://postgres:password@localhost:5432/usdr_grants_test'
+          # These AWS credentials are bogus, but are required for the tests to
+          # run. Since these tests don't actually send, it's OK for the
+          # credentials to be invalid.
+          AWS_ACCESS_KEY_ID: 'Fake AWS Key'
+          AWS_SECRET_ACCESS_KEY: 'Fake AWS Secret'
         run: |
           cd packages/server
           # The .env file needs to be present; the example file is good enough.
