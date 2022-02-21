@@ -1,6 +1,8 @@
 const path = require('path');
 const { exec } = require('child_process');
 
+require('dotenv').config();
+
 let { log } = console;
 let { dir } = console;
 dir(__dirname);
@@ -33,7 +35,7 @@ async function resetDB({ verbose = false }) {
     let url = knexfile.test.connection;
     if (!url) {
         console.log('You must set POSTGRES_TEST_URL as an environment variable');
-        process.exit(0);
+        process.exit(1);
     }
     const dbName = url.substring(url.lastIndexOf('/') + 1);
     url = url.substring(0, url.lastIndexOf('/'));
