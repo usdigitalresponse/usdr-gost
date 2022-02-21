@@ -38,7 +38,12 @@ function fetchApi(url, agencyId, fetchOptions) {
     return fetch(getEndpoint({ agencyId, url }), fetchOptions);
 }
 
+async function disconnectDb() {
+    await knex.destroy();
+}
+
 module.exports = {
-    getSessionCookie,
+    disconnectDb,
     fetchApi,
+    getSessionCookie,
 };

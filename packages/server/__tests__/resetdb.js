@@ -44,19 +44,13 @@ async function resetDB({ verbose = false }) {
         env: process.env,
     };
 
-    try {
-        console.log(`Dropping database ${dbName}`);
-        await execShellCommand(`psql ${url} -c "DROP DATABASE IF EXISTS ${dbName}"`);
-        console.log(`Re-creating database ${dbName}`);
-        await execShellCommand(`psql ${url} -c "CREATE DATABASE ${dbName}"`);
-        console.log(`Seeding database ${dbName}`);
-        await execShellCommand(`yarn knex --knexfile ${knexfilePath} migrate:latest`, options);
-        await execShellCommand(`yarn knex --knexfile ${knexfilePath} seed:run`, options);
-    } catch (err) {
-        console.dir(err);
-        return err;
-    }
-    return null;
+    console.log(`Dropping database ${dbName}`);
+    await execShellCommand(`psql ${url} -c "DROP DATABASE IF EXISTS ${dbName}"`);
+    console.log(`Re-creating database ${dbName}`);
+    await execShellCommand(`psql ${url} -c "CREATE DATABASE ${dbName}"`);
+    console.log(`Seeding database ${dbName}`);
+    await execShellCommand(`yarn knex --knexfile ${knexfilePath} migrate:latest`, options);
+    await execShellCommand(`yarn knex --knexfile ${knexfilePath} seed:run`, options);
 }
 
 module.exports = resetDB;
