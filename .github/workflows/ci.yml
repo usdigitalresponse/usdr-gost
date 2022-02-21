@@ -1,0 +1,162 @@
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+
+name: Continuous Integration
+
+jobs:
+  lint-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: cschleiden/actions-linter@v1
+        with:
+          workflows: '[".github/workflows/*.yaml", ".github/workflows/*.yml"]'
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: 'yarn run setup'
+
+      - name: Lint Client Source
+        run: |
+          cd packages/client
+          yarn lint --no-fix
+      
+      - name: Lint Server Source
+        run: |
+          cd packages/server
+          yarn lint
+
+  test-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: 'yarn run setup'
+
+      - name: Run unit tests
+        run: |
+          cd packages/server
+          # The .env file needs to be present; the example file is good enough.
+          cp .env.example .env
+          yarn run test
+
+  test-server-api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: "postgres:13"
+        env:
+          POSTGRES_DB: 'usdr_grants_test'
+          POSTGRES_USER: 'postgres'
+          POSTGRES_PASSWORD: 'password'
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: 'yarn run setup'
+
+      - name: Run unit tests
+        env:
+          POSTGRES_TEST_URL: 'postgresql://postgres:password@localhost:5432/usdr_grants_test'
+        run: |
+          cd packages/server
+          # The .env file needs to be present; the example file is good enough.
+          cp .env.example .env
+          yarn run test:api
+
+  test-server-db:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: "postgres:13"
+        env:
+          # FIXME: the test scripts currently hardcode a database name, user,
+          # and password. The config here must match.
+          # (See tests/*/mocha_wrapper.sh)
+          POSTGRES_DB: 'server_test'
+          POSTGRES_USER: 'postgres'
+          POSTGRES_PASSWORD: 'password'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: 'yarn run setup'
+
+      - name: Run unit tests
+        run: |
+          cd packages/server
+          # The .env file needs to be present; the example file is good enough.
+          cp .env.example .env
+          yarn run test:db
+
+  build-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: 'yarn run setup'
+
+      - name: Build the production bundle
+        run: |
+          cd packages/client
+          yarn build
