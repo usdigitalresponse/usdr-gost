@@ -34,7 +34,7 @@ jobs:
       - name: Lint Client Source
         run: |
           cd packages/client
-          yarn lint --no-fix
+          yarn lint --no-fix --format stylish
       
       - name: Lint Server Source
         run: |
