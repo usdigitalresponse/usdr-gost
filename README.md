@@ -23,6 +23,8 @@ Each folder inside packages/ is considered a workspace. To see a list of all wor
 
 # Setup
 
+First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. If you are using [Nodenv](https://github.com/nodenv/nodenv) or [NVM](https://nvm.sh/), it should pick up on the correct version.
+
 To setup your workspace run the following commands at the root of the project
 
 ```
@@ -41,9 +43,7 @@ psql -h localhost -p 5432
 > CREATE DATABASE usdr_grants;
 ```
 
-Create .env file in server workspace based on the .env.example. See Deployment section for more information on the .env file.
-
-Also create .env file in client workspace based on the .env.example. 
+Create .env file in server workspace based on the .env.example. See Deployment section for more information on the .env file. Also create .env file in client workspace based on the .env.example file.
 
 Set environment variable pointing to local postgrest DB, this is used for migrations
 
@@ -94,7 +94,7 @@ Or you can run yarn inside the workspace
 
 `npx lerna add {modules}`
 
-NOTE: yarn complains about incompatibility of some node modules with our node version (10.14). When using yarn, pass `--ignore-engines` when doing `yarn add/remove`. I have not been able to pass this argument when running `npx lerna add..`. After running lerna do a `yarn run bootstrap` at the root of the project to get your dependency correctly installed.
+NOTE: yarn complains about incompatibility of some node modules with our node version. When using yarn, pass `--ignore-engines` when doing `yarn add/remove`. I have not been able to pass this argument when running `npx lerna add..`. After running lerna do a `yarn run bootstrap` at the root of the project to get your dependency correctly installed.
 
 ## Linting
 
