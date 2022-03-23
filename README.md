@@ -43,7 +43,7 @@ psql -h localhost -p 5432
 > CREATE DATABASE usdr_grants;
 ```
 
-Create .env file in server workspace based on the .env.example. See Deployment section for more information on the .env file.
+Create .env file in server workspace based on the .env.example. See Deployment section for more information on the .env file. Also create .env file in client workspace based on the .env.example file.
 
 Set environment variable pointing to local postgrest DB, this is used for migrations
 
