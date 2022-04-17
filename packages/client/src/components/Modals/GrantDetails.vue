@@ -56,7 +56,7 @@
               <b-button variant="outline-success" @click="markGrantAsInterested">Submit</b-button>
             </b-col>
           </b-row>
-          <b-row v-if="interested && !interested.interested_is_rejection">
+          <b-row v-if="interested && !interested.interested_is_rejection && shouldShowSpocButton">
             <b-col>
               <b-button variant="primary" @click="generateSpoc">Generate SPOC</b-button>
             </b-col>
@@ -166,18 +166,27 @@ export default {
       agencies: 'agencies/agencies',
       users: 'users/users',
       interestedCodes: 'grants/interestedCodes',
+      user: 'users/loggedInUser',
     }),
     alreadyViewed() {
       if (!this.selectedGrant) {
         return false;
       }
-      return this.selectedGrant.viewed_by_agencies.find((viewed) => viewed.agency_id.toString() === this.selectedAgencyId);
+      return this.selectedGrant.viewed_by_agencies.find(
+        (viewed) => viewed.agency_id.toString() === this.selectedAgencyId,
+      );
+    },
+    shouldShowSpocButton() {
+      if (!this.user.tenant.uses_spoc_process) return false;
+      return true;
     },
     interested() {
       if (!this.selectedGrant) {
         return false;
       }
-      return this.selectedGrant.interested_agencies.find((interested) => interested.agency_id.toString() === this.selectedAgencyId);
+      return this.selectedGrant.interested_agencies.find(
+        (interested) => interested.agency_id.toString() === this.selectedAgencyId,
+      );
     },
   },
   watch: {
