@@ -1,57 +1,46 @@
 <template>
-<b-card
-no-body
+  <b-card
+    no-body
     tag="div"
-    style="max-width: 32rem; border: none; margin-top: 12rem;"
+    style="max-width: 32rem; border: none; margin-top: 12rem"
     class="mx-auto"
   >
-      <b-card-img :src="require('../assets/usdr_logo_standard_wide.svg')" style="max-width: 20rem; margin-left: auto; margin-right: auto;" alt="United States Digital Response logo in standard colors" top></b-card-img>
+    <b-card-img
+      :src="require('../assets/usdr_logo_standard_wide.svg')"
+      style="max-width: 20rem;"
+      alt="United States Digital Response logo in standard colors"
+      top
+    ></b-card-img>
 
     <b-card-text class="pt-5">
-      <h1 class="text-center">Grants Identification Tool</h1>
+      <h1>Grants Identification Tool</h1>
       <form @submit="login" class="mt-3">
-      <div class="form-group">
-        <input
-          class="form-control"
-          id="email"
-          name="email"
-          placeholder="Email address"
-          v-model="email"
-          autofocus
-        />
-      </div>
-      <div class="form-group d-flex align-items-center justify-content-center">
-        <b-button variant="primary" class="btn-block" type="Submit" @click="login">
-          Login
-        </b-button>
-      </div>
-    </form>
-    <div :class="messageClass" class="mt-3" v-if="message">{{ message }}</div>
+        <div class="form-group">
+          <input
+            class="form-control"
+            id="email"
+            name="email"
+            placeholder="Email address"
+            v-model="email"
+            autofocus
+          />
+        </div>
+        <div
+          class="form-group d-flex justify-content-center"
+        >
+          <b-button
+            variant="primary"
+            class="btn-block"
+            type="Submit"
+            @click="login"
+          >
+            Login
+          </b-button>
+        </div>
+      </form>
+      <div :class="messageClass" class="mt-3" v-if="message">{{ message }}</div>
     </b-card-text>
-
-    <!-- <b-button href="#" variant="primary">Go somewhere</b-button> -->
   </b-card>
-  <!-- <div class="login">
-    <h1>Grants Identification Tool</h1>
-    <form @submit="login">
-      <div class="form-group">
-        <input
-          class="form-control"
-          id="email"
-          name="email"
-          placeholder="Email address"
-          v-model="email"
-          autofocus
-        />
-      </div>
-      <div class="form-group">
-        <button class="btn btn-primary" type="Submit" @click="login">
-          Login
-        </button>
-      </div>
-    </form>
-    <div :class="messageClass" v-if="message">{{ message }}</div>
-  </div> -->
 </template>
 
 <script>
@@ -89,7 +78,11 @@ export default {
         'Content-Type': 'application/json',
       };
       let resStatus = 0;
-      fetch(`${process.env.VUE_APP_GRANTS_API_URL}/api/sessions`, { method: 'POST', headers, body })
+      fetch(`${process.env.VUE_APP_GRANTS_API_URL}/api/sessions`, {
+        method: 'POST',
+        headers,
+        body,
+      })
         .then((r) => {
           resStatus = r.status;
           if (!r.ok) throw new Error(`login: ${r.statusText} (${r.status})`);
@@ -104,8 +97,9 @@ export default {
             : 'alert alert-danger';
         })
         .catch((err) => {
-          console.log('error:', err.message);
-          this.message = resStatus === 500 ? 'There was a problem at USDR. Try again in a minute or two, and if you still receive the same error, contact the USDR team.' : err.message;
+          this.message = resStatus === 500
+            ? 'There was a problem at USDR. Try again in a minute or two, and if you still receive the same error, contact the USDR team.'
+            : err.message;
           this.messageClass = 'alert alert-danger';
         });
     },
