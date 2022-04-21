@@ -15,7 +15,7 @@ async function getSessionCookie(email) {
         headers: { 'Content-Type': 'application/json' },
     });
     if (resp.status !== 200 || !(await resp.json()).success) {
-        throw new Error(`test called getSessionCookie for invalid user ${email}, are they in db seed?`);
+        throw new Error(`test called getSessionCookie for invalid user ${email}, are they in seeds/dev/ref/users.js?`);
     }
 
     // Get the new passcode directly from PostgresQL.
