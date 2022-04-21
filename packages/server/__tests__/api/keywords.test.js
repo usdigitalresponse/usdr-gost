@@ -36,7 +36,7 @@ describe('`/api/keywords` endpoint', async () => {
 
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('michael@nv.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
         fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
     });
 

@@ -111,4 +111,12 @@ module.exports = [
         role_id: roles[0].id,
         tenant_id: dallasTenant.id,
     },
+    {
+        id: 13,
+        email: 'admin1@nv.gov', // fake email for testing
+        name: 'nv.gov Admin User 1',
+        agency_id: nevadaAgency.id,
+        role_id: roles[0].id,
+        tenant_id: nevadaenant.id,
+    },
 ];
