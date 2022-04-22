@@ -90,7 +90,7 @@ router.get('/exportCSV', requireUser, async (req, res) => {
         created_at: new Date(grant.created_at).toLocaleString(),
         updated_at: new Date(grant.updated_at).toLocaleString(),
     }));
-    if (pagination.lastPage !== 1) {
+    if (pagination.total > data.length) {
         formattedData.push({
             title: `Error: only ${MAX_CSV_EXPORT_ROWS} rows supported for CSV export, but there `
             + `are ${pagination.total} total.`,
