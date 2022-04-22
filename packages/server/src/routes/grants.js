@@ -1,6 +1,9 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
+// TODO: why is this necessary?
+/* eslint-disable import/no-unresolved */
+const { stringify: csvStringify } = require('csv-stringify/sync');
 const db = require('../db');
 const pdf = require('../lib/pdf');
 const { requireUser, isPartOfAgency } = require('../lib/access-helpers');
@@ -47,6 +50,79 @@ router.get('/', requireUser, async (req, res) => {
         },
     });
     res.json(grants);
+});
+
+const MAX_CSV_EXPORT_ROWS = 100000;
+router.get('/exportCSV', requireUser, async (req, res) => {
+    // First load the grants. This logic is intentionally identical to the endpoint above that
+    // serves the grants table UI, except there is no pagination.
+    let agencyCriteria;
+    // if we want interested, assigned, grants for a user, do not filter by eligibility or keywords
+    if (!req.query.interestedByMe && !req.query.assignedToAgency) {
+        agencyCriteria = await db.getAgencyCriteriaForAgency(req.session.selectedAgency);
+    }
+    const { selectedAgency, user } = req.session;
+    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
+    const { data, pagination } = await db.getGrants({
+        ...req.query,
+        currentPage: 1,
+        perPage: MAX_CSV_EXPORT_ROWS,
+        agencies,
+        filters: {
+            agencyCriteria,
+            interestedByUser: req.query.interestedByMe ? req.signedCookies.userId : null,
+            assignedToAgency: req.query.assignedToAgency ? req.query.assignedToAgency : null,
+        },
+    });
+
+    // Generate CSV
+    const formattedData = data.map((grant) => ({
+        ...grant,
+        interested_agencies: grant.interested_agencies
+            .map((v) => v.agency_abbreviation)
+            .join(', '),
+        viewed_by: grant.viewed_by_agencies
+            .map((v) => v.agency_abbreviation)
+            .join(', '),
+        // TODO: how does server timezone affect the rendering of these dates?
+        open_date: new Date(grant.open_date).toLocaleDateString('en-US'),
+        close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
+        created_at: new Date(grant.created_at).toLocaleString(),
+        updated_at: new Date(grant.updated_at).toLocaleString(),
+    }));
+    if (pagination.lastPage !== 1) {
+        formattedData.push({
+            title: `Error: only ${MAX_CSV_EXPORT_ROWS} rows supported for CSV export, but there `
+            + `are ${pagination.total} total.`,
+        });
+    }
+    const csv = csvStringify(formattedData, {
+        header: true,
+        columns: [
+            // Labels and ordering intended to match the columns from
+            // client/src/components/GrantsTable.vue
+            { key: 'grant_id', header: 'Grant Id' },
+            { key: 'grant_number', header: 'Grant Number' },
+            { key: 'title', header: 'Title' },
+            { key: 'viewed_by', header: 'Viewed By' },
+            { key: 'interested_agencies', header: 'Interested Agencies' },
+            { key: 'agency_code', header: 'Agency Code' },
+            { key: 'cost_sharing', header: 'Cost Sharing' },
+            { key: 'open_date', header: 'Posted Date' },
+            { key: 'close_date', header: 'Close Date' },
+            { key: 'opportunity_category', header: 'Opportunity Category' },
+            { key: 'opportunity_status', header: 'Status' },
+            { key: 'created_at', header: 'Created At' },
+            { key: 'updated_at', header: 'Updated At' },
+        ],
+    });
+
+    // Send to client as a downloadable file.
+    const filename = 'grants.csv';
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Length', csv.length);
+    res.send(csv);
 });
 
 router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {
