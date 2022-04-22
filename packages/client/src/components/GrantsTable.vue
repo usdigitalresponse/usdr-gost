@@ -10,6 +10,7 @@
             type="search"
             @input="debounceSearchInput"
           ></b-form-input>
+          <b-button @click="exportCSV" :disabled="loading">Export to CSV</b-button>
         </b-input-group>
       </b-col>
     </b-row>
@@ -210,6 +211,7 @@ export default {
   methods: {
     ...mapActions({
       fetchGrants: 'grants/fetchGrants',
+      navigateToExportCSV: 'grants/exportCSV',
     }),
     setup() {
       this.paginateGrants();
@@ -297,6 +299,15 @@ export default {
       this.selectedGrantIndex = this.grants.findIndex(
         (g) => this.selectedGrant.grant_id === g.grant_id,
       );
+    },
+    exportCSV() {
+      this.navigateToExportCSV({
+        orderBy: this.orderBy,
+        searchTerm: this.debouncedSearchInput,
+        interestedByMe: this.showInterested,
+        aging: this.showAging,
+        assignedToAgency: this.showAssignedToAgency,
+      });
     },
   },
 };

@@ -6,7 +6,7 @@ function getDefaultHeaders() {
   return headers;
 }
 
-function addOrganizationId(url) {
+export function addOrganizationId(url) {
   return `${process.env.VUE_APP_GRANTS_API_URL}${url.replace(':organizationId', store.getters['users/selectedAgencyId'])}`;
 }
 
