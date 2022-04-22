@@ -32,6 +32,24 @@ async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {
     return agencies.map((s) => s.id);
 }
 
+// Award floor field was requested for CSV export but is not stored as a dedicated column,
+// so we have to extract it from raw_body
+function getAwardFloor(grant) {
+    let body;
+    try {
+        body = JSON.parse(grant.raw_body);
+    } catch (err) {
+        // Some seeded test data has invalid JSON in raw_body field
+        return undefined;
+    }
+
+    const floor = parseInt(body.synopsis && body.synopsis.awardFloor, 10);
+    if (Number.isNaN(floor)) {
+        return undefined;
+    }
+    return floor;
+}
+
 router.get('/', requireUser, async (req, res) => {
     let agencyCriteria;
     // if we want interested, assigned, grants for a user, do not filter by eligibility or keywords
@@ -89,6 +107,8 @@ router.get('/exportCSV', requireUser, async (req, res) => {
         close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
         created_at: new Date(grant.created_at).toLocaleString(),
         updated_at: new Date(grant.updated_at).toLocaleString(),
+        award_floor: getAwardFloor(grant),
+        url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
     }));
     if (pagination.total > data.length) {
         formattedData.push({
@@ -114,6 +134,9 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             { key: 'opportunity_status', header: 'Status' },
             { key: 'created_at', header: 'Created At' },
             { key: 'updated_at', header: 'Updated At' },
+            { key: 'award_ceiling', header: 'Award Ceiling' },
+            { key: 'award_floor', header: 'Award Floor' },
+            { key: 'url', header: 'URL' },
         ],
     });
 
