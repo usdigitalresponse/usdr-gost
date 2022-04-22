@@ -105,8 +105,6 @@ router.get('/exportCSV', requireUser, async (req, res) => {
         // TODO: how does server timezone affect the rendering of these dates?
         open_date: new Date(grant.open_date).toLocaleDateString('en-US'),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
-        created_at: new Date(grant.created_at).toLocaleString(),
-        updated_at: new Date(grant.updated_at).toLocaleString(),
         award_floor: getAwardFloor(grant),
         url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
     }));
@@ -119,23 +117,19 @@ router.get('/exportCSV', requireUser, async (req, res) => {
     const csv = csvStringify(formattedData, {
         header: true,
         columns: [
-            // Labels and ordering intended to match the columns from
-            // client/src/components/GrantsTable.vue
-            { key: 'grant_id', header: 'Grant Id' },
-            { key: 'grant_number', header: 'Grant Number' },
+            { key: 'grant_number', header: 'Opportunity Number' },
             { key: 'title', header: 'Title' },
             { key: 'viewed_by', header: 'Viewed By' },
             { key: 'interested_agencies', header: 'Interested Agencies' },
-            { key: 'agency_code', header: 'Agency Code' },
+            { key: 'opportunity_status', header: 'Status' },
+            { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },
+            { key: 'award_floor', header: 'Award Floor' },
+            { key: 'award_ceiling', header: 'Award Ceiling' },
             { key: 'open_date', header: 'Posted Date' },
             { key: 'close_date', header: 'Close Date' },
-            { key: 'opportunity_category', header: 'Opportunity Category' },
-            { key: 'opportunity_status', header: 'Status' },
-            { key: 'created_at', header: 'Created At' },
-            { key: 'updated_at', header: 'Updated At' },
-            { key: 'award_ceiling', header: 'Award Ceiling' },
-            { key: 'award_floor', header: 'Award Floor' },
+            { key: 'agency_code', header: 'Agency Code' },
+            { key: 'grant_id', header: 'Grant Id' },
             { key: 'url', header: 'URL' },
         ],
     });
