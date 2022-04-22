@@ -1,6 +1,6 @@
 <template>
   <section class="container-fluid">
-    <b-row class="mt-3 mb-3">
+    <b-row class="mt-3 mb-3" align-h="between">
       <b-col cols="5">
         <b-input-group size="md">
           <b-input-group-text>
@@ -10,8 +10,17 @@
             type="search"
             @input="debounceSearchInput"
           ></b-form-input>
-          <b-button @click="exportCSV" :disabled="loading">Export to CSV</b-button>
         </b-input-group>
+      </b-col>
+      <b-col class="d-flex justify-content-end">
+        <b-button
+          @click="exportCSV"
+          :disabled="loading"
+          variant="outline-secondary"
+        >
+          <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
+          Export to CSV
+        </b-button>
       </b-col>
     </b-row>
     <b-table
