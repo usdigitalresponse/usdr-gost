@@ -41,4 +41,5 @@ function fetchApi(url, agencyId, fetchOptions) {
 module.exports = {
     getSessionCookie,
     fetchApi,
+    knex,
 };
