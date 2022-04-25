@@ -59,9 +59,9 @@ In server/seeds/dev/index.js, update the adminList by adding a user with your em
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
-In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
-
 `yarn run serve`
+
+Note: In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
 
 ## Yarn Workspaces
 
