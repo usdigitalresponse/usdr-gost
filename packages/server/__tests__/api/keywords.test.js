@@ -61,6 +61,18 @@ describe('`/api/keywords` endpoint', async () => {
         testKeywordsByAgency = _.groupBy(createdKeywords, 'agency_id');
     });
 
+    after(async () => {
+        // Delete keywords created by this test to avoid impacting other tests
+        const allTestKeywordIds = _.chain(testKeywordsByAgency)
+            .values()
+            .flatten()
+            .map('id')
+            .value();
+        await knex(TABLES.keywords)
+            .whereIn('id', allTestKeywordIds)
+            .del();
+    });
+
     context('GET api/keywords', async () => {
         context('by a user with admin role', async () => {
             it('lists keywords of this user\'s own agency', async () => {
@@ -105,6 +117,12 @@ describe('`/api/keywords` endpoint', async () => {
             mode: '',
             notes: 'notes',
         };
+
+        const idsToDelete = [];
+        after(async () => {
+            await knex(TABLES.keywords).whereIn('id', idsToDelete).del();
+        });
+
         context('by a user with admin role', async () => {
             it('creates a keyword for this user\'s own agency', async () => {
                 const response = await fetchApi(`/keywords`, agencies.admin.own, {
@@ -115,6 +133,7 @@ describe('`/api/keywords` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
                 expect(Number(json.agency_id)).to.equal(agencies.admin.own);
+                idsToDelete.push(json.id);
             });
             it('creates a keyword for a subagency of this user\'s own agency', async () => {
                 const response = await fetchApi(`/keywords`, agencies.admin.ownSub, {
@@ -125,6 +144,7 @@ describe('`/api/keywords` endpoint', async () => {
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
                 expect(Number(json.agency_id)).to.equal(agencies.admin.ownSub);
+                idsToDelete.push(json.id);
             });
             it('is forbidden for an agency outside this user\'s hierarchy', async () => {
                 const response = await fetchApi(`/keywords`, agencies.admin.offLimits, {
