@@ -108,12 +108,18 @@ router.get('/exportCSV', requireUser, async (req, res) => {
         award_floor: getAwardFloor(grant),
         url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
     }));
-    if (pagination.total > data.length) {
+
+    if (data.length === 0) {
+        // If there are 0 rows, csv-stringify won't even emit the header, resulting in a totally
+        // empty file, which is confusing. This adds a single empty row below the header.
+        formattedData.push({});
+    } else if (pagination.total > data.length) {
         formattedData.push({
             title: `Error: only ${MAX_CSV_EXPORT_ROWS} rows supported for CSV export, but there `
             + `are ${pagination.total} total.`,
         });
     }
+
     const csv = csvStringify(formattedData, {
         header: true,
         columns: [
