@@ -70,7 +70,7 @@ router.get('/', requireUser, async (req, res) => {
     res.json(grants);
 });
 
-const MAX_CSV_EXPORT_ROWS = 100000;
+const MAX_CSV_EXPORT_ROWS = 10000;
 router.get('/exportCSV', requireUser, async (req, res) => {
     // First load the grants. This logic is intentionally identical to the endpoint above that
     // serves the grants table UI, except there is no pagination.

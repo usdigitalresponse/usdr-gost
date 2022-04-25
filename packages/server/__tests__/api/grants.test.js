@@ -396,9 +396,9 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp; Impl
             expect(await response.text()).to.equal(expectedCsv);
         });
 
-        it('limits output to 100k rows', async () => {
-            // First we insert 100k grants
-            const numToInsert = 1000;
+        it('limits output to 10k rows', async function () {
+            // First we insert 10k grants
+            const numToInsert = 10000;
             const grantsToInsert = Array(numToInsert).fill(undefined).map((val, i, arr) => ({
                 status: 'inbox',
                 grant_id: String(-(i + 1)),
@@ -414,12 +414,17 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp; Impl
                 reviewer_name: 'none',
                 opportunity_category: 'Discretionary',
                 description: 'fake grant inserted by test',
-                eligibility_codes: 'fake',
+                eligibility_codes: '25',
                 opportunity_status: 'posted',
                 raw_body: 'raw body',
             }));
 
-            await knex(TABLES.grants).insert(grantsToInsert);
+            // batchInsert is needed for large quantity of rows; it splits the insert into multiple
+            // queries
+            // TODO: is there a better way to test this that doesn't require actually inserting this
+            // many rows? Having a test this slow is not ideal. On my machine, take 2500ms
+            this.timeout(9000);
+            await knex.batchInsert(TABLES.grants, grantsToInsert);
 
             const response = await fetchApi(`/grants/exportCSV`, agencies.own, fetchOptions.staff);
             expect(response.statusText).to.equal('OK');
@@ -427,7 +432,7 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp; Impl
             const csv = await response.text();
             const lines = csv.split('\n');
 
-            // 100k rows + 1 header + 1 error message row + line break at EOF
+            // 10k rows + 1 header + 1 error message row + line break at EOF
             expect(lines.length).to.equal(numToInsert + 3);
 
             const lastRow = lines[lines.length - 2];
