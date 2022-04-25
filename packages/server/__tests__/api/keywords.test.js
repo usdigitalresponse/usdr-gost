@@ -3,6 +3,7 @@ require('dotenv').config();
 
 const _ = require('lodash-checkit');
 const { getSessionCookie, fetchApi, knex } = require('./utils');
+const { TABLES } = require('../../src/db/constants');
 
 describe('`/api/keywords` endpoint', async () => {
     const agencies = {
@@ -52,7 +53,7 @@ describe('`/api/keywords` endpoint', async () => {
             notes: '',
             agency_id,
         }));
-        const createdKeywords = await knex('keywords')
+        const createdKeywords = await knex(TABLES.keywords)
             .insert(testKeywords)
             .onConflict('id')
             .merge()
