@@ -103,8 +103,8 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             .map((v) => v.agency_abbreviation)
             .join(', '),
         // TODO: how does server timezone affect the rendering of these dates?
-        open_date: new Date(grant.open_date).toLocaleDateString('en-US'),
-        close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
+        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
+        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
         award_floor: getAwardFloor(grant),
         url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
     }));
