@@ -45,20 +45,21 @@ psql -h localhost -p 5432
 
 Create .env file in server workspace based on the .env.example. See Deployment section for more information on the .env file. Also create .env file in client workspace based on the .env.example file.
 
-Set environment variable pointing to local postgrest DB, this is used for migrations
+Set environment variable pointing to local postgres DB, this is used for migrations (knex does not load .env file)
 
 `export POSTGRES_URL="postgresql://localhost:5432/usdr_grants"`
 
-In server workspace, run migrations
+In server workspace, run migrations:
 
 `npx knex migrate:latest`
 
-In server/seeds/dev/index.js, update the adminList by adding a user with your email to be able to login to the system. Then run migrations
+In server/seeds/dev/index.js, update the adminList by adding a user with your email to be able to login to the system. Then run seeds:
 
 `npx knex seed:run`
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
+In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
 
 `yarn run serve`
 
