@@ -94,6 +94,16 @@ export default {
       await fetchApi.deleteRequest(`/api/organizations/:organizationId/keywords/${keywordId}`);
       dispatch('fetchKeywords');
     },
+    exportCSV(context, queryParams) {
+      const query = Object.entries(queryParams)
+        // filter out undefined and nulls since api expects parameters not present as undefined
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value || typeof value === 'number')
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      const navUrl = fetchApi.addOrganizationId(`/api/organizations/:organizationId/grants/exportCSV?${query}`);
+      window.location = navUrl;
+    },
   },
   mutations: {
     SET_GRANTS(state, grants) {
