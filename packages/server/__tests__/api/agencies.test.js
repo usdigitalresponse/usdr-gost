@@ -34,7 +34,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
 
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('michael@stanford.notreal');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
         fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
     });
 
