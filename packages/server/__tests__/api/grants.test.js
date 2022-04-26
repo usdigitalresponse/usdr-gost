@@ -396,9 +396,10 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp; Impl
             expect(await response.text()).to.equal(expectedCsv);
         });
 
-        it('limits output to 10k rows', async function () {
-            // First we insert 10k grants
-            const numToInsert = 10000;
+        it('limits number of output rows', async function () {
+            // First we insert 100 grants (in prod this limit it 10k but it is reduced in test
+            // via NODE_ENV=test environment variable so this test isn't so slow)
+            const numToInsert = 100;
             const grantsToInsert = Array(numToInsert).fill(undefined).map((val, i, arr) => ({
                 status: 'inbox',
                 grant_id: String(-(i + 1)),
@@ -419,11 +420,7 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp; Impl
                 raw_body: 'raw body',
             }));
 
-            // batchInsert is needed for large quantity of rows; it splits the insert into multiple
-            // queries
-            // TODO: is there a better way to test this that doesn't require actually inserting this
-            // many rows? Having a test this slow is not ideal. On my machine, take 2500ms
-            this.timeout(9000);
+            this.timeout(2000);
             await knex.batchInsert(TABLES.grants, grantsToInsert);
 
             const response = await fetchApi(`/grants/exportCSV`, agencies.own, fetchOptions.staff);

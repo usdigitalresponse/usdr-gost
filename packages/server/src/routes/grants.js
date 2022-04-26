@@ -70,7 +70,9 @@ router.get('/', requireUser, async (req, res) => {
     res.json(grants);
 });
 
-const MAX_CSV_EXPORT_ROWS = 10000;
+// For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
+// without the test having to insert 10k rows, which slows down the test.
+const MAX_CSV_EXPORT_ROWS = process.env.NODE_ENV !== 'test' ? 10000 : 100;
 router.get('/exportCSV', requireUser, async (req, res) => {
     // First load the grants. This logic is intentionally identical to the endpoint above that
     // serves the grants table UI, except there is no pagination.
