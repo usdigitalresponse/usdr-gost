@@ -468,12 +468,8 @@ async function getAgency(agencyId) {
             id: agencyId,
         })
         .leftJoin('tenants', 'tenants.main_agency_id', '=', `${TABLES.agencies}.main_agency_id`);
-    // const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold
-    // FROM agencies WHERE id = ?;`;
-    // const result = await knex.raw(query, agencyId);
     const result = await query;
 
-    // return result.rows;
     return result;
 }
 

@@ -164,6 +164,7 @@ export default {
       agency: 'users/agency',
       selectedAgencyId: 'users/selectedAgencyId',
       agencies: 'agencies/agencies',
+      currentTenant: 'users/currentTenant',
       users: 'users/users',
       interestedCodes: 'grants/interestedCodes',
       user: 'users/loggedInUser',
@@ -177,7 +178,7 @@ export default {
       );
     },
     shouldShowSpocButton() {
-      if (!this.user.tenant.uses_spoc_process) return false;
+      if (!this.currentTenant.uses_spoc_process) return false;
       return true;
     },
     interested() {
