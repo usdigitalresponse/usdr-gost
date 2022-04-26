@@ -19,6 +19,11 @@
       </div>
     </form>
     <div :class="messageClass" v-if="message">{{ message }}</div>
+    <div>
+      To create an account for your government, please fill out
+      <a href="https://www.usdigitalresponse.org/contact-us" target="_blank">USDR's request form</a>
+      and indicate that you'd like to create an account on our Hosted Grants Tool.
+    </div>
   </div>
 </template>
 
