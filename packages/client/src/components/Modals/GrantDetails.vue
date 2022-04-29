@@ -92,7 +92,7 @@
         :fields="assignedAgenciesFields"
       >
       <template #cell(actions)="row">
-        <b-button v-if="row.item.agency_id === agency.id" variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
+        <b-button v-if="row.item.assigned_by === user.id" variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
           <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
         </b-button>
       </template>
