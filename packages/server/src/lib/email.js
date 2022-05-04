@@ -15,8 +15,8 @@ function sendPasscode(email, passcode, httpOrigin) {
 function sendWelcomeEmail(email, httpOrigin) {
     return getTransport().send({
         toAddress: email,
-        subject: 'USDR Grants Tool Access Link',
-        body: `<p>You have been granted access to USDR's Grants Tool:
+        subject: 'Welcome to USDR Grants Tool',
+        body: `<p>Visit USDR's Grants Tool at:
      <a href="${httpOrigin}">${httpOrigin}</a>.`,
     });
 }
