@@ -162,6 +162,8 @@ router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {
 });
 
 router.get('/:grantId/assign/agencies', requireUser, async (req, res) => {
+    // Only show agencies within the same tenant here
+
     const { grantId } = req.params;
     const { selectedAgency, user } = req.session;
     const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });

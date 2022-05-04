@@ -9,16 +9,25 @@ const {
 router.get('/', requireUser, async (req, res) => {
     const { user } = req.session;
     let response;
+
+    // user.tenant_id
+    // if admin the selected agency can be changed (param that goes into request)
+    // for regular users the selectedAgency is the user's agency
+
+    // is `admin` across tenants? No. Admins are scoped to agencies. Admin must also be part of the same tenant.
+
     if (user.role.name === 'admin') {
-        response = await getAgencies(req.session.selectedAgency);
+        response = await getAgencies(req.session.selectedAgency, user.tenant_id);
     } else {
-        response = await getAgency(req.session.selectedAgency);
+        response = await getAgency(req.session.selectedAgency, user.tenant_id);
     }
     res.json(response);
 });
 
 router.put('/:agency', requireAdminUser, async (req, res) => {
     // Currently, agencies are seeded into db; only thresholds are mutable.
+
+    // needs to enforce tenant_id
     const { agency } = req.params;
 
     const { warningThreshold, dangerThreshold } = req.body;

@@ -92,6 +92,7 @@ async function getUser(id) {
             'agencies.warning_threshold as agency_warning_threshold',
             'agencies.danger_threshold as agency_danger_threshold',
             'users.tags',
+            'users.tenant_id',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
@@ -439,23 +440,33 @@ function getInterestedCodes() {
         .orderBy('name');
 }
 
-async function getAgency(agencyId) {
+async function getAgency(agencyId, tenantId) {
     const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
     FROM agencies WHERE id = ?;`;
     const result = await knex.raw(query, agencyId);
 
+    if result.tenant_id != tenantId:
+        // raise a specific exception saying tenantId is wrong.
+        // return a 403 when handling this exception.
+        raise Exception()
+
     return result.rows;
 }
 
-async function getAgencies(rootAgency) {
+async function getAgencies(rootAgency, tenantId) {
+    // Check the recursive query to see
+    // where the filteration needs to happen for tenants
+    // An agency's tree will only belong to one tenant so having this at the root should suffice.
+
     const query = `WITH RECURSIVE subagencies AS (
     SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
     FROM agencies WHERE id = ?
+    and tenant_id = ?
     UNION
         SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold 
         FROM agencies a INNER JOIN subagencies s ON s.id = a.parent
     ) SELECT * FROM subagencies ORDER BY name; `;
-    const result = await knex.raw(query, rootAgency);
+    const result = await knex.raw(query, rootAgency, tenantId);
 
     return result.rows;
 }
