@@ -84,7 +84,7 @@ async function getEligibilities() {
         oppNum: '',
         cfda: '',
         // oppStatuses: 'posted',
-        oppStatuses: 'posted|closed|archived',
+        oppStatuses: 'forecasted|posted|closed|archived',
         sortBy: 'openDate|desc',
     });
     const res = {};
