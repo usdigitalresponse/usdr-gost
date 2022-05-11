@@ -440,42 +440,42 @@ function getInterestedCodes() {
         .orderBy('name');
 }
 
-async function getAgency(agencyId, tenantId) {
-    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+async function getAgency(agencyId) {
+    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold, tenant_id
     FROM agencies WHERE id = ?;`;
     const result = await knex.raw(query, agencyId);
 
-    if result.tenant_id != tenantId:
-        // raise a specific exception saying tenantId is wrong.
-        // return a 403 when handling this exception.
-        raise Exception()
-
     return result.rows;
 }
 
-async function getAgencies(rootAgency, tenantId) {
-    // Check the recursive query to see
-    // where the filteration needs to happen for tenants
-    // An agency's tree will only belong to one tenant so having this at the root should suffice.
-
+async function getAgencies(rootAgencyId) {
     const query = `WITH RECURSIVE subagencies AS (
-    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold, tenant_id
     FROM agencies WHERE id = ?
-    and tenant_id = ?
     UNION
-        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold 
+        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold, a.tenant_id
         FROM agencies a INNER JOIN subagencies s ON s.id = a.parent
-    ) SELECT * FROM subagencies ORDER BY name; `;
-    const result = await knex.raw(query, rootAgency, tenantId);
+    ) SELECT * FROM subagencies ORDER BY name;`;
+    const result = await knex.raw(query, rootAgencyId);
 
     return result.rows;
 }
 
-// Use agency id for lookup for now
-async function getTenant(main_agency_id) {
+// Use agency id for lookup for now... why?
+async function getTenantByMainAgencyId(main_agency_id) {
     const query = `SELECT id, display_name, main_agency_id 
     FROM tenants WHERE main_agency_id = ?;`;
     const result = await knex.raw(query, main_agency_id);
+
+    return result.rows;
+}
+
+async function getTenant(id) {
+    const query = `SELECT id, display_name, main_agency_id 
+    FROM tenants WHERE id = ?;`;
+    const result = await knex.raw(query, id);
+
+    // can we do result.main_agency?
 
     return result.rows;
 }

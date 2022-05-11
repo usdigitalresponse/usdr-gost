@@ -17,9 +17,9 @@ router.get('/', requireUser, async (req, res) => {
     // is `admin` across tenants? No. Admins are scoped to agencies. Admin must also be part of the same tenant.
 
     if (user.role.name === 'admin') {
-        response = await getAgencies(req.session.selectedAgency, user.tenant_id);
+        response = await getAgencies(req.session.selectedAgency);
     } else {
-        response = await getAgency(req.session.selectedAgency, user.tenant_id);
+        response = await getAgency(req.session.selectedAgency);
     }
     res.json(response);
 });
