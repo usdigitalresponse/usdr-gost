@@ -9,11 +9,14 @@ const knex = require('knex')({
 
 async function getSessionCookie(email) {
     // POSTing an email address generates a passcode.
-    await fetch(`${process.env.API_DOMAIN}/api/sessions`, {
+    const resp = await fetch(`${process.env.API_DOMAIN}/api/sessions`, {
         method: 'POST',
         body: JSON.stringify({ email }),
         headers: { 'Content-Type': 'application/json' },
     });
+    if (resp.status !== 200 || !(await resp.json()).success) {
+        throw new Error(`test called getSessionCookie for invalid user ${email}, are they in seeds/dev/ref/users.js?`);
+    }
 
     // Get the new passcode directly from PostgresQL.
     const query = `SELECT created_at, passcode
@@ -41,4 +44,5 @@ function fetchApi(url, agencyId, fetchOptions) {
 module.exports = {
     getSessionCookie,
     fetchApi,
+    knex,
 };

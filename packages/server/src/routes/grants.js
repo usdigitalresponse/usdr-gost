@@ -1,6 +1,9 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
+// TODO: why is this necessary?
+/* eslint-disable import/no-unresolved */
+const { stringify: csvStringify } = require('csv-stringify/sync');
 const db = require('../db');
 const pdf = require('../lib/pdf');
 const { requireUser, isPartOfAgency } = require('../lib/access-helpers');
@@ -29,6 +32,24 @@ async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {
     return agencies.map((s) => s.id);
 }
 
+// Award floor field was requested for CSV export but is not stored as a dedicated column,
+// so we have to extract it from raw_body
+function getAwardFloor(grant) {
+    let body;
+    try {
+        body = JSON.parse(grant.raw_body);
+    } catch (err) {
+        // Some seeded test data has invalid JSON in raw_body field
+        return undefined;
+    }
+
+    const floor = parseInt(body.synopsis && body.synopsis.awardFloor, 10);
+    if (Number.isNaN(floor)) {
+        return undefined;
+    }
+    return floor;
+}
+
 router.get('/', requireUser, async (req, res) => {
     let agencyCriteria;
     // if we want interested, assigned, grants for a user, do not filter by eligibility or keywords
@@ -47,6 +68,86 @@ router.get('/', requireUser, async (req, res) => {
         },
     });
     res.json(grants);
+});
+
+// For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
+// without the test having to insert 10k rows, which slows down the test.
+const MAX_CSV_EXPORT_ROWS = process.env.NODE_ENV !== 'test' ? 10000 : 100;
+router.get('/exportCSV', requireUser, async (req, res) => {
+    // First load the grants. This logic is intentionally identical to the endpoint above that
+    // serves the grants table UI, except there is no pagination.
+    let agencyCriteria;
+    // if we want interested, assigned, grants for a user, do not filter by eligibility or keywords
+    if (!req.query.interestedByMe && !req.query.assignedToAgency) {
+        agencyCriteria = await db.getAgencyCriteriaForAgency(req.session.selectedAgency);
+    }
+    const { selectedAgency, user } = req.session;
+    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
+    const { data, pagination } = await db.getGrants({
+        ...req.query,
+        currentPage: 1,
+        perPage: MAX_CSV_EXPORT_ROWS,
+        agencies,
+        filters: {
+            agencyCriteria,
+            interestedByUser: req.query.interestedByMe ? req.signedCookies.userId : null,
+            assignedToAgency: req.query.assignedToAgency ? req.query.assignedToAgency : null,
+        },
+    });
+
+    // Generate CSV
+    const formattedData = data.map((grant) => ({
+        ...grant,
+        interested_agencies: grant.interested_agencies
+            .map((v) => v.agency_abbreviation)
+            .join(', '),
+        viewed_by: grant.viewed_by_agencies
+            .map((v) => v.agency_abbreviation)
+            .join(', '),
+        // TODO: how does server timezone affect the rendering of these dates?
+        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
+        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
+        award_floor: getAwardFloor(grant),
+        url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
+    }));
+
+    if (data.length === 0) {
+        // If there are 0 rows, csv-stringify won't even emit the header, resulting in a totally
+        // empty file, which is confusing. This adds a single empty row below the header.
+        formattedData.push({});
+    } else if (pagination.total > data.length) {
+        formattedData.push({
+            title: `Error: only ${MAX_CSV_EXPORT_ROWS} rows supported for CSV export, but there `
+            + `are ${pagination.total} total.`,
+        });
+    }
+
+    const csv = csvStringify(formattedData, {
+        header: true,
+        columns: [
+            { key: 'grant_number', header: 'Opportunity Number' },
+            { key: 'title', header: 'Title' },
+            { key: 'viewed_by', header: 'Viewed By' },
+            { key: 'interested_agencies', header: 'Interested Agencies' },
+            { key: 'opportunity_status', header: 'Status' },
+            { key: 'opportunity_category', header: 'Opportunity Category' },
+            { key: 'cost_sharing', header: 'Cost Sharing' },
+            { key: 'award_floor', header: 'Award Floor' },
+            { key: 'award_ceiling', header: 'Award Ceiling' },
+            { key: 'open_date', header: 'Posted Date' },
+            { key: 'close_date', header: 'Close Date' },
+            { key: 'agency_code', header: 'Agency Code' },
+            { key: 'grant_id', header: 'Grant Id' },
+            { key: 'url', header: 'URL' },
+        ],
+    });
+
+    // Send to client as a downloadable file.
+    const filename = 'grants.csv';
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Length', csv.length);
+    res.send(csv);
 });
 
 router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {

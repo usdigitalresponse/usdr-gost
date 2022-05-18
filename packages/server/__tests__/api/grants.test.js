@@ -2,7 +2,8 @@
 const { expect } = require('chai');
 require('dotenv').config();
 
-const { getSessionCookie, fetchApi } = require('./utils');
+const { getSessionCookie, fetchApi, knex } = require('./utils');
+const { TABLES } = require('../../src/db/constants');
 
 /*
     In general, these tests ...
@@ -42,7 +43,7 @@ describe('`/api/grants` endpoint', async () => {
 
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('michael@nv.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
         fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
         fetchOptions.dallasAdmin.headers.cookie = await getSessionCookie('user1@dallas.gov');
     });
@@ -376,6 +377,63 @@ describe('`/api/grants` endpoint', async () => {
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
+        });
+    });
+    context('GET /api/grants/exportCSV', async () => {
+        it('produces correct column format', async () => {
+            // We constrain the result to a single grant that's listed in seeds/dev/ref/grants.js
+            const query = '?searchTerm=333816';
+            const response = await fetchApi(`/grants/exportCSV${query}`, agencies.own, fetchOptions.staff);
+
+            const expectedCsv = `Opportunity Number,Title,Viewed By,Interested Agencies,Status,Opportunity Category,Cost Sharing,Award Floor,Award Ceiling,Posted Date,Close Date,Agency Code,Grant Id,URL
+HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp; Implementation,,,posted,Discretionary,No,,500000,8/5/2021,9/6/2021,HHS-IHS,333816,https://www.grants.gov/web/grants/view-opportunity.html?oppId=333816
+`;
+
+            expect(response.statusText).to.equal('OK');
+            expect(response.headers.get('Content-Type')).to.include('text/csv');
+            expect(response.headers.get('Content-Disposition')).to.include('attachment');
+
+            expect(await response.text()).to.equal(expectedCsv);
+        });
+
+        it('limits number of output rows', async function () {
+            // First we insert 100 grants (in prod this limit it 10k but it is reduced in test
+            // via NODE_ENV=test environment variable so this test isn't so slow)
+            const numToInsert = 100;
+            const grantsToInsert = Array(numToInsert).fill(undefined).map((val, i, arr) => ({
+                status: 'inbox',
+                grant_id: String(-(i + 1)),
+                grant_number: String(-(i + 1)),
+                agency_code: 'fake',
+                cost_sharing: 'No',
+                title: `fake grant #${i + 1}/${arr.length} for test`,
+                cfda_list: 'fake',
+                open_date: '2022-04-22',
+                close_date: '2022-04-22',
+                notes: 'auto-inserted by test',
+                search_terms: '[in title/desc]+',
+                reviewer_name: 'none',
+                opportunity_category: 'Discretionary',
+                description: 'fake grant inserted by test',
+                eligibility_codes: '25',
+                opportunity_status: 'posted',
+                raw_body: 'raw body',
+            }));
+
+            this.timeout(2000);
+            await knex.batchInsert(TABLES.grants, grantsToInsert);
+
+            const response = await fetchApi(`/grants/exportCSV`, agencies.own, fetchOptions.staff);
+            expect(response.statusText).to.equal('OK');
+
+            const csv = await response.text();
+            const lines = csv.split('\n');
+
+            // 10k rows + 1 header + 1 error message row + line break at EOF
+            expect(lines.length).to.equal(numToInsert + 3);
+
+            const lastRow = lines[lines.length - 2];
+            expect(lastRow).to.include('Error:');
         });
     });
 });

@@ -2,13 +2,11 @@ const getTransport = require('./email/service-email');
 
 const expiryMinutes = 30;
 
-const stateName = process.env.STATE_NAME || '';
-
 function sendPasscode(email, passcode, httpOrigin) {
     return getTransport().send({
         toAddress: email,
-        subject: 'Welcome to CARES grants',
-        body: `<p>Your link to access the ${stateName} Grant Notification and Coordination Tool is
+        subject: 'USDR Grants Tool Access Link',
+        body: `<p>Your link to access USDR's Grants Tool is
      <a href="${httpOrigin}/api/sessions?passcode=${passcode}">${httpOrigin}/api/sessions/?passcode=${passcode}</a>.
      It expires in ${expiryMinutes} minutes</p>`,
     });
@@ -17,8 +15,8 @@ function sendPasscode(email, passcode, httpOrigin) {
 function sendWelcomeEmail(email, httpOrigin) {
     return getTransport().send({
         toAddress: email,
-        subject: `${stateName} Grant Notification and Coordination Tool Access Link`,
-        body: `<p>You have been granted access to the CARES Grants:
+        subject: 'Welcome to USDR Grants Tool',
+        body: `<p>Visit USDR's Grants Tool at:
      <a href="${httpOrigin}">${httpOrigin}</a>.`,
     });
 }
