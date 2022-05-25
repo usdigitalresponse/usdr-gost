@@ -93,9 +93,11 @@ export default {
   methods: {
     ...mapActions({
       fetchAgencies: 'agencies/fetchAgencies',
+      fetchAllAgencies: 'agencies/fetchAllAgencies',
     }),
     setup() {
       this.fetchAgencies();
+      this.fetchAllAgencies();
     },
     openEditAgencyModal(agency) {
       this.editingAgency = agency;

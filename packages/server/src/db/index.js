@@ -486,6 +486,27 @@ async function getAgencies(rootAgency) {
     return result.rows;
 }
 
+async function getAllAgencies() {
+    const query = knex.select(
+        'id',
+        'name',
+        'abbreviation',
+        'warning_threshold',
+        'danger_threshold',
+    )
+        .from(TABLES.agencies);
+    const result = await query;
+
+    return result;
+    // return knex(TABLES.agencies)
+    //     .select(
+    //         'id',
+    //         'name',
+    //         'abbreviation',
+    //         'warning_threshold',
+    //         'danger_threshold',
+    //     );
+}
 // Use agency id for lookup for now
 async function getTenant(main_agency_id) {
     const query = `SELECT id, display_name, main_agency_id 
@@ -638,6 +659,7 @@ module.exports = {
     markAccessTokenUsed,
     getAgency,
     getAgencies,
+    getAllAgencies,
     getTenant,
     getAgencyEligibilityCodes,
     setAgencyEligibilityCodeEnabled,

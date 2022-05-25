@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { requireAdminUser, requireUser, isPartOfAgency } = require('../lib/access-helpers');
 const {
-    getAgency, getAgencies, setAgencyThresholds, createAgency,
+    getAgency, getAgencies, getAllAgencies, setAgencyThresholds, createAgency,
 } = require('../db');
 
 router.get('/', requireUser, async (req, res) => {
@@ -14,6 +14,18 @@ router.get('/', requireUser, async (req, res) => {
     } else {
         response = await getAgency(req.session.selectedAgency);
     }
+    res.json(response);
+});
+
+router.get('/allagencies/', requireUser, async (req, res) => {
+    // const { user } = req.session;
+    // let response;
+    const response = await getAllAgencies();
+    // if (user.role.name === 'admin') {
+    //     response = await getAgencies(req.session.selectedAgency);
+    // } else {
+    //     response = await getAgency(req.session.selectedAgency);
+    // }
     res.json(response);
 });
 
