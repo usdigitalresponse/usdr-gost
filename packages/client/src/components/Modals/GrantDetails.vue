@@ -76,7 +76,7 @@
       <br/>
       <b-row>
         <b-col>
-          <multiselect v-model="selectedAgencies" :options="agencies"
+          <multiselect v-model="selectedAgencies" :options="allAgencies"
           :multiple="true" :close-on-select="false"
           :clear-on-select="false"
           placeholder="Select agencies" label="name"
@@ -157,13 +157,13 @@ export default {
       debouncedSearchInput: null,
     };
   },
-  mounted() {
-  },
+  mounted() {},
   computed: {
     ...mapGetters({
       agency: 'users/agency',
       selectedAgencyId: 'users/selectedAgencyId',
       agencies: 'agencies/agencies',
+      allAgencies: 'agencies/allAgencies',
       currentTenant: 'users/currentTenant',
       users: 'users/users',
       interestedCodes: 'grants/interestedCodes',
