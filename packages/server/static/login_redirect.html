@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Loading...</title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      // The point of this clientside POST redirect is to prevent automated email systems that prefetch
+      // links from accidentally marking the token as used before the user gets to login with it.
+      const passcode = new URLSearchParams(window.location.search).get('passcode');
+      if (passcode && self === top) {
+        const form = document.createElement('form');
+        form.action = '/api/sessions/init';
+        form.method = 'post';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'passcode';
+        input.value = passcode;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        const url = new URL('/#/login');
+        url.searchParams.set('message', 'Invalid access token');
+        window.location = url.toString();
+      }
+    </script>
+    <noscript>
+      <strong>We're sorry but the Grants Tool doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+  </body>
+</html>
