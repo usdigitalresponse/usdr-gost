@@ -1,8 +1,8 @@
 /* eslint-disable import/no-unresolved */
 const express = require('express');
 const _ = require('lodash-checkit');
-const { sendPasscode } = require('../lib/email');
 const path = require('path');
+const { sendPasscode } = require('../lib/email');
 
 const router = express.Router({ mergeParams: true });
 const {
