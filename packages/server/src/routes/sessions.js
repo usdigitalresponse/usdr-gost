@@ -33,21 +33,22 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/init', async (req, res) => {
+    const WEBSITE_DOMAIN = process.env.WEBSITE_DOMAIN || '';
     const { passcode } = req.body;
     if (!passcode) {
-        res.redirect(`/#/login?message=${encodeURIComponent('Invalid access token')}`);
+        res.redirect(`${WEBSITE_DOMAIN}/#/login?message=${encodeURIComponent('Invalid access token')}`);
         return;
     }
 
     const token = await getAccessToken(passcode);
     if (!token) {
-        res.redirect(`/#/login?message=${encodeURIComponent('Invalid access token')}`);
+        res.redirect(`${WEBSITE_DOMAIN}/#/login?message=${encodeURIComponent('Invalid access token')}`);
     } else if (new Date() > token.expires) {
         res.redirect(
-            `/#/login?message=${encodeURIComponent('Access token has expired')}`,
+            `${WEBSITE_DOMAIN}/#/login?message=${encodeURIComponent('Access token has expired')}`,
         );
     } else if (token.used) {
-        res.redirect(`/#/login?message=${encodeURIComponent(
+        res.redirect(`${WEBSITE_DOMAIN}/#/login?message=${encodeURIComponent(
             'Login link has already been used - please re-submit your email address',
         )}`);
     } else {
@@ -56,7 +57,7 @@ router.post('/init', async (req, res) => {
             await markAccessTokenUsed(passcode);
         }
         res.cookie('userId', token.user_id, { signed: true });
-        res.redirect(process.env.WEBSITE_DOMAIN || '/');
+        res.redirect(WEBSITE_DOMAIN || '/');
     }
 });
 

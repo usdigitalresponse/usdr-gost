@@ -55,7 +55,7 @@ module.exports = (app) => {
         },
     });
     app.use(staticMiddleware);
-    app.use('/static', express.static(`${__dirname}/static`));
+    app.use('/static', express.static(resolve(__dirname, '../static')));
     app.use(
         history({
             disableDotRule: true,
