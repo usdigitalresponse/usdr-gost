@@ -76,7 +76,8 @@ export default {
         formData.append('files', file);
       });
 
-      fetch('/api/test', { body: formData, method: 'POST' })
+      const baseUrl = process.env.VUE_APP_GRANTS_API_URL;
+      fetch(`${baseUrl}/api/annual-reports`, { body: formData, method: 'POST' })
         .then((res) => res.json())
         .then(console.log)
         .catch(console.error);
