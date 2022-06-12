@@ -2,7 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 import Login from '../views/Login.vue';
-import AnnualRollup from '../views/AnnualRollup.vue';
+import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
 import Layout from '../components/Layout.vue';
 
 import store from '../store';
@@ -16,9 +16,9 @@ const routes = [
     component: Login,
   },
   {
-    path: '/annual-rollup',
-    name: 'annual-rollup',
-    component: AnnualRollup,
+    path: '/arpa-annual-performance-reporter',
+    name: 'arpa-annual-performance-reporter',
+    component: ArpaAnnualPerformanceReporter,
     meta: {
       requiresAuth: true,
     },
