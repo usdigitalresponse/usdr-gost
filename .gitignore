@@ -103,6 +103,9 @@ dist
 # TernJS port file
 .tern-port
 
+# vscode memory
+.idea/
+
 .DS_Store
 
 packages/server/src/static/forms/generated
