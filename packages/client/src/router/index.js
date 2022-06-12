@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 import Login from '../views/Login.vue';
+import AnnualRollup from '../views/AnnualRollup.vue';
 import Layout from '../components/Layout.vue';
 
 import store from '../store';
@@ -13,6 +14,14 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login,
+  },
+  {
+    path: '/annual-rollup',
+    name: 'annual-rollup',
+    component: AnnualRollup,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/',
