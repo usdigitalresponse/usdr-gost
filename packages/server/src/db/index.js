@@ -460,6 +460,19 @@ async function getAgencies(rootAgency) {
     return result.rows;
 }
 
+async function getAgenciesForTenant(rootAgency) {
+    const query = `WITH RECURSIVE subagencies AS (
+    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold, tenant_id
+    FROM agencies WHERE id = ?
+    UNION
+        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold, a.tenant_id
+        FROM agencies a INNER JOIN subagencies s ON s.id = a.tenant_id
+    ) SELECT * FROM subagencies ORDER BY name; `;
+    const result = await knex.raw(query, rootAgency);
+
+    return result.rows;
+}
+
 // Use agency id for lookup for now
 async function getTenantByMainAgencyId(main_agency_id) {
     const query = `SELECT id, display_name, main_agency_id 
@@ -622,6 +635,7 @@ module.exports = {
     getAgencies,
     getTenantByMainAgencyId,
     getTenant,
+    getAgenciesForTenant,
     getAgencyEligibilityCodes,
     setAgencyEligibilityCodeEnabled,
     getKeyword,
