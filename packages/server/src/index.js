@@ -2,6 +2,7 @@ const express = require('express');
 const { CronJob } = require('cron');
 const fs = require('fs').promises;
 const path = require('path');
+require('dotenv').config();
 
 const configureAPI = require('./configure');
 const grantscraper = require('./lib/grantscraper');
