@@ -55,7 +55,7 @@ The scripts will install yarn and download npm dependencies for all yarn workspa
 
 4. Setup ENVs
 
-Copy packages/client `.env.example` to `.env` and
+Rename packages/client & packages/server `.env.example`s to `.env`s and
 Update packages/client & server `.env`s
 
 ```
@@ -68,6 +68,10 @@ Create .env file in server workspace based on the .env.example. See Deployment s
 Set environment variable pointing to local postgres DB, this is used for migrations (knex does not load .env file)
 
 `export POSTGRES_URL=postgresql://localhost:5432/usdr_grants` (individual vars) or `export $(cat .env)` (whole file)
+
+**_Note:_** In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
+
+If running into `Error: Invalid login: 535-5.7.8 Username and Password not accepted.` then ["Allow Less Secure Apps"](https://myaccount.google.com/lesssecureapps) - [source](https://stackoverflow.com/a/59194512)
 
 5. Run DB Migrations & Seed
 
@@ -103,10 +107,6 @@ After that you should be able to serve the backend and frontend by running in bo
 ```
 
 7. Visit `client_url/login` (e.g http://localhost:8081/#/login) and login w/ user set in Step 5.
-
-**_Note:_** In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
-
-If running into `Error: Invalid login: 535-5.7.8 Username and Password not accepted.` then ["Allow Less Secure Apps"](https://myaccount.google.com/lesssecureapps) - [source](https://stackoverflow.com/a/59194512)
 
 # Additional Info:
 
