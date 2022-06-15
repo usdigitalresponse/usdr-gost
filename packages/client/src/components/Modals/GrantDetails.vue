@@ -75,15 +75,24 @@
       </b-row>
       <br/>
       <b-row>
-        <b-col>
+        <b-col cols="10">
           <multiselect v-model="selectedAgencies" :options="agencies"
           :multiple="true" :close-on-select="false"
           :clear-on-select="false"
           placeholder="Select agencies" label="name"
           track-by="id">
+          <template slot="option" slot-scope="props">
+              <span class="option__title">
+                {{ props.option.name }}
+              </span>
+              <!-- <span class="option__small">
+                {{ props.option.desc }}
+              </span> -->
+
+          </template>
           </multiselect>
         </b-col>
-        <b-col>
+        <b-col cols="2">
           <b-button variant="outline-success" @click="assignAgenciesToGrant">Assign</b-button>
         </b-col>
       </b-row>
