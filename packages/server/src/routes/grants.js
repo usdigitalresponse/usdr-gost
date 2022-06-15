@@ -161,6 +161,10 @@ router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {
     res.json({});
 });
 
+// multitenancy grant assignment endpoints
+
+// end multitenancy grant assignment endpoints
+
 router.get('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { selectedAgency, user } = req.session;

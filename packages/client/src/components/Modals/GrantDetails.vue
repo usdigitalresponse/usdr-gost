@@ -74,7 +74,7 @@
         </b-col>
       </b-row>
       <br/>
-      <b-row>
+      <b-row class="mb-2">
         <b-col cols="10">
           <multiselect v-model="selectedAgencies" :options="agencies"
           :multiple="true" :close-on-select="false"
@@ -198,6 +198,9 @@ export default {
         (interested) => interested.agency_id.toString() === this.selectedAgencyId,
       );
     },
+  },
+  created() {
+    this.fetchAgencies();
   },
   watch: {
     async selectedGrant() {

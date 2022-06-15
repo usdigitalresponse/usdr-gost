@@ -91,16 +91,11 @@ async function getUser(id) {
             'agencies.main_agency_id as agency_main_agency_id',
             'agencies.warning_threshold as agency_warning_threshold',
             'agencies.danger_threshold as agency_danger_threshold',
-            'tenants.id as tenant_id',
-            'tenants.display_name as tenant_display_name',
-            'tenants.main_agency_id as tenant_main_agency_id',
-            'tenants.uses_spoc_process as tenant_uses_spoc_process',
             'users.tags',
             'users.tenant_id',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
-        .leftJoin('tenants', 'tenants.main_agency_id', 'agencies.main_agency_id')
         .where('users.id', id);
     if (user.role_id != null) {
         user.role = {
@@ -119,12 +114,6 @@ async function getUser(id) {
             danger_threshold: user.agency_danger_threshold,
             main_agency_id: user.agency_main_agency_id,
         };
-        user.tenant = {
-            id: user.tenant_id,
-            display_name: user.tenant_display_name,
-            main_agency_id: user.tenant_main_agency_id,
-            uses_spoc_process: user.tenant_uses_spoc_process,
-        };
         let subagencies = [];
         if (user.role.name === 'admin') {
             subagencies = await getAgencies(user.agency_id);
@@ -133,10 +122,6 @@ async function getUser(id) {
         }
         user.agency.subagencies = subagencies;
     }
-    delete user.tenant_id;
-    delete user.tenant_display_name;
-    delete user.tenant_main_agency_id;
-    delete user.tenant_uses_spoc_process;
     return user;
 }
 
@@ -455,22 +440,11 @@ function getInterestedCodes() {
 }
 
 async function getAgency(agencyId) {
-    const query = knex.select(
-        'id',
-        'name',
-        'abbreviation',
-        'parent',
-        'warning_threshold',
-        'danger_threshold',
-    )
-        .from(TABLES.agencies)
-        .where({
-            id: agencyId,
-        })
-        .leftJoin('tenants', 'tenants.main_agency_id', '=', `${TABLES.agencies}.main_agency_id`);
-    const result = await query;
+    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold, tenant_id
+    FROM agencies WHERE id = ?;`;
+    const result = await knex.raw(query, agencyId);
 
-    return result;
+    return result.rows;
 }
 
 async function getAgencies(rootAgency) {

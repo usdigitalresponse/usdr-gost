@@ -37,13 +37,13 @@ async function isAuthorized(userId, agencyId) {
 
 async function requireAdminUser(req, res, next) {
     if (!req.signedCookies.userId) {
-        res.sendStatus(403).send('You must be signed in to access this resource.');
+        res.sendStatus(403);
         return;
     }
 
     const user = await getUser(req.signedCookies.userId);
     if (user.role_name !== 'admin') {
-        res.sendStatus(403).send('You do not have rights to access this resource.');
+        res.sendStatus(403);
         return;
     }
     const paramAgencyId = req.params.organizationId;
@@ -55,7 +55,7 @@ async function requireAdminUser(req, res, next) {
             await validateAgencyPartOfTenant(user.tenant_id, requestAgency);
         } catch (e) {
             if (e instanceof AgencyTenantMismatchError) {
-                res.sendStatus(403).send('You are not authorized to access resources in this tenant.');
+                res.sendStatus(403);
                 return;
             }
             res.sendStatus(500);
@@ -64,7 +64,7 @@ async function requireAdminUser(req, res, next) {
 
         const authorized = await isAuthorized(req.signedCookies.userId, requestAgency);
         if (!authorized) {
-            res.sendStatus(403).send('You are not authorized to access this resource.');
+            res.sendStatus(403);
             return;
         }
 
@@ -90,13 +90,13 @@ async function requireAdminUser(req, res, next) {
 
 async function requireUser(req, res, next) {
     if (!req.signedCookies.userId) {
-        res.sendStatus(403).send('You are not authorized to access this resource.');
+        res.sendStatus(403);
         return;
     }
 
     const user = await getUser(req.signedCookies.userId);
     if (req.params.organizationId && user.role_name === 'staff' && (req.params.organizationId !== user.agency_id.toString())) {
-        res.sendStatus(403).send('You are not authorized to access this resource.'); // Staff are restricted to their own agency.
+        res.sendStatus(403); // Staff are restricted to their own agency.
         return;
     }
 
@@ -132,7 +132,7 @@ async function requireUser(req, res, next) {
         await validateAgencyPartOfTenant(user.tenant_id, user.agency_id);
     } catch (e) {
         if (e instanceof AgencyTenantMismatchError) {
-            res.sendStatus(403).send('You are not authorized to access resources in this tenant.');
+            res.sendStatus(403);
         } else {
             res.sendStatus(500);
         }

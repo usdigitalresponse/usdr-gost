@@ -34,6 +34,7 @@ router.delete('/:keywordId', requireAdminUser, async (req, res) => {
     }
 });
 
+// router.get('/', requireUser, async (req, res) => {
 router.get('/', requireUser, async (req, res) => {
     const keywords = await db.getAgencyKeywords(req.session.selectedAgency);
     res.json(keywords);
