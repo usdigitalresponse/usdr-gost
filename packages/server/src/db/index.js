@@ -189,7 +189,6 @@ function markAccessTokenUsed(passcode) {
 }
 
 async function generatePasscode(email) {
-    console.log('generatePasscode for :', email);
     const users = await knex('users')
         .select('*')
         .where('email', email);
@@ -207,7 +206,6 @@ async function generatePasscode(email) {
         expires,
         used,
     });
-    console.log(passcode);
     return passcode;
 }
 

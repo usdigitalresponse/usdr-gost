@@ -51,7 +51,6 @@ function getAwardFloor(grant) {
 }
 
 router.get('/', requireUser, async (req, res) => {
-    console.log('im here');
     let agencyCriteria;
     // if we want interested, assigned, grants for a user, do not filter by eligibility or keywords
     if (!req.query.interestedByMe && !req.query.assignedToAgency) {
@@ -68,7 +67,6 @@ router.get('/', requireUser, async (req, res) => {
             assignedToAgency: req.query.assignedToAgency ? req.query.assignedToAgency : null,
         },
     });
-    console.log('im here');
     res.json(grants);
 });
 
