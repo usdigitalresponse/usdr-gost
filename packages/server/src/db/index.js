@@ -96,6 +96,7 @@ async function getUser(id) {
             'tenants.main_agency_id as tenant_main_agency_id',
             'tenants.uses_spoc_process as tenant_uses_spoc_process',
             'users.tags',
+            'users.tenant_id',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
@@ -203,7 +204,6 @@ function markAccessTokenUsed(passcode) {
 }
 
 async function generatePasscode(email) {
-    console.log('generatePasscode for :', email);
     const users = await knex('users')
         .select('*')
         .where('email', email);
@@ -475,10 +475,10 @@ async function getAgency(agencyId) {
 
 async function getAgencies(rootAgency) {
     const query = `WITH RECURSIVE subagencies AS (
-    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold, tenant_id
     FROM agencies WHERE id = ?
     UNION
-        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold 
+        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold, a.tenant_id
         FROM agencies a INNER JOIN subagencies s ON s.id = a.parent
     ) SELECT * FROM subagencies ORDER BY name; `;
     const result = await knex.raw(query, rootAgency);
@@ -487,10 +487,18 @@ async function getAgencies(rootAgency) {
 }
 
 // Use agency id for lookup for now
-async function getTenant(main_agency_id) {
+async function getTenantByMainAgencyId(main_agency_id) {
     const query = `SELECT id, display_name, main_agency_id 
     FROM tenants WHERE main_agency_id = ?;`;
     const result = await knex.raw(query, main_agency_id);
+
+    return result.rows;
+}
+
+async function getTenant(id) {
+    const query = `SELECT id, display_name, main_agency_id 
+    FROM tenants WHERE id = ?;`;
+    const result = await knex.raw(query, id);
 
     return result.rows;
 }
@@ -638,6 +646,7 @@ module.exports = {
     markAccessTokenUsed,
     getAgency,
     getAgencies,
+    getTenantByMainAgencyId,
     getTenant,
     getAgencyEligibilityCodes,
     setAgencyEligibilityCodeEnabled,

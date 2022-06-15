@@ -1,20 +1,16 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
-const { requireAdminUser, requireUser } = require('../lib/access-helpers');
+// const { requireAdminUser, requireUser } = require('../lib/access-helpers');
+const { requireAdminUser } = require('../lib/access-helpers');
 const {
-    getTenant, setTenantDisplayName,
+    getTenantByMainAgencyId, setTenantDisplayName,
 } = require('../db');
 
-router.get('/', requireUser, async (req, res) => {
-    const { user } = req.session;
-    let response;
-    if (user.role.name === 'admin') {
-        response = await getTenant(req.session.selectedAgency);
-    } else {
-        throw new Error(`You dont have access to tenants`);
-    }
-    res.json(response);
+router.get('/', requireAdminUser, async (req, res) => {
+    // const { user } = req.session;
+    const result = await getTenantByMainAgencyId(req.session.selectedAgency);
+    res.json(result);
 });
 
 router.put('/:tenant', requireAdminUser, async (req, res) => {
