@@ -2,7 +2,7 @@
 
 # USDR Grant Opportunities
 
-A grant identification tool enabling partners to search for and track available grants. 
+A grant identification tool enabling partners to search for and track available grants.
 
 This application is currently hosted at gost-grants-tools.onrender.com and also at grants.usdigitalresponse.org. Changes made to the main branch will be reflected immediately.
 
@@ -27,41 +27,86 @@ First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct ver
 
 To setup your workspace run the following commands at the root of the project
 
+1. Ensure using NODE Version 12 (v12.22.12)
+
 ```
-npm i yarn@^1.22.4 -g
-yarn run setup
+> brew install nvm
+> nvm install v12.22.12
+> nvm use v12.22.12
 ```
+
+2. Install dependencies
 
 The scripts will install yarn and download npm dependencies for all yarn workspaces.
 
-Install postgres DB. I personally used https://postgresapp.com/
+```
+> npm i yarn@^1.22.4 -g
+> yarn run setup
+```
 
-Create database called usdr_grants.
+3. Create database called usdr_grants.
+   Install postgres DB. I personally used https://postgresapp.com/
 
 ```
-psql -h localhost -p 5432
+> psql -h localhost -p 5432
 > CREATE DATABASE usdr_grants;
+> CREATE DATABASE usdr_grants_test;
+```
+
+4. Setup ENVs
+
+Copy packages/client `.env.example` to `.env` and
+Update packages/client & server `.env`s
+
+```
+> cd packages/client && export $(cat .env)
+> cd packages/server && export $(cat .env)
 ```
 
 Create .env file in server workspace based on the .env.example. See Deployment section for more information on the .env file. Also create .env file in client workspace based on the .env.example file.
 
 Set environment variable pointing to local postgres DB, this is used for migrations (knex does not load .env file)
 
-`export POSTGRES_URL="postgresql://localhost:5432/usdr_grants"`
+`export POSTGRES_URL=postgresql://localhost:5432/usdr_grants` (individual vars) or `export $(cat .env)` (whole file)
+
+5. Run DB Migrations & Seed
 
 In server workspace, run migrations:
 
-`npx knex migrate:latest`
+**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by adding a user with your email **_to be able to login to the system_**.
+Then run seeds:
 
-In server/seeds/dev/index.js, update the adminList by adding a user with your email to be able to login to the system. Then run seeds:
+```
+> cd packages/server
+> npx knex migrate:latest
+> npx knex seed:run
+```
 
-`npx knex seed:run`
+6. Run Server (Terminal 1)
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
-`yarn run serve`
+```
+> cd packages/server
+> yarn serve
 
-Note: In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
+```
+
+6. Run Client (Terminal 2)
+
+After that you should be able to serve the backend and frontend by running in both server and client folders.
+
+```
+> cd packages/client
+> yarn serve
+
+```
+
+7. Visit `client_url/login` (e.g http://localhost:8081/#/login)
+
+**_Note:_** In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
+
+# Additional Info:
 
 ## Yarn Workspaces
 
@@ -105,12 +150,14 @@ Install the eslint plugin https://marketplace.visualstudio.com/items?itemName=db
 
 After that you should be able to see eslint prompts in js files
 
-For linting on auto save: 
+For linting on auto save:
+
 - Go to VSCode settings
   - Shift + Command + P
   - Search for settings
   - Select "Open Settings (JSON)"
 - Paste the following snippet
+
 ```
 "editor.formatOnSaveMode": "modifications",
   "editor.formatOnSave": true,
@@ -122,6 +169,7 @@ For linting on auto save:
 Note: Before Pasting check if there are any conflicting settings regarding esling or formatOnSave
 
 Sharing my complete VSCode Setting
+
 ```
 {
   "terminal.integrated.shell.osx": "/bin/zsh",
@@ -144,7 +192,7 @@ Sharing my complete VSCode Setting
 After installing depedencies, IntelliJ should start using eslint automatically:
 
 > By default, IntelliJ IDEA marks the detected errors and warnings based on the severity levels from the ESLint configuration
-https://www.jetbrains.com/help/idea/eslint.html#ws_js_linters_eslint_install
+> https://www.jetbrains.com/help/idea/eslint.html#ws_js_linters_eslint_install
 
 # Deployment
 
@@ -201,24 +249,21 @@ NOTE: must add `?ssl=true`
 4. Run the following commands
 
 ```
-npx knex migrate:latest 
+npx knex migrate:latest
 npx knex seed:run
 ```
 
 After that you should be able to access the site and login with the users set in the migration.
 
-
 ## Code of Conduct
 
 This repository falls under [U.S. Digital Response’s Code of Conduct](./CODE_OF_CONDUCT.md), and we will hold all participants in issues, pull requests, discussions, and other spaces related to this project to that Code of Conduct. Please see [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) for the full code.
-
 
 ## Contributing
 
 This project wouldn’t exist without the hard work of many people. Thanks to the following for all their contributions! Please see [`CONTRIBUTING.md`](./CONTRIBUTING.md) to find out how you can help.
 
 **Lead Maintainer:** [Rafael Pol (@Rapol)](https://github.com/Rapol)
-
 
 ## License & Copyright
 
