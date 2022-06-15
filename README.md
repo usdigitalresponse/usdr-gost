@@ -102,9 +102,11 @@ After that you should be able to serve the backend and frontend by running in bo
 
 ```
 
-7. Visit `client_url/login` (e.g http://localhost:8081/#/login)
+7. Visit `client_url/login` (e.g http://localhost:8081/#/login) and login w/ user set in Step 5.
 
 **_Note:_** In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
+
+If running into `Error: Invalid login: 535-5.7.8 Username and Password not accepted.` then ["Allow Less Secure Apps"](https://myaccount.google.com/lesssecureapps) - [source](https://stackoverflow.com/a/59194512)
 
 # Additional Info:
 
