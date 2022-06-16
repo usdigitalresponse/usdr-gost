@@ -53,6 +53,10 @@ async function getUsers(rootAgencyId) {
                 agency_parent_id: user.agency_parent_id,
             };
         }
+        const tenant = u.tenant_id ? getTenant(u.tenant_id) : null;
+        if (tenant) {
+            u.tenant = tenant;
+        }
         return u;
     });
 }
@@ -121,6 +125,9 @@ async function getUser(id) {
             subagencies.push({ ...user.agency });
         }
         user.agency.subagencies = subagencies;
+    }
+    if (user.tenant_id != null) {
+        user.tenant = await getTenant(user.tenant_id);
     }
     return user;
 }
@@ -382,11 +389,11 @@ function markGrantAsViewed({ grantId, agencyId, userId }) {
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
 }
 
-function getGrantAssignedAgencies({ grantId, agencies }) {
+function getGrantAssignedAgencies({ grantId, agencyIds }) {
     return knex(TABLES.assigned_grants_agency)
         .join(TABLES.agencies, `${TABLES.agencies}.id`, '=', `${TABLES.assigned_grants_agency}.agency_id`)
         .where({ grant_id: grantId })
-        .andWhere('agency_id', 'IN', agencies);
+        .whereIn('agency_id', agencyIds);
 }
 
 function assignGrantsToAgencies({ grantId, agencyIds, userId }) {
@@ -473,6 +480,8 @@ async function getAgenciesForTenant(tenantId) {
         ...result,
         tenant_name: tenant[0].display_name,
     }));
+
+    console.log('tenant agencies => ', results);
 
     return results;
 }
