@@ -36,6 +36,7 @@ async function isAuthorized(userId, agencyId) {
 }
 
 async function requireAdminUser(req, res, next) {
+    console.log('requireAdminUser', req.signedCookies);
     if (!req.signedCookies.userId) {
         res.sendStatus(403);
         return;

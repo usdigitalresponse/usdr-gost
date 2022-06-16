@@ -144,12 +144,14 @@ export default {
   computed: {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
+      tenantAgencies: 'agencies/tenant_agencies',
     }),
     agencies() {
       if (!this.loggedInUser) {
         return [];
       }
-      return this.loggedInUser.agency.subagencies;
+      return this.tenantAgencies;
+      // return this.loggedInUser.agency.subagencies;
     },
   },
   mounted() {
