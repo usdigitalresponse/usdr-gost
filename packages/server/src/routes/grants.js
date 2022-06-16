@@ -161,53 +161,36 @@ router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {
     res.json({});
 });
 
-// multitenancy grant assignment endpoints
-
-router.get('/:grantId/assign/:tenantId/agencies', requireUser, async (req, res) => {
-    const { grantId } = req.params;
-    const { selectedAgency, user } = req.session;
-    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
-    const response = await db.getGrantAssignedAgencies({ grantId, agencies });
-    res.json(response);
-});
-
-router.put('/:grantId/assign/:tenantId/agencies', requireUser, async (req, res) => {
-    const { user } = req.session;
-    const { grantId, tenantId } = req.params;
-    const { tenantAgencyIds } = req.body;
-    const agencies = await db.getAgenciesForTenant(tenantId);
-    if (!tenantAgencyIds.every((agencyId) => isPartOfAgency(agencies, agencyId))) {
-        res.sendStatus(403);
-        return;
-    }
-
-    await db.assignGrantsToAgencies({ grantId, agencyIds: tenantAgencyIds, userId: user.id });
-    res.json({});
-});
-
-// end multitenancy grant assignment endpoints
-
+// fetchAgenciesAssignedToGrant
+// /api/organizations/:organizationId/grants/${grantId}/assign/agencies
 router.get('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { grantId } = req.params;
-    const { selectedAgency, user } = req.session;
-    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
-    const response = await db.getGrantAssignedAgencies({ grantId, agencies });
+    const { user } = req.session;
+    const { tenant_id } = user;
+    const agencies = await db.getAgenciesForTenant(tenant_id);
+    const agencyIds = agencies.map((agency) => agency.id);
+    const response = await db.getGrantAssignedAgencies({ grantId, agencyIds });
     res.json(response);
 });
 
+// assignAgenciesToGrant
+// /api/organizations/:organizationId/grants/${grantId}/assign/agencies
 router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
-    const { user } = req.session;
     const { grantId } = req.params;
+    const { user } = req.session;
+    const { tenant_id } = user;
+    const agencies = await db.getAgenciesForTenant(tenant_id);
     const { agencyIds } = req.body;
-    if (!agencyIds.every((agencyId) => isPartOfAgency(user.agency.subagencies, agencyId))) {
+    if (!agencyIds.every((agencyId) => isPartOfAgency(agencies, agencyId))) {
         res.sendStatus(403);
         return;
     }
-
     await db.assignGrantsToAgencies({ grantId, agencyIds, userId: user.id });
     res.json({});
 });
 
+// unassignAgenciesToGrant
+// /api/organizations/:organizationId/grants/${grantId}/assign/agencies
 router.delete('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { user } = req.session;
     const { grantId } = req.params;
@@ -217,7 +200,6 @@ router.delete('/:grantId/assign/agencies', requireUser, async (req, res) => {
         res.sendStatus(403);
         return;
     }
-
     await db.unassignAgenciesToGrant({ grantId, agencyIds, userId: user.id });
     res.json({});
 });
@@ -226,6 +208,7 @@ router.get('/:grantId/interested', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { selectedAgency, user } = req.session;
     const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
+    console.log('interested agencies => ', agencies);
     const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], agencies });
     res.json(interestedAgencies);
 });

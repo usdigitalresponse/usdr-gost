@@ -95,18 +95,11 @@ export default {
     // *****************
     // * Grant assignment *
     // *****************
-    getGrantAssignedAgencies(context, { grantId }) {
+    fetchAgenciesAssignedToGrant(context, { grantId }) {
       return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`);
     },
-    getGrantAssignedTenantAgencies(context, { grantId, tenantId }) {
-      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/assign/${tenantId}/agencies`);
-    },
-    assignTenantAgenciesToGrant(context, { grantId, tenantAgencyIds, tenantId }) {
-      return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/assign/${tenantId}/agencies`, {
-        tenantAgencyIds,
-      });
-    },
     assignAgenciesToGrant(context, { grantId, agencyIds }) {
+      console.log('assignAgenciesToGrant', grantId, agencyIds);
       return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
         agencyIds,
       });

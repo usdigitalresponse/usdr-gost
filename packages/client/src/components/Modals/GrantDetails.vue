@@ -88,7 +88,7 @@
         <b-col cols="10">
           <multiselect
             v-model="selectedAgencies"
-            :options="agencies"
+            :options="tenantAgencies"
             :multiple="true"
             :close-on-select="false"
             :clear-on-select="false"
@@ -192,6 +192,7 @@ export default {
       users: 'users/users',
       interestedCodes: 'grants/interestedCodes',
       user: 'users/loggedInUser',
+      tenantAgencies: 'agencies/tenant_agencies',
     }),
     alreadyViewed() {
       if (!this.selectedGrant) {
@@ -215,19 +216,19 @@ export default {
     },
   },
   created() {
-    this.fetchTenantAgencies(this.user.tenant_id);
+    this.fetchAgenciesForTenant(this.user.tenant_id);
   },
   watch: {
     async selectedGrant() {
       this.showDialog = Boolean(this.selectedGrant);
       if (this.selectedGrant) {
         if (!this.agencies.length) {
-          this.fetchTenantAgencies(this.user.tenant_id);
+          this.fetchAgenciesForTenant(this.user.tenant_id);
         }
         if (!this.alreadyViewed) {
           this.markGrantAsViewed();
         }
-        this.assignedAgencies = await this.getGrantAssignedTenantAgencies({ grantId: this.selectedGrant.grant_id, tenantId: this.user.tenant_id });
+        this.assignedAgencies = await this.fetchAgenciesAssignedToGrant({ grantId: this.selectedGrant.grant_id });
       }
     },
   },
@@ -236,20 +237,21 @@ export default {
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
       generateGrantForm: 'grants/generateGrantForm',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
-      getGrantAssignedAgencies: 'grants/getGrantAssignedAgencies',
-      getGrantAssignedTenantAgencies: 'grants/getGrantAssignedTenantAgencies',
-      assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
-      assignTenantAgenciesToGrantAction: 'grants/assignTenantAgenciesToGrant',
+      // assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
+      // assignTenantAgenciesToGrantAction: 'grants/assignTenantAgenciesToGrant',
       unassignAgenciesToGrantAction: 'grants/unassignAgenciesToGrant',
       fetchUsers: 'users/fetchUsers',
       fetchAgencies: 'agencies/fetchAgencies',
-      fetchTenantAgencies: 'agencies/fetchTenantAgencies',
+      // new stuff
+      fetchAgenciesForTenant: 'agencies/fetchAgenciesForTenant',
+      fetchAgenciesAssignedToGrant: 'grants/fetchAgenciesAssignedToGrant',
+      assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
+      removeAgenciesAssignedToGrantAction: 'grants/removeAgenciesAssignedToGrant',
+      // end new stuff
     }),
     showUnassignAgencyButton(item) {
-      console.log('item', item);
-      return this.assignedAgencies.find(
-        (assigned) => assigned.agency_id === item.id,
-      );
+      if (item.tenant_id === this.user.tenant_id) return true;
+      return false;
     },
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
@@ -270,20 +272,22 @@ export default {
     async assignAgenciesToGrant() {
       const agencyIds = this.selectedAgencies.map((agency) => agency.id);
       // await this.assignAgenciesToGrantAction({
-      await this.assignTenantAgenciesToGrantAction({
+      await this.assignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
-        tenantAgencyIds: agencyIds,
+        agencyIds,
         tenantId: this.user.tenant_id,
       });
       this.selectedAgencies = [];
-      this.assignedAgencies = await this.getGrantAssignedTenantAgencies({ grantId: this.selectedGrant.grant_id, tenantId: this.user.tenant_id });
+      // this.assignedAgencies = await this.getGrantAssignedTenantAgencies({ grantId: this.selectedGrant.grant_id, tenantId: this.user.tenant_id });
+      this.assignedAgencies = await this.fetchAgenciesAssignedToGrant({ grantId: this.selectedGrant.grant_id });
     },
     async unassignAgenciesToGrant(row) {
       await this.unassignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
         agencyIds: [row.item.id],
       });
-      this.assignedAgencies = await this.getGrantAssignedTenantAgencies({ grantId: this.selectedGrant.grant_id, tenantId: this.user.tenant_id });
+      // this.assignedAgencies = await this.getGrantAssignedTenantAgencies({ grantId: this.selectedGrant.grant_id, tenantId: this.user.tenant_id });
+      this.assignedAgencies = await this.fetchAgenciesAssignedToGrant({ grantId: this.selectedGrant.grant_id });
     },
     async generateSpoc() {
       await this.generateGrantForm({
