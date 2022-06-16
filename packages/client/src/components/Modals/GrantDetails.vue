@@ -76,20 +76,25 @@
       <br/>
       <b-row class="mb-2">
         <b-col cols="10">
-          <multiselect v-model="selectedAgencies" :options="agencies"
-          :multiple="true" :close-on-select="false"
-          :clear-on-select="false"
-          placeholder="Select agencies" label="name"
-          track-by="id">
-          <template slot="option" slot-scope="props">
-              <span class="option__title">
+          <multiselect
+            v-model="selectedAgencies"
+            :options="agencies"
+            :multiple="true"
+            :close-on-select="false"
+            :clear-on-select="false"
+            placeholder="Select agencies"
+            label="name"
+            track-by="id"
+            :option-height="40"
+          >
+            <template slot="option" slot-scope="props">
+              <p class="h6 font-weight-bold mb-0">
                 {{ props.option.name }}
-              </span>
-              <!-- <span class="option__small">
-                {{ props.option.desc }}
-              </span> -->
-
-          </template>
+              </p>
+              <p class="mb-0">
+                {{ props.option.tenant_name }}
+              </p>
+            </template>
           </multiselect>
         </b-col>
         <b-col cols="2">
@@ -200,19 +205,19 @@ export default {
     },
   },
   created() {
-    this.fetchAgencies();
+    this.fetchTenantAgencies(this.user.tenant_id);
   },
   watch: {
     async selectedGrant() {
       this.showDialog = Boolean(this.selectedGrant);
       if (this.selectedGrant) {
         if (!this.agencies.length) {
-          this.fetchAgencies();
+          this.fetchTenantAgencies(this.user.tenant_id);
         }
         if (!this.alreadyViewed) {
           this.markGrantAsViewed();
         }
-        this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+        this.assignedAgencies = await this.getGrantAssignedTenantAgencies({ grantId: this.selectedGrant.grant_id, tenantId: this.user.tenant_id });
       }
     },
   },
@@ -222,10 +227,13 @@ export default {
       generateGrantForm: 'grants/generateGrantForm',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
       getGrantAssignedAgencies: 'grants/getGrantAssignedAgencies',
+      getGrantAssignedTenantAgencies: 'grants/getGrantAssignedTenantAgencies',
       assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
+      assignTenantAgenciesToGrantAction: 'grants/assignTenantAgenciesToGrant',
       unassignAgenciesToGrantAction: 'grants/unassignAgenciesToGrant',
       fetchUsers: 'users/fetchUsers',
       fetchAgencies: 'agencies/fetchAgencies',
+      fetchTenantAgencies: 'agencies/fetchTenantAgencies',
     }),
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
@@ -245,19 +253,21 @@ export default {
     },
     async assignAgenciesToGrant() {
       const agencyIds = this.selectedAgencies.map((agency) => agency.id);
-      await this.assignAgenciesToGrantAction({
+      // await this.assignAgenciesToGrantAction({
+      await this.assignTenantAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
-        agencyIds,
+        tenantAgencyIds: agencyIds,
+        tenantId: this.user.tenant_id,
       });
       this.selectedAgencies = [];
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+      this.assignedAgencies = await this.getGrantAssignedTenantAgencies({ grantId: this.selectedGrant.grant_id, tenantId: this.user.tenant_id });
     },
     async unassignAgenciesToGrant(row) {
       await this.unassignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
         agencyIds: [row.item.id],
       });
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+      this.assignedAgencies = await this.getGrantAssignedTenantAgencies({ grantId: this.selectedGrant.grant_id, tenantId: this.user.tenant_id });
     },
     async generateSpoc() {
       await this.generateGrantForm({

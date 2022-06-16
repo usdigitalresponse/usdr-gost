@@ -13,6 +13,9 @@ export default {
     agencies: (state) => state.agencies,
   },
   actions: {
+    fetchTenantAgencies({ commit }, tenantId) {
+      fetchApi.get(`/api/organizations/:organizationId/agencies/${tenantId}/agencies`).then((data) => commit('SET_AGENCIES', data));
+    },
     fetchAgencies({ commit }) {
       fetchApi.get('/api/organizations/:organizationId/agencies').then((data) => commit('SET_AGENCIES', data));
     },

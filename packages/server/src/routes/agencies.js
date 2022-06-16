@@ -20,12 +20,13 @@ router.get('/', requireUser, async (req, res) => {
 
 // get tenant agencies for multitenancy
 router.get('/:tenantId/agencies', requireUser, async (req, res) => {
-    const { tenantId } = req.params;
-    // const { user } = req.session;
-    const response = await db.getAgenciesForTenant(tenantId);
+    // const { tenantId } = req.params;
+    const { user } = req.session;
+    console.log('user', user);
+    const result = await db.getAgenciesForTenant(user.tenant_id);
     // const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
     // const response = await db.getGrantAssignedAgencies({ grantId, agencies });
-    res.json(response);
+    res.json(result);
 });
 
 router.put('/:agency', requireAdminUser, async (req, res) => {
