@@ -1,6 +1,7 @@
 <!-- eslint-disable max-len -->
 <template>
-    <b-modal v-model="showDialog"
+  <b-modal
+    v-model="showDialog"
     ok-only
     :title="selectedGrant && selectedGrant.title"
     @hide="resetSelectedGrant"
@@ -11,7 +12,8 @@
     body-bg-variant="light"
     body-text-variant="dark"
     footer-bg-variant="dark"
-    footer-text-variant="light">
+    footer-text-variant="light"
+  >
     <div v-if="selectedGrant">
       <b-row>
         <b-col cols="9">
@@ -22,14 +24,22 @@
             :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
             target="_blank"
             rel="noopener noreferrer"
-            variant="primary">
-            Grants.Gov <b-icon icon="link" aria-hidden="true"></b-icon>
+            variant="primary"
+          >
+            Grants.Gov
+            <b-icon icon="link" aria-hidden="true" />
           </b-button>
         </b-col>
       </b-row>
-      <p><span style="font-weight:bold">Valid from:</span> {{new Date(selectedGrant.open_date).toLocaleDateString('en-US')}}-{{new Date(selectedGrant.close_date).toLocaleDateString('en-US')}}</p>
+      <p>
+        <span style="font-weight:bold">Valid from:</span>
+        {{new Date(selectedGrant.open_date).toLocaleDateString('en-US')}}-{{new Date(selectedGrant.close_date).toLocaleDateString('en-US')}}
+      </p>
       <div v-for="field in dialogFields" :key="field">
-        <p><span style="font-weight:bold">{{titleize(field)}}:</span> {{selectedGrant[field]}}</p>
+        <p>
+          <span style="font-weight:bold">{{titleize(field)}}:</span>
+          {{selectedGrant[field]}}
+        </p>
       </div>
       <h6>Description</h6>
       <div style="max-height: 170px; overflow-y: scroll">
@@ -106,13 +116,13 @@
         :fields="assignedAgenciesFields"
       >
       <template #cell(actions)="row">
-        <b-button v-if="row.item.agency_id === agency.id" variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
+        <b-button v-if="showUnassignAgencyButton(row.item)" variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
           <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
         </b-button>
       </template>
     </b-table>
     </div>
-    </b-modal>
+  </b-modal>
 </template>
 
 <script>
@@ -235,6 +245,12 @@ export default {
       fetchAgencies: 'agencies/fetchAgencies',
       fetchTenantAgencies: 'agencies/fetchTenantAgencies',
     }),
+    showUnassignAgencyButton(item) {
+      console.log('item', item);
+      return this.assignedAgencies.find(
+        (assigned) => assigned.agency_id === item.id,
+      );
+    },
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
