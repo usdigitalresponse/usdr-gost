@@ -24,7 +24,7 @@
       <p v-for="msg in errorMessages" :key="msg">{{msg}}</p>
     </div>
     <ul v-if="fileList.length">
-      <button type="button" @click="test">Click to generate report</button>
+      <button type="button" @click="post">Click to generate report</button>
       <li :key="file.name" v-for="file in fileList">
         {{file.name}}
       </li>
@@ -68,10 +68,10 @@ export default {
     onChange(e) {
       this.addFiles(e.target.files);
     },
-    test() {
-      console.log('test hit: ', this.fileList);
+    post() {
+      console.log('post hit: ', this.fileList);
       const formData = new FormData();
-      formData.append('name', 'testing');
+      // formData.append('name', 'testing');
       this.fileList.forEach((file) => {
         formData.append('files', file);
       });

@@ -1,22 +1,9 @@
-// import fs from "fs";
-// import {
-//   Document,
-//   Packer,
-//   Paragraph,
-//   Table,
-//   TableCell,
-//   TableRow,
-// } from "docx";
-// node is complaining about these imports for some reason
-
-// import docx from "docx";
 const docx = require('docx');
-
 
 // Helper cuz the api for this package is kinda rough
 function buildTableCell(value) {
     // Paragraph values have to be strings, ints won't write to the document
-    return new docx.TableCell({ children: [new docx.Paragraph(value)]});
+    return new docx.TableCell({ children: [new docx.Paragraph(value)] });
 }
 
 // data is an array of objects of the form {category: "something", total: "1234"}
@@ -31,7 +18,7 @@ function buildTable(data) {
                 buildTableCell('Category'),
                 buildTableCell('Total Expenditure'),
                 buildTableCell('The other thing'),
-            ]
+            ],
         }),
     ];
 
@@ -56,8 +43,8 @@ function buildTable(data) {
     });
 
     const doc = new docx.Document({
-        sections: [{ children: [table] }]
-    })
+        sections: [{ children: [table] }],
+    });
 
     // console.log("Writing test_doc.docx");
 
@@ -92,11 +79,10 @@ const fakeData = [
 
 // buildTable(fakeData);
 
-const giveBuffer = async() => {
-    const doc = buildTable(fakeData)
+const giveBuffer = async () => {
+    const doc = buildTable(fakeData);
     return await docx.Packer.toBuffer(doc);
 };
-
 
 module.exports = {
     buildTable,
