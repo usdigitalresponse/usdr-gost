@@ -14,21 +14,21 @@
         <b-form-group
           :state="!$v.formData.name.$invalid"
           label-for="name-input"
+          invalid-feedback="Required"
         >
           <template slot="label">Name</template>
           <b-form-input
               autofocus
               id="name-input"
               type="text"
-              min=2
               v-model="formData.name"
-              :state="!$v.formData.name.$invalid"
-              required
+              :required="!$v.formData.name.$invalid"
             ></b-form-input>
         </b-form-group>
         <b-form-group
           :state="!$v.formData.abbreviation.$invalid"
           label-for="abbreviation-input"
+          invalid-feedback="Required"
         >
           <template slot="label">Abbreviation</template>
           <b-form-input
@@ -37,7 +37,6 @@
               min=2
               max=8
               v-model="formData.abbreviation"
-              :state="!$v.formData.abbreviation.$invalid"
               required
             ></b-form-input>
         </b-form-group>
@@ -70,7 +69,6 @@
             type="number"
             min=2
             v-model="formData.warningThreshold"
-            :state="!$v.formData.warningThreshold.$invalid"
             required
           ></b-form-input>
         </b-form-group>
@@ -85,7 +83,6 @@
             type="number"
             min=1
             v-model="formData.dangerThreshold"
-            :state="!$v.formData.dangerThreshold.$invalid"
             required
           ></b-form-input>
         </b-form-group>
@@ -107,8 +104,8 @@ export default {
       formData: {
         name: null,
         abbreviation: null,
-        warningThreshold: null,
-        dangerThreshold: null,
+        warningThreshold: 2,
+        dangerThreshold: 1,
         parentAgency: null,
       },
     };
