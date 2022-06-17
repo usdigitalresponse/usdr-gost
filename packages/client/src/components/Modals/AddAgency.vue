@@ -73,6 +73,7 @@
           ></b-form-input>
         </b-form-group>
         <b-form-group
+          :state="!$v.formData.dangerThreshold.$invalid"
           label-for="dangerThreshold-input"
           invalid-feedback="Danger Threshold must be greater than zero and less than Warning Threshold"
         >
