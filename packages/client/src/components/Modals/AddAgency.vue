@@ -41,7 +41,7 @@
             ></b-form-input>
         </b-form-group>
         <b-form-group
-          :state="!$v.formData.abbreviation.$invalid"
+          :state="!$v.formData.parentAgency.$invalid"
           label-for="agency-input"
           invalid-feedback="Must select a parent agency"
         >
