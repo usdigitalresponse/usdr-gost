@@ -90,7 +90,10 @@ Then run seeds:
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
+**_Ensure using node v12_**
+
 ```
+> nvm use v12.22.12
 > cd packages/server
 > yarn serve
 
@@ -100,7 +103,10 @@ After that you should be able to serve the backend and frontend by running in bo
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
+**_*Ensure using node v12*_**
+
 ```
+> nvm use v12.22.12
 > cd packages/client
 > yarn serve
 
