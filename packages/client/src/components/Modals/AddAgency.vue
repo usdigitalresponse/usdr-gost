@@ -22,7 +22,7 @@
               id="name-input"
               type="text"
               v-model="formData.name"
-              :required="!$v.formData.name.$invalid"
+              required
             ></b-form-input>
         </b-form-group>
         <b-form-group
