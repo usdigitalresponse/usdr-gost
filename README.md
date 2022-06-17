@@ -154,6 +154,10 @@ NOTE: yarn complains about incompatibility of some node modules with our node ve
 
 ### VSCode
 
+Install Vue plugin: `jcbuisson.vue`, `Vue.volar`
+
+Install Vue Dev Tools: https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en
+
 Install the eslint plugin https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
 
 After that you should be able to see eslint prompts in js files
