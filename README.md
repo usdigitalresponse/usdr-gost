@@ -27,16 +27,16 @@ First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct ver
 
 To setup your workspace run the following commands at the root of the project
 
-1. Ensure using NODE Version 12 (v12.22.12)
+1. Ensure using NODE Version 14 (v14.19.0)
 
-Setup nvm 
+Setup nvm
 
 ```
 > brew install nvm
 > vim ~/.zshrc
 add the follow lines to your .zshrc file
   export NVM_DIR="$HOME/.nvm"
-  source "$NVM_DIR/nvm.sh" 
+  source "$NVM_DIR/nvm.sh"
 > esc
 > :wq
 ```
@@ -45,8 +45,8 @@ add the follow lines to your .zshrc file
 
 
 ```
-> nvm install v12.22.12
-> nvm use v12.22.12
+> nvm install v14.19.0
+> nvm use v14.19.0
 ```
 
 2. Install dependencies
@@ -106,10 +106,10 @@ Then run seeds:
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
-**_Ensure using node v12_**
+**_Ensure using node v14_**
 
 ```
-> nvm use v12.22.12
+> nvm use v14.19.0
 > cd packages/server
 > yarn serve
 
@@ -122,7 +122,7 @@ After that you should be able to serve the backend and frontend by running in bo
 **_*Ensure using node v12*_**
 
 ```
-> nvm use v12.22.12
+> nvm use v14.19.0
 > cd packages/client
 > yarn serve
 
