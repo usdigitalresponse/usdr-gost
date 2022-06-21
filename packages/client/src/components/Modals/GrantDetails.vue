@@ -1,6 +1,7 @@
 <!-- eslint-disable max-len -->
 <template>
-    <b-modal v-model="showDialog"
+  <b-modal
+    v-model="showDialog"
     ok-only
     :title="selectedGrant && selectedGrant.title"
     @hide="resetSelectedGrant"
@@ -11,7 +12,8 @@
     body-bg-variant="light"
     body-text-variant="dark"
     footer-bg-variant="dark"
-    footer-text-variant="light">
+    footer-text-variant="light"
+  >
     <div v-if="selectedGrant">
       <b-row>
         <b-col cols="9">
@@ -22,14 +24,22 @@
             :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
             target="_blank"
             rel="noopener noreferrer"
-            variant="primary">
-            Grants.Gov <b-icon icon="link" aria-hidden="true"></b-icon>
+            variant="primary"
+          >
+            Grants.Gov
+            <b-icon icon="link" aria-hidden="true" />
           </b-button>
         </b-col>
       </b-row>
-      <p><span style="font-weight:bold">Valid from:</span> {{new Date(selectedGrant.open_date).toLocaleDateString('en-US')}}-{{new Date(selectedGrant.close_date).toLocaleDateString('en-US')}}</p>
+      <p>
+        <span style="font-weight:bold">Valid from:</span>
+        {{new Date(selectedGrant.open_date).toLocaleDateString('en-US')}}-{{new Date(selectedGrant.close_date).toLocaleDateString('en-US')}}
+      </p>
       <div v-for="field in dialogFields" :key="field">
-        <p><span style="font-weight:bold">{{titleize(field)}}:</span> {{selectedGrant[field]}}</p>
+        <p>
+          <span style="font-weight:bold">{{titleize(field)}}:</span>
+          {{selectedGrant[field]}}
+        </p>
       </div>
       <h6>Description</h6>
       <div style="max-height: 170px; overflow-y: scroll">
@@ -56,7 +66,7 @@
               <b-button variant="outline-success" @click="markGrantAsInterested">Submit</b-button>
             </b-col>
           </b-row>
-          <b-row v-if="interested && !interested.interested_is_rejection">
+          <b-row v-if="interested && !interested.interested_is_rejection && shouldShowSpocButton">
             <b-col>
               <b-button variant="primary" @click="generateSpoc">Generate SPOC</b-button>
             </b-col>
@@ -74,16 +84,30 @@
         </b-col>
       </b-row>
       <br/>
-      <b-row>
-        <b-col>
-          <multiselect v-model="selectedAgencies" :options="agencies"
-          :multiple="true" :close-on-select="false"
-          :clear-on-select="false"
-          placeholder="Select agencies" label="name"
-          track-by="id">
+      <b-row class="mb-2">
+        <b-col cols="10">
+          <multiselect
+            v-model="selectedAgencies"
+            :options="tenantAgencies"
+            :multiple="true"
+            :close-on-select="false"
+            :clear-on-select="false"
+            placeholder="Select agencies"
+            label="name"
+            track-by="id"
+            :option-height="40"
+          >
+            <template slot="option" slot-scope="props">
+              <p class="h6 font-weight-bold mb-0">
+                {{ props.option.name }}
+              </p>
+              <p class="mb-0">
+                {{ props.option.tenant_name }}
+              </p>
+            </template>
           </multiselect>
         </b-col>
-        <b-col>
+        <b-col cols="2">
           <b-button variant="outline-success" @click="assignAgenciesToGrant">Assign</b-button>
         </b-col>
       </b-row>
@@ -92,13 +116,13 @@
         :fields="assignedAgenciesFields"
       >
       <template #cell(actions)="row">
-        <b-button variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
+        <b-button v-if="showUnassignAgencyButton(row.item)" variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
           <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
         </b-button>
       </template>
     </b-table>
     </div>
-    </b-modal>
+  </b-modal>
 </template>
 
 <script>
@@ -164,33 +188,47 @@ export default {
       agency: 'users/agency',
       selectedAgencyId: 'users/selectedAgencyId',
       agencies: 'agencies/agencies',
+      currentTenant: 'users/currentTenant',
       users: 'users/users',
       interestedCodes: 'grants/interestedCodes',
+      user: 'users/loggedInUser',
+      tenantAgencies: 'agencies/tenant_agencies',
     }),
     alreadyViewed() {
       if (!this.selectedGrant) {
         return false;
       }
-      return this.selectedGrant.viewed_by_agencies.find((viewed) => viewed.agency_id.toString() === this.selectedAgencyId);
+      return this.selectedGrant.viewed_by_agencies.find(
+        (viewed) => viewed.agency_id.toString() === this.selectedAgencyId,
+      );
+    },
+    shouldShowSpocButton() {
+      if (!this.currentTenant.uses_spoc_process) return false;
+      return true;
     },
     interested() {
       if (!this.selectedGrant) {
         return false;
       }
-      return this.selectedGrant.interested_agencies.find((interested) => interested.agency_id.toString() === this.selectedAgencyId);
+      return this.selectedGrant.interested_agencies.find(
+        (interested) => interested.agency_id.toString() === this.selectedAgencyId,
+      );
     },
+  },
+  created() {
+    this.fetchAgenciesForTenant(this.user.tenant_id);
   },
   watch: {
     async selectedGrant() {
       this.showDialog = Boolean(this.selectedGrant);
       if (this.selectedGrant) {
         if (!this.agencies.length) {
-          this.fetchAgencies();
+          this.fetchAgenciesForTenant(this.user.tenant_id);
         }
         if (!this.alreadyViewed) {
           this.markGrantAsViewed();
         }
-        this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+        this.assignedAgencies = await this.fetchAgenciesAssignedToGrant({ grantId: this.selectedGrant.grant_id });
       }
     },
   },
@@ -199,12 +237,22 @@ export default {
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
       generateGrantForm: 'grants/generateGrantForm',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
-      getGrantAssignedAgencies: 'grants/getGrantAssignedAgencies',
-      assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
+      // assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
+      // assignTenantAgenciesToGrantAction: 'grants/assignTenantAgenciesToGrant',
       unassignAgenciesToGrantAction: 'grants/unassignAgenciesToGrant',
       fetchUsers: 'users/fetchUsers',
       fetchAgencies: 'agencies/fetchAgencies',
+      // new stuff
+      fetchAgenciesForTenant: 'agencies/fetchAgenciesForTenant',
+      fetchAgenciesAssignedToGrant: 'grants/fetchAgenciesAssignedToGrant',
+      assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
+      removeAgenciesAssignedToGrantAction: 'grants/removeAgenciesAssignedToGrant',
+      // end new stuff
     }),
+    showUnassignAgencyButton(item) {
+      if (item.tenant_id === this.user.tenant_id) return true;
+      return false;
+    },
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
@@ -223,19 +271,23 @@ export default {
     },
     async assignAgenciesToGrant() {
       const agencyIds = this.selectedAgencies.map((agency) => agency.id);
+      // await this.assignAgenciesToGrantAction({
       await this.assignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
         agencyIds,
+        tenantId: this.user.tenant_id,
       });
       this.selectedAgencies = [];
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+      // this.assignedAgencies = await this.getGrantAssignedTenantAgencies({ grantId: this.selectedGrant.grant_id, tenantId: this.user.tenant_id });
+      this.assignedAgencies = await this.fetchAgenciesAssignedToGrant({ grantId: this.selectedGrant.grant_id });
     },
     async unassignAgenciesToGrant(row) {
       await this.unassignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
         agencyIds: [row.item.id],
       });
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+      // this.assignedAgencies = await this.getGrantAssignedTenantAgencies({ grantId: this.selectedGrant.grant_id, tenantId: this.user.tenant_id });
+      this.assignedAgencies = await this.fetchAgenciesAssignedToGrant({ grantId: this.selectedGrant.grant_id });
     },
     async generateSpoc() {
       await this.generateGrantForm({

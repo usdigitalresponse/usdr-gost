@@ -25,7 +25,7 @@ module.exports = [
     },
     {
         id: 2,
-        email: 'mindy@usdigitalresponse.org', // fake email for testing
+        email: 'mhuang@usdigitalresponse.org', // fake email for testing
         name: 'Mindy Huant',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,

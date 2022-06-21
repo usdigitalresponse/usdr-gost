@@ -75,7 +75,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      agencies: 'agencies/agencies',
+      agencies: 'agencies/tenant_agencies',
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
     }),
@@ -92,7 +92,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      fetchAgencies: 'agencies/fetchAgencies',
+      fetchAgencies: 'agencies/fetchAgenciesForTenant',
     }),
     setup() {
       this.fetchAgencies();

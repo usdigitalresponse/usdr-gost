@@ -40,19 +40,6 @@ export default {
     markGrantAsViewed(context, { grantId, agencyId }) {
       return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/view/${agencyId}`);
     },
-    getGrantAssignedAgencies(context, { grantId }) {
-      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`);
-    },
-    assignAgenciesToGrant(context, { grantId, agencyIds }) {
-      return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
-        agencyIds,
-      });
-    },
-    unassignAgenciesToGrant(context, { grantId, agencyIds }) {
-      return fetchApi.deleteRequest(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
-        agencyIds,
-      });
-    },
     async generateGrantForm(context, { grantId }) {
       const response = await fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/form/nevada_spoc`);
       const link = document.createElement('a');
@@ -103,6 +90,24 @@ export default {
         .join('&');
       const navUrl = fetchApi.addOrganizationId(`/api/organizations/:organizationId/grants/exportCSV?${query}`);
       window.location = navUrl;
+    },
+
+    // *****************
+    // * Grant assignment *
+    // *****************
+    fetchAgenciesAssignedToGrant(context, { grantId }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`);
+    },
+    assignAgenciesToGrant(context, { grantId, agencyIds }) {
+      console.log('assignAgenciesToGrant', grantId, agencyIds);
+      return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
+        agencyIds,
+      });
+    },
+    unassignAgenciesToGrant(context, { grantId, agencyIds }) {
+      return fetchApi.deleteRequest(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
+        agencyIds,
+      });
     },
   },
   mutations: {

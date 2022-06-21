@@ -1,7 +1,12 @@
 <template>
   <div>
     <b-navbar type="dark" variant="dark">
-      <b-navbar-brand href="/#/grants">Grants Identification Tool</b-navbar-brand>
+      <b-navbar-brand href="/#/grants" class="d-flex align-items-center">
+      <b-img :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo in white" />
+      <span class="ml-3">Grants Identification Tool</span>
+    </b-navbar-brand>
+      <!-- <b-navbar-brand href="/#/grants">
+      Grants Identification Tool</b-navbar-brand> -->
 
       <b-collapse id="nav-collapse" is-nav>
 
@@ -26,7 +31,7 @@
     <b-nav tabs justified style="margin-top: 20px">
         <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
         <b-nav-item to="/my-grants" exact exact-active-class="active">My Grants</b-nav-item>
-        <b-nav-item to="/grants" exact exact-active-class="active">Grants</b-nav-item>
+        <b-nav-item to="/grants" exact exact-active-class="active">Browse Grants</b-nav-item>
         <b-nav-item to="/eligibility-codes" exact exact-active-class="active">Eligibility Codes</b-nav-item>
         <b-nav-item to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
         <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>

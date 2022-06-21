@@ -53,6 +53,10 @@ async function getUsers(rootAgencyId) {
                 agency_parent_id: user.agency_parent_id,
             };
         }
+        const tenant = u.tenant_id ? getTenant(u.tenant_id) : null;
+        if (tenant) {
+            u.tenant = tenant;
+        }
         return u;
     });
 }
@@ -92,6 +96,7 @@ async function getUser(id) {
             'agencies.warning_threshold as agency_warning_threshold',
             'agencies.danger_threshold as agency_danger_threshold',
             'users.tags',
+            'users.tenant_id',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
@@ -120,6 +125,9 @@ async function getUser(id) {
             subagencies.push({ ...user.agency });
         }
         user.agency.subagencies = subagencies;
+    }
+    if (user.tenant_id != null) {
+        user.tenant = await getTenant(user.tenant_id);
     }
     return user;
 }
@@ -188,7 +196,6 @@ function markAccessTokenUsed(passcode) {
 }
 
 async function generatePasscode(email) {
-    console.log('generatePasscode for :', email);
     const users = await knex('users')
         .select('*')
         .where('email', email);
@@ -382,11 +389,11 @@ function markGrantAsViewed({ grantId, agencyId, userId }) {
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
 }
 
-function getGrantAssignedAgencies({ grantId, agencies }) {
+function getGrantAssignedAgencies({ grantId, agencyIds }) {
     return knex(TABLES.assigned_grants_agency)
         .join(TABLES.agencies, `${TABLES.agencies}.id`, '=', `${TABLES.assigned_grants_agency}.agency_id`)
         .where({ grant_id: grantId })
-        .andWhere('agency_id', 'IN', agencies);
+        .whereIn('agency_id', agencyIds);
 }
 
 function assignGrantsToAgencies({ grantId, agencyIds, userId }) {
@@ -440,7 +447,7 @@ function getInterestedCodes() {
 }
 
 async function getAgency(agencyId) {
-    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold, tenant_id
     FROM agencies WHERE id = ?;`;
     const result = await knex.raw(query, agencyId);
 
@@ -449,10 +456,10 @@ async function getAgency(agencyId) {
 
 async function getAgencies(rootAgency) {
     const query = `WITH RECURSIVE subagencies AS (
-    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold, tenant_id
     FROM agencies WHERE id = ?
     UNION
-        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold 
+        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold, a.tenant_id
         FROM agencies a INNER JOIN subagencies s ON s.id = a.parent
     ) SELECT * FROM subagencies ORDER BY name; `;
     const result = await knex.raw(query, rootAgency);
@@ -460,11 +467,46 @@ async function getAgencies(rootAgency) {
     return result.rows;
 }
 
+async function getAgenciesForTenant(tenantId) {
+    let results = await knex.table(TABLES.agencies)
+        .select('*')
+        .where({ tenant_id: tenantId });
+
+    const tenant = await knex.table(TABLES.tenants)
+        .select('*')
+        .where({ id: tenantId });
+
+    results = results.map((result) => ({
+        ...result,
+        tenant_name: tenant[0].display_name,
+    }));
+
+    console.log('tenant agencies => ', results);
+
+    return results;
+}
+//     // results = results.forEach((result) =>
+//     //     // eslint-disable-next-line no-param-reassign
+//     //     result.tenant_name = tenant.display_name);
+
+//     // console.log('results => ', results);
+
+//     // return results;
+// }
+
 // Use agency id for lookup for now
-async function getTenant(main_agency_id) {
+async function getTenantByMainAgencyId(main_agency_id) {
     const query = `SELECT id, display_name, main_agency_id 
     FROM tenants WHERE main_agency_id = ?;`;
     const result = await knex.raw(query, main_agency_id);
+
+    return result.rows;
+}
+
+async function getTenant(id) {
+    const query = `SELECT id, display_name, main_agency_id 
+    FROM tenants WHERE id = ?;`;
+    const result = await knex.raw(query, id);
 
     return result.rows;
 }
@@ -612,7 +654,9 @@ module.exports = {
     markAccessTokenUsed,
     getAgency,
     getAgencies,
+    getTenantByMainAgencyId,
     getTenant,
+    getAgenciesForTenant,
     getAgencyEligibilityCodes,
     setAgencyEligibilityCodeEnabled,
     getKeyword,

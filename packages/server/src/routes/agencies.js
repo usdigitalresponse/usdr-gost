@@ -5,6 +5,7 @@ const { requireAdminUser, requireUser, isPartOfAgency } = require('../lib/access
 const {
     getAgency, getAgencies, setAgencyThresholds, createAgency,
 } = require('../db');
+const db = require('../db');
 
 router.get('/', requireUser, async (req, res) => {
     const { user } = req.session;
@@ -17,9 +18,21 @@ router.get('/', requireUser, async (req, res) => {
     res.json(response);
 });
 
+// get tenant agencies for multitenancy
+router.get('/:tenantId/agencies', requireUser, async (req, res) => {
+    // const { tenantId } = req.params;
+    const { user } = req.session;
+    console.log('user', user);
+    const result = await db.getAgenciesForTenant(user.tenant_id);
+    // const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
+    // const response = await db.getGrantAssignedAgencies({ grantId, agencies });
+    res.json(result);
+});
+
 router.put('/:agency', requireAdminUser, async (req, res) => {
     // Currently, agencies are seeded into db; only thresholds are mutable.
     const { agency } = req.params;
+    console.log('in agency', agency);
 
     const { warningThreshold, dangerThreshold } = req.body;
     const result = await setAgencyThresholds(agency, warningThreshold, dangerThreshold);
@@ -28,7 +41,9 @@ router.put('/:agency', requireAdminUser, async (req, res) => {
 
 router.post('/', requireAdminUser, async (req, res) => {
     const { user } = req.session;
-    if (!isPartOfAgency(user.agency.subagencies, req.body.parentId)) {
+    const agencies = await db.getAgenciesForTenant(user.tenant_id);
+    // if (!isPartOfAgency(user.agency.subagencies, req.body.parentId)) {
+    if (!isPartOfAgency(agencies, req.body.parentId)) {
         throw new Error(`You dont have access parent agency`);
     }
     const agency = {

@@ -6,8 +6,14 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# asdf tool version
+.tool-versions
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# asdf tool.version
+.tool-versions
 
 # Runtime data
 pids
@@ -106,3 +112,5 @@ dist
 .DS_Store
 
 packages/server/src/static/forms/generated
+
+.tool-versions
