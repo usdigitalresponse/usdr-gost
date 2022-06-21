@@ -43,6 +43,7 @@ add the follow lines to your .zshrc file
 
 ***Make sure to use new terminals once mofified `~/.zshrc`***
 
+
 ```
 > nvm install v12.22.12
 > nvm use v12.22.12
