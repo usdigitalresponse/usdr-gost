@@ -60,7 +60,7 @@
         <b-form-group
           :state="!$v.formData.warningThreshold.$invalid"
           label-for="warningThreshold-input"
-          invalid-feedback="Warning Threshold must be 2 or greater"
+          invalid-feedback="Warning Threshold must be 14 or greater"
         >
         <template slot="label">Close Date <span class="text-warning">Warning</span> Threshold</template>
         <template slot="description">How many days out to show grant close dates with <span class="text-warning">warning</span> status</template>
@@ -75,7 +75,7 @@
         <b-form-group
           :state="!$v.formData.dangerThreshold.$invalid"
           label-for="dangerThreshold-input"
-          invalid-feedback="Danger Threshold must be greater than zero and less than Warning Threshold"
+          invalid-feedback="Danger Threshold must be greater than or equal to 7 and less than Warning Threshold"
         >
         <template slot="label">Close Date <span class="text-danger">Danger</span> Threshold</template>
         <template slot="description">How many days out to show grant close dates with <span class="text-danger">danger</span> status</template>
@@ -105,8 +105,8 @@ export default {
       formData: {
         name: null,
         abbreviation: null,
-        warningThreshold: 2,
-        dangerThreshold: 1,
+        warningThreshold: 14,
+        dangerThreshold: 7,
         parentAgency: null,
       },
     };
@@ -122,12 +122,12 @@ export default {
       warningThreshold: {
         required,
         numeric,
-        minValue: minValue(2),
+        minValue: minValue(14),
       },
       dangerThreshold: {
         required,
         numeric,
-        minValue: minValue(1),
+        minValue: minValue(7),
         dangerLessThanWarning: function dangerLessThanWarning() {
           return Number(this.formData.dangerThreshold) < Number(this.formData.warningThreshold);
         },
