@@ -29,8 +29,22 @@ To setup your workspace run the following commands at the root of the project
 
 1. Ensure using NODE Version 12 (v12.22.12)
 
+Setup nvm 
+
 ```
 > brew install nvm
+> vim ~/.zshrc
+add the follow lines to your .zshrc file
+  export NVM_DIR="$HOME/.nvm"
+  source "$NVM_DIR/nvm.sh" 
+> esc
+> :wq
+```
+
+***Make sure to use new terminals once mofified `~/.zshrc`***
+
+
+```
 > nvm install v12.22.12
 > nvm use v12.22.12
 ```
@@ -40,6 +54,7 @@ To setup your workspace run the following commands at the root of the project
 The scripts will install yarn and download npm dependencies for all yarn workspaces.
 
 ```
+> cd usdr-gost/
 > npm i yarn@^1.22.4 -g
 > yarn run setup
 ```
@@ -82,6 +97,7 @@ Then run seeds:
 
 ```
 > cd packages/server
+> export $(cat .env) (delete all comments in .env file)
 > npx knex migrate:latest
 > npx knex seed:run
 ```
