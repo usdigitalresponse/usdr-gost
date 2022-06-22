@@ -144,11 +144,12 @@ After that you should be able to serve the backend and frontend by running in bo
 
 **NOTE:** if you only see a blank screen then ensure you've set the `packages/client/.env` up
 
-**NOTE:** if you get the login email link, change the redirected path from `localhost:3000/api/sessions/...` to your client_url e.g `localhost:8080/api/sessions/`
-
 **NOTE:** if you get `Error: Invalid login: 534-5.7.9 Application-specific password required.` then you'll need to set an App Password (https://myaccount.google.com/u/0/apppasswords) replacing your `NODEMAILER_EMAIL_PW` with the new generated PW.
 
 ![](./docs/img/gmail-app-password.png)
+
+
+8. When you get the login email link, change the redirected path from `localhost:3000/api/sessions/...` to your client_url e.g `localhost:8080/api/sessions/`
 
 
 # Additional Info:
