@@ -23,6 +23,13 @@ Each folder inside packages/ is considered a workspace. To see a list of all wor
 
 # Setup
 
+0. Check out clmb/main branch
+
+```
+> git checkout -b clmb/main origin/clmb/main
+> git checkout -b local/main
+```
+
 First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. If you are using [Nodenv](https://github.com/nodenv/nodenv) or [NVM](https://nvm.sh/), it should pick up on the correct version.
 
 To setup your workspace run the following commands at the root of the project
@@ -86,6 +93,8 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 
 **_Note:_** In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
 
+
+![](./docs/img/error-gmail.png)
 If running into `Error: Invalid login: 535-5.7.8 Username and Password not accepted.` then ["Allow Less Secure Apps"](https://myaccount.google.com/lesssecureapps) - [source](https://stackoverflow.com/a/59194512)
 
 5. Run DB Migrations & Seed
@@ -98,8 +107,8 @@ Then run seeds:
 ```
 > cd packages/server
 > export $(cat .env) (delete all comments in .env file)
-> npx knex migrate:latest
-> npx knex seed:run
+> yarn db:migrate
+> yarn db:seed
 ```
 
 6. Run Server (Terminal 1)
@@ -112,23 +121,35 @@ After that you should be able to serve the backend and frontend by running in bo
 > nvm use v14.19.0
 > cd packages/server
 > yarn serve
-
 ```
 
 6. Run Client (Terminal 2)
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
-**_*Ensure using node v12*_**
+**NOTE:** need to run `> unset AWS_ACCESS_KEY_ID` if `> echo $AWS_ACCESS_KEY_ID` returns a result else will run into the error below
+![](./docs/img/error-aws-ses.png)
+
+- the application will try to use AWS Simple Email Service (SES) if `AWS_ACCESS_KEY_ID` is found as an env var
+
+**_*Ensure using node v14*_**
 
 ```
 > nvm use v14.19.0
 > cd packages/client
 > yarn serve
-
 ```
 
-7. Visit `client_url/login` (e.g http://localhost:8081/#/login) and login w/ user set in Step 5.
+7. Visit `client_url/login` (e.g http://localhost:8080/#/login) and login w/ user set in Step 5.
+
+**NOTE:** if you only see a blank screen then ensure you've set the `packages/client/.env` up
+
+**NOTE:** if you get the login email link, change the redirected path from `localhost:3000/api/sessions/...` to your client_url e.g `localhost:8080/api/sessions/`
+
+**NOTE:** if you get `Error: Invalid login: 534-5.7.9 Application-specific password required.` then you'll need to set an App Password (https://myaccount.google.com/u/0/apppasswords) replacing your `NODEMAILER_EMAIL_PW` with the new generated PW.
+
+![](./docs/img/gmail-app-password.png)
+
 
 # Additional Info:
 
