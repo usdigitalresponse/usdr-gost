@@ -90,6 +90,8 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 ![](./docs/img/error-gmail.png)
 If running into `Error: Invalid login: 535-5.7.8 Username and Password not accepted.` then ["Allow Less Secure Apps"](https://myaccount.google.com/lesssecureapps) - [source](https://stackoverflow.com/a/59194512)
 
+**NOTE:** Much more reliable and preferable to go the App Password route (see step 7)
+
 5. Run DB Migrations & Seed
 
 In server workspace, run migrations:
