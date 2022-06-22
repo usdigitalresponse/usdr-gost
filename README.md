@@ -116,7 +116,7 @@ After that you should be able to serve the backend and frontend by running in bo
 > yarn serve
 ```
 
-6. Run Client (Terminal 2)
+6.1 Run Client (Terminal 2)
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
