@@ -41,7 +41,7 @@ add the follow lines to your .zshrc file
 > :wq
 ```
 
-***Make sure to use new terminals once mofified `~/.zshrc`***
+***Make sure to use new terminals once modified `~/.zshrc`***
 
 
 ```
