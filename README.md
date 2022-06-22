@@ -70,8 +70,8 @@ The scripts will install yarn and download npm dependencies for all yarn workspa
 
 4. Setup ENVs
 
-Rename packages/client & packages/server `.env.example`s to `.env`s and
-Update packages/client & server `.env`s
+Rename packages/client & packages/server `.env.example` to `.env` and
+Update packages/client & server `.env`
 
 ```
 > cd packages/client && export $(cat .env)
@@ -94,7 +94,7 @@ If running into `Error: Invalid login: 535-5.7.8 Username and Password not accep
 
 In server workspace, run migrations:
 
-**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by adding a user with your email **_to be able to login to the system_**.
+**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**.
 Then run seeds:
 
 ```

@@ -16,7 +16,7 @@ const adminList = [
     // Update me with the appropiate initial admin users
     {
         email: 'CHANGEME@GMAIL.COM',
-        name: 'CHANGE ME',
+        name: 'GRANT ADMIN',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
     },
