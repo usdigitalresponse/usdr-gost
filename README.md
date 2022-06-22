@@ -23,20 +23,13 @@ Each folder inside packages/ is considered a workspace. To see a list of all wor
 
 # Setup
 
-0. Check out clmb/main branch
-
-```
-> git checkout -b clmb/main origin/clmb/main
-> git checkout -b local/main
-```
+1. Ensure using NODE Version 14 (v14.19.0)
 
 First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. If you are using [Nodenv](https://github.com/nodenv/nodenv) or [NVM](https://nvm.sh/), it should pick up on the correct version.
 
 To setup your workspace run the following commands at the root of the project
 
-1. Ensure using NODE Version 14 (v14.19.0)
-
-Setup nvm
+1.1 (optional) Setup nvm
 
 ```
 > brew install nvm
@@ -127,11 +120,6 @@ After that you should be able to serve the backend and frontend by running in bo
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
-**NOTE:** need to run `> unset AWS_ACCESS_KEY_ID` if `> echo $AWS_ACCESS_KEY_ID` returns a result else will run into the error below
-![](./docs/img/error-aws-ses.png)
-
-- the application will try to use AWS Simple Email Service (SES) if `AWS_ACCESS_KEY_ID` is found as an env var
-
 **_*Ensure using node v14*_**
 
 ```
@@ -139,6 +127,10 @@ After that you should be able to serve the backend and frontend by running in bo
 > cd packages/client
 > yarn serve
 ```
+
+**NOTE:** need to run `> unset AWS_ACCESS_KEY_ID` if `> echo $AWS_ACCESS_KEY_ID` returns a result else will run into the error below. The application will try to use AWS Simple Email Service (SES) if `AWS_ACCESS_KEY_ID` is found as an env var
+
+![](./docs/img/error-aws-ses.png)
 
 7. Visit `client_url/login` (e.g http://localhost:8080/#/login) and login w/ user set in Step 5.
 
