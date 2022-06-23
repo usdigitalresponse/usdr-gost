@@ -43,6 +43,9 @@ export default {
     getGrantAssignedAgencies(context, { grantId }) {
       return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`);
     },
+    getInterestedAgencies(context, { grantId }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/interested`);
+    },
     assignAgenciesToGrant(context, { grantId, agencyIds }) {
       return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
         agencyIds,
@@ -51,6 +54,14 @@ export default {
     unassignAgenciesToGrant(context, { grantId, agencyIds }) {
       return fetchApi.deleteRequest(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
         agencyIds,
+      });
+    },
+    unmarkGrantAsInterested(context, {
+      grantId, agencyIds, interestedCode, agencyId,
+    }) {
+      return fetchApi.deleteRequest(`/api/organizations/:organizationId/grants/${grantId}/interested/${agencyId}`, {
+        agencyIds,
+        interestedCode,
       });
     },
     async generateGrantForm(context, { grantId }) {

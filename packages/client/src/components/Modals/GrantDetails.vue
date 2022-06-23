@@ -67,7 +67,15 @@
       <b-table
         :items="selectedGrant.interested_agencies"
         :fields="interestedAgenciesFields"
-      />
+      >
+      <template #cell(actions)="row" >
+        <b-row v-if="loggedInUser.email === selectedGrant.interested_agencies[0]['user_email']">
+          <b-button variant="danger" class="mr-1" size="sm" @click="unmarkGrantAsInterested(row)">
+            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+          </b-button>
+        </b-row>
+      </template>
+      </b-table>
       <b-row>
         <b-col>
           <h4>Assigned Agencies</h4>
@@ -121,9 +129,11 @@ export default {
       interestedAgenciesFields: [
         {
           key: 'agency_name',
+          label: 'Agency',
         },
         {
           key: 'agency_abbreviation',
+          label: 'Abbreviation',
         },
         {
           label: 'Name',
@@ -137,6 +147,10 @@ export default {
           label: 'Interested Code',
           key: 'interested_code_name',
         },
+        {
+          key: 'actions',
+          label: 'Actions',
+        },
       ],
       assignedAgenciesFields: [
         {
@@ -144,11 +158,15 @@ export default {
         },
         {
           key: 'abbreviation',
+          label: 'Abbreviation',
         },
         {
           key: 'created_at',
         },
-        { key: 'actions', label: 'Actions' },
+        {
+          key: 'actions',
+          label: 'Actions',
+        },
       ],
       assignedAgencies: [],
       selectedAgencies: [],
@@ -166,6 +184,7 @@ export default {
       agencies: 'agencies/agencies',
       users: 'users/users',
       interestedCodes: 'grants/interestedCodes',
+      loggedInUser: 'users/loggedInUser',
     }),
     alreadyViewed() {
       if (!this.selectedGrant) {
@@ -199,6 +218,8 @@ export default {
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
       generateGrantForm: 'grants/generateGrantForm',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
+      unmarkGrantAsInterestedAction: 'grants/unmarkGrantAsInterested',
+      getInterestedAgencies: 'grants/getInterestedAgencies',
       getGrantAssignedAgencies: 'grants/getGrantAssignedAgencies',
       assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
       unassignAgenciesToGrantAction: 'grants/unassignAgenciesToGrant',
@@ -220,6 +241,15 @@ export default {
           interestedCode: this.selectedInterestedCode,
         });
       }
+    },
+    async unmarkGrantAsInterested(row) {
+      await this.unmarkGrantAsInterestedAction({
+        grantId: this.selectedGrant.grant_id,
+        agencyIds: [row.item.id],
+        interestedCode: this.selectedInterestedCode,
+      });
+      // get req interested agencies
+      this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
     },
     async assignAgenciesToGrant() {
       const agencyIds = this.selectedAgencies.map((agency) => agency.id);

@@ -433,6 +433,15 @@ function markGrantAsInterested({
         });
 }
 
+function unmarkGrantAsInterested({grantId, userId,}) {
+    return knex(TABLES.grants_interested)
+        .where({
+            grant_id: grantId,
+            user_id: userId,
+        })
+        .del();
+}
+
 function getInterestedCodes() {
     return knex(TABLES.interested_codes)
         .select('*')
@@ -632,6 +641,7 @@ module.exports = {
     getInterestedAgencies,
     getInterestedCodes,
     markGrantAsInterested,
+    unmarkGrantAsInterested,
     getGrantAssignedAgencies,
     assignGrantsToAgencies,
     createAgency,

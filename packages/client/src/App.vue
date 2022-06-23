@@ -14,9 +14,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../../node_modules/bootstrap/scss/bootstrap.scss';
-@import '../../node_modules/bootstrap-vue/src/index.scss';
-@import "../../node_modules/vue-select/src/scss/vue-select.scss";
+@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'node_modules/bootstrap-vue/src/index.scss';
+@import "node_modules/vue-select/src/scss/vue-select.scss";
 
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
