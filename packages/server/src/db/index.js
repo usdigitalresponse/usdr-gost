@@ -481,7 +481,7 @@ async function getAgencyEligibilityCodes(agencyId) {
                 ...ec,
                 created_at: null,
                 updated_at: null,
-                enabled: false,
+                enabled: true,
             };
         }
         return {
