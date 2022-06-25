@@ -71,15 +71,22 @@ export default {
     post() {
       console.log('post hit: ', this.fileList);
       const formData = new FormData();
-      // formData.append('name', 'testing');
       this.fileList.forEach((file) => {
         formData.append('files', file);
       });
 
       const baseUrl = process.env.VUE_APP_GRANTS_API_URL;
       fetch(`${baseUrl}/api/annual-reports`, { body: formData, method: 'POST' })
-        .then((res) => res.json())
-        .then(console.log)
+        .then((res) => res.arrayBuffer())
+        .then((data) => {
+          const blob = new Blob([data], { type: 'application/octet-stream' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          // download property is the name of the file after clicking
+          link.download = 'choose_file_name.docx';
+          link.text = 'Download Report';
+          document.getElementById('app').appendChild(link);
+        })
         .catch(console.error);
     },
   },
