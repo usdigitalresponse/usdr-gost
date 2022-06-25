@@ -8,7 +8,7 @@ function buildTableCell(value) {
 
 // data is an array of objects of the form {category: "something", total: "1234"}
 function buildTable(data) {
-    console.log('Building table from data');
+    // console.log('Building table from data');
     // have to build these up here cuz there doesn't seem to be a way to do
     const tableRows = [
         new docx.TableRow({
@@ -23,7 +23,7 @@ function buildTable(data) {
     ];
 
     data.forEach((element) => {
-        console.log('building row for: ', element);
+        // console.log('building row for: ', element);
         const newRow = new docx.TableRow({
             children: [
                 buildTableCell(element['Category Id']),

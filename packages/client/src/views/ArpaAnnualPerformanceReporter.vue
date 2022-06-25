@@ -1,35 +1,59 @@
 <template>
-  <div>
-    <div
-      class="drop-zone"
-      @dragenter.prevent
-      @dragover.prevent
-      @drop.prevent="onDrop"
-      @change="onChange"
-    >
-      <div class="drop-zone-child">
-        <input
-          id="file-input"
-          type="file"
-          multiple
-          accept=".xlsx, .xlsm, .xls"
-          ref="file"
-        />
-        <label for="file-input">
-          Drag and drop files or <span class="underline">click here to upload</span>.<br/>
-        </label>
+    <div class="container-fluid">
+      <h2>Annual Report Generator</h2>
+      <p>
+        Upload all of your Annual Performance Report workbooks below and then
+        click Generate Report.
+        <br>
+        A download link will appear which you can click to download the generated
+        report document.
+      </p>
+      <div
+        class="drop-zone"
+        @dragenter.prevent
+        @dragover.prevent
+        @drop.prevent="onDrop"
+        @change="onChange"
+      >
+        <div class="drop-zone-child">
+          <input
+            id="file-input"
+            type="file"
+            multiple
+            accept=".xlsx, .xlsm, .xls"
+            ref="file"
+          />
+          <label for="file-input">
+            Drag and drop files or <span class="underline">click here to upload</span>.<br/>
+          </label>
+        </div>
+      </div>
+      <div class="red text-center" v-if="errorMessages.length">
+        <p v-for="msg in errorMessages" :key="msg">{{msg}}</p>
+      </div>
+      <div class="mt-2">
+        <div class="text-center">
+          <button
+            class="btn btn-success px-5 py-2"
+            :disabled="fileList.length"
+            type="button"
+            @click="post"
+          >Generate Report</button>
+          <br>
+          <a
+            id="download-link"
+            href="#"
+            :class="{visible: true, invisible: false}"
+          >Download Report</a>
+        </div>
+        <h4>Files Uploaded:</h4>
+        <ul>
+          <li :key="file.name" v-for="file in fileList">
+            {{file.name}}
+          </li>
+        </ul>
       </div>
     </div>
-    <div class="red text-center" v-if="errorMessages.length">
-      <p v-for="msg in errorMessages" :key="msg">{{msg}}</p>
-    </div>
-    <ul v-if="fileList.length">
-      <button type="button" @click="post">Click to generate report</button>
-      <li :key="file.name" v-for="file in fileList">
-        {{file.name}}
-      </li>
-    </ul>
-  </div>
 </template>
 <script>
 export default {
@@ -80,11 +104,10 @@ export default {
         .then((res) => res.arrayBuffer())
         .then((data) => {
           const blob = new Blob([data], { type: 'application/octet-stream' });
-          const link = document.createElement('a');
+          const link = document.getElementById('download-link');
           link.href = URL.createObjectURL(blob);
           // download property is the name of the file after clicking
           link.download = 'choose_file_name.docx';
-          link.text = 'Download Report';
           document.getElementById('app').appendChild(link);
         })
         .catch(console.error);
@@ -93,6 +116,9 @@ export default {
 };
 </script>
 <style scoped>
+.bottom-section {
+  margin-top: 15px;
+}
 .drop-zone {
   background-color: #ADADAD;
   border: 1px solid gray;
@@ -101,7 +127,7 @@ export default {
   align-items: center;
   min-height: 250px;
   margin: auto;
-  width: 80%;
+  width: 100%;
 }
 #file-input {
   display: none;

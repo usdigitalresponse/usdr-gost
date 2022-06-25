@@ -2,7 +2,6 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 import Login from '../views/Login.vue';
-import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
 import Layout from '../components/Layout.vue';
 
 import store from '../store';
@@ -16,14 +15,6 @@ const routes = [
     component: Login,
   },
   {
-    path: '/arpa-annual-performance-reporter',
-    name: 'arpa-annual-performance-reporter',
-    component: ArpaAnnualPerformanceReporter,
-    meta: {
-      requiresAuth: true,
-    },
-  },
-  {
     path: '/',
     name: 'layout',
     redirect: '/dashboard',
@@ -32,6 +23,14 @@ const routes = [
       requiresAuth: true,
     },
     children: [
+      {
+        path: '/arpa-annual-performance-reporter',
+        name: 'arpa-annual-performance-reporter',
+        component: () => import('../views/ArpaAnnualPerformanceReporter.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
       {
         path: '/dashboard',
         name: 'dashboard',

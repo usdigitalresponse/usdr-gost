@@ -14,8 +14,13 @@ router.post('/', requireUser, upload.array('files'), (req, res) => {
     });
 
     // just do dev for 1 file for now
-    const workbook = AnnualReports.loadBufferToWorkbook(req.files[0].buffer);
-    const projectData = workbook.Sheets['Project Data'];
+    // fake like it's a list for dev
+    const workbooks = [AnnualReports.loadBufferToWorkbook(req.files[0].buffer)];
+    const report = AnnualReports.buildReportFromWorkbooks(workbooks);
+    // const projectData = workbook.Sheets['Project Data'];
+    // If this cell says "Expenditure Data" then it's the generic template
+    // const isGeneric = projectData.B19.v === 'Expenditure Data';
+    // console.log('In that cell: ', projectData.B19.v);
 
     // You'll need 1 parser for the generic template and 1 for the Tulsa template
     // Each will have to return the same interface for ease of document generation
@@ -23,12 +28,9 @@ router.post('/', requireUser, upload.array('files'), (req, res) => {
     // console.log('This should be 25k: ', projectData.K25.v);
     // res.json('all wired up');
 
-    // would it be better to write it as a tempfile and use res.sendFile()?
-    // Might make it easier from the browser side
-    // Does that even work?
+    // sending as a buffer works on browser side
     return AnnualReports.giveBuffer()
         .then((buffer) => {
-            console.log('buffer: ', Object.keys(buffer));
             return res.status(201).send(buffer);
         })
         .catch((err) => {
