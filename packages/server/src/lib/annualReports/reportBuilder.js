@@ -38,7 +38,7 @@ const genericTemplateParser = (book) => {
  *     }
  * }}
  */
-const buildReportFromWorkbooks = (workbooks) => {
+const parseDataFromWorkbooks = (workbooks) => {
     const reportData = {};
     workbooks.forEach((book) => {
         const projectSheet = book.Sheets[PROJECT_DATA];
@@ -63,8 +63,7 @@ const buildReportFromWorkbooks = (workbooks) => {
         reportData[category].projects.push(projectData);
     });
 
-    console.log('The final report data: ', JSON.stringify(reportData));
     return reportData;
 };
 
-module.exports = buildReportFromWorkbooks;
+module.exports = parseDataFromWorkbooks;
