@@ -1,21 +1,19 @@
 const PROJECT_DATA = 'Project Data';
 
-/*
-    TODO: define an interface for the document generation flow
-    TODO: you need 1 parser for the generic and 1 for Tulsa's specific template
-    TODO: they should both return the same interface for ease of use with the document generator
-*/
+/**
+ * @typedef ProjectData
+ * @type {object}
+ * @property {number} amountSpent - total expenditure
+ * @property {string} category - arpa expenditure category e.g. '1.5-Personal Protective Equipment'
+ * @property {string} description - text description of the project
+ * @property {string} name - project name
+ * @property {string} recipient - organization which ran this project
+ */
 
 /**
  * Pulls the information relevant to the docx generator out of the excel workbook
  * @param book
- * @returns {{
- *     name: str,
- *     category: str,
- *     recipient: str,
- *     description: str,
- *     amountSpent: int
- * }}
+ * @returns {ProjectData}
  */
 const genericTemplateParser = (book) => {
     const projectData = book.Sheets[PROJECT_DATA];
@@ -30,6 +28,16 @@ const genericTemplateParser = (book) => {
 
 // This whole workflow blows up if the category strings are mismatched :(
 // Confirm that those options won't be changed by anyone
+/**
+ *
+ * @param workbooks
+ * @returns {{
+ *     category: {
+ *         totalExpenditure: int,
+ *         projects: [ProjectData]
+ *     }
+ * }}
+ */
 const buildReportFromWorkbooks = (workbooks) => {
     const reportData = {};
     workbooks.forEach((book) => {
@@ -37,7 +45,10 @@ const buildReportFromWorkbooks = (workbooks) => {
         let projectData;
 
         // If this cell says "Expenditure Category" then it's the generic template
-        const isGeneric = projectSheet.B19.v === 'Expenditure Category';
+        // This workflow is extremely fragile based on this key. We've asked them not to modify
+        // Any cells other than where input is required, this trim() and lowercase() is just a hedge
+        // in case some kind of unexpected auto-format is applied
+        const isGeneric = projectSheet.B19.v.trim().toLowerCase() === 'expenditure category';
         if (isGeneric) {
             projectData = genericTemplateParser(book);
         }

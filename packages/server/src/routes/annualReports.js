@@ -13,9 +13,9 @@ router.post('/', requireUser, upload.array('files'), (req, res) => {
     //     console.log(f);
     // });
 
-    // just do dev for 1 file for now
-    // fake like it's a list for dev
-    const workbooks = [AnnualReports.loadBufferToWorkbook(req.files[0].buffer)];
+    // Load all the buffers into workbooks
+    // This could definitely be done more efficiently but should be fine for this use case
+    const workbooks = req.files.map((f) => AnnualReports.loadBufferToWorkbook(f.buffer));
     const report = AnnualReports.buildReportFromWorkbooks(workbooks);
 
     // You'll need 1 parser for the generic template and 1 for the Tulsa template
