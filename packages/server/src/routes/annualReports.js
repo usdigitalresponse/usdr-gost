@@ -9,18 +9,14 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Should this be an admin user?
 router.post('/', requireUser, upload.array('files'), (req, res) => {
-    req.files.forEach((f) => {
-        console.log(f);
-    });
+    // req.files.forEach((f) => {
+    //     console.log(f);
+    // });
 
     // just do dev for 1 file for now
     // fake like it's a list for dev
     const workbooks = [AnnualReports.loadBufferToWorkbook(req.files[0].buffer)];
     const report = AnnualReports.buildReportFromWorkbooks(workbooks);
-    // const projectData = workbook.Sheets['Project Data'];
-    // If this cell says "Expenditure Data" then it's the generic template
-    // const isGeneric = projectData.B19.v === 'Expenditure Data';
-    // console.log('In that cell: ', projectData.B19.v);
 
     // You'll need 1 parser for the generic template and 1 for the Tulsa template
     // Each will have to return the same interface for ease of document generation
@@ -40,9 +36,3 @@ router.post('/', requireUser, upload.array('files'), (req, res) => {
 });
 
 module.exports = router;
-
-/*
-    TODO: define an interface for the document generation flow
-    you need 1 parser for the generic and 1 for Tulsa's specific template
-    they should both return the same interface for ease of use with the document generator
-*/

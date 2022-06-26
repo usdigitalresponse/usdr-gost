@@ -9,7 +9,6 @@ function buildTableCell(value) {
 // data is an array of objects of the form {category: "something", total: "1234"}
 function buildTable(data) {
     // console.log('Building table from data');
-    // have to build these up here cuz there doesn't seem to be a way to do
     const tableRows = [
         new docx.TableRow({
             // header row
@@ -49,12 +48,27 @@ function buildTable(data) {
     // console.log("Writing test_doc.docx");
 
     return doc;
-    // docx.Packer.toBuffer(doc).then((buffer) => {
-    //   // TODO: then in here, send the response as a buffer with a filename
-    //   fs.writeFileSync("test_doc.docx", buffer);
-    // });
 }
 
+
+const finalFormatMaybe = {
+    // category: {
+    //     totalExpenditure: 12345,
+    //     projects: [],
+    // }
+    '1.5-Personal Protective Equipment': {
+        totalExpenditure: 10000,
+        projects: [
+            {
+                name: '',
+                recipient: '',
+                amountSpent: '',
+                category: '', // redundant but makes like easier
+                description: '',
+            },
+        ],
+    },
+};
 // gonna want to make sure the input comes in sorted properly
 const fakeData = [
     {
