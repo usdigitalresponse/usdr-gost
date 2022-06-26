@@ -6,7 +6,17 @@ const PROJECT_DATA = 'Project Data';
     TODO: they should both return the same interface for ease of use with the document generator
 */
 
-// Move this to its own file maybe?
+/**
+ * Pulls the information relevant to the docx generator out of the excel workbook
+ * @param book
+ * @returns {{
+ *     name: str,
+ *     category: str,
+ *     recipient: str,
+ *     description: str,
+ *     amountSpent: int
+ * }}
+ */
 const genericTemplateParser = (book) => {
     const projectData = book.Sheets[PROJECT_DATA];
     const project = {};
@@ -24,17 +34,26 @@ const buildReportFromWorkbooks = (workbooks) => {
     const reportData = {};
     workbooks.forEach((book) => {
         const projectSheet = book.Sheets[PROJECT_DATA];
+        let projectData;
 
         // If this cell says "Expenditure Category" then it's the generic template
         const isGeneric = projectSheet.B19.v === 'Expenditure Category';
         if (isGeneric) {
-            const projectData = genericTemplateParser(book);
-            console.log('Project Data Parsed: ', projectData);
+            projectData = genericTemplateParser(book);
         }
-        // console.log('B19: ', projectData.B19.v);
-        // console.log('B21: ', projectData.B21.v);
+
+        const { category } = projectData;
+        // I am not at all worried about prototype key collisions in this case
+        if (!(category in reportData)) {
+            reportData[category] = { totalExpenditure: 0, projects: [] };
+        }
+
+        reportData[category].totalExpenditure += projectData.amountSpent;
+        reportData[category].projects.push(projectData);
     });
-    return 1;
+
+    console.log('The final report data: ', JSON.stringify(reportData));
+    return reportData;
 };
 
 module.exports = buildReportFromWorkbooks;
