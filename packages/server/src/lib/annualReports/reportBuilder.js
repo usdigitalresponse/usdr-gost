@@ -1,19 +1,11 @@
-const PROJECT_DATA = 'Project Data';
+const typedefs = require('./typedefs');
 
-/**
- * @typedef ProjectData
- * @type {object}
- * @property {number} amountSpent - total expenditure
- * @property {string} category - arpa expenditure category e.g. '1.5-Personal Protective Equipment'
- * @property {string} description - text description of the project
- * @property {string} name - project name
- * @property {string} recipient - organization which ran this project
- */
+const PROJECT_DATA = 'Project Data';
 
 /**
  * Pulls the information relevant to the docx generator out of the excel workbook
  * @param book
- * @returns {ProjectData}
+ * @returns {typedefs.ProjectData}
  */
 const genericTemplateParser = (book) => {
     const projectData = book.Sheets[PROJECT_DATA];
@@ -34,7 +26,7 @@ const genericTemplateParser = (book) => {
  * @returns {{
  *     category: {
  *         totalExpenditure: int,
- *         projects: [ProjectData]
+ *         projects: [typedefs.ProjectData]
  *     }
  * }}
  */

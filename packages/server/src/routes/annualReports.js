@@ -20,12 +20,10 @@ router.post('/', requireUser, upload.array('files'), (req, res) => {
     const document = new ArpaDocumentBuilder(reportData).buildReportDocument();
 
     return ArpaDocumentBuilder.documentToBuffer(document)
-        .then((buffer) => {
-            return res.status(201).send(buffer);
-        })
+        .then((buffer) => res.status(201).send(buffer))
         .catch((err) => {
             console.log('error? ', err);
-            res.status(500).send('OH NO');
+            res.status(500).send(err);
         });
 });
 

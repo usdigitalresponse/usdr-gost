@@ -1,6 +1,14 @@
 const docx = require('docx');
 
-// TODO: define the datatype here
+// This could use type definitions but I'm bad at JSDoc and that takes time
+/**
+ * data looks like:
+ *  {
+ *      category1: { totalExpenditure: 1234, projects: [ProjectData] },
+ *      category2: { totalExpenditure: 2345, projects: [ProjectData] },
+ *      ...etc
+ *  }
+ */
 class ArpaDocumentBuilder {
     constructor(data) {
         this.data = data;
@@ -13,7 +21,6 @@ class ArpaDocumentBuilder {
 
     // Helper cuz the api for this package is kinda rough
     static buildTableCell(value) {
-        // Paragraph values have to be strings, ints won't write to the document
         return new docx.TableCell({ children: [new docx.Paragraph(value)] });
     }
 
@@ -21,17 +28,20 @@ class ArpaDocumentBuilder {
         return this.dollarFormatter.format(val);
     }
 
+    static buildTableHeaderRow() {
+        return new docx.TableRow({
+            children: [
+                ArpaDocumentBuilder.buildTableCell('Category'),
+
+                // The two below will be the same this year
+                ArpaDocumentBuilder.buildTableCell('Cumulative Expenditures to Date ($)'),
+                ArpaDocumentBuilder.buildTableCell('Amount since last recovery plan'),
+            ],
+        });
+    }
+
     buildSummaryTable() {
-        const tableRows = [
-            new docx.TableRow({
-                // header row
-                children: [
-                    ArpaDocumentBuilder.buildTableCell('Category'),
-                    ArpaDocumentBuilder.buildTableCell('Cumulative Expenditures to Date ($)'), // these two will be the same
-                    ArpaDocumentBuilder.buildTableCell('Amount since last recovery plan'), // these two will be the same
-                ],
-            }),
-        ];
+        const tableRows = [ArpaDocumentBuilder.buildTableHeaderRow()];
 
         this.sortedCategories.forEach((cat) => {
             const categoryData = this.data[cat];
@@ -55,16 +65,55 @@ class ArpaDocumentBuilder {
         });
     }
 
-    buildReportDocument() {
-        const children = [this.buildSummaryTable()];
-        return new docx.Document({
-            sections: [{ children }],
+    buildProjectInventory() {
+        const sectionHeader = new docx.Paragraph({
+            text: 'Project Inventory',
+            heading: docx.HeadingLevel.HEADING_1,
         });
+        // All the child elements will go in here
+        const inventory = [sectionHeader];
+        this.sortedCategories.forEach((cat) => {
+            const categoryData = this.data[cat];
+            categoryData.projects.forEach((project) => {
+                const paragraphs = [
+                    new docx.Paragraph({
+                        text: `Project Name: ${project.name}`,
+                    }),
+                    new docx.Paragraph({
+                        text: `Expenditure Category: ${project.category}`,
+                    }),
+                    new docx.Paragraph({
+                        text: `Amount Spent: ${project.amountSpent}`,
+                    }),
+                    new docx.Paragraph({
+                        text: `Recipient: ${project.recipient}`,
+                    }),
+                ];
+                inventory.push(...paragraphs);
+            });
+        });
+
+        return inventory;
     }
 
-    // toBuffer() {
-    //     return ArpaDocumentBuilder.documentToBuffer(this.document);
-    // }
+    buildReportDocument() {
+        return new docx.Document({
+            sections: [
+                {
+                    properties: {
+                        type: docx.SectionType.NEXT_PAGE,
+                    },
+                    children: [this.buildSummaryTable()],
+                },
+                {
+                    properties: {
+                        type: docx.SectionType.NEXT_PAGE,
+                    },
+                    children: this.buildProjectInventory(),
+                },
+            ],
+        });
+    }
 
     static async documentToBuffer(document) {
         return docx.Packer.toBuffer(document);
