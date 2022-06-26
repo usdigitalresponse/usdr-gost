@@ -24,7 +24,7 @@
             ref="file"
           />
           <label for="file-input">
-            Drag and drop files or <span class="underline">click here to upload</span>.<br/>
+            Drag and drop files or <span class="underline">click here to upload</span>.
           </label>
         </div>
       </div>
@@ -35,7 +35,7 @@
         <div class="text-center">
           <button
             class="btn btn-success px-5 py-2"
-            :disabled="fileList.length"
+            :disabled="!fileList.length"
             type="button"
             @click="post"
           >Generate Report</button>
@@ -43,7 +43,8 @@
           <a
             id="download-link"
             href="#"
-            :class="{visible: true, invisible: false}"
+            class="mt-2 d-inline-block"
+            :class="{visible: reportGenerated, invisible: !reportGenerated}"
           >Download Report</a>
         </div>
         <h4>Files Uploaded:</h4>
@@ -64,6 +65,7 @@ export default {
       fileNameSet: new Set(),
       fileList: [],
       errorMessages: [],
+      reportGenerated: false,
     };
   },
   methods: {
@@ -106,9 +108,9 @@ export default {
           const blob = new Blob([data], { type: 'application/octet-stream' });
           const link = document.getElementById('download-link');
           link.href = URL.createObjectURL(blob);
-          // download property is the name of the file after clicking
+          // TODO: how should we name this? Based on the logged in agency?
           link.download = 'choose_file_name.docx';
-          document.getElementById('app').appendChild(link);
+          this.reportGenerated = true;
         })
         .catch(console.error);
     },
@@ -116,9 +118,6 @@ export default {
 };
 </script>
 <style scoped>
-.bottom-section {
-  margin-top: 15px;
-}
 .drop-zone {
   background-color: #ADADAD;
   border: 1px solid gray;
@@ -134,9 +133,6 @@ export default {
 }
 .red {
   color: red;
-}
-.text-center {
-  text-align: center;
 }
 .underline {
   text-decoration: underline;
