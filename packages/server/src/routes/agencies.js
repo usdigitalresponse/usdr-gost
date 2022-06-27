@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { requireAdminUser, requireUser, isPartOfAgency } = require('../lib/access-helpers');
 const {
-    getAgency, getAgencies, setAgencyThresholds, createAgency,
+    getAgency, getAgencies, setAgencyThresholds, createAgency, setAgencyName
 } = require('../db');
 
 router.get('/', requireUser, async (req, res) => {
@@ -23,6 +23,14 @@ router.put('/:agency', requireAdminUser, async (req, res) => {
 
     const { warningThreshold, dangerThreshold } = req.body;
     const result = await setAgencyThresholds(agency, warningThreshold, dangerThreshold);
+    res.json(result);
+});
+
+router.put('/name/:agency', requireAdminUser, async (req, res) => {
+    const { agency } = req.params;
+
+    const { name } = req.body;
+    const result = await setAgencyName(agency, name);
     res.json(result);
 });
 

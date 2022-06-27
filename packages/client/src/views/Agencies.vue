@@ -10,6 +10,9 @@
     </b-col>
   </b-row>
   <b-table sticky-header="600px" hover :items="formattedAgencies" :fields="fields">
+    <template #cell(name)="row">
+        {{row.item.name}}
+      </template>
       <template #cell(warning_threshold)="row">
         {{row.item.warning_threshold}} days
       </template>

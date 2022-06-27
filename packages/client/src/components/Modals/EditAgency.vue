@@ -12,6 +12,47 @@
     >
     <h3>{{this.agency && this.agency.name}}</h3>
       <form ref="form" @submit.stop.prevent="handleSubmit">
+      <b-form-group
+          label-for="name-input"
+      >
+          <template slot="label">Name</template>
+          <b-form-input
+              autofocus
+              id="name-input"
+              type="text"
+              min=2
+              v-model="formData.name"
+              required
+            ></b-form-input>
+        </b-form-group>
+        <!-- <b-form-group
+          label-for="abbreviation-input"
+        >
+          <template slot="label">Abbreviation</template>
+          <b-form-input
+              id="abbreviation-input"
+              type="text"
+              min=2
+              max=8
+              v-model="formData.abbreviation"
+              required
+            ></b-form-input>
+        </b-form-group>
+        <b-form-group
+          label-for="agency-input"
+        >
+          <template slot="label">Parent Agency</template>
+          <v-select :options="agencies" label="name" :value="formData.parentAgency" v-model="formData.parentAgency">
+            <template #search="{attributes, events}">
+              <input
+                class="vs__search"
+                :required="!formData.parentAgency"
+                v-bind="attributes"
+                v-on="events"
+              />
+            </template>
+          </v-select>
+        </b-form-group> -->
         <b-form-group
           :state="!$v.formData.warningThreshold.$invalid"
           label-for="warningThreshold-input"
@@ -44,6 +85,9 @@
             required
           ></b-form-input>
         </b-form-group>
+        <form ref="form" @submit.stop.prevent="handleDelete">
+          <b-button v-if="userRole === 'admsn'" variant="danger">Admin Delete Agency</b-button>
+        </form>
       </form>
     </b-modal>
   </div>
@@ -63,11 +107,23 @@ export default {
       formData: {
         warningThreshold: null,
         dangerThreshold: null,
+        name: null,
+        // abbreviation: null,
+        // parentAgency: null,
       },
     };
   },
   validations: {
     formData: {
+      // name: {
+      //   required,
+      // },
+      // abbreviation: {
+      //   required,
+      // },
+      // // parentAgency: {
+      // //   required,
+      // // },
       warningThreshold: {
         required,
         numeric,
@@ -92,6 +148,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      userRole: 'users/userRole',
     }),
   },
   mounted() {
@@ -99,6 +156,9 @@ export default {
   methods: {
     ...mapActions({
       updateThresholds: 'agencies/updateThresholds',
+      updateAgencyName: 'agencies/updateAgencyName',
+      // updateAgencyAbbr: 'agencies/updateAgencyAbbr',
+      // updateAgencyParent: 'agencies/updateAgencyParent',
     }),
     resetModal() {
       this.$emit('update:agency', null);
@@ -107,11 +167,28 @@ export default {
       bvModalEvt.preventDefault();
       this.handleSubmit();
     },
+    async handleDelete() {
+      if (this.$v.formData.$invalid) {
+        return;
+      }
+      const body = {
+        ...this.formData,
+        parentId: this.formData.parentAgency.id,
+      };
+      await this.deleteAgency(body);
+    },
     async handleSubmit() {
       if (this.$v.formData.$invalid) {
         return;
       }
+      // const body = {
+      //   ...this.formData,
+      //   parentId: this.formData.parentAgency.id,
+      // };
       await this.updateThresholds({ agencyId: this.agency.id, ...this.formData });
+      await this.updateAgencyName({ agencyId: this.agency.id, ...this.formData });
+      // await this.updateAgencyAbbr({ agencyId: this.agency.id, ...this.formData });
+      // await this.updateAgencyParent({ agencyId: this.agency.id, ...this.formData });
       this.resetModal();
     },
   },

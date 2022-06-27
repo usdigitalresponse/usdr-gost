@@ -522,12 +522,37 @@ async function createAgency({
         });
 }
 
+async function deleteAgency({
+    name, abbreviation, parent, warning_threshold, danger_threshold,
+}) {
+    // seeded agencies with hardcoded ids will make autoicrement fail since it doesnt
+    // know which is the next id
+    await knex.raw('select setval(\'agencies_id_seq\', max(id)) from agencies');
+    return knex(TABLES.agencies)
+        .where({
+            agency_parent_id_id: parent,
+            agency_name: name,
+            agency_abbreviation: abbreviation,
+            agency_warning_threshold: warning_threshold,
+            agency_danger_threshold: danger_threshold,
+        })
+        .del();
+}
+
 function setAgencyThresholds(id, warning_threshold, danger_threshold) {
     return knex(TABLES.agencies)
         .where({
             id,
         })
         .update({ warning_threshold, danger_threshold });
+}
+
+function setAgencyName(id, agen_name) {
+    return knex(TABLES.agencies)
+        .where({
+            id,
+        })
+        .update({ name : agen_name });
 }
 
 function setTenantDisplayName(id, display_name) {
@@ -628,6 +653,7 @@ module.exports = {
     getKeywords,
     getAgencyKeywords,
     setAgencyThresholds,
+    setAgencyName,
     setTenantDisplayName,
     createKeyword,
     deleteKeyword,
@@ -645,6 +671,7 @@ module.exports = {
     getGrantAssignedAgencies,
     assignGrantsToAgencies,
     createAgency,
+    deleteAgency,
     unassignAgenciesToGrant,
     getElegibilityCodes,
     sync,
