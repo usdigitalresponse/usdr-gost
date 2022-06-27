@@ -1,4 +1,5 @@
 const docx = require('docx');
+const PLACEHOLDERS = require('./placeholderTextStrings');
 
 // This could use type definitions but I'm bad at JSDoc and that takes time
 /**
@@ -47,6 +48,24 @@ class ArpaDocumentBuilder {
 
     formatExpenditureValue(val) {
         return this.dollarFormatter.format(val);
+    }
+
+    static buildPlaceholderParagraph(arrayOfStrings) {
+        const children = [];
+        arrayOfStrings.forEach((text) => {
+            const run = new docx.TextRun({
+                size: 24,
+                color: 'ADADAD',
+                break: 1,
+                text,
+            });
+            children.push(run);
+        });
+
+        return new docx.Paragraph({
+            spacing: { before: 200, after: 200 },
+            children,
+        });
     }
 
     static buildTableHeaderRow() {
@@ -162,6 +181,26 @@ class ArpaDocumentBuilder {
                         type: docx.SectionType.NEXT_PAGE,
                     },
                     children: [
+                        ArpaDocumentBuilder.buildPlaceholderParagraph(
+                            PLACEHOLDERS.USES_OF_FUNDS,
+                        ),
+                    ],
+                },
+                {
+                    properties: {
+                        type: docx.SectionType.NEXT_PAGE,
+                    },
+                    children: [
+                        ArpaDocumentBuilder.buildPlaceholderParagraph(
+                            PLACEHOLDERS.PERFORMANCE_REPORT,
+                        ),
+                    ],
+                },
+                {
+                    properties: {
+                        type: docx.SectionType.NEXT_PAGE,
+                    },
+                    children: [
                         ArpaDocumentBuilder.buildPageHeader('Table of Expenses by Expenditure Category'),
                         this.buildSummaryTable(),
                     ],
@@ -180,46 +219,5 @@ class ArpaDocumentBuilder {
         return docx.Packer.toBuffer(document);
     }
 }
-
-// const fakeData = {
-//     '1.5-Personal Protective Equipment': {
-//         totalExpenditure: 30000,
-//         projects: [
-//             {
-//                 name: 'Amazing Program',
-//                 recipient: 'Justin\'s Co.',
-//                 category: '1.5-Personal Protective Equipment',
-//                 description: 'A brief description of the project.',
-//                 amountSpent: 20000,
-//             },
-//             {
-//                 name: 'Covid Education Program',
-//                 recipient: 'Great NonProfit, Inc',
-//                 category: '1.5-Personal Protective Equipment',
-//                 description: 'A brief description of the project.',
-//                 amountSpent: 10000,
-//             },
-//         ],
-//     },
-//     '1.14-Other Public Health Services': {
-//         totalExpenditure: 30000,
-//         projects: [
-//             {
-//                 name: 'Some other program',
-//                 recipient: 'Mindy\'s Org',
-//                 category: '1.14-Other Public Health Services',
-//                 description: 'A brief description of the project.',
-//                 amountSpent: 30000,
-//             },
-//         ],
-//     },
-// };
-//
-// buildTable(fakeData);
-
-// const giveBuffer = async () => {
-//     const doc = buildTable(fakeData);
-//     return await docx.Packer.toBuffer(doc);
-// };
 
 module.exports = ArpaDocumentBuilder;
