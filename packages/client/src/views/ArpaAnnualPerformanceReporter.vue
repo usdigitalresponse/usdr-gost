@@ -5,8 +5,7 @@
         Upload all of your Annual Performance Report workbooks below and then
         click Generate Report.
         <br>
-        A download link will appear which you can click to download the generated
-        report document.
+        After generating the report, a download link will appear.
       </p>
       <div
         class="drop-zone"
@@ -108,8 +107,7 @@ export default {
           const blob = new Blob([data], { type: 'application/octet-stream' });
           const link = document.getElementById('download-link');
           link.href = URL.createObjectURL(blob);
-          // TODO: how should we name this? Based on the logged in agency?
-          link.download = 'choose_file_name.docx';
+          link.download = 'AnnualReportTemplate.docx';
           this.reportGenerated = true;
         })
         .catch(console.error);

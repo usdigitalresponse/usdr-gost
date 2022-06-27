@@ -72,21 +72,53 @@ class ArpaDocumentBuilder {
         });
         // All the child elements will go in here
         const inventory = [sectionHeader];
+
+        // these size values are in half-values
+        // so size 28 is actually 14 in the doc
+        const headerFontSize = 28;
         this.sortedCategories.forEach((cat) => {
             const categoryData = this.data[cat];
             categoryData.projects.forEach((project) => {
+                const amountSpent = this.formatExpenditureValue(project.amountSpent);
                 const paragraphs = [
                     new docx.Paragraph({
-                        text: `Project Name: ${project.name}`,
+                        children: [
+                            new docx.TextRun({
+                                text: `Project Name: ${project.name}`,
+                                size: headerFontSize,
+                            }),
+                        ],
+                        spacing: { before: 500 },
                     }),
                     new docx.Paragraph({
-                        text: `Expenditure Category: ${project.category}`,
+                        children: [
+                            new docx.TextRun({
+                                text: `Expenditure Category: ${project.category}`,
+                                size: headerFontSize,
+                            }),
+                        ],
                     }),
                     new docx.Paragraph({
-                        text: `Amount Spent: ${project.amountSpent}`,
+                        children: [
+                            new docx.TextRun({
+                                text: `Recipient: ${project.recipient}`,
+                                size: headerFontSize,
+                            }),
+                        ],
                     }),
                     new docx.Paragraph({
-                        text: `Recipient: ${project.recipient}`,
+                        children: [
+                            new docx.TextRun({
+                                text: `Amount Spent: ${amountSpent}`,
+                                size: headerFontSize,
+                            }),
+                        ],
+                    }),
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({ text: project.description, size: 24 }),
+                        ],
+                        spacing: { before: 100 },
                     }),
                 ];
                 inventory.push(...paragraphs);
