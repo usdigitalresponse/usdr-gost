@@ -1,5 +1,5 @@
 const docx = require('docx');
-const PLACEHOLDERS = require('./placeholderTextStrings');
+const placeholders = require('./placeholderTextStrings');
 
 // This could use type definitions but I'm bad at JSDoc and that takes time
 /**
@@ -17,6 +17,18 @@ class ArpaDocumentBuilder {
         this.dollarFormatter = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
+        });
+    }
+
+    static buildSectionHeader(text) {
+        return new docx.Paragraph({
+            children: [
+                new docx.TextRun({
+                    size: 24,
+                    text,
+                }),
+            ],
+            spacing: { before: 200, after: 0 },
         });
     }
 
@@ -46,10 +58,6 @@ class ArpaDocumentBuilder {
         });
     }
 
-    formatExpenditureValue(val) {
-        return this.dollarFormatter.format(val);
-    }
-
     static buildPlaceholderParagraph(arrayOfStrings) {
         const children = [];
         arrayOfStrings.forEach((text) => {
@@ -63,7 +71,7 @@ class ArpaDocumentBuilder {
         });
 
         return new docx.Paragraph({
-            spacing: { before: 200, after: 200 },
+            spacing: { after: 400 },
             children,
         });
     }
@@ -79,6 +87,61 @@ class ArpaDocumentBuilder {
             ],
             height: { value: 600 },
         });
+    }
+
+    static buildPageHeader(text) {
+        return new docx.Paragraph({
+            heading: docx.HeadingLevel.HEADING_1,
+            text,
+            spacing: { after: 200 },
+        });
+    }
+
+    static buildDocumentIntro() {
+        const size = 28;
+        return new docx.Paragraph({
+            children: [
+                new docx.TextRun({
+                    text: 'The structure of this document is taken directly from US Treasury\'s ',
+                    break: 1,
+                    size,
+                }),
+                new docx.ExternalHyperlink({
+                    children: [new docx.TextRun({
+                        text: 'Annual Recovery Plan Template. ',
+                        style: 'Hyperlink',
+                        size,
+                    })],
+                    link: 'https://home.treasury.gov/system/files/136/SLFRF-Recovery-Plan-Performance-Report-Template.docx',
+                }),
+                new docx.TextRun({
+                    text: 'Gray text ',
+                    color: 'ADADAD',
+                    break: 2,
+                    size,
+                }),
+                new docx.TextRun({
+                    text: 'indicates guidance that should be deleted as you fill out the section. ',
+                    size,
+                }),
+                new docx.TextRun({
+                    text: 'USDR has pre-populated the Table of Expenses and Project Inventory '
+                        + 'sections based on your uploaded workbooks.',
+                    break: 2,
+                    size,
+                }),
+                new docx.TextRun({
+                    text: 'Please delete this page before submitting the report.',
+                    break: 3,
+                    bold: true,
+                    size,
+                }),
+            ],
+        });
+    }
+
+    formatExpenditureValue(val) {
+        return this.dollarFormatter.format(val);
     }
 
     buildSummaryTable() {
@@ -102,14 +165,6 @@ class ArpaDocumentBuilder {
         return new docx.Table({
             columnWidths: ['30pc', '30pc', '30pc'],
             rows: tableRows,
-        });
-    }
-
-    static buildPageHeader(text) {
-        return new docx.Paragraph({
-            heading: docx.HeadingLevel.HEADING_1,
-            text,
-            spacing: { after: 200 },
         });
     }
 
@@ -165,6 +220,12 @@ class ArpaDocumentBuilder {
                         ],
                         spacing: { before: 100 },
                     }),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(
+                        placeholders.PROJECT_OVERVIEW,
+                    ),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(
+                        placeholders.PROJECT_USE_OF_EVIDENCE,
+                    ),
                 ];
                 inventory.push(...paragraphs);
             });
@@ -177,12 +238,38 @@ class ArpaDocumentBuilder {
         return new docx.Document({
             sections: [
                 {
+                    children: [
+                        ArpaDocumentBuilder.buildPageHeader('Instructions for this template'),
+                        ArpaDocumentBuilder.buildDocumentIntro(),
+                    ],
+                },
+                {
                     properties: {
                         type: docx.SectionType.NEXT_PAGE,
                     },
                     children: [
+                        ArpaDocumentBuilder.buildPageHeader('General Overview'),
+                        ArpaDocumentBuilder.buildSectionHeader('Executive Summary'),
                         ArpaDocumentBuilder.buildPlaceholderParagraph(
-                            PLACEHOLDERS.USES_OF_FUNDS,
+                            placeholders.EXECUTIVE_SUMMARY,
+                        ),
+                        ArpaDocumentBuilder.buildSectionHeader('Uses of Funds'),
+                        ArpaDocumentBuilder.buildPlaceholderParagraph(placeholders.USES_OF_FUNDS),
+                        ArpaDocumentBuilder.buildSectionHeader('Promoting Equitable Outcomes'),
+                        ArpaDocumentBuilder.buildPlaceholderParagraph(
+                            placeholders.PROMOTING_EQUITABLE_OUTCOMES,
+                        ),
+                        ArpaDocumentBuilder.buildSectionHeader('Community Engagement'),
+                        ArpaDocumentBuilder.buildPlaceholderParagraph(
+                            placeholders.COMMUNITY_ENGAGEMENT,
+                        ),
+                        ArpaDocumentBuilder.buildSectionHeader('Labor Practices'),
+                        ArpaDocumentBuilder.buildPlaceholderParagraph(
+                            placeholders.LABOR_PRACTICES,
+                        ),
+                        ArpaDocumentBuilder.buildSectionHeader('Use of Evidence'),
+                        ArpaDocumentBuilder.buildPlaceholderParagraph(
+                            placeholders.USE_OF_EVIDENCE,
                         ),
                     ],
                 },
@@ -191,17 +278,12 @@ class ArpaDocumentBuilder {
                         type: docx.SectionType.NEXT_PAGE,
                     },
                     children: [
-                        ArpaDocumentBuilder.buildPlaceholderParagraph(
-                            PLACEHOLDERS.PERFORMANCE_REPORT,
+                        ArpaDocumentBuilder.buildPageHeader(
+                            'Table of Expenses by Expenditure Category',
                         ),
-                    ],
-                },
-                {
-                    properties: {
-                        type: docx.SectionType.NEXT_PAGE,
-                    },
-                    children: [
-                        ArpaDocumentBuilder.buildPageHeader('Table of Expenses by Expenditure Category'),
+                        ArpaDocumentBuilder.buildPlaceholderParagraph(
+                            placeholders.TABLE_OF_EXPENSES,
+                        ),
                         this.buildSummaryTable(),
                     ],
                 },
@@ -210,6 +292,17 @@ class ArpaDocumentBuilder {
                         type: docx.SectionType.NEXT_PAGE,
                     },
                     children: this.buildProjectInventory(),
+                },
+                {
+                    properties: {
+                        type: docx.SectionType.NEXT_PAGE,
+                    },
+                    children: [
+                        ArpaDocumentBuilder.buildPageHeader('Performance Report'),
+                        ArpaDocumentBuilder.buildPlaceholderParagraph(
+                            placeholders.PERFORMANCE_REPORT,
+                        ),
+                    ],
                 },
             ],
         });

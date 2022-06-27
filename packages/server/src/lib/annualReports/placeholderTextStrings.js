@@ -1,7 +1,6 @@
 // These are all arrays due to a limitation of docx npm package
 // It doesn't properly apply \n characters, instead you need to use a
 // built-in property called 'break'. So each element of each array below will trigger a break
-
 const EXECUTIVE_SUMMARY = [`In this section, provide a high-level overview of the jurisdiction’s
 intended and actual uses of funding including, but not limited to:
 the jurisdiction’s plan for use of funds to promote a response to
@@ -134,14 +133,14 @@ in mind. Include how your jurisdiction will consider and measure equity at the v
 the program, including: 
 `,
 '',
-`a.\tGoals:  Are there particular historically underserved, marginalized, or adversely affected
+`\ta. Goals:  Are there particular historically underserved, marginalized, or adversely affected
 groups that you intend to serve?`,
-`b.\tAwareness: How equal and practical is the ability for residents or businesses to become
+`\tb. Awareness: How equal and practical is the ability for residents or businesses to become
 aware of the services funded by the SLFRF?`,
-`c.\tAccess and Distribution: Are there differences in levels of access to benefits and
+`\tc. Access and Distribution: Are there differences in levels of access to benefits and
 services across groups? Are there administrative requirements that result in disparities in
 ability to complete applications or meet eligibility criteria?`,
-`d.\tOutcomes: Are intended outcomes focused on closing gaps, reaching universal levels of
+`\td. Outcomes: Are intended outcomes focused on closing gaps, reaching universal levels of
 service, or disaggregating progress by race, ethnicity, and other equity dimensions where
 relevant for the policy objective?`,
 '',
@@ -151,7 +150,7 @@ equity results at scale, and articulates the strategies to achieve those targets
 Explain how your jurisdiction’s overall equity strategy translates into the specific
 services or programs offered by your jurisdiction in the following Expenditure Categories:`,
 '',
-`a.\tNegative Economic Impacts (EC 2): assistance to households, small businesses, and
+`\ta. Negative Economic Impacts (EC 2): assistance to households, small businesses, and
 non-profits to address impacts of the pandemic, which have been most severe among
 low-income populations. This includes assistance with food, housing, and other needs;
 employment programs for people with barriers to employment who faced negative economic
@@ -159,7 +158,7 @@ impacts from the pandemic (such as residents of low-income neighborhoods, minori
 disconnected youth, the unemployed, formerly incarcerated people, veterans, and people
 with disabilities); and other strategies that provide disadvantaged groups with access to
 education, jobs, and opportunity.`,
-`b.\tServices to Disproportionately Impacted Communities (EC 3): services to address health
+`\tb. Services to Disproportionately Impacted Communities (EC 3): services to address health
 disparities and the social determinants of health, build stronger neighborhoods and
 communities (e.g., affordable housing), address educational disparities (e.g., evidence-based
 tutoring, community schools, and academic, social-emotional, and mental health
@@ -175,6 +174,15 @@ challenges that impacted project success in terms of increasing equity.`,
 whether it is targeted toward traditionally marginalized communities.`,
 ];
 
+const TABLE_OF_EXPENSES = [`In this section, list the amount of funds used in each Expenditure
+Category. The table should include cumulative expenses to date within each category,
+and the additional amount spent within each category since the last annual Recovery Plan.`,
+'',
+`Jurisdictions may modify the table as needed by deleting unused rows where they have not
+expended any funds or by adding columns to more clearly characterize their program expenditures
+over time.`,
+];
+
 module.exports = {
     COMMUNITY_ENGAGEMENT,
     EXECUTIVE_SUMMARY,
@@ -183,6 +191,7 @@ module.exports = {
     PROJECT_OVERVIEW,
     PROJECT_USE_OF_EVIDENCE,
     PROMOTING_EQUITABLE_OUTCOMES,
+    TABLE_OF_EXPENSES,
     USES_OF_FUNDS,
     USE_OF_EVIDENCE,
 };
