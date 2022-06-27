@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid">
+    <div class="container-fluid mt-3">
       <h2>Annual Report Generator</h2>
       <p>
         Upload all of your Annual Performance Report workbooks below and then

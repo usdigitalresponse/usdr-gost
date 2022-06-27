@@ -32,13 +32,13 @@ class ArpaDocumentBuilder {
         });
     }
 
-    static buildTableCell(value) {
+    static buildTableCell(value, alignRight=false) {
         return new docx.TableCell({
             children: [
                 new docx.Paragraph({
                     text: value,
                     spacing: { line: 200 },
-                    alignment: docx.AlignmentType.RIGHT,
+                    alignment: alignRight ? docx.AlignmentType.RIGHT : docx.AlignmentType.LEFT,
                 }),
             ],
             verticalAlign: docx.VerticalAlign.CENTER,
@@ -71,8 +71,8 @@ class ArpaDocumentBuilder {
             const newRow = new docx.TableRow({
                 children: [
                     ArpaDocumentBuilder.buildTableCell(cat),
-                    ArpaDocumentBuilder.buildTableCell(amountString),
-                    ArpaDocumentBuilder.buildTableCell(amountString),
+                    ArpaDocumentBuilder.buildTableCell(amountString, true),
+                    ArpaDocumentBuilder.buildTableCell(amountString, true),
                 ],
                 height: { value: 800 },
             });
