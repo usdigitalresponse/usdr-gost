@@ -11,9 +11,11 @@
   </b-row>
   <b-table sticky-header="600px" hover :items="formattedUsers" :fields="fields">
     <template #cell(actions)="row">
-      <b-button variant="danger" class="mr-1" size="sm" @click="deleteUser(row.item.id)">
+      <div v-if="row.item.email !== loggedInUser.email">
+        <b-button v-if="userRole === 'admin'" variant="danger" class="mr-1" size="sm" @click="deleteUser(row.item.id)">
         <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
       </b-button>
+      </div>
     </template>
   </b-table>
   <AddUserModal :showModal.sync="showAddUserModal"/>
@@ -21,9 +23,7 @@
 </template>
 
 <script>
-
 import { mapActions, mapGetters } from 'vuex';
-
 import AddUserModal from '@/components/Modals/AddUser.vue';
 
 export default {
@@ -65,7 +65,9 @@ export default {
   },
   computed: {
     ...mapGetters({
+      loggedInUser: 'users/loggedInUser',
       users: 'users/users',
+      userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
     }),
     formattedUsers() {

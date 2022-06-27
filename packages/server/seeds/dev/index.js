@@ -1,4 +1,4 @@
-// require('dotenv').config();
+ require('dotenv').config();
 
 const agencies = require('./ref/agencies');
 const roles = require('./ref/roles');
@@ -9,16 +9,18 @@ const userList = require('./ref/users');
 const { grants, assignedGrantsAgency, grantsInterested } = require('./ref/grants');
 const tenants = require('./ref/tenants');
 
-const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
-// const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
+ const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
+ const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
+ 
+ console.log(process.env.NODEMAILER_EMAIL_PW);
 
 const adminList = [
-    // Update me with the appropiate initial admin users
+     
     {
-        email: 'cmbemba@capitaltg.com',
-        name: 'Claudius',
-        agency_id: usdrAgency.id,
-        role_id: roles[0].id,
+         email: 'cavukovic@gmail.com',
+         name: 'Charlie Vukovic',
+         agency_id: usdrAgency.id,
+         role_id: roles[0].id,
     },
     // {
     //     email: 'xmattingly@fastmail.com',
