@@ -44,7 +44,7 @@
             href="#"
             class="mt-2 d-inline-block"
             :class="{visible: reportGenerated, invisible: !reportGenerated}"
-          >Download Report</a>
+          >Download Annual Report Template</a>
         </div>
         <h4>Files Uploaded:</h4>
         <ul>

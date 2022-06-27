@@ -20,8 +20,29 @@ class ArpaDocumentBuilder {
     }
 
     // Helper cuz the api for this package is kinda rough
+    static buildTableHeaderCell(value) {
+        return new docx.TableCell({
+            children: [
+                new docx.Paragraph({
+                    text: value,
+                    spacing: { line: 200 },
+                }),
+            ],
+            verticalAlign: docx.VerticalAlign.CENTER,
+        });
+    }
+
     static buildTableCell(value) {
-        return new docx.TableCell({ children: [new docx.Paragraph(value)] });
+        return new docx.TableCell({
+            children: [
+                new docx.Paragraph({
+                    text: value,
+                    spacing: { line: 200 },
+                    alignment: docx.AlignmentType.RIGHT,
+                }),
+            ],
+            verticalAlign: docx.VerticalAlign.CENTER,
+        });
     }
 
     formatExpenditureValue(val) {
@@ -31,12 +52,13 @@ class ArpaDocumentBuilder {
     static buildTableHeaderRow() {
         return new docx.TableRow({
             children: [
-                ArpaDocumentBuilder.buildTableCell('Category'),
+                ArpaDocumentBuilder.buildTableHeaderCell('Category'),
 
                 // The two below will be the same this year
-                ArpaDocumentBuilder.buildTableCell('Cumulative Expenditures to Date ($)'),
-                ArpaDocumentBuilder.buildTableCell('Amount since last recovery plan'),
+                ArpaDocumentBuilder.buildTableHeaderCell('Cumulative Expenditures to Date ($)'),
+                ArpaDocumentBuilder.buildTableHeaderCell('Amount since last recovery plan'),
             ],
+            height: { value: 600 },
         });
     }
 
@@ -45,15 +67,14 @@ class ArpaDocumentBuilder {
 
         this.sortedCategories.forEach((cat) => {
             const categoryData = this.data[cat];
-            console.log('Expenditure before: ', categoryData.totalExpenditure);
             const amountString = this.formatExpenditureValue(categoryData.totalExpenditure);
-            console.log('Expenditure after: ', amountString);
             const newRow = new docx.TableRow({
                 children: [
                     ArpaDocumentBuilder.buildTableCell(cat),
                     ArpaDocumentBuilder.buildTableCell(amountString),
                     ArpaDocumentBuilder.buildTableCell(amountString),
                 ],
+                height: { value: 800 },
             });
 
             tableRows.push(newRow);
@@ -65,11 +86,16 @@ class ArpaDocumentBuilder {
         });
     }
 
-    buildProjectInventory() {
-        const sectionHeader = new docx.Paragraph({
-            text: 'Project Inventory',
+    static buildPageHeader(text) {
+        return new docx.Paragraph({
             heading: docx.HeadingLevel.HEADING_1,
+            text,
+            spacing: { after: 200 },
         });
+    }
+
+    buildProjectInventory() {
+        const sectionHeader = ArpaDocumentBuilder.buildPageHeader('Project Inventory');
         // All the child elements will go in here
         const inventory = [sectionHeader];
 
@@ -135,7 +161,10 @@ class ArpaDocumentBuilder {
                     properties: {
                         type: docx.SectionType.NEXT_PAGE,
                     },
-                    children: [this.buildSummaryTable()],
+                    children: [
+                        ArpaDocumentBuilder.buildPageHeader('Table of Expenses by Expenditure Category'),
+                        this.buildSummaryTable(),
+                    ],
                 },
                 {
                     properties: {
