@@ -17,10 +17,10 @@ const tenants = require('./ref/tenants');
 const adminList = [
      
     {
-         email: 'cavukovic@gmail.com',
-         name: 'Charlie Vukovic',
-         agency_id: usdrAgency.id,
-         role_id: roles[0].id,
+        email: 'CHANGEME@GMAIL.COM',
+        name: 'GRANT ADMIN',
+        agency_id: usdrAgency.id,
+        role_id: roles[0].id,
     },
     // {
     //     email: 'xmattingly@fastmail.com',
