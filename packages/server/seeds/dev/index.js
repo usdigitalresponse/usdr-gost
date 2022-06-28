@@ -1,4 +1,4 @@
- require('dotenv').config();
+require('dotenv').config();
 
 const agencies = require('./ref/agencies');
 const roles = require('./ref/roles');
@@ -9,13 +9,12 @@ const userList = require('./ref/users');
 const { grants, assignedGrantsAgency, grantsInterested } = require('./ref/grants');
 const tenants = require('./ref/tenants');
 
- const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
- const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
- 
- console.log(process.env.NODEMAILER_EMAIL_PW);
+const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
+// const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
+
+console.log(process.env.NODEMAILER_EMAIL_PW);
 
 const adminList = [
-     
     {
         email: 'CHANGEME@GMAIL.COM',
         name: 'GRANT ADMIN',
