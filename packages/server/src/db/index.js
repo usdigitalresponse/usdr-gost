@@ -555,6 +555,22 @@ function setAgencyName(id, agen_name) {
         .update({ name : agen_name });
 }
 
+function setAgencyAbbr(id, agen_abbr) {
+    return knex(TABLES.agencies)
+        .where({
+            id,
+        })
+        .update({ abbreviation : agen_abbr });
+}
+
+function setAgencyParent(id, agen_parent) {
+    return knex(TABLES.agencies)
+        .where({
+            id,
+        })
+        .update({ agency_parent_id : agen_parent });
+}
+
 function setTenantDisplayName(id, display_name) {
     return knex(TABLES.tenants)
         .where({
@@ -654,6 +670,8 @@ module.exports = {
     getAgencyKeywords,
     setAgencyThresholds,
     setAgencyName,
+    setAgencyAbbr,
+    setAgencyParent,
     setTenantDisplayName,
     createKeyword,
     deleteKeyword,

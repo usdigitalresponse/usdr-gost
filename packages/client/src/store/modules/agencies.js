@@ -39,20 +39,20 @@ export default {
       });
       dispatch('fetchAgencies');
     },
-    // async updateAgencyAbbr({ dispatch }, { agencyId, abbreviation }) {
-    //   await fetchApi.put(`/api/organizations/:organizationId/agencies/abbr/${agencyId}`, {
-    //     // Currently, agencies are seeded into db; only thresholds are mutable.
-    //     abbreviation,
-    //   });
-    //   dispatch('fetchAgencies');
-    // },
-    // async updateAgencyParent({ dispatch }, { agencyId, parentAgency }) {
-    //   await fetchApi.put(`/api/organizations/:organizationId/agencies/parent/${agencyId}`, {
-    //     // Currently, agencies are seeded into db; only thresholds are mutable.
-    //     parentAgency,
-    //   });
-    //   dispatch('fetchAgencies');
-    // },
+    async updateAgencyAbbr({ dispatch }, { agencyId, abbreviation }) {
+      await fetchApi.put(`/api/organizations/:organizationId/agencies/abbr/${agencyId}`, {
+        // Currently, agencies are seeded into db; only thresholds are mutable.
+        abbreviation,
+      });
+      dispatch('fetchAgencies');
+    },
+    async updateAgencyParent({ dispatch }, { agencyId, parentAgency }) {
+      await fetchApi.put(`/api/organizations/:organizationId/agencies/parent/${agencyId}`, {
+        // Currently, agencies are seeded into db; only thresholds are mutable.
+        parentAgency,
+      });
+      dispatch('fetchAgencies');
+    },
   },
   mutations: {
     SET_AGENCIES(state, agencies) {

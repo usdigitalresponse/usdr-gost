@@ -25,7 +25,7 @@
               required
             ></b-form-input>
         </b-form-group>
-        <!-- <b-form-group
+        <b-form-group
           label-for="abbreviation-input"
         >
           <template slot="label">Abbreviation</template>
@@ -52,7 +52,7 @@
               />
             </template>
           </v-select>
-        </b-form-group> -->
+        </b-form-group>
         <b-form-group
           :state="!$v.formData.warningThreshold.$invalid"
           label-for="warningThreshold-input"
@@ -108,22 +108,13 @@ export default {
         warningThreshold: null,
         dangerThreshold: null,
         name: null,
-        // abbreviation: null,
-        // parentAgency: null,
+        abbreviation: null,
+        parentAgency: null,
       },
     };
   },
   validations: {
     formData: {
-      // name: {
-      //   required,
-      // },
-      // abbreviation: {
-      //   required,
-      // },
-      // // parentAgency: {
-      // //   required,
-      // // },
       warningThreshold: {
         required,
         numeric,
@@ -157,8 +148,8 @@ export default {
     ...mapActions({
       updateThresholds: 'agencies/updateThresholds',
       updateAgencyName: 'agencies/updateAgencyName',
-      // updateAgencyAbbr: 'agencies/updateAgencyAbbr',
-      // updateAgencyParent: 'agencies/updateAgencyParent',
+      updateAgencyAbbr: 'agencies/updateAgencyAbbr',
+      updateAgencyParent: 'agencies/updateAgencyParent',
     }),
     resetModal() {
       this.$emit('update:agency', null);
@@ -181,14 +172,10 @@ export default {
       if (this.$v.formData.$invalid) {
         return;
       }
-      // const body = {
-      //   ...this.formData,
-      //   parentId: this.formData.parentAgency.id,
-      // };
       await this.updateThresholds({ agencyId: this.agency.id, ...this.formData });
       await this.updateAgencyName({ agencyId: this.agency.id, ...this.formData });
-      // await this.updateAgencyAbbr({ agencyId: this.agency.id, ...this.formData });
-      // await this.updateAgencyParent({ agencyId: this.agency.id, ...this.formData });
+      await this.updateAgencyAbbr({ agencyId: this.agency.id, ...this.formData });
+      await this.updateAgencyParent({ agencyId: this.agency.id, ...this.formData });
       this.resetModal();
     },
   },
