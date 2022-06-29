@@ -522,19 +522,22 @@ async function createAgency({
         });
 }
 
-async function deleteAgency({
-    name, abbreviation, parent, warning_threshold, danger_threshold,
-}) {
+async function deleteAgency(
+    id, parent, name, abbreviation, warning_threshold, danger_threshold,
+) {
     // seeded agencies with hardcoded ids will make autoicrement fail since it doesnt
     // know which is the next id
+    console.log(`indexjs   ${id}`);
     await knex.raw('select setval(\'agencies_id_seq\', max(id)) from agencies');
+    // console.log('sdfghjkjhg   ' + knex(TABLES.agencies.where(id)));
     return knex(TABLES.agencies)
         .where({
-            agency_parent_id_id: parent,
-            agency_name: name,
-            agency_abbreviation: abbreviation,
-            agency_warning_threshold: warning_threshold,
-            agency_danger_threshold: danger_threshold,
+            id: id,
+            parent: parent,
+            name: name,
+            abbreviation: abbreviation,
+            warning_threshold: warning_threshold,
+            danger_threshold: danger_threshold,
         })
         .del();
 }
@@ -548,6 +551,7 @@ function setAgencyThresholds(id, warning_threshold, danger_threshold) {
 }
 
 function setAgencyName(id, agen_name) {
+    console.log('agen name === ' + agen_name);
     return knex(TABLES.agencies)
         .where({
             id,

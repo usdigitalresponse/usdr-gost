@@ -85,8 +85,8 @@
             required
           ></b-form-input>
         </b-form-group>
-        <form ref="form" @submit.stop.prevent="handleDelete">
-          <b-button v-if="userRole === 'admsn'" variant="danger">Admin Delete Agency</b-button>
+        <form ref="form" @click="handleDelete">
+          <b-button v-if="userRole === 'admin'" variant="danger" >Admin Delete Agency</b-button>
         </form>
       </form>
     </b-modal>
@@ -139,6 +139,7 @@ export default {
   },
   computed: {
     ...mapGetters({
+      agencies: 'agencies/agencies',
       userRole: 'users/userRole',
     }),
   },
@@ -150,6 +151,7 @@ export default {
       updateAgencyName: 'agencies/updateAgencyName',
       updateAgencyAbbr: 'agencies/updateAgencyAbbr',
       updateAgencyParent: 'agencies/updateAgencyParent',
+      deleteAgency: 'agencies/deleteAgency',
     }),
     resetModal() {
       this.$emit('update:agency', null);
@@ -162,11 +164,17 @@ export default {
       if (this.$v.formData.$invalid) {
         return;
       }
-      const body = {
-        ...this.formData,
-        parentId: this.formData.parentAgency.id,
-      };
-      await this.deleteAgency(body);
+      // console.log(`QQQQQQQQQQQQ ${this.formData.parentAgency.name}`);
+      console.log(`WWWWWWWWWWWW ${this.agency.parent}`);
+      await this.deleteAgency({
+        agencyId: this.agency.id,
+        parent: this.agency.parent,
+        name: this.agency.name,
+        abbreviation: this.agency.abbreviation,
+        warningThreshold: this.formData.warningThreshold,
+        dangerThreshold: this.formData.dangerThreshold,
+      });
+      this.resetModal();
     },
     async handleSubmit() {
       if (this.$v.formData.$invalid) {

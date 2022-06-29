@@ -20,8 +20,17 @@ export default {
       await fetchApi.post('/api/organizations/:organizationId/agencies/', body);
       dispatch('fetchAgencies');
     },
-    async deleteAgency({ dispatch }, body) {
-      await fetchApi.deleteRequest('/api/organizations/:organizationId/agencies/', body);
+    deleteAgency({ dispatch }, {
+      agencyId, parent, name, abbreviation, warningThreshold, dangerThreshold,
+    }) {
+      console.log(`agencies      ${agencyId}`);
+      fetchApi.deleteRequest(`/api/organizations/:organizationId/agencies/del/${agencyId}`, {
+        parent,
+        name,
+        abbreviation,
+        warningThreshold,
+        dangerThreshold,
+      });
       dispatch('fetchAgencies');
     },
     async updateThresholds({ dispatch }, { agencyId, warningThreshold, dangerThreshold }) {
@@ -34,21 +43,18 @@ export default {
     },
     async updateAgencyName({ dispatch }, { agencyId, name }) {
       await fetchApi.put(`/api/organizations/:organizationId/agencies/name/${agencyId}`, {
-        // Currently, agencies are seeded into db; only thresholds are mutable.
         name,
       });
       dispatch('fetchAgencies');
     },
     async updateAgencyAbbr({ dispatch }, { agencyId, abbreviation }) {
       await fetchApi.put(`/api/organizations/:organizationId/agencies/abbr/${agencyId}`, {
-        // Currently, agencies are seeded into db; only thresholds are mutable.
         abbreviation,
       });
       dispatch('fetchAgencies');
     },
     async updateAgencyParent({ dispatch }, { agencyId, parentAgency }) {
       await fetchApi.put(`/api/organizations/:organizationId/agencies/parent/${agencyId}`, {
-        // Currently, agencies are seeded into db; only thresholds are mutable.
         parentAgency,
       });
       dispatch('fetchAgencies');
