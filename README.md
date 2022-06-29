@@ -23,16 +23,30 @@ Each folder inside packages/ is considered a workspace. To see a list of all wor
 
 # Setup
 
+1. Ensure using NODE Version 14 (v14.19.0)
+
 First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. If you are using [Nodenv](https://github.com/nodenv/nodenv) or [NVM](https://nvm.sh/), it should pick up on the correct version.
 
 To setup your workspace run the following commands at the root of the project
 
-1. Ensure using NODE Version 12 (v12.22.12)
+1.1 (optional) Setup nvm
 
 ```
 > brew install nvm
-> nvm install v12.22.12
-> nvm use v12.22.12
+> vim ~/.zshrc
+add the follow lines to your .zshrc file
+  export NVM_DIR="$HOME/.nvm"
+  source "$NVM_DIR/nvm.sh"
+> esc
+> :wq
+```
+
+***Make sure to use new terminals once modified `~/.zshrc`***
+
+
+```
+> nvm install v14.19.0
+> nvm use v14.19.0
 ```
 
 2. Install dependencies
@@ -40,6 +54,7 @@ To setup your workspace run the following commands at the root of the project
 The scripts will install yarn and download npm dependencies for all yarn workspaces.
 
 ```
+> cd usdr-gost/
 > npm i yarn@^1.22.4 -g
 > yarn run setup
 ```
@@ -55,8 +70,8 @@ The scripts will install yarn and download npm dependencies for all yarn workspa
 
 4. Setup ENVs
 
-Rename packages/client & packages/server `.env.example`s to `.env`s and
-Update packages/client & server `.env`s
+Rename packages/client & packages/server `.env.example` to `.env` and
+Update packages/client & server `.env`
 
 ```
 > cd packages/client && export $(cat .env)
@@ -71,48 +86,65 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 
 **_Note:_** In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
 
+
+![](./docs/img/error-gmail.png)
 If running into `Error: Invalid login: 535-5.7.8 Username and Password not accepted.` then ["Allow Less Secure Apps"](https://myaccount.google.com/lesssecureapps) - [source](https://stackoverflow.com/a/59194512)
+
+**NOTE:** Much more reliable and preferable to go the App Password route (see step 7)
 
 5. Run DB Migrations & Seed
 
 In server workspace, run migrations:
 
-**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by adding a user with your email **_to be able to login to the system_**.
+**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**.
 Then run seeds:
 
 ```
 > cd packages/server
-> npx knex migrate:latest
-> npx knex seed:run
+> export $(cat .env) (delete all comments in .env file)
+> yarn db:migrate
+> yarn db:seed
 ```
 
 6. Run Server (Terminal 1)
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
-**_Ensure using node v12_**
+**_Ensure using node v14_**
 
 ```
-> nvm use v12.22.12
+> nvm use v14.19.0
 > cd packages/server
 > yarn serve
-
 ```
 
-6. Run Client (Terminal 2)
+6.1 Run Client (Terminal 2)
 
 After that you should be able to serve the backend and frontend by running in both server and client folders.
 
-**_*Ensure using node v12*_**
+**_*Ensure using node v14*_**
 
 ```
-> nvm use v12.22.12
+> nvm use v14.19.0
 > cd packages/client
 > yarn serve
-
 ```
 
-7. Visit `client_url/login` (e.g http://localhost:8081/#/login) and login w/ user set in Step 5.
+**NOTE:** need to run `> unset AWS_ACCESS_KEY_ID` if `> echo $AWS_ACCESS_KEY_ID` returns a result else will run into the error below. The application will try to use AWS Simple Email Service (SES) if `AWS_ACCESS_KEY_ID` is found as an env var
+
+![](./docs/img/error-aws-ses.png)
+
+7. Visit `client_url/login` (e.g http://localhost:8080/#/login) and login w/ user set in Step 5.
+
+**NOTE:** if you only see a blank screen then ensure you've set the `packages/client/.env` up
+
+**NOTE:** if you get `Error: Invalid login: 534-5.7.9 Application-specific password required.` then you'll need to set an App Password (https://myaccount.google.com/u/0/apppasswords) replacing your `NODEMAILER_EMAIL_PW` with the new generated PW.
+
+![](./docs/img/gmail-app-password.png)
+
+
+8. When you get the login email link, change the redirected path from `localhost:3000/api/sessions/...` to your client_url e.g `localhost:8080/api/sessions/`
+
 
 # Additional Info:
 
