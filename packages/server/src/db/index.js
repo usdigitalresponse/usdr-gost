@@ -551,7 +551,7 @@ function setAgencyThresholds(id, warning_threshold, danger_threshold) {
 }
 
 function setAgencyName(id, agen_name) {
-    console.log('agen name === ' + agen_name);
+    // console.log('agen name === ' + agen_name);
     return knex(TABLES.agencies)
         .where({
             id,
@@ -568,11 +568,12 @@ function setAgencyAbbr(id, agen_abbr) {
 }
 
 function setAgencyParent(id, agen_parent) {
+    // console.log('agen id in index.js ' + id);
     return knex(TABLES.agencies)
         .where({
             id,
         })
-        .update({ agency_parent_id : agen_parent });
+        .update({ parent : agen_parent });
 }
 
 function setTenantDisplayName(id, display_name) {

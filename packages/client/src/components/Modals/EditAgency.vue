@@ -23,6 +23,7 @@
               min=2
               v-model="formData.name"
               required
+              :placeholder="this.agency.name"
             ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -36,17 +37,17 @@
               max=8
               v-model="formData.abbreviation"
               required
+              :placeholder="this.agency.abbreviation"
             ></b-form-input>
         </b-form-group>
         <b-form-group
           label-for="agency-input"
         >
           <template slot="label">Parent Agency</template>
-          <v-select :options="agencies" label="name" :value="formData.parentAgency" v-model="formData.parentAgency">
+          <v-select :options="agencies" :placeholder="String(this.agency.parent)" label="name" :value="this.formData.parentAgency" v-model="formData.parentAgency">
             <template #search="{attributes, events}">
               <input
                 class="vs__search"
-                :required="!formData.parentAgency"
                 v-bind="attributes"
                 v-on="events"
               />
@@ -86,7 +87,12 @@
           ></b-form-input>
         </b-form-group>
         <form ref="form" @click="handleDelete">
-          <b-button v-if="userRole === 'admin'" variant="danger" >Admin Delete Agency</b-button>
+          <b-button v-bind:disabled="userRole !== 'admin'" id="tooltip-target-1" variant="danger" >
+            Admin Delete Agency
+          </b-button>
+          <b-tooltip target="tooltip-target-1" triggers="hover">
+            You cannot delete an agency with children. Reassign child agencies to continue deletion.
+          </b-tooltip>
         </form>
       </form>
     </b-modal>
@@ -164,26 +170,33 @@ export default {
       if (this.$v.formData.$invalid) {
         return;
       }
-      // console.log(`QQQQQQQQQQQQ ${this.formData.parentAgency.name}`);
-      console.log(`WWWWWWWWWWWW ${this.agency.parent}`);
-      await this.deleteAgency({
-        agencyId: this.agency.id,
-        parent: this.agency.parent,
-        name: this.agency.name,
-        abbreviation: this.agency.abbreviation,
-        warningThreshold: this.formData.warningThreshold,
-        dangerThreshold: this.formData.dangerThreshold,
-      });
-      this.resetModal();
+      await this.$bvModal.msgBoxConfirm(
+        'Are you sure you want to delete this agency? You might need to refresh to see changes. If it is still'
+      + ' there, then it is a parent agency and can not be deleted.',
+      ).then(() => {
+        this.deleteAgency({
+          agencyId: this.agency.id,
+          parent: this.agency.parent,
+          name: this.agency.name,
+          abbreviation: this.agency.abbreviation,
+          warningThreshold: this.formData.warningThreshold,
+          dangerThreshold: this.formData.dangerThreshold,
+        });
+        this.resetModal();
+      })
+        .catch((err) => {
+          console.log(`errrrr   ${err}`);
+        });
     },
     async handleSubmit() {
       if (this.$v.formData.$invalid) {
         return;
       }
+      console.log(`parent ${this.formData.parentAgency.id}`);
       await this.updateThresholds({ agencyId: this.agency.id, ...this.formData });
       await this.updateAgencyName({ agencyId: this.agency.id, ...this.formData });
       await this.updateAgencyAbbr({ agencyId: this.agency.id, ...this.formData });
-      await this.updateAgencyParent({ agencyId: this.agency.id, ...this.formData });
+      await this.updateAgencyParent({ agencyId: this.agency.id, parentId: this.formData.parentAgency.id });
       this.resetModal();
     },
   },

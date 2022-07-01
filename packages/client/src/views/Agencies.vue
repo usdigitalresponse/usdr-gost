@@ -56,6 +56,11 @@ export default {
           key: 'abbreviation',
           sortable: true,
         },
+        // {
+        //   key: 'parent',
+        //   label: 'Parent Agency Id',
+        //   sortable: true,
+        // },
         {
           key: 'warning_threshold',
           label: 'Close Date Warning Threshold',
@@ -66,7 +71,10 @@ export default {
           label: 'Close Date Danger Threshold',
           sortable: true,
         },
-        { key: 'actions', label: 'Actions' },
+        {
+          key: 'actions',
+          label: 'Actions',
+        },
       ],
       showAddAgencyModal: false,
       showEditAgencyModal: false,
