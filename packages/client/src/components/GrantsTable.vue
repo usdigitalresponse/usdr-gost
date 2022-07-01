@@ -23,7 +23,7 @@
         </b-button>
       </b-col>
     </b-row>
-    <b-row class="mt-3 mb-3" align-h="between">
+    <b-row v-if="!showInterested && !showRejected && !showAssignedToAgency" class="mt-3 mb-3" align-h="between" style="position: relative; z-index: 999">
       <b-col cols="3">
         <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions"
           :multiple="true" :close-on-select="false"
@@ -34,6 +34,7 @@
     </b-row>
     <b-table
       id="grants-table"
+      sticky-header="600px"
       hover
       :items="formattedGrants"
       :fields="fields"
@@ -87,6 +88,7 @@ export default {
   components: { GrantDetails, Multiselect },
   props: {
     showInterested: Boolean,
+    showRejected: Boolean,
     showAging: Boolean,
     showAssignedToAgency: String,
   },
@@ -254,8 +256,8 @@ export default {
           interestedByMe: this.showInterested,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
-          positiveInterest: this.reviewStatusFilters.includes('interested') ? true : null,
-          rejected: this.reviewStatusFilters.includes('rejected') ? true : null,
+          positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
+          rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
         });
       } catch (e) {
         console.log(e);
@@ -332,6 +334,8 @@ export default {
         interestedByMe: this.showInterested,
         aging: this.showAging,
         assignedToAgency: this.showAssignedToAgency,
+        positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
+        rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
       });
     },
   },
