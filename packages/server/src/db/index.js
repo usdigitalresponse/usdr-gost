@@ -274,8 +274,9 @@ async function getGrants({
                 );
             }
             if (filters) {
-                if (filters.interestedByUser) {
-                    queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
+                if (filters.interestedByUser || filters.positiveInterest || filters.rejected) {
+                    queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
+                    .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
                 }
                 if (filters.assignedToAgency) {
                     queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
@@ -289,6 +290,14 @@ async function getGrants({
                         }
                         if (filters.assignedToAgency) {
                             qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgency);
+                        }
+                        if (!(filters.positiveInterest && filters.rejected)) {
+                            if (filters.positiveInterest) {
+                                qb.where(`${TABLES.interested_codes}.is_rejection`, '=', false);
+                            }
+                            if (filters.rejected) {
+                                qb.where(`${TABLES.interested_codes}.is_rejection`, '=', true);
+                            }
                         }
                     },
                 );

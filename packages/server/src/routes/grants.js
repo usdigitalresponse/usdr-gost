@@ -65,6 +65,8 @@ router.get('/', requireUser, async (req, res) => {
             agencyCriteria,
             interestedByUser: req.query.interestedByMe ? req.signedCookies.userId : null,
             assignedToAgency: req.query.assignedToAgency ? req.query.assignedToAgency : null,
+            positiveInterest: req.query.positiveInterest ? true : null,
+            rejected: req.query.rejected ? true : null,
         },
     });
     res.json(grants);

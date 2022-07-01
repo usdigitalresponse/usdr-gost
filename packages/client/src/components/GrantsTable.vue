@@ -23,9 +23,17 @@
         </b-button>
       </b-col>
     </b-row>
+    <b-row class="mt-3 mb-3" align-h="between">
+      <b-col cols="3">
+        <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions"
+          :multiple="true" :close-on-select="false"
+          :clear-on-select="false"
+          placeholder="Review Status">
+        </multiselect>
+      </b-col>
+    </b-row>
     <b-table
       id="grants-table"
-      sticky-header="600px"
       hover
       :items="formattedGrants"
       :fields="fields"
@@ -69,13 +77,14 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { debounce } from 'lodash';
+import Multiselect from 'vue-multiselect';
 
 import { titleize } from '@/helpers/form-helpers';
 
 import GrantDetails from '@/components/Modals/GrantDetails.vue';
 
 export default {
-  components: { GrantDetails },
+  components: { GrantDetails, Multiselect },
   props: {
     showInterested: Boolean,
     showAging: Boolean,
@@ -140,6 +149,8 @@ export default {
       orderBy: '',
       searchInput: null,
       debouncedSearchInput: null,
+      reviewStatusFilters: [],
+      reviewStatusOptions: ['interested', 'rejected'],
     };
   },
   mounted() {
@@ -192,6 +203,9 @@ export default {
     },
   },
   watch: {
+    reviewStatusFilters() {
+      this.paginateGrants();
+    },
     selectedAgency() {
       this.setup();
     },
@@ -240,6 +254,8 @@ export default {
           interestedByMe: this.showInterested,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
+          positiveInterest: this.reviewStatusFilters.includes('interested') ? true : null,
+          rejected: this.reviewStatusFilters.includes('rejected') ? true : null,
         });
       } catch (e) {
         console.log(e);
