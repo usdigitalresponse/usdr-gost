@@ -101,7 +101,6 @@ export default {
       this.addFiles(e.target.files);
     },
     post() {
-      console.log('post hit: ', this.fileList);
       const formData = new FormData();
       this.fileList.forEach((file) => {
         formData.append('files', file);
