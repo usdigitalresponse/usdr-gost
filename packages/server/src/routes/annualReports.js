@@ -11,7 +11,6 @@ const {
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Should this be an admin user?
 router.post('/', requireUser, upload.array('files'), (req, res) => {
     // Load all the buffers into workbooks
     // This could definitely be done more efficiently but should be fine for this use case

@@ -18,8 +18,6 @@ const genericTemplateParser = (book) => {
     return project;
 };
 
-// This whole workflow blows up if the category strings are mismatched :(
-// Confirm that those options won't be changed by anyone
 /**
  *
  * @param workbooks
