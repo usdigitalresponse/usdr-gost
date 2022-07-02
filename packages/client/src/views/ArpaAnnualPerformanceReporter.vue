@@ -33,16 +33,16 @@
       <div class="mt-2">
         <div class="text-center">
           <button
-            class="btn btn-success px-5 py-2"
+            class="btn btn-primary px-5 py-2"
             :disabled="!fileList.length"
             type="button"
             @click="post"
-          >Generate Report</button>
+          >{{ reportGenerated ? 'Regenerate Report' : 'Generate Report' }}</button>
           <br>
           <a
             id="download-link"
             href="#"
-            class="mt-2 d-inline-block"
+            class="mt-2 btn btn-success d-inline-block"
             :class="{visible: reportGenerated, invisible: !reportGenerated}"
           >Download Annual Report Template</a>
         </div>
