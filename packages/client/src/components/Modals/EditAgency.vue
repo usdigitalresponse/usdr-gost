@@ -87,10 +87,12 @@
           ></b-form-input>
         </b-form-group>
         <form ref="form" @click="handleDelete">
-          <b-button v-bind:disabled="userRole !== 'admin'" id="tooltip-target-1" variant="danger" >
-            Admin Delete Agency
-          </b-button>
-          <b-tooltip target="tooltip-target-1" triggers="hover">
+          <span id="disabled-wrapper" class="d-inline-block" tabindex="0">
+            <b-button v-bind:disabled="userRole !== 'admin'" style="pointer-events: none;" variant="danger">
+              Admin Delete Agency
+            </b-button>
+          </span>
+          <b-tooltip v-if="userRole !== 'admin'" target="disabled-wrapper" triggers="hover">
             You cannot delete an agency with children. Reassign child agencies to continue deletion.
           </b-tooltip>
         </form>

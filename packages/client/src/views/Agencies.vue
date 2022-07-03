@@ -56,11 +56,11 @@ export default {
           key: 'abbreviation',
           sortable: true,
         },
-        // {
-        //   key: 'parent',
-        //   label: 'Parent Agency Id',
-        //   sortable: true,
-        // },
+        {
+          key: 'parent',
+          label: 'Parent Agency Id',
+          sortable: true,
+        },
         {
           key: 'warning_threshold',
           label: 'Close Date Warning Threshold',
