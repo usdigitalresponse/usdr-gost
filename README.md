@@ -60,7 +60,8 @@ The scripts will install yarn and download npm dependencies for all yarn workspa
 ```
 
 3). Create database(s)
-   Install postgres DB. I personally used https://postgresapp.com/
+
+Install postgres DB. I personally used https://postgresapp.com/
 
 ```
 psql -h localhost -p 5432
@@ -78,27 +79,28 @@ Update packages/client & server `.env`
 > cd packages/server && export $(cat .env)
 ```
 
-Create .env file in server workspace based on the .env.example. See Deployment section for more information on the .env file. Also create .env file in client workspace based on the .env.example file.
-
 Set environment variable pointing to local postgres DB, this is used for migrations (knex does not load .env file)
 
 `export POSTGRES_URL=postgresql://localhost:5432/usdr_grants` (individual vars) or `export $(cat .env)` (whole file)
+**NOTE:** if using `export $(cat .env)` need to remove all comments from `.env` file.
 
-**_Note:_** In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
+**_Note:_** In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see (4.1)[here](https://support.google.com/mail/answer/7126229)).
 
 4.1). Setup Gmail
 
-Visit: https://myaccount.google.com/u/0/apppassword and set an App Password (see screenshot below) replacing your `NODEMAILER_EMAIL_PW` with the new generated PW.
+Visit: https://myaccount.google.com/u/0/apppassword and set up an "App Password" (see screenshot below) replacing your `NODEMAILER_EMAIL_PW` with the new generated PW.
 
 **NOTE:** In order to enable App Password MUST turn on 2FA for gmail.
 
 ![](./docs/img/gmail-app-password.png)
 
-![](./docs/img/error-gmail.png)
 
 If running into `Error: Invalid login: 535-5.7.8 Username and Password not accepted.` then ["Allow Less Secure Apps"](https://myaccount.google.com/lesssecureapps) - [source](https://stackoverflow.com/a/59194512)
 
-**NOTE:** Much more reliable and preferable to go the App Password route vs Less Secure Apps
+**NOTE:** Much more reliable and preferable to go the App Password route vs Less Secure Apps.
+
+![](./docs/img/error-gmail.png)
+
 
 5). Run DB Migrations & Seed
 
@@ -109,7 +111,7 @@ Then run seeds:
 
 ```
 > cd packages/server
-> export $(cat .env) (delete all comments in .env file)
+> export $(cat .env) #delete all comment lines in .env file
 > yarn db:migrate
 > yarn db:seed
 ```
@@ -125,7 +127,6 @@ Now you should be able to serve the frontend.
 > cd packages/client
 > yarn serve
 ```
-
 
 6.1). Run Server (Terminal 2)
 
@@ -147,7 +148,7 @@ Now you should be able to serve the backend.
 
 7). Visit `client_url/login` (e.g http://localhost:8080/#/login) and login w/ user set in Step 5.
 
-**NOTE:** if you only see a blank screen then ensure you've setup the `packages/client/.env`
+**NOTE:** if you only see a blank screen then ensure you've set up the `packages/client/.env`
 
 **NOTE:** if you get `Error: Invalid login: 534-5.7.9 Application-specific password required.` then you'll need to set an App Password (https://myaccount.google.com/u/0/apppasswords) (See Step 4)
 
