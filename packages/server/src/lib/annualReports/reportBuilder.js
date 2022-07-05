@@ -20,40 +20,35 @@ const genericTemplateParser = (book) => {
 
 /**
  *
- * @param workbooks
- * @returns {{
+ * @param book
+ * @param fullAnnualData {{
  *     category: {
  *         totalExpenditure: int,
  *         projects: [typedefs.ProjectData]
  *     }
  * }}
  */
-const parseDataFromWorkbooks = (workbooks) => {
-    const reportData = {};
-    workbooks.forEach((book) => {
-        const projectSheet = book.Sheets[PROJECT_DATA];
-        let projectData;
+const parseDataFromWorkbook = (book, fullAnnualData) => {
+    const projectSheet = book.Sheets[PROJECT_DATA];
+    let projectData;
 
-        // If this cell says "Expenditure Category" then it's the generic template
-        // This workflow is extremely fragile based on this key. We've asked them not to modify
-        // Any cells other than where input is required, this trim() and lowercase() is just a hedge
-        // in case some kind of unexpected auto-format is applied
-        const isGeneric = projectSheet.B19.v.trim().toLowerCase() === 'expenditure category';
-        if (isGeneric) {
-            projectData = genericTemplateParser(book);
-        }
+    // If this cell says "Expenditure Category" then it's the generic template
+    // This workflow is extremely fragile based on this key. We've asked them not to modify
+    // Any cells other than where input is required, this trim() and lowercase() is just a hedge
+    // in case some kind of unexpected auto-format is applied
+    const isGeneric = projectSheet.B19.v.trim().toLowerCase() === 'expenditure category';
+    if (isGeneric) {
+        projectData = genericTemplateParser(book);
+    }
 
-        const { category } = projectData;
-        // I am not at all worried about prototype key collisions in this case
-        if (!(category in reportData)) {
-            reportData[category] = { totalExpenditure: 0, projects: [] };
-        }
+    const { category } = projectData;
+    // I am not at all worried about prototype key collisions in this case
+    if (!(category in fullAnnualData)) {
+        fullAnnualData[category] = { totalExpenditure: 0, projects: [] };
+    }
 
-        reportData[category].totalExpenditure += projectData.amountSpent;
-        reportData[category].projects.push(projectData);
-    });
-
-    return reportData;
+    fullAnnualData[category].totalExpenditure += projectData.amountSpent;
+    fullAnnualData[category].projects.push(projectData);
 };
 
-module.exports = parseDataFromWorkbooks;
+module.exports = { parseDataFromWorkbook };
