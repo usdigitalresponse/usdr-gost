@@ -84,11 +84,13 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 `export POSTGRES_URL=postgresql://localhost:5432/usdr_grants` (individual vars) or `export $(cat .env)` (whole file)
 **NOTE:** if using `export $(cat .env)` need to remove all comments from `.env` file.
 
-**_Note:_** In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see (4.1)[here](https://support.google.com/mail/answer/7126229)).
+**_Note:_** In order to login, the server must be able to send email. Set the relevant environment variables in `# Email Server:` in .env to credentials for a personal email account (e.g. for Gmail, see (4.1)[here](https://support.google.com/mail/answer/7126229)).
 
 4.1). Setup Gmail
 
-Visit: https://myaccount.google.com/u/0/apppassword and set up an "App Password" (see screenshot below) replacing your `NODEMAILER_EMAIL_PW` with the new generated PW.
+Visit: https://myaccount.google.com/u/0/apppassword and set up an "App Password" (see screenshot below) 
+
+In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
 
 **NOTE:** In order to enable App Password MUST turn on 2FA for gmail.
 
