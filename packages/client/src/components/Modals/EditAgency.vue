@@ -171,8 +171,8 @@ export default {
         return;
       }
       await this.$bvModal.msgBoxConfirm(
-        'Are you sure you want to delete this agency? You might need to refresh to see changes. If it is still'
-      + ' there, then it is a parent agency and can not be deleted.',
+        'Are you sure you want to delete this agency? This cannot be undone. If the agency has children,'
+      + ' reassign child agencies to continue deletion.',
       ).then(() => {
         this.deleteAgency({
           agencyId: this.agency.id,
