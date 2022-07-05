@@ -8,7 +8,6 @@
   "scripts": {
     "start": "node src",
     "start:dev": "nodemon src",
-    "start:server": "npx knex migrate:latest && npx knex seed:run || true && yarn serve",
     "serve": "nodemon src",
     "db:migrate": "npx knex migrate:latest",
     "db:rollback": "npx knex migrate:rollback",

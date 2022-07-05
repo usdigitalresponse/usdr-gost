@@ -63,14 +63,14 @@ The scripts will install yarn and download npm dependencies for all yarn workspa
    Install postgres DB. I personally used https://postgresapp.com/
 
 ```
-> psql -h localhost -p 5432
-> CREATE DATABASE usdr_grants;
-> CREATE DATABASE usdr_grants_test;
+psql -h localhost -p 5432
+CREATE DATABASE usdr_grants;
+CREATE DATABASE usdr_grants_test;
 ```
 
 4. Setup ENVs
 
-Rename packages/client & packages/server `.env.example` to `.env` and
+Copy packages/client & packages/server `.env.example` to `.env` and
 Update packages/client & server `.env`
 
 ```
