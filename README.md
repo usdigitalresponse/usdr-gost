@@ -82,6 +82,7 @@ Update packages/client & server `.env`
 Set environment variable pointing to local postgres DB, this is used for migrations (knex does not load .env file)
 
 `export POSTGRES_URL=postgresql://localhost:5432/usdr_grants` (individual vars) or `export $(cat .env)` (whole file)
+
 **NOTE:** if using `export $(cat .env)` need to remove all comments from `.env` file.
 
 **_Note:_** In order to login, the server must be able to send email. Set the relevant environment variables under `# Email Server:` in .env to credentials for a personal email account (e.g. for Gmail, see (4.1)[here](https://support.google.com/mail/answer/7126229)).
@@ -92,10 +93,9 @@ Visit: https://myaccount.google.com/u/0/apppassword and set up an "App Password"
 
 In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
 
-**NOTE:** In order to enable App Password MUST turn on 2FA for gmail.
-
 ![](./docs/img/gmail-app-password.png)
 
+**NOTE:** In order to enable App Password MUST turn on 2FA for gmail.
 
 If running into `Error: Invalid login: 535-5.7.8 Username and Password not accepted.` then ["Allow Less Secure Apps"](https://myaccount.google.com/lesssecureapps) - [source](https://stackoverflow.com/a/59194512)
 
