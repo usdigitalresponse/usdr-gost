@@ -57,11 +57,6 @@ export default {
           sortable: true,
         },
         {
-          key: 'parent',
-          label: 'Parent Agency Id',
-          sortable: true,
-        },
-        {
           key: 'warning_threshold',
           label: 'Close Date Warning Threshold',
           sortable: true,

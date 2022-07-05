@@ -23,7 +23,6 @@
               min=2
               v-model="formData.name"
               required
-              :placeholder="this.agency.name"
             ></b-form-input>
         </b-form-group>
         <b-form-group
@@ -37,14 +36,13 @@
               max=8
               v-model="formData.abbreviation"
               required
-              :placeholder="this.agency.abbreviation"
             ></b-form-input>
         </b-form-group>
         <b-form-group
           label-for="agency-input"
         >
           <template slot="label">Parent Agency</template>
-          <v-select :options="agencies" :placeholder="String(this.agency.parent)" label="name" :value="this.formData.parentAgency" v-model="formData.parentAgency">
+          <v-select :options="agencies" label="name" :value="this.formData.parentAgency" v-model="formData.parentAgency">
             <template #search="{attributes, events}">
               <input
                 class="vs__search"
@@ -187,19 +185,35 @@ export default {
         this.resetModal();
       })
         .catch((err) => {
-          console.log(`errrrr   ${err}`);
+          console.log(`error in delete agency   ${err}`);
         });
     },
     async handleSubmit() {
       if (this.$v.formData.$invalid) {
         return;
       }
-      console.log(`parent ${this.formData.parentAgency.id}`);
-      await this.updateThresholds({ agencyId: this.agency.id, ...this.formData });
-      await this.updateAgencyName({ agencyId: this.agency.id, ...this.formData });
-      await this.updateAgencyAbbr({ agencyId: this.agency.id, ...this.formData });
-      await this.updateAgencyParent({ agencyId: this.agency.id, parentId: this.formData.parentAgency.id });
+      if (this.formData.dangerThreshold && this.formData.dangerThreshold) {
+        this.updateThresholds({ agencyId: this.agency.id, ...this.formData });
+        this.resetModal();
+        this.$bvModal.hide();
+      }
+      if (this.formData.name) {
+        this.updateAgencyName({ agencyId: this.agency.id, ...this.formData });
+        this.resetModal();
+        this.$bvModal.hide();
+      }
+      if (this.formData.abbreviation) {
+        this.updateAgencyAbbr({ agencyId: this.agency.id, ...this.formData });
+        this.resetModal();
+        this.$bvModal.hide();
+      }
+      if (this.formData.parentAgency.id) {
+        this.updateAgencyParent({ agencyId: this.agency.id, parentId: this.formData.parentAgency.id });
+        this.resetModal();
+        this.$bvModal.hide();
+      }
       this.resetModal();
+      this.$bvModal.hide();
     },
   },
 };
