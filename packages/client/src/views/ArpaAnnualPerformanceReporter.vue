@@ -34,6 +34,7 @@
         <div class="text-center">
           <button
             class="btn btn-primary px-5 py-2"
+            :class="{disabled: !fileList.length}"
             :disabled="!fileList.length"
             type="button"
             @click="post"
@@ -138,6 +139,9 @@ export default {
 .underline {
   text-decoration: underline;
   cursor: pointer;
+}
+.disabled {
+  cursor: not-allowed;
 }
 .pointer {
   cursor: pointer;

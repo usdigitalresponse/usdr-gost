@@ -233,18 +233,21 @@ class ArpaDocumentBuilder {
                             new docx.TextRun({ text: 'Website: ', size: 24 }),
                             new docx.ExternalHyperlink({
                                 children: [new docx.TextRun({
-                                    text: project.website,
+                                    text: project.website || 'www.project.com',
                                     style: 'Hyperlink',
                                     size: 24,
                                 })],
-                                link: project.website,
+                                link: project.website || 'www.project.com',
                             }),
                         ],
                         bullet: { level: 0 },
                     }),
                     new docx.Paragraph({
                         children: [
-                            new docx.TextRun({ text: project.description, size: 24 }),
+                            new docx.TextRun({
+                                text: project.description || 'A brief description of the project',
+                                size: 24,
+                            }),
                         ],
                         spacing: { before: 100 },
                         bullet: { level: 0 },
@@ -257,9 +260,16 @@ class ArpaDocumentBuilder {
                     //     placeholders.PROJECT_OVERVIEW,
                     // ),
                     ArpaDocumentBuilder.buildUnderlinedSubHeader('Use of Evidence'),
-                    ArpaDocumentBuilder.buildPlaceholderParagraph(
-                        placeholders.PROJECT_USE_OF_EVIDENCE,
-                    ),
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({ text: project.impactStatement, size: 24 }),
+                        ],
+                        spacing: { before: 100 },
+                        bullet: { level: 0 },
+                    }),
+                    // ArpaDocumentBuilder.buildPlaceholderParagraph(
+                    //     placeholders.PROJECT_USE_OF_EVIDENCE,
+                    // ),
                 ];
                 inventory.push(...paragraphs);
             });

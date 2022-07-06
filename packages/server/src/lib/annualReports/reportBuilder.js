@@ -28,7 +28,7 @@ const genericTemplateParser = (book) => {
         description: projectSheet.C21.v,
         amountSpent: projectSheet.C17.v,
         website: projectSheet.C24.v,
-        impactStatement: impactSheet.C35.v,
+        impactStatement: impactSheet.E16.v,
     };
 };
 
