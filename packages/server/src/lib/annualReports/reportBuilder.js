@@ -1,21 +1,34 @@
-const typedefs = require('./typedefs');
-
 const PROJECT_DATA = 'Project Data';
+
+/**
+ * @typedef ProjectData
+ * @type {object}
+ * @property {number} amountSpent - total expenditure
+ * @property {string} category - arpa expenditure category e.g. '1.5-Personal Protective Equipment'
+ * @property {string} description - text description of the project
+ * @property {string} name - project name
+ * @property {string} recipient - organization which ran this project
+ * @property {string} website
+ * @property {string} impactStatement - the impact statement we're generating based off their data
+ */
 
 /**
  * Pulls the information relevant to the docx generator out of the excel workbook
  * @param book
- * @returns {typedefs.ProjectData}
+ * @returns {ProjectData}
  */
 const genericTemplateParser = (book) => {
-    const projectData = book.Sheets[PROJECT_DATA];
-    const project = {};
-    project.name = projectData.C9.v;
-    project.recipient = projectData.C10.v;
-    project.category = projectData.C19.v;
-    project.description = projectData.C21.v;
-    project.amountSpent = projectData.C17.v;
-    return project;
+    const projectSheet = book.Sheets[PROJECT_DATA];
+    const impactSheet = book.Sheets['Impact Statement'];
+    return {
+        name: projectSheet.C9.v,
+        recipient: projectSheet.C10.v,
+        category: projectSheet.C19.v,
+        description: projectSheet.C21.v,
+        amountSpent: projectSheet.C17.v,
+        website: projectSheet.C24.v,
+        impactStatement: impactSheet.C35.v,
+    };
 };
 
 /**
@@ -24,7 +37,7 @@ const genericTemplateParser = (book) => {
  * @param fullAnnualData {{
  *     category: {
  *         totalExpenditure: int,
- *         projects: [typedefs.ProjectData]
+ *         projects: [ProjectData]
  *     }
  * }}
  */
