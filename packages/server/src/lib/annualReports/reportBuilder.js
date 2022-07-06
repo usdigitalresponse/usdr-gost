@@ -20,6 +20,7 @@ const PROJECT_DATA = 'Project Data';
 const genericTemplateParser = (book) => {
     const projectSheet = book.Sheets[PROJECT_DATA];
     const impactSheet = book.Sheets['Impact Statement'];
+
     return {
         name: projectSheet.C9.v,
         recipient: projectSheet.C10.v,

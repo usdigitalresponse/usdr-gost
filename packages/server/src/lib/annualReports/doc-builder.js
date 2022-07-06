@@ -97,6 +97,19 @@ class ArpaDocumentBuilder {
         });
     }
 
+    static buildUnderlinedSubHeader(text) {
+        return new docx.Paragraph({
+            children: [
+                new docx.TextRun({
+                    size: 26,
+                    underline: {},
+                    text,
+                }),
+            ],
+            spacing: { before: 200, after: 100 },
+        });
+    }
+
     static buildDocumentIntro() {
         const size = 28;
         return new docx.Paragraph({
@@ -214,15 +227,36 @@ class ArpaDocumentBuilder {
                             }),
                         ],
                     }),
+                    ArpaDocumentBuilder.buildUnderlinedSubHeader('Project Impact'),
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({ text: 'Website: ', size: 24 }),
+                            new docx.ExternalHyperlink({
+                                children: [new docx.TextRun({
+                                    text: project.website,
+                                    style: 'Hyperlink',
+                                    size: 24,
+                                })],
+                                link: project.website,
+                            }),
+                        ],
+                        bullet: { level: 0 },
+                    }),
                     new docx.Paragraph({
                         children: [
                             new docx.TextRun({ text: project.description, size: 24 }),
                         ],
                         spacing: { before: 100 },
+                        bullet: { level: 0 },
                     }),
-                    ArpaDocumentBuilder.buildPlaceholderParagraph(
-                        placeholders.PROJECT_OVERVIEW,
-                    ),
+                    // If EC5, another paragraph here
+                    // OR should you do if data is present (which would only be for EC5) then
+                    // print it
+
+                    // ArpaDocumentBuilder.buildPlaceholderParagraph(
+                    //     placeholders.PROJECT_OVERVIEW,
+                    // ),
+                    ArpaDocumentBuilder.buildUnderlinedSubHeader('Use of Evidence'),
                     ArpaDocumentBuilder.buildPlaceholderParagraph(
                         placeholders.PROJECT_USE_OF_EVIDENCE,
                     ),
