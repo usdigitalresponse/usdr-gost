@@ -12,8 +12,6 @@ const tenants = require('./ref/tenants');
 const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
 // const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
 
-console.log(process.env.NODEMAILER_EMAIL_PW);
-
 const adminList = [
     {
         email: 'CHANGEME@GMAIL.COM',
