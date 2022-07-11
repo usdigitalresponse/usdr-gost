@@ -185,7 +185,7 @@ export default {
         this.resetModal();
       })
         .catch((err) => {
-          console.log(`error in delete agency   ${err}`);
+          console.log(` ${err}`);
         });
     },
     async handleSubmit() {

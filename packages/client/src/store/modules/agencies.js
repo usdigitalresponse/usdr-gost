@@ -23,7 +23,6 @@ export default {
     deleteAgency({ dispatch }, {
       agencyId, parent, name, abbreviation, warningThreshold, dangerThreshold,
     }) {
-      // console.log(`agencies      ${agencyId}`);
       fetchApi.deleteRequest(`/api/organizations/:organizationId/agencies/del/${agencyId}`, {
         parent,
         name,
@@ -54,8 +53,6 @@ export default {
       dispatch('fetchAgencies');
     },
     async updateAgencyParent({ dispatch }, { agencyId, parentId }) {
-      // const par = parentId.id;
-      // console.log(`DDDDDDDDDDDDD   ${parentId}`);
       await fetchApi.put(`/api/organizations/:organizationId/agencies/parent/${agencyId}`, {
         parentId,
       });

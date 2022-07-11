@@ -54,9 +54,7 @@ router.put('/abbr/:agency', requireAdminUser, async (req, res) => {
 router.put('/parent/:agency', requireAdminUser, async (req, res) => {
     const { agency } = req.params;
 
-    // const { parentId } = req.body.parentId;
-    // console.log('reeeeeeqqqqq  ' + req.body.parentId);
-    const result = await setAgencyParent(agency, req.body.parentId);
+    const result = await setAgencyParent(agency, Number(req.body.parentId));
     res.json(result);
 });
 
