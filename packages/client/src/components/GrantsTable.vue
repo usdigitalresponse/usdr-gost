@@ -23,7 +23,8 @@
         </b-button>
       </b-col>
     </b-row>
-    <b-row v-if="!showInterested && !showRejected && !showAssignedToAgency" class="mt-3 mb-3" align-h="between" style="position: relative; z-index: 999">
+    <b-row v-if="!showInterested && !showRejected && !showAssignedToAgency" class="mt-3 mb-3" align-h="between"
+    style="position: relative; z-index: 999">
       <b-col cols="3">
         <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions"
           :multiple="true" :close-on-select="false"
