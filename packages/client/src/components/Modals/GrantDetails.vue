@@ -68,8 +68,8 @@
         :items="selectedGrant.interested_agencies"
         :fields="interestedAgenciesFields"
       >
-      <template #cell(actions)="row" >
-        <b-row v-if="loggedInUser.email === selectedGrant.interested_agencies[0]['user_email']">
+      <template #cell(actions)="row">
+        <b-row v-if="(loggedInUser.email === selectedGrant.interested_agencies[0]['user_email']) && (selectedGrant.interested_agencies[0]['agency_name'] === loggedInUser.agency_id)">
           <b-button variant="danger" class="mr-1" size="sm" @click="unmarkGrantAsInterested(row)">
             <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
           </b-button>
@@ -185,6 +185,7 @@ export default {
       users: 'users/users',
       interestedCodes: 'grants/interestedCodes',
       loggedInUser: 'users/loggedInUser',
+      selectedAgency: 'users/selectedAgency',
     }),
     alreadyViewed() {
       if (!this.selectedGrant) {
