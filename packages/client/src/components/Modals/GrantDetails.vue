@@ -69,7 +69,7 @@
         :fields="interestedAgenciesFields"
       >
       <template #cell(actions)="row">
-        <b-row v-if="(loggedInUser.email === selectedGrant.interested_agencies[0]['user_email']) && (selectedGrant.interested_agencies[0]['agency_name'] === loggedInUser.agency_id)">
+        <b-row v-if="loggedInUser.email === row.item.user_email && (row.item.agency_name === loggedInUser.agency_name)">
           <b-button variant="danger" class="mr-1" size="sm" @click="unmarkGrantAsInterested(row)">
             <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
           </b-button>
@@ -249,7 +249,6 @@ export default {
         agencyIds: [row.item.id],
         interestedCode: this.selectedInterestedCode,
       });
-      // get req interested agencies
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
     },
     async assignAgenciesToGrant() {
