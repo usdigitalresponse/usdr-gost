@@ -207,7 +207,7 @@ export default {
         this.resetModal();
         this.$bvModal.hide();
       }
-      if (this.formData.parentAgency.id && (this.formData.parentAgency.id !== this.agency.id)) {
+      if (this.formData.parentAgency.id && (this.formData.parentAgency.id !== this.agency.id) && (this.formData.parentAgency.parent !== this.agency.id)) {
         this.updateAgencyParent({ agencyId: this.agency.id, parentId: this.formData.parentAgency.id });
         this.resetModal();
         this.$bvModal.hide();
