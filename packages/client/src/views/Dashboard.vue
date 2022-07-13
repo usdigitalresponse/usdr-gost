@@ -49,20 +49,28 @@ export default {
           sortable: true,
         },
         {
-          key: 'abbreviation',
-          sortable: true,
-        },
-        {
           label: 'Total',
           key: 'count',
+        },
+        {
+          label: ' ',
+          key: 'total_grant_money',
           sortable: true,
         },
         {
           key: 'interested',
+        },
+        {
+          label: ' ',
+          key: 'total_interested_grant_money',
           sortable: true,
         },
         {
           key: 'rejections',
+        },
+        {
+          label: '   ',
+          key: 'total_rejected_grant_money',
           sortable: true,
         },
       ],
