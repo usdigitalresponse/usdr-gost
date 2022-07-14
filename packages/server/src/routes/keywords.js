@@ -17,6 +17,8 @@ router.post('/', requireAdminUser, async (req, res) => {
 
 router.delete('/:keywordId', requireAdminUser, async (req, res) => {
     // Get agency of keyword to be deleted.
+
+    // THIS NEEDS TO BE checked whether its part of the tenant.
     const { agency_id } = await db.getKeyword(req.params.keywordId);
 
     // Is this admin user authorized for that agency?

@@ -1,7 +1,17 @@
-const { getUser } = require('../db');
+const { getUser, getTenant } = require('../db');
 
 function isPartOfAgency(agencies, agencyId) {
     return agencies.find((s) => s.id === Number(agencyId));
+}
+
+function validateAgencyPartOfTenant(tenantId, agencyId) {
+    const agency = getAgency(agencyId)
+    const tenant = getTenant(tenantId)
+
+    if (agency.tenant_id !== tenant.id) {
+        throw AgencyTenantMismatchError()
+    }
+
 }
 
 /**
@@ -13,7 +23,13 @@ function isPartOfAgency(agencies, agencyId) {
  */
 async function isAuthorized(userId, agencyId) {
     const user = await getUser(userId);
-    return isPartOfAgency(user.agency.subagencies, agencyId);
+
+    if (user.role_name == 'admin') {
+        return isPartOfAgency(user.agency.subagencies, agencyId);
+    } else if (user.role_name == 'staff') {
+        return user.agency_id === agencyId
+    }
+    
 }
 
 async function requireAdminUser(req, res, next) {
@@ -23,15 +39,25 @@ async function requireAdminUser(req, res, next) {
     }
 
     const user = await getUser(req.signedCookies.userId);
+
     if (user.role_name !== 'admin') {
         res.sendStatus(403);
         return;
     }
-    const paramAgencyId = req.params.organizationId;
 
+    const paramAgencyId = req.params.organizationId;
     const requestAgency = Number(paramAgencyId);
 
     if (!Number.isNaN(requestAgency)) {
+        try { validateAgencyPartOfTenant(user.tenant_id, requestAgency)
+        } catch(e) {
+            if (e instanceof AgencyTenantMismatchError) {
+                res.sendStatus(403);
+            } else {
+                res.sendStatus(500);
+            }
+        }
+
         const authorized = await isAuthorized(req.signedCookies.userId, requestAgency);
         if (!authorized) {
             res.sendStatus(403);
@@ -39,6 +65,16 @@ async function requireAdminUser(req, res, next) {
         }
         req.session = { ...req.session, user, selectedAgency: requestAgency };
     } else {
+        // Redundant because user's agency and user's tenant should never be different
+        // but still fine to check it since that's the agency we're going to end up using for querying
+        try { validateAgencyPartOfTenant(user.tenant_id, user.agency_id)
+        } catch(e) {
+            if (e instanceof AgencyTenantMismatchError) {
+                res.sendStatus(403);
+            } else {
+                res.sendStatus(500);
+            }
+        }
         req.session = { ...req.session, user, selectedAgency: user.agency_id };
     }
 
@@ -52,10 +88,6 @@ async function requireUser(req, res, next) {
     }
 
     const user = await getUser(req.signedCookies.userId);
-    if (req.params.organizationId && user.role_name === 'staff' && (req.params.organizationId !== user.agency_id.toString())) {
-        res.sendStatus(403); // Staff are restricted to their own agency.
-        return;
-    }
 
     // User NOT required to be admin; but if they ARE, they must satisfy admin rules.
     if (user.role_name === 'admin') {
@@ -63,6 +95,35 @@ async function requireUser(req, res, next) {
         return;
     }
 
+    const paramAgencyId = req.params.organizationId;
+    const requestAgency = Number(paramAgencyId);
+
+    if (!Number.isNaN(requestAgency)) {
+        try { validateAgencyPartOfTenant(user.tenant_id, requestAgency)
+        } catch(e) {
+            if (e instanceof AgencyTenantMismatchError) {
+                res.sendStatus(403);
+            } else {
+                res.sendStatus(500);
+            }
+        }
+        const authorized = await isAuthorized(req.signedCookies.userId, requestAgency);
+        if (!authorized) {
+            res.sendStatus(403);
+            return;
+        }
+    }
+
+    // Redundant because user's agency and user's tenant should never be different
+    // but still fine to check it since that's the agency we're going to end up using for querying
+    try { validateAgencyPartOfTenant(user.tenant_id, user.agency_id)
+    } catch(e) {
+        if (e instanceof AgencyTenantMismatchError) {
+            res.sendStatus(403);
+        } else {
+            res.sendStatus(500);
+        }
+    }
     req.session = { ...req.session, user, selectedAgency: user.agency_id };
 
     next();
