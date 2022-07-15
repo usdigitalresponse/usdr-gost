@@ -27,7 +27,11 @@
         </b-col>
     </b-row>
     <b-card title="Total Interested Grants by Agencies">
-      <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields"></b-table>
+      <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
+        <template #cell()="{field, value}">
+          <div :style="field.style" v-text="value"></div>
+        </template>
+      </b-table>
     </b-card>
   </section>
 </template>
@@ -51,27 +55,59 @@ export default {
         {
           label: 'Total',
           key: 'count',
+          style: {
+            'font-weight': 'bold',
+          },
         },
         {
           label: ' ',
-          key: 'total_grant_money',
+          key: 'abbreviation',
+          // key: 'total_grant_money',
           sortable: true,
+          sortByFormatted: false,
+          formatter: (value) => {
+            const res = value;
+            return (`($${res})`);
+          },
         },
         {
           key: 'interested',
+          style: {
+            'font-weight': 'bold',
+          },
         },
         {
           label: ' ',
-          key: 'total_interested_grant_money',
+          key: 'agency_id',
+          // key: 'total_interested_grant_money',
           sortable: true,
+          sortByFormatted: false,
+          formatter: (value) => {
+            const res = value;
+            return (`($${res})`);
+          },
+          style: {
+            color: 'green',
+          },
         },
         {
           key: 'rejections',
+          style: {
+            'font-weight': 'bold',
+          },
         },
         {
           label: '   ',
           key: 'total_rejected_grant_money',
           sortable: true,
+          sortByFormatted: false,
+          formatter: (value) => {
+            const res = value;
+            return (`($${res})`);
+          },
+          style: {
+            color: 'red',
+          },
         },
       ],
     };
