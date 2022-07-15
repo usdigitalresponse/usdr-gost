@@ -58,6 +58,9 @@ export default {
           style: {
             'font-weight': 'bold',
           },
+          thStyle: {
+            width: '1%',
+          },
         },
         {
           label: ' ',
@@ -69,11 +72,17 @@ export default {
             const res = value;
             return (`($${res})`);
           },
+          // thStyle: {
+          //   width: '1%',
+          // },
         },
         {
           key: 'interested',
           style: {
             'font-weight': 'bold',
+          },
+          thStyle: {
+            width: '1%',
           },
         },
         {
@@ -89,11 +98,17 @@ export default {
           style: {
             color: 'green',
           },
+          // thStyle: {
+          //   width: '1%',
+          // },
         },
         {
           key: 'rejections',
           style: {
             'font-weight': 'bold',
+          },
+          thStyle: {
+            width: '1%',
           },
         },
         {
@@ -108,6 +123,9 @@ export default {
           style: {
             color: 'red',
           },
+          // thStyle: {
+          //   width: '1%',
+          // },
         },
       ],
     };
