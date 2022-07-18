@@ -51,6 +51,9 @@ export default {
         {
           key: 'name',
           sortable: true,
+          thStyle: {
+            width: '40%',
+          },
         },
         {
           label: 'Total',
@@ -59,22 +62,19 @@ export default {
             'font-weight': 'bold',
           },
           thStyle: {
+            // makes monetary value column closer, also gives more space for grant money value since it will be a longer number
             width: '1%',
           },
         },
         {
           label: ' ',
-          key: 'abbreviation',
-          // key: 'total_grant_money',
+          key: 'total_grant_money',
           sortable: true,
           sortByFormatted: false,
           formatter: (value) => {
             const res = value;
             return (`($${res})`);
           },
-          // thStyle: {
-          //   width: '1%',
-          // },
         },
         {
           key: 'interested',
@@ -82,13 +82,13 @@ export default {
             'font-weight': 'bold',
           },
           thStyle: {
+            // makes monetary value column closer, also gives more space for grant money value since it will be a longer number
             width: '1%',
           },
         },
         {
           label: ' ',
-          key: 'agency_id',
-          // key: 'total_interested_grant_money',
+          key: 'total_interested_grant_money',
           sortable: true,
           sortByFormatted: false,
           formatter: (value) => {
@@ -98,9 +98,6 @@ export default {
           style: {
             color: 'green',
           },
-          // thStyle: {
-          //   width: '1%',
-          // },
         },
         {
           key: 'rejections',
@@ -108,6 +105,7 @@ export default {
             'font-weight': 'bold',
           },
           thStyle: {
+            // makes monetary value column closer, also gives more space for grant money value since it will be a longer number
             width: '1%',
           },
         },
@@ -123,9 +121,6 @@ export default {
           style: {
             color: 'red',
           },
-          // thStyle: {
-          //   width: '1%',
-          // },
         },
       ],
     };
