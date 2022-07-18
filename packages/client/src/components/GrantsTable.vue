@@ -23,6 +23,16 @@
         </b-button>
       </b-col>
     </b-row>
+    <b-row v-if="!showInterested && !showRejected && !showAssignedToAgency" class="mt-3 mb-3" align-h="between"
+    style="position: relative; z-index: 999">
+      <b-col cols="3">
+        <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions"
+          :multiple="true" :close-on-select="false"
+          :clear-on-select="false"
+          placeholder="Review Status">
+        </multiselect>
+      </b-col>
+    </b-row>
     <b-table
       id="grants-table"
       sticky-header="600px"
@@ -69,15 +79,17 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { debounce } from 'lodash';
+import Multiselect from 'vue-multiselect';
 
 import { titleize } from '@/helpers/form-helpers';
 
 import GrantDetails from '@/components/Modals/GrantDetails.vue';
 
 export default {
-  components: { GrantDetails },
+  components: { GrantDetails, Multiselect },
   props: {
     showInterested: Boolean,
+    showRejected: Boolean,
     showAging: Boolean,
     showAssignedToAgency: String,
   },
@@ -140,6 +152,8 @@ export default {
       orderBy: '',
       searchInput: null,
       debouncedSearchInput: null,
+      reviewStatusFilters: [],
+      reviewStatusOptions: ['interested', 'rejected'],
     };
   },
   mounted() {
@@ -192,6 +206,9 @@ export default {
     },
   },
   watch: {
+    reviewStatusFilters() {
+      this.paginateGrants();
+    },
     selectedAgency() {
       this.setup();
     },
@@ -240,6 +257,8 @@ export default {
           interestedByMe: this.showInterested,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
+          positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
+          rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
         });
       } catch (e) {
         console.log(e);
@@ -316,6 +335,8 @@ export default {
         interestedByMe: this.showInterested,
         aging: this.showAging,
         assignedToAgency: this.showAssignedToAgency,
+        positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
+        rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
       });
     },
   },
