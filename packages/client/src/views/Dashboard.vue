@@ -58,6 +58,7 @@ export default {
         {
           label: 'Total',
           key: 'count',
+          sortable: true,
           style: {
             'font-weight': 'bold',
           },
@@ -69,7 +70,6 @@ export default {
         {
           label: ' ',
           key: 'total_grant_money',
-          sortable: true,
           sortByFormatted: false,
           formatter: (value) => {
             const res = value;
@@ -78,6 +78,7 @@ export default {
         },
         {
           key: 'interested',
+          sortable: true,
           style: {
             'font-weight': 'bold',
           },
@@ -89,7 +90,6 @@ export default {
         {
           label: ' ',
           key: 'total_interested_grant_money',
-          sortable: true,
           sortByFormatted: false,
           formatter: (value) => {
             const res = value;
@@ -104,6 +104,7 @@ export default {
           style: {
             'font-weight': 'bold',
           },
+          sortable: true,
           thStyle: {
             // makes monetary value column closer, also gives more space for grant money value since it will be a longer number
             width: '1%',
@@ -112,7 +113,6 @@ export default {
         {
           label: '   ',
           key: 'total_rejected_grant_money',
-          sortable: true,
           sortByFormatted: false,
           formatter: (value) => {
             const res = value;
