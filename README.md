@@ -23,96 +23,137 @@ Each folder inside packages/ is considered a workspace. To see a list of all wor
 
 # Setup
 
+1). Ensure using NODE Version 14 (v14.19.0)
+
 First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. If you are using [Nodenv](https://github.com/nodenv/nodenv) or [NVM](https://nvm.sh/), it should pick up on the correct version.
 
 To setup your workspace run the following commands at the root of the project
 
-1. Ensure using NODE Version 12 (v12.22.12)
+1.1). (optional) Setup nvm
 
 ```
 > brew install nvm
-> nvm install v12.22.12
-> nvm use v12.22.12
+> vim ~/.zshrc
+  # add the follow lines to your .zshrc file
+  export NVM_DIR="$HOME/.nvm"
+  source "$NVM_DIR/nvm.sh"
+> esc
+> :wq
 ```
 
-2. Install dependencies
+***Make sure to use new terminals once modified `~/.zshrc`***
+
+
+```
+> nvm install v14.19.0
+> nvm use v14.19.0
+```
+
+2). Install dependencies
 
 The scripts will install yarn and download npm dependencies for all yarn workspaces.
 
 ```
+> cd usdr-gost/
 > npm i yarn@^1.22.4 -g
 > yarn run setup
 ```
 
-3. Create database called usdr_grants.
-   Install postgres DB. I personally used https://postgresapp.com/
+3). Create database(s)
+
+Install postgres DB. I personally used https://postgresapp.com/
 
 ```
-> psql -h localhost -p 5432
-> CREATE DATABASE usdr_grants;
-> CREATE DATABASE usdr_grants_test;
+psql -h localhost -p 5432
+CREATE DATABASE usdr_grants;
+CREATE DATABASE usdr_grants_test;
 ```
 
-4. Setup ENVs
+4). Setup ENVs
 
-Rename packages/client & packages/server `.env.example`s to `.env`s and
-Update packages/client & server `.env`s
+Copy packages/client & packages/server `.env.example` to `.env` and
+Update packages/client & server `.env`
 
 ```
 > cd packages/client && export $(cat .env)
 > cd packages/server && export $(cat .env)
 ```
 
-Create .env file in server workspace based on the .env.example. See Deployment section for more information on the .env file. Also create .env file in client workspace based on the .env.example file.
-
 Set environment variable pointing to local postgres DB, this is used for migrations (knex does not load .env file)
 
 `export POSTGRES_URL=postgresql://localhost:5432/usdr_grants` (individual vars) or `export $(cat .env)` (whole file)
 
-**_Note:_** In order to login, the server must be able to send email. Set the relevant `NODEMAILER_HOST`, `NODEMAILER_PORT`, `NODEMAILER_EMAIL`, `NODEMAILER_EMAIL_PW` environment variables in .env to credentials for a personal email account (e.g. for Gmail, see [here](https://support.google.com/mail/answer/7126229)).
+**NOTE:** if using `export $(cat .env)` need to remove all comments from `.env` file.
+
+**_Note:_** In order to login, the server must be able to send email. Set the relevant environment variables under `# Email Server:` in .env to credentials for a personal email account (e.g. for Gmail, see (4.1)[here](https://support.google.com/mail/answer/7126229)).
+
+4.1). Setup Gmail
+
+Visit: https://myaccount.google.com/u/0/apppassword and set up an "App Password" (see screenshot below) 
+
+In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
+
+![](./docs/img/gmail-app-password.png)
+
+**NOTE:** In order to enable App Password MUST turn on 2FA for gmail.
 
 If running into `Error: Invalid login: 535-5.7.8 Username and Password not accepted.` then ["Allow Less Secure Apps"](https://myaccount.google.com/lesssecureapps) - [source](https://stackoverflow.com/a/59194512)
 
-5. Run DB Migrations & Seed
+**NOTE:** Much more reliable and preferable to go the App Password route vs Less Secure Apps.
+
+![](./docs/img/error-gmail.png)
+
+
+5). Run DB Migrations & Seed
 
 In server workspace, run migrations:
 
-**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by adding a user with your email **_to be able to login to the system_**.
+**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**.
 Then run seeds:
 
 ```
 > cd packages/server
-> npx knex migrate:latest
-> npx knex seed:run
+> export $(cat .env) #delete all comment lines in .env file
+> yarn db:migrate
+> yarn db:seed
 ```
 
-6. Run Server (Terminal 1)
+6). Run Client (Terminal 1)
 
-After that you should be able to serve the backend and frontend by running in both server and client folders.
+Now you should be able to serve the frontend.
 
-**_Ensure using node v12_**
-
-```
-> nvm use v12.22.12
-> cd packages/server
-> yarn serve
+**_*Ensure using node v14*_**
 
 ```
-
-6. Run Client (Terminal 2)
-
-After that you should be able to serve the backend and frontend by running in both server and client folders.
-
-**_*Ensure using node v12*_**
-
-```
-> nvm use v12.22.12
+> nvm use v14.19.0
 > cd packages/client
 > yarn serve
-
 ```
 
-7. Visit `client_url/login` (e.g http://localhost:8081/#/login) and login w/ user set in Step 5.
+6.1). Run Server (Terminal 2)
+
+Now you should be able to serve the backend.
+
+**NOTE:** update `WEBSITE_DOMAIN` in `.env` to your client endpoint from Step 6 else When you get the login email link, change the redirected path from `localhost:8000/api/sessions/...` to your client_url e.g `localhost:8080/api/sessions/`
+
+**_Ensure using node v14_**
+
+```
+> nvm use v14.19.0
+> cd packages/server
+> yarn serve
+```
+
+**NOTE:** if error references AWS (see screenshot below) then run `> unset AWS_ACCESS_KEY_ID`. The application will try to use AWS Simple Email Service (SES) if `AWS_ACCESS_KEY_ID` is found as an env var.
+
+![](./docs/img/error-aws-ses.png)
+
+7). Visit `client_url/login` (e.g http://localhost:8080/#/login) and login w/ user set in Step 5.
+
+**NOTE:** if you only see a blank screen then ensure you've set up the `packages/client/.env`
+
+**NOTE:** if you get `Error: Invalid login: 534-5.7.9 Application-specific password required.` then you'll need to set an App Password (https://myaccount.google.com/u/0/apppasswords) (See Step 4)
+
 
 # Additional Info:
 

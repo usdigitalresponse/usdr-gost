@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 
 import Login from '../views/Login.vue';
 import Layout from '../components/Layout.vue';
+import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
 
 import store from '../store';
 
@@ -13,6 +14,14 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login,
+  },
+  {
+    path: '/arpa-annual-performance-reporter',
+    name: 'arpa-annual-performance-reporter',
+    component: ArpaAnnualPerformanceReporter,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/',
