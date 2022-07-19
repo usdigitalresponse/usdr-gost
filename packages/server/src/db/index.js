@@ -376,7 +376,7 @@ async function getTotalInterestedGrants() {
 
 async function getTotalInterestedGrantsByAgencies() {
     const rows = await knex(TABLES.grants_interested)
-        .select(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`,  
+        .select(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`,
             knex.raw('SUM(CASE WHEN is_rejection = TRUE THEN 1 ELSE 0 END) rejections'),
             knex.raw('SUM(CASE WHEN is_rejection = FALSE THEN 1 ELSE 0 END) interested'),
             knex.raw('SUM(award_ceiling::numeric) total_grant_money'),
