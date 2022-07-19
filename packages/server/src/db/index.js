@@ -341,14 +341,17 @@ async function getGrant({ grantId }) {
 }
 
 async function getClosestGrants() {
-    const query = await knex('grants')
+    const timestamp = new Date();
+    const query = await knex(TABLES.grants)
         .select('title')
-        .orderby('close_date', asc)
+        .where('close_date', '>=', timestamp)
+        .orderBy('close_date', 'asc')
         .limit(3)
     return query;
 }
 
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
+    // console.log(await getClosestGrants());
     const rows = await knex(TABLES.grants)
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
         .modify((qb) => {
