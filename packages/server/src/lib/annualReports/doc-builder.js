@@ -11,6 +11,10 @@ const placeholders = require('./placeholderTextStrings');
  *  }
  */
 class ArpaDocumentBuilder {
+    /*
+    This giant class takes in data in roughly the shape above and turns it into a formatted
+    word document for return at the annualReporter route
+    */
     constructor(data) {
         this.data = data;
         this.sortedCategories = Object.keys(data).sort();
@@ -252,13 +256,6 @@ class ArpaDocumentBuilder {
                         spacing: { before: 100 },
                         bullet: { level: 0 },
                     }),
-                    // If EC5, another paragraph here
-                    // OR should you do if data is present (which would only be for EC5) then
-                    // print it
-
-                    // ArpaDocumentBuilder.buildPlaceholderParagraph(
-                    //     placeholders.PROJECT_OVERVIEW,
-                    // ),
                     ArpaDocumentBuilder.buildUnderlinedSubHeader('Use of Evidence'),
                     new docx.Paragraph({
                         children: [
@@ -267,9 +264,6 @@ class ArpaDocumentBuilder {
                         spacing: { before: 100 },
                         bullet: { level: 0 },
                     }),
-                    // ArpaDocumentBuilder.buildPlaceholderParagraph(
-                    //     placeholders.PROJECT_USE_OF_EVIDENCE,
-                    // ),
                 ];
                 inventory.push(...paragraphs);
             });
