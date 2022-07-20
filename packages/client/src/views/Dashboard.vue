@@ -94,12 +94,8 @@
         </b-card>
       </b-col>
     </b-row>
-    <b-card title="Total Interested Grants by Agencies">
-      <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
-        <template #cell()="{field, value}">
-          <div :style="field.style" v-text="value"></div>
-        </template>
-      </b-table>
+    <b-card title='Total Interested Grants by Agencies'>
+      <b-table sticky-header='600px' hover :items='totalInterestedGrantsByAgencies' :fields='groupByFields'></b-table>
     </b-card>
   </section>
 </template>
@@ -286,6 +282,7 @@ export default {
           },
         },
       ],
+
     };
   },
   mixins: [resizableTableMixin],
