@@ -343,7 +343,7 @@ async function getGrant({ grantId }) {
 async function getClosestGrants() {
     const timestamp = new Date();
     const query = await knex(TABLES.grants)
-        .select('title')
+        .select('title', 'close_date')
         .where('close_date', '>=', timestamp)
         .orderBy('close_date', 'asc')
         .limit(3)
@@ -351,7 +351,6 @@ async function getClosestGrants() {
 }
 
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
-    // console.log(await getClosestGrants());
     const rows = await knex(TABLES.grants)
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
         .modify((qb) => {
