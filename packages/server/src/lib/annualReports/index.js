@@ -1,6 +1,6 @@
 const XLSX = require('xlsx');
 const ArpaDocumentBuilder = require('./doc-builder');
-const parseDataFromWorkbooks = require('./reportBuilder');
+const { parseDataFromWorkbook } = require('./reportBuilder');
 
 function loadBufferToWorkbook(buffer) {
     return XLSX.read(buffer);
@@ -9,5 +9,5 @@ function loadBufferToWorkbook(buffer) {
 module.exports = {
     ArpaDocumentBuilder,
     loadBufferToWorkbook,
-    parseDataFromWorkbooks,
+    parseDataFromWorkbook,
 };
