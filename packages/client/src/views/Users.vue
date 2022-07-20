@@ -26,9 +26,7 @@
 </template>
 
 <script>
-
 import { mapActions, mapGetters } from 'vuex';
-
 import AddUserModal from '@/components/Modals/AddUser.vue';
 
 export default {

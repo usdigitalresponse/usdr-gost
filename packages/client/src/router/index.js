@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 
 import Login from '../views/Login.vue';
 import Layout from '../components/Layout.vue';
+import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
 
 import store from '../store';
 
@@ -13,6 +14,14 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login,
+  },
+  {
+    path: '/arpa-annual-performance-reporter',
+    name: 'annualReporter',
+    component: ArpaAnnualPerformanceReporter,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/',
@@ -105,10 +114,35 @@ function loggedIn() {
   return loggedInUser != null;
 }
 
+// Set to ensure redirect logic is valid in the router.beforeEach below
+const routeNameSet = new Set();
+routes.forEach((route) => {
+  // wildcard route does not have a name
+  if (route.name) {
+    routeNameSet.add(route.name);
+  }
+
+  // If children ever goes deeper than one level this needs work
+  if (route.children) {
+    route.children.forEach((childRoute) => {
+      if (childRoute.name) {
+        routeNameSet.add(childRoute.name);
+      }
+    });
+  }
+});
+
 router.beforeEach((to, from, next) => {
   const authenticated = loggedIn();
   if (to.meta.requiresAuth && !authenticated) {
-    next({ name: 'login' });
+    next({ name: 'login', query: { redirect_to: to.name } });
+  } else if (authenticated && to.query.redirect_to) {
+    // Prevent them from accessing an undefined route, causes ugly blank screen failure
+    if (routeNameSet.has(to.query.redirect_to)) {
+      next({ name: to.query.redirect_to });
+    } else {
+      next({ name: 'grants' });
+    }
   } else if (to.name === 'login' && authenticated) {
     next({ name: 'grants' });
   } else if (to.name === 'not-found') {
