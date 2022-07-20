@@ -94,8 +94,12 @@
         </b-card>
       </b-col>
     </b-row>
-    <b-card title='Total Interested Grants by Agencies'>
-      <b-table sticky-header='600px' hover :items='totalInterestedGrantsByAgencies' :fields='groupByFields'></b-table>
+    <b-card title="Total Interested Grants by Agencies">
+      <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
+        <template #cell()="{field, value}">
+          <div :style="field.style" v-text="value"></div>
+        </template>
+      </b-table>
     </b-card>
   </section>
 </template>
@@ -211,23 +215,76 @@ export default {
         {
           key: 'name',
           sortable: true,
-        },
-        {
-          key: 'abbreviation',
-          sortable: true,
+          thStyle: {
+            width: '40%',
+          },
         },
         {
           label: 'Total',
           key: 'count',
           sortable: true,
+          style: {
+            'font-weight': 'bold',
+          },
+          thStyle: {
+            // makes monetary value column closer, also gives more space for grant money value since it will be a longer number
+            width: '1%',
+          },
+        },
+        {
+          label: ' ',
+          key: 'total_grant_money',
+          sortByFormatted: false,
+          formatter: (value) => {
+            const res = value;
+            return (`($${res})`);
+          },
         },
         {
           key: 'interested',
           sortable: true,
+          style: {
+            'font-weight': 'bold',
+          },
+          thStyle: {
+            // makes monetary value column closer, also gives more space for grant money value since it will be a longer number
+            width: '1%',
+          },
+        },
+        {
+          label: ' ',
+          key: 'total_interested_grant_money',
+          sortByFormatted: false,
+          formatter: (value) => {
+            const res = value;
+            return (`($${res})`);
+          },
+          style: {
+            color: 'green',
+          },
         },
         {
           key: 'rejections',
+          style: {
+            'font-weight': 'bold',
+          },
           sortable: true,
+          thStyle: {
+            // makes monetary value column closer, also gives more space for grant money value since it will be a longer number
+            width: '1%',
+          },
+        },
+        {
+          label: '   ',
+          key: 'total_rejected_grant_money',
+          sortByFormatted: false,
+          formatter: (value) => {
+            const res = value;
+            return (`($${res})`);
+          },
+          style: {
+            color: 'red',
+          },
         },
       ],
 
