@@ -89,10 +89,10 @@ import { titleize } from '@/helpers/form-helpers';
 
 import GrantDetails from '@/components/Modals/GrantDetails.vue';
 
-import Vue from 'vue';
-import Vue2Filters from 'vue2-filters';
+// import Vue from 'vue';
+// import Vue2Filters from 'vue2-filters';
 
-Vue.use(Vue2Filters);
+// Vue.use(Vue2Filters);
 
 export default {
   components: { GrantDetails, Multiselect },
