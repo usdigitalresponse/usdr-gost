@@ -349,6 +349,16 @@ async function getGrant({ grantId }) {
     return results[0];
 }
 
+async function getClosestGrants() {
+    const timestamp = new Date();
+    const query = await knex(TABLES.grants)
+        .select('title', 'close_date')
+        .where('close_date', '>=', timestamp)
+        .orderBy('close_date', 'asc')
+        .limit(3)
+    return query;
+}
+
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
     const rows = await knex(TABLES.grants)
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
@@ -692,6 +702,7 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getClosestGrants,
     getGrant,
     getTotalGrants,
     getTotalViewedGrants,
