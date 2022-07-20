@@ -23,38 +23,33 @@
             ref="file"
           />
           <label for="file-input">
-            Drag and drop files or <span class="underline pointer">click here to upload</span>.
+            Drag and drop files or <span class="underline">click here to upload</span>.
           </label>
         </div>
       </div>
-      <div class="text-danger text-center" v-if="errorMessages.length">
+      <div class="red text-center" v-if="errorMessages.length">
         <p v-for="msg in errorMessages" :key="msg">{{msg}}</p>
       </div>
       <div class="mt-2">
         <div class="text-center">
           <button
-            class="btn btn-primary px-5 py-2"
-            :class="{disabled: !fileList.length}"
+            class="btn btn-success px-5 py-2"
             :disabled="!fileList.length"
             type="button"
             @click="post"
-          >{{ reportGenerated ? 'Regenerate Report' : 'Generate Report' }}</button>
+          >Generate Report</button>
           <br>
           <a
             id="download-link"
             href="#"
-            class="mt-2 btn btn-success d-inline-block"
+            class="mt-2 d-inline-block"
             :class="{visible: reportGenerated, invisible: !reportGenerated}"
           >Download Annual Report Template</a>
         </div>
         <h4>Files Uploaded:</h4>
-        <ul class="overflow-scroll">
+        <ul>
           <li :key="file.name" v-for="file in fileList">
-            {{file.name}}&nbsp;
-            <div
-              class="d-inline-block border border-white rounded px-2 py-1 bg-danger text-white pointer"
-              @click="removeFile(file.name)"
-            >X</div>
+            {{file.name}}
           </li>
         </ul>
       </div>
@@ -79,11 +74,8 @@ export default {
       // this is janky but it'll do the trick
       setTimeout(() => { this.errorMessages = []; }, 5000);
     },
-    removeFile(fileName) {
-      this.fileList = this.fileList.filter((f) => f.name !== fileName);
-      this.fileNameSet.delete(fileName);
-    },
     addFiles(files) {
+      // This would be nicer with a for of and `continue` statements but the linter doesn't like it
       Array.from(files).forEach((f) => {
         if (this.fileNameSet.has(f.name)) {
           this.temporaryErrorMessage(`File is already uploaded: ${f.name}`);
@@ -102,6 +94,7 @@ export default {
       this.addFiles(e.target.files);
     },
     post() {
+      console.log('post hit: ', this.fileList);
       const formData = new FormData();
       this.fileList.forEach((file) => {
         formData.append('files', file);
@@ -136,17 +129,11 @@ export default {
 #file-input {
   display: none;
 }
+.red {
+  color: red;
+}
 .underline {
   text-decoration: underline;
   cursor: pointer;
-}
-.disabled {
-  cursor: not-allowed;
-}
-.pointer {
-  cursor: pointer;
-}
-.overflow-scroll {
-  overflow-y: scroll;
 }
 </style>
