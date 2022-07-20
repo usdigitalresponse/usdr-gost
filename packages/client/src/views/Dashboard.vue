@@ -118,9 +118,7 @@
 </style>
 
 <script>
-
 import { mapActions, mapGetters } from 'vuex';
-
 import resizableTableMixin from '@/mixin/resizableTable';
 
 export default {
@@ -250,6 +248,7 @@ export default {
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
+      getClosestGrants: 'grants/getClosestGrants',
     }),
   },
   watch: {
