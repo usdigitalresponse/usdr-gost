@@ -11,10 +11,6 @@ const placeholders = require('./placeholderTextStrings');
  *  }
  */
 class ArpaDocumentBuilder {
-    /*
-    This giant class takes in data in roughly the shape above and turns it into a formatted
-    word document for return at the annualReporter route
-    */
     constructor(data) {
         this.data = data;
         this.sortedCategories = Object.keys(data).sort();
@@ -98,19 +94,6 @@ class ArpaDocumentBuilder {
             heading: docx.HeadingLevel.HEADING_1,
             text,
             spacing: { after: 200 },
-        });
-    }
-
-    static buildUnderlinedSubHeader(text) {
-        return new docx.Paragraph({
-            children: [
-                new docx.TextRun({
-                    size: 26,
-                    underline: {},
-                    text,
-                }),
-            ],
-            spacing: { before: 200, after: 100 },
         });
     }
 
@@ -231,39 +214,18 @@ class ArpaDocumentBuilder {
                             }),
                         ],
                     }),
-                    ArpaDocumentBuilder.buildUnderlinedSubHeader('Project Impact'),
                     new docx.Paragraph({
                         children: [
-                            new docx.TextRun({ text: 'Website: ', size: 24 }),
-                            new docx.ExternalHyperlink({
-                                children: [new docx.TextRun({
-                                    text: project.website || 'www.project.com',
-                                    style: 'Hyperlink',
-                                    size: 24,
-                                })],
-                                link: project.website || 'www.project.com',
-                            }),
-                        ],
-                        bullet: { level: 0 },
-                    }),
-                    new docx.Paragraph({
-                        children: [
-                            new docx.TextRun({
-                                text: project.description || 'A brief description of the project',
-                                size: 24,
-                            }),
+                            new docx.TextRun({ text: project.description, size: 24 }),
                         ],
                         spacing: { before: 100 },
-                        bullet: { level: 0 },
                     }),
-                    ArpaDocumentBuilder.buildUnderlinedSubHeader('Use of Evidence'),
-                    new docx.Paragraph({
-                        children: [
-                            new docx.TextRun({ text: project.impactStatement, size: 24 }),
-                        ],
-                        spacing: { before: 100 },
-                        bullet: { level: 0 },
-                    }),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(
+                        placeholders.PROJECT_OVERVIEW,
+                    ),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(
+                        placeholders.PROJECT_USE_OF_EVIDENCE,
+                    ),
                 ];
                 inventory.push(...paragraphs);
             });

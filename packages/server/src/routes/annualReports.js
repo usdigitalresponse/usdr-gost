@@ -6,18 +6,16 @@ const { requireUser } = require('../lib/access-helpers');
 const {
     ArpaDocumentBuilder,
     loadBufferToWorkbook,
-    parseDataFromWorkbook,
+    parseDataFromWorkbooks,
 } = require('../lib/annualReports');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.post('/', requireUser, upload.array('files'), (req, res) => {
-    const reportData = {};
-    req.files.forEach((f) => {
-        const book = loadBufferToWorkbook(f.buffer);
-        parseDataFromWorkbook(book, reportData);
-    });
-
+    // Load all the buffers into workbooks
+    // This could definitely be done more efficiently but should be fine for this use case
+    const workbooks = req.files.map((f) => loadBufferToWorkbook(f.buffer));
+    const reportData = parseDataFromWorkbooks(workbooks);
     const document = new ArpaDocumentBuilder(reportData).buildReportDocument();
 
     return ArpaDocumentBuilder.documentToBuffer(document)
