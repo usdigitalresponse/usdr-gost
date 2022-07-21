@@ -89,7 +89,7 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 
 4.1). Setup Gmail
 
-Visit: https://myaccount.google.com/u/0/apppassword and set up an "App Password" (see screenshot below) 
+Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below) 
 
 In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
 
@@ -152,7 +152,7 @@ Now you should be able to serve the backend.
 
 **NOTE:** if you only see a blank screen then ensure you've set up the `packages/client/.env`
 
-**NOTE:** if you get `Error: Invalid login: 534-5.7.9 Application-specific password required.` then you'll need to set an App Password (https://myaccount.google.com/u/0/apppasswords) (See Step 4)
+**NOTE:** if you get `Error: Invalid login: 534-5.7.9 Application-specific password required.` then you'll need to set an App Password (https://myaccount.google.com/apppasswords) (See Step 4)
 
 
 # Additional Info:
