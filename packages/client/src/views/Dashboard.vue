@@ -227,7 +227,8 @@ export default {
             'font-weight': 'bold',
           },
           thStyle: {
-            // makes monetary value column closer, also gives more space for grant money value since it will be a longer number
+            // makes monetary value column closer,
+            // also gives more space for grant money value since it will be a longer number
             width: '1%',
           },
         },
@@ -235,10 +236,7 @@ export default {
           label: ' ',
           key: 'total_grant_money',
           sortByFormatted: false,
-          formatter: (value) => {
-            const res = value;
-            return (`($${res})`);
-          },
+          formatter: 'formatMoney',
         },
         {
           key: 'interested',
@@ -247,7 +245,8 @@ export default {
             'font-weight': 'bold',
           },
           thStyle: {
-            // makes monetary value column closer, also gives more space for grant money value since it will be a longer number
+            // makes monetary value column closer,
+            // also gives more space for grant money value since it will be a longer number
             width: '1%',
           },
         },
@@ -255,10 +254,7 @@ export default {
           label: ' ',
           key: 'total_interested_grant_money',
           sortByFormatted: false,
-          formatter: (value) => {
-            const res = value;
-            return (`($${res})`);
-          },
+          formatter: 'formatMoney',
           style: {
             color: 'green',
           },
@@ -270,7 +266,8 @@ export default {
           },
           sortable: true,
           thStyle: {
-            // makes monetary value column closer, also gives more space for grant money value since it will be a longer number
+            // makes monetary value column closer,
+            // also gives more space for grant money value since it will be a longer number
             width: '1%',
           },
         },
@@ -278,10 +275,7 @@ export default {
           label: '   ',
           key: 'total_rejected_grant_money',
           sortByFormatted: false,
-          formatter: (value) => {
-            const res = value;
-            return (`($${res})`);
-          },
+          formatter: 'formatMoney',
           style: {
             color: 'red',
           },
@@ -320,6 +314,15 @@ export default {
     }),
     setup() {
       this.fetchDashboard();
+    },
+    formatMoney(value) {
+      const res = Number(value).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        style: 'currency',
+        currency: 'USD',
+      });
+      return (`(${res})`);
     },
     seeAllActivity() {
       // this is where the method for the button press will go
