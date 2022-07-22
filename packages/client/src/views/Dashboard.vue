@@ -68,29 +68,24 @@
     </div>
     <b-row>
       <b-col cols='4'>
-        <b-card bg-variant='secondary' text-variant='white' header='Total Grants Matching Search Criteria'
-          class='text-center mb-3'>
-          <h3>{{ totalGrantsMatchingAgencyCriteria }} of {{ totalGrants }}</h3>
-          <b-link class='stretched-link' to='/grants' />
-        </b-card>
         <b-card bg-variant='secondary' text-variant='white' header='New Grants Matching Search Criteria, Last 24Hrs'
-          class='text-center mb-3'>
+          class='text-center mb-3 mt-3'>
           <h3>{{ grantsCreatedInTimeframeMatchingCriteria }} of {{ grantsCreatedInTimeframe }}</h3>
           <b-link class='stretched-link' to='/grants' />
         </b-card>
+      </b-col>
+      <b-col cols='4'>
         <b-card bg-variant='secondary' text-variant='white' header='Updated Grants Matching Search Criteria, Last 24Hrs'
-          class='text-center mb-3'>
+          class='text-center mb-3 mt-3'>
           <h3>{{ grantsUpdatedInTimeframeMatchingCriteria }} of {{ grantsUpdatedInTimeframe }}</h3>
           <b-link class='stretched-link' to='/grants' />
         </b-card>
       </b-col>
       <b-col cols='4'>
-        <b-card bg-variant='secondary' text-variant='white' header='Total Viewed Grants' class='text-center mb-3'>
-          <h3>{{ totalViewedGrants }}</h3>
-        </b-card>
-        <b-card bg-variant='secondary' text-variant='white' header='Total Interested Grants' class='text-center mb-3'>
-          <h3>{{ totalInterestedGrants }}</h3>
-          <b-link class='stretched-link' to='/my-grants' />
+        <b-card bg-variant='secondary' text-variant='white' header='Total Grants Matching Search Criteria'
+          class='text-center mb-3 mt-3'>
+          <h3>{{ totalGrantsMatchingAgencyCriteria }} of {{ totalGrants }}</h3>
+          <b-link class='stretched-link' to='/grants' />
         </b-card>
       </b-col>
     </b-row>
