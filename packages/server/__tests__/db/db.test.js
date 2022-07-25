@@ -73,11 +73,10 @@ describe('db', () => {
 
     context('getAgencyCriteriaForAgency', () => {
         it('gets agency criteria associated with an agency', async () => {
-            // eslint-disable-next-line max-len
             const staffUserId = await knex(TABLES.users).where('email', fixtures.users.staffUser.email);
             const result = await db.getAgencyCriteriaForAgency(staffUserId[0].agency_id);
 
-            expect(result).to.have.property('eligibilityCodes').with.lengthOf(1);
+            expect(result).to.have.property('eligibilityCodes').with.lengthOf(2);
             expect(result.eligibilityCodes[0])
                 .to.equal(fixtures.agencyEligibilityCodes.accountancyNative.code);
             expect(result).to.have.property('keywords').with.lengthOf(1);

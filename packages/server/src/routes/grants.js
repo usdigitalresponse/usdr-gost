@@ -1,12 +1,10 @@
 const express = require('express');
-
-const router = express.Router({ mergeParams: true });
-// TODO: why is this necessary?
-/* eslint-disable import/no-unresolved */
-const { stringify: csvStringify } = require('csv-stringify/sync');
+const { stringify: csvStringify } = require('csv-stringify/dist/esm');
 const db = require('../db');
 const pdf = require('../lib/pdf');
 const { requireUser, isPartOfAgency } = require('../lib/access-helpers');
+
+const router = express.Router({ mergeParams: true });
 
 /**
  * Based on arguments passed, return the list of agencies appropiate for this request. This
@@ -219,7 +217,7 @@ router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
         res.sendStatus(403);
         return;
     }
-    
+
     await db.markGrantAsInterested({
         grantId,
         agencyId,

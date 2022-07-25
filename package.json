@@ -25,7 +25,9 @@
     "test": "lerna run test",
     "lint": "lerna run lint",
     "pre-commit": "yarn lint",
-    "psql": "psql opportunities pg"
+    "psql": "psql opportunities pg",
+    "test:client": "cd packages/client && yarn test",
+    "test:server": "cd packages/client && yarn test"
   },
   "dependencies": {},
   "devDependencies": {
@@ -33,7 +35,7 @@
     "@commitlint/config-conventional": "^11.0.0",
     "@commitlint/config-lerna-scopes": "^11.0.0",
     "husky": "^4.3.0",
-    "lerna": "^3.22.1",
+    "lerna": "^5.2.0",
     "lint-staged": "^10.5.0"
   }
 }

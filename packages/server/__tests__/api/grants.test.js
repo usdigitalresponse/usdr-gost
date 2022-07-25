@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-expressions */
 const { expect } = require('chai');
 require('dotenv').config();
 
@@ -140,7 +139,7 @@ describe('`/api/grants` endpoint', async () => {
             });
             it('includes this user\'s own agency when it is assigned to the grant', async () => {
                 expect(response.statusText).to.equal('OK');
-                expect((json.some((r) => r.agency_id === agencies.own))).to.equal(true);
+                expect(json.some((r) => r.agency_id === agencies.own)).to.equal(true);
             });
             it('includes a subagency of this user\'s own agency when the subagency is assigned to the grant', async () => {
                 expect(response.statusText).to.equal('OK');
@@ -279,11 +278,11 @@ describe('`/api/grants` endpoint', async () => {
             });
             it('includes this user\'s own agency when it is interested in the grant', async () => {
                 expect(response.statusText).to.equal('OK');
-                expect((json.some((r) => r.agency_id === agencies.own))).to.equal(true);
+                expect(json.some((r) => r.agency_id === agencies.own)).to.equal(true);
             });
             it('includes a subagency of this user\'s own agency when the subagency is interested in the grant', async () => {
                 expect(response.statusText).to.equal('OK');
-                expect((json.some((r) => r.agency_id === agencies.ownSub))).to.equal(true);
+                expect(json.some((r) => r.agency_id === agencies.ownSub)).to.equal(true);
             });
             it('excludes interested agencies outside this user\'s hierarchy', async () => {
                 expect(response.statusText).to.equal('OK');
@@ -309,7 +308,7 @@ describe('`/api/grants` endpoint', async () => {
             });
             it('includes this user\'s own agency when it is interested in the grant', async () => {
                 expect(response.statusText).to.equal('OK');
-                expect((json.some((r) => r.agency_id === agencies.own))).to.equal(true);
+                expect(json.some((r) => r.agency_id === agencies.own)).to.equal(true);
             });
             it('excludes a subagency of this user\'s own agency when the subagency is interested in the grant', async () => {
                 expect(response.statusText).to.equal('OK');
