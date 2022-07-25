@@ -71,8 +71,15 @@ CREATE DATABASE usdr_grants_test;
 
 4). Setup ENVs
 
-Copy packages/client & packages/server `.env.example` to `.env` and
-Update packages/client & server `.env`
+Copy packages/client & packages/server `.env.example` to `.env`
+
+```
+> cp packages/client/.env.example packages/client/.env
+> cp packages/server/.env.example packages/server/.env
+```
+
+
+Then export the environment variables
 
 ```
 > cd packages/client && export $(cat .env)
@@ -125,9 +132,7 @@ Now you should be able to serve the frontend.
 **_*Ensure using node v14*_**
 
 ```
-> nvm use v14.19.0
-> cd packages/client
-> yarn serve
+> yarn start:client
 ```
 
 6.1). Run Server (Terminal 2)
@@ -139,9 +144,7 @@ Now you should be able to serve the backend.
 **_Ensure using node v14_**
 
 ```
-> nvm use v14.19.0
-> cd packages/server
-> yarn serve
+> yarn start:server
 ```
 
 **NOTE:** if error references AWS (see screenshot below) then run `> unset AWS_ACCESS_KEY_ID`. The application will try to use AWS Simple Email Service (SES) if `AWS_ACCESS_KEY_ID` is found as an env var.
