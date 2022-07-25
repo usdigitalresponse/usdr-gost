@@ -349,6 +349,16 @@ async function getGrant({ grantId }) {
     return results[0];
 }
 
+async function getClosestGrants() {
+    const timestamp = new Date();
+    const query = await knex(TABLES.grants)
+        .select('title', 'close_date')
+        .where('close_date', '>=', timestamp)
+        .orderBy('close_date', 'asc')
+        .limit(3)
+    return query;
+}
+
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
     const rows = await knex(TABLES.grants)
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
@@ -378,9 +388,13 @@ async function getTotalInterestedGrantsByAgencies() {
     const rows = await knex(TABLES.grants_interested)
         .select(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`,
             knex.raw('SUM(CASE WHEN is_rejection = TRUE THEN 1 ELSE 0 END) rejections'),
-            knex.raw('SUM(CASE WHEN is_rejection = FALSE THEN 1 ELSE 0 END) interested'))
+            knex.raw('SUM(CASE WHEN is_rejection = FALSE THEN 1 ELSE 0 END) interested'),
+            knex.raw('SUM(award_ceiling::numeric) total_grant_money'),
+            knex.raw('SUM(CASE WHEN is_rejection = FALSE THEN award_ceiling::numeric ELSE 0 END) total_interested_grant_money'),
+            knex.raw('SUM(CASE WHEN is_rejection = TRUE THEN award_ceiling::numeric ELSE 0 END) total_rejected_grant_money'))
         .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
         .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
+        .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`)
         .count(`${TABLES.interested_codes}.is_rejection`)
         .groupBy(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
     return rows;
@@ -688,6 +702,7 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getClosestGrants,
     getGrant,
     getTotalGrants,
     getTotalViewedGrants,
