@@ -40,7 +40,7 @@
           </b-col>
           <b-col>
             <b-card title='Upcoming Closing Dates'>
-              <b-table sticky-header='600px' hover :items='upcomingItems' :fields='upcomingFields'
+              <b-table sticky-header='600px' hover :items='getClosestGrants' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none">
                 <template #cell(date)="dates">
                   <!-- color the date to gray, yellow, or red based on the dateColor boolean -->
@@ -175,35 +175,16 @@ export default {
       upcomingFields: [
         {
           // col for Grants and interested agencies
-          key: 'agencyAndGrant',
+          key: 'title',
           label: '',
           thStyle: { width: '80%' },
         },
         {
           // col for when the grant will be closing
-          key: 'date',
+          key: 'close_date',
           label: '',
+          // formatter: 'formatDate',
           thStyle: { width: '20%' },
-        },
-      ],
-      upcomingItems: [
-        {
-          agencyAndGrant: 'FY21 Supplemental for the Northeast Corridor Cooperative Agreement to the National Railroad Passenger Corporation',
-          interestedAgencies: 'Dept of Admin, State of Nevada,',
-          date: '12/12/12',
-          dateColor: 2, // 2 corresponds to red, 1 corresponds to yellow, 0 corresponds to gray
-        },
-        {
-          agencyAndGrant: 'Environmental Justice Collaborative Problem-Solving (EJCPS) Cooperative Agreement Program',
-          interestedAgencies: 'GO, AP, SNV',
-          date: '12/12/12',
-          dateColor: 1,
-        },
-        {
-          agencyAndGrant: 'Strengthening Public Health Research and Implementation Science (Operations Research) to Control and Eliminate Infectious Diseases Globally',
-          interestedAgencies: 'SHRAB, SNV',
-          date: '12/20/12',
-          dateColor: 0,
         },
       ],
       groupByFields: [
@@ -295,7 +276,7 @@ export default {
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
-      getClosestGrants: 'grants/getClosestGrants',
+      getClosestGrants: 'dashboard/getClosestGrants',
     }),
   },
   watch: {
@@ -318,6 +299,10 @@ export default {
         currency: 'USD',
       });
       return (`(${res})`);
+    },
+    formatDate(value) {
+      const result = value.format('YYYY-MM-DD');
+      return result;
     },
     seeAllActivity() {
       // this is where the method for the button press will go

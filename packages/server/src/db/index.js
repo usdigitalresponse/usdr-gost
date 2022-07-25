@@ -352,14 +352,28 @@ async function getGrant({ grantId }) {
 async function getClosestGrants() {
     const timestamp = new Date();
     const query = await knex(TABLES.grants)
-        .select('title', 'close_date')
+        .select('title', 'close_date', 'grant_id')
         .where('close_date', '>=', timestamp)
         .orderBy('close_date', 'asc')
         .limit(3)
-    return query;
+        .then(function(data) {
+            return data;
+          })
+        .catch(err => console.log(err))
+    const query1 = query;
+    // const query2 = query[2];
+    // const query3 = query[3];
+    // console.log(`QUERY  Title: ${query1[1].title}`);
+    // console.log(`QUERY  Close Date:  ${query[1].close_date}`);
+    // console.log(`QUERY  Grant ID:  ${query[1].grant_id}`);
+    // return query1, query2, query3;
+    return query1;
 }
 
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
+    // console.log(`3 objects in query   ${await getClosestGrants()}`);
+    const test = await getClosestGrants();
+    console.log(`oooo   ${test[0].title}`);
     const rows = await knex(TABLES.grants)
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
         .modify((qb) => {

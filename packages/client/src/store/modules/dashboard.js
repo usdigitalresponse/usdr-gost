@@ -12,6 +12,7 @@ function initialState() {
     grantsUpdatedInTimeframe: null,
     grantsUpdatedInTimeframeMatchingCriteria: null,
     totalInterestedGrantsByAgencies: null,
+    getClosestGrants: null,
   };
 }
 
@@ -29,12 +30,13 @@ export default {
     grantsUpdatedInTimeframe: (state) => state.grantsUpdatedInTimeframe,
     grantsUpdatedInTimeframeMatchingCriteria: (state) => state.grantsUpdatedInTimeframeMatchingCriteria,
     totalInterestedGrantsByAgencies: (state) => state.totalInterestedGrantsByAgencies,
+    getClosestGrants: (state) => state.getClosestGrants,
   },
   actions: {
     async fetchDashboard({ commit }) {
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const timestampQueryString = twentyFourHoursAgo.toISOString();
-      const result = await fetchApi.get(`/api/organizations/:organizationId/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&grantsCreatedFromTs=${timestampQueryString}&grantsUpdatedFromTs=${timestampQueryString}&totalInterestedGrantsByAgencies=true`);
+      const result = await fetchApi.get(`/api/organizations/:organizationId/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&grantsCreatedFromTs=${timestampQueryString}&grantsUpdatedFromTs=${timestampQueryString}&totalInterestedGrantsByAgencies=true&getClosestGrants=true`);
       if (result.totalGrants) {
         commit('SET_TOTAL_GRANTS', result.totalGrants);
       }
@@ -61,6 +63,9 @@ export default {
       }
       if (result.totalInterestedGrantsByAgencies) {
         commit('SET_TOTAL_TOTAL_INTERESTED_GRANTS_BY_AGENCIES', result.totalInterestedGrantsByAgencies);
+      }
+      if (result.getClosestGrants) {
+        commit('SET_GRANTS_UPCOMING_CLOSING_DATES', result.getClosestGrants);
       }
     },
   },
@@ -91,6 +96,9 @@ export default {
     },
     SET_TOTAL_TOTAL_INTERESTED_GRANTS_BY_AGENCIES(state, data) {
       state.totalInterestedGrantsByAgencies = data;
+    },
+    SET_GRANTS_UPCOMING_CLOSING_DATES(state, data) {
+      state.getClosestGrants = data;
     },
     SET_DASHBOARD(state, dashboard) {
       state.dashboard = dashboard;
