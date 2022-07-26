@@ -337,12 +337,6 @@ export default {
       });
       return (`(${res})`);
     },
-    seeAllActivity() {
-      // this is where the method for the button press will go
-    },
-    seeAllUpcoming() {
-      // this is where the method for the button press will go
-    },
   },
 };
 </script>
