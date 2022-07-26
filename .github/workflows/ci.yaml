@@ -30,39 +30,7 @@ on:
 name: Continuous Integration
 
 jobs:
-  lint-workflows:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: cschleiden/actions-linter@v1
-        with:
-          workflows: '[".github/workflows/*.yaml", ".github/workflows/*.yml"]'
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-          cache: "yarn"
-
-      - name: Install dependencies
-        run: "yarn run setup"
-
-      - name: Lint Client Source
-        run: |
-          cd packages/client
-          yarn lint --no-fix --format stylish
-
-      - name: Lint Server Source
-        run: |
-          cd packages/server
-          yarn lint
-
-  test-server-api:
+  test-server-client:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -72,8 +40,6 @@ jobs:
           POSTGRES_USER: "postgres"
           POSTGRES_PASSWORD: "password"
           POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:5432/usdr_grants_test"
-          AWS_ACCESS_KEY_ID: "Fake AWS Key"
-          AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
         ports:
           - 5432:5432
         # Set health checks to wait until postgres has started
@@ -95,9 +61,17 @@ jobs:
       - name: Install dependencies
         run: "yarn setup"
 
-      - name: Run unit tests
+      - name: Run Linter
         run: |
-          cd packages/server
+          yarn lint
+
+      - name: Run unit tests
+        env:
+          POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:5432/usdr_grants_test"
+          AWS_ACCESS_KEY_ID: "Fake AWS Key"
+          AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
+          NOTIFICATIONS_EMAIL: "grants-identification@usdigitalresponse.org"
+        run: |
           # The .env file needs to be present; the example file is good enough.
           cp .env.example .env
           yarn test
