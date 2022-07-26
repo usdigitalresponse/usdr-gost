@@ -463,6 +463,7 @@ async function getGrantsInterested() {
         .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
         .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`);
 }
+
 function unmarkGrantAsInterested({ grantId, userId }) {
     return knex(TABLES.grants_interested)
         .where({
