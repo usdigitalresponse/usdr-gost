@@ -95,15 +95,17 @@ describe('Email module', () => {
             process.env.NOTIFICATIONS_EMAIL = NOTIFICATIONS_EMAIL;
             expect(err.message).to.equal(expects);
         });
-        it('Works when AWS credentials are valid but expect email to be unverified', async () => {
+        xit('Works when AWS credentials are valid but expect email to be unverified', async () => {
             const expects = 'Email address is not verified.';
             let err;
+            let result;
             try {
-                await getTransport().send(testEmail);
+                result = await getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
             expect(err.message).to.contain(expects);
+            expect(typeof result.MessageId).to.equal('string');
         });
     });
     context('Nodemailer', () => {

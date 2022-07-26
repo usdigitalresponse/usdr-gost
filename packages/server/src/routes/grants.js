@@ -1,5 +1,6 @@
 const express = require('express');
-const { stringify: csvStringify } = require('csv-stringify/dist/esm');
+// eslint-disable-next-line import/no-unresolved
+const { stringify: csvStringify } = require('csv-stringify/sync');
 const db = require('../db');
 const pdf = require('../lib/pdf');
 const { requireUser, isPartOfAgency } = require('../lib/access-helpers');
@@ -120,7 +121,7 @@ router.get('/exportCSV', requireUser, async (req, res) => {
     } else if (pagination.total > data.length) {
         formattedData.push({
             title: `Error: only ${MAX_CSV_EXPORT_ROWS} rows supported for CSV export, but there `
-            + `are ${pagination.total} total.`,
+                + `are ${pagination.total} total.`,
         });
     }
 
