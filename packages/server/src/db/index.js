@@ -276,7 +276,7 @@ async function getGrants({
             if (filters) {
                 if (filters.interestedByUser || filters.positiveInterest || filters.rejected) {
                     queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
-                    .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
+                        .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
                 }
                 if (filters.assignedToAgency) {
                     queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
@@ -355,7 +355,7 @@ async function getClosestGrants() {
         .select('title', 'close_date')
         .where('close_date', '>=', timestamp)
         .orderBy('close_date', 'asc')
-        .limit(3)
+        .limit(3);
     return query;
 }
 
@@ -456,7 +456,7 @@ function markGrantAsInterested({
         });
 }
 
-function unmarkGrantAsInterested({grantId, userId,}) {
+function unmarkGrantAsInterested({ grantId, userId }) {
     return knex(TABLES.grants_interested)
         .where({
             grant_id: grantId,
@@ -553,12 +553,12 @@ async function deleteAgency(
     await knex.raw('select setval(\'agencies_id_seq\', max(id)) from agencies');
     return knex(TABLES.agencies)
         .where({
-            id: id,
-            parent: parent,
-            name: name,
-            abbreviation: abbreviation,
-            warning_threshold: warning_threshold,
-            danger_threshold: danger_threshold,
+            id,
+            parent,
+            name,
+            abbreviation,
+            warning_threshold,
+            danger_threshold,
         })
         .del();
 }
@@ -577,7 +577,7 @@ function setAgencyName(id, agen_name) {
         .where({
             id,
         })
-        .update({ name : agen_name });
+        .update({ name: agen_name });
 }
 
 function setAgencyAbbr(id, agen_abbr) {
@@ -585,7 +585,7 @@ function setAgencyAbbr(id, agen_abbr) {
         .where({
             id,
         })
-        .update({ abbreviation : agen_abbr });
+        .update({ abbreviation: agen_abbr });
 }
 
 function setAgencyParent(id, agen_parent) {
@@ -594,7 +594,7 @@ function setAgencyParent(id, agen_parent) {
         .where({
             id,
         })
-        .update({ parent : agen_parent });
+        .update({ parent: agen_parent });
 }
 
 function setTenantDisplayName(id, display_name) {

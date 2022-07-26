@@ -219,7 +219,6 @@ router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
         res.sendStatus(403);
         return;
     }
-    
     await db.markGrantAsInterested({
         grantId,
         agencyId,
