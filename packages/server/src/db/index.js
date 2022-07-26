@@ -456,7 +456,6 @@ function markGrantAsInterested({
         });
 }
 
-
 async function getGrantsInterested() {
     await knex(TABLES.grants_interested)
         .select(`${TABLES.grants_interested}.created_at`, `${TABLES.agencies}.name`, `${TABLES.interested_codes}.is_rejection`, `${TABLES.grants}.title`, `${TABLES.grants}.grant_id`)
