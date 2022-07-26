@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const knex = require('knex')({
     client: 'pg',
     connection: process.env.POSTGRES_TEST_URL || 'postgresql://localhost:5432/usdr_grants_test',
-    debug: 'true',
+    // debug: 'true',
     seeds: {
         directory: './seeds',
     },
@@ -14,14 +14,17 @@ const fixtures = require('./seeds/fixtures');
 
 describe('db', () => {
     before(async () => {
-        await knex.raw('DROP DATABASE IF EXISTS usdr_grants_test');
-        await knex.raw('CREATE DATABASE usdr_grants_test');
-        await knex.migrate.latest();
-        await knex.seed.run();
+        // await knex.raw('DROP DATABASE IF EXISTS usdr_grants_test');
+        // await knex.raw('CREATE DATABASE usdr_grants_test');
+        // await knex.migrate.forceFreeMigrationsLock();
+        // await knex.migrate.rollback();
+        // await knex.migrate.latest();
+        // await knex.seed.run();
     });
 
-    after(() => {
-        knex.destroy();
+    after(async () => {
+        // await knex.migrate.rollback();
+        await knex.destroy();
     });
 
     context('getTotalGrants', () => {
