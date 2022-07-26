@@ -9,7 +9,7 @@ on:
       - "docs/**"
 
 jobs:
-  server-client:
+  test-server-client:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -50,7 +50,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
           NOTIFICATIONS_EMAIL: "grants-identification@usdigitalresponse.org"
         run: |
-          cd packages/server
-          cp .env.example .env           # The .env file needs to be present; the example file is good enough.
-          cd ../../
+          # The .env file needs to be present; the example file is good enough.
+          cd packages/server/.env.example packages/server/.env
+          cd packages/client/.env.example packages/client/.env
           yarn test
