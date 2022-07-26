@@ -3,7 +3,7 @@
   <b-row>
     <b-col><h2>Agencies</h2></b-col>
     <b-col></b-col>
-    <b-col class="d-flex justify-content-end">
+    <b-col class="d-flex justify-content-end" v-if="userRole === 'admin'">
       <div>
         <b-button variant="success" @click="openAddAgencyModal">Add</b-button>
       </div>
