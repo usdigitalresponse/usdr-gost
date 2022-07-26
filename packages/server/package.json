@@ -14,7 +14,7 @@
     "migrate:make": "npx knex migrate:make",
     "env": "export $(cat .env)",
     "db:seed": "yarn db:migrate && npx knex seed:run",
-    "test": "yarn test:db && yarn test:email && yarn test:apis",
+    "test": "yarn test:email && yarn test:apis",
     "test:email": "mocha __tests__/email/*.test.js",
     "test:db": "mocha __tests__/db/*.test.js",
     "test:db1": "__tests__/db/run-tests.sh",
