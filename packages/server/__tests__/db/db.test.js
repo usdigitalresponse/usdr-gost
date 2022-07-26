@@ -1,14 +1,29 @@
 const { expect } = require('chai');
+const knex = require('knex')({
+    client: 'pg',
+    connection: process.env.POSTGRES_TEST_URL || 'postgresql://localhost:5432/usdr_grants_test',
+    debug: 'true',
+    seeds: {
+        directory: './seeds',
+    },
+});
 const db = require('../../src/db');
-const knex = require('../../src/db/connection');
+// const knex = require('../../src/db/connection');
 const { TABLES } = require('../../src/db/constants');
 const fixtures = require('./seeds/fixtures');
 
-after(() => {
-    knex.destroy();
-});
-
 describe('db', () => {
+    before(async () => {
+        await knex.raw('DROP DATABASE IF EXISTS usdr_grants_test');
+        await knex.raw('CREATE DATABASE usdr_grants_test');
+        await knex.migrate.latest();
+        await knex.seed.run();
+    });
+
+    after(() => {
+        knex.destroy();
+    });
+
     context('getTotalGrants', () => {
         it('gets total grant count with no parameters', async () => {
             const result = await db.getTotalGrants();
