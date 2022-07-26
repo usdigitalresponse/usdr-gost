@@ -6,6 +6,9 @@
     <b-tab title="Assigned">
       <GrantsTable :showAssignedToAgency="selectedAgencyId"/>
     </b-tab>
+    <b-tab title="Rejected">
+      <GrantsTable :showRejected="true"/>
+    </b-tab>
   </b-tabs>
 </template>
 

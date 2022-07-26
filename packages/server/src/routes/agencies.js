@@ -3,7 +3,8 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { requireAdminUser, requireUser, isPartOfAgency } = require('../lib/access-helpers');
 const {
-    getAgency, getAgencies, setAgencyThresholds, createAgency,
+    getAgency, getAgencies, setAgencyThresholds, createAgency, setAgencyName, setAgencyAbbr, setAgencyParent,
+    deleteAgency,
 } = require('../db');
 
 router.get('/', requireUser, async (req, res) => {
@@ -23,6 +24,37 @@ router.put('/:agency', requireAdminUser, async (req, res) => {
 
     const { warningThreshold, dangerThreshold } = req.body;
     const result = await setAgencyThresholds(agency, warningThreshold, dangerThreshold);
+    res.json(result);
+});
+
+router.delete('/del/:agency', requireAdminUser, async (req, res) => {
+    const { agency } = req.params;
+
+    const { parent, name, abbreviation, warningThreshold, dangerThreshold, } = req.body;
+    const result = await deleteAgency(agency, parent, name, abbreviation, warningThreshold, dangerThreshold,);
+    res.json(result);
+});
+
+router.put('/name/:agency', requireAdminUser, async (req, res) => {
+    const { agency } = req.params;
+
+    const { name } = req.body;
+    const result = await setAgencyName(agency, name);
+    res.json(result);
+});
+
+router.put('/abbr/:agency', requireAdminUser, async (req, res) => {
+    const { agency } = req.params;
+
+    const { abbreviation } = req.body;
+    const result = await setAgencyAbbr(agency, abbreviation);
+    res.json(result);
+});
+
+router.put('/parent/:agency', requireAdminUser, async (req, res) => {
+    const { agency } = req.params;
+
+    const result = await setAgencyParent(agency, Number(req.body.parentId));
     res.json(result);
 });
 
