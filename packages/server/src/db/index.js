@@ -433,6 +433,14 @@ function markGrantAsInterested({
         });
 }
 
+async function getGrantsInterested() {
+    return await knex(TABLES.grants_interested)
+        .select(`${TABLES.grants_interested}.created_at`, `${TABLES.agencies}.name`, `${TABLES.interested_codes}.is_rejection`, `${TABLES.grants}.title`, `${TABLES.grants}.grant_id`)
+        .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
+        .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
+        .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`);
+}
+
 function getInterestedCodes() {
     return knex(TABLES.interested_codes)
         .select('*')
@@ -618,6 +626,7 @@ module.exports = {
     getKeyword,
     getKeywords,
     getAgencyKeywords,
+    getGrantsInterested,
     setAgencyThresholds,
     setTenantDisplayName,
     createKeyword,
