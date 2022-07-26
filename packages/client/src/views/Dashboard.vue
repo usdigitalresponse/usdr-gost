@@ -10,7 +10,7 @@
           <b-col>
             <b-card title='Recent Activity'>
               <!-- added -> :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" for sorting -->
-              <b-table sticky-header='350px' hover :items='activityItems' :fields='activityFields'
+              <b-table sticky-header='300px' hover :items='activityItems' :fields='activityFields'
                 :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless' thead-class="d-none">
                 <template #cell(icon)="list">
                   <!-- if interested, display check, if not display X -->
@@ -130,7 +130,7 @@ export default {
   },
   data() {
     return {
-      sortBy: 'date',
+      sortBy: 'dateSort',
       sortAsc: true,
 
       activityFields: [
@@ -234,11 +234,16 @@ export default {
       grantsInterested: 'grants/grantsInterested',
     }),
     activityItems() {
+      const rtf = new Intl.RelativeTimeFormat('en', {
+        numeric: 'auto',
+      });
+      const oneDayInMs = 1000 * 60 * 60 * 24;
       return this.grantsInterested.map((grantsInterested) => ({
         agency: grantsInterested.name,
         grant: grantsInterested.title,
         interested: !grantsInterested.is_rejection,
-        date: new Date(grantsInterested.created_at).toLocaleString(),
+        dateSort: new Date(grantsInterested.created_at).toLocaleString(),
+        date: rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').charAt(0).toUpperCase() + rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').slice(1),
       }));
     },
   },
