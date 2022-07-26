@@ -4,9 +4,8 @@ const { exec } = require('child_process');
 let { log } = console;
 let { dir } = console;
 dir(__dirname);
-const knexfilePath = path.resolve(__dirname, '../knexfile.js');
-// eslint-disable-next-line import/no-dynamic-require
-const knexfile = require(path.resolve(__dirname, '../knexfile.js'));
+const knexfilePath = path.resolve(__dirname, '../../knexfile.js');
+const knexfile = require(path.resolve(__dirname, '../../knexfile.js'));
 
 function execShellCommand(cmd, options = {}) {
     return new Promise((resolve, reject) => {

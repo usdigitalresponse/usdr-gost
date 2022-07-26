@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 const express = require('express');
 const _ = require('lodash-checkit');
 const { sendPasscode } = require('../lib/email');

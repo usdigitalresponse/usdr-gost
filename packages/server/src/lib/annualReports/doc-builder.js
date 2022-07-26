@@ -49,7 +49,7 @@ class ArpaDocumentBuilder {
         });
     }
 
-    static buildTableCell(value, alignRight=false) {
+    static buildTableCell(value, alignRight = false) {
         return new docx.TableCell({
             children: [
                 new docx.Paragraph({

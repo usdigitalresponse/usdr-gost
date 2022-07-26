@@ -1,4 +1,4 @@
-const resetDB = require('../resetdb');
+const resetDB = require('./resetdb');
 
 async function mochaGlobalSetup() {
     const err = await resetDB({ verbose: false });

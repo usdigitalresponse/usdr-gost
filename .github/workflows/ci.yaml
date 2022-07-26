@@ -1,0 +1,56 @@
+name: Continuous Integration
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+
+jobs:
+  test-server-client:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: "postgres:13"
+        env:
+          POSTGRES_DB: usdr_grants_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn setup
+
+      - name: Run Linter
+        run: |
+          yarn lint
+
+      - name: Run unit tests
+        env:
+          POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
+          AWS_ACCESS_KEY_ID: "Fake AWS Key"
+          AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
+          NOTIFICATIONS_EMAIL: grants-identification@usdigitalresponse.org
+        run: |
+          # The .env file needs to be present; the example file is good enough.
+          cp packages/server/.env.example packages/server/.env
+          cp packages/client/.env.example packages/client/.env
+          yarn test
