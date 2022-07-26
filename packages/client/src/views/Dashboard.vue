@@ -9,8 +9,9 @@
           <b-col cols="1"></b-col>
           <b-col>
             <b-card title='Recent Activity'>
-              <b-table sticky-header='600px' hover :items='activityItems' :fields='activityFields'
-                class='table table-borderless' thead-class="d-none">
+              <!-- added -> :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" for sorting -->
+              <b-table sticky-header='300px' hover :items='activityItems' :fields='activityFields'
+                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless' thead-class="d-none">
                 <template #cell(icon)="list">
                   <!-- if interested, display check, if not display X -->
                   <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
@@ -40,7 +41,7 @@
           </b-col>
           <b-col>
             <b-card title='Upcoming Closing Dates'>
-              <b-table sticky-header='600px' hover :items='upcomingItems' :fields='upcomingFields'
+              <b-table sticky-header='350px' hover :items='upcomingItems' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none">
                 <template #cell(date)="dates">
                   <!-- color the date to gray, yellow, or red based on the dateColor boolean -->
@@ -98,6 +99,24 @@
     </b-card>
   </section>
 </template>
+<style scoped>
+.color-gray{
+color: gray;
+}
+
+.color-yellow {
+  /* darkkhaki is used in place of traditional yellow for readability */
+  color: darkkhaki;
+}
+
+.color-red {
+  color: red;
+}
+
+.color-green {
+  color: green;
+}
+</style>
 
 <style scoped>
 .color-gray{
@@ -125,6 +144,8 @@ export default {
   },
   data() {
     return {
+      sortBy: 'dateSort',
+      sortAsc: true,
       activityFields: [
         {
           // col for the check or X icon
@@ -143,33 +164,6 @@ export default {
           key: 'date',
           label: '',
           thStyle: { width: '20%' },
-        },
-      ],
-      activityItems: [
-        {
-          agency: 'Historical Records Advisory Board',
-          grant: 'FY21 Supplemental for the Northeast Corridor..',
-          interested: true,
-          date: 'Today',
-        },
-        {
-          agency: 'State of Nevada',
-          grant: 'Environmental Justice Collaborative Problem...',
-          interested: false,
-          date: 'Today',
-        },
-        {
-          agency: 'Deparment of Administration',
-          grant: 'FY21 Supplemental for the Northeast Corridor...',
-          interested: true,
-          date: 'Yesterday',
-        },
-        {
-          icon: false,
-          agency: 'Historical Records Advisory Board',
-          grant: 'Strengthening Public Health Research and...',
-          interested: false,
-          date: '2 days ago',
         },
       ],
       upcomingFields: [
@@ -279,6 +273,7 @@ export default {
 
     };
   },
+
   mixins: [resizableTableMixin],
   mounted() {
     this.setup();
@@ -295,8 +290,23 @@ export default {
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
+      grants: 'grants/grants',
+      grantsInterested: 'grants/grantsInterested',
       getClosestGrants: 'grants/getClosestGrants',
     }),
+    activityItems() {
+      const rtf = new Intl.RelativeTimeFormat('en', {
+        numeric: 'auto',
+      });
+      const oneDayInMs = 1000 * 60 * 60 * 24;
+      return this.grantsInterested.map((grantsInterested) => ({
+        agency: grantsInterested.name,
+        grant: grantsInterested.title,
+        interested: !grantsInterested.is_rejection,
+        dateSort: new Date(grantsInterested.created_at).toLocaleString(),
+        date: rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').charAt(0).toUpperCase() + rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').slice(1),
+      }));
+    },
   },
   watch: {
     selectedAgency() {
@@ -306,9 +316,17 @@ export default {
   methods: {
     ...mapActions({
       fetchDashboard: 'dashboard/fetchDashboard',
+      fetchGrantsInterested: 'grants/fetchGrantsInterested',
     }),
     setup() {
       this.fetchDashboard();
+      this.fetchGrantsInterested();
+    },
+    seeAllActivity() {
+      // this is where the method for the button press will go
+    },
+    seeAllUpcoming() {
+      // this is where the method for the button press will go
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {
@@ -318,12 +336,6 @@ export default {
         currency: 'USD',
       });
       return (`(${res})`);
-    },
-    seeAllActivity() {
-      // this is where the method for the button press will go
-    },
-    seeAllUpcoming() {
-      // this is where the method for the button press will go
     },
   },
 };

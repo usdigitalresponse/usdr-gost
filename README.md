@@ -96,7 +96,7 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 
 4.1). Setup Gmail
 
-Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below) 
+Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below)
 
 In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
 
@@ -249,6 +249,32 @@ After installing depedencies, IntelliJ should start using eslint automatically:
 
 > By default, IntelliJ IDEA marks the detected errors and warnings based on the severity levels from the ESLint configuration
 > https://www.jetbrains.com/help/idea/eslint.html#ws_js_linters_eslint_install
+
+# Testing
+
+## Server
+
+```
+> cd packages/server
+> yarn test
+  ...
+
+OR
+
+> yarn test:db
+  ...
+> yarn test:apis
+  ...
+> yarn test:email
+  ...
+```
+
+## Client
+
+```
+
+```
+
 
 # Deployment
 

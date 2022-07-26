@@ -456,6 +456,15 @@ function markGrantAsInterested({
         });
 }
 
+
+async function getGrantsInterested() {
+    await knex(TABLES.grants_interested)
+        .select(`${TABLES.grants_interested}.created_at`, `${TABLES.agencies}.name`, `${TABLES.interested_codes}.is_rejection`, `${TABLES.grants}.title`, `${TABLES.grants}.grant_id`)
+        .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
+        .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
+        .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`);
+}
+
 function unmarkGrantAsInterested({ grantId, userId }) {
     return knex(TABLES.grants_interested)
         .where({
@@ -472,7 +481,7 @@ function getInterestedCodes() {
 }
 
 async function getAgency(agencyId) {
-    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold
     FROM agencies WHERE id = ?;`;
     const result = await knex.raw(query, agencyId);
 
@@ -481,10 +490,10 @@ async function getAgency(agencyId) {
 
 async function getAgencies(rootAgency) {
     const query = `WITH RECURSIVE subagencies AS (
-    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold
     FROM agencies WHERE id = ?
     UNION
-        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold 
+        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold
         FROM agencies a INNER JOIN subagencies s ON s.id = a.parent
     ) SELECT * FROM subagencies ORDER BY name; `;
     const result = await knex.raw(query, rootAgency);
@@ -494,7 +503,7 @@ async function getAgencies(rootAgency) {
 
 // Use agency id for lookup for now
 async function getTenant(main_agency_id) {
-    const query = `SELECT id, display_name, main_agency_id 
+    const query = `SELECT id, display_name, main_agency_id
     FROM tenants WHERE main_agency_id = ?;`;
     const result = await knex.raw(query, main_agency_id);
 
@@ -694,6 +703,7 @@ module.exports = {
     getKeyword,
     getKeywords,
     getAgencyKeywords,
+    getGrantsInterested,
     setAgencyThresholds,
     setAgencyName,
     setAgencyAbbr,

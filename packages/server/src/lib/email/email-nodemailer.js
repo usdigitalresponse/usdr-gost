@@ -52,7 +52,7 @@ async function send(message) {
         // text: 'Hello world?', // plain text body
         html: message.body, // html body
     };
-    return transport.sendMail(params);
+    transport.sendMail(params);
 }
 
 module.exports = { send };

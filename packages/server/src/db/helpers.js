@@ -6,7 +6,7 @@ function whereAgencyCriteriaMatch(qb, criteria) {
         qb.where('eligibility_codes', '~', criteria.eligibilityCodes.join('|'));
     }
 
-    if (criteria.keywords.length > 0) {
+    if (criteria.keywords && criteria.keywords.length > 0) {
         qb.where('description', '~*', criteria.keywords.join('|'));
     }
 }
