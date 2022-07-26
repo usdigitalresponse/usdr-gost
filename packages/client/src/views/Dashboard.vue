@@ -69,34 +69,33 @@
     </div>
     <b-row>
       <b-col cols='4'>
-        <b-card bg-variant='secondary' text-variant='white' header='Total Grants Matching Search Criteria'
-          class='text-center mb-3'>
-          <h3>{{ totalGrantsMatchingAgencyCriteria }} of {{ totalGrants }}</h3>
-          <b-link class='stretched-link' to='/grants' />
-        </b-card>
         <b-card bg-variant='secondary' text-variant='white' header='New Grants Matching Search Criteria, Last 24Hrs'
-          class='text-center mb-3'>
+          class='text-center mb-3 mt-3'>
           <h3>{{ grantsCreatedInTimeframeMatchingCriteria }} of {{ grantsCreatedInTimeframe }}</h3>
           <b-link class='stretched-link' to='/grants' />
         </b-card>
+      </b-col>
+      <b-col cols='4'>
         <b-card bg-variant='secondary' text-variant='white' header='Updated Grants Matching Search Criteria, Last 24Hrs'
-          class='text-center mb-3'>
+          class='text-center mb-3 mt-3'>
           <h3>{{ grantsUpdatedInTimeframeMatchingCriteria }} of {{ grantsUpdatedInTimeframe }}</h3>
           <b-link class='stretched-link' to='/grants' />
         </b-card>
       </b-col>
       <b-col cols='4'>
-        <b-card bg-variant='secondary' text-variant='white' header='Total Viewed Grants' class='text-center mb-3'>
-          <h3>{{ totalViewedGrants }}</h3>
-        </b-card>
-        <b-card bg-variant='secondary' text-variant='white' header='Total Interested Grants' class='text-center mb-3'>
-          <h3>{{ totalInterestedGrants }}</h3>
-          <b-link class='stretched-link' to='/my-grants' />
+        <b-card bg-variant='secondary' text-variant='white' header='Total Grants Matching Search Criteria'
+          class='text-center mb-3 mt-3'>
+          <h3>{{ totalGrantsMatchingAgencyCriteria }} of {{ totalGrants }}</h3>
+          <b-link class='stretched-link' to='/grants' />
         </b-card>
       </b-col>
     </b-row>
-    <b-card title='Total Interested Grants by Agencies'>
-      <b-table sticky-header='600px' hover :items='totalInterestedGrantsByAgencies' :fields='groupByFields'></b-table>
+    <b-card title="Total Interested Grants by Agencies">
+      <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
+        <template #cell()="{field, value}">
+          <div :style="field.style" v-text="value"></div>
+        </template>
+      </b-table>
     </b-card>
   </section>
 </template>
@@ -119,10 +118,25 @@ color: gray;
 }
 </style>
 
+<style scoped>
+.color-gray{
+  color: gray;
+}
+.color-yellow{
+  /* darkkhaki is used in place of traditional yellow for readability */
+  color:darkkhaki;
+}
+.color-red{
+  color:red;
+}
+.color-green{
+  color: green;
+}
+
+</style>
+
 <script>
-
 import { mapActions, mapGetters } from 'vuex';
-
 import resizableTableMixin from '@/mixin/resizableTable';
 
 export default {
@@ -132,7 +146,6 @@ export default {
     return {
       sortBy: 'dateSort',
       sortAsc: true,
-
       activityFields: [
         {
           // col for the check or X icon
@@ -151,7 +164,6 @@ export default {
           key: 'date',
           label: '',
           thStyle: { width: '20%' },
-          sortable: true,
         },
       ],
       upcomingFields: [
@@ -192,25 +204,73 @@ export default {
         {
           key: 'name',
           sortable: true,
-        },
-        {
-          key: 'abbreviation',
-          sortable: true,
+          thStyle: {
+            width: '40%',
+          },
         },
         {
           label: 'Total',
           key: 'count',
           sortable: true,
+          style: {
+            'font-weight': 'bold',
+          },
+          thStyle: {
+            // makes monetary value column closer,
+            // also gives more space for grant money value since it will be a longer number
+            width: '1%',
+          },
+        },
+        {
+          label: ' ',
+          key: 'total_grant_money',
+          sortByFormatted: false,
+          formatter: 'formatMoney',
         },
         {
           key: 'interested',
           sortable: true,
+          style: {
+            'font-weight': 'bold',
+          },
+          thStyle: {
+            // makes monetary value column closer,
+            // also gives more space for grant money value since it will be a longer number
+            width: '1%',
+          },
+        },
+        {
+          label: ' ',
+          key: 'total_interested_grant_money',
+          sortByFormatted: false,
+          formatter: 'formatMoney',
+          style: {
+            color: 'green',
+          },
         },
         {
           key: 'rejections',
+          style: {
+            'font-weight': 'bold',
+          },
           sortable: true,
+          thStyle: {
+            // makes monetary value column closer,
+            // also gives more space for grant money value since it will be a longer number
+            width: '1%',
+          },
+        },
+        {
+          label: '   ',
+          key: 'total_rejected_grant_money',
+          sortByFormatted: false,
+          formatter: 'formatMoney',
+          style: {
+            color: 'red',
+          },
         },
       ],
+
     };
   },
 
@@ -232,6 +292,7 @@ export default {
       selectedAgency: 'users/selectedAgency',
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
+      getClosestGrants: 'grants/getClosestGrants',
     }),
     activityItems() {
       const rtf = new Intl.RelativeTimeFormat('en', {
@@ -260,6 +321,21 @@ export default {
     setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested();
+    },
+    seeAllActivity() {
+      // this is where the method for the button press will go
+    },
+    seeAllUpcoming() {
+      // this is where the method for the button press will go
+    },
+    formatMoney(value) {
+      const res = Number(value).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        style: 'currency',
+        currency: 'USD',
+      });
+      return (`(${res})`);
     },
     seeAllActivity() {
       // this is where the method for the button press will go

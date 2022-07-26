@@ -26,10 +26,10 @@ export default {
   },
   actions: {
     fetchGrants({ commit }, {
-      currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToAgency, aging,
+      currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, rejected,
     }) {
       const query = Object.entries({
-        currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToAgency, aging,
+        currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, rejected,
       })
         // filter out undefined and nulls since api expects parameters not present as undefined
         // eslint-disable-next-line no-unused-vars
@@ -49,6 +49,9 @@ export default {
     getGrantAssignedAgencies(context, { grantId }) {
       return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`);
     },
+    getInterestedAgencies(context, { grantId }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/interested`);
+    },
     assignAgenciesToGrant(context, { grantId, agencyIds }) {
       return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
         agencyIds,
@@ -57,6 +60,14 @@ export default {
     unassignAgenciesToGrant(context, { grantId, agencyIds }) {
       return fetchApi.deleteRequest(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
         agencyIds,
+      });
+    },
+    unmarkGrantAsInterested(context, {
+      grantId, agencyIds, interestedCode, agencyId,
+    }) {
+      return fetchApi.deleteRequest(`/api/organizations/:organizationId/grants/${grantId}/interested/${agencyId}`, {
+        agencyIds,
+        interestedCode,
       });
     },
     async generateGrantForm(context, { grantId }) {

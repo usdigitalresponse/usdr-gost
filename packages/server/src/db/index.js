@@ -274,8 +274,9 @@ async function getGrants({
                 );
             }
             if (filters) {
-                if (filters.interestedByUser) {
-                    queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
+                if (filters.interestedByUser || filters.positiveInterest || filters.rejected) {
+                    queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
+                    .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
                 }
                 if (filters.assignedToAgency) {
                     queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
@@ -289,6 +290,14 @@ async function getGrants({
                         }
                         if (filters.assignedToAgency) {
                             qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgency);
+                        }
+                        if (!(filters.positiveInterest && filters.rejected)) {
+                            if (filters.positiveInterest) {
+                                qb.where(`${TABLES.interested_codes}.is_rejection`, '=', false);
+                            }
+                            if (filters.rejected) {
+                                qb.where(`${TABLES.interested_codes}.is_rejection`, '=', true);
+                            }
                         }
                     },
                 );
@@ -340,6 +349,16 @@ async function getGrant({ grantId }) {
     return results[0];
 }
 
+async function getClosestGrants() {
+    const timestamp = new Date();
+    const query = await knex(TABLES.grants)
+        .select('title', 'close_date')
+        .where('close_date', '>=', timestamp)
+        .orderBy('close_date', 'asc')
+        .limit(3)
+    return query;
+}
+
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
     const rows = await knex(TABLES.grants)
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
@@ -369,9 +388,13 @@ async function getTotalInterestedGrantsByAgencies() {
     const rows = await knex(TABLES.grants_interested)
         .select(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`,
             knex.raw('SUM(CASE WHEN is_rejection = TRUE THEN 1 ELSE 0 END) rejections'),
-            knex.raw('SUM(CASE WHEN is_rejection = FALSE THEN 1 ELSE 0 END) interested'))
+            knex.raw('SUM(CASE WHEN is_rejection = FALSE THEN 1 ELSE 0 END) interested'),
+            knex.raw('SUM(award_ceiling::numeric) total_grant_money'),
+            knex.raw('SUM(CASE WHEN is_rejection = FALSE THEN award_ceiling::numeric ELSE 0 END) total_interested_grant_money'),
+            knex.raw('SUM(CASE WHEN is_rejection = TRUE THEN award_ceiling::numeric ELSE 0 END) total_rejected_grant_money'))
         .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
         .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
+        .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`)
         .count(`${TABLES.interested_codes}.is_rejection`)
         .groupBy(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
     return rows;
@@ -440,6 +463,14 @@ async function getGrantsInterested() {
         .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
         .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`);
 }
+function unmarkGrantAsInterested({grantId, userId,}) {
+    return knex(TABLES.grants_interested)
+        .where({
+            grant_id: grantId,
+            user_id: userId,
+        })
+        .del();
+}
 
 function getInterestedCodes() {
     return knex(TABLES.interested_codes)
@@ -489,7 +520,7 @@ async function getAgencyEligibilityCodes(agencyId) {
                 ...ec,
                 created_at: null,
                 updated_at: null,
-                enabled: false,
+                enabled: true,
             };
         }
         return {
@@ -521,12 +552,56 @@ async function createAgency({
         });
 }
 
+async function deleteAgency(
+    id, parent, name, abbreviation, warning_threshold, danger_threshold,
+) {
+    // seeded agencies with hardcoded ids will make autoicrement fail since it doesnt
+    // know which is the next id
+    await knex.raw('select setval(\'agencies_id_seq\', max(id)) from agencies');
+    return knex(TABLES.agencies)
+        .where({
+            id: id,
+            parent: parent,
+            name: name,
+            abbreviation: abbreviation,
+            warning_threshold: warning_threshold,
+            danger_threshold: danger_threshold,
+        })
+        .del();
+}
+
 function setAgencyThresholds(id, warning_threshold, danger_threshold) {
     return knex(TABLES.agencies)
         .where({
             id,
         })
         .update({ warning_threshold, danger_threshold });
+}
+
+function setAgencyName(id, agen_name) {
+    // console.log('agen name === ' + agen_name);
+    return knex(TABLES.agencies)
+        .where({
+            id,
+        })
+        .update({ name : agen_name });
+}
+
+function setAgencyAbbr(id, agen_abbr) {
+    return knex(TABLES.agencies)
+        .where({
+            id,
+        })
+        .update({ abbreviation : agen_abbr });
+}
+
+function setAgencyParent(id, agen_parent) {
+    // console.log('agen id in index.js ' + id);
+    return knex(TABLES.agencies)
+        .where({
+            id,
+        })
+        .update({ parent : agen_parent });
 }
 
 function setTenantDisplayName(id, display_name) {
@@ -628,10 +703,14 @@ module.exports = {
     getAgencyKeywords,
     getGrantsInterested,
     setAgencyThresholds,
+    setAgencyName,
+    setAgencyAbbr,
+    setAgencyParent,
     setTenantDisplayName,
     createKeyword,
     deleteKeyword,
     getGrants,
+    getClosestGrants,
     getGrant,
     getTotalGrants,
     getTotalViewedGrants,
@@ -641,9 +720,11 @@ module.exports = {
     getInterestedAgencies,
     getInterestedCodes,
     markGrantAsInterested,
+    unmarkGrantAsInterested,
     getGrantAssignedAgencies,
     assignGrantsToAgencies,
     createAgency,
+    deleteAgency,
     unassignAgenciesToGrant,
     getElegibilityCodes,
     sync,

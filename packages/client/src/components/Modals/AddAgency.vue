@@ -14,21 +14,21 @@
         <b-form-group
           :state="!$v.formData.name.$invalid"
           label-for="name-input"
+          invalid-feedback="Required"
         >
           <template slot="label">Name</template>
           <b-form-input
               autofocus
               id="name-input"
               type="text"
-              min=2
               v-model="formData.name"
-              :state="!$v.formData.name.$invalid"
               required
             ></b-form-input>
         </b-form-group>
         <b-form-group
           :state="!$v.formData.abbreviation.$invalid"
           label-for="abbreviation-input"
+          invalid-feedback="Required"
         >
           <template slot="label">Abbreviation</template>
           <b-form-input
@@ -37,12 +37,11 @@
               min=2
               max=8
               v-model="formData.abbreviation"
-              :state="!$v.formData.abbreviation.$invalid"
               required
             ></b-form-input>
         </b-form-group>
         <b-form-group
-          :state="!$v.formData.abbreviation.$invalid"
+          :state="!$v.formData.parentAgency.$invalid"
           label-for="agency-input"
           invalid-feedback="Must select a parent agency"
         >
@@ -70,13 +69,13 @@
             type="number"
             min=2
             v-model="formData.warningThreshold"
-            :state="!$v.formData.warningThreshold.$invalid"
             required
           ></b-form-input>
         </b-form-group>
         <b-form-group
+          :state="!$v.formData.dangerThreshold.$invalid"
           label-for="dangerThreshold-input"
-          invalid-feedback="Danger Threshold must be greater than zero and less than Warning Threshold"
+          invalid-feedback="Danger Threshold must be greater than 0 and less than Warning Threshold"
         >
         <template slot="label">Close Date <span class="text-danger">Danger</span> Threshold</template>
         <template slot="description">How many days out to show grant close dates with <span class="text-danger">danger</span> status</template>
@@ -85,7 +84,6 @@
             type="number"
             min=1
             v-model="formData.dangerThreshold"
-            :state="!$v.formData.dangerThreshold.$invalid"
             required
           ></b-form-input>
         </b-form-group>
@@ -107,8 +105,8 @@ export default {
       formData: {
         name: null,
         abbreviation: null,
-        warningThreshold: null,
-        dangerThreshold: null,
+        warningThreshold: 14,
+        dangerThreshold: 7,
         parentAgency: null,
       },
     };
