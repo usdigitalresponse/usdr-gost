@@ -48,7 +48,7 @@ jobs:
           POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
           AWS_ACCESS_KEY_ID: "Fake AWS Key"
           AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
-          NOTIFICATIONS_EMAIL: "grants-identification@usdigitalresponse.org"
+          NOTIFICATIONS_EMAIL: grants-identification@usdigitalresponse.org
         run: |
           # The .env file needs to be present; the example file is good enough.
           cp packages/server/.env.example packages/server/.env
