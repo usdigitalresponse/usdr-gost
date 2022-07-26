@@ -47,16 +47,16 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 14
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Install dependencies
-        run: 'yarn run setup'
+        run: "yarn run setup"
 
       - name: Lint Client Source
         run: |
           cd packages/client
           yarn lint --no-fix --format stylish
-      
+
       - name: Lint Server Source
         run: |
           cd packages/server
@@ -68,12 +68,12 @@ jobs:
       postgres:
         image: "postgres:13"
         env:
-          POSTGRES_DB: 'usdr_grants_test'
-          POSTGRES_USER: 'postgres'
-          POSTGRES_PASSWORD: 'password'
-          POSTGRES_TEST_URL: 'postgresql://postgres:password@localhost:5432/usdr_grants_test'
-          AWS_ACCESS_KEY_ID: 'Fake AWS Key'
-          AWS_SECRET_ACCESS_KEY: 'Fake AWS Secret'
+          POSTGRES_DB: "usdr_grants_test"
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "password"
+          POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:5432/usdr_grants_test"
+          AWS_ACCESS_KEY_ID: "Fake AWS Key"
+          AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
         ports:
           - 5432:5432
         # Set health checks to wait until postgres has started
@@ -90,13 +90,12 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 14
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Install dependencies
-        run: 'yarn run setup'
+        run: "yarn setup"
 
       - name: Run unit tests
-        env:
         run: |
           cd packages/server
           # The .env file needs to be present; the example file is good enough.
