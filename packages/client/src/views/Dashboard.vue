@@ -42,16 +42,12 @@
             <b-card title='Upcoming Closing Dates'>
               <b-table sticky-header='600px' hover :items='getClosestGrants' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none">
-                <template #cell(date)="dates">
-                  <!-- color the date to gray, yellow, or red based on the dateColor boolean -->
-                  <div v-if="dates.item.dateColor === 0" class="color-gray">{{ dates.item.date }}</div>
-                  <div v-if="dates.item.dateColor === 1" class="color-yellow">{{ dates.item.date }}</div>
-                  <div v-if="dates.item.dateColor === 2" class="color-red">{{ dates.item.date }}</div>
+                <template #cell()="{field, value}">
+                  <div :style="field.style" v-text="value"></div>
+                  <div v-if="getClosestGrants">test</div>
                 </template>
-                <template #cell(agencyAndGrant)="agencies">
-                  <!-- display the interestedAgencies in a new <div> so it appears below the grant -->
-                  <div>{{ agencies.item.agencyAndGrant }}</div>
-                  <div class="color-gray">{{ agencies.item.interestedAgencies }}</div>
+                <template #cell(interestedAgencAbbrs)="{field, getInterestedAgens}">
+                  <div :style="field.style" v-text="getInterestedAgens"></div>
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -183,7 +179,16 @@ export default {
           // col for when the grant will be closing
           key: 'close_date',
           label: '',
-          // formatter: 'formatDate',
+          formatter: 'formatDate',
+          thStyle: { width: '20%' },
+          style: {
+            color: 'red',
+          },
+        },
+        {
+          key: 'interested_agencies',
+          label: '',
+          formatter: 'getInterestedAgens',
           thStyle: { width: '20%' },
         },
       ],
@@ -277,6 +282,7 @@ export default {
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
       getClosestGrants: 'dashboard/getClosestGrants',
+      getInterestedAgencies: 'grants/getInterestedAgencies',
     }),
   },
   watch: {
@@ -301,8 +307,16 @@ export default {
       return (`(${res})`);
     },
     formatDate(value) {
-      const result = value.format('YYYY-MM-DD');
-      return result;
+      const year = value.slice(2, 4);
+      const month = value.slice(5, 7);
+      const day = value.slice(8, 10);
+      const finalDate = [month, day, year].join('/');
+      // bring in thresholds
+      return (`${finalDate}`);
+    },
+    getInterestedAgens() {
+      return 'yes';
+      // return getInterestedAgencies
     },
     seeAllActivity() {
       // this is where the method for the button press will go
