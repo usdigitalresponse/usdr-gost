@@ -30,7 +30,7 @@ on:
 name: Continuous Integration
 
 jobs:
-  test-server-client:
+  server-client:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -73,5 +73,5 @@ jobs:
           NOTIFICATIONS_EMAIL: "grants-identification@usdigitalresponse.org"
         run: |
           # The .env file needs to be present; the example file is good enough.
-          cp .env.example .env
+          # cp .env.example .env
           yarn test
