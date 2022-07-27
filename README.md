@@ -89,7 +89,7 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 
 4.1). Setup Gmail
 
-Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below) 
+Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below). *Note: Select "Mac" even if you're not using a Mac.* 
 
 In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
 
@@ -108,7 +108,7 @@ If running into `Error: Invalid login: 535-5.7.8 Username and Password not accep
 
 In server workspace, run migrations:
 
-**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**.
+**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**. *Use lower-case email address.*
 Then run seeds:
 
 ```
