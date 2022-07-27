@@ -118,23 +118,6 @@ color: gray;
 }
 </style>
 
-<style scoped>
-.color-gray{
-  color: gray;
-}
-.color-yellow{
-  /* darkkhaki is used in place of traditional yellow for readability */
-  color:darkkhaki;
-}
-.color-red{
-  color:red;
-}
-.color-green{
-  color: green;
-}
-
-</style>
-
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
