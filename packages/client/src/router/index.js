@@ -23,6 +23,14 @@ const routes = [
       requiresAuth: true,
     },
   },
+  // {
+  //   path: '/RecentActivity',
+  //   name: 'RecentActivity',
+  //   component: () => import('../views/RecentActivity.vue'),
+  //   meta: {
+  //     requiresAuth: true,
+  //   },
+  // },
   {
     path: '/',
     name: 'layout',
@@ -36,6 +44,14 @@ const routes = [
         path: '/dashboard',
         name: 'dashboard',
         component: () => import('../views/Dashboard.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: '/RecentActivity',
+        name: 'RecentActivity',
+        component: () => import('../views/RecentActivity.vue'),
         meta: {
           requiresAuth: true,
         },
