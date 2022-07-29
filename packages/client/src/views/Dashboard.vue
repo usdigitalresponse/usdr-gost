@@ -1,24 +1,19 @@
 <!-- eslint-disable max-len -->
 <template>
   <section class='m-3'>
-    <!-- couple options here, could use card-group, could use container, could use card-deck, card-columns -->
     <div class="px-5">
-      <!-- adds padding in the margin -->
       <b-container fluid>
         <div class="row">
           <b-col cols="1"></b-col>
           <b-col>
             <b-card title='Recent Activity'>
-              <!-- added -> :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" for sorting -->
               <b-table sticky-header='300px' hover :items='activityItems' :fields='activityFields'
-                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless' thead-class="d-none">
+                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none">
                 <template #cell(icon)="list">
-                  <!-- if interested, display check, if not display X -->
                   <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
                   <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
                 </template>
                 <template #cell(agencyAndGrant)="agencies">
-                  <!-- display agency then either interested or rejected, then the grant all in the same line -->
                   <div>{{ agencies.item.agency }}
                     <span v-if="agencies.item.interested"> is
                       <span class="color-green">interested </span> in
@@ -27,15 +22,13 @@
                   </div>
                 </template>
                 <template #cell(date)="dates">
-                  <!-- make the dates gray -->
                   <div class="color-gray">{{ dates.item.date }}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
-                <!-- see all button -->
-                <b-button variant="link" size="sm" color="primary" class="mr-1" @click="seeAllActivity">
-                  See All Activity
-                </b-button>
+                <b-navbar toggleable="sm py-0" bg-transparent>
+                  <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
+                </b-navbar>
               </b-row>
             </b-card>
           </b-col>
@@ -56,7 +49,6 @@
                 </template>
               </b-table>
               <b-row align-v="center">
-                <!-- see all button -->
                 <b-button variant="link" size="sm" color="primary" class="mr-1" @click="seeAllUpcoming">
                   See All Upcoming
                 </b-button>
@@ -99,24 +91,6 @@
     </b-card>
   </section>
 </template>
-<style scoped>
-.color-gray{
-color: gray;
-}
-
-.color-yellow {
-  /* darkkhaki is used in place of traditional yellow for readability */
-  color: darkkhaki;
-}
-
-.color-red {
-  color: red;
-}
-
-.color-green {
-  color: green;
-}
-</style>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
@@ -304,9 +278,6 @@ export default {
     setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested();
-    },
-    seeAllActivity() {
-      // this is where the method for the button press will go
     },
     seeAllUpcoming() {
       // this is where the method for the button press will go
