@@ -49,9 +49,9 @@
                 </template>
               </b-table>
               <b-row align-v="center">
-                <b-button variant="link" size="sm" color="primary" class="mr-1" @click="seeAllUpcoming">
-                  See All Upcoming
-                </b-button>
+                 <b-navbar toggleable="sm py-0" bg-transparent>
+                  <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
+                </b-navbar>
               </b-row>
             </b-card>
           </b-col>
@@ -91,6 +91,23 @@
     </b-card>
   </section>
 </template>
+
+<style scoped>
+.color-gray{
+  color: gray;
+}
+.color-yellow{
+  /* darkkhaki is used in place of traditional yellow for readability */
+  color:darkkhaki;
+}
+.color-red{
+  color:red;
+}
+.color-green{
+  color: green;
+}
+
+</style>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
@@ -278,9 +295,6 @@ export default {
     setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested();
-    },
-    seeAllUpcoming() {
-      // this is where the method for the button press will go
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {
