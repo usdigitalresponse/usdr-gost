@@ -8,7 +8,7 @@
           <b-col>
             <b-card title='Recent Activity'>
               <b-table sticky-header='300px' hover :items='activityItems' :fields='activityFields'
-                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless' thead-class="d-none">
+                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none">
                 <template #cell(icon)="list">
                   <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
                   <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
@@ -26,9 +26,9 @@
                 </template>
               </b-table>
               <b-row align-v="center">
-                <b-button variant="link" size="sm" color="primary" class="mr-1" @click="seeAllActivity">
-                  See All Activity
-                </b-button>
+                <b-navbar toggleable="sm py-0" bg-transparent>
+                  <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
+                </b-navbar>
               </b-row>
             </b-card>
           </b-col>
@@ -295,12 +295,6 @@ export default {
     setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested();
-    },
-    seeAllActivity() {
-      // this is where the method for the button press will go
-    },
-    seeAllUpcoming() {
-      // this is where the method for the button press will go
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {

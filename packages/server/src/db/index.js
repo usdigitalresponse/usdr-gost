@@ -265,6 +265,7 @@ async function getGrants({
 } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
+        .distinct()
         .modify((queryBuilder) => {
             if (searchTerm && searchTerm !== 'null') {
                 queryBuilder.andWhere(
@@ -457,11 +458,12 @@ function markGrantAsInterested({
 }
 
 async function getGrantsInterested() {
-    await knex(TABLES.grants_interested)
+    const rows = await knex(TABLES.grants_interested)
         .select(`${TABLES.grants_interested}.created_at`, `${TABLES.agencies}.name`, `${TABLES.interested_codes}.is_rejection`, `${TABLES.grants}.title`, `${TABLES.grants}.grant_id`)
         .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
         .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
         .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`);
+    return rows;
 }
 
 function unmarkGrantAsInterested({ grantId, userId }) {
