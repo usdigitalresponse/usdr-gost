@@ -8,47 +8,58 @@
         <div class="row">
           <b-col cols="1"></b-col>
           <b-col>
-            <b-card title='Recent Activity'>
+            <b-card>
+              <div class="card-block text-left">
+                <h4 class="card-title gutter-title1 row">Recent Activity</h4>
+              </div>
               <!-- added -> :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" for sorting -->
               <b-table sticky-header='300px' hover :items='activityItems' :fields='activityFields'
                 :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless' thead-class="d-none">
                 <template #cell(icon)="list">
+                  <div class="gutter-icon row">
                   <!-- if interested, display check, if not display X -->
                   <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
                   <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                  </div>
                 </template>
                 <template #cell(agencyAndGrant)="agencies">
-                  <!-- display agency then either interested or rejected, then the grant all in the same line -->
+                  <div>
                   <div>{{ agencies.item.agency }}
                     <span v-if="agencies.item.interested"> is
-                      <span class="color-green">interested </span> in
+                      <span class="color-green"> <strong> interested </strong></span> in
                     </span>
-                    <span v-if="!agencies.item.interested" class="color-red"> rejected </span>{{ agencies.item.grant }}
+                    <span v-if="!agencies.item.interested" class="color-red" > <strong> rejected </strong> </span>{{ agencies.item.grant }}
+                  </div>
                   </div>
                 </template>
                 <template #cell(date)="dates">
+                  <div>
                   <!-- make the dates gray -->
                   <div class="color-gray">{{ dates.item.date }}</div>
+                </div>
                 </template>
               </b-table>
-              <b-row align-v="center">
+              <b-row align-v="center" >
                 <!-- see all button -->
-                <b-button variant="link" size="sm" color="primary" class="mr-1" @click="seeAllActivity">
-                  See All Activity
-                </b-button>
+                <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
+                  <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
+                </b-navbar>
               </b-row>
             </b-card>
           </b-col>
           <b-col>
-            <b-card title='Upcoming Closing Dates'>
+            <b-card>
+              <div class="card-block text-left">
+                <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
+              </div>
               <b-table sticky-header='350px' hover :items='upcomingItems' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none">
-                <template #cell(date)="dates">
+                <template #cell(date)="dates"><strong>
                   <!-- color the date to gray, yellow, or red based on the dateColor boolean -->
                   <div v-if="dates.item.dateColor === 0" class="color-gray">{{ dates.item.date }}</div>
                   <div v-if="dates.item.dateColor === 1" class="color-yellow">{{ dates.item.date }}</div>
                   <div v-if="dates.item.dateColor === 2" class="color-red">{{ dates.item.date }}</div>
-                </template>
+                </strong></template>
                 <template #cell(agencyAndGrant)="agencies">
                   <!-- display the interestedAgencies in a new <div> so it appears below the grant -->
                   <div>{{ agencies.item.agencyAndGrant }}</div>
@@ -57,9 +68,9 @@
               </b-table>
               <b-row align-v="center">
                 <!-- see all button -->
-                <b-button variant="link" size="sm" color="primary" class="mr-1" @click="seeAllUpcoming">
-                  See All Upcoming
-                </b-button>
+                <b-navbar toggleable="sm py-0" bg-transparent class="gutter-upcoming row">
+                  <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
+                </b-navbar>
               </b-row>
             </b-card>
           </b-col>
@@ -67,6 +78,7 @@
         </div>
       </b-container>
     </div>
+
     <b-row>
       <b-col cols='4'>
         <b-card bg-variant='secondary' text-variant='white' header='New Grants Matching Search Criteria, Last 24Hrs'
@@ -93,45 +105,48 @@
     <b-card title="Total Interested Grants by Agencies">
       <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
         <template #cell()="{field, value}">
-          <div :style="field.style" v-text="value"></div>
+          <div :style="field.style" v-text="value">
+          </div>
         </template>
       </b-table>
     </b-card>
   </section>
 </template>
-<style scoped>
-.color-gray{
-color: gray;
-}
-
-.color-yellow {
-  /* darkkhaki is used in place of traditional yellow for readability */
-  color: darkkhaki;
-}
-
-.color-red {
-  color: red;
-}
-
-.color-green {
-  color: green;
-}
-</style>
 
 <style scoped>
 .color-gray{
-  color: gray;
+  color: #757575;
 }
 .color-yellow{
-  /* darkkhaki is used in place of traditional yellow for readability */
-  color:darkkhaki;
+  color: #aa8866;
 }
 .color-red{
-  color:red;
+  color: #ae1818;
 }
 .color-green{
   color: green;
 }
+.gutter-icon.row {
+    margin-right: -8px;
+    margin-left: -8px;
+    margin-top: 3px;
+  }
+  .gutter-activity.row {
+    margin-left: +20px;
+    margin-top: -8px;
+    margin-bottom: -6px;
+  }
+  .gutter-upcoming.row {
+    margin-left: -2px;
+    margin-top: -8px;
+    margin-bottom: -6px;
+  }
+  .gutter-title1.row {
+    margin-left: +34px;
+  }
+  .gutter-title2.row {
+    margin-left: +10px;
+  }
 
 </style>
 
@@ -151,19 +166,19 @@ export default {
           // col for the check or X icon
           key: 'icon',
           label: '',
-          thStyle: { width: '1%' },
+          // thStyle: { width: '1%' },
         },
         {
           // col for the agency is interested or not in grant
           key: 'agencyAndGrant',
           label: '',
-          thStyle: { width: '79%' },
+          // thStyle: { width: '79%' },
         },
         {
           // col for when the event being displayed happened
           key: 'date',
           label: '',
-          thStyle: { width: '20%' },
+          // thStyle: { width: '20%' },
         },
       ],
       upcomingFields: [
@@ -205,16 +220,13 @@ export default {
           key: 'name',
           sortable: true,
           thStyle: {
-            width: '40%',
+            width: '45%',
           },
         },
         {
           label: 'Total',
           key: 'count',
           sortable: true,
-          style: {
-            'font-weight': 'bold',
-          },
           thStyle: {
             // makes monetary value column closer,
             // also gives more space for grant money value since it will be a longer number
@@ -226,13 +238,21 @@ export default {
           key: 'total_grant_money',
           sortByFormatted: false,
           formatter: 'formatMoney',
+          style: {
+            color: '#757575',
+          },
+          class: 'text-right',
+        },
+        {
+          key: 'empty1',
+          label: '',
+          thStyle: {
+            width: '11%',
+          },
         },
         {
           key: 'interested',
           sortable: true,
-          style: {
-            'font-weight': 'bold',
-          },
           thStyle: {
             // makes monetary value column closer,
             // also gives more space for grant money value since it will be a longer number
@@ -244,15 +264,20 @@ export default {
           key: 'total_interested_grant_money',
           sortByFormatted: false,
           formatter: 'formatMoney',
+          class: 'text-right',
           style: {
             color: 'green',
           },
         },
         {
-          key: 'rejections',
-          style: {
-            'font-weight': 'bold',
+          key: 'empty2',
+          label: '',
+          thStyle: {
+            width: '11%',
           },
+        },
+        {
+          key: 'rejections',
           sortable: true,
           thStyle: {
             // makes monetary value column closer,
@@ -265,8 +290,16 @@ export default {
           key: 'total_rejected_grant_money',
           sortByFormatted: false,
           formatter: 'formatMoney',
+          class: 'text-right',
           style: {
-            color: 'red',
+            color: '#ae1818',
+          },
+        },
+        {
+          key: 'empty3',
+          label: '',
+          thStyle: {
+            width: '11%',
           },
         },
       ],
