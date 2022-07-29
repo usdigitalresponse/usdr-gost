@@ -43,12 +43,12 @@
               <b-table sticky-header='600px' hover :items='getClosestGrants' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none">
                 <template #cell()="{field, value}">
+                  <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
+                  <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
+                </template>
+                <!-- <template #cell(dat)="{field, value}">
                   <div :style="field.style" v-text="value"></div>
-                  <div v-if="getClosestGrants">test</div>
-                </template>
-                <template #cell(interestedAgencAbbrs)="{field, getInterestedAgens}">
-                  <div :style="field.style" v-text="getInterestedAgens"></div>
-                </template>
+                </template> -->
               </b-table>
               <b-row align-v="center">
                 <!-- see all button -->
@@ -121,6 +121,10 @@ export default {
   },
   data() {
     return {
+      dateColors: {
+        yellowDate: null,
+        redDate: null,
+      },
       activityFields: [
         {
           // col for the check or X icon
@@ -181,8 +185,11 @@ export default {
           label: '',
           formatter: 'formatDate',
           thStyle: { width: '20%' },
-          style: {
+          tdStyle: {
             color: 'red',
+          },
+          trStyle: {
+            color: 'darkkhaki',
           },
         },
         {
@@ -282,7 +289,9 @@ export default {
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
       getClosestGrants: 'dashboard/getClosestGrants',
-      getInterestedAgencies: 'grants/getInterestedAgencies',
+      grants: 'grants/grants',
+      loggedInUser: 'users/loggedInUser',
+      agency: 'users/agency',
     }),
   },
   watch: {
@@ -293,6 +302,8 @@ export default {
   methods: {
     ...mapActions({
       fetchDashboard: 'dashboard/fetchDashboard',
+      getInterestedAgencies: 'grants/getInterestedAgencies',
+      getAgency: 'agencies/getAgency',
     }),
     setup() {
       this.fetchDashboard();
@@ -307,16 +318,70 @@ export default {
       return (`(${res})`);
     },
     formatDate(value) {
+      //                  get threshold of agency
+      const warn = this.agency.warning_threshold;
+      const danger = this.agency.danger_threshold;
+      //                    current date + danger threshold
+      const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
+      console.log(`dangerDate  ${dangerDate}`);
+      //                grant close date + danger thresh
+      const dangerDate2 = new Date(new Date().setDate(new Date(value).getDate() + danger));
+      console.log(`dangerDate2  ${dangerDate2}`);
+      //                grant close date + warn thresh
+      const warnDate = new Date(new Date().setDate(new Date(value).getDate() + warn));
+      console.log(`warnDate  ${warnDate}`);
+      console.log(`close date format for comp  ${new Date(value)}`);
+      //          if the grant close date is <= danger date
+      if (new Date(value) <= warnDate && new Date(value) > dangerDate2) {
+        // make text yellow
+        this.yellowDate = true;
+        console.log('test2');
+      } else if (new Date(value) <= dangerDate2) {
+        this.redDate = true;
+        console.log('test 3');
+        // make red
+      }
+      //                      format date in MM/DD/YY
       const year = value.slice(2, 4);
       const month = value.slice(5, 7);
       const day = value.slice(8, 10);
       const finalDate = [month, day, year].join('/');
-      // bring in thresholds
       return (`${finalDate}`);
     },
     getInterestedAgens() {
-      return 'yes';
-      // return getInterestedAgencies
+      //                     <///// getting row grant id x
+      // let id1;
+      // // let id2;
+      // // let id3;
+      // for (let i = 0; i < this.getClosestGrants.length; i += 1) {
+      //   // console.log(`grnat id:  ${this.getClosestGrants[i].grant_id}`);
+      //   if (i === 0) { id1 = this.getClosestGrants[i].grant_id; }
+      //   // if (i === 1) { id2 = this.getClosestGrants[i].grant_id; }
+      //   // if (i === 2) { id3 = this.getClosestGrants[i].grant_id; }
+      // }
+      // //                  <///// put row id in this.getInterestedAgencies func
+      // console.log(`poiuytre2  ${JSON.stringify(this.getInterestedAgencies({ grantId: this.getClosestGrants[0].grant_id }).then((data) => data)
+      //   .catch((err) => err))}`);
+      // return JSON.stringify(this.getInterestedAgencies({ grantId: id1 }).then((data) => data)
+      //   .catch((err) => err));
+
+      //                <///// grants pagination map
+      // return this.grants.map((grant) => ({
+      //   interested_agencies: grant.interested_agencies
+      //     .map((v) => v.agency_abbreviation)
+      //     .join(', '),
+      // }));
+
+      return this.getInterestedAgencies({ grantId: this.getClosestGrants[0].grant_id });
+
+      //                     </////promise
+      // const promise1 = new Promise((resolve) => {
+      //   resolve(this.getInterestedAgencies({ grantId: id1 }));
+      // });
+      // promise1.then((value) => {
+      //   console.log(value);
+      //   return value;
+      // });
     },
     seeAllActivity() {
       // this is where the method for the button press will go
