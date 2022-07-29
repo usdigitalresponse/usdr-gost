@@ -46,10 +46,10 @@
       @row-selected="onRowSelected"
     >
       <template #cell(award_floor)="row">
-          <p> {{row.item.award_floor | currency}}</p>
+          <p> {{formatMoney(row.item.award_floor)}}</p>
       </template>
       <template #cell(award_ceiling)="row">
-          <p> {{row.item.award_ceiling | currency}}</p>
+          <p> {{formatMoney(row.item.award_ceiling)}}</p>
       </template>
       <template #table-busy>
         <div class="text-center text-danger my-2">
@@ -88,11 +88,6 @@ import Multiselect from 'vue-multiselect';
 import { titleize } from '@/helpers/form-helpers';
 
 import GrantDetails from '@/components/Modals/GrantDetails.vue';
-
-// import Vue from 'vue';
-// import Vue2Filters from 'vue2-filters';
-
-// Vue.use(Vue2Filters);
 
 export default {
   components: { GrantDetails, Multiselect },
@@ -343,6 +338,18 @@ export default {
         positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
         rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
       });
+    },
+    formatMoney(value) {
+      if (value === undefined) {
+        return '';
+      }
+      const res = Number(value).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        style: 'currency',
+        currency: 'USD',
+      });
+      return (`${res}`);
     },
   },
 };
