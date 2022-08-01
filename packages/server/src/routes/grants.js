@@ -25,7 +25,7 @@ async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {
         agencies = user.agency.subagencies;
         console.log('agencies2:', agencies.length);
     }
-    if (!agencies.length) {
+    if (agencies.length === 0) {
         if (filterByMainAgency && user.agency.main_agency_id >= 0) {
             // Get all agencies from the main agency. Usually the agency of the organization,
             // in other words the root parent agency (for example nevada agency)
