@@ -68,6 +68,7 @@ router.get('/', requireUser, async (req, res) => {
             rejected: req.query.rejected ? true : null,
         },
     });
+    console.log(JSON.stringify(grants.data.map((x) => x.viewed_by_agencies), null, 2));
     res.json(grants);
 });
 
