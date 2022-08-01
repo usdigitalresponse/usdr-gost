@@ -21,7 +21,8 @@ async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {
     let agencies = [];
     if (selectedAgency === user.agency_id) {
         agencies = user.agency.subagencies;
-    } if (filterByMainAgency && user.agency.main_agency_id >= 0) {
+    }
+    if (filterByMainAgency && user.agency.main_agency_id >= 0) {
         // Get all agencies from the main agency. Usually the agency of the organization,
         // in other words the root parent agency (for example nevada agency)
         agencies = await db.getAgencies(user.agency.main_agency_id);
@@ -57,6 +58,7 @@ router.get('/', requireUser, async (req, res) => {
     }
     const { selectedAgency, user } = req.session;
     const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
+    console.log('agencies0:', JSON.stringify(agencies, null, 2));
     const grants = await db.getGrants({
         ...req.query,
         agencies,
