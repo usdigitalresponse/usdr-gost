@@ -94,7 +94,7 @@ export default {
     ...mapGetters({
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
-      workingGrant: 'grants/workingGrant',
+      currentGrant: 'grants/currentGrant',
     }),
     activityItems() {
       const rtf = new Intl.RelativeTimeFormat('en', {
@@ -117,9 +117,9 @@ export default {
         await this.fetchGrantsInterested();
       }
     },
-    workingGrant() {
-      if (this.selectedGrant && this.workingGrant) {
-        this.onRowSelected([this.workingGrant]);
+    currentGrant() {
+      if (this.selectedGrant && this.currentGrant) {
+        this.onRowSelected([this.currentGrant]);
       }
     },
   },
@@ -137,7 +137,7 @@ export default {
       const [row] = items;
       if (row) {
         await this.fetchGrantDetails({ grantId: row.grant_id }).then(() => {
-          this.selectedGrant = this.workingGrant;
+          this.selectedGrant = this.currentGrant;
         });
       }
     },
