@@ -22,14 +22,17 @@ async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {
     if (selectedAgency === user.agency_id) {
         agencies = user.agency.subagencies;
         console.log('agencies2:', agencies.length);
-    } else if (filterByMainAgency && user.agency.main_agency_id >= 0) {
-        // Get all agencies from the main agency. Usually the agency of the organization,
-        // in other words the root parent agency (for example nevada agency)
-        agencies = await db.getAgencies(user.agency.main_agency_id);
-        console.log('agencies3:', agencies.length);
-    } else {
-        agencies = await db.getAgencies(selectedAgency);
-        console.log('agencies4:', agencies.length);
+    }
+    if (!agencies.length) {
+        if (filterByMainAgency && user.agency.main_agency_id >= 0) {
+            // Get all agencies from the main agency. Usually the agency of the organization,
+            // in other words the root parent agency (for example nevada agency)
+            agencies = await db.getAgencies(user.agency.main_agency_id);
+            console.log('agencies3:', agencies.length);
+        } else {
+            agencies = await db.getAgencies(selectedAgency);
+            console.log('agencies4:', agencies.length);
+        }
     }
     console.log('agencies5:', agencies.length);
     return agencies.map((s) => s.id);
