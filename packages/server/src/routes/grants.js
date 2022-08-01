@@ -72,6 +72,15 @@ router.get('/', requireUser, async (req, res) => {
     res.json(grants);
 });
 
+// get a single grant details
+router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { selectedAgency, user } = req.session;
+    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
+    const response = await db.getSingleGrantDetails({ grantId, agencies });
+    res.json(response);
+});
+
 // For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
 // without the test having to insert 10k rows, which slows down the test.
 const MAX_CSV_EXPORT_ROWS = process.env.NODE_ENV !== 'test' ? 10000 : 100;
