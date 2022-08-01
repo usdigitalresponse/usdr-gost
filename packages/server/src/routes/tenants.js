@@ -17,7 +17,7 @@ router.get('/', requireUser, async (req, res) => {
     res.json(response);
 });
 
-router.post('/', async (req, res) => {
+router.post('/', requireAdminUser, async (req, res) => {
     if (!req.body.name || !req.body.agency_id) {
         res.status(400).send('Tenant name and agency ID is required');
         return;
