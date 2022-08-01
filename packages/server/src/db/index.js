@@ -464,7 +464,7 @@ async function getInterestedAgencies({ grantIds, agencies }) {
         .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.grants_interested}.user_id`)
         .leftJoin(TABLES.interested_codes, `${TABLES.interested_codes}.id`, '=', `${TABLES.grants_interested}.interested_code_id`)
         .whereIn('grant_id', grantIds)
-        .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
+        // .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
         .select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
             `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
             `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,
