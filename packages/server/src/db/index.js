@@ -333,7 +333,7 @@ async function getGrants({
 
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
-        const agenciesInterested = interestedBy.filter((intested) => intested.grant_id === grant.grant_id);
+        const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
         return {
             ...grant,
             viewed_by_agencies: viewedByAgencies,
@@ -424,9 +424,10 @@ async function getTotalInterestedGrantsByAgencies() {
     return rows;
 }
 
-function markGrantAsViewed({ grantId, agencyId, userId }) {
-    return knex(TABLES.grants_viewed)
+async function markGrantAsViewed({ grantId, agencyId, userId }) {
+    const result = await knex(TABLES.grants_viewed)
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
+    return result;
 }
 
 function getGrantAssignedAgencies({ grantId, agencies }) {
@@ -455,8 +456,8 @@ function unassignAgenciesToGrant({ grantId, agencyIds }) {
         .delete();
 }
 
-function getInterestedAgencies({ grantIds, agencies }) {
-    return knex(TABLES.agencies)
+async function getInterestedAgencies({ grantIds, agencies }) {
+    const results = await knex(TABLES.agencies)
         .join(TABLES.grants_interested, `${TABLES.agencies}.id`, '=', `${TABLES.grants_interested}.agency_id`)
         .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.grants_interested}.user_id`)
         .leftJoin(TABLES.interested_codes, `${TABLES.interested_codes}.id`, '=', `${TABLES.grants_interested}.interested_code_id`)
@@ -466,18 +467,20 @@ function getInterestedAgencies({ grantIds, agencies }) {
             `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
             `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,
             `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`, `${TABLES.interested_codes}.is_rejection as interested_is_rejection`);
+    return results;
 }
 
-function markGrantAsInterested({
+async function markGrantAsInterested({
     grantId, agencyId, userId, interestedCode,
 }) {
-    return knex(TABLES.grants_interested)
+    const results = await knex(TABLES.grants_interested)
         .insert({
             agency_id: agencyId,
             grant_id: grantId,
             user_id: userId,
             interested_code_id: interestedCode,
         });
+    return results;
 }
 
 async function getGrantsInterested() {
@@ -489,13 +492,14 @@ async function getGrantsInterested() {
     return rows;
 }
 
-function unmarkGrantAsInterested({ grantId, userId }) {
-    return knex(TABLES.grants_interested)
+async function unmarkGrantAsInterested({ grantId, userId }) {
+    const result = await knex(TABLES.grants_interested)
         .where({
             grant_id: grantId,
             user_id: userId,
         })
         .del();
+    return result;
 }
 
 function getInterestedCodes() {

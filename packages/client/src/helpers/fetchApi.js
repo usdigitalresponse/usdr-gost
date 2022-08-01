@@ -32,14 +32,15 @@ export function deleteRequest(url, body) {
     headers: getDefaultHeaders(),
     body: JSON.stringify(body),
   };
-  return fetch(addOrganizationId(url), options).then((r) => {
-    if (r.ok) {
-      return r.json();
-    }
-    return r
-      .text()
-      .then((text) => Promise.reject(new Error(text || r.statusText)));
-  });
+  return fetch(addOrganizationId(url), options)
+    .then((r) => {
+      if (r.ok) {
+        return r.json();
+      }
+      return r
+        .text()
+        .then((text) => Promise.reject(new Error(text || r.statusText)));
+    });
 }
 
 export function post(url, body) {
@@ -49,14 +50,15 @@ export function post(url, body) {
     headers: getDefaultHeaders(),
     body: JSON.stringify(body),
   };
-  return fetch(addOrganizationId(url), options).then((r) => {
-    if (r.ok) {
-      return r.json();
-    }
-    return r
-      .text()
-      .then((text) => Promise.reject(new Error(text || r.statusText)));
-  });
+  return fetch(addOrganizationId(url), options)
+    .then((r) => {
+      if (r.ok) {
+        return r.json();
+      }
+      return r
+        .text()
+        .then((text) => Promise.reject(new Error(text || r.statusText)));
+    });
 }
 
 export function put(url, body) {
@@ -66,12 +68,13 @@ export function put(url, body) {
     headers: getDefaultHeaders(),
     body: JSON.stringify(body),
   };
-  return fetch(addOrganizationId(url), options).then((r) => {
-    if (r.ok) {
-      return r.json();
-    }
-    return r
-      .text()
-      .then((text) => Promise.reject(new Error(text || r.statusText)));
-  });
+  return fetch(addOrganizationId(url), options)
+    .then((r) => {
+      if (r.ok) {
+        return r.json();
+      }
+      return r
+        .text()
+        .then((text) => Promise.reject(new Error(text || r.statusText)));
+    });
 }
