@@ -331,8 +331,11 @@ async function getGrants({
 
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), agencies });
 
+    // console.log(JSON.stringify(viewedBy, null, 2));
+
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
+        console.log(`${grant.grant_id} ${JSON.stringify(viewedByAgencies, null, 2)}`);
         const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
         return {
             ...grant,
