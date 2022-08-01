@@ -36,6 +36,7 @@ async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {
             console.log('agencies4:', agencies.length);
         }
     }
+    console.log('agencies5:', agencies.length);
     return agencies.map((s) => s.id);
 }
 
