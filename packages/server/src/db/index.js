@@ -263,8 +263,6 @@ function deleteKeyword(id) {
 async function getGrants({
     currentPage, perPage, agencies, filters, orderBy, searchTerm,
 } = {}) {
-    console.log('agencies1', JSON.stringify(agencies, null, 2));
-
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
         .distinct()
@@ -325,8 +323,6 @@ async function getGrants({
         })
         .paginate({ currentPage, perPage, isLengthAware: true });
 
-    // console.log("Array.isArray(agencies): " + JSON.stringify(Array.isArray(agencies), null, 2));
-    // console.log(JSON.stringify(agencies, null, 2));
     const viewedBy = await knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
@@ -336,8 +332,6 @@ async function getGrants({
         .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
 
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), agencies });
-
-    // console.log(JSON.stringify(viewedBy, null, 2));
 
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
