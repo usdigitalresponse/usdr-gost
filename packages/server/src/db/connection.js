@@ -3,7 +3,7 @@ const db = process.env.NODE_ENV !== 'test' ? process.env.POSTGRES_URL : process.
 const knex = require('knex')({
     client: 'pg',
     connection: db,
-    debug: true,
+    debug: process.env.NODE_ENV !== 'production',
 });
 const { attachPaginate } = require('knex-paginate');
 
