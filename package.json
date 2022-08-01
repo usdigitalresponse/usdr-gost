@@ -10,6 +10,7 @@
     "packages/*"
   ],
   "scripts": {
+    "add_tenant": "cd packages/server && node src/lib/addTenantScript",
     "bootstrap": "lerna bootstrap",
     "setup": "yarn install && yarn run bootstrap",
     "start": "lerna run start --stream",
