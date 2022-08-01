@@ -7,6 +7,7 @@ function initialState() {
     keywords: [],
     interestedCodes: [],
     grantsInterested: [],
+    workingGrant: {},
   };
 }
 
@@ -17,6 +18,7 @@ export default {
     grants: (state) => state.grantsPaginated.data || [],
     grantsPagination: (state) => state.grantsPaginated.pagination,
     grantsInterested: (state) => state.grantsInterested,
+    workingGrant: (state) => state.workingGrant,
     eligibilityCodes: (state) => state.eligibilityCodes,
     interestedCodes: (state) => ({
       rejections: state.interestedCodes.filter((c) => c.is_rejection),
@@ -38,6 +40,10 @@ export default {
         .join('&');
       return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
+    },
+    fetchGrantDetails({ commit }, { grantId }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/grantDetails`)
+        .then((data) => commit('SET_GRANT_WORKING', data));
     },
     fetchGrantsInterested({ commit }) {
       return fetchApi.get('/api/organizations/:organizationId/grants/grantsInterested')
@@ -131,6 +137,9 @@ export default {
       if (grant) {
         Object.assign(grant, data);
       }
+      if (state.workingGrant && state.workingGrant.grant_id === grantId) {
+        Object.assign(state.workingGrant, data);
+      }
     },
     SET_ELIGIBILITY_CODES(state, eligibilityCodes) {
       state.eligibilityCodes = eligibilityCodes;
@@ -143,6 +152,9 @@ export default {
     },
     SET_GRANTS_INTERESTED(state, grantsInterested) {
       state.grantsInterested = grantsInterested;
+    },
+    SET_GRANT_WORKING(state, workingGrant) {
+      state.workingGrant = workingGrant;
     },
   },
 };

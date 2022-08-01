@@ -9,6 +9,9 @@
       :sort-desc.sync="sortAsc"
       class="table table-borderless"
       thead-class="d-none"
+      selectable
+      select-mode="single"
+      @row-selected="onRowSelected"
     >
       <template #cell(icon)="list">
         <b-icon
@@ -35,6 +38,7 @@
       </template>
     </b-table>
     </b-card>
+    <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 <style scoped>
@@ -54,9 +58,10 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
+import GrantDetails from '@/components/Modals/GrantDetails.vue';
 
 export default {
-  components: {},
+  components: { GrantDetails },
   data() {
     return {
       sortBy: 'dateSort',
@@ -78,6 +83,7 @@ export default {
           thStyle: { width: '20%' },
         },
       ],
+      selectedGrant: null,
     };
   },
   mixins: [resizableTableMixin],
@@ -88,6 +94,7 @@ export default {
     ...mapGetters({
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
+      workingGrant: 'grants/workingGrant',
     }),
     activityItems() {
       const rtf = new Intl.RelativeTimeFormat('en', {
@@ -97,20 +104,42 @@ export default {
       return this.grantsInterested.map((grantsInterested) => ({
         agency: grantsInterested.name,
         grant: grantsInterested.title,
+        grant_id: grantsInterested.grant_id,
         interested: !grantsInterested.is_rejection,
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
         date: rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').charAt(0).toUpperCase() + rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').slice(1),
       }));
     },
   },
+  watch: {
+    async selectedGrant() {
+      if (!this.selectedGrant) {
+        await this.fetchGrantsInterested();
+      }
+    },
+    workingGrant() {
+      if (this.selectedGrant && this.workingGrant) {
+        this.onRowSelected([this.workingGrant]);
+      }
+    },
+  },
   methods: {
     ...mapActions({
       // fetchDashboard: 'dashboard/fetchDashboard',  seems to work without this
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
+      fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
     setup() {
       // this.fetchDashboard(); seems to work without this
       this.fetchGrantsInterested();
+    },
+    async onRowSelected(items) {
+      const [row] = items;
+      if (row) {
+        await this.fetchGrantDetails({ grantId: row.grant_id }).then(() => {
+          this.selectedGrant = this.workingGrant;
+        });
+      }
     },
   },
 };

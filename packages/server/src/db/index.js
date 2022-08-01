@@ -350,6 +350,29 @@ async function getGrant({ grantId }) {
     return results[0];
 }
 
+async function getSingleGrantDetails({ grantId, agencies }) {
+    const results = await knex.table(TABLES.grants)
+        .select('*')
+        .where({ grant_id: grantId });
+
+    const viewedBy = await knex(TABLES.agencies)
+    .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
+    .whereIn('grant_id', [grantId])
+    .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
+    .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
+
+    const interestedBy = await getInterestedAgencies({ grantIds: [grantId], agencies });
+
+    const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grantId);
+    const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grantId);
+
+    return {
+        ...(results[0]),
+        viewed_by_agencies: viewedByAgencies,
+        interested_agencies: agenciesInterested,
+    };
+}
+
 async function getClosestGrants() {
     const timestamp = new Date();
     const query = await knex(TABLES.grants)
@@ -713,6 +736,7 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getSingleGrantDetails,
     getClosestGrants,
     getGrant,
     getTotalGrants,

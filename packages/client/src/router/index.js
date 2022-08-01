@@ -40,7 +40,7 @@ const routes = [
           requiresAuth: true,
         },
       },
-       {
+      {
         path: '/RecentActivity',
         name: 'RecentActivity',
         component: () => import('../views/RecentActivity.vue'),
@@ -48,7 +48,7 @@ const routes = [
           requiresAuth: true,
         },
       },
-       {
+      {
         path: '/UpcomingClosingDates',
         name: 'UpcomingClosingDates',
         component: () => import('../views/UpcomingClosingDates.vue'),
