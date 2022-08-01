@@ -19,6 +19,8 @@ const router = express.Router({ mergeParams: true });
  */
 async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {}) {
     let agencies = [];
+    console.log('user:', JSON.stringify(user));
+
     if (selectedAgency === user.agency_id) {
         agencies = user.agency.subagencies;
         console.log('agencies2:', agencies.length);
