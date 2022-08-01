@@ -193,6 +193,7 @@ export default {
         if (!this.agencies.length) {
           this.fetchAgencies();
         }
+        console.log(JSON.stringify(this.selectedGrant));
         if (!this.alreadyViewed) {
           try {
             await this.markGrantAsViewed();
