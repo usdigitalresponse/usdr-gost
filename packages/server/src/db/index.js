@@ -325,14 +325,19 @@ async function getGrants({
 
     const viewedBy = await knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
-        .whereIn('grant_id', data.map((grant) => grant.grant_id))
-        .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
+        .whereIn('grant_id', data.map((grant) => !!grant.grant_id && grant.grant_id))
+        // https://github.com/knex/knex/issues/2980
+        // .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
+        .whereIn(`${TABLES.agencies}.id`, agencies)
         .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
 
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), agencies });
 
+    // console.log(JSON.stringify(viewedBy, null, 2));
+
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
+        console.log(`${grant.grant_id} ${JSON.stringify(viewedByAgencies, null, 2)}`);
         const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
         return {
             ...grant,
