@@ -46,9 +46,6 @@
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
                 </template>
-                <!-- <template #cell(dat)="{field, value}">
-                  <div :style="field.style" v-text="value"></div>
-                </template> -->
               </b-table>
               <b-row align-v="center">
                 <!-- see all button -->
@@ -193,7 +190,7 @@ export default {
           },
         },
         {
-          key: 'interested_agencies',
+          key: 'grant_id',
           label: '',
           formatter: 'getInterestedAgens',
           thStyle: { width: '20%' },
@@ -302,8 +299,9 @@ export default {
   methods: {
     ...mapActions({
       fetchDashboard: 'dashboard/fetchDashboard',
-      getInterestedAgencies: 'grants/getInterestedAgencies',
+      getInterestedAgenciesAction: 'grants/getInterestedAgencies',
       getAgency: 'agencies/getAgency',
+      fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
     }),
     setup() {
       this.fetchDashboard();
@@ -319,27 +317,24 @@ export default {
     },
     formatDate(value) {
       //                  get threshold of agency
+      // console.log(`format date:  ${value}`);
       const warn = this.agency.warning_threshold;
       const danger = this.agency.danger_threshold;
       //                    current date + danger threshold
-      const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
-      console.log(`dangerDate  ${dangerDate}`);
+      // const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
+      // console.log(`dangerDate  ${dangerDate}`);
       //                grant close date + danger thresh
       const dangerDate2 = new Date(new Date().setDate(new Date(value).getDate() + danger));
-      console.log(`dangerDate2  ${dangerDate2}`);
+      // console.log(`dangerDate2  ${dangerDate2}`);
       //                grant close date + warn thresh
       const warnDate = new Date(new Date().setDate(new Date(value).getDate() + warn));
-      console.log(`warnDate  ${warnDate}`);
-      console.log(`close date format for comp  ${new Date(value)}`);
+      // console.log(`warnDate  ${warnDate}`);
+      // console.log(`close date format for comp  ${new Date(value)}`);
       //          if the grant close date is <= danger date
       if (new Date(value) <= warnDate && new Date(value) > dangerDate2) {
-        // make text yellow
         this.yellowDate = true;
-        console.log('test2');
-      } else if (new Date(value) <= dangerDate2) {
+      } else if ((new Date(value) <= dangerDate2) || (new Date(value) === new Date())) {
         this.redDate = true;
-        console.log('test 3');
-        // make red
       }
       //                      format date in MM/DD/YY
       const year = value.slice(2, 4);
@@ -348,40 +343,63 @@ export default {
       const finalDate = [month, day, year].join('/');
       return (`${finalDate}`);
     },
-    getInterestedAgens() {
-      //                     <///// getting row grant id x
-      // let id1;
-      // // let id2;
-      // // let id3;
-      // for (let i = 0; i < this.getClosestGrants.length; i += 1) {
-      //   // console.log(`grnat id:  ${this.getClosestGrants[i].grant_id}`);
-      //   if (i === 0) { id1 = this.getClosestGrants[i].grant_id; }
-      //   // if (i === 1) { id2 = this.getClosestGrants[i].grant_id; }
-      //   // if (i === 2) { id3 = this.getClosestGrants[i].grant_id; }
+    async getInterestedAgens(val) {
+      //                  <///// direct api call
+      // const res = this.getInterestedAgenciesAction({ grantId: val });
+      // console.log(`res:  ${res}`);
+      // await Promise.resolve(res).then((value) => (value));
+      // console.log(await Promise.resolve(res).then((value) => (value)));
+      // return res;
+
+      // const arr = await this.getInterestedAgenciesAction({ grantId: val });
+      // const res = JSON.stringify(arr[0].agency_abbreviation);
+      // console.log(`res:  ${res}`);
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+      // console.log(`res2:  ${res}`);
+      // return res;
+      console.log(val);
+      // let arr = [];
+      const arr = await this.getInterestedAgenciesAction({ grantId: val });
+      const res = JSON.stringify(arr[0].agency_abbreviation);
+      console.log(`res:  ${res}`);
+      return res;
+
+      // this.getInterestedAgenciesAction({ grantId: val }).then((arr) => {
+      //   const res = arr[0].agency_abbreviation;
+      //   console.log(`res:  ${res}`);
+      //   return res;
+      // });
+
+      // try {
+      //   let arr = [];
+      //   arr = await this.getInterestedAgenciesAction({ grantId: val });
+      //   const res = JSON.stringify(arr[0].agency_abbreviation);
+      //   console.log(`res:  ${res}`);
+      //   return res;
+      // } catch (err) {
+      //   console.log(err);
+      //   return err;
       // }
-      // //                  <///// put row id in this.getInterestedAgencies func
-      // console.log(`poiuytre2  ${JSON.stringify(this.getInterestedAgencies({ grantId: this.getClosestGrants[0].grant_id }).then((data) => data)
-      //   .catch((err) => err))}`);
-      // return JSON.stringify(this.getInterestedAgencies({ grantId: id1 }).then((data) => data)
-      //   .catch((err) => err));
 
       //                <///// grants pagination map
-      // return this.grants.map((grant) => ({
-      //   interested_agencies: grant.interested_agencies
-      //     .map((v) => v.agency_abbreviation)
-      //     .join(', '),
-      // }));
+      // return this.grants.map((grant) => (
+      //   grant.interested_agencies
+      //     .map((grantId) => grantId.agency_abbreviation)
+      // ));
 
-      return this.getInterestedAgencies({ grantId: this.getClosestGrants[0].grant_id });
-
+      //                <///// grants filter map
+      // const res = this.grants.filter((grant) => grant.grant_id === val);
+      // console.log(`res:   ${JSON.stringify(res)}`);
+      // console.log(`res[0]:   ${JSON.stringify(res[0].grant_number)}`);
+      // return res[0];
       //                     </////promise
       // const promise1 = new Promise((resolve) => {
-      //   resolve(this.getInterestedAgencies({ grantId: id1 }));
+      //   resolve(JSON.stringify(this.getInterestedAgenciesAction({ grantId: val }))[0].title);
       // });
       // promise1.then((value) => {
-      //   console.log(value);
+      //   console.log(`promise1: ${promise1}`);
       //   return value;
-      // });
+      // }).catch((err) => err);
     },
     seeAllActivity() {
       // this is where the method for the button press will go
