@@ -40,9 +40,9 @@
           </b-col>
           <b-col>
             <b-card title='Upcoming Closing Dates'>
-              <b-table sticky-header='600px' hover :items='getClosestGrants' :fields='upcomingFields'
+              <b-table sticky-header='600px' hover :items='upcomingItems' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none">
-                <template #cell()="{field, value}">
+                <template #cell()="{ field, value }">
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
                 </template>
@@ -84,7 +84,7 @@
     </b-row>
     <b-card title="Total Interested Grants by Agencies">
       <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
-        <template #cell()="{field, value}">
+        <template #cell()="{ field, value }">
           <div :style="field.style" v-text="value"></div>
         </template>
       </b-table>
@@ -93,20 +93,22 @@
 </template>
 
 <style scoped>
-.color-gray{
+.color-gray {
   color: gray;
 }
-.color-yellow{
+
+.color-yellow {
   /* darkkhaki is used in place of traditional yellow for readability */
-  color:darkkhaki;
-}
-.color-red{
-  color:red;
-}
-.color-green{
-  color: green;
+  color: darkkhaki;
 }
 
+.color-red {
+  color: red;
+}
+
+.color-green {
+  color: green;
+}
 </style>
 
 <script>
@@ -190,9 +192,8 @@ export default {
           },
         },
         {
-          key: 'grant_id',
+          key: 'interested_agencies',
           label: '',
-          formatter: 'getInterestedAgens',
           thStyle: { width: '20%' },
         },
       ],
@@ -266,12 +267,11 @@ export default {
           },
         },
       ],
-
     };
   },
   mixins: [resizableTableMixin],
-  mounted() {
-    this.setup();
+  async mounted() {
+    await this.setup();
   },
   computed: {
     ...mapGetters({
@@ -290,10 +290,18 @@ export default {
       loggedInUser: 'users/loggedInUser',
       agency: 'users/agency',
     }),
+    upcomingItems() {
+      // https://stackoverflow.com/a/48643055
+      return this.getClosestGrants;
+    },
   },
   watch: {
-    selectedAgency() {
-      this.setup();
+    async selectedAgency() {
+      await this.setup();
+    },
+    upcomingItems() {
+      // https://lukashermann.dev/writing/how-to-use-async-await-with-vuejs-components/
+      this.formatUpcoming();
     },
   },
   methods: {
@@ -303,7 +311,7 @@ export default {
       getAgency: 'agencies/getAgency',
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
     }),
-    setup() {
+    async setup() {
       this.fetchDashboard();
     },
     formatMoney(value) {
@@ -343,63 +351,18 @@ export default {
       const finalDate = [month, day, year].join('/');
       return (`${finalDate}`);
     },
-    async getInterestedAgens(val) {
-      //                  <///// direct api call
-      // const res = this.getInterestedAgenciesAction({ grantId: val });
-      // console.log(`res:  ${res}`);
-      // await Promise.resolve(res).then((value) => (value));
-      // console.log(await Promise.resolve(res).then((value) => (value)));
-      // return res;
-
-      // const arr = await this.getInterestedAgenciesAction({ grantId: val });
-      // const res = JSON.stringify(arr[0].agency_abbreviation);
-      // console.log(`res:  ${res}`);
-      // await new Promise((resolve) => setTimeout(resolve, 5000));
-      // console.log(`res2:  ${res}`);
-      // return res;
-      console.log(val);
-      // let arr = [];
-      const arr = await this.getInterestedAgenciesAction({ grantId: val });
-      const res = JSON.stringify(arr[0].agency_abbreviation);
-      console.log(`res:  ${res}`);
-      return res;
-
-      // this.getInterestedAgenciesAction({ grantId: val }).then((arr) => {
-      //   const res = arr[0].agency_abbreviation;
-      //   console.log(`res:  ${res}`);
-      //   return res;
-      // });
-
-      // try {
-      //   let arr = [];
-      //   arr = await this.getInterestedAgenciesAction({ grantId: val });
-      //   const res = JSON.stringify(arr[0].agency_abbreviation);
-      //   console.log(`res:  ${res}`);
-      //   return res;
-      // } catch (err) {
-      //   console.log(err);
-      //   return err;
-      // }
-
-      //                <///// grants pagination map
-      // return this.grants.map((grant) => (
-      //   grant.interested_agencies
-      //     .map((grantId) => grantId.agency_abbreviation)
-      // ));
-
-      //                <///// grants filter map
-      // const res = this.grants.filter((grant) => grant.grant_id === val);
-      // console.log(`res:   ${JSON.stringify(res)}`);
-      // console.log(`res[0]:   ${JSON.stringify(res[0].grant_number)}`);
-      // return res[0];
-      //                     </////promise
-      // const promise1 = new Promise((resolve) => {
-      //   resolve(JSON.stringify(this.getInterestedAgenciesAction({ grantId: val }))[0].title);
-      // });
-      // promise1.then((value) => {
-      //   console.log(`promise1: ${promise1}`);
-      //   return value;
-      // }).catch((err) => err);
+    async formatUpcoming() {
+      // https://stackoverflow.com/a/67219279
+      this.getClosestGrants.map(async (grant, idx) => {
+        const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
+        const updateGrant = {
+          ...grant,
+          interested_agencies: arr.map((agency) => agency.agency_abbreviation).join(', '),
+        };
+        // https://v2.vuejs.org/v2/guide/reactivity.html#For-Arrays
+        // https://stackoverflow.com/a/45336400
+        this.$set(this.upcomingItems, idx, updateGrant);
+      });
     },
     seeAllActivity() {
       // this is where the method for the button press will go
