@@ -124,12 +124,6 @@ export default {
     },
   },
   watch: {
-    currentPage() {
-      // this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage + 1 });
-      this.setup();
-    },
-  },
-  watch: {
     async selectedGrant() {
       if (!this.selectedGrant) {
         await this.fetchGrantsInterested();
@@ -139,6 +133,9 @@ export default {
       if (this.selectedGrant && this.currentGrant) {
         this.onRowSelected([this.currentGrant]);
       }
+    },
+    currentPage() {
+      this.setup();
     },
   },
   methods: {
