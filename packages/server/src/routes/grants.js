@@ -1,12 +1,11 @@
 const express = require('express');
-
-const router = express.Router({ mergeParams: true });
-// TODO: why is this necessary?
-/* eslint-disable import/no-unresolved */
+// eslint-disable-next-line import/no-unresolved
 const { stringify: csvStringify } = require('csv-stringify/sync');
 const db = require('../db');
 const pdf = require('../lib/pdf');
 const { requireUser, isPartOfAgency } = require('../lib/access-helpers');
+
+const router = express.Router({ mergeParams: true });
 
 /**
  * Based on arguments passed, return the list of agencies appropiate for this request. This
@@ -20,15 +19,24 @@ const { requireUser, isPartOfAgency } = require('../lib/access-helpers');
  */
 async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {}) {
     let agencies = [];
+    console.log('user:', JSON.stringify(user));
+
     if (selectedAgency === user.agency_id) {
         agencies = user.agency.subagencies;
-    } if (filterByMainAgency && user.agency.main_agency_id >= 0) {
-        // Get all agencies from the main agency. Usually the agency of the organization,
-        // in other words the root parent agency (for example nevada agency)
-        agencies = await db.getAgencies(user.agency.main_agency_id);
-    } else {
-        agencies = await db.getAgencies(selectedAgency);
+        console.log('agencies2:', agencies.length);
     }
+    if (!agencies.length) {
+        if (filterByMainAgency && user.agency.main_agency_id >= 0) {
+            // Get all agencies from the main agency. Usually the agency of the organization,
+            // in other words the root parent agency (for example nevada agency)
+            agencies = await db.getAgencies(user.agency.main_agency_id);
+            console.log('agencies3:', agencies.length);
+        } else {
+            agencies = await db.getAgencies(selectedAgency);
+            console.log('agencies4:', agencies.length);
+        }
+    }
+    console.log('agencies5:', agencies.length);
     return agencies.map((s) => s.id);
 }
 
@@ -70,6 +78,15 @@ router.get('/', requireUser, async (req, res) => {
         },
     });
     res.json(grants);
+});
+
+// get a single grant details
+router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { selectedAgency, user } = req.session;
+    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
+    const response = await db.getSingleGrantDetails({ grantId, agencies });
+    res.json(response);
 });
 
 // For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
@@ -122,7 +139,7 @@ router.get('/exportCSV', requireUser, async (req, res) => {
     } else if (pagination.total > data.length) {
         formattedData.push({
             title: `Error: only ${MAX_CSV_EXPORT_ROWS} rows supported for CSV export, but there `
-            + `are ${pagination.total} total.`,
+                + `are ${pagination.total} total.`,
         });
     }
 
@@ -206,6 +223,10 @@ router.get('/:grantId/interested', requireUser, async (req, res) => {
     const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], agencies });
     res.json(interestedAgencies);
 });
+router.get('/grantsInterested', requireUser, async (req, res) => {
+    const grantsInterested = await db.getGrantsInterested();
+    res.json(grantsInterested);
+});
 
 router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
     const { user } = req.session;
@@ -219,7 +240,7 @@ router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
         res.sendStatus(403);
         return;
     }
-    
+
     await db.markGrantAsInterested({
         grantId,
         agencyId,

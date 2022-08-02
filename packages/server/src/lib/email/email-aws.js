@@ -51,7 +51,7 @@ function send(message) {
             },
         },
     };
-    return transport.sendEmail(params).promise();
+    transport.sendEmail(params).promise();
 }
 
 module.exports = { send };

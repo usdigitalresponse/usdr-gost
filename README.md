@@ -71,8 +71,15 @@ CREATE DATABASE usdr_grants_test;
 
 4). Setup ENVs
 
-Copy packages/client & packages/server `.env.example` to `.env` and
-Update packages/client & server `.env`
+Copy packages/client & packages/server `.env.example` to `.env`
+
+```
+> cp packages/client/.env.example packages/client/.env
+> cp packages/server/.env.example packages/server/.env
+```
+
+
+Then export the environment variables
 
 ```
 > cd packages/client && export $(cat .env)
@@ -89,7 +96,7 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 
 4.1). Setup Gmail
 
-Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below) 
+Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below)
 
 In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
 
@@ -125,9 +132,7 @@ Now you should be able to serve the frontend.
 **_*Ensure using node v14*_**
 
 ```
-> nvm use v14.19.0
-> cd packages/client
-> yarn serve
+> yarn start:client
 ```
 
 6.1). Run Server (Terminal 2)
@@ -139,9 +144,7 @@ Now you should be able to serve the backend.
 **_Ensure using node v14_**
 
 ```
-> nvm use v14.19.0
-> cd packages/server
-> yarn serve
+> yarn start:server
 ```
 
 **NOTE:** if error references AWS (see screenshot below) then run `> unset AWS_ACCESS_KEY_ID`. The application will try to use AWS Simple Email Service (SES) if `AWS_ACCESS_KEY_ID` is found as an env var.
@@ -246,6 +249,32 @@ After installing depedencies, IntelliJ should start using eslint automatically:
 
 > By default, IntelliJ IDEA marks the detected errors and warnings based on the severity levels from the ESLint configuration
 > https://www.jetbrains.com/help/idea/eslint.html#ws_js_linters_eslint_install
+
+# Testing
+
+## Server
+
+```
+> cd packages/server
+> yarn test
+  ...
+
+OR
+
+> yarn test:db
+  ...
+> yarn test:apis
+  ...
+> yarn test:email
+  ...
+```
+
+## Client
+
+```
+
+```
+
 
 # Deployment
 

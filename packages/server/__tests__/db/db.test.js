@@ -1,14 +1,32 @@
 const { expect } = require('chai');
+const knex = require('knex')({
+    client: 'pg',
+    connection: process.env.POSTGRES_TEST_URL || 'postgresql://localhost:5432/usdr_grants_test',
+    // debug: 'true',
+    seeds: {
+        directory: './seeds',
+    },
+});
 const db = require('../../src/db');
-const knex = require('../../src/db/connection');
+// const knex = require('../../src/db/connection');
 const { TABLES } = require('../../src/db/constants');
 const fixtures = require('./seeds/fixtures');
 
-after(() => {
-    knex.destroy();
-});
-
 describe('db', () => {
+    before(async () => {
+        // await knex.raw('DROP DATABASE IF EXISTS usdr_grants_test');
+        // await knex.raw('CREATE DATABASE usdr_grants_test');
+        // await knex.migrate.forceFreeMigrationsLock();
+        // await knex.migrate.rollback();
+        // await knex.migrate.latest();
+        // await knex.seed.run();
+    });
+
+    after(async () => {
+        // await knex.migrate.rollback();
+        await knex.destroy();
+    });
+
     context('getTotalGrants', () => {
         it('gets total grant count with no parameters', async () => {
             const result = await db.getTotalGrants();
@@ -73,11 +91,10 @@ describe('db', () => {
 
     context('getAgencyCriteriaForAgency', () => {
         it('gets agency criteria associated with an agency', async () => {
-            // eslint-disable-next-line max-len
             const staffUserId = await knex(TABLES.users).where('email', fixtures.users.staffUser.email);
             const result = await db.getAgencyCriteriaForAgency(staffUserId[0].agency_id);
 
-            expect(result).to.have.property('eligibilityCodes').with.lengthOf(1);
+            expect(result).to.have.property('eligibilityCodes').with.lengthOf(2);
             expect(result.eligibilityCodes[0])
                 .to.equal(fixtures.agencyEligibilityCodes.accountancyNative.code);
             expect(result).to.have.property('keywords').with.lengthOf(1);

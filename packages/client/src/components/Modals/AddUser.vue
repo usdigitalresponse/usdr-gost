@@ -14,12 +14,11 @@
           :state="!$v.formData.email.$invalid"
           label="Email"
           label-for="email-input"
-          invalid-feedback="Email is invalid"
+          invalid-feedback="Required"
         >
           <b-form-input
             id="email-input"
             v-model="formData.email"
-            :state="!$v.formData.email.$invalid"
             required
           ></b-form-input>
         </b-form-group>
@@ -27,12 +26,11 @@
           :state="!$v.formData.name.$invalid"
           label="Name"
           label-for="name-input"
-          invalid-feedback="Name is invalid"
+          invalid-feedback="Required"
         >
           <b-form-input
             id="name-input"
             v-model="formData.name"
-            :state="!$v.formData.name.$invalid"
             required
           ></b-form-input>
         </b-form-group>
@@ -40,21 +38,21 @@
           :state="!$v.formData.role.$invalid"
           label="Role"
           label-for="role-select"
-          invalid-feedback="Role is invalid"
+          invalid-feedback="Required"
         >
           <b-form-select
           id="role-select"
-          v-model="formData.role" :options="formattedRoles" :state="!$v.formData.role.$invalid"></b-form-select>
+          v-model="formData.role" :options="formattedRoles"></b-form-select>
         </b-form-group>
         <b-form-group
           :state="!$v.formData.agency.$invalid"
           label="Agency"
           label-for="agency-select"
-          invalid-feedback="Agency is invalid"
+          invalid-feedback="Required"
         >
           <b-form-select
           id="agency-select"
-          v-model="formData.agency" :options="formattedAgencies" :state="!$v.formData.agency.$invalid"></b-form-select>
+          v-model="formData.agency" :options="formattedAgencies"></b-form-select>
         </b-form-group>
       </form>
     </b-modal>

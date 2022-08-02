@@ -1,23 +1,19 @@
 <!-- eslint-disable max-len -->
 <template>
   <section class='m-3'>
-    <!-- couple options here, could use card-group, could use container, could use card-deck, card-columns -->
     <div class="px-5">
-      <!-- adds padding in the margin -->
       <b-container fluid>
         <div class="row">
           <b-col cols="1"></b-col>
           <b-col>
             <b-card title='Recent Activity'>
-              <b-table sticky-header='600px' hover :items='activityItems' :fields='activityFields'
-                class='table table-borderless' thead-class="d-none">
+              <b-table sticky-header='300px' hover :items='activityItems' :fields='activityFields'
+                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none">
                 <template #cell(icon)="list">
-                  <!-- if interested, display check, if not display X -->
                   <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
                   <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
                 </template>
                 <template #cell(agencyAndGrant)="agencies">
-                  <!-- display agency then either interested or rejected, then the grant all in the same line -->
                   <div>{{ agencies.item.agency }}
                     <span v-if="agencies.item.interested"> is
                       <span class="color-green">interested </span> in
@@ -26,21 +22,19 @@
                   </div>
                 </template>
                 <template #cell(date)="dates">
-                  <!-- make the dates gray -->
                   <div class="color-gray">{{ dates.item.date }}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
-                <!-- see all button -->
-                <b-button variant="link" size="sm" color="primary" class="mr-1" @click="seeAllActivity">
-                  See All Activity
-                </b-button>
+                <b-navbar toggleable="sm py-0" bg-transparent>
+                  <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
+                </b-navbar>
               </b-row>
             </b-card>
           </b-col>
           <b-col>
             <b-card title='Upcoming Closing Dates'>
-              <b-table sticky-header='600px' hover :items='upcomingItems' :fields='upcomingFields'
+              <b-table sticky-header='350px' hover :items='upcomingItems' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none">
                 <template #cell()="{ field, value }">
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
@@ -48,10 +42,9 @@
                 </template>
               </b-table>
               <b-row align-v="center">
-                <!-- see all button -->
-                <b-button variant="link" size="sm" color="primary" class="mr-1" @click="seeAllUpcoming">
-                  See All Upcoming
-                </b-button>
+                 <b-navbar toggleable="sm py-0" bg-transparent>
+                  <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
+                </b-navbar>
               </b-row>
             </b-card>
           </b-col>
@@ -142,33 +135,6 @@ export default {
           key: 'date',
           label: '',
           thStyle: { width: '20%' },
-        },
-      ],
-      activityItems: [
-        {
-          agency: 'Historical Records Advisory Board',
-          grant: 'FY21 Supplemental for the Northeast Corridor..',
-          interested: true,
-          date: 'Today',
-        },
-        {
-          agency: 'State of Nevada',
-          grant: 'Environmental Justice Collaborative Problem...',
-          interested: false,
-          date: 'Today',
-        },
-        {
-          agency: 'Deparment of Administration',
-          grant: 'FY21 Supplemental for the Northeast Corridor...',
-          interested: true,
-          date: 'Yesterday',
-        },
-        {
-          icon: false,
-          agency: 'Historical Records Advisory Board',
-          grant: 'Strengthening Public Health Research and...',
-          interested: false,
-          date: '2 days ago',
         },
       ],
       upcomingFields: [
@@ -269,6 +235,7 @@ export default {
       ],
     };
   },
+
   mixins: [resizableTableMixin],
   async mounted() {
     await this.setup();
@@ -313,6 +280,7 @@ export default {
     }),
     async setup() {
       this.fetchDashboard();
+      this.fetchGrantsInterested();
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {

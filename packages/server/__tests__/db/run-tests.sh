@@ -6,13 +6,14 @@ set -e
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-dbname=server_test
+dbname=usdr_grants_test
 
-echo Using database $dbname with username postgres
-echo -e "\nEnter the password for the ${CYAN}postgres user${NC} on your local pg instance"
-read -s -p "Postgres user password: " pgpass
+# echo Using database $dbname with username postgres
+# echo -e "\nEnter the password for the ${CYAN}postgres user${NC} on your local pg instance"
+# read -s -p "Postgres user password: " pgpass
 
-connection="postgres://postgres:$pgpass@localhost"
+# connection="postgres://postgres:$pgpass@localhost"
+connection="postgresql://localhost:5432"
 export POSTGRES_URL="$connection/$dbname"
 
 psql $connection -c "DROP DATABASE IF EXISTS $dbname" -c "CREATE DATABASE $dbname"
