@@ -7,7 +7,7 @@
           <b-col cols="1"></b-col>
           <b-col>
             <b-card title='Recent Activity'>
-              <b-table sticky-header='300px' hover :items='activityItems' :fields='activityFields'
+              <b-table sticky-header='500px' hover :items='activityItems' :fields='activityFields'
                 :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none">
                 <template #cell(icon)="list">
                   <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
@@ -120,6 +120,8 @@ export default {
     return {
       sortBy: 'dateSort',
       sortAsc: true,
+      perPage: 4,
+      currentPage: 1,
       activityFields: [
         {
           // col for the check or X icon
@@ -244,7 +246,6 @@ export default {
           },
         },
       ],
-
     };
   },
 
@@ -294,7 +295,7 @@ export default {
     }),
     setup() {
       this.fetchDashboard();
-      this.fetchGrantsInterested();
+      this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {

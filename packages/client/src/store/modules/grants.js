@@ -39,8 +39,8 @@ export default {
       return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
     },
-    fetchGrantsInterested({ commit }) {
-      return fetchApi.get('/api/organizations/:organizationId/grants/grantsInterested')
+    fetchGrantsInterested({ commit }, { perPage, currentPage }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/grantsInterested/${perPage}/${currentPage}`)
         .then((data) => commit('SET_GRANTS_INTERESTED', data));
     },
     markGrantAsViewed(context, { grantId, agencyId }) {

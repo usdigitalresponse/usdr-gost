@@ -35,6 +35,12 @@
       </template>
     </b-table>
     </b-card>
+    <b-row align-v="center">
+      <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
+        last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
+        aria-controls="grants-table" />
+      <b-button class="ml-2" variant="outline-primary disabled">{{ grantsInterested.length }} of {{ totalRows }}</b-button>
+    </b-row>
   </section>
 </template>
 <style scoped>
@@ -59,6 +65,8 @@ export default {
   components: {},
   data() {
     return {
+      perPage: 10,
+      currentPage: 1,
       sortBy: 'dateSort',
       sortAsc: true,
       activityFields: [
@@ -88,6 +96,7 @@ export default {
     ...mapGetters({
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
+      totalInterestedGrants: 'dashboard/totalInterestedGrants',
     }),
     activityItems() {
       const rtf = new Intl.RelativeTimeFormat('en', {
@@ -102,15 +111,24 @@ export default {
         date: rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').charAt(0).toUpperCase() + rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').slice(1),
       }));
     },
+    totalRows() {
+      return this.totalInterestedGrants;
+    },
+  },
+  watch: {
+    currentPage() {
+      // this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage + 1 });
+      this.setup();
+    },
   },
   methods: {
     ...mapActions({
-      // fetchDashboard: 'dashboard/fetchDashboard',  seems to work without this
+      fetchDashboard: 'dashboard/fetchDashboard',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
     }),
     setup() {
-      // this.fetchDashboard(); seems to work without this
-      this.fetchGrantsInterested();
+      this.fetchDashboard();
+      this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
     },
   },
 };
