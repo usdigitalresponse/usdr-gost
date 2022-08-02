@@ -176,6 +176,7 @@ export default {
       if (!this.selectedGrant) {
         return false;
       }
+      console.log(JSON.stringify(this.selectedGrant));
       return this.selectedGrant.viewed_by_agencies.find((viewed) => viewed.agency_id.toString() === this.selectedAgencyId);
     },
     interested() {
@@ -192,6 +193,7 @@ export default {
         if (!this.agencies.length) {
           this.fetchAgencies();
         }
+        console.log(JSON.stringify(this.selectedGrant));
         if (!this.alreadyViewed) {
           try {
             await this.markGrantAsViewed();

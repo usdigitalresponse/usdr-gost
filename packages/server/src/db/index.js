@@ -326,13 +326,18 @@ async function getGrants({
     const viewedBy = await knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
-        .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
+        // https://github.com/knex/knex/issues/2980
+        // https://stackoverflow.com/a/25218591
+        // .whereIn(`${TABLES.agencies}.id`, agencies)
         .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
 
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), agencies });
 
+    // console.log(JSON.stringify(viewedBy, null, 2));
+
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
+        console.log(`${grant.grant_id} ${JSON.stringify(viewedByAgencies, null, 2)}`);
         const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
         return {
             ...grant,
@@ -348,6 +353,29 @@ async function getGrant({ grantId }) {
         .select('*')
         .where({ grant_id: grantId });
     return results[0];
+}
+
+async function getSingleGrantDetails({ grantId, agencies }) {
+    const results = await knex.table(TABLES.grants)
+        .select('*')
+        .where({ grant_id: grantId });
+
+    const viewedBy = await knex(TABLES.agencies)
+        .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
+        .whereIn('grant_id', [grantId])
+        .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
+        .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
+
+    const interestedBy = await getInterestedAgencies({ grantIds: [grantId], agencies });
+
+    const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grantId);
+    const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grantId);
+
+    return {
+        ...(results[0]),
+        viewed_by_agencies: viewedByAgencies,
+        interested_agencies: agenciesInterested,
+    };
 }
 
 async function getClosestGrants() {
@@ -721,6 +749,7 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getSingleGrantDetails,
     getClosestGrants,
     getGrant,
     getTotalGrants,

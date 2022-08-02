@@ -9,6 +9,9 @@
       :sort-desc.sync="sortAsc"
       class="table table-borderless"
       thead-class="d-none"
+      selectable
+      select-mode="single"
+      @row-selected="onRowSelected"
     >
       <template #cell(icon)="list">
         <b-icon
@@ -41,6 +44,7 @@
         aria-controls="grants-table" />
       <b-button class="ml-2" variant="outline-primary disabled">{{ grantsInterested.length }} of {{ totalRows }}</b-button>
     </b-row>
+    <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 <style scoped>
@@ -60,9 +64,10 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
+import GrantDetails from '@/components/Modals/GrantDetails.vue';
 
 export default {
-  components: {},
+  components: { GrantDetails },
   data() {
     return {
       perPage: 10,
@@ -86,6 +91,7 @@ export default {
           thStyle: { width: '20%' },
         },
       ],
+      selectedGrant: null,
     };
   },
   mixins: [resizableTableMixin],
@@ -97,6 +103,7 @@ export default {
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
       totalInterestedGrants: 'dashboard/totalInterestedGrants',
+      currentGrant: 'grants/currentGrant',
     }),
     activityItems() {
       const rtf = new Intl.RelativeTimeFormat('en', {
@@ -106,6 +113,7 @@ export default {
       return this.grantsInterested.map((grantsInterested) => ({
         agency: grantsInterested.name,
         grant: grantsInterested.title,
+        grant_id: grantsInterested.grant_id,
         interested: !grantsInterested.is_rejection,
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
         date: rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').charAt(0).toUpperCase() + rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').slice(1),
@@ -121,14 +129,35 @@ export default {
       this.setup();
     },
   },
+  watch: {
+    async selectedGrant() {
+      if (!this.selectedGrant) {
+        await this.fetchGrantsInterested();
+      }
+    },
+    currentGrant() {
+      if (this.selectedGrant && this.currentGrant) {
+        this.onRowSelected([this.currentGrant]);
+      }
+    },
+  },
   methods: {
     ...mapActions({
       fetchDashboard: 'dashboard/fetchDashboard',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
+      fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
     setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
+    },
+    async onRowSelected(items) {
+      const [row] = items;
+      if (row) {
+        await this.fetchGrantDetails({ grantId: row.grant_id }).then(() => {
+          this.selectedGrant = this.currentGrant;
+        });
+      }
     },
   },
 };

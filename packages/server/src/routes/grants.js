@@ -19,15 +19,24 @@ const router = express.Router({ mergeParams: true });
  */
 async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {}) {
     let agencies = [];
+    console.log('user:', JSON.stringify(user));
+
     if (selectedAgency === user.agency_id) {
         agencies = user.agency.subagencies;
-    } if (filterByMainAgency && user.agency.main_agency_id >= 0) {
-        // Get all agencies from the main agency. Usually the agency of the organization,
-        // in other words the root parent agency (for example nevada agency)
-        agencies = await db.getAgencies(user.agency.main_agency_id);
-    } else {
-        agencies = await db.getAgencies(selectedAgency);
+        console.log('agencies2:', agencies.length);
     }
+    if (!agencies.length) {
+        if (filterByMainAgency && user.agency.main_agency_id >= 0) {
+            // Get all agencies from the main agency. Usually the agency of the organization,
+            // in other words the root parent agency (for example nevada agency)
+            agencies = await db.getAgencies(user.agency.main_agency_id);
+            console.log('agencies3:', agencies.length);
+        } else {
+            agencies = await db.getAgencies(selectedAgency);
+            console.log('agencies4:', agencies.length);
+        }
+    }
+    console.log('agencies5:', agencies.length);
     return agencies.map((s) => s.id);
 }
 
@@ -68,8 +77,16 @@ router.get('/', requireUser, async (req, res) => {
             rejected: req.query.rejected ? true : null,
         },
     });
-    console.log(JSON.stringify(grants.data.map((x) => x.viewed_by_agencies), null, 2));
     res.json(grants);
+});
+
+// get a single grant details
+router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { selectedAgency, user } = req.session;
+    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
+    const response = await db.getSingleGrantDetails({ grantId, agencies });
+    res.json(response);
 });
 
 // For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
