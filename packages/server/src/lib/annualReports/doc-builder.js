@@ -22,6 +22,7 @@ class ArpaDocumentBuilder {
             style: 'currency',
             currency: 'USD',
         });
+        this.isTulsa = this.sortedCategories.length === 1 && this.sortedCategories[0] === 'TULSA';
     }
 
     static buildSectionHeader(text) {
@@ -49,7 +50,7 @@ class ArpaDocumentBuilder {
         });
     }
 
-    static buildTableCell(value, alignRight=false) {
+    static buildTableCell(value, alignRight = false) {
         return new docx.TableCell({
             children: [
                 new docx.Paragraph({
@@ -207,14 +208,16 @@ class ArpaDocumentBuilder {
                         ],
                         spacing: { before: 500 },
                     }),
-                    new docx.Paragraph({
+                    // Spread syntax because for some reason '!this.isTulsa && new docx.' has
+                    // collateral damage
+                    ...!this.isTulsa ? new docx.Paragraph({
                         children: [
                             new docx.TextRun({
                                 text: `Expenditure Category: ${project.category}`,
                                 size: headerFontSize,
                             }),
                         ],
-                    }),
+                    }) : [],
                     new docx.Paragraph({
                         children: [
                             new docx.TextRun({
@@ -273,44 +276,47 @@ class ArpaDocumentBuilder {
     }
 
     buildReportDocument() {
-        return new docx.Document({
-            sections: [
-                {
-                    children: [
-                        ArpaDocumentBuilder.buildPageHeader('Instructions for this template'),
-                        ArpaDocumentBuilder.buildDocumentIntro(),
-                    ],
+        const sections = [
+            {
+                children: [
+                    ArpaDocumentBuilder.buildPageHeader('Instructions for this template'),
+                    ArpaDocumentBuilder.buildDocumentIntro(),
+                ],
+            },
+            {
+                properties: {
+                    type: docx.SectionType.NEXT_PAGE,
                 },
-                {
-                    properties: {
-                        type: docx.SectionType.NEXT_PAGE,
-                    },
-                    children: [
-                        ArpaDocumentBuilder.buildPageHeader('General Overview'),
-                        ArpaDocumentBuilder.buildSectionHeader('Executive Summary'),
-                        ArpaDocumentBuilder.buildPlaceholderParagraph(
-                            placeholders.EXECUTIVE_SUMMARY,
-                        ),
-                        ArpaDocumentBuilder.buildSectionHeader('Uses of Funds'),
-                        ArpaDocumentBuilder.buildPlaceholderParagraph(placeholders.USES_OF_FUNDS),
-                        ArpaDocumentBuilder.buildSectionHeader('Promoting Equitable Outcomes'),
-                        ArpaDocumentBuilder.buildPlaceholderParagraph(
-                            placeholders.PROMOTING_EQUITABLE_OUTCOMES,
-                        ),
-                        ArpaDocumentBuilder.buildSectionHeader('Community Engagement'),
-                        ArpaDocumentBuilder.buildPlaceholderParagraph(
-                            placeholders.COMMUNITY_ENGAGEMENT,
-                        ),
-                        ArpaDocumentBuilder.buildSectionHeader('Labor Practices'),
-                        ArpaDocumentBuilder.buildPlaceholderParagraph(
-                            placeholders.LABOR_PRACTICES,
-                        ),
-                        ArpaDocumentBuilder.buildSectionHeader('Use of Evidence'),
-                        ArpaDocumentBuilder.buildPlaceholderParagraph(
-                            placeholders.USE_OF_EVIDENCE,
-                        ),
-                    ],
-                },
+                children: [
+                    ArpaDocumentBuilder.buildPageHeader('General Overview'),
+                    ArpaDocumentBuilder.buildSectionHeader('Executive Summary'),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(
+                        placeholders.EXECUTIVE_SUMMARY,
+                    ),
+                    ArpaDocumentBuilder.buildSectionHeader('Uses of Funds'),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(placeholders.USES_OF_FUNDS),
+                    ArpaDocumentBuilder.buildSectionHeader('Promoting Equitable Outcomes'),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(
+                        placeholders.PROMOTING_EQUITABLE_OUTCOMES,
+                    ),
+                    ArpaDocumentBuilder.buildSectionHeader('Community Engagement'),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(
+                        placeholders.COMMUNITY_ENGAGEMENT,
+                    ),
+                    ArpaDocumentBuilder.buildSectionHeader('Labor Practices'),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(
+                        placeholders.LABOR_PRACTICES,
+                    ),
+                    ArpaDocumentBuilder.buildSectionHeader('Use of Evidence'),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(
+                        placeholders.USE_OF_EVIDENCE,
+                    ),
+                ],
+            },
+        ];
+
+        if (!this.isTulsa) {
+            sections.push(
                 {
                     properties: {
                         type: docx.SectionType.NEXT_PAGE,
@@ -325,25 +331,100 @@ class ArpaDocumentBuilder {
                         this.buildSummaryTable(),
                     ],
                 },
-                {
-                    properties: {
-                        type: docx.SectionType.NEXT_PAGE,
-                    },
-                    children: this.buildProjectInventory(),
+            );
+        }
+
+        sections.push(
+            {
+                properties: {
+                    type: docx.SectionType.NEXT_PAGE,
                 },
-                {
-                    properties: {
-                        type: docx.SectionType.NEXT_PAGE,
-                    },
-                    children: [
-                        ArpaDocumentBuilder.buildPageHeader('Performance Report'),
-                        ArpaDocumentBuilder.buildPlaceholderParagraph(
-                            placeholders.PERFORMANCE_REPORT,
-                        ),
-                    ],
+                children: this.buildProjectInventory(),
+            },
+            {
+                properties: {
+                    type: docx.SectionType.NEXT_PAGE,
                 },
-            ],
-        });
+                children: [
+                    ArpaDocumentBuilder.buildPageHeader('Performance Report'),
+                    ArpaDocumentBuilder.buildPlaceholderParagraph(
+                        placeholders.PERFORMANCE_REPORT,
+                    ),
+                ],
+            },
+        );
+
+        return new docx.Document({ sections });
+        // sections: [
+        // {
+        //     children: [
+        //         ArpaDocumentBuilder.buildPageHeader('Instructions for this template'),
+        //         ArpaDocumentBuilder.buildDocumentIntro(),
+        //     ],
+        // },
+        // {
+        //     properties: {
+        //         type: docx.SectionType.NEXT_PAGE,
+        //     },
+        //     children: [
+        //         ArpaDocumentBuilder.buildPageHeader('General Overview'),
+        //         ArpaDocumentBuilder.buildSectionHeader('Executive Summary'),
+        //         ArpaDocumentBuilder.buildPlaceholderParagraph(
+        //             placeholders.EXECUTIVE_SUMMARY,
+        //         ),
+        //         ArpaDocumentBuilder.buildSectionHeader('Uses of Funds'),
+        //         ArpaDocumentBuilder.buildPlaceholderParagraph(placeholders.USES_OF_FUNDS),
+        //         ArpaDocumentBuilder.buildSectionHeader('Promoting Equitable Outcomes'),
+        //         ArpaDocumentBuilder.buildPlaceholderParagraph(
+        //             placeholders.PROMOTING_EQUITABLE_OUTCOMES,
+        //         ),
+        //         ArpaDocumentBuilder.buildSectionHeader('Community Engagement'),
+        //         ArpaDocumentBuilder.buildPlaceholderParagraph(
+        //             placeholders.COMMUNITY_ENGAGEMENT,
+        //         ),
+        //         ArpaDocumentBuilder.buildSectionHeader('Labor Practices'),
+        //         ArpaDocumentBuilder.buildPlaceholderParagraph(
+        //             placeholders.LABOR_PRACTICES,
+        //         ),
+        //         ArpaDocumentBuilder.buildSectionHeader('Use of Evidence'),
+        //         ArpaDocumentBuilder.buildPlaceholderParagraph(
+        //             placeholders.USE_OF_EVIDENCE,
+        //         ),
+        //     ],
+        // },
+        // {
+        //     properties: {
+        //         type: docx.SectionType.NEXT_PAGE,
+        //     },
+        //     children: [
+        //         ArpaDocumentBuilder.buildPageHeader(
+        //             'Table of Expenses by Expenditure Category',
+        //         ),
+        //         ArpaDocumentBuilder.buildPlaceholderParagraph(
+        //             placeholders.TABLE_OF_EXPENSES,
+        //         ),
+        //         this.buildSummaryTable(),
+        //     ],
+        // },
+        // {
+        //     properties: {
+        //         type: docx.SectionType.NEXT_PAGE,
+        //     },
+        //     children: this.buildProjectInventory(),
+        // },
+        // {
+        //     properties: {
+        //         type: docx.SectionType.NEXT_PAGE,
+        //     },
+        //     children: [
+        //         ArpaDocumentBuilder.buildPageHeader('Performance Report'),
+        //         ArpaDocumentBuilder.buildPlaceholderParagraph(
+        //             placeholders.PERFORMANCE_REPORT,
+        //         ),
+        //     ],
+        // },
+        // ],
+        // });
     }
 
     static async documentToBuffer(document) {
