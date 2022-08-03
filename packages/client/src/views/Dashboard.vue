@@ -121,7 +121,7 @@
     margin-top: 3px;
   }
   .gutter-activity.row {
-    margin-left: +20px;
+    margin-left: -10px;
     margin-top: -8px;
     margin-bottom: -6px;
   }
@@ -131,7 +131,7 @@
     margin-bottom: -6px;
   }
   .gutter-title1.row {
-    margin-left: +34px;
+    margin-left: +4px;
   }
   .gutter-title2.row {
     margin-left: +10px;
