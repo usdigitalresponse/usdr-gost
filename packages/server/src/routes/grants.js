@@ -67,7 +67,7 @@ router.get('/', requireUser, async (req, res) => {
     }
     const { selectedAgency, user } = req.session;
     const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
-    console.log('agencies5:', agencies.length);
+    console.log('agencies6:', agencies.length);
 
     const grants = await db.getGrants({
         ...req.query,
