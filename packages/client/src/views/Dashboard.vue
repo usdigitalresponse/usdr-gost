@@ -10,7 +10,7 @@
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title1 row">Recent Activity</h4>
               </div>
-              <b-table sticky-header='300px' hover :items='activityItems' :fields='activityFields'
+              <b-table sticky-header='500px' hover :items='activityItems' :fields='activityFields'
                 :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none">
                 <template #cell(icon)="list">
                   <div class="gutter-icon row">
@@ -150,6 +150,8 @@ export default {
     return {
       sortBy: 'dateSort',
       sortAsc: true,
+      perPage: 4,
+      currentPage: 1,
       activityFields: [
         {
           // col for the check or X icon
@@ -292,7 +294,6 @@ export default {
           },
         },
       ],
-
     };
   },
 
@@ -342,7 +343,7 @@ export default {
     }),
     setup() {
       this.fetchDashboard();
-      this.fetchGrantsInterested();
+      this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {
