@@ -405,11 +405,6 @@ async function getTotalViewedGrants() {
     return rows[0].count;
 }
 
-async function getTotalInterestedGrants() {
-    const rows = await knex(TABLES.grants_interested).count();
-    return rows[0].count;
-}
-
 async function getTotalInterestedGrantsByAgencies() {
     const rows = await knex(TABLES.grants_interested)
         .select(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`,
@@ -485,13 +480,22 @@ async function markGrantAsInterested({
     return results;
 }
 
-async function getGrantsInterested() {
-    const rows = await knex(TABLES.grants_interested)
+async function getGrantsInterested({ perPage, currentPage }) {
+    const { data, pagination } = await knex(TABLES.grants_interested)
         .select(`${TABLES.grants_interested}.created_at`, `${TABLES.agencies}.name`, `${TABLES.interested_codes}.is_rejection`, `${TABLES.grants}.title`, `${TABLES.grants}.grant_id`)
         .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
         .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
-        .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`);
-    return rows;
+        .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`)
+        .orderBy('created_at', 'desc')
+        .paginate({ perPage, currentPage });
+    return { data, pagination };
+}
+
+async function getTotalInterestedGrants() {
+    const rows = await knex(TABLES.grants_interested)
+        .whereNot('interested_code_id', null)
+        .count();
+    return rows[0].count;
 }
 
 async function unmarkGrantAsInterested({ grantId, userId }) {

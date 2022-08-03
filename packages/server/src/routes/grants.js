@@ -225,9 +225,10 @@ router.get('/:grantId/interested', requireUser, async (req, res) => {
     const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], agencies });
     res.json(interestedAgencies);
 });
-router.get('/grantsInterested', requireUser, async (req, res) => {
-    const grantsInterested = await db.getGrantsInterested();
-    res.json(grantsInterested);
+router.get('/grantsInterested/:perPage/:currentPage', requireUser, async (req, res) => {
+    const { perPage, currentPage } = req.params;
+    const { data } = await db.getGrantsInterested({ perPage, currentPage });
+    res.json(data);
 });
 
 router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {

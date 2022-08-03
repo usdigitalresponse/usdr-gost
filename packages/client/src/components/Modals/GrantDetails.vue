@@ -61,7 +61,7 @@
       <b-table :items="selectedGrant.interested_agencies" :fields="interestedAgenciesFields">
         <template #cell(actions)="row">
           <b-row
-            v-if="loggedInUser.email === row.item.user_email && (row.item.agency_name === loggedInUser.agency_name)">
+            v-if="loggedInUser.email === row.item.user_email && (String(row.item.agency_id) === selectedAgencyId)">
             <b-button variant="danger" class="mr-1" size="sm" @click="unmarkGrantAsInterested(row)">
               <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
             </b-button>
