@@ -63,14 +63,11 @@ const tulsaTemplateParser = (book) => {
         name: projectSheet.C9.v,
         recipient: projectSheet.C10.v,
 
-        // This is a hack to get Tulsa to work
-        // They do not have categories on their template, so everything is going to be jammed
-        // into one category in the report data and the document builder is going to key off of
-        // 'if one category and it's called "TULSA"' to change behavior
-        category: 'TULSA', // won't actually be printed in Tulsa's Document
+        // All of Tulsa's programs fall into EC 6
+        category: '6 - Revenue Replacement',
         description: '', // not on Tulsa's template
         amountSpent: projectSheet.C18.v, // Differs between templates
-        website: '',
+        website: '', // not on Tulsa's template
         impactStatement,
     };
 };

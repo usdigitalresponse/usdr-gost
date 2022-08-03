@@ -22,7 +22,6 @@ class ArpaDocumentBuilder {
             style: 'currency',
             currency: 'USD',
         });
-        this.isTulsa = this.sortedCategories.length === 1 && this.sortedCategories[0] === 'TULSA';
     }
 
     static buildSectionHeader(text) {
@@ -210,14 +209,14 @@ class ArpaDocumentBuilder {
                     }),
                     // Spread syntax because for some reason '!this.isTulsa &&' has
                     // collateral damage
-                    ...!this.isTulsa ? [new docx.Paragraph({
+                    new docx.Paragraph({
                         children: [
                             new docx.TextRun({
                                 text: `Expenditure Category: ${project.category}`,
                                 size: headerFontSize,
                             }),
                         ],
-                    })] : [],
+                    }),
                     new docx.Paragraph({
                         children: [
                             new docx.TextRun({
@@ -314,9 +313,7 @@ class ArpaDocumentBuilder {
                         ),
                     ],
                 },
-                // Spread syntax because for some reason '!this.isTulsa && ' has
-                // collateral damage
-                ...!this.isTulsa ? [{
+                {
                     properties: {
                         type: docx.SectionType.NEXT_PAGE,
                     },
@@ -329,7 +326,7 @@ class ArpaDocumentBuilder {
                         ),
                         this.buildSummaryTable(),
                     ],
-                }] : [],
+                },
                 {
                     properties: {
                         type: docx.SectionType.NEXT_PAGE,
