@@ -21,6 +21,15 @@ const genericTemplateParser = (book) => {
     const projectSheet = book.Sheets[PROJECT_DATA];
     const impactSheet = book.Sheets['Impact Statement'];
 
+    // This is the editable one, and should be preferred
+    const editableImpactStatement = impactSheet.E16;
+    let impactStatement;
+    if (editableImpactStatement) {
+        impactStatement = editableImpactStatement.v;
+    } else {
+        impactStatement = impactSheet.E8.v;
+    }
+
     return {
         name: projectSheet.C9.v,
         recipient: projectSheet.C10.v,
@@ -28,7 +37,7 @@ const genericTemplateParser = (book) => {
         description: projectSheet.C21.v,
         amountSpent: projectSheet.C17.v,
         website: projectSheet.C24.v,
-        impactStatement: impactSheet.E16.v,
+        impactStatement,
     };
 };
 
