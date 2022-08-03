@@ -95,14 +95,6 @@ const parseDataFromWorkbook = (book, fullAnnualData) => {
     } else {
         projectData = genericTemplateParser(book);
     }
-    // // If this cell says "Expenditure Category" then it's the generic template
-    // // This workflow is extremely fragile based on this key. We've asked them not to modify
-    // // Any cells other than where input is required, this trim() and lowercase() is just a hedge
-    // // in case some kind of unexpected auto-format is applied
-    // const isGeneric = projectSheet.B19.v.trim().toLowerCase() === 'expenditure category';
-    // if (isGeneric) {
-    //     projectData = genericTemplateParser(book);
-    // }
 
     const { category } = projectData;
     // I am not at all worried about prototype key collisions in this case
