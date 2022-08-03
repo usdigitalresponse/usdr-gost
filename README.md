@@ -115,7 +115,7 @@ If running into `Error: Invalid login: 535-5.7.8 Username and Password not accep
 
 In server workspace, run migrations:
 
-**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**.
+**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**. *Use lower-case email address.*
 Then run seeds:
 
 ```
