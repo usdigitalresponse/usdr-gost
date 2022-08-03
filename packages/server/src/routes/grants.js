@@ -19,24 +19,19 @@ const router = express.Router({ mergeParams: true });
  */
 async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {}) {
     let agencies = [];
-    console.log('user:', JSON.stringify(user));
 
     if (selectedAgency === user.agency_id) {
         agencies = user.agency.subagencies;
-        console.log('agencies2:', agencies.length);
     }
     if (agencies.length === 0) {
-        if (filterByMainAgency && user.agency.main_agency_id && Number(user.agency.main_agency_id) >= 0) {
+        if (filterByMainAgency && user.agency.main_agency_id) {
             // Get all agencies from the main agency. Usually the agency of the organization,
             // in other words the root parent agency (for example nevada agency)
             agencies = await db.getAgencies(user.agency.main_agency_id);
-            console.log('agencies3:', agencies.length);
         } else {
             agencies = await db.getAgencies(selectedAgency);
-            console.log('agencies4:', agencies.length);
         }
     }
-    console.log('agencies5:', agencies.length);
     return agencies.map((s) => s.id);
 }
 
@@ -66,7 +61,6 @@ router.get('/', requireUser, async (req, res) => {
     }
     const { selectedAgency, user } = req.session;
     const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
-    console.log('agencies5:', agencies.length);
 
     const grants = await db.getGrants({
         ...req.query,
@@ -225,9 +219,10 @@ router.get('/:grantId/interested', requireUser, async (req, res) => {
     const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], agencies });
     res.json(interestedAgencies);
 });
-router.get('/grantsInterested', requireUser, async (req, res) => {
-    const grantsInterested = await db.getGrantsInterested();
-    res.json(grantsInterested);
+router.get('/grantsInterested/:perPage/:currentPage', requireUser, async (req, res) => {
+    const { perPage, currentPage } = req.params;
+    const { data } = await db.getGrantsInterested({ perPage, currentPage });
+    res.json(data);
 });
 
 router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
