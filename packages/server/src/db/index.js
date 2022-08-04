@@ -505,12 +505,12 @@ async function getTotalInterestedGrants() {
     return rows[0].count;
 }
 
-async function unmarkGrantAsInterested({ grantId, userId }) {
+async function unmarkGrantAsInterested({ grantId, agencyIds }) {
     const result = await knex(TABLES.grants_interested)
         .where({
             grant_id: grantId,
-            user_id: userId,
         })
+        .andWhere('agency_id', 'IN', agencyIds)
         .del();
     return result;
 }
