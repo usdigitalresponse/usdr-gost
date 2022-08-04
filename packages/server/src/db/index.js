@@ -323,21 +323,20 @@ async function getGrants({
         })
         .paginate({ currentPage, perPage, isLengthAware: true });
 
-    const viewedBy = await knex(TABLES.agencies)
+    const viewedByQuery = knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
-        .whereIn('grant_id', data.map((grant) => grant.grant_id))
+        .whereIn('grant_id', data.map((grant) => grant.grant_id));
+
+    if (agencies.length) {
         // https://github.com/knex/knex/issues/2980
         // https://stackoverflow.com/a/25218591
-        // .whereIn(`${TABLES.agencies}.id`, agencies)
-        .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
-
+        viewedByQuery.whereIn(`${TABLES.agencies}.id`, agencies);
+    }
+    const viewedBy = await viewedByQuery.select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), agencies });
-
-    // console.log(JSON.stringify(viewedBy, null, 2));
 
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
-        console.log(`${grant.grant_id} ${JSON.stringify(viewedByAgencies, null, 2)}`);
         const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
         return {
             ...grant,
@@ -457,17 +456,22 @@ function unassignAgenciesToGrant({ grantId, agencyIds }) {
 }
 
 async function getInterestedAgencies({ grantIds, agencies }) {
-    const results = await knex(TABLES.agencies)
+    const query = knex(TABLES.agencies)
         .join(TABLES.grants_interested, `${TABLES.agencies}.id`, '=', `${TABLES.grants_interested}.agency_id`)
         .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.grants_interested}.user_id`)
         .leftJoin(TABLES.interested_codes, `${TABLES.interested_codes}.id`, '=', `${TABLES.grants_interested}.interested_code_id`)
-        .whereIn('grant_id', grantIds)
-        .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
-        .select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
-            `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
-            `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,
-            `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`, `${TABLES.interested_codes}.is_rejection as interested_is_rejection`);
-    return results;
+        .whereIn('grant_id', grantIds);
+
+    if (agencies) {
+        query.whereIn(`${TABLES.agencies}.id`, agencies);
+    }
+
+    const result = await query.select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
+        `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+        `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,
+        `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`, `${TABLES.interested_codes}.is_rejection as interested_is_rejection`);
+
+    return result;
 }
 
 async function markGrantAsInterested({
