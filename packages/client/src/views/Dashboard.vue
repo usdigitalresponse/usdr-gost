@@ -7,8 +7,7 @@
           <b-col cols="1"></b-col>
           <b-col>
             <b-card title='Recent Activity'>
-              <b-table sticky-header='300px' hover :items='activityItems' :fields='activityFields'
-                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none">
+              <b-table sticky-header='300px' hover :fields='activityFields' class='table table-borderless overflow-hidden' thead-class="d-none">
                 <template #cell(icon)="list">
                   <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
                   <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
@@ -39,6 +38,11 @@
                 <template #cell()="{ field, value }">
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
+                  <!-- <span v-for="(item, index) in upcomingItems" :key="index"> -->
+                   <b-table-column v-if="(field.key == 'title') && (value == upcomingItems[0].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[0].interested_agencies}}</b-table-column>
+                   <b-table-column v-if="(field.key == 'title') && (value == upcomingItems[1].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[1].interested_agencies}}</b-table-column>
+                   <b-table-column v-if="(field.key == 'title') && (value == upcomingItems[2].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[2].interested_agencies}}</b-table-column>
+                  <!-- </span> -->
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -116,6 +120,7 @@ export default {
       dateColors: {
         yellowDate: null,
         redDate: null,
+        stac: null,
       },
       activityFields: [
         {
@@ -160,6 +165,8 @@ export default {
         {
           key: 'interested_agencies',
           label: '',
+          thClass: 'd-none',
+          tdClass: 'd-none',
           thStyle: { width: '20%' },
         },
       ],
@@ -280,8 +287,14 @@ export default {
     }),
     async setup() {
       this.fetchDashboard();
-      this.fetchGrantsInterested();
     },
+    // col(){
+    //   for(let i  = 0; i < this.upcomingItems.length; i =+ 1){
+    //     if(upcomingItems[i]){
+    //       console.log('hi');
+    //     }
+    //   }
+    // },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {
         minimumFractionDigits: 2,
@@ -320,12 +333,13 @@ export default {
       return (`${finalDate}`);
     },
     async formatUpcoming() {
+      this.stac = true;
       // https://stackoverflow.com/a/67219279
-      this.getClosestGrants.map(async (grant, idx) => {
+      this.getClosestGrants.slice(0, 3).map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,
-          interested_agencies: arr.map((agency) => agency.agency_abbreviation).join(', '),
+          interested_agencies: arr.slice(0, 3).map((agency) => agency.agency_abbreviation).join(', '),
         };
         // https://v2.vuejs.org/v2/guide/reactivity.html#For-Arrays
         // https://stackoverflow.com/a/45336400
