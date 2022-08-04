@@ -61,7 +61,7 @@
       <b-table :items="selectedGrant.interested_agencies" :fields="interestedAgenciesFields">
         <template #cell(actions)="row">
           <b-row
-            v-if="loggedInUser.email === row.item.user_email && (String(row.item.agency_id) === selectedAgencyId)">
+            v-if="(String(row.item.agency_id) === selectedAgencyId) || isAbleToUnmark(row.item.agency_id)">
             <b-button variant="danger" class="mr-1" size="sm" @click="unmarkGrantAsInterested(row)">
               <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
             </b-button>
@@ -190,9 +190,7 @@ export default {
     async selectedGrant() {
       this.showDialog = Boolean(this.selectedGrant);
       if (this.selectedGrant) {
-        if (!this.agencies.length) {
-          this.fetchAgencies();
-        }
+        this.fetchAgencies();
         console.log(JSON.stringify(this.selectedGrant));
         if (!this.alreadyViewed) {
           try {
@@ -237,7 +235,7 @@ export default {
     async unmarkGrantAsInterested(row) {
       await this.unmarkGrantAsInterestedAction({
         grantId: this.selectedGrant.grant_id,
-        agencyIds: [row.item.id],
+        agencyIds: [row.item.agency_id],
         interestedCode: this.selectedInterestedCode,
       });
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
@@ -262,6 +260,9 @@ export default {
       await this.generateGrantForm({
         grantId: this.selectedGrant.grant_id,
       });
+    },
+    isAbleToUnmark(agencyId) {
+      return this.agencies.some((agency) => agency.id === agencyId);
     },
     resetSelectedGrant() {
       this.$emit('update:selectedGrant', null);
