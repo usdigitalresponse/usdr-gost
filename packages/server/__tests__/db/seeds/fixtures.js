@@ -1,3 +1,4 @@
+const moment = require('moment');
 const { TABLES } = require('../../../src/db/constants');
 
 const roles = {
@@ -82,7 +83,7 @@ const grants = {
         title: 'EAR Postdoctoral Fellowships',
         cfda_list: '47.050',
         open_date: '2021-08-11',
-        close_date: '2021-11-03',
+        close_date: moment().add(1, 'd').format('YYYY-MM-DD'),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -126,7 +127,7 @@ const grants = {
         title: '',
         cfda_list: '93.382',
         open_date: '2021-08-05',
-        close_date: '2021-09-06',
+        close_date: moment().add(1, 'd').format('YYYY-MM-DD'),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',

@@ -6,6 +6,8 @@ function initialState() {
     eligibilityCodes: [],
     keywords: [],
     interestedCodes: [],
+    grantsInterested: [],
+    currentGrant: {},
   };
 }
 
@@ -15,6 +17,8 @@ export default {
   getters: {
     grants: (state) => state.grantsPaginated.data || [],
     grantsPagination: (state) => state.grantsPaginated.pagination,
+    grantsInterested: (state) => state.grantsInterested,
+    currentGrant: (state) => state.currentGrant,
     eligibilityCodes: (state) => state.eligibilityCodes,
     interestedCodes: (state) => ({
       rejections: state.interestedCodes.filter((c) => c.is_rejection),
@@ -36,6 +40,14 @@ export default {
         .join('&');
       return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
+    },
+    fetchGrantsInterested({ commit }, { perPage, currentPage }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/grantsInterested/${perPage}/${currentPage}`)
+        .then((data) => commit('SET_GRANTS_INTERESTED', data));
+    },
+    fetchGrantDetails({ commit }, { grantId }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/grantDetails`)
+        .then((data) => commit('SET_GRANT_CURRENT', data));
     },
     markGrantAsViewed(context, { grantId, agencyId }) {
       return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/view/${agencyId}`);
@@ -125,6 +137,9 @@ export default {
       if (grant) {
         Object.assign(grant, data);
       }
+      if (state.currentGrant && state.currentGrant.grant_id === grantId) {
+        Object.assign(state.currentGrant, data);
+      }
     },
     SET_ELIGIBILITY_CODES(state, eligibilityCodes) {
       state.eligibilityCodes = eligibilityCodes;
@@ -134,6 +149,12 @@ export default {
     },
     SET_KEYWORDS(state, keywords) {
       state.keywords = keywords;
+    },
+    SET_GRANTS_INTERESTED(state, grantsInterested) {
+      state.grantsInterested = grantsInterested;
+    },
+    SET_GRANT_CURRENT(state, currentGrant) {
+      state.currentGrant = currentGrant;
     },
   },
 };

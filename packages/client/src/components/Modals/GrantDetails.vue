@@ -1,41 +1,33 @@
 <!-- eslint-disable max-len -->
 <template>
-    <b-modal v-model="showDialog"
-    ok-only
-    :title="selectedGrant && selectedGrant.title"
-    @hide="resetSelectedGrant"
-    scrollable
-    size="lg"
-    header-bg-variant="primary"
-    header-text-variant="light"
-    body-bg-variant="light"
-    body-text-variant="dark"
-    footer-bg-variant="dark"
-    footer-text-variant="light">
+  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.title" @hide="resetSelectedGrant"
+    scrollable size="lg" header-bg-variant="primary" header-text-variant="light" body-bg-variant="light"
+    body-text-variant="dark" footer-bg-variant="dark" footer-text-variant="light">
     <div v-if="selectedGrant">
       <b-row>
         <b-col cols="9">
-          <h3>Grant Number: {{selectedGrant.grant_number}}</h3>
+          <h3>Grant Number: {{ selectedGrant.grant_number }}</h3>
         </b-col>
         <b-col cols="3" class="text-right">
-          <b-button
-            :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="primary">
+          <b-button :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
+            target="_blank" rel="noopener noreferrer" variant="primary">
             Grants.Gov <b-icon icon="link" aria-hidden="true"></b-icon>
           </b-button>
         </b-col>
       </b-row>
-      <p><span style="font-weight:bold">Valid from:</span> {{new Date(selectedGrant.open_date).toLocaleDateString('en-US')}}-{{new Date(selectedGrant.close_date).toLocaleDateString('en-US')}}</p>
+      <p><span style="font-weight:bold">Valid from:</span> {{ new
+          Date(selectedGrant.open_date).toLocaleDateString('en-US')
+      }}-{{ new
+    Date(selectedGrant.close_date).toLocaleDateString('en-US')
+}}</p>
       <div v-for="field in dialogFields" :key="field">
-        <p><span style="font-weight:bold">{{titleize(field)}}:</span> {{selectedGrant[field]}}</p>
+        <p><span style="font-weight:bold">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
       </div>
       <h6>Description</h6>
       <div style="max-height: 170px; overflow-y: scroll">
         <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
       </div>
-      <br/>
+      <br />
       <b-row>
         <b-col>
           <h4>Interested Agencies</h4>
@@ -45,10 +37,12 @@
             <b-col cols="9">
               <b-form-select v-model="selectedInterestedCode">
                 <b-form-select-option-group label="Interested">
-                  <b-form-select-option v-for="code in interestedCodes.interested"  :key="code.id" :value="code.id">{{code.name}}</b-form-select-option>
+                  <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
+                    {{ code.name }}</b-form-select-option>
                 </b-form-select-option-group>
                 <b-form-select-option-group label="Rejections">
-                  <b-form-select-option v-for="code in interestedCodes.rejections"  :key="code.id" :value="code.id">{{code.name}}</b-form-select-option>
+                  <b-form-select-option v-for="code in interestedCodes.rejections" :key="code.id" :value="code.id">
+                    {{ code.name }}</b-form-select-option>
                 </b-form-select-option-group>
               </b-form-select>
             </b-col>
@@ -63,58 +57,49 @@
           </b-row>
         </b-col>
       </b-row>
-      <br/>
-      <b-table
-        :items="selectedGrant.interested_agencies"
-        :fields="interestedAgenciesFields"
-      >
-      <template #cell(actions)="row">
-        <b-row v-if="loggedInUser.email === row.item.user_email && (row.item.agency_name === loggedInUser.agency_name)">
-          <b-button variant="danger" class="mr-1" size="sm" @click="unmarkGrantAsInterested(row)">
-            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
-          </b-button>
-        </b-row>
-      </template>
+      <br />
+      <b-table :items="selectedGrant.interested_agencies" :fields="interestedAgenciesFields">
+        <template #cell(actions)="row">
+          <b-row
+            v-if="(String(row.item.agency_id) === selectedAgencyId) || isAbleToUnmark(row.item.agency_id)">
+            <b-button variant="danger" class="mr-1" size="sm" @click="unmarkGrantAsInterested(row)">
+              <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+            </b-button>
+          </b-row>
+        </template>
       </b-table>
       <b-row>
         <b-col>
           <h4>Assigned Agencies</h4>
         </b-col>
       </b-row>
-      <br/>
+      <br />
       <b-row>
         <b-col>
-          <multiselect v-model="selectedAgencies" :options="agencies"
-          :multiple="true" :close-on-select="false"
-          :clear-on-select="false"
-          placeholder="Select agencies" label="name"
-          track-by="id">
+          <multiselect v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
+            :clear-on-select="false" placeholder="Select agencies" label="name" track-by="id">
           </multiselect>
         </b-col>
         <b-col>
           <b-button variant="outline-success" @click="assignAgenciesToGrant">Assign</b-button>
         </b-col>
       </b-row>
-      <b-table
-        :items="assignedAgencies"
-        :fields="assignedAgenciesFields"
-      >
-      <template #cell(actions)="row">
-        <b-button variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
-          <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
-        </b-button>
-      </template>
-    </b-table>
+      <b-table :items="assignedAgencies" :fields="assignedAgenciesFields">
+        <template #cell(actions)="row">
+          <b-button variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
+            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+          </b-button>
+        </template>
+      </b-table>
     </div>
-    </b-modal>
+  </b-modal>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { debounce } from 'lodash';
 import Multiselect from 'vue-multiselect';
-
-import { titleize } from '@/helpers/form-helpers';
+import { titleize } from '../../helpers/form-helpers';
 
 export default {
   components: { Multiselect },
@@ -204,11 +189,13 @@ export default {
     async selectedGrant() {
       this.showDialog = Boolean(this.selectedGrant);
       if (this.selectedGrant) {
-        if (!this.agencies.length) {
-          this.fetchAgencies();
-        }
+        this.fetchAgencies();
         if (!this.alreadyViewed) {
-          this.markGrantAsViewed();
+          try {
+            await this.markGrantAsViewed();
+          } catch (e) {
+            console.log(e);
+          }
         }
         this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
       }
@@ -246,7 +233,7 @@ export default {
     async unmarkGrantAsInterested(row) {
       await this.unmarkGrantAsInterestedAction({
         grantId: this.selectedGrant.grant_id,
-        agencyIds: [row.item.id],
+        agencyIds: [row.item.agency_id],
         interestedCode: this.selectedInterestedCode,
       });
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
@@ -271,6 +258,9 @@ export default {
       await this.generateGrantForm({
         grantId: this.selectedGrant.grant_id,
       });
+    },
+    isAbleToUnmark(agencyId) {
+      return this.agencies.some((agency) => agency.id === agencyId);
     },
     resetSelectedGrant() {
       this.$emit('update:selectedGrant', null);

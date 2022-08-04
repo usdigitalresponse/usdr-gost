@@ -265,6 +265,7 @@ async function getGrants({
 } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
+        .distinct()
         .modify((queryBuilder) => {
             if (searchTerm && searchTerm !== 'null') {
                 queryBuilder.andWhere(
@@ -276,7 +277,7 @@ async function getGrants({
             if (filters) {
                 if (filters.interestedByUser || filters.positiveInterest || filters.rejected) {
                     queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
-                    .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
+                        .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
                 }
                 if (filters.assignedToAgency) {
                     queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
@@ -322,17 +323,21 @@ async function getGrants({
         })
         .paginate({ currentPage, perPage, isLengthAware: true });
 
-    const viewedBy = await knex(TABLES.agencies)
+    const viewedByQuery = knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
-        .whereIn('grant_id', data.map((grant) => grant.grant_id))
-        .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
-        .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
+        .whereIn('grant_id', data.map((grant) => grant.grant_id));
 
+    if (agencies.length) {
+        // https://github.com/knex/knex/issues/2980
+        // https://stackoverflow.com/a/25218591
+        viewedByQuery.whereIn(`${TABLES.agencies}.id`, agencies);
+    }
+    const viewedBy = await viewedByQuery.select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), agencies });
 
     const dataWithAgency = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
-        const agenciesInterested = interestedBy.filter((intested) => intested.grant_id === grant.grant_id);
+        const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
         return {
             ...grant,
             viewed_by_agencies: viewedByAgencies,
@@ -349,13 +354,36 @@ async function getGrant({ grantId }) {
     return results[0];
 }
 
+async function getSingleGrantDetails({ grantId, agencies }) {
+    const results = await knex.table(TABLES.grants)
+        .select('*')
+        .where({ grant_id: grantId });
+
+    const viewedBy = await knex(TABLES.agencies)
+        .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
+        .whereIn('grant_id', [grantId])
+        .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
+        .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
+
+    const interestedBy = await getInterestedAgencies({ grantIds: [grantId], agencies });
+
+    const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grantId);
+    const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grantId);
+
+    return {
+        ...(results[0]),
+        viewed_by_agencies: viewedByAgencies,
+        interested_agencies: agenciesInterested,
+    };
+}
+
 async function getClosestGrants() {
     const timestamp = new Date();
     const query = await knex(TABLES.grants)
         .select('title', 'close_date')
         .where('close_date', '>=', timestamp)
         .orderBy('close_date', 'asc')
-        .limit(3)
+        .limit(3);
     return query;
 }
 
@@ -379,11 +407,6 @@ async function getTotalViewedGrants() {
     return rows[0].count;
 }
 
-async function getTotalInterestedGrants() {
-    const rows = await knex(TABLES.grants_interested).count();
-    return rows[0].count;
-}
-
 async function getTotalInterestedGrantsByAgencies() {
     const rows = await knex(TABLES.grants_interested)
         .select(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`,
@@ -400,9 +423,10 @@ async function getTotalInterestedGrantsByAgencies() {
     return rows;
 }
 
-function markGrantAsViewed({ grantId, agencyId, userId }) {
-    return knex(TABLES.grants_viewed)
+async function markGrantAsViewed({ grantId, agencyId, userId }) {
+    const result = await knex(TABLES.grants_viewed)
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
+    return result;
 }
 
 function getGrantAssignedAgencies({ grantId, agencies }) {
@@ -431,38 +455,64 @@ function unassignAgenciesToGrant({ grantId, agencyIds }) {
         .delete();
 }
 
-function getInterestedAgencies({ grantIds, agencies }) {
-    return knex(TABLES.agencies)
+async function getInterestedAgencies({ grantIds, agencies }) {
+    const query = knex(TABLES.agencies)
         .join(TABLES.grants_interested, `${TABLES.agencies}.id`, '=', `${TABLES.grants_interested}.agency_id`)
         .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.grants_interested}.user_id`)
         .leftJoin(TABLES.interested_codes, `${TABLES.interested_codes}.id`, '=', `${TABLES.grants_interested}.interested_code_id`)
-        .whereIn('grant_id', grantIds)
-        .andWhere(`${TABLES.agencies}.id`, 'IN', agencies)
-        .select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
-            `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
-            `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,
-            `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`, `${TABLES.interested_codes}.is_rejection as interested_is_rejection`);
+        .whereIn('grant_id', grantIds);
+
+    if (agencies) {
+        query.whereIn(`${TABLES.agencies}.id`, agencies);
+    }
+
+    const result = await query.select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
+        `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+        `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,
+        `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`, `${TABLES.interested_codes}.is_rejection as interested_is_rejection`);
+
+    return result;
 }
 
-function markGrantAsInterested({
+async function markGrantAsInterested({
     grantId, agencyId, userId, interestedCode,
 }) {
-    return knex(TABLES.grants_interested)
+    const results = await knex(TABLES.grants_interested)
         .insert({
             agency_id: agencyId,
             grant_id: grantId,
             user_id: userId,
             interested_code_id: interestedCode,
         });
+    return results;
 }
 
-function unmarkGrantAsInterested({grantId, userId,}) {
-    return knex(TABLES.grants_interested)
+async function getGrantsInterested({ perPage, currentPage }) {
+    const { data, pagination } = await knex(TABLES.grants_interested)
+        .select(`${TABLES.grants_interested}.created_at`, `${TABLES.agencies}.name`, `${TABLES.interested_codes}.is_rejection`, `${TABLES.grants}.title`, `${TABLES.grants}.grant_id`)
+        .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
+        .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
+        .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`)
+        .orderBy('created_at', 'desc')
+        .paginate({ perPage, currentPage });
+    return { data, pagination };
+}
+
+async function getTotalInterestedGrants() {
+    const rows = await knex(TABLES.grants_interested)
+        .whereNot('interested_code_id', null)
+        .count();
+    return rows[0].count;
+}
+
+async function unmarkGrantAsInterested({ grantId, agencyIds }) {
+    const result = await knex(TABLES.grants_interested)
         .where({
             grant_id: grantId,
-            user_id: userId,
         })
+        .andWhere('agency_id', 'IN', agencyIds)
         .del();
+    return result;
 }
 
 function getInterestedCodes() {
@@ -472,7 +522,7 @@ function getInterestedCodes() {
 }
 
 async function getAgency(agencyId) {
-    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold
     FROM agencies WHERE id = ?;`;
     const result = await knex.raw(query, agencyId);
 
@@ -481,10 +531,10 @@ async function getAgency(agencyId) {
 
 async function getAgencies(rootAgency) {
     const query = `WITH RECURSIVE subagencies AS (
-    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold 
+    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold
     FROM agencies WHERE id = ?
     UNION
-        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold 
+        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold
         FROM agencies a INNER JOIN subagencies s ON s.id = a.parent
     ) SELECT * FROM subagencies ORDER BY name; `;
     const result = await knex.raw(query, rootAgency);
@@ -494,7 +544,7 @@ async function getAgencies(rootAgency) {
 
 // Use agency id for lookup for now
 async function getTenant(main_agency_id) {
-    const query = `SELECT id, display_name, main_agency_id 
+    const query = `SELECT id, display_name, main_agency_id
     FROM tenants WHERE main_agency_id = ?;`;
     const result = await knex.raw(query, main_agency_id);
 
@@ -553,12 +603,12 @@ async function deleteAgency(
     await knex.raw('select setval(\'agencies_id_seq\', max(id)) from agencies');
     return knex(TABLES.agencies)
         .where({
-            id: id,
-            parent: parent,
-            name: name,
-            abbreviation: abbreviation,
-            warning_threshold: warning_threshold,
-            danger_threshold: danger_threshold,
+            id,
+            parent,
+            name,
+            abbreviation,
+            warning_threshold,
+            danger_threshold,
         })
         .del();
 }
@@ -577,7 +627,7 @@ function setAgencyName(id, agen_name) {
         .where({
             id,
         })
-        .update({ name : agen_name });
+        .update({ name: agen_name });
 }
 
 function setAgencyAbbr(id, agen_abbr) {
@@ -585,7 +635,7 @@ function setAgencyAbbr(id, agen_abbr) {
         .where({
             id,
         })
-        .update({ abbreviation : agen_abbr });
+        .update({ abbreviation: agen_abbr });
 }
 
 function setAgencyParent(id, agen_parent) {
@@ -594,7 +644,7 @@ function setAgencyParent(id, agen_parent) {
         .where({
             id,
         })
-        .update({ parent : agen_parent });
+        .update({ parent: agen_parent });
 }
 
 function setTenantDisplayName(id, display_name) {
@@ -694,6 +744,7 @@ module.exports = {
     getKeyword,
     getKeywords,
     getAgencyKeywords,
+    getGrantsInterested,
     setAgencyThresholds,
     setAgencyName,
     setAgencyAbbr,
@@ -702,6 +753,7 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getSingleGrantDetails,
     getClosestGrants,
     getGrant,
     getTotalGrants,

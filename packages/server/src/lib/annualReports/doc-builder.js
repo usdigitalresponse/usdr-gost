@@ -49,7 +49,7 @@ class ArpaDocumentBuilder {
         });
     }
 
-    static buildTableCell(value, alignRight=false) {
+    static buildTableCell(value, alignRight = false) {
         return new docx.TableCell({
             children: [
                 new docx.Paragraph({
@@ -207,6 +207,8 @@ class ArpaDocumentBuilder {
                         ],
                         spacing: { before: 500 },
                     }),
+                    // Spread syntax because for some reason '!this.isTulsa &&' has
+                    // collateral damage
                     new docx.Paragraph({
                         children: [
                             new docx.TextRun({

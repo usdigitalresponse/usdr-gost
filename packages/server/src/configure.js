@@ -26,6 +26,7 @@ module.exports = (app) => {
     app.use(morgan('common'));
     app.use(cookieParser(process.env.COOKIE_SECRET));
     app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
     app.use('/api/organizations/:organizationId/users', require('./routes/users'));
     app.use('/api/organizations/:organizationId/roles', require('./routes/roles'));
     app.use('/api/sessions', require('./routes/sessions'));
@@ -55,7 +56,7 @@ module.exports = (app) => {
         },
     });
     app.use(staticMiddleware);
-    app.use('/static', express.static(`${__dirname}/static`));
+    app.use('/static', express.static(resolve(__dirname, '../static')));
     app.use(
         history({
             disableDotRule: true,
