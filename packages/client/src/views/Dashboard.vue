@@ -38,11 +38,9 @@
                 <template #cell()="{ field, value }">
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
-                  <!-- <span v-for="(item, index) in upcomingItems" :key="index"> -->
-                   <b-table-column v-if="(field.key == 'title') && (value == upcomingItems[0].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[0].interested_agencies}}</b-table-column>
-                   <b-table-column v-if="(field.key == 'title') && (value == upcomingItems[1].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[1].interested_agencies}}</b-table-column>
-                   <b-table-column v-if="(field.key == 'title') && (value == upcomingItems[2].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[2].interested_agencies}}</b-table-column>
-                  <!-- </span> -->
+                  <div v-if="(field.key == 'title') && (value == upcomingItems[0].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[0].interested_agencies}}</div>
+                  <div v-if="(field.key == 'title') && (value == upcomingItems[1].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[1].interested_agencies}}</div>
+                  <div v-if="(field.key == 'title') && (value == upcomingItems[2].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[2].interested_agencies}}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -117,11 +115,8 @@ export default {
   },
   data() {
     return {
-      dateColors: {
-        yellowDate: null,
-        redDate: null,
-        stac: null,
-      },
+      yellowDate: null,
+      redDate: null,
       activityFields: [
         {
           // col for the check or X icon
@@ -288,13 +283,6 @@ export default {
     async setup() {
       this.fetchDashboard();
     },
-    // col(){
-    //   for(let i  = 0; i < this.upcomingItems.length; i =+ 1){
-    //     if(upcomingItems[i]){
-    //       console.log('hi');
-    //     }
-    //   }
-    // },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {
         minimumFractionDigits: 2,
@@ -333,7 +321,6 @@ export default {
       return (`${finalDate}`);
     },
     async formatUpcoming() {
-      this.stac = true;
       // https://stackoverflow.com/a/67219279
       this.getClosestGrants.slice(0, 3).map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
