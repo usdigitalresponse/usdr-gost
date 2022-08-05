@@ -33,7 +33,7 @@
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-plugin-unit-jest": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
+    "@vue/cli-service": "~5.0.8",
     "@vue/eslint-config-airbnb": "^5.0.2",
     "@vue/test-utils": "^1.0.3",
     "@vue/vue2-jest": "^28.0.1",
