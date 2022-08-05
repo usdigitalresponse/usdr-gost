@@ -384,10 +384,10 @@ async function getClosestGrants() {
         .where('close_date', '>=', timestamp)
         .orderBy('close_date', 'asc')
         .limit(3)
-        .then(function(data) {
+        .then( (data) => {
             return data;
-          })
-        .catch(err => console.log(err))
+        })
+        .catch((err) => console.log(err));
     const query1 = query;
     return query1;
 }
