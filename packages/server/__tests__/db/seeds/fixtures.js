@@ -102,9 +102,9 @@ const grantsInterested = {
     //     created_at: '2021-07-24 16:03:53.57025-07',
     //     updated_at: '2021-08-06 12:35:42.562-07',
     //     interested_code_id: 0,
-    // }, 
+    // },
 
-}
+};
 const grants = {
     earFellowship: {
         status: 'inbox',

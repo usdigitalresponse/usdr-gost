@@ -38,11 +38,11 @@ describe('db', () => {
             // expect(result.data[0].created_at).to.equal(fixtures.grantsInterested.entry2.created_at);
             // expect(result.data[0].updated_at).to.equal(fixtures.grantsInterested.entry2.updated_at);
             expect(result.data[0].is_rejection).to.equal(fixtures.interestedCodes.inadequateCapacity.is_rejection);
-
             // in the grants interested table the grant with the most recent created_at has the grant id of 335255
             expect(result.data[0]).to.have.property('grant_id').equal('335255');
         });
-        it('gets the two most recent interested grants', async()=> {
+        it('gets the two most recent interested grants', async () => {
+            // testing pagination
             const result = await db.getGrantsInterested({ perPage: 2, currentPage: 1 });
             expect(result.data).to.have.lengthOf(2);
         });
