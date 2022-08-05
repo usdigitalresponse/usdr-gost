@@ -89,8 +89,9 @@
     </b-row>
     <b-card title="Total Interested Grants by Agencies">
       <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
-        <template #cell()="{ field, value }">
-          <div :style="field.style" v-text="value"></div>
+        <template #cell()="{field, value}">
+          <div :style="field.style" v-text="value">
+          </div>
         </template>
       </b-table>
     </b-card>
@@ -111,6 +112,27 @@
 .color-green {
   color: green;
 }
+.gutter-icon.row {
+    margin-right: -8px;
+    margin-left: -8px;
+    margin-top: 3px;
+  }
+  .gutter-activity.row {
+    margin-left: -10px;
+    margin-top: -8px;
+    margin-bottom: -6px;
+  }
+  .gutter-upcoming.row {
+    margin-left: -2px;
+    margin-top: -8px;
+    margin-bottom: -6px;
+  }
+  .gutter-title1.row {
+    margin-left: +4px;
+  }
+  .gutter-title2.row {
+    margin-left: +10px;
+  }
 
 .gutter-icon.row {
     margin-right: -8px;
