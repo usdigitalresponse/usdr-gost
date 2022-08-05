@@ -50,6 +50,16 @@
                   <div v-if="(field.key == 'title') && (value == upcomingItems[0].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[0].interested_agencies}}</div>
                   <div v-if="(field.key == 'title') && (value == upcomingItems[1].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[1].interested_agencies}}</div>
                   <div v-if="(field.key == 'title') && (value == upcomingItems[2].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[2].interested_agencies}}</div>
+                <!-- <template #cell(date)="dates"><strong> -->
+                  <!-- color the date to gray, yellow, or red based on the dateColor boolean -->
+                  <!-- <div v-if="dates.item.dateColor === 0" class="color-gray">{{ dates.item.date }}</div>
+                  <div v-if="dates.item.dateColor === 1" class="color-yellow">{{ dates.item.date }}</div>
+                  <div v-if="dates.item.dateColor === 2" class="color-red">{{ dates.item.date }}</div> -->
+                <!-- </strong></template> -->
+                <!-- <template #cell(agencyAndGrant)="agencies"> -->
+                  <!-- display the interestedAgencies in a new <div> so it appears below the grant -->
+                  <!-- <div>{{ agencies.item.agencyAndGrant }}</div>
+                  <div class="color-gray">{{ agencies.item.interestedAgencies }}</div> -->
                 </template>
               </b-table>
               <b-row align-v="center">
