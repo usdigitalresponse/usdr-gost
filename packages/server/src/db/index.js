@@ -462,7 +462,7 @@ async function getInterestedAgencies({ grantIds, agencies }) {
         .leftJoin(TABLES.interested_codes, `${TABLES.interested_codes}.id`, '=', `${TABLES.grants_interested}.interested_code_id`)
         .whereIn('grant_id', grantIds);
 
-    if (agencies.length) {
+    if (agencies) {
         query.whereIn(`${TABLES.agencies}.id`, agencies);
     }
 
