@@ -1,6 +1,7 @@
 <template>
   <section class="container">
-    <b-card title='Recent Activity' class="border-0">
+    <b-card class="border-0">
+      <h4 class="card-title gutter-title1 row">Recent Activity</h4>
     <b-table
       hover
       :items="activityItems"
@@ -14,6 +15,7 @@
       @row-selected="onRowSelected"
     >
       <template #cell(icon)="list">
+        <div class="gutter-icon row">
         <b-icon
           v-if="list.item.interested"
           icon="check-circle-fill"
@@ -21,15 +23,16 @@
           variant="success"
         ></b-icon>
         <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+        </div>
       </template>
       <template #cell(agencyAndGrant)="agencies">
         <div>
           {{ agencies.item.agency }}
           <span v-if="agencies.item.interested">
-            is <span class="color-green">interested </span> in
+            is <span class="color-green"> <strong> interested </strong></span> in
           </span>
-          <span v-if="!agencies.item.interested" class="color-red">
-            rejected </span
+          <span v-if="!agencies.item.interested" class="color-red"><strong>
+            rejected </strong></span
           >{{ agencies.item.grant }}
         </div>
       </template>
@@ -38,21 +41,35 @@
       </template>
     </b-table>
     </b-card>
+    <b-row align-v="center">
+      <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
+        last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
+        aria-controls="grants-table" />
+      <b-button class="ml-2" variant="outline-primary disabled">{{ grantsInterested.length }} of {{ totalRows }}</b-button>
+    </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 <style scoped>
 .color-gray {
-  color: gray;
+  color: #757575
 }
 
 .color-red {
-  color: red;
+  color: #ae1818;
 }
 
 .color-green {
   color: green;
 }
+.gutter-icon.row {
+    margin-right: -8px;
+    margin-left: -8px;
+    margin-top: 3px;
+  }
+   .gutter-title1.row {
+    margin-left: +4px;
+  }
 </style>
 
 <script>
@@ -64,6 +81,8 @@ export default {
   components: { GrantDetails },
   data() {
     return {
+      perPage: 10,
+      currentPage: 1,
       sortBy: 'dateSort',
       sortAsc: true,
       activityFields: [
@@ -94,6 +113,7 @@ export default {
     ...mapGetters({
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
+      totalInterestedGrants: 'dashboard/totalInterestedGrants',
       currentGrant: 'grants/currentGrant',
     }),
     activityItems() {
@@ -110,6 +130,9 @@ export default {
         date: rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').charAt(0).toUpperCase() + rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').slice(1),
       }));
     },
+    totalRows() {
+      return this.totalInterestedGrants;
+    },
   },
   watch: {
     async selectedGrant() {
@@ -122,16 +145,19 @@ export default {
         this.onRowSelected([this.currentGrant]);
       }
     },
+    currentPage() {
+      this.setup();
+    },
   },
   methods: {
     ...mapActions({
-      // fetchDashboard: 'dashboard/fetchDashboard',  seems to work without this
+      fetchDashboard: 'dashboard/fetchDashboard',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
     setup() {
-      // this.fetchDashboard(); seems to work without this
-      this.fetchGrantsInterested();
+      this.fetchDashboard();
+      this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
     },
     async onRowSelected(items) {
       const [row] = items;

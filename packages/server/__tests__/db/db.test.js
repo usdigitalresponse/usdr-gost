@@ -39,7 +39,6 @@ describe('db', () => {
                 keywords: ['Covid'],
             };
             const result = await db.getTotalGrants({ agencyCriteria });
-
             expect(result).to.equal('1');
         });
 
@@ -48,7 +47,6 @@ describe('db', () => {
                 eligibilityCodes: ['25'],
             };
             const result = await db.getTotalGrants({ agencyCriteria });
-
             expect(result).to.equal('2');
         });
 
@@ -57,23 +55,18 @@ describe('db', () => {
                 keywords: ['earth sciences'],
             };
             const result = await db.getTotalGrants({ agencyCriteria });
-
             expect(result).to.equal('1');
         });
 
         it('gets total grant count with created fromTs', async () => {
             const createdTsBounds = { fromTs: new Date(2021, 7, 9) };
-
             const result = await db.getTotalGrants({ createdTsBounds });
-
             expect(result).to.equal('1');
         });
 
         it('gets total grant count with updated fromTs', async () => {
             const updatedTsBounds = { fromTs: new Date(2021, 7, 9) };
-
             const result = await db.getTotalGrants({ updatedTsBounds });
-
             expect(result).to.equal('3');
         });
 
@@ -86,6 +79,16 @@ describe('db', () => {
             const result = await db.getTotalGrants({ updatedTsBounds, agencyCriteria });
 
             expect(result).to.equal('2');
+        });
+    });
+
+    context('getClosestGrant', () => {
+        it('gets closest grants', async () => {
+            // arrange  #done in fixtures
+            // act
+            const result = await db.getClosestGrants();
+            // assert
+            expect(result.length).to.equal(2);
         });
     });
 

@@ -77,6 +77,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
             });
         });
     });
+
     context('PUT /organizations/:organizationId/agencies/:id (modify an agency\'s data)', async () => {
         const body = JSON.stringify({ warningThreshold: 2, dangerThreshold: 1 });
 
