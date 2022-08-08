@@ -1,7 +1,6 @@
 <template>
   <section class="container">
-    <b-card class="border-0">
-      <h4 class="card-title gutter-title1 row">Recent Activity</h4>
+    <b-card title='Recent Activity' class="border-0">
     <b-table
       hover
       :items="activityItems"
@@ -15,7 +14,6 @@
       @row-selected="onRowSelected"
     >
       <template #cell(icon)="list">
-        <div class="gutter-icon row">
         <b-icon
           v-if="list.item.interested"
           icon="check-circle-fill"
@@ -23,16 +21,15 @@
           variant="success"
         ></b-icon>
         <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
-        </div>
       </template>
       <template #cell(agencyAndGrant)="agencies">
         <div>
           {{ agencies.item.agency }}
           <span v-if="agencies.item.interested">
-            is <span class="color-green"> <strong> interested </strong></span> in
+            is <span class="color-green">interested </span> in
           </span>
-          <span v-if="!agencies.item.interested" class="color-red"><strong>
-            rejected </strong></span
+          <span v-if="!agencies.item.interested" class="color-red">
+            rejected </span
           >{{ agencies.item.grant }}
         </div>
       </template>
@@ -52,24 +49,14 @@
 </template>
 <style scoped>
 .color-gray {
-  color: #757575
+  color: gray;
 }
-
 .color-red {
-  color: #ae1818;
+  color: red;
 }
-
 .color-green {
   color: green;
 }
-.gutter-icon.row {
-    margin-right: -8px;
-    margin-left: -8px;
-    margin-top: 3px;
-  }
-   .gutter-title1.row {
-    margin-left: +4px;
-  }
 </style>
 
 <script>

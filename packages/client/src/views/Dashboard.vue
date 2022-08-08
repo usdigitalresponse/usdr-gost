@@ -308,9 +308,22 @@ export default {
       selectedAgency: 'users/selectedAgency',
       getClosestGrants: 'dashboard/getClosestGrants',
       grants: 'grants/grants',
-      loggedInUser: 'users/loggedInUser',
+      grantsInterested: 'grants/grantsInterested',
       agency: 'users/agency',
     }),
+    activityItems() {
+      const rtf = new Intl.RelativeTimeFormat('en', {
+        numeric: 'auto',
+      });
+      const oneDayInMs = 1000 * 60 * 60 * 24;
+      return this.grantsInterested.map((grantsInterested) => ({
+        agency: grantsInterested.name,
+        grant: grantsInterested.title,
+        interested: !grantsInterested.is_rejection,
+        dateSort: new Date(grantsInterested.created_at).toLocaleString(),
+        date: rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').charAt(0).toUpperCase() + rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').slice(1),
+      }));
+    },
     upcomingItems() {
       // https://stackoverflow.com/a/48643055
       return this.getClosestGrants;
@@ -331,6 +344,7 @@ export default {
       getInterestedAgenciesAction: 'grants/getInterestedAgencies',
       getAgency: 'agencies/getAgency',
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
+      fetchGrantsInterested: 'grants/fetchGrantsInterested',
     }),
     async setup() {
       this.fetchDashboard();
@@ -375,22 +389,16 @@ export default {
     },
     async formatUpcoming() {
       // https://stackoverflow.com/a/67219279
-      this.getClosestGrants.slice(0, 3).map(async (grant, idx) => {
+      this.getClosestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,
-          interested_agencies: arr.slice(0, 3).map((agency) => agency.agency_abbreviation).join(', '),
+          interested_agencies: arr.map((agency) => agency.agency_abbreviation).join(', '),
         };
         // https://v2.vuejs.org/v2/guide/reactivity.html#For-Arrays
         // https://stackoverflow.com/a/45336400
         this.$set(this.upcomingItems, idx, updateGrant);
       });
-    },
-    seeAllActivity() {
-      // this is where the method for the button press will go
-    },
-    seeAllUpcoming() {
-      // this is where the method for the button press will go
     },
   },
 };
