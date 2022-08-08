@@ -31,7 +31,7 @@
         <b-nav-item to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
         <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
         <b-nav-item to="/Agencies" exact exact-active-class="active">Agencies</b-nav-item>
-        <b-nav-item to="/Tenants" exact exact-active-class="active">Tenants</b-nav-item>
+        <b-nav-item to="/Tenants" exact exact-active-class="active" v-if="tenant.id === 1">Tenants</b-nav-item>
     </b-nav>
     <div style="margin-top: 10px">
       <router-view />
@@ -62,6 +62,7 @@ export default {
       loggedInUser: 'users/loggedInUser',
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
+      tenant: 'users/tenant',
     }),
   },
   methods: {

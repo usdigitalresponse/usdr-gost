@@ -18,6 +18,7 @@ export default {
     users: (state) => state.users,
     userRole: (state, getters) => (getters.loggedInUser ? getters.loggedInUser.role.name : null),
     agency: (state, getters) => (getters.loggedInUser ? getters.loggedInUser.agency : null),
+    tenant: (state, getters) => (getters.loggedInUser ? getters.loggedInUser.tenant : null),
     selectedAgencyId: (state, getters) => {
       if (state.settings.selectedAgencyId) {
         return state.settings.selectedAgencyId;

@@ -82,19 +82,22 @@ async function getUser(id) {
             'users.email',
             'users.name',
             'users.role_id',
+            'users.tags',
+            'users.agency_id',
             'roles.name as role_name',
             'roles.rules as role_rules',
-            'users.agency_id',
             'agencies.name as agency_name',
             'agencies.abbreviation as agency_abbreviation',
             'agencies.parent as agency_parent_id_id',
             'agencies.main_agency_id as agency_main_agency_id',
             'agencies.warning_threshold as agency_warning_threshold',
             'agencies.danger_threshold as agency_danger_threshold',
-            'users.tags',
+            'tenants.id as tenant_id',
+            'tenants.display_name as tenant_name',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
+        .leftJoin('tenants', 'tenants.main_agency_id', 'users.agency_id')
         .where('users.id', id);
     if (user.role_id != null) {
         user.role = {
@@ -120,6 +123,12 @@ async function getUser(id) {
             subagencies.push({ ...user.agency });
         }
         user.agency.subagencies = subagencies;
+    }
+    if (user.tenant_name) {
+        user.tenant = {
+            id: user.tenant_id,
+            name: user.tenant_name,
+        }
     }
     return user;
 }
