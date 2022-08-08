@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "start": "yarn run serve",
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "test": "vue-cli-service test:unit --passWithNoTests",
-    "test:e2e": "vue-cli-service test:e2e",
-    "lint": "vue-cli-service lint"
+    "serve": "npx vue-cli-service serve",
+    "build": "npx vue-cli-service build",
+    "test": "npx vue-cli-service test:unit --passWithNoTests",
+    "test:e2e": "npx vue-cli-service test:e2e",
+    "lint": "npx vue-cli-service lint"
   },
   "dependencies": {
     "bootstrap": "^4.6.0",
