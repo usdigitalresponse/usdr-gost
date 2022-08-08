@@ -292,6 +292,10 @@ OR
 
 ![update-web-env-vars](docs/img/update-web-env-vars.png)
 
+**NOTE:** Don't set `NODE_ENV=production` else NPM dev deps will not be installed and prod deployments will fail [(source)](https://github.com/vuejs/vue-cli/issues/5107#issuecomment-586701382)
+
+![prod-env-error](docs/img/prod-env-error.png)
+
 ```
 POSTGRES_URL=<POSTGRE_CONNECTION_STRING> # Render Internal connection string ie postgres://cares_opportunity_user:<pass>@<domain>/cares_opportunity_1e53
 
