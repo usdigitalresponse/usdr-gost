@@ -159,7 +159,12 @@ module.exports = {
 module.exports.seed = async (knex) => {
     // https://stackoverflow.com/a/36499676
     const truncateStmt = `TRUNCATE TABLE ${Object.values(TABLES).join(', ')} RESTART IDENTITY CASCADE`;
-    await knex.raw(truncateStmt).catch((err) => console.log(err.stack));
+    await knex.raw(truncateStmt).catch(
+        async (err) => {
+            console.log(err.stack);
+            await knex.migrate.latest();
+        },
+    );
 
     await knex(TABLES.roles).insert(Object.values(roles));
     await knex(TABLES.agencies).insert(Object.values(agencies));
