@@ -771,7 +771,7 @@ module.exports = {
     createAgency,
     deleteAgency,
     unassignAgenciesToGrant,
-    getElegibilityCodes: getEligibilityCodes,
+    getEligibilityCodes,
     sync,
     getAllRows,
     close,
