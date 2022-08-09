@@ -157,8 +157,8 @@ module.exports = {
 };
 
 module.exports.seed = async (knex) => {
-    const deletions = Object.values(TABLES).map((tableName) => knex(tableName).del());
-    await Promise.all(deletions);
+    const truncateStmt = `TRUNCATE TABLE ${Object.values(TABLES).join(', ')} CASCADE`;
+    await knex.raw(truncateStmt);
 
     await knex(TABLES.roles).insert(Object.values(roles));
     await knex(TABLES.agencies).insert(Object.values(agencies));
