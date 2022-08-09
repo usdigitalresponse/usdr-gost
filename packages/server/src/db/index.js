@@ -378,13 +378,16 @@ async function getSingleGrantDetails({ grantId, agencies }) {
 }
 
 async function getClosestGrants() {
-    const timestamp = new Date();
+    const timestamp = new Date().toLocaleDateString('en-US');
     const query = await knex(TABLES.grants)
-        .select('title', 'close_date')
+        .select('title', 'close_date', 'grant_id')
         .where('close_date', '>=', timestamp)
         .orderBy('close_date', 'asc')
-        .limit(3);
-    return query;
+        .limit(3)
+        .then((data) => data)
+        .catch((err) => console.log(err));
+    const query1 = query;
+    return query1;
 }
 
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
