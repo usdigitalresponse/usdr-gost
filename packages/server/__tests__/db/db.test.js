@@ -1,6 +1,5 @@
 const { expect } = require('chai');
 const db = require('../../src/db');
-// // const db.knex = require('../../src/db/connection');
 const { TABLES } = require('../../src/db/constants');
 const fixtures = require('./seeds/fixtures');
 
@@ -13,13 +12,11 @@ describe('db', () => {
         // await db.knex.migrate.forceFreeMigrationsLock();
         // await db.knex.migrate.latest();
         // await db.knex.seed.run();
-        // done();
     });
 
     after(async () => {
         // await db.knex.migrate.rollback();
         await db.knex.destroy();
-        // done();
     });
 
     context('getTotalGrants', () => {
