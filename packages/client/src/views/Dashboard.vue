@@ -42,14 +42,14 @@
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
               </div>
-              <b-table sticky-header='350px' hover :items='upcomingItems' :fields='upcomingFields'
+              <b-table v-if="(grantsAndIntAgens.length >= 3)" sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none">
                 <template #cell()="{ field, value }">
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
-                  <div v-if="(field.key == 'title') && (value == upcomingItems[0].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[0].interested_agencies}}</div>
-                  <div v-if="(field.key == 'title') && (value == upcomingItems[1].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[1].interested_agencies}}</div>
-                  <div v-if="(field.key == 'title') && (value == upcomingItems[2].title)" :style="{color:'gray', fontSize: '12px',}">{{upcomingItems[2].interested_agencies}}</div>
+                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[0].title)" :style="{color:'gray', fontSize: '12px',}">{{grantsAndIntAgens[0].interested_agencies}}</div>
+                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'gray', fontSize: '12px',}">{{grantsAndIntAgens[1].interested_agencies}}</div>
+                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'gray', fontSize: '12px',}">{{grantsAndIntAgens[2].interested_agencies}}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -151,6 +151,7 @@ export default {
       sortAsc: true,
       perPage: 4,
       currentPage: 1,
+      grantsAndIntAgens: [],
       activityFields: [
         {
           // col for the check or X icon
@@ -397,7 +398,7 @@ export default {
         };
         // https://v2.vuejs.org/v2/guide/reactivity.html#For-Arrays
         // https://stackoverflow.com/a/45336400
-        this.$set(this.upcomingItems, idx, updateGrant);
+        this.$set(this.grantsAndIntAgens, idx, updateGrant);
       });
     },
   },
