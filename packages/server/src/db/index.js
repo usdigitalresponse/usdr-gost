@@ -213,7 +213,7 @@ function createAccessToken(email) {
     return generatePasscode(email);
 }
 
-function getElegibilityCodes() {
+function getEligibilityCodes() {
     return knex(TABLES.eligibility_codes)
         .select('*');
 }
@@ -725,6 +725,7 @@ function close() {
 }
 
 module.exports = {
+    knex,
     getUsers,
     createUser,
     deleteUser,
@@ -770,7 +771,7 @@ module.exports = {
     createAgency,
     deleteAgency,
     unassignAgenciesToGrant,
-    getElegibilityCodes,
+    getEligibilityCodes,
     sync,
     getAllRows,
     close,

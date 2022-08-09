@@ -14,10 +14,9 @@
     "migrate:make": "npx knex migrate:make",
     "env": "export $(cat .env)",
     "db:seed": "yarn db:migrate && npx knex seed:run",
-    "test": "yarn test:email && yarn test:apis",
-    "test:email": "npx mocha __tests__/email/*.test.js",
-    "test:db": "npx mocha __tests__/db/*.test.js",
-    "test:db1": "__tests__/db/run-tests.sh",
+    "test": "yarn test:db && yarn test:email && yarn test:apis",
+    "test:email": "NODE_ENV=test npx mocha __tests__/email/*.test.js",
+    "test:db": "NODE_ENV=test npx mocha --timeout 10000 __tests__/db/*.test.js",
     "test:apis": "NODE_ENV=test SUPPRESS_EMAIL=TRUE node src > test.log & NODE_ENV=test npx mocha --require __tests__/api/fixtures.js __tests__/api/*.test.js && pkill -fn 'node src'",
     "lint": "npx eslint '**/*.js'",
     "pre-commit": "yarn lint"

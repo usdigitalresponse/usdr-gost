@@ -157,8 +157,14 @@ module.exports = {
 };
 
 module.exports.seed = async (knex) => {
-    const deletions = Object.values(TABLES).map((tableName) => knex(tableName).del());
-    await Promise.all(deletions);
+    // https://stackoverflow.com/a/36499676
+    const truncateStmt = `TRUNCATE TABLE ${Object.values(TABLES).join(', ')} RESTART IDENTITY CASCADE`;
+    await knex.raw(truncateStmt).catch(
+        async (err) => {
+            console.log(err.stack);
+            await knex.migrate.latest();
+        },
+    );
 
     await knex(TABLES.roles).insert(Object.values(roles));
     await knex(TABLES.agencies).insert(Object.values(agencies));
