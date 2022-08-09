@@ -11,7 +11,10 @@
                 <h4 class="card-title gutter-title1 row">Recent Activity</h4>
               </div>
               <b-table sticky-header='500px' hover :items='activityItems' :fields='activityFields'
-                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none">
+                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none"
+                selectable
+                select-mode="single"
+                @row-selected="onRowSelected">
                 <template #cell(icon)="list">
                   <div class="gutter-icon row">
                   <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
@@ -43,7 +46,10 @@
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
               </div>
               <b-table v-if="(grantsAndIntAgens.length >= 3)" sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
-                class='table table-borderless' thead-class="d-none">
+                class='table table-borderless' thead-class="d-none"
+                selectable
+                select-mode="single"
+                @row-selected="onRowSelected">
                 <template #cell()="{ field, value }">
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
@@ -95,6 +101,7 @@
         </template>
       </b-table>
     </b-card>
+    <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 
@@ -139,10 +146,10 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
+import GrantDetails from '@/components/Modals/GrantDetails.vue';
 
 export default {
-  components: {
-  },
+  components: { GrantDetails },
   data() {
     return {
       yellowDate: null,
@@ -288,6 +295,7 @@ export default {
           },
         },
       ],
+      selectedGrant: null,
     };
   },
 
@@ -311,6 +319,7 @@ export default {
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
       agency: 'users/agency',
+      currentGrant: 'grants/currentGrant',
     }),
     activityItems() {
       const rtf = new Intl.RelativeTimeFormat('en', {
@@ -320,6 +329,7 @@ export default {
       return this.grantsInterested.map((grantsInterested) => ({
         agency: grantsInterested.name,
         grant: grantsInterested.title,
+        grant_id: grantsInterested.grant_id,
         interested: !grantsInterested.is_rejection,
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
         date: (() => {
@@ -345,6 +355,16 @@ export default {
       // https://lukashermann.dev/writing/how-to-use-async-await-with-vuejs-components/
       this.formatUpcoming();
     },
+    async selectedGrant() {
+      if (!this.selectedGrant) {
+        await this.fetchGrantsInterested();
+      }
+    },
+    currentGrant() {
+      if (this.selectedGrant && this.currentGrant) {
+        this.onRowSelected([this.currentGrant]);
+      }
+    },
   },
   methods: {
     ...mapActions({
@@ -353,6 +373,7 @@ export default {
       getAgency: 'agencies/getAgency',
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
+      fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
     async setup() {
       this.fetchDashboard();
@@ -407,6 +428,14 @@ export default {
         // https://stackoverflow.com/a/45336400
         this.$set(this.grantsAndIntAgens, idx, updateGrant);
       });
+    },
+    async onRowSelected(items) {
+      const [row] = items;
+      if (row) {
+        await this.fetchGrantDetails({ grantId: row.grant_id }).then(() => {
+          this.selectedGrant = this.currentGrant;
+        });
+      }
     },
   },
 };
