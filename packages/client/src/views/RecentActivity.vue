@@ -127,7 +127,14 @@ export default {
         grant_id: grantsInterested.grant_id,
         interested: !grantsInterested.is_rejection,
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
-        date: rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').charAt(0).toUpperCase() + rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').slice(1),
+        date: (() => {
+          const timeSince = rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day');
+          const timeSinceInt = parseInt(timeSince, 10);
+          if (!Number.isNaN(timeSinceInt) && timeSinceInt > 7) {
+            return new Date(grantsInterested.created_at).toLocaleDateString('en-US');
+          }
+          return timeSince.charAt(0).toUpperCase() + timeSince.slice(1);
+        })(),
       }));
     },
     totalRows() {
