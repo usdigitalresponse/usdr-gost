@@ -18,10 +18,35 @@ describe('db', () => {
         await db.knex.destroy();
     });
 
+    context('getGrantsInterested', () => {
+        it('gets the most recent interested grant', async () => {
+            const result = await db.getGrantsInterested({ perPage: 1, currentPage: 1 });
+            // console.log(JSON.stringify(result.data[0]));
+            // console.log(fixtures.grantsInterested.entry2);
+            expect(result.data[0]).to.have.property('grant_id').with.lengthOf(6);
+            expect(result.data[0].grant_id).to.equal(fixtures.grantsInterested.entry2.grant_id);
+            expect(result.data[0].user_id).to.equal(fixtures.grantsInterested.entry2.user_id);
+            expect(result.data[0].is_rejection).to.equal(fixtures.interestedCodes.inadequateCapacity.is_rejection);
+            // in the grants interested table the grant with the most recent created_at has the grant id of 335255
+            expect(result.data[0]).to.have.property('grant_id').equal('335255');
+        });
+        it('gets the two most recent interested grants', async () => {
+            // testing pagination
+            const result = await db.getGrantsInterested({ perPage: 2, currentPage: 1 });
+            expect(result.data).to.have.lengthOf(2);
+        });
+    });
+    context('getTotalInterestedGrants', () => {
+        it('gets total interested grants count', async () => {
+            const result = await db.getTotalInterestedGrants();
+            expect(result).to.equal('3');
+        });
+    });
+
     context('getTotalGrants', () => {
         it('gets total grant count with no parameters', async () => {
             const result = await db.getTotalGrants();
-            expect(result).to.equal('3');
+            expect(result).to.equal('4');
         });
 
         it('gets total grant count matching agency criteria', async () => {
@@ -58,7 +83,7 @@ describe('db', () => {
         it('gets total grant count with updated fromTs', async () => {
             const updatedTsBounds = { fromTs: new Date(2021, 7, 9) };
             const result = await db.getTotalGrants({ updatedTsBounds });
-            expect(result).to.equal('3');
+            expect(result).to.equal('4');
         });
 
         it('gets total grant count with updated fromTs and matching agency criteria', async () => {
