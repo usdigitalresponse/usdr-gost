@@ -187,10 +187,13 @@ export default {
           thStyle: { width: '20%' },
           tdStyle: {
             color: 'red',
+            fontWeight: 'bold',
           },
           trStyle: {
             color: 'darkkhaki',
+            fontWeight: 'bold',
           },
+          fontWeight: 'bold',
         },
         {
           key: 'interested_agencies',
