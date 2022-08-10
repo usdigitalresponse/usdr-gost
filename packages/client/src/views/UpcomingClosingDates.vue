@@ -24,10 +24,10 @@
     </b-table>
     </b-card>
     <b-row align-v="center">
-      <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
+      <b-pagination class="m-0" v-model="currentPage" :total-rows="upcomingItems" :per-page="perPage" first-number
         last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
         aria-controls="grants-table" />
-      <b-button class="ml-2" variant="outline-primary disabled">{{ grantsInterested.length }} of {{ totalRows }}</b-button>
+      <b-button class="ml-2" variant="outline-primary disabled">{{ grantsAndIntAgens.length }} of {{ upcomingItems.length }}</b-button>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
