@@ -382,7 +382,7 @@ async function getClosestGrants() {
     const query = await knex(TABLES.grants)
         .select('title', 'close_date', 'grant_id')
         .where('close_date', '>=', timestamp)
-        .whereIn('grant_id', function() {
+        .whereIn('grant_id', function () {
             this.select('grant_id').from('grants_interested');
         })
         .orderBy('close_date', 'asc')
