@@ -104,7 +104,7 @@ describe('db', () => {
             // act
             const result = await db.getClosestGrants();
             // assert
-            expect(result.length).to.equal(2);
+            expect(result.length).to.equal(3);
         });
     });
 

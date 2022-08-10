@@ -53,9 +53,9 @@
                 <template #cell()="{ field, value }">
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
-                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[0].title)" :style="{color:'gray', fontSize: '12px',}">{{grantsAndIntAgens[0].interested_agencies}}</div>
-                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'gray', fontSize: '12px',}">{{grantsAndIntAgens[1].interested_agencies}}</div>
-                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'gray', fontSize: '12px',}">{{grantsAndIntAgens[2].interested_agencies}}</div>
+                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[0].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[0].interested_agencies}}</div>
+                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[1].interested_agencies}}</div>
+                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[2].interested_agencies}}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -193,11 +193,14 @@ export default {
           formatter: 'formatDate',
           thStyle: { width: '20%' },
           tdStyle: {
-            color: 'red',
+            color: '#ae1818',
+            fontWeight: 'bold',
           },
           trStyle: {
-            color: 'darkkhaki',
+            color: '#aa8866',
+            fontWeight: 'bold',
           },
+          fontWeight: 'bold',
         },
         {
           key: 'interested_agencies',
