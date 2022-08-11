@@ -494,21 +494,30 @@ async function markGrantAsInterested({
 }
 
 async function getGrantsInterested({ perPage, currentPage }) {
-    const { data, pagination } = await knex(TABLES.grants_interested)
-        .select(`${TABLES.grants_interested}.created_at`, `${TABLES.agencies}.name`, `${TABLES.interested_codes}.is_rejection`, `${TABLES.grants}.title`, `${TABLES.grants}.grant_id`)
-        .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
-        .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
-        .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`)
-        .orderBy('created_at', 'desc')
-        .paginate({ perPage, currentPage });
-    return { data, pagination };
+    const query = `select "grants_interested"."created_at", "agencies"."name", "interested_codes"."is_rejection", "grants_interested"."agency_id", "grants"."title", "grants"."grant_id", NULL AS assigned_by from "grants_interested"
+    inner join "agencies" on "grants_interested"."agency_id" = "agencies"."id" 
+    inner join "interested_codes" on "grants_interested"."interested_code_id" = "interested_codes"."id" 
+    inner join "grants" on "grants_interested"."grant_id" = "grants"."grant_id" 
+    UNION ALL 
+    SELECT "assigned_grants_agency"."created_at", "agencies"."name",  NULL AS is_rejection, "assigned_grants_agency"."agency_id", "grants"."title",  "grants"."grant_id", "assigned_grants_agency"."assigned_by" 
+    from "assigned_grants_agency" 
+    inner join "agencies" on "assigned_grants_agency"."agency_id" = "agencies"."id" 
+    inner join "grants" on "assigned_grants_agency"."grant_id" = "grants"."grant_id" 
+    ORDER BY created_at desc
+    OFFSET ((${currentPage} - 1) * ${perPage}) ROWS
+    FETCH NEXT ${perPage} ROWS ONLY;`;
+
+    return knex.raw(query);
 }
 
 async function getTotalInterestedGrants() {
     const rows = await knex(TABLES.grants_interested)
         .whereNot('interested_code_id', null)
         .count();
-    return rows[0].count;
+    const rows2 = await knex(TABLES.assigned_grants_agency)
+        .whereNot('assigned_by', null)
+        .count();
+    return +rows[0].count + +rows2[0].count;
 }
 
 async function unmarkGrantAsInterested({ grantId, agencyIds }) {
