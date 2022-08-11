@@ -386,7 +386,6 @@ async function getClosestGrants() {
             this.select('grant_id').from('grants_interested');
         })
         .orderBy('close_date', 'asc')
-        .limit(3)
         .then((data) => data)
         .catch((err) => console.log(err));
     const query1 = query;
