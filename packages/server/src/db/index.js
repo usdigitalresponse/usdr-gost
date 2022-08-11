@@ -488,7 +488,6 @@ async function markGrantAsInterested({
 }
 
 async function getGrantsInterested({ perPage, currentPage }) {
-    
     const query = `select "grants_interested"."created_at", "agencies"."name", "interested_codes"."is_rejection", "grants_interested"."agency_id", "grants"."title", "grants"."grant_id", NULL AS assigned_by from "grants_interested"
     inner join "agencies" on "grants_interested"."agency_id" = "agencies"."id" 
     inner join "interested_codes" on "grants_interested"."interested_code_id" = "interested_codes"."id" 
@@ -500,9 +499,9 @@ async function getGrantsInterested({ perPage, currentPage }) {
     inner join "grants" on "assigned_grants_agency"."grant_id" = "grants"."grant_id" 
     ORDER BY created_at desc
     OFFSET ((${currentPage} - 1) * ${perPage}) ROWS
-    FETCH NEXT ${perPage} ROWS ONLY;`
+    FETCH NEXT ${perPage} ROWS ONLY;`;
 
-    return await knex.raw(query);
+    return knex.raw(query);
 }
 
 async function getTotalInterestedGrants() {
@@ -511,7 +510,7 @@ async function getTotalInterestedGrants() {
         .count();
     const rows2 = await knex(TABLES.assigned_grants_agency)
         .whereNot('assigned_by', null)
-        .count(); 
+        .count();
     return +rows[0].count + +rows2[0].count;
 }
 
