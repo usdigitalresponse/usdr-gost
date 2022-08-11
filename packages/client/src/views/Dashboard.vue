@@ -30,7 +30,7 @@
                           <strong> interested </strong>
                       </span> in
                     </span>
-                    <span v-if="agencies.item.interested === 2" > <strong> was assigned </strong> </span>{{ agencies.item.grant }}
+                    <span v-if="agencies.item.interested === 2" >  was <strong> assigned </strong> </span>{{ agencies.item.grant }}
                   </div>
                 </template>
                 <template #cell(date)="dates">
