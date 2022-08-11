@@ -222,8 +222,8 @@ router.get('/:grantId/interested', requireUser, async (req, res) => {
 
 router.get('/grantsInterested/:perPage/:currentPage', requireUser, async (req, res) => {
     const { perPage, currentPage } = req.params;
-    const { data } = await db.getGrantsInterested({ perPage, currentPage });
-    res.json(data);
+    const rows = await db.getGrantsInterested({ perPage, currentPage });
+    res.json(rows.rows);
 });
 
 router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
