@@ -53,6 +53,7 @@
                 <template #cell()="{ field, value }">
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
+                  <div v-if="blackDate == true" :style="field.tlStyle" v-text="value"></div>
                   <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[0].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[0].interested_agencies}}</div>
                   <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[1].interested_agencies}}</div>
                   <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[2].interested_agencies}}</div>
@@ -154,6 +155,7 @@ export default {
     return {
       yellowDate: null,
       redDate: null,
+      blackDate: null,
       sortBy: 'dateSort',
       sortAsc: true,
       perPage: 4,
@@ -194,6 +196,10 @@ export default {
           thStyle: { width: '20%' },
           tdStyle: {
             color: '#ae1818',
+            fontWeight: 'bold',
+          },
+          tlStyle: {
+            color: 'black',
             fontWeight: 'bold',
           },
           trStyle: {
@@ -392,26 +398,48 @@ export default {
       return (`(${res})`);
     },
     formatDate(value) {
+      // value is the close date of grant
+      // console.log(`close date:  ${value}`);
       //                  get threshold of agency
-      // console.log(`format date:  ${value}`);
       const warn = this.agency.warning_threshold;
       const danger = this.agency.danger_threshold;
-      //                    current date + danger threshold
-      // const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
-      // console.log(`dangerDate  ${dangerDate}`);
       //                grant close date + danger thresh
-      const dangerDate2 = new Date(new Date().setDate(new Date(value).getDate() + danger));
-      // console.log(`dangerDate2  ${dangerDate2}`);
+      const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
+      // console.log(`dangerDate  ${dangerDate}`);
       //                grant close date + warn thresh
-      const warnDate = new Date(new Date().setDate(new Date(value).getDate() + warn));
+      const warnDate = new Date(new Date().setDate(new Date().getDate() + warn));
       // console.log(`warnDate  ${warnDate}`);
-      // console.log(`close date format for comp  ${new Date(value)}`);
-      //          if the grant close date is <= danger date
-      if (new Date(value) <= warnDate && new Date(value) > dangerDate2) {
+      //          if the grant close date is <= danger date---------------
+      const days = (aa, bb) => {
+        const difference = aa.getTime() - bb.getTime();
+        const TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+        return TotalDays;
+      };
+      // console.log(`${days(dangerDate, new Date())} days to danger date`);
+      const daysTillDanger = days(dangerDate, new Date());
+      // console.log(`${days(warnDate, new Date())} days to warn date`);
+      const daysTillWarn = days(warnDate, new Date());
+      // console.log(`${days(new Date(value), new Date())} days to close date`);
+      const daysTillClose = days(new Date(value), new Date());
+      // for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
+      if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
         this.yellowDate = true;
-      } else if ((new Date(value) <= dangerDate2) || (new Date(value) === new Date())) {
+        this.redDate = false;
+        this.blackDate = false;
+        // console.log(1);
+      } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
         this.redDate = true;
+        this.yellowDate = false;
+        this.blackDate = false;
+        // console.log(2);
+      } else {
+        this.yellowDate = false;
+        this.redDate = false;
+        this.blackDate = true;
+        // console.log(3);
       }
+      // }
+      // console.log('---------------------------------------------------');
       //                      format date in MM/DD/YY
       const year = value.slice(2, 4);
       const month = value.slice(5, 7);
