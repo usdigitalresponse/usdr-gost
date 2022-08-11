@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Loading...</title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      // The point of this clientside POST redirect is to prevent automated email systems that prefetch
+      // links from accidentally marking the token as used before the user gets to login with it.
+      //
+      // If the passcode is missing somehow, we redirect anyway since only server knows WEBSITE_DOMAIN
+      // to correctly redirect to login page. This really only matters in dev environment where
+      // website vs. API domains are different.
+      const passcode = new URLSearchParams(window.location.search).get('passcode') || 'missing_passcode';
+      if (self === top) {
+        const form = document.createElement('form');
+        form.action = '/api/sessions/init';
+        form.method = 'post';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'passcode';
+        input.value = passcode;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+      }
+    </script>
+    <noscript>
+      <strong>We're sorry but the Grants Tool doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+  </body>
+</html>

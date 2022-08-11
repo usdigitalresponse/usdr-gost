@@ -6,50 +6,31 @@
           <b-input-group-text>
             <b-icon icon="search" />
           </b-input-group-text>
-          <b-form-input
-            type="search"
-            @input="debounceSearchInput"
-          ></b-form-input>
+          <b-form-input type="search" @input="debounceSearchInput"></b-form-input>
         </b-input-group>
       </b-col>
       <b-col class="d-flex justify-content-end">
-        <b-button
-          @click="exportCSV"
-          :disabled="loading"
-          variant="outline-secondary"
-        >
+        <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
           <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
           Export to CSV
         </b-button>
       </b-col>
     </b-row>
     <b-row v-if="!showInterested && !showRejected && !showAssignedToAgency" class="mt-3 mb-3" align-h="between"
-    style="position: relative; z-index: 999">
+      style="position: relative; z-index: 999">
       <b-col cols="3">
-        <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions"
-          :multiple="true" :close-on-select="false"
-          :clear-on-select="false"
-          placeholder="Review Status">
+        <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions" :multiple="true"
+          :close-on-select="false" :clear-on-select="false" placeholder="Review Status">
         </multiselect>
       </b-col>
     </b-row>
-    <b-table
-      id="grants-table"
-      sticky-header="600px"
-      hover
-      :items="formattedGrants"
-      :fields="fields"
-      selectable
-      striped
-      select-mode="single"
-      :busy="loading"
-      @row-selected="onRowSelected"
-    >
+    <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields" selectable striped
+      select-mode="single" :busy="loading" @row-selected="onRowSelected">
       <template #cell(award_floor)="row">
-          <p> {{formatMoney(row.item.award_floor)}}</p>
+        <p> {{ formatMoney(row.item.award_floor) }}</p>
       </template>
       <template #cell(award_ceiling)="row">
-          <p> {{formatMoney(row.item.award_ceiling)}}</p>
+        <p> {{ formatMoney(row.item.award_ceiling) }}</p>
       </template>
       <template #table-busy>
         <div class="text-center text-danger my-2">
@@ -59,22 +40,10 @@
       </template>
     </b-table>
     <b-row align-v="center">
-      <b-pagination
-        class="m-0"
-        v-model="currentPage"
-        :total-rows="totalRows"
-        :per-page="perPage"
-        first-number
-        last-number
-        first-text="First"
-        prev-text="Prev"
-        next-text="Next"
-        last-text="Last"
-        aria-controls="grants-table"
-      />
-      <b-button class="ml-2" variant="outline-primary disabled"
-        >{{ grants.length }} of {{ totalRows }}</b-button
-      >
+      <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
+        last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
+        aria-controls="grants-table" />
+      <b-button class="ml-2" variant="outline-primary disabled">{{ grants.length }} of {{ totalRows }}</b-button>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
@@ -84,14 +53,13 @@
 import { mapActions, mapGetters } from 'vuex';
 import { debounce } from 'lodash';
 import Multiselect from 'vue-multiselect';
-
-import { titleize } from '@/helpers/form-helpers';
-
-import GrantDetails from '@/components/Modals/GrantDetails.vue';
+import { titleize } from '../helpers/form-helpers';
+import GrantDetails from './Modals/GrantDetails.vue';
 
 export default {
   components: { GrantDetails, Multiselect },
   props: {
+    showMyInterested: Boolean,
     showInterested: Boolean,
     showRejected: Boolean,
     showAging: Boolean,
@@ -248,7 +216,7 @@ export default {
           currentPage: this.currentPage,
           orderBy: this.orderBy,
           searchTerm: this.debouncedSearchInput,
-          interestedByMe: this.showInterested,
+          interestedByMe: this.showMyInterested,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
           positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),

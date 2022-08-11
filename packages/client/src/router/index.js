@@ -41,6 +41,22 @@ const routes = [
         },
       },
       {
+        path: '/RecentActivity',
+        name: 'RecentActivity',
+        component: () => import('../views/RecentActivity.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: '/UpcomingClosingDates',
+        name: 'UpcomingClosingDates',
+        component: () => import('../views/UpcomingClosingDates.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
         path: '/grants',
         name: 'grants',
         component: () => import('../views/Grants.vue'),
