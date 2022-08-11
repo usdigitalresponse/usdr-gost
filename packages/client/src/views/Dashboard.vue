@@ -14,16 +14,20 @@
                 :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none">
                 <template #cell(icon)="list">
                   <div class="gutter-icon row">
-                  <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
-                  <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                  <b-icon v-if="list.item.interested === 0" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                  <b-icon v-if="list.item.interested === 1" icon="check-circle-fill" scale="1" variant="success"></b-icon>
+                  <b-icon v-if="list.item.interested === 2" icon="arrow-right-circle-fill" scale="1"></b-icon>
                   </div>
                 </template>
                 <template #cell(agencyAndGrant)="agencies">
                   <div>{{ agencies.item.agency }}
-                    <span v-if="agencies.item.interested"> is
-                      <span class="color-green"> <strong> interested </strong></span> in
+                    <span v-if="agencies.item.interested === 0" class="color-red" > <strong> rejected </strong> </span>
+                    <span v-if="agencies.item.interested === 1" > is
+                      <span class="color-green">
+                          <strong> interested </strong>
+                      </span> in
                     </span>
-                    <span v-if="!agencies.item.interested" class="color-red" > <strong> rejected </strong> </span>{{ agencies.item.grant }}
+                    <span v-if="agencies.item.interested === 2" > <strong> was assigned </strong> </span>{{ agencies.item.grant }}
                   </div>
                 </template>
                 <template #cell(date)="dates">
@@ -318,6 +322,7 @@ export default {
       getClosestGrants: 'grants/getClosestGrants',
     }),
     activityItems() {
+      // console.log(this.grantsInterested);
       const rtf = new Intl.RelativeTimeFormat('en', {
         numeric: 'auto',
       });
@@ -325,7 +330,20 @@ export default {
       return this.grantsInterested.map((grantsInterested) => ({
         agency: grantsInterested.name,
         grant: grantsInterested.title,
-        interested: !grantsInterested.is_rejection,
+        interested: (() => {
+          let retVal = null;
+          if (grantsInterested.is_rejection != null) {
+            if (grantsInterested.is_rejection) {
+              retVal = 0;
+            } else {
+              retVal = 1;
+            }
+          } else if (grantsInterested.assigned_by != null) {
+            // 2 means its assigned not interested
+            retVal = 2;
+          }
+          return retVal;
+        })(),
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
         date: (() => {
           const timeSince = rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day');
