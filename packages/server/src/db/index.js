@@ -92,6 +92,7 @@ async function getUser(id) {
             'agencies.warning_threshold as agency_warning_threshold',
             'agencies.danger_threshold as agency_danger_threshold',
             'users.tags',
+            'users.tenant_id',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
@@ -596,20 +597,35 @@ function getAgencyKeywords(agencyId) {
         .where('agency_id', agencyId);
 }
 
-async function createAgency({
-    name, abbreviation, parent, warning_threshold, danger_threshold,
-}) {
+async function createAgency(agency) {
     // seeded agencies with hardcoded ids will make autoicrement fail since it doesnt
     // know which is the next id
     await knex.raw('select setval(\'agencies_id_seq\', max(id)) from agencies');
-    return knex(TABLES.agencies)
-        .insert({
+
+    // Enforce tenant isolation by using the tenant_id from the user
+    // and the main_agency_id from the tenant.
+    return knex.raw(`
+        WITH upd AS (
+            SELECT
+              :parent::integer,
+              :name,
+              :abbreviation,
+              :warning_threshold::integer,
+              :danger_threshold::integer,
+              u.tenant_id,
+              t.main_agency_id
+            FROM users u
+            JOIN tenants t ON u.tenant_id = t.id
+            WHERE u.id = :creator_id
+        ) INSERT INTO agencies (
             parent,
             name,
             abbreviation,
             warning_threshold,
             danger_threshold,
-        });
+            tenant_id,
+            main_agency_id
+        ) (SELECT * FROM upd)`, agency);
 }
 
 async function deleteAgency(
