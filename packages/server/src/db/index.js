@@ -213,7 +213,7 @@ function createAccessToken(email) {
     return generatePasscode(email);
 }
 
-function getElegibilityCodes() {
+function getEligibilityCodes() {
     return knex(TABLES.eligibility_codes)
         .select('*');
 }
@@ -378,13 +378,19 @@ async function getSingleGrantDetails({ grantId, agencies }) {
 }
 
 async function getClosestGrants() {
-    const timestamp = new Date();
+    const timestamp = new Date().toLocaleDateString('en-US');
     const query = await knex(TABLES.grants)
-        .select('title', 'close_date')
+        .select('title', 'close_date', 'grant_id')
         .where('close_date', '>=', timestamp)
+        .whereIn('grant_id', function () {
+            this.select('grant_id').from('grants_interested');
+        })
         .orderBy('close_date', 'asc')
-        .limit(3);
-    return query;
+        .limit(3)
+        .then((data) => data)
+        .catch((err) => console.log(err));
+    const query1 = query;
+    return query1;
 }
 
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
@@ -734,6 +740,7 @@ function close() {
 }
 
 module.exports = {
+    knex,
     getUsers,
     createUser,
     deleteUser,
@@ -779,7 +786,7 @@ module.exports = {
     createAgency,
     deleteAgency,
     unassignAgenciesToGrant,
-    getElegibilityCodes,
+    getEligibilityCodes,
     sync,
     getAllRows,
     close,

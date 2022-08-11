@@ -28,6 +28,7 @@ module.exports = {
         seeds: {
             directory: './seeds/dev',
         },
+        debug: process.env.NODE_ENV === 'staging',
     },
     production: {
         client: 'pg',

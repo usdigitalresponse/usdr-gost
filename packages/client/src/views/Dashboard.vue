@@ -11,7 +11,10 @@
                 <h4 class="card-title gutter-title1 row">Recent Activity</h4>
               </div>
               <b-table sticky-header='500px' hover :items='activityItems' :fields='activityFields'
-                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none">
+                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none"
+                selectable
+                select-mode="single"
+                @row-selected="onRowSelected">
                 <template #cell(icon)="list">
                   <div class="gutter-icon row">
                   <b-icon v-if="list.item.interested === 0" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
@@ -46,18 +49,17 @@
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
               </div>
-              <b-table sticky-header='350px' hover :items='upcomingItems' :fields='upcomingFields'
-                class='table table-borderless' thead-class="d-none">
-                <template #cell(date)="dates"><strong>
-                  <!-- color the date to gray, yellow, or red based on the dateColor boolean -->
-                  <div v-if="dates.item.dateColor === 0" class="color-gray">{{ dates.item.date }}</div>
-                  <div v-if="dates.item.dateColor === 1" class="color-yellow">{{ dates.item.date }}</div>
-                  <div v-if="dates.item.dateColor === 2" class="color-red">{{ dates.item.date }}</div>
-                </strong></template>
-                <template #cell(agencyAndGrant)="agencies">
-                  <!-- display the interestedAgencies in a new <div> so it appears below the grant -->
-                  <div>{{ agencies.item.agencyAndGrant }}</div>
-                  <div class="color-gray">{{ agencies.item.interestedAgencies }}</div>
+              <b-table v-if="(grantsAndIntAgens.length >= 3)" sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
+                class='table table-borderless' thead-class="d-none"
+                selectable
+                select-mode="single"
+                @row-selected="onRowSelected">
+                <template #cell()="{ field, value }">
+                  <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
+                  <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
+                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[0].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[0].interested_agencies}}</div>
+                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[1].interested_agencies}}</div>
+                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[2].interested_agencies}}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -103,6 +105,7 @@
         </template>
       </b-table>
     </b-card>
+    <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 
@@ -116,7 +119,8 @@
 .color-red{
   color: #ae1818;
 }
-.color-green{
+
+.color-green {
   color: green;
 }
 .gutter-icon.row {
@@ -146,16 +150,19 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
+import GrantDetails from '@/components/Modals/GrantDetails.vue';
 
 export default {
-  components: {
-  },
+  components: { GrantDetails },
   data() {
     return {
+      yellowDate: null,
+      redDate: null,
       sortBy: 'dateSort',
       sortAsc: true,
       perPage: 4,
       currentPage: 1,
+      grantsAndIntAgens: [],
       activityFields: [
         {
           // col for the check or X icon
@@ -179,35 +186,32 @@ export default {
       upcomingFields: [
         {
           // col for Grants and interested agencies
-          key: 'agencyAndGrant',
+          key: 'title',
           label: '',
           thStyle: { width: '80%' },
         },
         {
           // col for when the grant will be closing
-          key: 'date',
+          key: 'close_date',
           label: '',
+          formatter: 'formatDate',
           thStyle: { width: '20%' },
-        },
-      ],
-      upcomingItems: [
-        {
-          agencyAndGrant: 'FY21 Supplemental for the Northeast Corridor Cooperative Agreement to the National Railroad Passenger Corporation',
-          interestedAgencies: 'Dept of Admin, State of Nevada,',
-          date: '12/12/12',
-          dateColor: 2, // 2 corresponds to red, 1 corresponds to yellow, 0 corresponds to gray
-        },
-        {
-          agencyAndGrant: 'Environmental Justice Collaborative Problem-Solving (EJCPS) Cooperative Agreement Program',
-          interestedAgencies: 'GO, AP, SNV',
-          date: '12/12/12',
-          dateColor: 1,
+          tdStyle: {
+            color: '#ae1818',
+            fontWeight: 'bold',
+          },
+          trStyle: {
+            color: '#aa8866',
+            fontWeight: 'bold',
+          },
+          fontWeight: 'bold',
         },
         {
-          agencyAndGrant: 'Strengthening Public Health Research and Implementation Science (Operations Research) to Control and Eliminate Infectious Diseases Globally',
-          interestedAgencies: 'SHRAB, SNV',
-          date: '12/20/12',
-          dateColor: 0,
+          key: 'interested_agencies',
+          label: '',
+          thClass: 'd-none',
+          tdClass: 'd-none',
+          thStyle: { width: '20%' },
         },
       ],
       groupByFields: [
@@ -298,12 +302,13 @@ export default {
           },
         },
       ],
+      selectedGrant: null,
     };
   },
 
   mixins: [resizableTableMixin],
-  mounted() {
-    this.setup();
+  async mounted() {
+    await this.setup();
   },
   computed: {
     ...mapGetters({
@@ -317,9 +322,11 @@ export default {
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
+      getClosestGrants: 'dashboard/getClosestGrants',
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
-      getClosestGrants: 'grants/getClosestGrants',
+      agency: 'users/agency',
+      currentGrant: 'grants/currentGrant',
     }),
     activityItems() {
       // console.log(this.grantsInterested);
@@ -344,6 +351,7 @@ export default {
           }
           return retVal;
         })(),
+        grant_id: grantsInterested.grant_id,
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
         date: (() => {
           const timeSince = rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day');
@@ -355,18 +363,40 @@ export default {
         })(),
       }));
     },
+    upcomingItems() {
+      // https://stackoverflow.com/a/48643055
+      return this.getClosestGrants;
+    },
   },
   watch: {
-    selectedAgency() {
-      this.setup();
+    async selectedAgency() {
+      await this.setup();
+    },
+    upcomingItems() {
+      // https://lukashermann.dev/writing/how-to-use-async-await-with-vuejs-components/
+      this.formatUpcoming();
+    },
+    async selectedGrant() {
+      if (!this.selectedGrant) {
+        await this.fetchGrantsInterested();
+      }
+    },
+    currentGrant() {
+      if (this.selectedGrant && this.currentGrant) {
+        this.onRowSelected([this.currentGrant]);
+      }
     },
   },
   methods: {
     ...mapActions({
       fetchDashboard: 'dashboard/fetchDashboard',
+      getInterestedAgenciesAction: 'grants/getInterestedAgencies',
+      getAgency: 'agencies/getAgency',
+      fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
+      fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
-    setup() {
+    async setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
     },
@@ -378,6 +408,55 @@ export default {
         currency: 'USD',
       });
       return (`(${res})`);
+    },
+    formatDate(value) {
+      //                  get threshold of agency
+      // console.log(`format date:  ${value}`);
+      const warn = this.agency.warning_threshold;
+      const danger = this.agency.danger_threshold;
+      //                    current date + danger threshold
+      // const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
+      // console.log(`dangerDate  ${dangerDate}`);
+      //                grant close date + danger thresh
+      const dangerDate2 = new Date(new Date().setDate(new Date(value).getDate() + danger));
+      // console.log(`dangerDate2  ${dangerDate2}`);
+      //                grant close date + warn thresh
+      const warnDate = new Date(new Date().setDate(new Date(value).getDate() + warn));
+      // console.log(`warnDate  ${warnDate}`);
+      // console.log(`close date format for comp  ${new Date(value)}`);
+      //          if the grant close date is <= danger date
+      if (new Date(value) <= warnDate && new Date(value) > dangerDate2) {
+        this.yellowDate = true;
+      } else if ((new Date(value) <= dangerDate2) || (new Date(value) === new Date())) {
+        this.redDate = true;
+      }
+      //                      format date in MM/DD/YY
+      const year = value.slice(2, 4);
+      const month = value.slice(5, 7);
+      const day = value.slice(8, 10);
+      const finalDate = [month, day, year].join('/');
+      return (`${finalDate}`);
+    },
+    async formatUpcoming() {
+      // https://stackoverflow.com/a/67219279
+      this.getClosestGrants.map(async (grant, idx) => {
+        const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
+        const updateGrant = {
+          ...grant,
+          interested_agencies: arr.map((agency) => agency.agency_abbreviation).join(', '),
+        };
+        // https://v2.vuejs.org/v2/guide/reactivity.html#For-Arrays
+        // https://stackoverflow.com/a/45336400
+        this.$set(this.grantsAndIntAgens, idx, updateGrant);
+      });
+    },
+    async onRowSelected(items) {
+      const [row] = items;
+      if (row) {
+        await this.fetchGrantDetails({ grantId: row.grant_id }).then(() => {
+          this.selectedGrant = this.currentGrant;
+        });
+      }
     },
   },
 };

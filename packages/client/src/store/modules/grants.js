@@ -133,9 +133,11 @@ export default {
       state.grantsPaginated = grants;
     },
     UPDATE_GRANT(state, { grantId, data }) {
-      const grant = state.grantsPaginated.data.find((g) => g.grant_id === grantId);
-      if (grant) {
-        Object.assign(grant, data);
+      if (state.grantsPaginated.data) {
+        const grant = state.grantsPaginated.data.find((g) => g.grant_id === grantId);
+        if (grant) {
+          Object.assign(grant, data);
+        }
       }
       if (state.currentGrant && state.currentGrant.grant_id === grantId) {
         Object.assign(state.currentGrant, data);
