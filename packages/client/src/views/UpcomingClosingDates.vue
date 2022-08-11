@@ -4,6 +4,7 @@
       <h4 class="card-title gutter-title1 row">Upcoming Closing Dates</h4>
     <b-table
       hover
+      id="upcomingGrants"
       :items="grantsAndIntAgens"
       :fields="upcomingFields"
       :sort-by.sync="sortBy"
@@ -13,20 +14,20 @@
       selectable
       select-mode="single"
       @row-selected="onRowSelected"
+      :per-page="perPage"
+      :current-page="currentPage"
     >
-      <template #cell()="{ field, value }">
+      <template #cell()="{ field, value, index }">
         <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
         <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
-        <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[0].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[0].interested_agencies}}</div>
-        <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[1].interested_agencies}}</div>
-        <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[2].interested_agencies}}</div>
+        <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
       </template>
     </b-table>
     </b-card>
     <b-row align-v="center">
-      <b-pagination class="m-0" v-model="currentPage" :total-rows="upcomingItems" :per-page="perPage" first-number
-        last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
-        aria-controls="grants-table" />
+      <b-pagination class="m-0" v-model="currentPage" :per-page="perPage" first-number :total-rows="rows"
+        last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last" :current-page="currentPage"
+        aria-controls="upcomingGrants" />
       <b-button class="ml-2" variant="outline-primary disabled">{{ grantsAndIntAgens.length }} of {{ upcomingItems.length }}</b-button>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
@@ -114,12 +115,10 @@ export default {
       totalGrants: 'dashboard/totalGrants',
       totalGrantsMatchingAgencyCriteria: 'dashboard/totalGrantsMatchingAgencyCriteria',
       totalViewedGrants: 'dashboard/totalViewedGrants',
-      totalInterestedGrants: 'dashboard/totalInterestedGrants',
       grantsCreatedInTimeframe: 'dashboard/grantsCreatedInTimeframe',
       grantsCreatedInTimeframeMatchingCriteria: 'dashboard/grantsCreatedInTimeframeMatchingCriteria',
       grantsUpdatedInTimeframe: 'dashboard/grantsUpdatedInTimeframe',
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
-      totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
       getClosestGrants: 'dashboard/getClosestGrants',
       agency: 'users/agency',
@@ -128,9 +127,12 @@ export default {
       // https://stackoverflow.com/a/48643055
       return this.getClosestGrants;
     },
-    totalRows() {
-      return this.totalInterestedGrants;
+    rows() {
+      return this.upcomingItems.length;
     },
+    // loopAgens() {
+
+    // },
   },
   watch: {
     async selectedAgency() {
@@ -157,7 +159,6 @@ export default {
   methods: {
     ...mapActions({
       fetchDashboard: 'dashboard/fetchDashboard',
-      fetchGrantsInterested: 'grants/fetchGrantsInterested',
       fetchGrantDetails: 'grants/fetchGrantDetails',
       getInterestedAgenciesAction: 'grants/getInterestedAgencies',
       getAgency: 'agencies/getAgency',
@@ -165,7 +166,6 @@ export default {
     }),
     setup() {
       this.fetchDashboard();
-      this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
     },
     async onRowSelected(items) {
       const [row] = items;
@@ -204,15 +204,12 @@ export default {
       return (`${finalDate}`);
     },
     async formatUpcoming() {
-      // https://stackoverflow.com/a/67219279
       this.getClosestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,
           interested_agencies: arr.map((agency) => agency.agency_abbreviation).join(', '),
         };
-        // https://v2.vuejs.org/v2/guide/reactivity.html#For-Arrays
-        // https://stackoverflow.com/a/45336400
         this.$set(this.grantsAndIntAgens, idx, updateGrant);
       });
     },
