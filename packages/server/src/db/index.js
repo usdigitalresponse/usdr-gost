@@ -488,7 +488,7 @@ async function markGrantAsInterested({
             agency_id: agencyId,
             grant_id: grantId,
             user_id: userId,
-            interested_code_id: interestedCode,
+            interested_code_id: +interestedCode,
         });
     return results;
 }
