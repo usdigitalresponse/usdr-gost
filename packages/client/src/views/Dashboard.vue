@@ -200,7 +200,6 @@ export default {
           },
           tlStyle: {
             color: 'black',
-            fontWeight: 'bold',
           },
           trStyle: {
             color: '#aa8866',
