@@ -102,9 +102,9 @@ describe('db', () => {
         it('gets closest grants', async () => {
             // arrange  #done in fixtures
             // act
-            const result = await db.getClosestGrants();
+            const result = await db.getClosestGrants(0);
             // assert
-            expect(result.length).to.equal(2);
+            expect(result.length).to.equal(1);
         });
     });
 
