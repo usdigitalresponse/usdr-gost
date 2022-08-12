@@ -23,7 +23,7 @@ router.get('/', requireUser, async (req, res) => {
         result.totalInterestedGrants = await db.getTotalInterestedGrants();
     }
     if (req.query.getClosestGrants) {
-        result.getClosestGrants = await db.getClosestGrants();
+        result.getClosestGrants = await db.getClosestGrants(req.session.selectedAgency);
     }
     if (req.query.totalInterestedGrantsByAgencies) {
         result.totalInterestedGrantsByAgencies = await db.getTotalInterestedGrantsByAgencies();
