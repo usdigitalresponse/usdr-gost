@@ -28,7 +28,7 @@
       <b-pagination class="m-0" v-model="currentPage" :per-page="perPage" first-number :total-rows="rows"
         last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last" :current-page="currentPage"
         aria-controls="upcomingGrants" />
-      <b-button class="ml-2" variant="outline-primary disabled">{{ grantsAndIntAgens.length }} of {{ upcomingItems.length }}</b-button>
+      <b-button class="ml-2" variant="outline-primary disabled">{{ totalOnPage }} of {{ upcomingItems.length }}</b-button>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
@@ -130,9 +130,16 @@ export default {
     rows() {
       return this.upcomingItems.length;
     },
-    // loopAgens() {
-
-    // },
+    totalOnPage() {
+      if (this.grantsAndIntAgens.length < this.perPage) {
+        return this.grantsAndIntAgens.length;
+      }
+      // if current page is not last, 10
+      if (this.currentPage !== 9) {
+        return this.perPage;
+      }
+      return 2;
+    },
   },
   watch: {
     async selectedAgency() {
