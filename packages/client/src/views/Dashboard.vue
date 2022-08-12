@@ -49,7 +49,7 @@
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
               </div>
-              <b-table v-if="(grantsAndIntAgens.length)" sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
+              <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none"
                 selectable
                 select-mode="single"
@@ -438,6 +438,7 @@ export default {
       return (`${finalDate}`);
     },
     async formatUpcoming() {
+      this.grantsAndIntAgens = [];
       // https://stackoverflow.com/a/67219279
       this.getClosestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
