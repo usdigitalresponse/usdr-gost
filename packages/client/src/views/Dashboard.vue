@@ -49,7 +49,7 @@
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
               </div>
-              <b-table v-if="(grantsAndIntAgens.length >= 3)" sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
+              <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none"
                 selectable
                 select-mode="single"
@@ -58,8 +58,8 @@
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
                   <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[0].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[0].interested_agencies}}</div>
-                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[1].interested_agencies}}</div>
-                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[2].interested_agencies}}</div>
+                  <div v-if="(grantsAndIntAgens[1]) && (field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[1].interested_agencies}}</div>
+                  <div v-if="(grantsAndIntAgens[2]) && (field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[2].interested_agencies}}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -438,6 +438,7 @@ export default {
       return (`${finalDate}`);
     },
     async formatUpcoming() {
+      this.grantsAndIntAgens = [];
       // https://stackoverflow.com/a/67219279
       this.getClosestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
