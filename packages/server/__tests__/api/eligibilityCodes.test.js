@@ -1,5 +1,4 @@
 const { expect } = require('chai');
-require('dotenv').config();
 
 const { getSessionCookie, fetchApi } = require('./utils');
 

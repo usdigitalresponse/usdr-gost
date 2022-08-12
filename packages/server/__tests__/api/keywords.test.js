@@ -1,5 +1,4 @@
 const { expect } = require('chai');
-require('dotenv').config();
 
 const _ = require('lodash-checkit');
 const { getSessionCookie, fetchApi, knex } = require('./utils');

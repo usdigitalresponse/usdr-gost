@@ -1,5 +1,4 @@
 const { expect } = require('chai');
-require('dotenv').config();
 
 const { getSessionCookie, fetchApi, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
