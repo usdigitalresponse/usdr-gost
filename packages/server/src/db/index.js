@@ -385,7 +385,7 @@ async function getClosestGrants(agency) {
         .where('close_date', '>=', timestamp)
         .whereIn('grant_id', function () {
             this.select('grant_id').from('grants_interested')
-            .where('agency_id', 'IN', userAgencies.map((subAgency) => subAgency.id));
+                .where('agency_id', 'IN', userAgencies.map((subAgency) => subAgency.id));
         })
         .orderBy('close_date', 'asc')
         .limit(3)
