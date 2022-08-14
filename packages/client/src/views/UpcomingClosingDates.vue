@@ -131,14 +131,24 @@ export default {
       return this.upcomingItems.length;
     },
     totalOnPage() {
+      // max # of items that can be on a given page
+      const maxItemsOnPage = this.currentPage * this.perPage;
+      // if there are less grants than # to be displayed
       if (this.grantsAndIntAgens.length < this.perPage) {
         return this.grantsAndIntAgens.length;
       }
-      // if current page is not last, 10
-      if (this.currentPage !== 9) {
-        return this.perPage;
+      // if total grants # is divisible by per page
+      if (this.grantsAndIntAgens.length % this.perPage === 0) {
+        return maxItemsOnPage;
       }
-      return 2;
+      // if current page isn't 1 and the max items is > total grants
+      if ((this.currentPage > 1) && (maxItemsOnPage > this.grantsAndIntAgens.length)) {
+        // sub total grants from max items
+        const res = maxItemsOnPage - this.grantsAndIntAgens.length;
+        // sub res from # of grants to be displayed on page
+        return this.perPage - res;
+      }
+      return maxItemsOnPage;
     },
   },
   watch: {
