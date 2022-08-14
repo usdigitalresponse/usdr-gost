@@ -17,16 +17,20 @@
                 @row-selected="onRowSelected">
                 <template #cell(icon)="list">
                   <div class="gutter-icon row">
-                  <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
-                  <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                  <b-icon v-if="list.item.interested === 0" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                  <b-icon v-if="list.item.interested === 1" icon="check-circle-fill" scale="1" variant="success"></b-icon>
+                  <b-icon v-if="list.item.interested === 2" icon="arrow-right-circle-fill" scale="1"></b-icon>
                   </div>
                 </template>
                 <template #cell(agencyAndGrant)="agencies">
                   <div>{{ agencies.item.agency }}
-                    <span v-if="agencies.item.interested"> is
-                      <span class="color-green"> <strong> interested </strong></span> in
+                    <span v-if="agencies.item.interested === 0" class="color-red" > <strong> rejected </strong> </span>
+                    <span v-if="agencies.item.interested === 1" > is
+                      <span class="color-green">
+                          <strong> interested </strong>
+                      </span> in
                     </span>
-                    <span v-if="!agencies.item.interested" class="color-red" > <strong> rejected </strong> </span>{{ agencies.item.grant }}
+                    <span v-if="agencies.item.interested === 2" >  was<strong> assigned </strong> </span>{{ agencies.item.grant }}
                   </div>
                 </template>
                 <template #cell(date)="dates">
@@ -45,7 +49,7 @@
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
               </div>
-              <b-table v-if="(grantsAndIntAgens.length >= 3)" sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
+              <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none"
                 selectable
                 select-mode="single"
@@ -54,8 +58,8 @@
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
                   <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[0].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[0].interested_agencies}}</div>
-                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[1].interested_agencies}}</div>
-                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[2].interested_agencies}}</div>
+                  <div v-if="(grantsAndIntAgens[1]) && (field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[1].interested_agencies}}</div>
+                  <div v-if="(grantsAndIntAgens[2]) && (field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[2].interested_agencies}}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -325,6 +329,7 @@ export default {
       currentGrant: 'grants/currentGrant',
     }),
     activityItems() {
+      // console.log(this.grantsInterested);
       const rtf = new Intl.RelativeTimeFormat('en', {
         numeric: 'auto',
       });
@@ -332,8 +337,21 @@ export default {
       return this.grantsInterested.map((grantsInterested) => ({
         agency: grantsInterested.name,
         grant: grantsInterested.title,
+        interested: (() => {
+          let retVal = null;
+          if (grantsInterested.is_rejection != null) {
+            if (grantsInterested.is_rejection) {
+              retVal = 0;
+            } else {
+              retVal = 1;
+            }
+          } else if (grantsInterested.assigned_by != null) {
+            // 2 means its assigned not interested
+            retVal = 2;
+          }
+          return retVal;
+        })(),
         grant_id: grantsInterested.grant_id,
-        interested: !grantsInterested.is_rejection,
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
         date: (() => {
           const timeSince = rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day');
@@ -420,6 +438,7 @@ export default {
       return (`${finalDate}`);
     },
     async formatUpcoming() {
+      this.grantsAndIntAgens = [];
       // https://stackoverflow.com/a/67219279
       this.getClosestGrants.slice(0, 3).map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
