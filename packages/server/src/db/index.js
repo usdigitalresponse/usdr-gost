@@ -378,6 +378,7 @@ async function getSingleGrantDetails({ grantId, agencies }) {
 }
 
 async function getClosestGrants(agency) {
+    // updated to no longer limit result # & specify user association
     const userAgencies = await getAgencies(agency);
     const timestamp = new Date().toLocaleDateString('en-US');
     const query = await knex(TABLES.grants)
@@ -388,7 +389,6 @@ async function getClosestGrants(agency) {
                 .where('agency_id', 'IN', userAgencies.map((subAgency) => subAgency.id));
         })
         .orderBy('close_date', 'asc')
-        .limit(3)
         .then((data) => data)
         .catch((err) => console.log(err));
     const query1 = query;
