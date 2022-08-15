@@ -256,7 +256,7 @@ After installing depedencies, IntelliJ should start using eslint automatically:
 
 ```
 > cd packages/server
-> yarn test
+> yarn test && yarn test:apis
   ...
 
 OR
@@ -272,7 +272,9 @@ OR
 ## Client
 
 ```
-
+> yarn test
+...
+> yarn test:e2e
 ```
 
 
