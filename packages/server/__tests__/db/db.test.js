@@ -21,25 +21,23 @@ describe('db', () => {
     context('getGrantsInterested', () => {
         it('gets the most recent interested grant', async () => {
             const result = await db.getGrantsInterested({ perPage: 1, currentPage: 1 });
-            // console.log(JSON.stringify(result.data[0]));
             // console.log(fixtures.grantsInterested.entry2);
-            expect(result.data[0]).to.have.property('grant_id').with.lengthOf(6);
-            expect(result.data[0].grant_id).to.equal(fixtures.grantsInterested.entry2.grant_id);
-            expect(result.data[0].user_id).to.equal(fixtures.grantsInterested.entry2.user_id);
-            expect(result.data[0].is_rejection).to.equal(fixtures.interestedCodes.inadequateCapacity.is_rejection);
+            expect(result.rows[0]).to.have.property('grant_id').with.lengthOf(6);
+            expect(result.rows[0].grant_id).to.equal(fixtures.grantsInterested.entry2.grant_id);
+            expect(result.rows[0].user_id).to.equal(fixtures.grantsInterested.entry2.user_id);
             // in the grants interested table the grant with the most recent created_at has the grant id of 335255
-            expect(result.data[0]).to.have.property('grant_id').equal('335255');
+            expect(result.rows[0]).to.have.property('grant_id').equal('335255');
         });
         it('gets the two most recent interested grants', async () => {
             // testing pagination
             const result = await db.getGrantsInterested({ perPage: 2, currentPage: 1 });
-            expect(result.data).to.have.lengthOf(2);
+            expect(result.rows).to.have.lengthOf(2);
         });
     });
     context('getTotalInterestedGrants', () => {
         it('gets total interested grants count', async () => {
             const result = await db.getTotalInterestedGrants();
-            expect(result).to.equal('3');
+            expect(result).to.equal(+'3');
         });
     });
 
@@ -102,9 +100,9 @@ describe('db', () => {
         it('gets closest grants', async () => {
             // arrange  #done in fixtures
             // act
-            const result = await db.getClosestGrants();
+            const result = await db.getClosestGrants(0);
             // assert
-            expect(result.length).to.equal(3);
+            expect(result.length).to.equal(1);
         });
     });
 
