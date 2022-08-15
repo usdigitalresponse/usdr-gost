@@ -54,12 +54,10 @@
                 selectable
                 select-mode="single"
                 @row-selected="onRowSelected">
-                <template #cell()="{ field, value }">
+                <template #cell()="{ field, value, index }">
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
-                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[0].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[0].interested_agencies}}</div>
-                  <div v-if="(grantsAndIntAgens[1]) && (field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[1].interested_agencies}}</div>
-                  <div v-if="(grantsAndIntAgens[2]) && (field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[2].interested_agencies}}</div>
+                  <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -161,6 +159,7 @@ export default {
       sortBy: 'dateSort',
       sortAsc: true,
       perPage: 4,
+      perPageClosest: 3,
       currentPage: 1,
       grantsAndIntAgens: [],
       activityFields: [
@@ -322,7 +321,7 @@ export default {
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
-      getClosestGrants: 'dashboard/getClosestGrants',
+      closestGrants: 'grants/closestGrants',
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
       agency: 'users/agency',
@@ -365,7 +364,7 @@ export default {
     },
     upcomingItems() {
       // https://stackoverflow.com/a/48643055
-      return this.getClosestGrants;
+      return this.closestGrants;
     },
   },
   watch: {
@@ -379,6 +378,7 @@ export default {
     async selectedGrant() {
       if (!this.selectedGrant) {
         await this.fetchGrantsInterested();
+        await this.fetchClosestGrants();
       }
     },
     currentGrant() {
@@ -394,11 +394,13 @@ export default {
       getAgency: 'agencies/getAgency',
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
+      fetchClosestGrants: 'grants/fetchClosestGrants',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
     async setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
+      this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {
@@ -440,7 +442,7 @@ export default {
     async formatUpcoming() {
       this.grantsAndIntAgens = [];
       // https://stackoverflow.com/a/67219279
-      this.getClosestGrants.slice(0, 3).map(async (grant, idx) => {
+      this.closestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,
