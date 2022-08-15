@@ -19,10 +19,6 @@ if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
     job.start();
 }
 
-process.on('unhandledRejection', (reason) => {
-    console.log(JSON.stringify(reason, null, 2));
-});
-
 const cleanGeneratedPdfCron = new CronJob(
     '* 1 * * *',
     async () => {
