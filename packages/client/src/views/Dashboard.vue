@@ -54,12 +54,10 @@
                 selectable
                 select-mode="single"
                 @row-selected="onRowSelected">
-                <template #cell()="{ field, value }">
+                <template #cell()="{ field, value, index }">
                   <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
-                  <div v-if="(grantsAndIntAgens[0]) && (field.key == 'title') && (value == grantsAndIntAgens[0].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[0].interested_agencies}}</div>
-                  <div v-if="(grantsAndIntAgens[1]) && (field.key == 'title') && (value == grantsAndIntAgens[1].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[1].interested_agencies}}</div>
-                  <div v-if="(grantsAndIntAgens[2]) && (field.key == 'title') && (value == grantsAndIntAgens[2].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[2].interested_agencies}}</div>
+                  <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -444,7 +442,7 @@ export default {
     async formatUpcoming() {
       this.grantsAndIntAgens = [];
       // https://stackoverflow.com/a/67219279
-      this.closestGrants.slice(0, 3).map(async (grant, idx) => {
+      this.closestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,
