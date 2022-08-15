@@ -2,7 +2,7 @@ const { expect } = require('chai');
 
 const { getSessionCookie, fetchApi } = require('./utils');
 
-describe('`/api/eligibility-codes` endpoint', async () => {
+describe('`/api/eligibility-codes` endpoint', () => {
     const UNIQUE_CODES = 17; // all agencies have same number of codes
 
     const agencies = {

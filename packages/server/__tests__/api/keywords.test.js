@@ -4,7 +4,7 @@ const _ = require('lodash-checkit');
 const { getSessionCookie, fetchApi, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 
-describe('`/api/keywords` endpoint', async () => {
+describe('`/api/keywords` endpoint', () => {
     const agencies = {
         admin: {
             own: 384,

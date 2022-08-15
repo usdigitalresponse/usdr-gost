@@ -9,7 +9,7 @@ const { TABLES } = require('../../src/db/constants');
         DO NOT validate database contents after POST, PUT, DELETE requests.
 */
 
-describe('`/api/grants` endpoint', async () => {
+describe('`/api/grants` endpoint', () => {
     const agencies = {
         own: 384,
         ownSub: 2,

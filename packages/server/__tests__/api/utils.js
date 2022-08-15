@@ -15,23 +15,29 @@ async function getSessionCookie(email) {
         throw new Error(`test called getSessionCookie for invalid user ${email}, are they in seeds/dev/ref/users.js?`);
     }
 
-    // Get the new passcode directly from PostgresQL.
-    const query = `SELECT created_at, passcode
-              FROM access_tokens
-              ORDER BY created_at DESC
-              LIMIT 1;`;
-    const result = await knex.raw(query);
-    const { passcode } = result.rows[0];
+    // eslint-disable-next-line no-useless-catch
+    try {
+        // Get the new passcode directly from PostgresQL.
+        const query = `SELECT created_at, passcode
+                FROM access_tokens
+                ORDER BY created_at DESC
+                LIMIT 1;`;
+        const result = await knex.raw(query);
+        const row = result.rows[0];
+        const passcode = row?.passcode;
 
-    // Use the passcode to generate a sessionID ...
-    const response = await fetch(`${process.env.API_DOMAIN}/api/sessions/?passcode=${passcode}`, { redirect: 'manual' });
-    const responseHeaders = await response.headers;
-    const cookie = responseHeaders.get('set-cookie');
-    // console.log('responseHeaders:', JSON.stringify(responseHeaders.raw(), null, 2));
+        // Use the passcode to generate a sessionID ...
+        const response = await fetch(`${process.env.API_DOMAIN}/api/sessions/?passcode=${passcode}`, { redirect: 'manual' });
+        const responseHeaders = await response.headers;
+        const cookie = responseHeaders.get('set-cookie');
+        // console.log('responseHeaders:', JSON.stringify(responseHeaders.raw(), null, 2));
 
-    // ... and the resulting cookie can be used to authorize requests.
-    // return responseHeaders.raw()['set-cookie'];
-    return cookie;
+        // ... and the resulting cookie can be used to authorize requests.
+        // return responseHeaders.raw()['set-cookie'];
+        return cookie;
+    } catch (error) {
+        throw error;
+    }
 }
 
 function getEndpoint({ agencyId, url }) {

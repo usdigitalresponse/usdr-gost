@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const { getSessionCookie, fetchApi } = require('./utils');
 
-describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
+describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
     const agencies = {
         admin: {
             own: 0,
