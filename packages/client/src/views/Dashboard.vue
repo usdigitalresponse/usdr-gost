@@ -361,6 +361,7 @@ export default {
     upcomingItems() {
       // https://lukashermann.dev/writing/how-to-use-async-await-with-vuejs-components/
       this.formatUpcoming();
+      this.formatDate();
     },
     async selectedGrant() {
       if (!this.selectedGrant) {
@@ -441,7 +442,7 @@ export default {
       //   console.log(`black = ${this.blackDate}`);
       // }
       // }
-      this.getClosestGrants.map(async (grant, idx) => {
+      this.getClosestGrants.slice(0, 3).map(async (grant, idx) => {
         if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
           this.$set(this.dateColors, idx, 'yellow');
         } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
