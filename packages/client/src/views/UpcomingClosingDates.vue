@@ -14,21 +14,19 @@
       selectable
       select-mode="single"
       @row-selected="onRowSelected"
-      :per-page="perPage"
-      :current-page="currentPage"
     >
       <template #cell()="{ field, value, index }">
         <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
         <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
-        <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
+        <div v-if="grantsAndIntAgens[index] && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
       </template>
     </b-table>
     </b-card>
     <b-row align-v="center">
-      <b-pagination class="m-0" v-model="currentPage" :per-page="perPage" first-number :total-rows="rows"
+      <b-pagination class="m-0" v-model="currentPage" :per-page="perPage" first-number :total-rows="totalRows"
         last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last" :current-page="currentPage"
         aria-controls="upcomingGrants" />
-      <b-button class="ml-2" variant="outline-primary disabled">{{ totalOnPage }} of {{ upcomingItems.length }}</b-button>
+      <b-button class="ml-2" variant="outline-primary disabled">{{ upcomingItems.length }} of {{ totalRows }}</b-button>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
@@ -113,6 +111,7 @@ export default {
       grantsInterested: 'grants/grantsInterested',
       currentGrant: 'grants/currentGrant',
       totalGrants: 'dashboard/totalGrants',
+      totalUpcomingGrants: 'grants/totalUpcomingGrants',
       totalGrantsMatchingAgencyCriteria: 'dashboard/totalGrantsMatchingAgencyCriteria',
       totalViewedGrants: 'dashboard/totalViewedGrants',
       grantsCreatedInTimeframe: 'dashboard/grantsCreatedInTimeframe',
@@ -120,35 +119,15 @@ export default {
       grantsUpdatedInTimeframe: 'dashboard/grantsUpdatedInTimeframe',
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       selectedAgency: 'users/selectedAgency',
-      getClosestGrants: 'dashboard/getClosestGrants',
+      closestGrants: 'grants/closestGrants',
       agency: 'users/agency',
     }),
     upcomingItems() {
       // https://stackoverflow.com/a/48643055
-      return this.getClosestGrants;
+      return this.closestGrants;
     },
-    rows() {
-      return this.upcomingItems.length;
-    },
-    totalOnPage() {
-      // max # of items that can be on a given page
-      const maxItemsOnPage = this.currentPage * this.perPage;
-      // if there are less grants than # to be displayed
-      if (this.grantsAndIntAgens.length < this.perPage) {
-        return this.grantsAndIntAgens.length;
-      }
-      // if total grants # is divisible by per page
-      if (this.grantsAndIntAgens.length % this.perPage === 0) {
-        return maxItemsOnPage;
-      }
-      // if current page isn't 1 and the max items is > total grants
-      if ((this.currentPage > 1) && (maxItemsOnPage > this.grantsAndIntAgens.length)) {
-        // sub total grants from max items
-        const res = maxItemsOnPage - this.grantsAndIntAgens.length;
-        // sub res from # of grants to be displayed on page
-        return this.perPage - res;
-      }
-      return maxItemsOnPage;
+    totalRows() {
+      return this.totalUpcomingGrants;
     },
   },
   watch: {
@@ -161,7 +140,7 @@ export default {
     },
     async selectedGrant() {
       if (!this.selectedGrant) {
-        await this.fetchGrantsInterested();
+        await this.fetchClosestGrants();
       }
     },
     currentGrant() {
@@ -180,9 +159,11 @@ export default {
       getInterestedAgenciesAction: 'grants/getInterestedAgencies',
       getAgency: 'agencies/getAgency',
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
+      fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
     setup() {
       this.fetchDashboard();
+      this.fetchClosestGrants({ perPage: this.perPage, currentPage: this.currentPage });
     },
     async onRowSelected(items) {
       const [row] = items;
@@ -193,25 +174,50 @@ export default {
       }
     },
     formatDate(value) {
+      // value is the close date of grant
       //                  get threshold of agency
-      // console.log(`format date:  ${value}`);
       const warn = this.agency.warning_threshold;
       const danger = this.agency.danger_threshold;
-      //                    current date + danger threshold
-      // const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
-      // console.log(`dangerDate  ${dangerDate}`);
       //                grant close date + danger thresh
-      const dangerDate2 = new Date(new Date().setDate(new Date(value).getDate() + danger));
-      // console.log(`dangerDate2  ${dangerDate2}`);
+      const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
       //                grant close date + warn thresh
-      const warnDate = new Date(new Date().setDate(new Date(value).getDate() + warn));
-      // console.log(`warnDate  ${warnDate}`);
-      // console.log(`close date format for comp  ${new Date(value)}`);
-      //          if the grant close date is <= danger date
-      if (new Date(value) <= warnDate && new Date(value) > dangerDate2) {
-        this.yellowDate = true;
-      } else if ((new Date(value) <= dangerDate2) || (new Date(value) === new Date())) {
-        this.redDate = true;
+      const warnDate = new Date(new Date().setDate(new Date().getDate() + warn));
+      //          if the grant close date is <= danger date---------------
+      const days = (aa, bb) => {
+        const difference = aa.getTime() - bb.getTime();
+        const TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+        return TotalDays;
+      };
+      const daysTillDanger = days(dangerDate, new Date());
+      const daysTillWarn = days(warnDate, new Date());
+      const daysTillClose = days(new Date(value), new Date());
+      //                      ---assigning correct colors---
+      for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
+        if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
+          this.yellowDate = true;
+          this.redDate = false;
+          this.blackDate = false;
+          // console.log(1);
+          // console.log(`yellow = ${this.yellowDate}`);
+          // console.log(`red = ${this.redDate}`);
+          // console.log(`black = ${this.blackDate}`);
+        } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
+          this.redDate = true;
+          this.yellowDate = false;
+          this.blackDate = false;
+          // console.log(2);
+          // console.log(`yellow = ${this.yellowDate}`);
+          // console.log(`red = ${this.redDate}`);
+          // console.log(`black = ${this.blackDate}`);
+        } else {
+          this.blackDate = true;
+          this.redDate = false;
+          this.yellowDate = false;
+          // console.log(3);
+          // console.log(`yellow = ${this.yellowDate}`);
+          // console.log(`red = ${this.redDate}`);
+          // console.log(`black = ${this.blackDate}`);
+        }
       }
       //                      format date in MM/DD/YY
       const year = value.slice(2, 4);
@@ -221,7 +227,8 @@ export default {
       return (`${finalDate}`);
     },
     async formatUpcoming() {
-      this.getClosestGrants.map(async (grant, idx) => {
+      this.grantsAndIntAgens = [];
+      this.closestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,

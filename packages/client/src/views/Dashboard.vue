@@ -51,10 +51,13 @@
                 select-mode="single"
                 @row-selected="onRowSelected">
                 <template #cell()="{ field, value, index }">
+                  <!-- <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
+                  <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
+                  <div v-if="blackDate == true" :style="field.tlStyle" v-text="value"></div> -->
                   <div v-if="dateColors[index] == 'yellow'" :style="field.trStyle" v-text="value"></div>
                   <div v-if="dateColors[index] == 'red'" :style="field.tdStyle" v-text="value"></div>
                   <div v-if="dateColors[index] == 'black'" :style="field.tlStyle" v-text="value"></div>
-                  <div v-if="(field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
+                  <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
@@ -158,6 +161,7 @@ export default {
       sortBy: 'dateSort',
       sortAsc: true,
       perPage: 4,
+      perPageClosest: 3,
       currentPage: 1,
       grantsAndIntAgens: [],
       activityFields: [
@@ -322,7 +326,7 @@ export default {
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
-      getClosestGrants: 'dashboard/getClosestGrants',
+      closestGrants: 'grants/closestGrants',
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
       agency: 'users/agency',
@@ -351,7 +355,7 @@ export default {
     },
     upcomingItems() {
       // https://stackoverflow.com/a/48643055
-      return this.getClosestGrants;
+      return this.closestGrants;
     },
   },
   watch: {
@@ -366,6 +370,7 @@ export default {
     async selectedGrant() {
       if (!this.selectedGrant) {
         await this.fetchGrantsInterested();
+        await this.fetchClosestGrants();
       }
     },
     currentGrant() {
@@ -381,11 +386,13 @@ export default {
       getAgency: 'agencies/getAgency',
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
+      fetchClosestGrants: 'grants/fetchClosestGrants',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
     async setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
+      this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {
@@ -415,34 +422,37 @@ export default {
       const daysTillWarn = days(warnDate, new Date());
       const daysTillClose = days(new Date(value), new Date());
       //                      ---assigning correct colors---
+      this.yellowDate = null;
+      this.redDate = null;
+      this.blackDate = null;
       // for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
-      // if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
-      //   this.yellowDate = true;
-      //   // this.redDate = false;
-      //   // this.blackDate = false;
-      //   console.log(1);
-      //   console.log(`yellow = ${this.yellowDate}`);
-      //   console.log(`red = ${this.redDate}`);
-      //   console.log(`black = ${this.blackDate}`);
-      // } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
-      //   this.redDate = true;
-      //   // this.yellowDate = false;
-      //   // this.blackDate = false;
-      //   console.log(2);
-      //   console.log(`yellow = ${this.yellowDate}`);
-      //   console.log(`red = ${this.redDate}`);
-      //   console.log(`black = ${this.blackDate}`);
-      // } else {
-      //   this.blackDate = true;
-      //   // this.redDate = false;
-      //   // this.yellowDate = false;
-      //   console.log(3);
-      //   console.log(`yellow = ${this.yellowDate}`);
-      //   console.log(`red = ${this.redDate}`);
-      //   console.log(`black = ${this.blackDate}`);
+      //   if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
+      //     this.yellowDate = true;
+      //     this.redDate = false;
+      //     this.blackDate = false;
+      //     console.log(1);
+      //     // console.log(`yellow = ${this.yellowDate}`);
+      //     // console.log(`red = ${this.redDate}`);
+      //     // console.log(`black = ${this.blackDate}`);
+      //   } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
+      //     this.redDate = true;
+      //     this.yellowDate = false;
+      //     this.blackDate = false;
+      //     console.log(2);
+      //     // console.log(`yellow = ${this.yellowDate}`);
+      //     // console.log(`red = ${this.redDate}`);
+      //     // console.log(`black = ${this.blackDate}`);
+      //   } else {
+      //     this.blackDate = true;
+      //     this.redDate = false;
+      //     this.yellowDate = false;
+      //     console.log(3);
+      //     // console.log(`yellow = ${this.yellowDate}`);
+      //     // console.log(`red = ${this.redDate}`);
+      //     // console.log(`black = ${this.blackDate}`);
+      //   }
       // }
-      // }
-      this.getClosestGrants.slice(0, 3).map(async (grant, idx) => {
+      this.closestGrants.slice(0, 3).map(async (grant, idx) => {
         if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
           this.$set(this.dateColors, idx, 'yellow');
         } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
@@ -461,7 +471,7 @@ export default {
     },
     async formatUpcoming() {
       // https://stackoverflow.com/a/67219279
-      this.getClosestGrants.slice(0, 3).map(async (grant, idx) => {
+      this.closestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,

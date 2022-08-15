@@ -100,9 +100,9 @@ describe('db', () => {
         it('gets closest grants', async () => {
             // arrange  #done in fixtures
             // act
-            const result = await db.getClosestGrants(0);
+            const result = await db.getClosestGrants({ agency: 0, perPage: 10, currentPage: 1 });
             // assert
-            expect(result.length).to.equal(1);
+            expect(result.data.length).to.equal(1);
         });
     });
 

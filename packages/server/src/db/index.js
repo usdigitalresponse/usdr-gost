@@ -377,7 +377,7 @@ async function getSingleGrantDetails({ grantId, agencies }) {
     };
 }
 
-async function getClosestGrants(agency) {
+async function getClosestGrants({ agency, perPage, currentPage }) {
     // updated to no longer limit result # & specify user association
     const userAgencies = await getAgencies(agency);
     const timestamp = new Date().toLocaleDateString('en-US');
@@ -389,10 +389,10 @@ async function getClosestGrants(agency) {
                 .where('agency_id', 'IN', userAgencies.map((subAgency) => subAgency.id));
         })
         .orderBy('close_date', 'asc')
+        .paginate({ currentPage, perPage, isLengthAware: true })
         .then((data) => data)
         .catch((err) => console.log(err));
-    const query1 = query;
-    return query1;
+    return query;
 }
 
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
