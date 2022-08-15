@@ -1,5 +1,4 @@
 const { expect } = require('chai');
-
 const { getSessionCookie, fetchApi } = require('./utils');
 
 describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
@@ -50,7 +49,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
                 const response = await fetchApi('/agencies', agencies.admin.ownSub, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(8);
+                expect(json.length).to.equal(9);
             });
             it('is forbidden for an agency outside this user\'s hierarchy', async () => {
                 const response = await fetchApi('/agencies', agencies.admin.offLimits, fetchOptions.admin);

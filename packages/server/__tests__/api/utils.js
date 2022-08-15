@@ -1,5 +1,4 @@
 const fetch = require('node-fetch');
-
 require('dotenv').config();
 const { knex } = require('../../src/db');
 

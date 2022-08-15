@@ -55,7 +55,7 @@ async function resetDB({ verbose = false }) {
         await execShellCommand(migrateSeed, options);
     } catch (err) {
         console.dir(err);
-        return err;
+        throw err;
     }
     return null;
 }

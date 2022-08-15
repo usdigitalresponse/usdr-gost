@@ -213,6 +213,7 @@ describe('`/api/grants` endpoint', async () => {
             });
         });
     });
+
     context('DELETE /api/grants/:grantId/assign/agencies', async () => {
         const unassignEndpoint = `333816/assign/agencies`;
         context('by a user with admin role', async () => {

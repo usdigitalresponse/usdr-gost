@@ -96,7 +96,7 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 
 4.1). Setup Gmail
 
-Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below). *Note: Select "Mac" even if you're not using a Mac.* 
+Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below). *Note: Select "Mac" even if you're not using a Mac.*
 
 In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
 
@@ -340,6 +340,12 @@ npx knex seed:run
 ```
 
 After that you should be able to access the site and login with the users set in the migration.
+
+
+## Debugging
+
+Sometimes `lerna` seems to hang w/ no output. [By adding `--stream` you can get more information about the error.](https://github.com/lerna/lerna/issues/2183#issuecomment-511976236)
+
 
 ## Code of Conduct
 
