@@ -460,7 +460,7 @@ export default {
     },
     async formatUpcoming() {
       // https://stackoverflow.com/a/67219279
-      this.getClosestGrants.map(async (grant, idx) => {
+      this.getClosestGrants.slice(0, 3).map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,
