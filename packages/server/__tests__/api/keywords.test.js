@@ -72,8 +72,8 @@ describe('`/api/keywords` endpoint', () => {
             .del();
     });
 
-    context('GET api/keywords', async () => {
-        context('by a user with admin role', async () => {
+    context('GET api/keywords', () => {
+        context('by a user with admin role', () => {
             it('lists keywords of this user\'s own agency', async () => {
                 // Will default to user's own agency ID
                 const response = await fetchApi(`/keywords`, agencies.admin.own, fetchOptions.admin);
@@ -92,7 +92,7 @@ describe('`/api/keywords` endpoint', () => {
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
-        context('by a user with staff role', async () => {
+        context('by a user with staff role', () => {
             it('lists keywords of this user\'s own agency', async () => {
                 // Will default to user's own agency ID
                 const response = await fetchApi(`/keywords`, agencies.staff.own, fetchOptions.staff);
@@ -110,7 +110,7 @@ describe('`/api/keywords` endpoint', () => {
             });
         });
     });
-    context('POST /keywords (create a keyword for an agency)', async () => {
+    context('POST /keywords (create a keyword for an agency)', () => {
         const keyword = {
             search_term: 'test keyword',
             mode: '',
@@ -122,7 +122,7 @@ describe('`/api/keywords` endpoint', () => {
             await knex(TABLES.keywords).whereIn('id', idsToDelete).del();
         });
 
-        context('by a user with admin role', async () => {
+        context('by a user with admin role', () => {
             it('creates a keyword for this user\'s own agency', async () => {
                 const response = await fetchApi(`/keywords`, agencies.admin.own, {
                     ...fetchOptions.admin,
@@ -154,7 +154,7 @@ describe('`/api/keywords` endpoint', () => {
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
-        context('by a user with staff role', async () => {
+        context('by a user with staff role', () => {
             it('is forbidden for this user\'s own agency', async () => {
                 const response = await fetchApi(`/keywords`, agencies.staff.own, {
                     ...fetchOptions.staff,
@@ -181,8 +181,8 @@ describe('`/api/keywords` endpoint', () => {
             });
         });
     });
-    context('DELETE /keywords/:id (delete a keyword for an agency)', async () => {
-        context('by a user with admin role', async () => {
+    context('DELETE /keywords/:id (delete a keyword for an agency)', () => {
+        context('by a user with admin role', () => {
             it('deletes a keyword of this user\'s own agency', async () => {
                 const keywordId = testKeywordsByAgency[agencies.admin.own][0].id;
                 const response = await fetchApi(`/keywords/${keywordId}`, agencies.admin.own, {
@@ -208,7 +208,7 @@ describe('`/api/keywords` endpoint', () => {
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
-        context('by a user with staff role', async () => {
+        context('by a user with staff role', () => {
             it('is forbidden for this user\'s own agency', async () => {
                 // Note: staff and admin test users share the same "own" agency id
                 const keywordId = testKeywordsByAgency[agencies.staff.own][1].id;
