@@ -1,7 +1,6 @@
 /**  global context */
 
 const { expect } = require('chai');
-
 require('dotenv').config();
 const getTransport = require('../../src/lib/email/service-email');
 
