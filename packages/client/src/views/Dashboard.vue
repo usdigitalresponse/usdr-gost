@@ -52,9 +52,9 @@
                 @row-selected="onRowSelected">
                 <template #cell()="{ field, value, index }">
                   <div v-if="field.key == 'title'">{{value}}</div>
-                  <div v-if="field.key == 'close_date' && !(yellowDate || redDate)" v-text="value"></div>
                   <div v-if="field.key == 'close_date' && yellowDate == true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="field.key == 'close_date' && redDate == true" :style="field.tdStyle" v-text="value"></div>
+                  <div v-if="field.key == 'close_date' && blackDate == true" :style="field.tlStyle" v-text="value"></div>
                   <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
@@ -423,43 +423,21 @@ export default {
       this.yellowDate = null;
       this.redDate = null;
       this.blackDate = null;
-      // for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
-      //   if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
-      //     this.yellowDate = true;
-      //     this.redDate = false;
-      //     this.blackDate = false;
-      //     console.log(1);
-      //     // console.log(`yellow = ${this.yellowDate}`);
-      //     // console.log(`red = ${this.redDate}`);
-      //     // console.log(`black = ${this.blackDate}`);
-      //   } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
-      //     this.redDate = true;
-      //     this.yellowDate = false;
-      //     this.blackDate = false;
-      //     console.log(2);
-      //     // console.log(`yellow = ${this.yellowDate}`);
-      //     // console.log(`red = ${this.redDate}`);
-      //     // console.log(`black = ${this.blackDate}`);
-      //   } else {
-      //     this.blackDate = true;
-      //     this.redDate = false;
-      //     this.yellowDate = false;
-      //     console.log(3);
-      //     // console.log(`yellow = ${this.yellowDate}`);
-      //     // console.log(`red = ${this.redDate}`);
-      //     // console.log(`black = ${this.blackDate}`);
-      //   }
-      // }
-      this.closestGrants.slice(0, 3).map(async (grant, idx) => {
+      for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
         if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
-          this.$set(this.dateColors, idx, 'yellow');
+          this.yellowDate = true;
+          this.redDate = false;
+          this.blackDate = false;
         } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
-          this.$set(this.dateColors, idx, 'red');
+          this.redDate = true;
+          this.yellowDate = false;
+          this.blackDate = false;
         } else {
-          this.$set(this.dateColors, idx, 'black');
+          this.blackDate = true;
+          this.redDate = false;
+          this.yellowDate = false;
         }
-      });
-      // console.log('---------------------------------------------------');
+      }
       //                      format date in MM/DD/YY
       const year = value.slice(2, 4);
       const month = value.slice(5, 7);

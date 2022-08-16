@@ -17,9 +17,9 @@
     >
       <template #cell()="{ field, value, index }">
         <div v-if="field.key == 'title'">{{value}}</div>
-        <div v-if="field.key == 'close_date' && !(yellowDate || redDate)" v-text="value"></div>
         <div v-if="field.key == 'close_date' && yellowDate == true" :style="field.trStyle" v-text="value"></div>
         <div v-if="field.key == 'close_date' && redDate == true" :style="field.tdStyle" v-text="value"></div>
+        <div v-if="field.key == 'close_date' && blackDate == true" :style="field.tlStyle" v-text="value"></div>
         <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
       </template>
     </b-table>
@@ -62,9 +62,9 @@ export default {
   components: { GrantDetails },
   data() {
     return {
-      yellowDate: null,
-      redDate: null,
-      blackDate: null,
+      // yellowDate: null,
+      // redDate: null,
+      // blackDate: null,
       perPage: 10,
       currentPage: 1,
       sortBy: 'dateSort',
@@ -108,8 +108,8 @@ export default {
     };
   },
   mixins: [resizableTableMixin],
-  mounted() {
-    this.setup();
+  async mounted() {
+    await this.setup();
   },
   computed: {
     ...mapGetters({
@@ -129,7 +129,6 @@ export default {
       agency: 'users/agency',
     }),
     upcomingItems() {
-      // https://stackoverflow.com/a/48643055
       return this.closestGrants;
     },
     totalRows() {
@@ -141,8 +140,8 @@ export default {
       await this.setup();
     },
     upcomingItems() {
-      // https://lukashermann.dev/writing/how-to-use-async-await-with-vuejs-components/
       this.formatUpcoming();
+      this.formatDate();
     },
     async selectedGrant() {
       if (!this.selectedGrant) {
@@ -167,7 +166,7 @@ export default {
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
-    setup() {
+    async setup() {
       this.fetchDashboard();
       this.fetchClosestGrants({ perPage: this.perPage, currentPage: this.currentPage });
     },
@@ -201,28 +200,16 @@ export default {
       for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
         if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
           this.yellowDate = true;
-          // this.redDate = false;
-          // this.blackDate = false;
-          // console.log(1);
-          // console.log(`yellow = ${this.yellowDate}`);
-          // console.log(`red = ${this.redDate}`);
-          // console.log(`black = ${this.blackDate}`);
+          this.redDate = false;
+          this.blackDate = false;
         } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
           this.redDate = true;
-          // this.yellowDate = false;
-          // this.blackDate = false;
-          // console.log(2);
-          // console.log(`yellow = ${this.yellowDate}`);
-          // console.log(`red = ${this.redDate}`);
-          // console.log(`black = ${this.blackDate}`);
+          this.yellowDate = false;
+          this.blackDate = false;
         } else {
           this.blackDate = true;
-          // this.redDate = false;
-          // this.yellowDate = false;
-          // console.log(3);
-          // console.log(`yellow = ${this.yellowDate}`);
-          // console.log(`red = ${this.redDate}`);
-          // console.log(`black = ${this.blackDate}`);
+          this.redDate = false;
+          this.yellowDate = false;
         }
       }
       //                      format date in MM/DD/YY
