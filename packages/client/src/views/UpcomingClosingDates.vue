@@ -16,10 +16,11 @@
       @row-selected="onRowSelected"
     >
       <template #cell()="{ field, value, index }">
-        <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
-        <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
-        <div v-if="blackDate == true" :style="field.tlStyle" v-text="value"></div>
-        <div v-if="grantsAndIntAgens[index] && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
+        <div v-if="field.key == 'title'">{{value}}</div>
+        <div v-if="field.key == 'close_date' && !(yellowDate || redDate)" v-text="value"></div>
+        <div v-if="field.key == 'close_date' && yellowDate == true" :style="field.trStyle" v-text="value"></div>
+        <div v-if="field.key == 'close_date' && redDate == true" :style="field.tdStyle" v-text="value"></div>
+        <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
       </template>
     </b-table>
     </b-card>
