@@ -18,6 +18,7 @@
       <template #cell()="{ field, value, index }">
         <div v-if="yellowDate == true" :style="field.trStyle" v-text="value"></div>
         <div v-if="redDate == true" :style="field.tdStyle" v-text="value"></div>
+        <div v-if="blackDate == true" :style="field.tlStyle" v-text="value"></div>
         <div v-if="grantsAndIntAgens[index] && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
       </template>
     </b-table>
@@ -62,6 +63,7 @@ export default {
     return {
       yellowDate: null,
       redDate: null,
+      blackDate: null,
       perPage: 10,
       currentPage: 1,
       sortBy: 'dateSort',
@@ -87,6 +89,9 @@ export default {
           trStyle: {
             color: '#aa8866',
             fontWeight: 'bold',
+          },
+          tlStyle: {
+            color: 'black',
           },
           fontWeight: 'bold',
         },
@@ -195,24 +200,24 @@ export default {
       for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
         if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
           this.yellowDate = true;
-          this.redDate = false;
-          this.blackDate = false;
+          // this.redDate = false;
+          // this.blackDate = false;
           // console.log(1);
           // console.log(`yellow = ${this.yellowDate}`);
           // console.log(`red = ${this.redDate}`);
           // console.log(`black = ${this.blackDate}`);
         } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
           this.redDate = true;
-          this.yellowDate = false;
-          this.blackDate = false;
+          // this.yellowDate = false;
+          // this.blackDate = false;
           // console.log(2);
           // console.log(`yellow = ${this.yellowDate}`);
           // console.log(`red = ${this.redDate}`);
           // console.log(`black = ${this.blackDate}`);
         } else {
           this.blackDate = true;
-          this.redDate = false;
-          this.yellowDate = false;
+          // this.redDate = false;
+          // this.yellowDate = false;
           // console.log(3);
           // console.log(`yellow = ${this.yellowDate}`);
           // console.log(`red = ${this.redDate}`);
