@@ -27,12 +27,14 @@ const users = {
         name: 'Admin User',
         agency_id: agencies.accountancy.id,
         role_id: roles.adminRole.id,
+        id: roles.adminRole.id,
     },
     staffUser: {
         email: 'staff.user@test.com',
         name: 'Staff User',
         agency_id: agencies.accountancy.id,
         role_id: roles.staffRole.id,
+        id: roles.staffRole.id,
     },
 };
 
