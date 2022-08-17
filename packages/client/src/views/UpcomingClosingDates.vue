@@ -17,9 +17,9 @@
     >
       <template #cell()="{ field, value, index }">
         <div v-if="field.key == 'title'">{{value}}</div>
-        <div v-if="field.key == 'close_date' && !(yellowDate || redDate)" v-text="value"></div>
         <div v-if="field.key == 'close_date' && yellowDate == true" :style="field.trStyle" v-text="value"></div>
         <div v-if="field.key == 'close_date' && redDate == true" :style="field.tdStyle" v-text="value"></div>
+        <div v-if="field.key == 'close_date' && blackDate == true" :style="field.tlStyle" v-text="value"></div>
         <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
       </template>
     </b-table>
@@ -62,8 +62,9 @@ export default {
   components: { GrantDetails },
   data() {
     return {
-      yellowDate: null,
-      redDate: null,
+      // yellowDate: null,
+      // redDate: null,
+      // blackDate: null,
       perPage: 10,
       currentPage: 1,
       sortBy: 'dateSort',
@@ -90,6 +91,9 @@ export default {
             color: '#aa8866',
             fontWeight: 'bold',
           },
+          tlStyle: {
+            color: 'black',
+          },
           fontWeight: 'bold',
         },
         {
@@ -104,8 +108,8 @@ export default {
     };
   },
   mixins: [resizableTableMixin],
-  mounted() {
-    this.setup();
+  async mounted() {
+    await this.setup();
   },
   computed: {
     ...mapGetters({
@@ -125,7 +129,6 @@ export default {
       agency: 'users/agency',
     }),
     upcomingItems() {
-      // https://stackoverflow.com/a/48643055
       return this.closestGrants;
     },
     totalRows() {
@@ -137,8 +140,8 @@ export default {
       await this.setup();
     },
     upcomingItems() {
-      // https://lukashermann.dev/writing/how-to-use-async-await-with-vuejs-components/
       this.formatUpcoming();
+      this.formatDate();
     },
     async selectedGrant() {
       if (!this.selectedGrant) {
@@ -163,7 +166,7 @@ export default {
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
-    setup() {
+    async setup() {
       this.fetchDashboard();
       this.fetchClosestGrants({ perPage: this.perPage, currentPage: this.currentPage });
     },
@@ -176,25 +179,38 @@ export default {
       }
     },
     formatDate(value) {
+      // value is the close date of grant
       //                  get threshold of agency
-      // console.log(`format date:  ${value}`);
       const warn = this.agency.warning_threshold;
       const danger = this.agency.danger_threshold;
-      //                    current date + danger threshold
-      // const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
-      // console.log(`dangerDate  ${dangerDate}`);
       //                grant close date + danger thresh
-      const dangerDate2 = new Date(new Date().setDate(new Date(value).getDate() + danger));
-      // console.log(`dangerDate2  ${dangerDate2}`);
+      const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
       //                grant close date + warn thresh
-      const warnDate = new Date(new Date().setDate(new Date(value).getDate() + warn));
-      // console.log(`warnDate  ${warnDate}`);
-      // console.log(`close date format for comp  ${new Date(value)}`);
-      //          if the grant close date is <= danger date
-      if (new Date(value) <= warnDate && new Date(value) > dangerDate2) {
-        this.yellowDate = true;
-      } else if ((new Date(value) <= dangerDate2) || (new Date(value) === new Date())) {
-        this.redDate = true;
+      const warnDate = new Date(new Date().setDate(new Date().getDate() + warn));
+      //          if the grant close date is <= danger date---------------
+      const days = (aa, bb) => {
+        const difference = aa.getTime() - bb.getTime();
+        const TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+        return TotalDays;
+      };
+      const daysTillDanger = days(dangerDate, new Date());
+      const daysTillWarn = days(warnDate, new Date());
+      const daysTillClose = days(new Date(value), new Date());
+      //                      ---assigning correct colors---
+      for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
+        if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
+          this.yellowDate = true;
+          this.redDate = false;
+          this.blackDate = false;
+        } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
+          this.redDate = true;
+          this.yellowDate = false;
+          this.blackDate = false;
+        } else {
+          this.blackDate = true;
+          this.redDate = false;
+          this.yellowDate = false;
+        }
       }
       //                      format date in MM/DD/YY
       const year = value.slice(2, 4);
