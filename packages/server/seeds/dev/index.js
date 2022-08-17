@@ -43,7 +43,7 @@ const globalCodes = [
 ];
 
 exports.seed = async (knex) => {
-    const tables = ['agency_eligibility_codes', 'keywords', 'eligibility_codes', 'grants', 'assigned_grants_agency', 'grants_interested', 'tenants'];
+    const tables = ['agency_eligibility_codes', 'keywords', 'eligibility_codes', 'grants', 'assigned_grants_agency', 'grants_interested', 'users', 'tenants'];
 
     // eslint-disable-next-line no-restricted-syntax
     for (const table of tables) {
