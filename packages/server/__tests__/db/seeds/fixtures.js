@@ -6,18 +6,33 @@ const roles = {
     staffRole: { id: 2, name: 'staff', rules: {} },
 };
 
+const tenants = {
+    SBA: {
+        id: 0,
+        display_name: 'SBA',
+    },
+    FS: {
+        id: 1,
+        display_name: 'SBA',
+    },
+};
+
 const agencies = {
     accountancy: {
         id: 0,
         abbreviation: 'SBA',
         name: 'State Board of Accountancy',
         parent: null,
+        tenant_id: tenants.SBA.id,
+        main_agency_id: 0,
     },
     fleetServices: {
         id: 4,
         abbreviation: 'FSD',
         name: 'Administration: Fleet Services Division',
         parent: null,
+        tenant_id: tenants.FS.id,
+        main_agency_id: 4,
     },
 };
 
@@ -27,12 +42,16 @@ const users = {
         name: 'Admin User',
         agency_id: agencies.accountancy.id,
         role_id: roles.adminRole.id,
+        id: roles.adminRole.id,
+        tenant_id: agencies.accountancy.tenant_id,
     },
     staffUser: {
         email: 'staff.user@test.com',
         name: 'Staff User',
         agency_id: agencies.accountancy.id,
         role_id: roles.staffRole.id,
+        id: roles.staffRole.id,
+        tenant_id: agencies.accountancy.tenant_id,
     },
 };
 
@@ -224,6 +243,7 @@ module.exports.seed = async (knex) => {
         },
     );
 
+    await knex(TABLES.tenants).insert(Object.values(tenants));
     await knex(TABLES.roles).insert(Object.values(roles));
     await knex(TABLES.agencies).insert(Object.values(agencies));
     await knex(TABLES.users).insert(Object.values(users));

@@ -92,6 +92,7 @@ async function getUser(id) {
             'agencies.warning_threshold as agency_warning_threshold',
             'agencies.danger_threshold as agency_danger_threshold',
             'users.tags',
+            'users.tenant_id',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
@@ -377,20 +378,22 @@ async function getSingleGrantDetails({ grantId, agencies }) {
     };
 }
 
-async function getClosestGrants() {
+async function getClosestGrants({ agency, perPage, currentPage }) {
+    // updated to no longer limit result # & specify user association
+    const userAgencies = await getAgencies(agency);
     const timestamp = new Date().toLocaleDateString('en-US');
     const query = await knex(TABLES.grants)
         .select('title', 'close_date', 'grant_id')
         .where('close_date', '>=', timestamp)
         .whereIn('grant_id', function () {
-            this.select('grant_id').from('grants_interested');
+            this.select('grant_id').from('grants_interested')
+                .where('agency_id', 'IN', userAgencies.map((subAgency) => subAgency.id));
         })
         .orderBy('close_date', 'asc')
-        .limit(3)
+        .paginate({ currentPage, perPage, isLengthAware: true })
         .then((data) => data)
         .catch((err) => console.log(err));
-    const query1 = query;
-    return query1;
+    return query;
 }
 
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
@@ -488,7 +491,7 @@ async function markGrantAsInterested({
             agency_id: agencyId,
             grant_id: grantId,
             user_id: userId,
-            interested_code_id: interestedCode,
+            interested_code_id: +interestedCode,
         });
     return results;
 }
@@ -606,20 +609,37 @@ function getAgencyKeywords(agencyId) {
         .where('agency_id', agencyId);
 }
 
-async function createAgency({
-    name, abbreviation, parent, warning_threshold, danger_threshold,
-}) {
+async function createAgency(agency, creatorId) {
+    const update = { ...agency, creator_id: creatorId };
+
     // seeded agencies with hardcoded ids will make autoicrement fail since it doesnt
     // know which is the next id
     await knex.raw('select setval(\'agencies_id_seq\', max(id)) from agencies');
-    return knex(TABLES.agencies)
-        .insert({
+
+    // Enforce tenant isolation by using the tenant_id from the user
+    // and the main_agency_id from the tenant.
+    return knex.raw(`
+        WITH upd AS (
+            SELECT
+              :parent::integer,
+              :name,
+              :abbreviation,
+              :warning_threshold::integer,
+              :danger_threshold::integer,
+              u.tenant_id,
+              t.main_agency_id
+            FROM users u
+            JOIN tenants t ON u.tenant_id = t.id
+            WHERE u.id = :creator_id
+        ) INSERT INTO agencies (
             parent,
             name,
             abbreviation,
             warning_threshold,
             danger_threshold,
-        });
+            tenant_id,
+            main_agency_id
+        ) (SELECT * FROM upd)`, update);
 }
 
 async function deleteAgency(
