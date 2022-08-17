@@ -597,7 +597,9 @@ function getAgencyKeywords(agencyId) {
         .where('agency_id', agencyId);
 }
 
-async function createAgency(agency) {
+async function createAgency(agency, creatorId) {
+    const update = { ...agency, creator_id: creatorId };
+
     // seeded agencies with hardcoded ids will make autoicrement fail since it doesnt
     // know which is the next id
     await knex.raw('select setval(\'agencies_id_seq\', max(id)) from agencies');
@@ -625,7 +627,7 @@ async function createAgency(agency) {
             danger_threshold,
             tenant_id,
             main_agency_id
-        ) (SELECT * FROM upd)`, agency);
+        ) (SELECT * FROM upd)`, update);
 }
 
 async function deleteAgency(

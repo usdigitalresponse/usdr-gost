@@ -71,13 +71,12 @@ router.post('/', requireAdminUser, async (req, res) => {
         parent: Number(req.body.parentId),
         warning_threshold: Number(req.body.warningThreshold),
         danger_threshold: Number(req.body.dangerThreshold),
-        creator_id: user.id,
     };
     const parentAgency = await getAgency(agency.parent);
     if (!parentAgency) {
         throw new Error(`Agency ${agency.parent} not found`);
     }
-    const result = await createAgency(agency);
+    const result = await createAgency(agency, user.id);
 
     res.json(result);
 });
