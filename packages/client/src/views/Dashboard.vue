@@ -440,6 +440,7 @@ export default {
       return (`${finalDate}`);
     },
     async formatUpcoming() {
+      this.grantsAndIntAgens = [];
       // https://stackoverflow.com/a/67219279
       this.closestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
