@@ -160,6 +160,7 @@ export default {
       sortBy: 'dateSort',
       sortAsc: true,
       perPage: 4,
+      perPageClosest: 3,
       currentPage: 1,
       grantsAndIntAgens: [],
       activityFields: [
@@ -321,7 +322,7 @@ export default {
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
-      getClosestGrants: 'dashboard/getClosestGrants',
+      closestGrants: 'grants/closestGrants',
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
       agency: 'users/agency',
@@ -363,7 +364,7 @@ export default {
     },
     upcomingItems() {
       // https://stackoverflow.com/a/48643055
-      return this.getClosestGrants;
+      return this.closestGrants;
     },
   },
   watch: {
@@ -377,6 +378,7 @@ export default {
     async selectedGrant() {
       if (!this.selectedGrant) {
         await this.fetchGrantsInterested();
+        await this.fetchClosestGrants();
       }
     },
     currentGrant() {
@@ -393,10 +395,12 @@ export default {
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
       fetchGrantDetails: 'grants/fetchGrantDetails',
+      fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
     async setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
+      this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {
@@ -437,7 +441,7 @@ export default {
     },
     async formatUpcoming() {
       // https://stackoverflow.com/a/67219279
-      this.getClosestGrants.map(async (grant, idx) => {
+      this.closestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,
