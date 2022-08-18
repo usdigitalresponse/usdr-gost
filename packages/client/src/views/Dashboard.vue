@@ -155,8 +155,7 @@ export default {
   components: { GrantDetails },
   data() {
     return {
-      yellowDate: null,
-      redDate: null,
+      dateColors: [],
       sortBy: 'dateSort',
       sortAsc: true,
       perPage: 4,
@@ -199,6 +198,9 @@ export default {
           tdStyle: {
             color: '#ae1818',
             fontWeight: 'bold',
+          },
+          tlStyle: {
+            color: 'black',
           },
           trStyle: {
             color: '#aa8866',
@@ -412,25 +414,41 @@ export default {
       return (`(${res})`);
     },
     formatDate(value) {
+      // value is the close date of grant
       //                  get threshold of agency
-      // console.log(`format date:  ${value}`);
       const warn = this.agency.warning_threshold;
       const danger = this.agency.danger_threshold;
-      //                    current date + danger threshold
-      // const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
-      // console.log(`dangerDate  ${dangerDate}`);
       //                grant close date + danger thresh
-      const dangerDate2 = new Date(new Date().setDate(new Date(value).getDate() + danger));
-      // console.log(`dangerDate2  ${dangerDate2}`);
+      const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
       //                grant close date + warn thresh
-      const warnDate = new Date(new Date().setDate(new Date(value).getDate() + warn));
-      // console.log(`warnDate  ${warnDate}`);
-      // console.log(`close date format for comp  ${new Date(value)}`);
-      //          if the grant close date is <= danger date
-      if (new Date(value) <= warnDate && new Date(value) > dangerDate2) {
-        this.yellowDate = true;
-      } else if ((new Date(value) <= dangerDate2) || (new Date(value) === new Date())) {
-        this.redDate = true;
+      const warnDate = new Date(new Date().setDate(new Date().getDate() + warn));
+      //          if the grant close date is <= danger date---------------
+      const days = (aa, bb) => {
+        const difference = aa.getTime() - bb.getTime();
+        const TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+        return TotalDays;
+      };
+      const daysTillDanger = days(dangerDate, new Date());
+      const daysTillWarn = days(warnDate, new Date());
+      const daysTillClose = days(new Date(value), new Date());
+      //                      ---assigning correct colors---
+      this.yellowDate = null;
+      this.redDate = null;
+      this.blackDate = null;
+      for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
+        if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
+          this.yellowDate = true;
+          this.redDate = false;
+          this.blackDate = false;
+        } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
+          this.redDate = true;
+          this.yellowDate = false;
+          this.blackDate = false;
+        } else {
+          this.blackDate = true;
+          this.redDate = false;
+          this.yellowDate = false;
+        }
       }
       //                      format date in MM/DD/YY
       const year = value.slice(2, 4);
