@@ -48,7 +48,7 @@
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
               </div>
-              <b-table v-if="(grantsAndIntAgens.length >= 3)" sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
+              <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none"
                 selectable
                 select-mode="single"
