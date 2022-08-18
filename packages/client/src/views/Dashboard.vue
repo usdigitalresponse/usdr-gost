@@ -17,16 +17,19 @@
                 @row-selected="onRowSelected">
                 <template #cell(icon)="list">
                   <div class="gutter-icon row">
-                  <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
-                  <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                    <b-icon v-if="list.item.interested === 0" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                    <b-icon v-if="list.item.interested === 1" icon="check-circle-fill" scale="1" variant="success"></b-icon>
+                    <b-icon v-if="list.item.interested === 2" icon="arrow-right-circle-fill" scale="1"></b-icon>
                   </div>
                 </template>
                 <template #cell(agencyAndGrant)="agencies">
                   <div>{{ agencies.item.agency }}
-                    <span v-if="agencies.item.interested"> is
-                      <span class="color-green"> <strong> interested </strong></span> in
-                    </span>
-                    <span v-if="!agencies.item.interested" class="color-red" > <strong> rejected </strong> </span>{{ agencies.item.grant }}
+                    <span v-if="agencies.item.interested === 0" class="color-red" > <strong> rejected </strong> </span>
+                    <span v-if="agencies.item.interested === 1" > is
+                    <span class="color-green">
+                      <strong> interested </strong>
+                    </span> in </span>
+                    <span v-if="agencies.item.interested === 2" > was<strong> assigned </strong> </span>{{ agencies.item.grant }}
                   </div>
                 </template>
                 <template #cell(date)="dates">
@@ -152,14 +155,11 @@ export default {
   components: { GrantDetails },
   data() {
     return {
-      // yellowDate: null,
-      // redDate: null,
-      // blackDate: null,
-      dateColors: [],
+      yellowDate: null,
+      redDate: null,
       sortBy: 'dateSort',
       sortAsc: true,
       perPage: 4,
-      perPageClosest: 3,
       currentPage: 1,
       grantsAndIntAgens: [],
       activityFields: [
@@ -198,9 +198,6 @@ export default {
           tdStyle: {
             color: '#ae1818',
             fontWeight: 'bold',
-          },
-          tlStyle: {
-            color: 'black',
           },
           trStyle: {
             color: '#aa8866',
@@ -324,7 +321,7 @@ export default {
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
-      closestGrants: 'grants/closestGrants',
+      getClosestGrants: 'dashboard/getClosestGrants',
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
       agency: 'users/agency',
@@ -339,7 +336,20 @@ export default {
         agency: grantsInterested.name,
         grant: grantsInterested.title,
         grant_id: grantsInterested.grant_id,
-        interested: !grantsInterested.is_rejection,
+        interested: (() => {
+          let retVal = null;
+          if (grantsInterested.is_rejection != null) {
+            if (grantsInterested.is_rejection) {
+              retVal = 0;
+            } else {
+              retVal = 1;
+            }
+          } else if (grantsInterested.assigned_by != null) {
+            // 2 means its assigned not interested
+            retVal = 2;
+          }
+          return retVal;
+        })(),
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
         date: (() => {
           const timeSince = rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day');
@@ -353,7 +363,7 @@ export default {
     },
     upcomingItems() {
       // https://stackoverflow.com/a/48643055
-      return this.closestGrants;
+      return this.getClosestGrants;
     },
   },
   watch: {
@@ -363,12 +373,10 @@ export default {
     upcomingItems() {
       // https://lukashermann.dev/writing/how-to-use-async-await-with-vuejs-components/
       this.formatUpcoming();
-      this.formatDate();
     },
     async selectedGrant() {
       if (!this.selectedGrant) {
         await this.fetchGrantsInterested();
-        await this.fetchClosestGrants();
       }
     },
     currentGrant() {
@@ -384,13 +392,11 @@ export default {
       getAgency: 'agencies/getAgency',
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
-      fetchClosestGrants: 'grants/fetchClosestGrants',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
     async setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
-      this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {
@@ -402,41 +408,25 @@ export default {
       return (`(${res})`);
     },
     formatDate(value) {
-      // value is the close date of grant
       //                  get threshold of agency
+      // console.log(`format date:  ${value}`);
       const warn = this.agency.warning_threshold;
       const danger = this.agency.danger_threshold;
+      //                    current date + danger threshold
+      // const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
+      // console.log(`dangerDate  ${dangerDate}`);
       //                grant close date + danger thresh
-      const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
+      const dangerDate2 = new Date(new Date().setDate(new Date(value).getDate() + danger));
+      // console.log(`dangerDate2  ${dangerDate2}`);
       //                grant close date + warn thresh
-      const warnDate = new Date(new Date().setDate(new Date().getDate() + warn));
-      //          if the grant close date is <= danger date---------------
-      const days = (aa, bb) => {
-        const difference = aa.getTime() - bb.getTime();
-        const TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
-        return TotalDays;
-      };
-      const daysTillDanger = days(dangerDate, new Date());
-      const daysTillWarn = days(warnDate, new Date());
-      const daysTillClose = days(new Date(value), new Date());
-      //                      ---assigning correct colors---
-      this.yellowDate = null;
-      this.redDate = null;
-      this.blackDate = null;
-      for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
-        if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
-          this.yellowDate = true;
-          this.redDate = false;
-          this.blackDate = false;
-        } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
-          this.redDate = true;
-          this.yellowDate = false;
-          this.blackDate = false;
-        } else {
-          this.blackDate = true;
-          this.redDate = false;
-          this.yellowDate = false;
-        }
+      const warnDate = new Date(new Date().setDate(new Date(value).getDate() + warn));
+      // console.log(`warnDate  ${warnDate}`);
+      // console.log(`close date format for comp  ${new Date(value)}`);
+      //          if the grant close date is <= danger date
+      if (new Date(value) <= warnDate && new Date(value) > dangerDate2) {
+        this.yellowDate = true;
+      } else if ((new Date(value) <= dangerDate2) || (new Date(value) === new Date())) {
+        this.redDate = true;
       }
       //                      format date in MM/DD/YY
       const year = value.slice(2, 4);
@@ -447,7 +437,7 @@ export default {
     },
     async formatUpcoming() {
       // https://stackoverflow.com/a/67219279
-      this.closestGrants.map(async (grant, idx) => {
+      this.getClosestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,
