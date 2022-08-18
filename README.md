@@ -96,7 +96,7 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 
 4.1). Setup Gmail
 
-Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below). *Note: Select "Mac" even if you're not using a Mac.* 
+Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below). *Note: Select "Mac" even if you're not using a Mac.*
 
 In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
 
@@ -256,7 +256,7 @@ After installing depedencies, IntelliJ should start using eslint automatically:
 
 ```
 > cd packages/server
-> yarn test
+> yarn test && yarn test:apis
   ...
 
 OR
@@ -272,7 +272,9 @@ OR
 ## Client
 
 ```
-
+> yarn test
+...
+> yarn test:e2e
 ```
 
 
@@ -291,6 +293,10 @@ OR
 3. Update web service environment variables
 
 ![update-web-env-vars](docs/img/update-web-env-vars.png)
+
+**NOTE:** Don't set `NODE_ENV=production` else NPM dev deps will not be installed and prod deployments will fail [(source)](https://github.com/vuejs/vue-cli/issues/5107#issuecomment-586701382)
+
+![prod-env-error](docs/img/prod-env-error.png)
 
 ```
 POSTGRES_URL=<POSTGRE_CONNECTION_STRING> # Render Internal connection string ie postgres://cares_opportunity_user:<pass>@<domain>/cares_opportunity_1e53
@@ -336,6 +342,12 @@ npx knex seed:run
 ```
 
 After that you should be able to access the site and login with the users set in the migration.
+
+
+## Debugging
+
+Sometimes `lerna` seems to hang w/ no output. [By adding `--stream` you can get more information about the error.](https://github.com/lerna/lerna/issues/2183#issuecomment-511976236)
+
 
 ## Code of Conduct
 

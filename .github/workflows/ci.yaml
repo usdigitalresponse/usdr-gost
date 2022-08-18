@@ -53,4 +53,5 @@ jobs:
           # The .env file needs to be present; the example file is good enough.
           cp packages/server/.env.example packages/server/.env
           cp packages/client/.env.example packages/client/.env
-          yarn test
+          cd packages/server/; yarn test:apis
+          export CI=true; yarn test

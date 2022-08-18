@@ -2,7 +2,7 @@ const getTransport = require('./email/service-email');
 
 const expiryMinutes = 30;
 
-function sendPasscode(email, passcode, httpOrigin) {
+function sendPassCode(email, passcode, httpOrigin) {
     return getTransport().send({
         toAddress: email,
         subject: 'USDR Grants Tool Access Link',
@@ -21,4 +21,4 @@ function sendWelcomeEmail(email, httpOrigin) {
     });
 }
 
-module.exports = { sendPasscode, sendWelcomeEmail };
+module.exports = { sendPassCode, sendWelcomeEmail };

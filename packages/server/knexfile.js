@@ -28,6 +28,7 @@ module.exports = {
         seeds: {
             directory: './seeds/dev',
         },
+        debug: process.env.NODE_ENV === 'staging',
     },
     production: {
         client: 'pg',
@@ -35,6 +36,9 @@ module.exports = {
         pool: {
             min: 2,
             max: 10,
+        },
+        seeds: {
+            directory: './seeds/dev',
         },
         migrations: {
             tableName: 'migrations',

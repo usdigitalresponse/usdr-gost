@@ -59,6 +59,7 @@ import GrantDetails from './Modals/GrantDetails.vue';
 export default {
   components: { GrantDetails, Multiselect },
   props: {
+    showMyInterested: Boolean,
     showInterested: Boolean,
     showRejected: Boolean,
     showAging: Boolean,
@@ -215,7 +216,7 @@ export default {
           currentPage: this.currentPage,
           orderBy: this.orderBy,
           searchTerm: this.debouncedSearchInput,
-          interestedByMe: this.showInterested,
+          interestedByMe: this.showMyInterested,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
           positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
