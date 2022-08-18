@@ -128,7 +128,7 @@ async function getUser(id) {
         user.tenant = {
             id: user.tenant_id,
             name: user.tenant_name,
-        }
+        };
     }
     return user;
 }
