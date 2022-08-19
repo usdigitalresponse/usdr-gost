@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
 
 router.post('/init', async (req, res) => {
     const WEBSITE_DOMAIN = process.env.WEBSITE_DOMAIN || '';
-    const { passcode } = req.body;
+    const { passcode, redirectTo } = req.body;
     if (!passcode) {
         res.redirect(`${WEBSITE_DOMAIN}/#/login?message=${encodeURIComponent('Invalid access token')}`);
         return;
@@ -78,8 +78,12 @@ router.post('/init', async (req, res) => {
         if (uses >= MAX_ACCESS_TOKEN_USES) {
             await markAccessTokenUsed(passcode);
         }
+        let destination = WEBSITE_DOMAIN || '/';
+        if (redirectTo) {
+            destination += `#?redirect_to=${redirectTo}`;
+        }
         res.cookie('userId', token.user_id, { signed: true });
-        res.redirect(WEBSITE_DOMAIN || '/');
+        res.redirect(destination);
     }
 });
 
@@ -99,10 +103,11 @@ router.post('/', async (req, res, next) => {
         res.statusMessage = 'Invalid Email Address';
         return res.sendStatus(400);
     }
+    const { redirectTo } = req.body;
     try {
         const passcode = await createAccessToken(email);
         const apiDomain = process.env.API_DOMAIN || req.headers.origin;
-        await sendPassCode(email, passcode, apiDomain);
+        await sendPassCode(email, passcode, apiDomain, redirectTo);
         res.json({
             success: true,
             message: `Email sent to ${email}. Check your inbox`,

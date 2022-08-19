@@ -13,6 +13,7 @@
       // to correctly redirect to login page. This really only matters in dev environment where
       // website vs. API domains are different.
       const passcode = new URLSearchParams(window.location.search).get('passcode') || 'missing_passcode';
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect_to');
       if (self === top) {
         const form = document.createElement('form');
         form.action = '/api/sessions/init';
@@ -24,6 +25,15 @@
         input.value = passcode;
 
         form.appendChild(input);
+
+        if (redirectTo) {
+            const inputRedirect = document.createElement('input');
+            inputRedirect.type = 'hidden';
+            inputRedirect.name = 'redirectTo';
+            inputRedirect.value = redirectTo;
+            form.appendChild(inputRedirect)
+        }
+
         document.body.appendChild(form);
         form.submit();
       }

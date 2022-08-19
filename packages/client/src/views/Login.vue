@@ -36,10 +36,12 @@ export default {
   data() {
     const message = _.get(this, '$route.query.message', null);
     const messageClass = message ? 'alert alert-danger' : '';
+    const redirectTo = _.get(this, '$route.query.redirect_to', null);
     return {
       email: '',
       message,
       messageClass,
+      redirectTo,
     };
   },
   methods: {
@@ -55,9 +57,13 @@ export default {
         this.messageClass = 'alert alert-danger';
         return;
       }
-      const body = JSON.stringify({
-        email: this.email,
-      });
+
+      let bodyRaw = { email: this.email };
+      if (this.redirectTo) {
+        bodyRaw = { ...bodyRaw, ...{ redirectTo: this.redirectTo } };
+      }
+
+      const body = JSON.stringify(bodyRaw);
       const headers = {
         'Content-Type': 'application/json',
       };
