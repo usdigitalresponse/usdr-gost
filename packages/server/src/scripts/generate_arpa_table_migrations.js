@@ -1,5 +1,7 @@
 
 require('dotenv').config();
+
+// NOTE(mbroussard): need to run with POSTGRES_URL overridden to ARPA URL since .env will have GOST URL
 const {POSTGRES_URL} = process.env;
 
 const {promisify} = require('util');
@@ -64,7 +66,7 @@ exports.down = function (knex) {
     return knex.schema.dropTable('${tableName}');
 };
     `;
-    return text;
+    return text.trim() + '\n';
 }
 
 async function main() {
@@ -72,7 +74,8 @@ async function main() {
     for (const tableName of TABLES) {
         // First run pg_dump to get the table DDL
         const pgDumpCommand = pgDumpCommandTemplate(POSTGRES_URL, tableName);
-        const {stdout: pgDumpOutput} = await exec(pgDumpCommand);
+        let {stdout: pgDumpOutput} = await exec(pgDumpCommand);
+        pgDumpOutput = pgDumpOutput.trim();
 
         // Then create a new Knex migration
         const migrationName = `arpa_integration_create_${tableName}`;
