@@ -45,5 +45,6 @@ module.exports = {
         'no-unused-expressions': 'off',
         'import/no-dynamic-require': 'off',
         'no-param-reassign': 'off',
+        'func-names': 'off',
     },
 };
