@@ -11,14 +11,15 @@ const knex = require('../db/connection');
 const fs = require('fs/promises');
 const path = require('path');
 
+// NOTE(mbroussard): this ordering is sensitive since some of these tables have FK constraints on the others
 const TABLES = [
     // TODO(mbroussard): do we want to rename any of these ARPA tables when moving into GOST?
-    "application_settings",
-    "arpa_subrecipients",
-    "period_summaries",
-    "projects",
     "reporting_periods",
-    "uploads"
+    "uploads", // has FK to reporting_periods
+    "arpa_subrecipients", // has FK to uploads
+    "application_settings", // has FK to reporting_periods
+    "projects", // has FK to reporting_periods
+    "period_summaries", // has FK to reporting_periods, projects
 ];
 
 function pgDumpCommandTemplate(url, tableName) {
@@ -71,14 +72,20 @@ exports.down = function (knex) {
 
 async function main() {
     const runDate = new Date();
-    for (const tableName of TABLES) {
+    for (let i = 0; i < TABLES.length; i++) {
+        const tableName = TABLES[i];
+        const idx = String(i + 1).padStart(2, '0');
+
         // First run pg_dump to get the table DDL
         const pgDumpCommand = pgDumpCommandTemplate(POSTGRES_URL, tableName);
         let {stdout: pgDumpOutput} = await exec(pgDumpCommand);
         pgDumpOutput = pgDumpOutput.trim();
 
-        // Then create a new Knex migration
-        const migrationName = `arpa_integration_create_${tableName}`;
+        // Then create a new Knex migration.
+        // We include an extra incrementing number in the filename to ensure these run in the
+        // order we create them since the seconds-resolution filename timestamps will all be
+        // the same.
+        const migrationName = `arpa_integration_create_table_${idx}_${tableName}`;
         const migrationPath = await knex.migrate.make(migrationName);
         const migrationFilename = path.basename(migrationPath);
 
