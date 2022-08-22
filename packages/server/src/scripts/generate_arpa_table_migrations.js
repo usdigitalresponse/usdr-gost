@@ -46,6 +46,14 @@ function indent(str, level, delimiter = fourSpaces, skipFirstLine = true) {
 }
 
 function migrationTemplate({pgDumpOutput, pgDumpCommand, tableName, runDate}) {
+    // This line outputted by pg_dump causes problems in Knex migrations, see
+    // https://stackoverflow.com/a/70963201
+    const searchPathConfig = "SELECT pg_catalog.set_config('search_path', '', false);";
+    pgDumpOutput = pgDumpOutput.replace(
+        searchPathConfig,
+        `-- Line below commented out by generate_arpa_table_migrations.js because it interferes with Knex\n-- ${searchPathConfig}`
+    );
+
     const text = `
 /* eslint-disable func-names */
 
