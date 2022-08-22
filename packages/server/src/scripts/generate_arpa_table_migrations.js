@@ -1,25 +1,25 @@
-
 require('dotenv').config();
 
 // NOTE(mbroussard): need to run with POSTGRES_URL overridden to ARPA URL since .env will have GOST URL
-const {POSTGRES_URL} = process.env;
+const { POSTGRES_URL } = process.env;
 
-const {promisify} = require('util');
-const {exec: origExec} = require('child_process');
+const { promisify } = require('util');
+const { exec: origExec } = require('child_process');
+
 const exec = promisify(origExec);
-const knex = require('../db/connection');
 const fs = require('fs/promises');
 const path = require('path');
+const knex = require('../db/connection');
 
 // NOTE(mbroussard): this ordering is sensitive since some of these tables have FK constraints on the others
 const TABLES = [
     // TODO(mbroussard): do we want to rename any of these ARPA tables when moving into GOST?
-    "reporting_periods",
-    "uploads", // has FK to reporting_periods
-    "arpa_subrecipients", // has FK to uploads
-    "application_settings", // has FK to reporting_periods
-    "projects", // has FK to reporting_periods
-    "period_summaries", // has FK to reporting_periods, projects
+    'reporting_periods',
+    'uploads', // has FK to reporting_periods
+    'arpa_subrecipients', // has FK to uploads
+    'application_settings', // has FK to reporting_periods
+    'projects', // has FK to reporting_periods
+    'period_summaries', // has FK to reporting_periods, projects
 ];
 
 function pgDumpCommandTemplate(url, tableName) {
@@ -28,7 +28,7 @@ function pgDumpCommandTemplate(url, tableName) {
 
 function multiplyString(str, n) {
     let ret = '';
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i += 1) {
         ret += str;
     }
     return ret;
@@ -39,19 +39,19 @@ function indent(str, level, delimiter = fourSpaces, skipFirstLine = true) {
     const indentation = multiplyString(delimiter, level);
     return str
         .split('\n')
-        .map((line, i) =>
-            i > 0 || !skipFirstLine ? indentation + line : line
-        )
+        .map((line, i) => (i > 0 || !skipFirstLine ? indentation + line : line))
         .join('\n');
 }
 
-function migrationTemplate({pgDumpOutput, pgDumpCommand, tableName, runDate}) {
+function migrationTemplate({
+    pgDumpOutput, pgDumpCommand, tableName, runDate,
+}) {
     // This line outputted by pg_dump causes problems in Knex migrations, see
     // https://stackoverflow.com/a/70963201
-    const searchPathConfig = "SELECT pg_catalog.set_config('search_path', '', false);";
+    const searchPathConfig = 'SELECT pg_catalog.set_config(\'search_path\', \'\', false);';
     pgDumpOutput = pgDumpOutput.replace(
         searchPathConfig,
-        `-- Line below commented out by generate_arpa_table_migrations.js because it interferes with Knex\n-- ${searchPathConfig}`
+        `-- Line below commented out by generate_arpa_table_migrations.js because it interferes with Knex\n-- ${searchPathConfig}`,
     );
 
     const text = `
@@ -67,7 +67,7 @@ exports.up = function (knex) {
         // ${pgDumpCommand}
         \`
             ${indent(pgDumpOutput, 3)}
-        \`
+        \`,
     );
 };
 
@@ -75,18 +75,19 @@ exports.down = function (knex) {
     return knex.schema.dropTable('${tableName}');
 };
     `;
-    return text.trim() + '\n';
+    return `${text.trim()}\n`;
 }
 
 async function main() {
     const runDate = new Date();
-    for (let i = 0; i < TABLES.length; i++) {
+    /* eslint-disable no-await-in-loop */
+    for (let i = 0; i < TABLES.length; i += 1) {
         const tableName = TABLES[i];
         const idx = String(i + 1).padStart(2, '0');
 
         // First run pg_dump to get the table DDL
         const pgDumpCommand = pgDumpCommandTemplate(POSTGRES_URL, tableName);
-        let {stdout: pgDumpOutput} = await exec(pgDumpCommand);
+        let { stdout: pgDumpOutput } = await exec(pgDumpCommand);
         pgDumpOutput = pgDumpOutput.trim();
 
         // Then create a new Knex migration.
@@ -98,8 +99,10 @@ async function main() {
         const migrationFilename = path.basename(migrationPath);
 
         // Finally, write the dumped DDL into the generated migration file
-        const generatedMigration = migrationTemplate({pgDumpOutput, pgDumpCommand, tableName, runDate});
-        await fs.writeFile(migrationPath, generatedMigration, {flag: 'w'});
+        const generatedMigration = migrationTemplate({
+            pgDumpOutput, pgDumpCommand, tableName, runDate,
+        });
+        await fs.writeFile(migrationPath, generatedMigration, { flag: 'w' });
 
         console.log('Created migration', migrationFilename);
     }

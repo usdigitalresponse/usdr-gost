@@ -102,7 +102,7 @@ exports.up = function (knex) {
             --
             -- PostgreSQL database dump complete
             --
-        `
+        `,
     );
 };
 
