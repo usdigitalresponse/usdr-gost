@@ -1,7 +1,10 @@
 require('dotenv').config();
 
-// NOTE(mbroussard): need to run with POSTGRES_URL overridden to ARPA URL since .env will have GOST URL
-const { POSTGRES_URL } = process.env;
+// NOTE(mbroussard): need to run with ARPA_POSTGRES_URL set manually; POSTGRES_URL will be GOST URL
+const { ARPA_POSTGRES_URL } = process.env;
+if (!ARPA_POSTGRES_URL) {
+    throw new Error('run with ARPA_POSTGRES_URL env var');
+}
 
 const { promisify } = require('util');
 const { exec: origExec } = require('child_process');
@@ -86,7 +89,7 @@ async function main() {
         const idx = String(i + 1).padStart(2, '0');
 
         // First run pg_dump to get the table DDL
-        const pgDumpCommand = pgDumpCommandTemplate(POSTGRES_URL, tableName);
+        const pgDumpCommand = pgDumpCommandTemplate(ARPA_POSTGRES_URL, tableName);
         let { stdout: pgDumpOutput } = await exec(pgDumpCommand);
         pgDumpOutput = pgDumpOutput.trim();
 
