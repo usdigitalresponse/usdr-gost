@@ -2,6 +2,9 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "16.14.0"
+  },
   "scripts": {
     "start": "yarn run serve",
     "serve": "vue-cli-service serve",
