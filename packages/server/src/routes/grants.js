@@ -85,6 +85,12 @@ router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
     res.json(response);
 });
 
+router.get('/closestGrants/:perPage/:currentPage', requireUser, async (req, res) => {
+    const { perPage, currentPage } = req.params;
+    const rows = await db.getClosestGrants({ agency: req.session.selectedAgency, perPage, currentPage });
+    res.json(rows);
+});
+
 // For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
 // without the test having to insert 10k rows, which slows down the test.
 const MAX_CSV_EXPORT_ROWS = process.env.NODE_ENV !== 'test' ? 10000 : 100;
@@ -219,10 +225,11 @@ router.get('/:grantId/interested', requireUser, async (req, res) => {
     const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], agencies });
     res.json(interestedAgencies);
 });
+
 router.get('/grantsInterested/:perPage/:currentPage', requireUser, async (req, res) => {
     const { perPage, currentPage } = req.params;
-    const { data } = await db.getGrantsInterested({ perPage, currentPage });
-    res.json(data);
+    const rows = await db.getGrantsInterested({ perPage, currentPage });
+    res.json(rows.rows);
 });
 
 router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {

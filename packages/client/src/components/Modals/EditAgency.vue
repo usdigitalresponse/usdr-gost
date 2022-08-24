@@ -140,6 +140,9 @@ export default {
     agency() {
       this.formData.warningThreshold = this.agency && this.agency.warning_threshold;
       this.formData.dangerThreshold = this.agency && this.agency.danger_threshold;
+      this.formData.parentAgency = this.agency && this.agency.parent;
+      this.formData.name = this.agency && this.agency.name;
+      this.formData.abbreviation = this.agency && this.agency.abbreviation;
       this.showDialog = Boolean(this.agency !== null);
     },
   },

@@ -16,24 +16,20 @@
     >
       <template #cell(icon)="list">
         <div class="gutter-icon row">
-        <b-icon
-          v-if="list.item.interested"
-          icon="check-circle-fill"
-          scale="1"
-          variant="success"
-        ></b-icon>
-        <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+        <b-icon v-if="list.item.interested === 0" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+        <b-icon v-if="list.item.interested === 1" icon="check-circle-fill" scale="1" variant="success"></b-icon>
+        <b-icon v-if="list.item.interested === 2" icon="arrow-right-circle-fill" scale="1"></b-icon>
         </div>
       </template>
       <template #cell(agencyAndGrant)="agencies">
-        <div>
-          {{ agencies.item.agency }}
-          <span v-if="agencies.item.interested">
-            is <span class="color-green"> <strong> interested </strong></span> in
-          </span>
-          <span v-if="!agencies.item.interested" class="color-red"><strong>
-            rejected </strong></span
-          >{{ agencies.item.grant }}
+        <div>{{ agencies.item.agency }}
+          <span v-if="agencies.item.interested === 0" class="color-red" > <strong> rejected </strong> </span>
+          <span v-if="agencies.item.interested === 1" > is
+            <span class="color-green">
+              <strong> interested </strong>
+              </span> in
+            </span>
+          <span v-if="agencies.item.interested === 2" > was<strong> assigned </strong> </span>{{ agencies.item.grant }}
         </div>
       </template>
       <template #cell(date)="dates">
@@ -54,11 +50,9 @@
 .color-gray {
   color: #757575
 }
-
 .color-red {
   color: #ae1818;
 }
-
 .color-green {
   color: green;
 }
@@ -125,12 +119,33 @@ export default {
         agency: grantsInterested.name,
         grant: grantsInterested.title,
         grant_id: grantsInterested.grant_id,
-        interested: !grantsInterested.is_rejection,
+        interested: (() => {
+          let retVal = null;
+          if (grantsInterested.is_rejection != null) {
+            if (grantsInterested.is_rejection) {
+              retVal = 0;
+            } else {
+              retVal = 1;
+            }
+          } else if (grantsInterested.assigned_by != null) {
+            // 2 means its assigned not interested
+            retVal = 2;
+          }
+          return retVal;
+        })(),
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
-        date: rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').charAt(0).toUpperCase() + rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').slice(1),
+        date: (() => {
+          const timeSince = rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day');
+          const timeSinceInt = parseInt(timeSince, 10);
+          if (!Number.isNaN(timeSinceInt) && timeSinceInt > 7) {
+            return new Date(grantsInterested.created_at).toLocaleDateString('en-US');
+          }
+          return timeSince.charAt(0).toUpperCase() + timeSince.slice(1);
+        })(),
       }));
     },
     totalRows() {
+      // console.log(this.totalInterestedGrants);
       return this.totalInterestedGrants;
     },
   },

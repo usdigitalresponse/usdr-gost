@@ -6,18 +6,33 @@ const roles = {
     staffRole: { id: 2, name: 'staff', rules: {} },
 };
 
+const tenants = {
+    SBA: {
+        id: 0,
+        display_name: 'SBA',
+    },
+    FS: {
+        id: 1,
+        display_name: 'SBA',
+    },
+};
+
 const agencies = {
     accountancy: {
         id: 0,
         abbreviation: 'SBA',
         name: 'State Board of Accountancy',
         parent: null,
+        tenant_id: tenants.SBA.id,
+        main_agency_id: 0,
     },
     fleetServices: {
         id: 4,
         abbreviation: 'FSD',
         name: 'Administration: Fleet Services Division',
         parent: null,
+        tenant_id: tenants.FS.id,
+        main_agency_id: 4,
     },
 };
 
@@ -27,12 +42,16 @@ const users = {
         name: 'Admin User',
         agency_id: agencies.accountancy.id,
         role_id: roles.adminRole.id,
+        id: roles.adminRole.id,
+        tenant_id: agencies.accountancy.tenant_id,
     },
     staffUser: {
         email: 'staff.user@test.com',
         name: 'Staff User',
         agency_id: agencies.accountancy.id,
         role_id: roles.staffRole.id,
+        id: roles.staffRole.id,
+        tenant_id: agencies.accountancy.tenant_id,
     },
 };
 
@@ -47,7 +66,7 @@ const keywords = {
 
 const interestedCodes = {
     notApplicable: {
-        id: 0, name: 'Not applicable to needs/goals', is_rejection: true,
+        id: 0, name: 'Not applicable to needs/goals', is_rejection: false,
     },
     inadequateCapacity: {
         id: 1, name: 'Inadequate program capacity', is_rejection: true,
@@ -71,7 +90,41 @@ const agencyEligibilityCodes = {
         agency_id: agencies.fleetServices.id, code: eligibilityCodes.higherEd.code, enabled: false,
     },
 };
+const grantsInterested = {
+    entry1: {
+        agency_id: agencies.accountancy.id,
+        grant_id: '333816',
+        user_id: users.adminUser.id,
+        created_at: '2021-08-11 11:30:38.89828-07',
+        updated_at: '2021-08-11 12:30:39.531-07',
+        interested_code_id: 0,
+    },
+    entry2: {
+        agency_id: agencies.accountancy.id,
+        grant_id: '335255',
+        user_id: users.adminUser.id,
+        created_at: '2022-08-06 16:03:53.57025-07',
+        updated_at: '2021-08-11 12:35:42.562-07',
+        interested_code_id: 1,
+    },
+    entry3: {
+        agency_id: agencies.fleetServices.id,
+        grant_id: '341297',
+        user_id: users.adminUser.id,
+        created_at: '2022-01-06 11:30:38.89828-07',
+        updated_at: '2022-04-23 12:30:39.531-07',
+        interested_code_id: 1,
+    },
+    // entry4: {
+    //     agency_id: agencies.accountancy.id,
+    //     grant_id: '335255',
+    //     user_id: users.adminUser.id,
+    //     created_at: '2021-07-24 16:03:53.57025-07',
+    //     updated_at: '2021-08-06 12:35:42.562-07',
+    //     interested_code_id: 0,
+    // },
 
+};
 const grants = {
     earFellowship: {
         status: 'inbox',
@@ -117,6 +170,28 @@ const grants = {
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
     },
+    redefiningPossible: {
+        status: 'inbox',
+        grant_id: '341297',
+        grant_number: 'HR001122S0040',
+        agency_code: 'DOD-DARPA-TTO',
+        award_ceiling: '70000',
+        cost_sharing: 'No',
+        title: 'Redefining Possible',
+        cfda_list: '12.910',
+        open_date: '2022-06-21',
+        close_date: '2023-06-21',
+        notes: 'auto-inserted by script',
+        search_terms: '[in title/desc]+',
+        reviewer_name: 'none',
+        opportunity_category: 'Discretionary',
+        description: '<p class="MsoNormal">The Tactical Technology Office (TTO) of the Defense Advanced Research Projects Agency (DARPA) </p>',
+        eligibility_codes: '11',
+        opportunity_status: 'posted',
+        raw_body: 'raw body',
+        created_at: '2021-01-06 11:30:38.89828-07',
+        updated_at: '2022-04-23 12:30:39.531-07',
+    },
     noDescOrEligibilityCodes: {
         status: 'inbox',
         grant_id: '0',
@@ -154,12 +229,21 @@ module.exports = {
     agencyEligibilityCodes,
     keywords,
     assignedAgencyGrants,
+    grantsInterested,
+    interestedCodes,
 };
 
 module.exports.seed = async (knex) => {
-    const deletions = Object.values(TABLES).map((tableName) => knex(tableName).del());
-    await Promise.all(deletions);
+    // https://stackoverflow.com/a/36499676
+    const truncateStmt = `TRUNCATE TABLE ${Object.values(TABLES).join(', ')} RESTART IDENTITY CASCADE`;
+    await knex.raw(truncateStmt).catch(
+        async (err) => {
+            console.log(err.stack);
+            await knex.migrate.latest();
+        },
+    );
 
+    await knex(TABLES.tenants).insert(Object.values(tenants));
     await knex(TABLES.roles).insert(Object.values(roles));
     await knex(TABLES.agencies).insert(Object.values(agencies));
     await knex(TABLES.users).insert(Object.values(users));
@@ -169,4 +253,5 @@ module.exports.seed = async (knex) => {
     await knex(TABLES.agency_eligibility_codes).insert(Object.values(agencyEligibilityCodes));
     await knex(TABLES.grants).insert(Object.values(grants));
     await knex(TABLES.assigned_grants_agency).insert(Object.values(assignedAgencyGrants));
+    await knex(TABLES.grants_interested).insert(Object.values(grantsInterested));
 };

@@ -1,9 +1,8 @@
 const { expect } = require('chai');
-require('dotenv').config();
 
 const { getSessionCookie, fetchApi } = require('./utils');
 
-describe('`/api/eligibility-codes` endpoint', async () => {
+describe('`/api/eligibility-codes` endpoint', () => {
     const UNIQUE_CODES = 17; // all agencies have same number of codes
 
     const agencies = {
@@ -40,8 +39,8 @@ describe('`/api/eligibility-codes` endpoint', async () => {
         fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
     });
 
-    context('GET /api/eligibility-codes?agency=N (list eligibility codes for an agency)', async () => {
-        context('by a user with admin role', async () => {
+    context('GET /api/eligibility-codes?agency=N (list eligibility codes for an agency)', () => {
+        context('by a user with admin role', () => {
             it('lists eligibility codes of this user\'s agency', async () => {
                 // Will default to user's own agency ID
                 const response = await fetchApi('/eligibility-codes', agencies.admin.own, fetchOptions.admin);
@@ -60,7 +59,7 @@ describe('`/api/eligibility-codes` endpoint', async () => {
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
-        context('by a user with staff role', async () => {
+        context('by a user with staff role', () => {
             it('lists eligibility codes of this user\'s own agency', async () => {
                 // Will default to user's own agency ID
                 const response = await fetchApi('/eligibility-codes', agencies.staff.own, fetchOptions.staff);
@@ -78,8 +77,8 @@ describe('`/api/eligibility-codes` endpoint', async () => {
             });
         });
     });
-    context('PUT /api/eligibility-codes/:code/enable/:value?agency=N (modify an eligibilty code for an agency)', async () => {
-        context('by a user with admin role', async () => {
+    context('PUT /api/eligibility-codes/:code/enable/:value?agency=N (modify an eligibility code for an agency)', () => {
+        context('by a user with admin role', () => {
             it('updates an eligibility code of this user\'s own agency', async () => {
                 // Will default to user's own agency ID
                 const response = await fetchApi('/eligibility-codes/01/enable/false', agencies.admin.own, { ...fetchOptions.admin, method: 'put' });
@@ -94,7 +93,7 @@ describe('`/api/eligibility-codes` endpoint', async () => {
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
-        context('by a user with staff role', async () => {
+        context('by a user with staff role', () => {
             it('is forbidden for this user\'s own agency', async () => {
                 // Will default to user's own agency ID
                 const response = await fetchApi('/eligibility-codes/01/enable/false', agencies.staff.own, { ...fetchOptions.staff, method: 'put' });
