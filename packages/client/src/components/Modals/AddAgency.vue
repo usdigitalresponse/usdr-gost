@@ -202,6 +202,8 @@ export default {
         code: this.formData.code || this.formData.abbreviation,
         parentId: this.formData.parentAgency.id,
       };
+      // TODO(mbroussard): this can potentially fail if e.g. name or code is not unique, and we don't
+      // do anything useful to handle such an error in the UI right now.
       await this.createAgency(body);
       this.resetModal();
     },

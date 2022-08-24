@@ -218,6 +218,9 @@ export default {
       // TODO(mbroussard): This feels kinda screwy that we do multiple requests (always, since we
       // preload agency data so these won't be null unless manually emptied out) and each one triggers
       // a fetchAgencies refresh...
+      //
+      // TODO(mbroussard): some of these can potentially fail if e.g. name or code is not unique, and we
+      // don't do anything useful to handle such an error in the UI right now.
       if (this.formData.dangerThreshold && this.formData.dangerThreshold) {
         this.updateThresholds({ agencyId: this.agency.id, ...this.formData });
       }
