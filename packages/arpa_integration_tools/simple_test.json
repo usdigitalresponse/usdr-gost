@@ -1,0 +1,13 @@
+{
+  "srcPath": "/Users/mattb/Desktop/usdr/arpa-reporter",
+  "srcRepoName": "arpa-reporter",
+  "destPath": "/Users/mattb/Desktop/usdr/usdr-gost",
+  "copies": {
+    "src/server/use-request.js": "packages/server/src/arpa-reporter",
+    "src/server/db": "packages/server/src/arpa-reporter"
+  },
+  "importRewrites": {
+    "src/server/db/connection.js": "packages/server/src/db/connection.js",
+    "src/server/access-helpers.js": "packages/server/src/lib/access-helpers.js"
+  }
+}
