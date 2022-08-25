@@ -1,4 +1,4 @@
-import type { Config } from "./config";
+import type { Config, CopyConfig } from "./config";
 import * as fs from "fs/promises";
 import origGlob from "glob";
 import mkdirp from "mkdirp";
@@ -21,7 +21,11 @@ async function doCopies(config: Config): Promise<CopyResult> {
   console.log("Starting copy step");
   const createdFiles: CopyResult["createdFiles"] = {};
 
-  for (const [srcGlob, destPath] of Object.entries(config.copies)) {
+  for (let [srcGlob, v] of Object.entries(config.copies)) {
+    const copyConfig: CopyConfig =
+      typeof v === "string" ? { dest: v as string } : (v as CopyConfig);
+    const excludePatterns = (copyConfig.excludePatterns || []).map((p) => new RegExp(p));
+
     const globResult = await glob(srcGlob, {
       cwd: config.srcPath,
       dot: true,
@@ -30,7 +34,7 @@ async function doCopies(config: Config): Promise<CopyResult> {
       mark: true,
     });
 
-    const destAbsolute = path.resolve(config.destPath, destPath);
+    const destAbsolute = path.resolve(config.destPath, copyConfig.dest);
     await mkdirp(destAbsolute);
 
     for (const srcAbsolute of globResult) {
@@ -38,7 +42,15 @@ async function doCopies(config: Config): Promise<CopyResult> {
       const isDir = srcAbsolute.endsWith("/");
       const newPath = path.join(destAbsolute, path.basename(srcAbsolute));
 
-      await fse.copy(srcAbsolute, newPath, { errorOnExist: true });
+      // Do the copy. This function recursively copies subdirectories and calls our filter callback
+      // to exclude some files from copying.
+      await fse.copy(srcAbsolute, newPath, {
+        errorOnExist: true,
+        filter: (copySrc, copyDest) => {
+          const copySrcRelative = path.relative(config.srcPath, copySrc);
+          return !excludePatterns.some((regex) => !!copySrcRelative.match(regex));
+        },
+      });
 
       if (!isDir) {
         createdFiles[newPath] = srcAbsolute;
@@ -110,6 +122,7 @@ async function doImportRewrites(
   createdFiles: CopyResult["createdFiles"],
   config: Config
 ): Promise<ImportRewriteResult> {
+  console.log("Rewriting relative imports");
   const brokenImports: ImportRewriteResult["brokenImports"] = [];
 
   // First, build a map of old module paths (without extension) to new module paths, combining the

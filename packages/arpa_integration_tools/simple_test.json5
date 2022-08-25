@@ -4,7 +4,15 @@
   "destPath": "/Users/mattb/Desktop/usdr/usdr-gost",
   "copies": {
     "src/server/use-request.js": "packages/server/src/arpa-reporter",
-    "src/server/db": "packages/server/src/arpa-reporter"
+    "src/server/environment.js": "packages/server/src/arpa-reporter",
+    "src/server/db": {
+      "dest": "packages/server/src/arpa-reporter",
+      "excludePatterns": ["connection.js"]
+    },
+    "src/server/lib": {
+      "dest": "packages/server/src/arpa-reporter",
+      "excludePatterns": ["access-helpers.js"]
+    }
   },
   "importRewrites": {
     "src/server/db/connection": "packages/server/src/db/connection",
