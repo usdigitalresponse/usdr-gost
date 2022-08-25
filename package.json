@@ -9,6 +9,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "engines": {
+    "node": "16.14.0"
+  },
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "setup": "yarn install && yarn run bootstrap",
