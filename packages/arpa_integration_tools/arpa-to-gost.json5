@@ -1,0 +1,18 @@
+{
+  "srcPath": "/Users/mattb/Desktop/usdr/arpa-reporter",
+  "srcRepoName": "arpa-reporter",
+  "destPath": "/Users/mattb/Desktop/usdr/usdr-gost",
+  "copies": {
+    "migrations/*": "arpa_reporter_misc/legacy_migrations",
+    "src/server/db": "packages/server/src/arpa-reporter",
+    "src/server/data": "packages/server/src/arpa-reporter",
+    "src/server/lib": "packages/server/src/arpa-reporter",
+    "src/server/routes": "packages/server/src/arpa-reporter",
+    "src/server/services": "packages/server/src/arpa-reporter",
+    "src/server/use-request.js": "packages/server/src/arpa-reporter"
+  },
+  "importRewrites": {
+    "src/server/db/connection.js": "packages/server/src/db/connection.js",
+    "src/server/access-helpers.js": "packages/server/src/lib/access-helpers.js"
+  }
+}
