@@ -12,6 +12,9 @@ async function rewriteImportsRaw(
   const inputCode = await fs.readFile(filePath, { encoding: "utf8" });
 
   // Use Babel parser to identify StringLiteral elements corresponding to require() statements
+  // NOTE: this only supports JS/TS, but not Vue SFC format. Those will have to have imports fixed
+  // separately up manually if we change their directory structure (though might be grep-able because
+  // they mostly use Vue's @-imports that are relative to src/)
   const ast = parse(inputCode);
   const toReplace: types.StringLiteral[] = [];
   traverse(ast, {

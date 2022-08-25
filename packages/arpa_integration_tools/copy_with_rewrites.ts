@@ -7,6 +7,7 @@ import * as path from "path";
 import * as fse from "fs-extra";
 import { list as listFiles, IFile as RRFile } from "recursive-readdir-async";
 import { exec as origExec } from "child_process";
+import JSON5 from "json5";
 
 const exec = promisify(origExec);
 const glob = promisify(origGlob);
@@ -69,24 +70,30 @@ async function addComments(createdFiles: CopyResult["createdFiles"], config: Con
   const srcRepoGitHash = gitOutput.stdout.trim().substring(0, 10);
 
   for (const [newPath, oldPath] of Object.entries(createdFiles)) {
-    if (!newPath.endsWith(".js")) {
-      continue;
+    const oldRelative = path.relative(config.srcPath, oldPath);
+    const msg = `NOTE: This file was copied from ${oldRelative} (git @ ${srcRepoGitHash}) in the ${config.srcRepoName} repo on ${dateString}`;
+    let comment = null;
+
+    if (newPath.endsWith(".js")) {
+      comment = `\n// ${msg}\n`;
+    } else if (newPath.endsWith(".vue")) {
+      comment = "\n<!-- ${msg} -->\n";
     }
 
-    const oldRelative = path.relative(config.srcPath, oldPath);
-    const msg = `\n// NOTE: This file was copied from ${oldRelative} (git @ ${srcRepoGitHash}) in the ${config.srcRepoName} repo on ${dateString}\n`;
-    await fs.writeFile(newPath, msg, { flag: "a" });
+    if (comment) {
+      await fs.writeFile(newPath, comment, { flag: "a" });
+    }
   }
 }
 
 async function main() {
   // TODO(mbroussard): make this configurable; argv is weird with ts-node
-  const configPath = "simple_test.json";
+  const configPath = "simple_test.json5";
   const outputFile = `${configPath}-results.json`;
 
   console.log("Loading config:", configPath);
   const configContents = await fs.readFile(configPath, { encoding: "utf8" });
-  const config: Config = JSON.parse(configContents);
+  const config: Config = JSON5.parse(configContents);
 
   const copyResult = await doCopies(config);
   await addComments(copyResult.createdFiles, config);
