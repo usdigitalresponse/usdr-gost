@@ -56,6 +56,8 @@ async function doCopies(config: Config): Promise<CopyResult> {
         createdFiles[newPath] = srcAbsolute;
         console.log("Copied", srcAbsolute, "to", newPath);
       } else {
+        // If we copied a directory, traverse through it and log that we copied each individual file within.
+        // This also feeds into the import-rewriting step.
         const allCreated: RRFile[] = await listFiles(newPath, {
           recursive: true,
           ignoreFolders: true,
