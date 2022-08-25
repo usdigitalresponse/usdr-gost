@@ -4,7 +4,7 @@ import type * as types from "@babel/types";
 import traverse from "@babel/traverse";
 import * as fs from "fs/promises";
 
-async function rewriteImportsRaw(
+export async function rewriteImportsRaw(
   filePath: string,
   rewriter: (path: string) => string,
   dryRun = false
@@ -72,6 +72,7 @@ async function rewriteImportsRaw(
   }
 }
 
+// TODO: kill
 export async function rewriteImportsAbsolute(
   filePath: string,
   rewriter: (path: string) => string,
@@ -87,13 +88,14 @@ export async function rewriteImportsAbsolute(
       }
 
       // Turn import path into an absolute path (still no extension though)
-      const absolute = path.resolve(filePath, oldPath);
+      const { dir: fileDir } = path.parse(filePath);
+      const absolute = path.resolve(fileDir, oldPath);
 
       // Pass to the provided rewriter
       const rewrittenAbsolute = rewriter(absolute);
 
       // Convert resulting absolute path back to relative import
-      const rewrittenRelative = path.relative(filePath, rewrittenAbsolute);
+      const rewrittenRelative = path.relative(fileDir, rewrittenAbsolute);
       const prefix = rewrittenRelative.startsWith("../") ? "" : "./";
       return prefix + rewrittenRelative;
     },

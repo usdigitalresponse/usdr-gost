@@ -18,6 +18,7 @@
     "@babel/types": "^7.18.13",
     "fs-extra": "^10.1.0",
     "glob": "^8.0.3",
+    "json5": "^2.2.1",
     "mkdirp": "^1.0.4",
     "recursive-readdir-async": "^1.2.1"
   },

@@ -8,6 +8,7 @@ import * as fse from "fs-extra";
 import { list as listFiles, IFile as RRFile } from "recursive-readdir-async";
 import { exec as origExec } from "child_process";
 import JSON5 from "json5";
+import { rewriteImportsRaw } from "./rewrite_imports";
 
 const exec = promisify(origExec);
 const glob = promisify(origGlob);
@@ -62,7 +63,7 @@ async function doCopies(config: Config): Promise<CopyResult> {
   return { createdFiles };
 }
 
-async function addComments(createdFiles: CopyResult["createdFiles"], config: Config) {
+async function doFooterComments(createdFiles: CopyResult["createdFiles"], config: Config) {
   console.log("Adding comment to bottom of all copied .js files");
 
   const dateString = new Date().toISOString();
@@ -86,6 +87,112 @@ async function addComments(createdFiles: CopyResult["createdFiles"], config: Con
   }
 }
 
+function truncateExtension(filePath: string): string {
+  const { dir, name } = path.parse(filePath);
+  return path.join(dir, name);
+}
+
+interface ImportRewriteResult {
+  brokenImports: {
+    file: string;
+    importReference: string;
+  }[];
+}
+
+function exists(fpath: string): Promise<boolean> {
+  return fs.access(fpath).then(
+    () => true,
+    () => false
+  );
+}
+
+async function doImportRewrites(
+  createdFiles: CopyResult["createdFiles"],
+  config: Config
+): Promise<ImportRewriteResult> {
+  const brokenImports: ImportRewriteResult["brokenImports"] = [];
+
+  // First, build a map of old module paths (without extension) to new module paths, combining the
+  // list of files we copied and any explicit rewrites defined in the config file.
+  const lookupMap: { [oldPath: string]: string /* new path */ } = {};
+  for (const [newFile, oldFile] of Object.entries(createdFiles)) {
+    if (!newFile.endsWith(".js")) {
+      continue;
+    }
+    lookupMap[truncateExtension(oldFile)] = truncateExtension(newFile);
+  }
+  for (const [oldImport, newImport] of Object.entries(config.importRewrites)) {
+    const oldAbsolute = path.resolve(config.srcPath, oldImport);
+    const newAbsolute = path.resolve(config.destPath, newImport);
+    lookupMap[oldAbsolute] = newAbsolute;
+  }
+
+  // Then, go through each of the newly copied JS files and parse them looking for imports to rewrite.
+  for (const [newFile, oldFile] of Object.entries(createdFiles)) {
+    if (!newFile.endsWith(".js")) {
+      continue;
+    }
+    const { dir: oldFileDir } = path.parse(oldFile);
+    const { dir: newFileDir } = path.parse(newFile);
+
+    // This helper uses Babel parser to find all require() statements in the file and replace the
+    // import with one that's returned from a callback.
+    const unchangedImports: string[] = [];
+    const rewrittenImports: string[] = [];
+    await rewriteImportsRaw(newFile, (importPath) => {
+      // If the the import is not relative to begin with (i.e. importing a node module), don't do
+      // anything with it.
+      if (!importPath.startsWith("./") && !importPath.startsWith("../")) {
+        return importPath;
+      }
+
+      // Turn import path into an absolute path in the source directory (still no extension though)
+      const oldAbsolute = path.resolve(oldFileDir, importPath);
+
+      // Check in the lookup map for the new path of the referenced file
+      if (!(oldAbsolute in lookupMap)) {
+        unchangedImports.push(importPath);
+        return importPath;
+      }
+      const rewrittenAbsolute = lookupMap[oldAbsolute];
+
+      // Convert resulting absolute path back to relative import
+      const rewrittenRelative = path.relative(newFileDir, rewrittenAbsolute);
+      const prefix = rewrittenRelative.startsWith("../") ? "" : "./";
+      const rewrittenWithPrefix = prefix + rewrittenRelative;
+      rewrittenImports.push(rewrittenWithPrefix);
+
+      return rewrittenWithPrefix;
+    });
+
+    // For any relative imports in the file that we did not transform (and even those we did, as a
+    // sanity check), check if a file exists in the expected location. If not, log a warning.
+    for (const importPath of unchangedImports) {
+      if (await exists(path.resolve(newFileDir, importPath + ".js"))) {
+        console.warn(
+          "WARN: unchanged relative import",
+          importPath,
+          "not broken in",
+          newFile,
+          "-- was this expected?"
+        );
+        continue;
+      }
+      console.warn("WARN: broken import", importPath, "(unchanged) in", newFile);
+      brokenImports.push({ file: newFile, importReference: importPath });
+    }
+    for (const importPath of rewrittenImports) {
+      if (await exists(path.resolve(newFileDir, importPath + ".js"))) {
+        continue;
+      }
+      console.warn("WARN: broken import", importPath, "(rewritten) in", newFile);
+      brokenImports.push({ file: newFile, importReference: importPath });
+    }
+  }
+
+  return { brokenImports };
+}
+
 async function main() {
   // TODO(mbroussard): make this configurable; argv is weird with ts-node
   const configPath = "simple_test.json5";
@@ -96,9 +203,10 @@ async function main() {
   const config: Config = JSON5.parse(configContents);
 
   const copyResult = await doCopies(config);
-  await addComments(copyResult.createdFiles, config);
+  await doFooterComments(copyResult.createdFiles, config);
+  const importRewriteResult = await doImportRewrites(copyResult.createdFiles, config);
 
-  const results = { copyResult };
+  const results = { copyResult, importRewriteResult };
   await fs.writeFile(outputFile, JSON.stringify(results, undefined, 2), { flag: "w" });
 }
 

@@ -7,7 +7,7 @@
     "src/server/db": "packages/server/src/arpa-reporter"
   },
   "importRewrites": {
-    "src/server/db/connection.js": "packages/server/src/db/connection.js",
-    "src/server/access-helpers.js": "packages/server/src/lib/access-helpers.js"
+    "src/server/db/connection": "packages/server/src/db/connection",
+    "src/server/access-helpers": "packages/server/src/lib/access-helpers"
   }
 }
