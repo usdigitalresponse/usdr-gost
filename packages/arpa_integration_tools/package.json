@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "repository": "https://github.com/usdigitalresponse/usdr-gost",
   "author": "Matt Broussard <mbroussard@usdigitalresponse.org>",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
     "@types/glob": "^7.2.0",

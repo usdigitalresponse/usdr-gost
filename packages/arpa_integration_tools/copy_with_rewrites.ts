@@ -1,13 +1,15 @@
 import type { Config } from "./config";
 import * as fs from "fs/promises";
-import globCb from "glob";
+import origGlob from "glob";
 import mkdirp from "mkdirp";
 import { promisify } from "util";
 import * as path from "path";
 import * as fse from "fs-extra";
-import { list as listFiles } from "recursive-readdir-async";
+import { list as listFiles, IFile as RRFile } from "recursive-readdir-async";
+import { exec as origExec } from "child_process";
 
-const glob = promisify(globCb);
+const exec = promisify(origExec);
+const glob = promisify(origGlob);
 
 interface CopyResult {
   createdFiles: { [newPath: string]: string /* old path */ };
@@ -40,22 +42,41 @@ async function doCopies(config: Config): Promise<CopyResult> {
         createdFiles[newPath] = srcAbsolute;
         console.log("Copied", srcAbsolute, "to", newPath);
       } else {
-        const allCreated: string[] = await listFiles(newPath, {
+        const allCreated: RRFile[] = await listFiles(newPath, {
           recursive: true,
           ignoreFolders: true,
         });
         for (const created of allCreated) {
-          const relative = path.relative(destAbsolute, created);
-          const oldPath = path.resolve(config.srcPath, relative);
+          const createdPath = created.fullname;
+          const fileRelativeToCreatedFolder = path.relative(newPath, createdPath);
+          const srcFileAbsolute = path.resolve(srcAbsolute, fileRelativeToCreatedFolder);
 
-          createdFiles[created] = oldPath;
-          console.log("Copied", oldPath, "to", created);
+          createdFiles[createdPath] = srcFileAbsolute;
+          console.log("Copied", srcFileAbsolute, "to", createdPath);
         }
       }
     }
   }
 
   return { createdFiles };
+}
+
+async function addComments(createdFiles: CopyResult["createdFiles"], config: Config) {
+  console.log("Adding comment to bottom of all copied .js files");
+
+  const dateString = new Date().toISOString();
+  const gitOutput = await exec("git rev-parse HEAD", { cwd: config.srcPath });
+  const srcRepoGitHash = gitOutput.stdout.trim().substring(0, 10);
+
+  for (const [newPath, oldPath] of Object.entries(createdFiles)) {
+    if (!newPath.endsWith(".js")) {
+      continue;
+    }
+
+    const oldRelative = path.relative(config.srcPath, oldPath);
+    const msg = `\n// NOTE: This file was copied from ${oldRelative} (git @ ${srcRepoGitHash}) in the ${config.srcRepoName} repo on ${dateString}\n`;
+    await fs.writeFile(newPath, msg, { flag: "a" });
+  }
 }
 
 async function main() {
@@ -68,6 +89,7 @@ async function main() {
   const config: Config = JSON.parse(configContents);
 
   const copyResult = await doCopies(config);
+  await addComments(copyResult.createdFiles, config);
 
   const results = { copyResult };
   await fs.writeFile(outputFile, JSON.stringify(results, undefined, 2), { flag: "w" });
