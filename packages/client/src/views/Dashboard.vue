@@ -17,16 +17,19 @@
                 @row-selected="onRowSelected">
                 <template #cell(icon)="list">
                   <div class="gutter-icon row">
-                  <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
-                  <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                    <b-icon v-if="list.item.interested === 0" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                    <b-icon v-if="list.item.interested === 1" icon="check-circle-fill" scale="1" variant="success"></b-icon>
+                    <b-icon v-if="list.item.interested === 2" icon="arrow-right-circle-fill" scale="1"></b-icon>
                   </div>
                 </template>
                 <template #cell(agencyAndGrant)="agencies">
                   <div>{{ agencies.item.agency }}
-                    <span v-if="agencies.item.interested"> is
-                      <span class="color-green"> <strong> interested </strong></span> in
-                    </span>
-                    <span v-if="!agencies.item.interested" class="color-red" > <strong> rejected </strong> </span>{{ agencies.item.grant }}
+                    <span v-if="agencies.item.interested === 0" class="color-red" > <strong> rejected </strong> </span>
+                    <span v-if="agencies.item.interested === 1" > is
+                    <span class="color-green">
+                      <strong> interested </strong>
+                    </span> in </span>
+                    <span v-if="agencies.item.interested === 2" > was<strong> assigned </strong> </span>{{ agencies.item.grant }}
                   </div>
                 </template>
                 <template #cell(date)="dates">
@@ -45,7 +48,7 @@
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
               </div>
-              <b-table v-if="(grantsAndIntAgens.length >= 3)" sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
+              <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none"
                 selectable
                 select-mode="single"
@@ -152,9 +155,6 @@ export default {
   components: { GrantDetails },
   data() {
     return {
-      // yellowDate: null,
-      // redDate: null,
-      // blackDate: null,
       dateColors: [],
       sortBy: 'dateSort',
       sortAsc: true,
@@ -339,7 +339,20 @@ export default {
         agency: grantsInterested.name,
         grant: grantsInterested.title,
         grant_id: grantsInterested.grant_id,
-        interested: !grantsInterested.is_rejection,
+        interested: (() => {
+          let retVal = null;
+          if (grantsInterested.is_rejection != null) {
+            if (grantsInterested.is_rejection) {
+              retVal = 0;
+            } else {
+              retVal = 1;
+            }
+          } else if (grantsInterested.assigned_by != null) {
+            // 2 means its assigned not interested
+            retVal = 2;
+          }
+          return retVal;
+        })(),
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
         date: (() => {
           const timeSince = rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day');
@@ -363,7 +376,6 @@ export default {
     upcomingItems() {
       // https://lukashermann.dev/writing/how-to-use-async-await-with-vuejs-components/
       this.formatUpcoming();
-      this.formatDate();
     },
     async selectedGrant() {
       if (!this.selectedGrant) {
@@ -384,8 +396,8 @@ export default {
       getAgency: 'agencies/getAgency',
       fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
-      fetchClosestGrants: 'grants/fetchClosestGrants',
       fetchGrantDetails: 'grants/fetchGrantDetails',
+      fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
     async setup() {
       this.fetchDashboard();
@@ -446,6 +458,7 @@ export default {
       return (`${finalDate}`);
     },
     async formatUpcoming() {
+      this.grantsAndIntAgens = [];
       // https://stackoverflow.com/a/67219279
       this.closestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });

@@ -12,7 +12,7 @@ function execShellCommand(cmd, options = {}) {
         exec(cmd, { maxBuffer: 1024 * 500, ...options }, (error, stdout, stderr) => {
             if (error) {
                 reject(error);
-                return;
+                throw error;
             } if (stdout) {
                 log(stdout);
             } else {

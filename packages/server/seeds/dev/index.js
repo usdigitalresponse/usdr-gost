@@ -19,6 +19,7 @@ const adminList = [
         name: 'GRANT ADMIN',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
+        tenant_id: tenants[0].id,
     },
     // {
     //     email: 'xmattingly@fastmail.com',
@@ -43,13 +44,17 @@ const globalCodes = [
 ];
 
 exports.seed = async (knex) => {
-    const tables = ['agency_eligibility_codes', 'keywords', 'eligibility_codes', 'grants', 'assigned_grants_agency', 'grants_interested', 'tenants'];
+    const tables = ['agency_eligibility_codes', 'keywords', 'eligibility_codes', 'grants', 'assigned_grants_agency', 'grants_interested'];
 
     // eslint-disable-next-line no-restricted-syntax
     for (const table of tables) {
         // eslint-disable-next-line no-await-in-loop
         await knex(table).del();
     }
+
+    await knex('tenants').insert(tenants)
+        .onConflict('id')
+        .merge();
 
     await knex('roles').insert(roles)
         .onConflict('id')
@@ -59,7 +64,19 @@ exports.seed = async (knex) => {
         .onConflict('id')
         .merge();
 
-    await knex('tenants').insert(tenants);
+    // Due to a cyclical foriegn key dependency we have to leave
+    // main_agency_id null when creating the tenant, and only
+    // populate it after the agency has been created. We are
+    // looking at removing main_agency_id entirely.
+    // TODO (Brian Spates): Update once main_agency_id is removed
+    await knex.raw(`WITH main_agency_lookup AS (
+                        SELECT id, tenant_id
+                        FROM agencies
+                        WHERE main_agency_id = id
+                    ) UPDATE tenants
+                      SET main_agency_id = mal.id
+                      FROM main_agency_lookup mal
+                      WHERE mal.tenant_id = tenants.id`);
 
     if (userList.length) {
         await knex('users').insert(userList)
