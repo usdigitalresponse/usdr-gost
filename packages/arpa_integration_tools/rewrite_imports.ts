@@ -72,40 +72,9 @@ export async function rewriteImportsRaw(
   }
 }
 
-// TODO: kill
-export async function rewriteImportsAbsolute(
-  filePath: string,
-  rewriter: (path: string) => string,
-  dryRun = false
-) {
-  return rewriteImportsRaw(
-    filePath,
-    (oldPath: string) => {
-      // If the the import is not relative to begin with (i.e. importing a node module), don't do
-      // anything with it.
-      if (!oldPath.startsWith("./") && !oldPath.startsWith("../")) {
-        return oldPath;
-      }
-
-      // Turn import path into an absolute path (still no extension though)
-      const { dir: fileDir } = path.parse(filePath);
-      const absolute = path.resolve(fileDir, oldPath);
-
-      // Pass to the provided rewriter
-      const rewrittenAbsolute = rewriter(absolute);
-
-      // Convert resulting absolute path back to relative import
-      const rewrittenRelative = path.relative(fileDir, rewrittenAbsolute);
-      const prefix = rewrittenRelative.startsWith("../") ? "" : "./";
-      return prefix + rewrittenRelative;
-    },
-    dryRun
-  );
-}
-
 async function main() {
   // This is just a quick test with a file that contains both ./ and ../ imports
-  await rewriteImportsAbsolute(
+  await rewriteImportsRaw(
     "../server/__tests__/api/keywords.test.js",
     (old) => old + "ABC",
     true /* dryRun */
