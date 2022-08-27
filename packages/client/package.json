@@ -31,11 +31,6 @@
     "popper.js": "1.16.1",
     "vue-good-table": "^2.21.11"
   },
-  "dependenciesComment": {
-    "core-js": "^3.15.0",
-    "vue": "^2.6.11",
-    "// removed: dotenv": "^8.2.0"
-  },
   "devDependencies": {
     "@vue/cli": "^4.5.13",
     "@vue/cli-plugin-babel": "~5.0.4",
@@ -69,17 +64,5 @@
     "prettier": "2.6.1",
     "standard": "^16.0.3",
     "typescript": "^4.7.2"
-  },
-  "devDependenciesComment": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-router": "~4.5.0",
-    "@vue/cli-plugin-vuex": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-vue": "^6.2.2",
-    "sass": "~1.17.4",
-    "sass-loader": "^8.0.2",
-    "// removed: webpack": "5.68.0"
   }
 }
