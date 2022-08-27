@@ -17,7 +17,6 @@
     "bootstrap": "^4.6.1",
     "bootstrap-vue": "^2.19.0",
     "core-js": "^3.21.1",
-    "dotenv": "^8.2.0",
     "lodash": "^4.17.21",
     "lodash-checkit": "^2.3.3",
     "numeral": "^2.0.6",
@@ -34,7 +33,8 @@
   },
   "dependenciesComment": {
     "core-js": "^3.15.0",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "// removed: dotenv": "^8.2.0"
   },
   "devDependencies": {
     "@vue/cli": "^4.5.13",
@@ -68,8 +68,7 @@
     "mocha": "^9.2.1",
     "prettier": "2.6.1",
     "standard": "^16.0.3",
-    "typescript": "^4.7.2",
-    "webpack": "5.68.0"
+    "typescript": "^4.7.2"
   },
   "devDependenciesComment": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -80,6 +79,7 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-vue": "^6.2.2",
     "sass": "~1.17.4",
-    "sass-loader": "^8.0.2"
+    "sass-loader": "^8.0.2",
+    "// removed: webpack": "5.68.0"
   }
 }
