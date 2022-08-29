@@ -131,6 +131,13 @@ describe('db', () => {
             const result = await db.getSingleGrantDetails({ grantId, agencies });
             expect(result.interested_agencies.length).to.equal(1);
         });
+        it('returns dates in string format without timezone', async () => {
+            const grantId = '335255';
+            const agencies = [0];
+            const result = await db.getSingleGrantDetails({ grantId, agencies });
+            expect(result.open_date).to.equal('2021-08-11');
+            expect(result.close_date).to.equal('2022-08-30');
+        });
     });
 
     context('getGrantsAssignedAgency', () => {
