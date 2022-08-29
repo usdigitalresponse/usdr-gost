@@ -22,7 +22,7 @@
     "lodash-checkit": "^2.3.3",
     "numeral": "^2.0.6",
     "popper.js": "1.16.1",
-    "vue": "^2.7.2",
+    "vue": "^2.7.10",
     "vue-good-table": "^2.21.11",
     "vue-multiselect": "^2.1.6",
     "vue-router": "^3.5.2",
@@ -63,6 +63,6 @@
     "sass-loader": "13.0.0",
     "standard": "^16.0.3",
     "typescript": "^4.7.2",
-    "vue-template-compiler": "^2.6.14"
+    "vue-template-compiler": "^2.7.10"
   }
 }
