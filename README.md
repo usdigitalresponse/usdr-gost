@@ -23,13 +23,15 @@ Each folder inside packages/ is considered a workspace. To see a list of all wor
 
 # Setup
 
-1). Ensure using NODE Version 14 (v14.19.0)
+These steps are for an install on a Mac. The Windows instructions are [here](https://github.com/usdigitalresponse/usdr-gost/wiki/Setting-up-a-development-environment-on-Windows-(native)).
+
+1). Ensure using the correct version of NODE Version
 
 First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. If you are using [Nodenv](https://github.com/nodenv/nodenv) or [NVM](https://nvm.sh/), it should pick up on the correct version.
 
 To setup your workspace run the following commands at the root of the project
 
-1.1). (optional) Setup nvm
+1.1). Setup nvm
 
 ```
 > brew install nvm
