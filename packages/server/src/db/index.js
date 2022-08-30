@@ -540,7 +540,7 @@ function getInterestedCodes() {
 }
 
 async function getAgency(agencyId) {
-    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold
+    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold, code
     FROM agencies WHERE id = ?;`;
     const result = await knex.raw(query, agencyId);
 
@@ -549,10 +549,10 @@ async function getAgency(agencyId) {
 
 async function getAgencies(rootAgency) {
     const query = `WITH RECURSIVE subagencies AS (
-    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold
+    SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold, code
     FROM agencies WHERE id = ?
     UNION
-        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold
+        SELECT a.id, a.name, a.abbreviation, a.parent, a.warning_threshold, a.danger_threshold, a.code
         FROM agencies a INNER JOIN subagencies s ON s.id = a.parent
     ) SELECT * FROM subagencies ORDER BY name; `;
     const result = await knex.raw(query, rootAgency);
@@ -614,6 +614,7 @@ async function createAgency(agency, creatorId) {
               :abbreviation,
               :warning_threshold::integer,
               :danger_threshold::integer,
+              :code,
               u.tenant_id,
               t.main_agency_id
             FROM users u
@@ -626,7 +627,8 @@ async function createAgency(agency, creatorId) {
             warning_threshold,
             danger_threshold,
             tenant_id,
-            main_agency_id
+            main_agency_id,
+            code
         ) (SELECT * FROM upd)`, update);
 }
 
@@ -671,6 +673,14 @@ function setAgencyAbbr(id, agen_abbr) {
             id,
         })
         .update({ abbreviation: agen_abbr });
+}
+
+function setAgencyCode(id, agencyCode) {
+    return knex(TABLES.agencies)
+        .where({
+            id,
+        })
+        .update({ code: agencyCode });
 }
 
 function setAgencyParent(id, agen_parent) {
@@ -784,6 +794,7 @@ module.exports = {
     setAgencyThresholds,
     setAgencyName,
     setAgencyAbbr,
+    setAgencyCode,
     setAgencyParent,
     setTenantDisplayName,
     createKeyword,

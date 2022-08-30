@@ -52,6 +52,12 @@ export default {
       });
       dispatch('fetchAgencies');
     },
+    async updateAgencyCode({ dispatch }, { agencyId, code }) {
+      await fetchApi.put(`/api/organizations/:organizationId/agencies/code/${agencyId}`, {
+        code,
+      });
+      dispatch('fetchAgencies');
+    },
     async updateAgencyParent({ dispatch }, { agencyId, parentId }) {
       await fetchApi.put(`/api/organizations/:organizationId/agencies/parent/${agencyId}`, {
         parentId,

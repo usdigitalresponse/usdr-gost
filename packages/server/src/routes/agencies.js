@@ -3,7 +3,14 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { requireAdminUser, requireUser, isPartOfAgency } = require('../lib/access-helpers');
 const {
-    getAgency, getAgencies, setAgencyThresholds, createAgency, setAgencyName, setAgencyAbbr, setAgencyParent,
+    getAgency,
+    getAgencies,
+    setAgencyThresholds,
+    createAgency,
+    setAgencyName,
+    setAgencyAbbr,
+    setAgencyParent,
+    setAgencyCode,
     deleteAgency,
 } = require('../db');
 
@@ -21,6 +28,8 @@ router.get('/', requireUser, async (req, res) => {
 router.put('/:agency', requireAdminUser, async (req, res) => {
     // Currently, agencies are seeded into db; only thresholds are mutable.
     const { agency } = req.params;
+    // TODO(mbroussard/bspates): requireAdminUser only checks validity of :organizationId, but we need
+    // to check :agency too
 
     const { warningThreshold, dangerThreshold } = req.body;
     const result = await setAgencyThresholds(agency, warningThreshold, dangerThreshold);
@@ -29,6 +38,8 @@ router.put('/:agency', requireAdminUser, async (req, res) => {
 
 router.delete('/del/:agency', requireAdminUser, async (req, res) => {
     const { agency } = req.params;
+    // TODO(mbroussard/bspates): requireAdminUser only checks validity of :organizationId, but we need
+    // to check :agency too
 
     const {
         parent, name, abbreviation, warningThreshold, dangerThreshold,
@@ -39,6 +50,8 @@ router.delete('/del/:agency', requireAdminUser, async (req, res) => {
 
 router.put('/name/:agency', requireAdminUser, async (req, res) => {
     const { agency } = req.params;
+    // TODO(mbroussard/bspates): requireAdminUser only checks validity of :organizationId, but we need
+    // to check :agency too
 
     const { name } = req.body;
     const result = await setAgencyName(agency, name);
@@ -47,9 +60,21 @@ router.put('/name/:agency', requireAdminUser, async (req, res) => {
 
 router.put('/abbr/:agency', requireAdminUser, async (req, res) => {
     const { agency } = req.params;
+    // TODO(mbroussard/bspates): requireAdminUser only checks validity of :organizationId, but we need
+    // to check :agency too
 
     const { abbreviation } = req.body;
     const result = await setAgencyAbbr(agency, abbreviation);
+    res.json(result);
+});
+
+router.put('/code/:agency', requireAdminUser, async (req, res) => {
+    const { agency } = req.params;
+    // TODO(mbroussard/bspates): requireAdminUser only checks validity of :organizationId, but we need
+    // to check :agency too
+
+    const { code } = req.body;
+    const result = await setAgencyCode(agency, code);
     res.json(result);
 });
 
@@ -68,6 +93,7 @@ router.post('/', requireAdminUser, async (req, res) => {
     const agency = {
         name: req.body.name,
         abbreviation: req.body.abbreviation,
+        code: req.body.code,
         parent: Number(req.body.parentId),
         warning_threshold: Number(req.body.warningThreshold),
         danger_threshold: Number(req.body.dangerThreshold),
