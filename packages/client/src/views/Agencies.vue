@@ -57,6 +57,10 @@ export default {
           sortable: true,
         },
         {
+          key: 'code',
+          sortable: true,
+        },
+        {
           key: 'warning_threshold',
           label: 'Close Date Warning Threshold',
           sortable: true,
