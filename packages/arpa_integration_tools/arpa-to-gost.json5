@@ -3,16 +3,91 @@
   "srcRepoName": "arpa-reporter",
   "destPath": "/Users/mattb/Desktop/usdr/usdr-gost",
   "copies": {
+    // server logic
+    "src/server/*": {
+      "dest": "packages/server/src/arpa_reporter",
+      "excludePatterns": [
+        // Database: will use GOST's existing code for these
+        "db/connection.js",
+        "db/users.js",
+        "db/agencies.js",
+
+        // Auth: will use GOST's existing auth code
+        "lib/access-helpers.js",
+        "routes/sessions.js",
+
+        // Email: only used by auth, will use GOST's existing auth code
+        "lib/email-aws.js",
+        "lib/email-nodemailer.js",
+        "lib/email.js",
+      ]
+    },
+
+    // client logic
+    "scss": "???",
+    "public/*": "packages/client/public/arpa_reporter",
+    "src/App.vue": "???",
+    "src/main.js": "???",
+    "src/assets": "???",
+    "src/components": "???",
+    "src/helpers": "???",
+    "src/router": "???",
+    "src/store": "???",
+    "src/views": {
+      "dest": "???",
+      "excludePatterns": [
+        "Login.vue"
+      ],
+    },
+
+    // tests
+    "tests/server/*": {
+      "dest": "packages/server/__tests__/arpa_reporter",
+      "excludePatterns": [
+        // TODO: actually exclude this? it exercises session cookie test helper
+        "routes/session.spec.js",
+        "reset-dbx.sh",
+      ],
+    },
+    "tests/unit/*": {
+      "dest": "???",
+      "excludePatterns": [
+        "views/Login.spec.js",
+      ],
+    },
+    "tests/server-nodemailer": "???",
+    "tests/server-aws-ses": "???",
+
+    // config files
+    "vue.config.js": "???",
+    "tsconfig.json": "???",
+    "LICENSE": "???",
+    "babel.config.js": "???",
+    "knexfile.js": "???",
+    "importdb": "???",
+    "docker-compose.yml": "???",
+    "RENDER.md": "???",
+    "render.yaml": "???",
+    ".prettierrc.json.example": "???",
+    ".editorconfig": "???",
+    ".node-version": "???",
+    ".eslintrc.js": "???",
+    ".env.example": "???",
+    ".eslintrc.usdr.js": "???",
+    ".browserslistrc": "???",
+
+    // misc things that won't likely be used in GOST, but useful historical context to keep around
     "migrations/*": "arpa_reporter_misc/legacy_migrations",
-    "src/server/db": "packages/server/src/arpa-reporter",
-    "src/server/data": "packages/server/src/arpa-reporter",
-    "src/server/lib": "packages/server/src/arpa-reporter",
-    "src/server/routes": "packages/server/src/arpa-reporter",
-    "src/server/services": "packages/server/src/arpa-reporter",
-    "src/server/use-request.js": "packages/server/src/arpa-reporter"
+    "seeds/*": "???",
+    "scripts/*": "???",
+    "README.md": "???",
+    "doc": "???",
   },
   "importRewrites": {
     "src/server/db/connection.js": "packages/server/src/db/connection.js",
-    "src/server/access-helpers.js": "packages/server/src/lib/access-helpers.js"
+    "src/server/access-helpers.js": "packages/server/src/lib/access-helpers.js",
+    "src/server/db/users.js": "packages/server/src/db/arpa_reporter_db_shims/users.js",
+    "src/server/db/agencies.js": "packages/server/src/db/arpa_reporter_db_shims/agencies.js",
+    "src/server/routes/sessions.js": "packages/server/src/routes/sessions.js",
   }
 }
