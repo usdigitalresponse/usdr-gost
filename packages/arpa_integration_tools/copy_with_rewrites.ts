@@ -15,16 +15,22 @@ const glob = promisify(origGlob);
 
 interface CopyResult {
   createdFiles: { [newPath: string]: string /* old path */ };
+  createdDirectories: string[];
 }
 
 async function doCopies(config: Config): Promise<CopyResult> {
   console.log("Starting copy step");
   const createdFiles: CopyResult["createdFiles"] = {};
+  const createdDirectories: string[] = [];
 
   for (let [srcGlob, v] of Object.entries(config.copies)) {
     const copyConfig: CopyConfig =
       typeof v === "string" ? { dest: v as string } : (v as CopyConfig);
     const excludePatterns = (copyConfig.excludePatterns || []).map((p) => new RegExp(p));
+    // This allows running the script while the config is unfinished
+    if (copyConfig.dest == "" || copyConfig.dest == "???") {
+      continue;
+    }
 
     const globResult = await glob(srcGlob, {
       cwd: config.srcPath,
@@ -35,7 +41,10 @@ async function doCopies(config: Config): Promise<CopyResult> {
     });
 
     const destAbsolute = path.resolve(config.destPath, copyConfig.dest);
-    await mkdirp(destAbsolute);
+    const createdDir = await mkdirp(destAbsolute);
+    if (createdDir) {
+      createdDirectories.push(createdDir);
+    }
 
     for (const srcAbsolute of globResult) {
       // The "mark" config option above causes glob to append a slash to directory matches
@@ -60,9 +69,13 @@ async function doCopies(config: Config): Promise<CopyResult> {
         // This also feeds into the import-rewriting step.
         const allCreated: RRFile[] = await listFiles(newPath, {
           recursive: true,
-          ignoreFolders: true,
         });
         for (const created of allCreated) {
+          if (created.isDirectory) {
+            createdDirectories.push(created.fullname);
+            continue;
+          }
+
           const createdPath = created.fullname;
           const fileRelativeToCreatedFolder = path.relative(newPath, createdPath);
           const srcFileAbsolute = path.resolve(srcAbsolute, fileRelativeToCreatedFolder);
@@ -74,7 +87,7 @@ async function doCopies(config: Config): Promise<CopyResult> {
     }
   }
 
-  return { createdFiles };
+  return { createdFiles, createdDirectories };
 }
 
 async function doFooterComments(createdFiles: CopyResult["createdFiles"], config: Config) {
@@ -208,10 +221,18 @@ async function doImportRewrites(
   return { brokenImports };
 }
 
+export interface ResultsFile {
+  copyResult: CopyResult;
+  importRewriteResult: ImportRewriteResult;
+}
+
 async function main() {
-  // TODO(mbroussard): make this configurable; argv is weird with ts-node
-  const configPath = "simple_test.json5";
-  const outputFile = `${configPath}-results.json`;
+  const configPath = process.argv[2];
+  if (!configPath) {
+    console.error("Must pass config json as argv");
+    return;
+  }
+  const outputFile = configPath.replace(/\.json5?$/i, "-results.json");
 
   console.log("Loading config:", configPath);
   const configContents = await fs.readFile(configPath, { encoding: "utf8" });
