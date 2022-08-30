@@ -21,6 +21,7 @@ const agencies = {
     accountancy: {
         id: 0,
         abbreviation: 'SBA',
+        code: 'SBA',
         name: 'State Board of Accountancy',
         parent: null,
         tenant_id: tenants.SBA.id,
@@ -29,6 +30,7 @@ const agencies = {
     fleetServices: {
         id: 4,
         abbreviation: 'FSD',
+        code: 'FSD',
         name: 'Administration: Fleet Services Division',
         parent: null,
         tenant_id: tenants.FS.id,
