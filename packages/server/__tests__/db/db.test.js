@@ -97,11 +97,15 @@ describe('db', () => {
 
     context('getClosestGrant', () => {
         it('gets closest grants', async () => {
-            // arrange  #done in fixtures
-            // act
-            const result = await db.getClosestGrants({ agency: 0, perPage: 10, currentPage: 1 });
-            // assert
+            const searchTimestamp = new Date('2021-11-02');
+            const result = await db.getClosestGrants({
+                agency: 0,
+                perPage: 10,
+                currentPage: 1,
+                timestampForTest: searchTimestamp,
+            });
             expect(result.data.length).to.equal(1);
+            expect(result.data[0].grant_id).to.equal('335255');
         });
     });
 
@@ -136,7 +140,7 @@ describe('db', () => {
             const agencies = [0];
             const result = await db.getSingleGrantDetails({ grantId, agencies });
             expect(result.open_date).to.equal('2021-08-11');
-            expect(result.close_date).to.equal('2022-08-30');
+            expect(result.close_date).to.equal('2021-11-03');
         });
     });
 
