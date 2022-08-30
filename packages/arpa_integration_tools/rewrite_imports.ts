@@ -7,6 +7,7 @@ import * as fs from "fs/promises";
 export async function rewriteImportsRaw(
   filePath: string,
   rewriter: (path: string) => string,
+  warn = console.warn,
   dryRun = false
 ) {
   const inputCode = await fs.readFile(filePath, { encoding: "utf8" });
@@ -15,7 +16,7 @@ export async function rewriteImportsRaw(
   // NOTE: this only supports JS/TS, but not Vue SFC format. Those will have to have imports fixed
   // separately up manually if we change their directory structure (though might be grep-able because
   // they mostly use Vue's @-imports that are relative to src/)
-  const ast = parse(inputCode);
+  const ast = parse(inputCode, { sourceFilename: filePath });
   const toReplace: types.StringLiteral[] = [];
   traverse(ast, {
     CallExpression: (path, state) => {
@@ -26,7 +27,7 @@ export async function rewriteImportsRaw(
 
       const reqPathNode = path.node.arguments[0];
       if (reqPathNode.type != "StringLiteral") {
-        console.warn("Encountered non-literal require at", path.node.loc);
+        warn("Encountered non-literal require at", path.node.loc);
         return;
       }
 
@@ -77,6 +78,7 @@ async function main() {
   await rewriteImportsRaw(
     "../server/__tests__/api/keywords.test.js",
     (old) => old + "ABC",
+    console.warn,
     true /* dryRun */
   );
 }

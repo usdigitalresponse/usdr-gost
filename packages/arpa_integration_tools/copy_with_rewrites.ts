@@ -54,7 +54,7 @@ async function doCopies(config: Config): Promise<CopyResult> {
       // Do the copy. This function recursively copies subdirectories and calls our filter callback
       // to exclude some files from copying.
       await fse.copy(srcAbsolute, newPath, {
-        errorOnExist: true,
+        errorOnExist: false,
         filter: (copySrc, copyDest) => {
           const copySrcRelative = path.relative(config.srcPath, copySrc);
           return !excludePatterns.some((regex) => !!copySrcRelative.match(regex));
@@ -124,6 +124,7 @@ interface ImportRewriteResult {
     file: string;
     importReference: string;
   }[];
+  warnings: string[];
 }
 
 function exists(fpath: string): Promise<boolean> {
@@ -139,6 +140,14 @@ async function doImportRewrites(
 ): Promise<ImportRewriteResult> {
   console.log("Rewriting relative imports");
   const brokenImports: ImportRewriteResult["brokenImports"] = [];
+
+  const warnings: string[] = [];
+  function warn(...args: any[]) {
+    console.warn("WARN:", ...args);
+    warnings.push(
+      args.map((a) => (String(a) == "[object Object]" ? JSON.stringify(a) : String(a))).join(" ")
+    );
+  }
 
   // First, build a map of old module paths (without extension) to new module paths, combining the
   // list of files we copied and any explicit rewrites defined in the config file.
@@ -167,38 +176,44 @@ async function doImportRewrites(
     // import with one that's returned from a callback.
     const unchangedImports: string[] = [];
     const rewrittenImports: string[] = [];
-    await rewriteImportsRaw(newFile, (importPath) => {
-      // If the the import is not relative to begin with (i.e. importing a node module), don't do
-      // anything with it.
-      if (!importPath.startsWith("./") && !importPath.startsWith("../")) {
-        return importPath;
-      }
+    await rewriteImportsRaw(
+      newFile,
+      (importPath) => {
+        // If the the import is not relative to begin with (i.e. importing a node module), don't do
+        // anything with it.
+        if (!importPath.startsWith("./") && !importPath.startsWith("../")) {
+          return importPath;
+        }
 
-      // Turn import path into an absolute path in the source directory (still no extension though)
-      const oldAbsolute = path.resolve(oldFileDir, importPath);
+        // Turn import path into an absolute path in the source directory (still no extension though)
+        const oldAbsolute = path.resolve(oldFileDir, importPath);
 
-      // Check in the lookup map for the new path of the referenced file
-      if (!(oldAbsolute in lookupMap)) {
-        unchangedImports.push(importPath);
-        return importPath;
-      }
-      const rewrittenAbsolute = lookupMap[oldAbsolute];
+        // Check in the lookup map for the new path of the referenced file
+        if (!(oldAbsolute in lookupMap)) {
+          unchangedImports.push(importPath);
+          return importPath;
+        }
+        const rewrittenAbsolute = lookupMap[oldAbsolute];
 
-      // Convert resulting absolute path back to relative import
-      const rewrittenRelative = path.relative(newFileDir, rewrittenAbsolute);
-      const prefix = rewrittenRelative.startsWith("../") ? "" : "./";
-      const rewrittenWithPrefix = prefix + rewrittenRelative;
-      rewrittenImports.push(rewrittenWithPrefix);
+        // Convert resulting absolute path back to relative import
+        const rewrittenRelative = path.relative(newFileDir, rewrittenAbsolute);
+        const prefix = rewrittenRelative.startsWith("../") ? "" : "./";
+        const rewrittenWithPrefix = prefix + rewrittenRelative;
+        rewrittenImports.push(rewrittenWithPrefix);
 
-      return rewrittenWithPrefix;
+        return rewrittenWithPrefix;
+      },
+      warn
+    ).catch((err) => {
+      warn("Error from rewriteImportsRaw", newFile, err);
     });
 
     // For any relative imports in the file that we did not transform (and even those we did, as a
     // sanity check), check if a file exists in the expected location. If not, log a warning.
     for (const importPath of unchangedImports) {
       if (await exists(path.resolve(newFileDir, importPath + ".js"))) {
-        console.warn(
-          "WARN: unchanged relative import",
+        warn(
+          "unchanged relative import",
           importPath,
           "not broken in",
           newFile,
@@ -206,19 +221,19 @@ async function doImportRewrites(
         );
         continue;
       }
-      console.warn("WARN: broken import", importPath, "(unchanged) in", newFile);
+      warn("broken import", importPath, "(unchanged) in", newFile);
       brokenImports.push({ file: newFile, importReference: importPath });
     }
     for (const importPath of rewrittenImports) {
       if (await exists(path.resolve(newFileDir, importPath + ".js"))) {
         continue;
       }
-      console.warn("WARN: broken import", importPath, "(rewritten) in", newFile);
+      warn("broken import", importPath, "(rewritten) in", newFile);
       brokenImports.push({ file: newFile, importReference: importPath });
     }
   }
 
-  return { brokenImports };
+  return { brokenImports, warnings };
 }
 
 export interface ResultsFile {
