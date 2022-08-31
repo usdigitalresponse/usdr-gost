@@ -18,10 +18,14 @@ export async function doFooterComments(createdFiles: CopyResult["createdFiles"],
     const msg = `NOTE: This file was copied from ${oldRelative} (git @ ${srcRepoGitHash}) in the ${config.srcRepoName} repo on ${dateString}`;
     let comment = null;
 
-    if (newPath.endsWith(".js")) {
+    if (newPath.endsWith(".js") || newPath.endsWith(".mjs")) {
       comment = `\n// ${msg}\n`;
     } else if (newPath.endsWith(".vue")) {
       comment = `\n<!-- ${msg} -->\n`;
+    } else if (newPath.endsWith(".scss")) {
+      comment = `\n/* ${msg} */\n`;
+    } else if (newPath.endsWith(".sh")) {
+      comment = `\n# ${msg}\n`;
     }
 
     if (comment) {
