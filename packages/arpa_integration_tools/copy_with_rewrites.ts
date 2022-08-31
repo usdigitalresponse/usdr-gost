@@ -25,7 +25,7 @@ async function doCopies(config: Config): Promise<CopyResult> {
 
   for (let [srcGlob, v] of Object.entries(config.copies)) {
     const copyConfig: CopyConfig =
-      typeof v === "string" ? { dest: v as string } : (v as CopyConfig);
+      typeof v === "string" || !v ? { dest: v as string } : (v as CopyConfig);
     const excludePatterns = (copyConfig.excludePatterns || []).map((p) => new RegExp(p));
     // This allows running the script while the config is unfinished, or with entries listed for
     // readability that should not actually be copied
@@ -106,7 +106,7 @@ async function doFooterComments(createdFiles: CopyResult["createdFiles"], config
     if (newPath.endsWith(".js")) {
       comment = `\n// ${msg}\n`;
     } else if (newPath.endsWith(".vue")) {
-      comment = "\n<!-- ${msg} -->\n";
+      comment = `\n<!-- ${msg} -->\n`;
     }
 
     if (comment) {
@@ -162,7 +162,7 @@ async function doImportRewrites(
   for (const [oldImport, newImport] of Object.entries(config.importRewrites)) {
     const oldAbsolute = path.resolve(config.srcPath, oldImport);
     const newAbsolute = path.resolve(config.destPath, newImport);
-    lookupMap[oldAbsolute] = newAbsolute;
+    lookupMap[truncateExtension(oldAbsolute)] = truncateExtension(newAbsolute);
   }
 
   // Then, go through each of the newly copied JS files and parse them looking for imports to rewrite.
@@ -191,12 +191,17 @@ async function doImportRewrites(
         importPath = truncateExtension(importPath);
 
         // Turn import path into an absolute path in the source directory (still no extension though)
-        const oldAbsolute = path.resolve(oldFileDir, importPath);
+        let oldAbsolute = path.resolve(oldFileDir, importPath);
 
         // Check in the lookup map for the new path of the referenced file
         if (!(oldAbsolute in lookupMap)) {
-          unchangedImports.push(importPath);
-          return importPath;
+          // Some things import e.g. "./store/index.js" as "./store"
+          oldAbsolute = path.join(oldAbsolute, "index");
+
+          if (!(oldAbsolute in lookupMap)) {
+            unchangedImports.push(importPath);
+            return importPath;
+          }
         }
         const rewrittenAbsolute = lookupMap[oldAbsolute];
 
@@ -219,11 +224,11 @@ async function doImportRewrites(
     for (const importPath of unchangedImports) {
       if (await exists(path.resolve(newFileDir, importPath + ".js"))) {
         warn(
-          "unchanged relative import",
+          "unchanged relative import to non-copied file",
           importPath,
           "not broken in",
           newFile,
-          "-- was this expected?"
+          "-- was this expected? May have unintentionally imported something else."
         );
         continue;
       }
