@@ -167,7 +167,7 @@ async function doImportRewrites(
 
   // Then, go through each of the newly copied JS files and parse them looking for imports to rewrite.
   for (const [newFile, oldFile] of Object.entries(createdFiles)) {
-    if (!newFile.endsWith(".js")) {
+    if (!newFile.endsWith(".js") && !newFile.endsWith(".vue")) {
       continue;
     }
     const { dir: oldFileDir } = path.parse(oldFile);
@@ -186,6 +186,10 @@ async function doImportRewrites(
           return importPath;
         }
 
+        // Some Vue imports contain an extension, but our lookup map omits extensions
+        const { ext: importExt } = path.parse(importPath);
+        importPath = truncateExtension(importPath);
+
         // Turn import path into an absolute path in the source directory (still no extension though)
         const oldAbsolute = path.resolve(oldFileDir, importPath);
 
@@ -196,8 +200,9 @@ async function doImportRewrites(
         }
         const rewrittenAbsolute = lookupMap[oldAbsolute];
 
-        // Convert resulting absolute path back to relative import
-        const rewrittenRelative = path.relative(newFileDir, rewrittenAbsolute);
+        // Convert resulting absolute path back to relative import, re-adding extension if it
+        // was present on the original import.
+        const rewrittenRelative = path.relative(newFileDir, rewrittenAbsolute) + importExt;
         const prefix = rewrittenRelative.startsWith("../") ? "" : "./";
         const rewrittenWithPrefix = prefix + rewrittenRelative;
         rewrittenImports.push(rewrittenWithPrefix);

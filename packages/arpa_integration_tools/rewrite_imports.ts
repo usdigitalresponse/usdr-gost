@@ -10,13 +10,41 @@ export async function rewriteImportsRaw(
   warn = console.warn,
   dryRun = false
 ) {
-  const inputCode = await fs.readFile(filePath, { encoding: "utf8" });
+  const fileContents = await fs.readFile(filePath, { encoding: "utf8" });
+  let scriptStart = 0;
+  let scriptEnd = fileContents.length;
+  let inputCode = fileContents;
+  let startLine = 1;
+  let startColumn = 1;
+
+  // Handle .vue files. Babel doesn't understand them, so extract just the JS portion
+  if (filePath.endsWith(".vue")) {
+    const matches = /<script>.*<\/script>/ms.exec(fileContents);
+    if (!matches) {
+      warn("Vue file with no script tag found; skipping import rewriting.", filePath);
+      return;
+    }
+
+    scriptStart = matches.index + "<script>".length;
+    scriptEnd = matches.index + matches[0].length - "</script>".length;
+    inputCode = fileContents.substring(scriptStart, scriptEnd);
+
+    const prefix = fileContents.substring(0, scriptStart).split("\n");
+    startLine = prefix.length;
+    startColumn = prefix[prefix.length - 1].length;
+  }
 
   // Use Babel parser to identify StringLiteral elements corresponding to require() statements
   // NOTE: this only supports JS/TS, but not Vue SFC format. Those will have to have imports fixed
   // separately up manually if we change their directory structure (though might be grep-able because
   // they mostly use Vue's @-imports that are relative to src/)
-  const ast = parse(inputCode, { sourceFilename: filePath });
+  const ast = parse(inputCode, {
+    sourceFilename: filePath,
+    startLine,
+    startColumn,
+    // Required to support import statements
+    sourceType: "module",
+  });
   const toReplace: types.StringLiteral[] = [];
   traverse(ast, {
     CallExpression: (path, state) => {
@@ -32,6 +60,15 @@ export async function rewriteImportsRaw(
       }
 
       toReplace.push(reqPathNode);
+    },
+    ImportDeclaration: (path, state) => {
+      const sourceNode = path.node.source;
+      if (sourceNode.type != "StringLiteral") {
+        warn("Encountered non-literal import at", path.node.loc);
+        return;
+      }
+
+      toReplace.push(sourceNode);
     },
   });
 
@@ -65,6 +102,10 @@ export async function rewriteImportsRaw(
   if (cursor < inputCode.length) {
     outputCode += inputCode.substring(cursor);
   }
+
+  // Re-wrap code if we stripped out Vue stuff
+  outputCode =
+    fileContents.substring(0, scriptStart) + outputCode + fileContents.substring(scriptEnd);
 
   if (dryRun) {
     console.log(outputCode);
