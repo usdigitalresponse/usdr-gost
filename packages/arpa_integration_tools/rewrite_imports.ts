@@ -6,7 +6,7 @@ import * as fs from "fs/promises";
 
 export async function rewriteImportsRaw(
   filePath: string,
-  rewriter: (path: string) => string,
+  rewriter: (path: string) => Promise<string>,
   warn = console.warn,
   dryRun = false
 ) {
@@ -86,7 +86,7 @@ export async function rewriteImportsRaw(
     }
 
     const oldPath = astNode.value;
-    const newPath = rewriter(oldPath);
+    const newPath = await rewriter(oldPath);
     if (oldPath == newPath) {
       // Don't emit anything, next iteration will advance cursor and include the original import
       continue;

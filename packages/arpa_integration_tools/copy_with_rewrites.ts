@@ -139,6 +139,52 @@ function exists(fpath: string): Promise<boolean> {
   );
 }
 
+// Used for identifying "src" folder that Vue "@/" imports refer to
+async function getSrcParentDirRelativePrefixForFile(fpath: string) {
+  const origPath = fpath;
+  let ret = "";
+  let found = false;
+
+  // Get absolute paths of all parent directories
+  const parents = [];
+  while (fpath != "/") {
+    const p = path.dirname(fpath);
+    parents.push(p);
+    fpath = p;
+  }
+
+  for (const parent of parents) {
+    // Is the parent directory itself a src folder?
+    if (path.basename(parent) == "src") {
+      found = true;
+      break;
+    }
+
+    // Does the parent directory contain a src folder?
+    // This check is to handle @/ imports in tests that are not themselves nested under src.
+    // Assumption: src will be a sibling to some parent of the test file.
+    if (await exists(path.join(parent, "src"))) {
+      ret = `${ret}src/`;
+      found = true;
+      break;
+    }
+
+    ret = `../${ret}`;
+  }
+
+  if (!found) {
+    // If we never broke out of this loop, we went all the way up to filesystem root
+    // and didn't find a src folder
+    throw new Error(`getSrcParentDirRelativeToPath got path ${origPath} not nested under src!`);
+  }
+
+  if (!ret.startsWith("../")) {
+    ret = "./";
+  }
+
+  return ret;
+}
+
 async function doImportRewrites(
   createdFiles: CopyResult["createdFiles"],
   config: Config
@@ -180,7 +226,21 @@ async function doImportRewrites(
     const rewrittenImports: string[] = [];
     await rewriteImportsRaw(
       newFile,
-      (importPath) => {
+      async (importPath) => {
+        // Some Vue components and tests use these wacky "@/" imports that basically mean
+        // "relative to src folder".
+        // See https://stackoverflow.com/a/42753045
+        // To process these, we have to convert to regular relative imports. This means we will also
+        // output these as regular relative imports (that's fine & should be equivalent).
+        //
+        // TODO: There are also a few of these in tests folder that will get rewritten by this to
+        // have long strings of ../../../ -- is that desirable, or should we keep the "@/" imports
+        // and fix up manually if needed?
+        if (importPath.startsWith("@/")) {
+          const srcSrcRelative = await getSrcParentDirRelativePrefixForFile(oldFile);
+          importPath = importPath.replace("@/", srcSrcRelative);
+        }
+
         // If the the import is not relative to begin with (i.e. importing a node module), don't do
         // anything with it.
         if (!importPath.startsWith("./") && !importPath.startsWith("../")) {
