@@ -308,7 +308,6 @@ COOKIE_SECRET=<RANDOM_ALPHANUMERIC_SECRET>
 API_DOMAIN=<WEB_SERVICE_URL> # Render web service url ie. https://cares-grant-opportunities-qi8i.onrender.com
 VUE_APP_GRANTS_API_URL=<WEB_SERVICE_URL> # ie. https://cares-grant-opportunities-qi8i.onrender.com
 
-STATE_NAME=Nevada
 NODE_ENV=development or production or test
 
 NOTIFICATIONS_EMAIL="grants-identification@usdigitalresponse.org"
