@@ -71,6 +71,7 @@ async function doCopies(config: Config): Promise<CopyResult> {
         const allCreated: RRFile[] = await listFiles(newPath, {
           recursive: true,
         });
+
         for (const created of allCreated) {
           if (created.isDirectory) {
             createdDirectories.push(created.fullname);
@@ -84,6 +85,9 @@ async function doCopies(config: Config): Promise<CopyResult> {
           createdFiles[createdPath] = srcFileAbsolute;
           console.log("Copied", srcFileAbsolute, "to", createdPath);
         }
+
+        // listFiles won't include the copied directory itself
+        createdDirectories.push(newPath);
       }
     }
   }
@@ -154,9 +158,6 @@ async function doImportRewrites(
   // list of files we copied and any explicit rewrites defined in the config file.
   const lookupMap: { [oldPath: string]: string /* new path */ } = {};
   for (const [newFile, oldFile] of Object.entries(createdFiles)) {
-    if (!newFile.endsWith(".js")) {
-      continue;
-    }
     lookupMap[truncateExtension(oldFile)] = truncateExtension(newFile);
   }
   for (const [oldImport, newImport] of Object.entries(config.importRewrites)) {
@@ -195,8 +196,11 @@ async function doImportRewrites(
 
         // Check in the lookup map for the new path of the referenced file
         if (!(oldAbsolute in lookupMap)) {
-          // Some things import e.g. "./store/index.js" as "./store"
-          oldAbsolute = path.join(oldAbsolute, "index");
+          // Some things import e.g. "./store/index.js" as "./store".
+          // Don't try this if the original import had an extension on it.
+          if (!importExt) {
+            oldAbsolute = path.join(oldAbsolute, "index");
+          }
 
           if (!(oldAbsolute in lookupMap)) {
             unchangedImports.push(importPath);
@@ -230,10 +234,10 @@ async function doImportRewrites(
           newFile,
           "-- was this expected? May have unintentionally imported something else."
         );
-        continue;
+      } else {
+        warn("broken import", importPath, "(unchanged) in", newFile);
+        brokenImports.push({ file: newFile, importReference: importPath });
       }
-      warn("broken import", importPath, "(unchanged) in", newFile);
-      brokenImports.push({ file: newFile, importReference: importPath });
     }
     for (const importPath of rewrittenImports) {
       if (await exists(path.resolve(newFileDir, importPath + ".js"))) {
