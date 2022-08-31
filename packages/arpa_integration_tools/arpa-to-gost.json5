@@ -13,7 +13,7 @@
         "db/agencies\\.js",
 
         // Auth: will use GOST's existing auth code
-        "lib/access-helpers\\.js",
+        "access-helpers\\.js",
         "routes/sessions\\.js",
 
         // Email: only used by auth, will use GOST's existing auth code
@@ -71,6 +71,7 @@
     "tests/server-aws-ses": "packages/server/__tests__/arpa_reporter",
 
     // config files
+    "docker-compose.yml": "packages/server", // Only used for Postgres, but some ARPA Reporter engineers are using it, so keep it to easy transition.
     "vue.config.js": null, // GOST already has a similar config; may need to adjust slightly for static files being at multiple paths
     ".eslintrc.js": null, // Will manually reconcile (contains relative paths & ARPA already has an eslint config)
     "package.json": null, // Will manually reconcile scripts; deps already reconciled manually.
@@ -82,7 +83,6 @@
     "render.yaml": null, // Render is already configured for GOST; will manually reconcile env vars & disk setup
     ".node-version": null, // Already manually reconciled
     ".env.example": null, // Already manually reconciled
-    "docker-compose.yml": null, // Docker config only has postgres in it, not going to use
     ".eslintrc.usdr.js": null, // Seemingly unused?
     ".prettierrc.json.example": null, // Unused? Will eventually re-add Prettier to GOST post-merge
 
