@@ -13,3 +13,21 @@ export interface CopyConfig {
   // regex (not glob) patterns to exclude (compared against the path relative to srcPath)
   excludePatterns?: string[];
 }
+
+export interface ImportRewriteResult {
+  brokenImports: {
+    file: string;
+    importReference: string;
+  }[];
+  warnings: string[];
+}
+
+export interface CopyResult {
+  createdFiles: { [newPath: string]: string /* old path */ };
+  createdDirectories: string[];
+}
+
+export interface ResultsFile {
+  copyResult: CopyResult;
+  importRewriteResult: ImportRewriteResult;
+}

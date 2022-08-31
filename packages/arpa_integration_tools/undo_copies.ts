@@ -1,4 +1,4 @@
-import type { ResultsFile } from "./copy_with_rewrites";
+import type { ResultsFile } from "./types";
 import * as fse from "fs-extra";
 
 function deleteAll(paths: string[]) {
