@@ -27,8 +27,9 @@ async function doCopies(config: Config): Promise<CopyResult> {
     const copyConfig: CopyConfig =
       typeof v === "string" ? { dest: v as string } : (v as CopyConfig);
     const excludePatterns = (copyConfig.excludePatterns || []).map((p) => new RegExp(p));
-    // This allows running the script while the config is unfinished
-    if (copyConfig.dest == "" || copyConfig.dest == "???") {
+    // This allows running the script while the config is unfinished, or with entries listed for
+    // readability that should not actually be copied
+    if (!copyConfig.dest || copyConfig.dest == "???") {
       continue;
     }
 

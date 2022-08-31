@@ -3,85 +3,102 @@
   "srcRepoName": "arpa-reporter",
   "destPath": "/Users/mattb/Desktop/usdr/usdr-gost",
   "copies": {
-    // server logic
+    // server code
     "src/server/*": {
       "dest": "packages/server/src/arpa_reporter",
       "excludePatterns": [
         // Database: will use GOST's existing code for these
-        "db/connection.js",
-        "db/users.js",
-        "db/agencies.js",
+        "db/connection\\.js",
+        "db/users\\.js",
+        "db/agencies\\.js",
 
         // Auth: will use GOST's existing auth code
-        "lib/access-helpers.js",
-        "routes/sessions.js",
+        "lib/access-helpers\\.js",
+        "routes/sessions\\.js",
 
         // Email: only used by auth, will use GOST's existing auth code
-        "lib/email-aws.js",
-        "lib/email-nodemailer.js",
-        "lib/email.js",
+        "lib/email-aws\\.js",
+        "lib/email-nodemailer\\.js",
+        "lib/email\\.js",
       ]
     },
-
-    // client logic
-    "scss": "???",
-    "public/*": "packages/client/public/arpa_reporter",
-    "src/App.vue": "???",
-    "src/main.js": "???",
-    "src/assets": "???",
-    "src/components": "???",
-    "src/helpers": "???",
-    "src/router": "???",
-    "src/store": "???",
-    "src/views": {
-      "dest": "???",
+    // TODO: what to do about seeds?
+    "seeds/*": {
+      "dest": "packages/server/seeds/arpa_reporter_dev",
       "excludePatterns": [
-        "Login.vue"
+        "01_roles.js",
+        "02_users.js",
+        "06_migrate_from_source.js",
+      ],
+    },
+
+    // client code
+    "scss": "packages/client/arpa_reporter",
+    "public": "packages/client/arpa_reporter",
+    "src/App.vue": "packages/client/arpa_reporter",
+    "src/main.js": "packages/client/arpa_reporter",
+    "src/assets": "packages/client/arpa_reporter",
+    "src/components": "packages/client/arpa_reporter",
+    "src/helpers": "packages/client/arpa_reporter",
+    "src/router": "packages/client/arpa_reporter",
+    "src/store": "packages/client/arpa_reporter",
+    "src/views": {
+      "dest": "packages/client/arpa_reporter",
+      "excludePatterns": [
+        "Login\\.vue"
       ],
     },
 
     // tests
-    "tests/server/*": {
+    "tests/unit/*": {
+      "dest": "packages/client/tests/unit/arpa_reporter",
+      "excludePatterns": [
+        "views/Login\\.spec\\.js",
+      ],
+    },
+    "tests/server": {
       "dest": "packages/server/__tests__/arpa_reporter",
       "excludePatterns": [
         // TODO: actually exclude this? it exercises session cookie test helper
-        "routes/session.spec.js",
-        "reset-dbx.sh",
+        "routes/session\\.spec\\.js",
+        "reset-dbx\\.sh",
+        // TODO: what to do about seeds?
+        "seeds/01_roles\\.js",
+        "seeds/02_users\\.js",
       ],
     },
-    "tests/unit/*": {
-      "dest": "???",
-      "excludePatterns": [
-        "views/Login.spec.js",
-      ],
-    },
-    "tests/server-nodemailer": "???",
-    "tests/server-aws-ses": "???",
+    "tests/server-nodemailer": "packages/server/__tests__/arpa_reporter",
+    "tests/server-aws-ses": "packages/server/__tests__/arpa_reporter",
 
     // config files
-    "vue.config.js": "???",
-    "tsconfig.json": "???",
-    "LICENSE": "???",
-    "babel.config.js": "???",
-    "knexfile.js": "???",
-    "importdb": "???",
-    "docker-compose.yml": "???",
-    "RENDER.md": "???",
-    "render.yaml": "???",
-    ".prettierrc.json.example": "???",
-    ".editorconfig": "???",
-    ".node-version": "???",
-    ".eslintrc.js": "???",
-    ".env.example": "???",
-    ".eslintrc.usdr.js": "???",
-    ".browserslistrc": "???",
+    "vue.config.js": null, // GOST already has a similar config; may need to adjust slightly for static files being at multiple paths
+    ".eslintrc.js": null, // Will manually reconcile (contains relative paths & ARPA already has an eslint config)
+    "package.json": null, // Will manually reconcile scripts; deps already reconciled manually.
+    "tsconfig.json": null, // Will manually reconcile (contains relative paths); only used for linter currently.
+    ".editorconfig": null, // Will manually reconcile with existing file in GOST
+    "babel.config.js": null, // GOST already has an identical config
+    ".browserslistrc": null, // GOST already has an identical config
+    "knexfile.js": null, // GOST already has a knexfile
+    "render.yaml": null, // Render is already configured for GOST; will manually reconcile env vars & disk setup
+    ".node-version": null, // Already manually reconciled
+    ".env.example": null, // Already manually reconciled
+    "docker-compose.yml": null, // Docker config only has postgres in it, not going to use
+    ".eslintrc.usdr.js": null, // Seemingly unused?
+    ".prettierrc.json.example": null, // Unused? Will eventually re-add Prettier to GOST post-merge
 
-    // misc things that won't likely be used in GOST, but useful historical context to keep around
+    // misc things that won't likely be used in GOST, but possibly useful historical context to keep around?
     "migrations/*": "arpa_reporter_misc/legacy_migrations",
-    "seeds/*": "???",
-    "scripts/*": "???",
-    "README.md": "???",
-    "doc": "???",
+    "scripts/*": {
+      "dest": "packages/server/src/scripts",
+      "excludePatterns": [
+        "initRender\\.mjs", // After GOST merge, won't be deploying any new ARPA Reporter instances
+      ],
+    },
+    "importdb": null, // Seems old/unused
+    "doc": "arpa_reporter_misc",
+    "README.md": null, // GOST already has one, but might need to add some ARPA specific information to it?
+    "RENDER.md": null, // After GOST merge, won't be deploying any new ARPA Reporter instances
+    "LICENSE": null, // GOST already has one
   },
   "importRewrites": {
     "src/server/db/connection.js": "packages/server/src/db/connection.js",
