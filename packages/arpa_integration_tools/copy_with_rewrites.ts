@@ -240,11 +240,25 @@ async function doImportRewrites(
       }
     }
     for (const importPath of rewrittenImports) {
-      if (await exists(path.resolve(newFileDir, importPath + ".js"))) {
-        continue;
+      let found = false;
+      for (const ext of [
+        // Empty string is in this list because imports that had extension specfied in code will
+        // end up in rewrittenImports also with extension, then not be found if we try to append
+        // a second extension to them.
+        "",
+        ".js",
+        ".vue",
+      ]) {
+        if (await exists(path.resolve(newFileDir, importPath + ext))) {
+          found = true;
+          break;
+        }
       }
-      warn("broken import", importPath, "(rewritten) in", newFile);
-      brokenImports.push({ file: newFile, importReference: importPath });
+
+      if (!found) {
+        warn("broken import", importPath, "(rewritten) in", newFile, "expected to find at");
+        brokenImports.push({ file: newFile, importReference: importPath });
+      }
     }
   }
 
