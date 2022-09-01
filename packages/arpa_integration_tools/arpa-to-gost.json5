@@ -110,5 +110,6 @@
     "src/server/db/users.js": "packages/server/src/db/arpa_reporter_db_shims/users.js",
     "src/server/db/agencies.js": "packages/server/src/db/arpa_reporter_db_shims/agencies.js",
     "src/server/routes/sessions.js": "packages/server/src/routes/sessions.js",
+    "src/server/lib/email.js": "packages/server/src/lib/arpa_reporter_shims/email.js",
   }
 }
