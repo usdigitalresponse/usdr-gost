@@ -3,12 +3,12 @@ const { CronJob } = require('cron');
 const fs = require('fs').promises;
 const path = require('path');
 
-const configureAPI = require('./configure');
+const { configureApp } = require('./configure');
 const grantscraper = require('./lib/grantscraper');
 
 const { PORT = 3000 } = process.env;
 const app = express();
-configureAPI(app);
+configureApp(app);
 const server = app.listen(PORT, () => console.log(`App running on port ${PORT}!`));
 
 if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {

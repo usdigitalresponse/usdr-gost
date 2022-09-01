@@ -8,11 +8,7 @@ const morgan = require('morgan');
 const history = require('connect-history-api-fallback');
 const { resolve } = require('path');
 
-module.exports = (app) => {
-    app.use(morgan('common'));
-    app.use(cookieParser(process.env.COOKIE_SECRET));
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
+function configureApiRoutes(app) {
     app.use('/api/organizations/:organizationId/users', require('./routes/users'));
     app.use('/api/organizations/:organizationId/roles', require('./routes/roles'));
     app.use('/api/sessions', require('./routes/sessions'));
@@ -25,8 +21,18 @@ module.exports = (app) => {
     app.use('/api/organizations/:organizationId/keywords', require('./routes/keywords'));
     app.use('/api/organizations/:organizationId/refresh', require('./routes/refresh'));
     app.use('/api/annual-reports/', require('./routes/annualReports'));
+}
 
-    // "public" folder: client HTML and JS built by Vue/Webpack
+function configureApp(app) {
+    app.use(morgan('common'));
+    app.use(cookieParser(process.env.COOKIE_SECRET));
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
+
+    configureApiRoutes(app);
+    // When ARPA Reporter is brought in, there will be a similar call here to register its routes
+
+    // "public" folder: HTML and JS built by Vue/Webpack, and other static files in client/public
     //  - In dev: these files are served by webpack-dev-server and the requests don't get to here
     //  - In prod: these files are prebuilt and served by this middleware
     const publicPath = resolve(__dirname, '../../client/dist');
@@ -62,4 +68,6 @@ module.exports = (app) => {
         res.status(500);
         res.json({ status: 500, message: 'Internal Server Error' });
     });
-};
+}
+
+module.exports = { configureApp };
