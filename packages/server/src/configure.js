@@ -8,6 +8,7 @@ const morgan = require('morgan');
 const history = require('connect-history-api-fallback');
 const { resolve } = require('path');
 const { configureApiRoutes: configureArpaReporterApiRoutes } = require('./arpa_reporter/configure');
+const { requestProviderMiddleware } = require('./arpa_reporter/use-request');
 
 function configureApiRoutes(app) {
     app.use('/api/organizations/:organizationId/users', require('./routes/users'));
@@ -29,6 +30,7 @@ function configureApp(app) {
     app.use(cookieParser(process.env.COOKIE_SECRET));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
+    app.use(requestProviderMiddleware);
 
     configureApiRoutes(app);
     configureArpaReporterApiRoutes(app);
