@@ -38,15 +38,15 @@
     // client code
     "scss": "packages/client/arpa_reporter",
     "public/*": "packages/client/public/arpa_reporter",
-    "src/App.vue": "packages/client/arpa_reporter",
-    "src/main.js": "packages/client/arpa_reporter",
-    "src/assets": "packages/client/arpa_reporter",
-    "src/components": "packages/client/arpa_reporter",
-    "src/helpers": "packages/client/arpa_reporter",
-    "src/router": "packages/client/arpa_reporter",
-    "src/store": "packages/client/arpa_reporter",
+    "src/App.vue": "packages/client/src/arpa_reporter",
+    "src/main.js": "packages/client/src/arpa_reporter",
+    "src/assets": "packages/client/src/arpa_reporter",
+    "src/components": "packages/client/src/arpa_reporter",
+    "src/helpers": "packages/client/src/arpa_reporter",
+    "src/router": "packages/client/src/arpa_reporter",
+    "src/store": "packages/client/src/arpa_reporter",
     "src/views": {
-      "dest": "packages/client/arpa_reporter",
+      "dest": "packages/client/src/arpa_reporter",
       "excludePatterns": [
         // TODO: decide what to do with this
         // "Login\\.vue"
