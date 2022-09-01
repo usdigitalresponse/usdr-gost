@@ -5,24 +5,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
-const cors = require('cors');
 const history = require('connect-history-api-fallback');
 const { resolve } = require('path');
 
 const publicPath = resolve(__dirname, '../../client/dist');
 
 module.exports = (app) => {
-    app.use(cors({
-        credentials: true,
-        exposedHeaders: ['set-cookie'],
-        origin: (origin, callback) => {
-            // if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-            // } else {
-            //     callback(new Error(`Origin: ${origin} is now allowed`));
-            // }
-        },
-    }));
     app.use(morgan('common'));
     app.use(cookieParser(process.env.COOKIE_SECRET));
     app.use(bodyParser.json());
