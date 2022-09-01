@@ -1,4 +1,3 @@
-
 // This will be used to branch behaviors in ARPA Reporter code based on running
 // in GOST environment.
 process.env.VUE_APP_IS_GOST = true;
@@ -24,6 +23,16 @@ module.exports = {
       '/api': {
         target: 'http://localhost:3000',
       },
+    },
+    historyApiFallback: {
+      disableDotRule: true,
+      verbose: true,
+      rewrites: [
+        {
+          from: /^\/arpa_reporter\/.*/,
+          to: '/arpa_reporter/index.html',
+        },
+      ],
     },
   },
 };

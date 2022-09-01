@@ -36,7 +36,7 @@ function configureApp(app) {
     //  - In dev: these files are served by webpack-dev-server and the requests don't get to here
     //  - In prod: these files are prebuilt and served by this middleware
     const publicPath = resolve(__dirname, '../../client/dist');
-    app.use(express.static(publicPath, {
+    const staticMiddleware = express.static(publicPath, {
         etag: true,
         lastModified: true,
         setHeaders: (res, path) => {
@@ -50,7 +50,8 @@ function configureApp(app) {
                 res.setHeader('Cache-Control', 'max-age=31536000');
             }
         },
-    }));
+    });
+    app.use(staticMiddleware);
 
     // Any requests that aren't served by previous middlewares (i.e. would 404) get processed as if
     // they were for the root path ("/"). This allows a single-page app (SPA) to manage history/navigation
@@ -60,7 +61,17 @@ function configureApp(app) {
         history({
             disableDotRule: true,
             verbose: true,
+            rewrites: [
+                {
+                    from: /^\/arpa_reporter\/.*/,
+                    to: '/arpa_reporter/index.html',
+                },
+            ],
         }),
+        // Not a mistake that we call this twice! Since the history middleware rewrites to paths that
+        // are handled by the static middleware above it, we need the static middleware to run a second
+        // time after the history middleware rewrote the URL.
+        staticMiddleware,
     );
 
     // eslint-disable-next-line no-unused-vars
