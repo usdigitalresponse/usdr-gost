@@ -11,7 +11,7 @@ module.exports = {
       filename: 'index.html',
     },
     // arpaReporter: {
-    //   entry: 'src/arpa_reporter/index.js',
+    //   entry: 'src/arpa_reporter/main.js',
     //   template: 'public/arpa_reporter/index.html',
     //   filename: 'arpa_reporter/index.html',
     // },
