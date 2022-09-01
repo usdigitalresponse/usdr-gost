@@ -42,6 +42,15 @@ export async function doCopies(config: Config): Promise<CopyResult> {
       const isDir = srcAbsolute.endsWith("/");
       const newPath = path.join(destAbsolute, path.basename(srcAbsolute));
 
+      // Check exclude patterns on the glob result.
+      // We need to do this here (in addition to the filter predicate below) because if the glob
+      // result is a single file, the filter predicate will stop it from being copied, but it won't
+      // stop us from adding to createdFiles further below.
+      const srcRelative = path.relative(config.srcPath, srcAbsolute);
+      if (excludePatterns.some((regex) => !!srcRelative.match(regex))) {
+        continue;
+      }
+
       // Do the copy. This function recursively copies subdirectories and calls our filter callback
       // to exclude some files from copying.
       await fse.copy(srcAbsolute, newPath, {

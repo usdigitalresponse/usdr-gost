@@ -7,6 +7,9 @@
     "src/server/*": {
       "dest": "packages/server/src/arpa_reporter",
       "excludePatterns": [
+        // Entry point: don't copy the src/server/index module that starts Express; GOST has it own.
+        "src/server/index.js",
+
         // Database: will use GOST's existing code for these
         "db/connection\\.js",
         "db/users\\.js",
