@@ -54,7 +54,8 @@ function configureApp(app) {
 
     // Any requests that aren't served by previous middlewares (i.e. would 404) get processed as if
     // they were for the root path ("/"). This allows a single-page app (SPA) to manage history/navigation
-    // on the clientside without having to use URL hash/fragment.
+    // on the clientside without having to use URL hash/fragment (though we're not currently using the
+    // relevant option in VueRouter)
     app.use(
         history({
             disableDotRule: true,
