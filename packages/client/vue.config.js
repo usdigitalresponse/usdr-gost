@@ -9,11 +9,11 @@ module.exports = {
       template: 'public/index.html',
       filename: 'index.html',
     },
-    // arpaReporter: {
-    //   entry: 'src/arpa_reporter/main.js',
-    //   template: 'public/arpa_reporter/index.html',
-    //   filename: 'arpa_reporter/index.html',
-    // },
+    arpaReporter: {
+      entry: 'src/arpa_reporter/main.js',
+      template: 'public/arpa_reporter/index.html',
+      filename: 'arpa_reporter/index.html',
+    },
   },
   devServer: {
     client: {

@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const history = require('connect-history-api-fallback');
 const { resolve } = require('path');
+const { configureApiRoutes: configureArpaReporterApiRoutes } = require('./arpa_reporter/configure');
 
 function configureApiRoutes(app) {
     app.use('/api/organizations/:organizationId/users', require('./routes/users'));
@@ -30,7 +31,7 @@ function configureApp(app) {
     app.use(bodyParser.urlencoded({ extended: true }));
 
     configureApiRoutes(app);
-    // When ARPA Reporter is brought in, there will be a similar call here to register its routes
+    configureArpaReporterApiRoutes(app);
 
     // "public" folder: HTML and JS built by Vue/Webpack, and other static files in client/public
     //  - In dev: these files are served by webpack-dev-server and the requests don't get to here
