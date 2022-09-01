@@ -14,7 +14,7 @@ module.exports = {
   ignorePatterns: [
     // NOTE(mbroussard): this is temporary, just to make committing on ARPA integration dev branch a bit
     // less annoying.
-    'arpa_reporter/**/*',
+    'src/arpa_reporter/**/*',
     'tests/**/arpa_reporter/**/*',
   ],
   rules: {
