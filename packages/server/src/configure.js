@@ -8,8 +8,6 @@ const morgan = require('morgan');
 const history = require('connect-history-api-fallback');
 const { resolve } = require('path');
 
-const publicPath = resolve(__dirname, '../../client/dist');
-
 module.exports = (app) => {
     app.use(morgan('common'));
     app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -28,7 +26,11 @@ module.exports = (app) => {
     app.use('/api/organizations/:organizationId/refresh', require('./routes/refresh'));
     app.use('/api/annual-reports/', require('./routes/annualReports'));
 
-    const staticMiddleware = express.static(publicPath, {
+    // "public" folder: client HTML and JS built by Vue/Webpack
+    //  - In dev: these files are served by webpack-dev-server and the requests don't get to here
+    //  - In prod: these files are prebuilt and served by this middleware
+    const publicPath = resolve(__dirname, '../../client/dist');
+    app.use(express.static(publicPath, {
         etag: true,
         lastModified: true,
         setHeaders: (res, path) => {
@@ -42,15 +44,18 @@ module.exports = (app) => {
                 res.setHeader('Cache-Control', 'max-age=31536000');
             }
         },
-    });
-    app.use(staticMiddleware);
-    app.use('/static', express.static(resolve(__dirname, '../static')));
+    }));
+
+    // Any requests that aren't served by previous middlewares (i.e. would 404) get processed as if
+    // they were for the root path ("/"). This allows a single-page app (SPA) to manage history/navigation
+    // on the clientside without having to use URL hash/fragment.
     app.use(
         history({
             disableDotRule: true,
             verbose: true,
         }),
     );
+
     // eslint-disable-next-line no-unused-vars
     app.use((err, req, res, next) => {
         console.error(err.stack);

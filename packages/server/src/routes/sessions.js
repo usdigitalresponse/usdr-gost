@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
                 res.redirect(process.env.WEBSITE_DOMAIN || '/');
             }
         } else {
-            res.sendFile(path.join(__dirname, '../../static/login_redirect.html'));
+            res.sendFile(path.join(__dirname, '../static/login_redirect.html'));
         }
     } else if (req.signedCookies && req.signedCookies.userId) {
         const user = await getUser(req.signedCookies.userId);
