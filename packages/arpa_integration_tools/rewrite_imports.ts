@@ -167,7 +167,7 @@ export async function doImportRewrites(
   config: Config
 ): Promise<ImportRewriteResult> {
   console.log("Rewriting relative imports");
-  const brokenImports: ImportRewriteResult["brokenImports"] = [];
+  let brokenImports: ImportRewriteResult["brokenImports"] = [];
 
   const warnings: string[] = [];
   function warn(...args: any[]) {
@@ -260,46 +260,59 @@ export async function doImportRewrites(
       warn("Error from rewriteImportsRaw", newFile, err);
     });
 
-    // For any relative imports in the file that we did not transform (and even those we did, as a
-    // sanity check), check if a file exists in the expected location. If not, log a warning.
-    for (const importPath of unchangedImports) {
-      if (await exists(path.resolve(newFileDir, importPath + ".js"))) {
-        warn(
-          "unchanged relative import to non-copied file",
-          importPath,
-          "not broken in",
-          newFile,
-          "-- was this expected? May have unintentionally imported something else."
-        );
-      } else {
-        warn("broken import", importPath, "(unchanged) in", newFile);
-        brokenImports.push({ file: newFile, importReference: importPath });
-      }
-    }
-    for (const importPath of rewrittenImports) {
-      let found = false;
-      for (const ext of [
-        // Empty string is in this list because imports that had extension specfied in code will
-        // end up in rewrittenImports also with extension, then not be found if we try to append
-        // a second extension to them.
-        "",
-        ".js",
-        ".vue",
-      ]) {
-        if (await exists(path.resolve(newFileDir, importPath + ext))) {
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        warn("broken import", importPath, "(rewritten) in", newFile, "expected to find at");
-        brokenImports.push({ file: newFile, importReference: importPath });
-      }
-    }
+    // Sanity check that all relative imports in the file actually have a file at the expected location.
+    brokenImports = brokenImports.concat(
+      await sanityCheckRewrittenImports(newFile, unchangedImports, rewrittenImports, warn)
+    );
   }
 
   return { brokenImports, warnings };
+}
+
+async function sanityCheckRewrittenImports(
+  newFile: string,
+  unchangedImports: string[],
+  rewrittenImports: string[],
+  warn = console.warn
+) {
+  const brokenImports: ImportRewriteResult["brokenImports"] = [];
+  const { dir: newFileDir } = path.parse(newFile);
+
+  const allImports = [
+    ...unchangedImports.map((importPath) => ({ importPath, rewritten: false })),
+    ...rewrittenImports.map((importPath) => ({ importPath, rewritten: true })),
+  ];
+
+  // Empty string is in this list because imports that had extension specfied in code will
+  // end up in rewrittenImports also with extension, then not be found if we try to append
+  // a second extension to them.
+  const extensions = ["", ".js", ".vue"];
+
+  for (const { importPath, rewritten } of allImports) {
+    let found = false;
+    for (const ext of extensions) {
+      if (await exists(path.resolve(newFileDir, importPath + ext))) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      const kind = rewritten ? "rewritten" : "unchanged";
+      warn("broken", kind, "import", importPath, "in", newFile);
+      brokenImports.push({ file: newFile, importReference: importPath, kind });
+    } else if (!rewritten) {
+      warn(
+        "unchanged relative import to non-copied file",
+        importPath,
+        "not broken in",
+        newFile,
+        "-- was this expected? May have unintentionally imported something from new repo with same name."
+      );
+    }
+  }
+
+  return brokenImports;
 }
 
 async function runTest() {
