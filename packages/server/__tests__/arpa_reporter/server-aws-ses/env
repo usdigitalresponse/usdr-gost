@@ -1,0 +1,20 @@
+
+POSTGRES_URL=postgres://localhost/server_test
+
+COOKIE_SECRET="hellosailor"
+INITIAL_ADMIN_EMAILS="michael+admin@stanford.cc"
+INITIAL_AGENCY_EMAILS="michael+agency@stanford.cc"
+
+# REPORTING_PERIODS="reporting-periods.xlsx"
+
+SAM_API_KEY=
+
+DATA_DIR="./uploads"
+
+# Need a .env file with these filled in
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+
+SES_REGION="us-east-1"
+NOTIFICATIONS_EMAIL="grants-notifications@usdigitalresponse.org"
+
