@@ -143,7 +143,7 @@ export default {
         .then(() => this.$router.push({ path: '/login' }))
     },
     navLinkClass (to) {
-      if (document.location.pathname === to) {
+      if (this.$route.path === to) {
         return 'nav-link active'
       }
       return 'nav-link'
