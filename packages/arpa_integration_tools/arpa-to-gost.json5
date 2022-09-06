@@ -71,8 +71,8 @@
         "seeds/02_users\\.js",
       ],
     },
-    "tests/server-nodemailer": "packages/server/__tests__/arpa_reporter",
-    "tests/server-aws-ses": "packages/server/__tests__/arpa_reporter",
+    "tests/server-nodemailer": null, // covers code that will not be copied
+    "tests/server-aws-ses": null, // covers code that will not be copied
 
     // config files
     "docker-compose.yml": "packages/server", // Only used for Postgres, but some ARPA Reporter engineers are using it, so keep it to easy transition.
