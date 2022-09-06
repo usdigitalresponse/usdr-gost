@@ -6,7 +6,9 @@
   "author": "Pol Abellas, Rafael A <rafael.polabellas@dematic.com>",
   "license": "Apache-2.0",
   "engines": {
-    "node": "16.14.0"
+    "node": "16.14.0",
+    "yarn": ">=1.22.4",
+    "npm": "please-use-yarn"
   },
   "scripts": {
     "start": "node src",
@@ -30,7 +32,6 @@
     "body-parser": "^1.20.0",
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
-    "cors": "^2.8.5",
     "cron": "^1.8.2",
     "csv-stringify": "^6.0.5",
     "date-fns": "^2.23.0",
@@ -79,6 +80,7 @@
     "mocha": "^9.2.1",
     "node-fetch": "^2.6.1",
     "nodemon": "2.0.15",
+    "openapi-types": "^12.0.2",
     "prettier": "2.6.1",
     "standard": "^16.0.3",
     "supertest": "^6.2.3",

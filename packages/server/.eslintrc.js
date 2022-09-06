@@ -2,7 +2,6 @@ module.exports = {
     root: true,
     env: {
         node: true,
-        jest: true,
         mocha: true,
         es6: true,
     },

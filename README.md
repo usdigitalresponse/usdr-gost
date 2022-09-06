@@ -305,8 +305,7 @@ POSTGRES_URL=<POSTGRE_CONNECTION_STRING> # Render Internal connection string ie 
 
 COOKIE_SECRET=<RANDOM_ALPHANUMERIC_SECRET>
 
-API_DOMAIN=<WEB_SERVICE_URL> # Render web service url ie. https://cares-grant-opportunities-qi8i.onrender.com
-VUE_APP_GRANTS_API_URL=<WEB_SERVICE_URL> # ie. https://cares-grant-opportunities-qi8i.onrender.com
+WEBSITE_DOMAIN=<WEB_SERVICE_URL> # Render web service url ie. https://cares-grant-opportunities-qi8i.onrender.com
 
 NODE_ENV=development or production or test
 

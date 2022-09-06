@@ -2,10 +2,15 @@ const fetch = require('node-fetch');
 require('dotenv').config();
 const { knex } = require('../../src/db');
 
+function getTestDomain() {
+    const { PORT = 3000 } = process.env;
+    return `http://localhost:${PORT}`;
+}
+
 async function getSessionCookie(email) {
     // generate a passcode
     // POSTing an email address generates a passcode.
-    const resp = await fetch(`${process.env.API_DOMAIN}/api/sessions`, {
+    const resp = await fetch(`${getTestDomain()}/api/sessions`, {
         method: 'POST',
         body: JSON.stringify({ email }),
         headers: { 'Content-Type': 'application/json' },
@@ -27,7 +32,7 @@ async function getSessionCookie(email) {
         const passcode = row?.passcode;
 
         // Use the passcode to generate a sessionID ...
-        const response = await fetch(`${process.env.API_DOMAIN}/api/sessions/?passcode=${passcode}`, { redirect: 'manual' });
+        const response = await fetch(`${getTestDomain()}/api/sessions/?passcode=${passcode}`, { redirect: 'manual' });
         const responseHeaders = await response.headers;
         const cookie = responseHeaders.get('set-cookie');
         // console.log('responseHeaders:', JSON.stringify(responseHeaders.raw(), null, 2));
@@ -41,7 +46,7 @@ async function getSessionCookie(email) {
 }
 
 function getEndpoint({ agencyId, url }) {
-    return `${process.env.API_DOMAIN}/api/organizations/${agencyId}${url}`;
+    return `${getTestDomain()}/api/organizations/${agencyId}${url}`;
 }
 
 function fetchApi(url, agencyId, fetchOptions) {
