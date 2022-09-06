@@ -4,6 +4,8 @@ set -o pipefail
 set -o errexit
 set -o nounset
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 dbconn=${POSTGRES_URL#*//}  # from postgres://user:pass@host/dbname -> user:pass@host/dbname
 userpass=${dbconn%@*}       # 'user:pass'
 hostdbname=${dbconn#*@}         # host/dbname
@@ -43,6 +45,6 @@ else
 fi
 
 yarn knex migrate:latest
-yarn knex --knexfile tests/server/knexfile.js seed:run
+yarn knex --knexfile $DIR/knexfile.js seed:run
 
 # NOTE: This file was copied from tests/server/reset-db.sh (git @ 98c1aa2586) in the arpa-reporter repo on 2022-09-02T05:09:55.179Z
