@@ -32,7 +32,6 @@
     "body-parser": "^1.20.0",
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
-    "cors": "^2.8.5",
     "cron": "^1.8.2",
     "csv-stringify": "^6.0.5",
     "date-fns": "^2.23.0",

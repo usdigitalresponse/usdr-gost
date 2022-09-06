@@ -311,7 +311,7 @@ router.get('/:grantId/form/:formName', requireUser, async (req, res) => {
         ...user,
         ...grant,
     });
-    res.json({ filePath: `${process.env.API_DOMAIN}${filePath}` });
+    res.json({ filePath });
 });
 
 module.exports = router;
