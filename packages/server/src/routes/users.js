@@ -1,7 +1,7 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
-const { requireAdminUser, isAuthorized } = require('../lib/access-helpers');
+const { requireAdminUser, isAuthorized, isUserAuthorized } = require('../lib/access-helpers');
 const { sendWelcomeEmail } = require('../lib/email');
 const db = require('../db');
 
@@ -12,6 +12,10 @@ router.post('/', requireAdminUser, async (req, res, next) => {
     }
 
     try {
+        const allowed = await isUserAuthorized(req.session.user, req.body.agency);
+        if (!allowed) {
+            return res.status(403).send('Cannot assign user to agency outside of the tenant');
+        }
         const user = {
             email: req.body.email.toLowerCase(),
             name: req.body.name,
@@ -35,7 +39,7 @@ router.post('/', requireAdminUser, async (req, res, next) => {
 });
 
 router.get('/', requireAdminUser, async (req, res) => {
-    const users = await db.getUsers(req.session.selectedAgency);
+    const users = await db.getUsers(req.session.user.tenant_id);
     res.json(users);
 });
 

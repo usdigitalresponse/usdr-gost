@@ -1,10 +1,10 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
-const { requireAdminUser, requireUser, isPartOfAgency } = require('../lib/access-helpers');
+const { requireAdminUser, requireUser, isUserAuthorized } = require('../lib/access-helpers');
 const {
     getAgency,
-    getAgencies,
+    getTenantAgencies,
     setAgencyThresholds,
     createAgency,
     setAgencyName,
@@ -16,12 +16,13 @@ const {
 
 router.get('/', requireUser, async (req, res) => {
     const { user } = req.session;
-    let response;
-    if (user.role.name === 'admin') {
-        response = await getAgencies(req.session.selectedAgency);
-    } else {
-        response = await getAgency(req.session.selectedAgency);
-    }
+    const response = await getTenantAgencies(user.tenant_id);
+    res.json(response);
+});
+
+router.get('/impersonable', requireAdminUser, async (req, res) => {
+    const { user } = req.session;
+    const response = await getAgencyTree(user.agency_id);
     res.json(response);
 });
 
@@ -87,7 +88,8 @@ router.put('/parent/:agency', requireAdminUser, async (req, res) => {
 
 router.post('/', requireAdminUser, async (req, res) => {
     const { user } = req.session;
-    if (!isPartOfAgency(user.agency.subagencies, req.body.parentId)) {
+    const allowed = await isUserAuthorized(user, req.body.parentId);
+    if (!allowed) {
         throw new Error(`You dont have access parent agency`);
     }
     const agency = {
@@ -97,6 +99,7 @@ router.post('/', requireAdminUser, async (req, res) => {
         parent: Number(req.body.parentId),
         warning_threshold: Number(req.body.warningThreshold),
         danger_threshold: Number(req.body.dangerThreshold),
+        tenant_id: user.tenant_id
     };
     const parentAgency = await getAgency(agency.parent);
     if (!parentAgency) {
