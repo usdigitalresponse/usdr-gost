@@ -8,8 +8,16 @@ const { setupAgencies } = require('./fixtures/add-dummy-data')
 // `or
 // `requireSrc(`${__dirname}/a/path`) does a require of `a/path` relative
 // to the corresponding `src` dir of the tests `__dirname`,
-global.requireSrc = f =>
-  require(f.replace(/\/tests\//, '/src/').replace(/(\.[^.]*)*\.spec/, ''))
+global.requireSrc = function requireSrc(fpath) {
+  return require(
+    fpath
+      .replace(/(\.[^.]*)*\.spec/, '')
+      // GOST repo path of ARPA Reporter code
+      .replace(/\/__tests__\/arpa_reporter\/server\//, '/src/arpa_reporter/')
+      // Legacy ARPA repo paths
+      .replace(/\/tests\//, '/src/')
+  )
+};
 
 module.exports = {
   knex,
