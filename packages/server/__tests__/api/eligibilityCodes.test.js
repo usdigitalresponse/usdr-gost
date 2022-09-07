@@ -8,12 +8,12 @@ describe('`/api/eligibility-codes` endpoint', () => {
     const agencies = {
         admin: {
             own: 0,
-            ownSub: 385,
-            offLimits: 70,
+            ownSub: 400,
+            offLimits: 385,
         },
         staff: {
-            own: 384,
-            ownSub: 3,
+            own: 400,
+            ownSub: 401,
             offLimits: 0,
         },
     };
@@ -36,7 +36,7 @@ describe('`/api/eligibility-codes` endpoint', () => {
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('mindy+testsub@usdigitalresponse.org');
     });
 
     context('GET /api/eligibility-codes?agency=N (list eligibility codes for an agency)', () => {

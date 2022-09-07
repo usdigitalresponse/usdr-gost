@@ -312,8 +312,8 @@ describe('`/api/grants` endpoint', () => {
             it('includes this user\'s own agency when it is interested in the grant', async () => {
                 expect(json.some((r) => r.agency_id === agencies.own)).to.equal(true);
             });
-            it('excludes a subagency of this user\'s own agency when the subagency is interested in the grant', async () => {
-                expect(json.find((r) => r.agency_id === agencies.ownSub)).to.be.undefined;
+            it('excludes an agency outside  of this user\'s own tenant', async () => {
+                expect(json.find((r) => r.agency_id === 0)).to.be.undefined;
             });
             it('excludes interested agencies outside this user\'s hierarchy', async () => {
                 expect(json.every((r) => r.agency_id !== agencies.offLimits)).to.equal(true);

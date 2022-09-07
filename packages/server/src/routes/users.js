@@ -6,28 +6,34 @@ const { sendWelcomeEmail } = require('../lib/email');
 const db = require('../db');
 
 router.post('/', requireAdminUser, async (req, res, next) => {
+    const { user, selectedAgency } = req.session;
     if (!req.body.email) {
         res.status(400).send('User email is required');
         return;
     }
 
+    let agencyId = user.agency_id;
+    if (Number.isFinite(req.body.agency)) {
+        agencyId = req.body.agency;
+    }
+
     try {
-        const allowed = await isUserAuthorized(req.session.user, req.body.agency);
+        const allowed = await isUserAuthorized(user, agencyId);
         if (!allowed) {
             return res.status(403).send('Cannot assign user to agency outside of the tenant');
         }
-        const user = {
+        const newUser = {
             email: req.body.email.toLowerCase(),
             name: req.body.name,
             role_id: req.body.role,
-            agency_id: req.body.agency,
-            tenant_id: req.session.user.tenant_id,
+            agency_id: agencyId,
+            tenant_id: user.tenant_id,
         };
-        const result = await db.createUser(user);
+        const result = await db.createUser(newUser);
         res.json({ user: result });
 
         const domain = process.env.WEBSITE_DOMAIN || req.headers.origin;
-        await sendWelcomeEmail(user.email, domain);
+        await sendWelcomeEmail(newUser.email, domain);
     } catch (e) {
         if (e.message.match(/violates unique constraint/)) {
             console.log(e.message);

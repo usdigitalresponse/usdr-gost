@@ -4,6 +4,7 @@ const router = express.Router({ mergeParams: true });
 const { requireAdminUser, requireUser, isUserAuthorized } = require('../lib/access-helpers');
 const {
     getAgency,
+    getAgencyTree,
     getTenantAgencies,
     setAgencyThresholds,
     createAgency,
@@ -21,8 +22,18 @@ router.get('/', requireUser, async (req, res) => {
 });
 
 router.get('/impersonable', requireAdminUser, async (req, res) => {
-    const { user } = req.session;
-    const response = await getAgencyTree(user.agency_id);
+    const { selectedAgency, user } = req.session;
+    const { asAgency } = req.params;
+    let agencyId = selectedAgency;
+
+    if (asAgency || asAgency == 0) {
+        const allowed = await isUserAuthorized(user, asAgency);
+        if (!allowed) {
+            return res.status(403);
+        }
+        agencyId = asAgency;
+    }
+    const response = await getAgencyTree(agencyId);
     res.json(response);
 });
 

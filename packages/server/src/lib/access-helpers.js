@@ -23,6 +23,11 @@ async function requireAdminUser(req, res, next) {
     }
 
     const user = await getUser(req.signedCookies.userId);
+    if (!user) {
+        res.sendStatus(403);
+        return;
+    }
+
     if (user.role_name !== 'admin') {
         res.sendStatus(403);
         return;
@@ -52,6 +57,11 @@ async function requireUser(req, res, next) {
     }
 
     const user = await getUser(req.signedCookies.userId);
+    if (!user) {
+        res.sendStatus(403);
+        return;
+    }
+
     // TODO: Do I need to change this?
     if (req.params.organizationId && user.role_name === 'staff' && (req.params.organizationId !== user.agency_id.toString())) {
         res.sendStatus(403); // Staff are restricted to their own agency.

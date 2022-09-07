@@ -96,6 +96,9 @@ async function getUser(id) {
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
         .where('users.id', id);
+
+    if (!user) return null;
+
     if (user.role_id != null) {
         user.role = {
             id: user.role_id,
