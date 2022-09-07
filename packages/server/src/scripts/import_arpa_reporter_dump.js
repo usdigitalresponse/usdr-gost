@@ -15,8 +15,8 @@ const TABLES = [
     "tenants",
 
     // Table names that existed in both ARPA and GOST
-    "users",
     "agencies",
+    "users",
 
     // Purely ARPA Reporter tables
     "reporting_periods",
@@ -40,29 +40,33 @@ const foreignKeyNames = {
     tenant_id: "tenants",
 };
 
-async function importTable(tableName, rows, idLookupByTable) {
-    const rowsToInsert = rows.map((row) => {
-        const toInsert = { ...row };
+function rekeyForeignKeys(row, idLookupByTable, ignoreKeys = []) {
+    row = { ...row };
 
-        for (const colName of Object.keys(toInsert)) {
-            const fkTable = foreignKeyNames[colName];
-            if (!fkTable) {
-                continue;
-            }
-
-            const colValue = toInsert[colName];
-            const fkValue = idLookupByTable[fkTable][colValue];
-            if (fkValue === undefined) {
-                throw new Error(
-                    `could not update foreign key: ${tableName}.${colName}=${colValue} -> ${fkTable}.id on row ${tableName}.id=${toInsert.id}`
-                );
-            }
-
-            toInsert[colName] = fkValue;
+    for (const colName of Object.keys(row)) {
+        const fkTable = foreignKeyNames[colName];
+        if (!fkTable || ignoreKeys.includes(colName)) {
+            continue;
         }
 
-        delete toInsert.id;
-    });
+        const colValue = row[colName];
+        const fkValue = idLookupByTable[fkTable][colValue];
+        if (fkValue === undefined) {
+            throw new Error(
+                `could not update foreign key: ${tableName}.${colName}=${colValue} -> ${fkTable}.id on row ${tableName}.id=${row.id}`
+            );
+        }
+
+        row[colName] = fkValue;
+    }
+
+    return row;
+}
+
+async function importTable(tableName, rows, idLookupByTable) {
+    const rowsToInsert = rows.map((row) =>
+        rekeyForeignKeys(_.omit(row, "id"), idLookupByTable)
+    );
 
     const inserted = await knex(tableName).insert(rowsToInsert).returning("*");
     const idLookup = _.chain(inserted)
@@ -85,8 +89,10 @@ function getAllTenantIds(dbContents) {
 }
 
 async function importTenants(dbContents, idLookupByTable) {
-    // const allTenantIds = getAllTenantIds(dbContents);
-    const allTenantIds = [2, 3, 4];
+    // First, we ask users for tenant names and main agencies for all tenants that
+    // will be created (this should be just one, but technically could be more than
+    // one, so we have to account for it here)
+    const allTenantIds = getAllTenantIds(dbContents);
     const agencyOptionsByTenantId = _.fromPairs(
         allTenantIds.map((tenantId) => [
             tenantId,
@@ -95,29 +101,29 @@ async function importTenants(dbContents, idLookupByTable) {
             ),
         ])
     );
-    const defaultMainAgency = {
-        name: "(create new agency with same name as tenant)",
-        value: null,
-    };
     const questions = _.chain(allTenantIds)
         .map((tenantId) => [
             {
                 type: "input",
                 name: `tenantNames.${tenantId}`,
                 message: `Tenant name for source tenant ${tenantId}`,
+                validate: (name) =>
+                    name.trim().length > 0 || "must enter a name",
             },
             {
                 type: "search-list",
                 name: `mainAgencies.${tenantId}`,
                 message: `Main agency for source tenant ${tenantId}`,
                 choices: [
-                    defaultMainAgency,
+                    {
+                        name: "(create new agency with same name as tenant)",
+                        value: null,
+                    },
                     ...agencyOptionsByTenantId[tenantId].map((agency) => ({
                         name: agency.name,
                         value: agency.id,
                     })),
                 ],
-                default: null, // defaultMainAgency,
             },
         ])
         .flatten()
@@ -137,8 +143,98 @@ async function importTenants(dbContents, idLookupByTable) {
             .map((agencyId, idx) => [idx, agencyId])
     );
 
-    console.log({ tenantNames, mainAgencies });
-    throw new Error("not implemented");
+    // Create tenants
+    let inserted = [];
+    for (const tenantId of allTenantIds) {
+        const tenantName = tenantNames[tenantId];
+        const mainAgencyId = mainAgencies[tenantId];
+
+        const tenant = await knex("tenants")
+            .insert({
+                display_name: tenantName,
+                // main_agency_id must be populated in a second pass in importAgencies
+                // because there is a circular FK between tenants/agencies tables
+                main_agency_id: null,
+            })
+            .returning("*");
+        inserted.push(tenant);
+
+        if (mainAgencyId) {
+            tenant.__unmappedFutureMainAgencyId = mainAgencyId;
+        } else {
+            const agencyToInsert = {
+                id: 1000000 + tenantId,
+                tenant_id: tenantId,
+                name: tenantName,
+                code: `CHANGEME_${tenant.id}`,
+                __isMainAgency: true,
+            };
+            dbContents.agencies.splice(0, 0, agencyToInsert);
+            tenant.__unmappedFutureMainAgencyId = agencyToInsert.id;
+        }
+    }
+
+    const idLookup = _.chain(inserted)
+        .map((insertedRow, idx) => [allTenantIds[idx], insertedRow.id])
+        .fromPairs()
+        .value();
+
+    return { inserted, idLookup };
+}
+
+async function importAgencies(
+    dbContents,
+    idLookupByTable,
+    insertedRowsByTable
+) {
+    // First, create all agencies, defaulting their parent pointer to point to themselves.
+    const agenciesToCreate = dbContents.agencies.map((agency) => ({
+        tenant_id: agency.tenant_id,
+        name: agency.name,
+        code: agency.code,
+        abbreviation: agency.code,
+        parent: knex.ref("id"),
+        main_agency_id: knex.ref("id"),
+    }));
+    let inserted = await knex("agencies")
+        .insert(agenciesToCreate)
+        .returning("*");
+    const idLookup = _.chain(inserted)
+        .map((insertedRow, idx) => [
+            dbContents.agencies[idx].id,
+            insertedRow.id,
+        ])
+        .fromPairs()
+        .value();
+
+    // Then update main_agency_id on tenant rows
+    for (const tenant of insertedRowsByTable.tenants) {
+        const mainAgencyId = idLookup[tenant.__unmappedFutureMainAgencyId];
+        tenant.main_agency_id = mainAgencyId;
+        await knex("tenants")
+            .where("id", tenant.id)
+            .update({ main_agency_id: mainAgencyId });
+    }
+
+    // Then update any non-main agencies to be parented by their tenant's main agency (since
+    // standalone ARPA Reporter did not have a concept of parent agencies)
+    const agencyIds = _.map(inserted, "id");
+    await knex.raw(
+        `
+        UPDATE agencies
+        SET
+            parent = tenants.main_agency_id,
+            main_agency_id = tenants.main_agency_id,
+        FROM tenants
+        WHERE
+            agencies.tenant_id = tenants.id
+            AND agencies.id in :agencyIds
+    `,
+        { agencyIds }
+    );
+    inserted = await knex("agencies").select("*").whereIn("id", agencyIds);
+
+    return { inserted, idLookup };
 }
 
 async function importUsers(dbContents, idLookupByTable) {
@@ -148,6 +244,7 @@ async function importUsers(dbContents, idLookupByTable) {
 const specialTableHandlers = {
     tenants: importTenants,
     users: importUsers,
+    agencies: importAgencies,
 };
 
 async function importDatabase(dbContents) {
@@ -159,26 +256,43 @@ async function importDatabase(dbContents) {
 
         const specialHandler = specialTableHandlers[tableName];
         const { inserted, idLookup } = specialHandler
-            ? await specialHandler(dbContents, idLookupByTable)
+            ? await specialHandler(
+                  dbContents,
+                  idLookupByTable,
+                  insertedRowsByTable
+              )
             : await importTable(
                   tableName,
                   dbContents[tableName],
-                  idLookupByTable
+                  idLookupByTable,
+                  insertedRowsByTable
               );
 
-        idLookupByTable[tableName] = idLookup || {};
-        insertedRowsByTable[tableName] = inserted || [];
+        idLookupByTable[tableName] = {
+            ...idLookupByTable[tableName],
+            ...idLookup,
+        };
+        insertedRowsByTable[tableName] = [
+            ...insertedRowsByTable[tableName],
+            ...inserted,
+        ];
     }
 
     return { idLookupByTable, insertedRowsByTable };
 }
 
 async function main() {
+    console.log(
+        "ARPA Reporter dump importer using DB",
+        process.env.POSTGRES_URL
+    );
+
     const { inputFilename } = await inquirer.prompt([
         {
             type: "input",
             name: "inputFilename",
             message: "Input zip:",
+
             // TODO: remove
             default: "/Users/mattb/Desktop/dump.zip",
         },
