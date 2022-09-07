@@ -6,33 +6,23 @@ const tenants = require('./tenants');
 
 const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
 const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
-const procurementAgency = agencies.find((a) => a.abbreviation === 'NPO');
-const dallasAgency = agencies.find((a) => a.abbreviation === 'DLA');
+const demoAgency = agencies.find((a) => a.abbreviation === 'DEMO');
 
 const usdrTenant = tenants.find((t) => t.display_name === 'USDR Tenant');
-const nevadaenant = tenants.find((t) => t.display_name === 'Nevada Tenant');
-const procurementTenant = tenants.find((t) => t.display_name === 'NPO Tenant');
-const dallasTenant = tenants.find((t) => t.display_name === 'Dallas Agency');
+const nevadaTenant = tenants.find((t) => t.display_name === 'Nevada Tenant');
+const demoTenant = tenants.find((t) => t.display_name === 'Demo Tenant');
 
 module.exports = [
     {
         id: 1,
-        email: 'christina@usdigitalresponse.org',
-        name: 'Christina Roberts',
+        email: 'mindy@usdigitalresponse.org',
+        name: 'Mindy Huang',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
         tenant_id: usdrTenant.id,
     },
     {
         id: 2,
-        email: 'mindy@usdigitalresponse.org', // fake email for testing
-        name: 'Mindy Huant',
-        agency_id: usdrAgency.id,
-        role_id: roles[0].id,
-        tenant_id: usdrTenant.id,
-    },
-    {
-        id: 3,
         email: 'joecomeau01@gmail.com',
         name: 'Joe Comeau',
         agency_id: usdrAgency.id,
@@ -40,15 +30,7 @@ module.exports = [
         tenant_id: usdrTenant.id,
     },
     {
-        id: 4,
-        email: 'rafael.pol@protonmail.com',
-        name: 'Rafael Pol',
-        agency_id: usdrAgency.id,
-        role_id: roles[0].id,
-        tenant_id: usdrTenant.id,
-    },
-    {
-        id: 5,
+        id: 3,
         email: 'alex@usdigitalresponse.org',
         name: 'Alex Allain',
         agency_id: usdrAgency.id,
@@ -56,67 +38,27 @@ module.exports = [
         tenant_id: usdrTenant.id,
     },
     {
+        id: 4,
+        email: 'grants.dev@usdigitalresponse.org', 
+        name: 'USDR Dev Account',
+        agency_id: usdrAgency.id,
+        role_id: roles[0].id,
+        tenant_id: usdrTenant.id,
+    },
+    {
+        id: 5,
+        email: 'grants.dev+nv@usdigitalresponse.org', 
+        name: 'USDR Admin',
+        agency_id: nevadaAgency.id,
+        role_id: roles[0].id,
+        tenant_id: nevadaTenant.id,
+    },
+    {
         id: 6,
-        email: 'user1@nv.gov', // fake email for testing
-        name: 'nv.gov User 1',
-        agency_id: nevadaAgency.id,
-        role_id: roles[1].id,
-        tenant_id: nevadaenant.id,
-    },
-    {
-        id: 7,
-        email: 'user2@nv.gov', // fake email for testing
-        name: 'nv.gov User 2',
-        agency_id: nevadaAgency.id,
-        role_id: roles[1].id,
-        tenant_id: nevadaenant.id,
-    },
-    {
-        id: 8,
-        email: 'user3@nv.gov', // fake email for testing
-        name: 'nv.gov User 3',
-        agency_id: nevadaAgency.id,
-        role_id: roles[1].id,
-        tenant_id: nevadaenant.id,
-    },
-    {
-        id: 9,
-        email: 'user1@npo.nv.gov', // fake email for testing
-        name: 'npo.nv.gov User 1',
-        agency_id: procurementAgency.id,
-        role_id: roles[1].id,
-        tenant_id: procurementTenant.id,
-    },
-    {
-        id: 10,
-        email: 'user2@npo.nv.gov', // fake email for testing
-        name: 'npo.nv.gov User 2',
-        agency_id: procurementAgency.id,
-        role_id: roles[1].id,
-        tenant_id: procurementTenant.id,
-    },
-    {
-        id: 11,
-        email: 'user3@npo.nv.gov', // fake email for testing
-        name: 'npo.nv.gov User 3',
-        agency_id: procurementAgency.id,
-        role_id: roles[1].id,
-        tenant_id: procurementTenant.id,
-    },
-    {
-        id: 12,
-        email: 'user1@dallas.gov', // fake email for testing
-        name: 'dallas.gov User 1',
-        agency_id: dallasAgency.id,
+        email: 'grants.dev+demo@usdigitalresponse.org', 
+        name: 'USDR Admin',
+        agency_id: demoAgency.id,
         role_id: roles[0].id,
-        tenant_id: dallasTenant.id,
-    },
-    {
-        id: 13,
-        email: 'admin1@nv.gov', // fake email for testing
-        name: 'nv.gov Admin User 1',
-        agency_id: nevadaAgency.id,
-        role_id: roles[0].id,
-        tenant_id: nevadaenant.id,
+        tenant_id: demoTenant.id,
     },
 ];

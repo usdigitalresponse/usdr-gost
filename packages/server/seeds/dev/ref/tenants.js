@@ -11,10 +11,6 @@ module.exports = [
     },
     {
         id: 3,
-        display_name: 'NPO Tenant',
-    },
-    {
-        id: 4,
-        display_name: 'Dallas Agency',
+        display_name: 'Demo Tenant',
     },
 ];
