@@ -158,7 +158,8 @@ export default {
     agency() {
       this.formData.warningThreshold = this.agency && this.agency.warning_threshold;
       this.formData.dangerThreshold = this.agency && this.agency.danger_threshold;
-      this.formData.parentAgency = this.agency && this.agency.parent;
+      const parentAgencyId = this.agency && this.agency.parent;
+      this.formData.parentAgency = this.agencies.find((agency) => agency.id === parentAgencyId);
       this.formData.name = this.agency && this.agency.name;
       this.formData.abbreviation = this.agency && this.agency.abbreviation;
       this.formData.code = this.agency && this.agency.code;
