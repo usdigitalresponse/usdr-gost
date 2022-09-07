@@ -2,6 +2,8 @@
 
 const _ = require("lodash");
 const AdmZip = require("adm-zip");
+const mkdirp = require("mkdirp");
+const fs = require("fs/promises");
 
 const inquirer = require("inquirer");
 inquirer.registerPrompt("search-list", require("inquirer-search-list"));
@@ -231,7 +233,7 @@ async function importAgencies(
         WHERE
             agencies.tenant_id = tenants.id
             AND agencies.id in :agencyIds
-    `,
+        `,
         { agencyIds }
     );
     inserted = await knex("agencies").select("*").whereIn("id", agencyIds);
@@ -324,13 +326,80 @@ async function importDatabase(dbContents) {
     return { idLookupByTable, insertedRowsByTable };
 }
 
+// based on function of the same name in ARPA's services/persist-upload module
+// with some adjustments. Ideally, we'd just import it, but this migrate script
+// is going to be committed before ARPA's code is copied in.
+function uploadFSName(upload) {
+    const filename = `${upload.id}${path.extname(upload.filename)}`;
+    const DATA_DIR = path.resolve(process.env.DATA_DIR);
+    const UPLOAD_DIR = path.join(DATA_DIR, "uploads");
+    return path.join(UPLOAD_DIR, filename);
+}
+
+// based on function of the same name in ARPA's services/get-template module
+// with some adjustments. Ideally, we'd just import it, but this migrate script
+// is going to be committed before ARPA's code is copied in.
+function periodTemplatePath(reportingPeriod) {
+    const DATA_DIR = path.resolve(process.env.DATA_DIR);
+    const UPLOAD_DIR = path.join(DATA_DIR, "uploads");
+    const PERIOD_TEMPLATES_DIR = path.join(UPLOAD_DIR, "period_templates");
+    return path.join(PERIOD_TEMPLATES_DIR, `${reportingPeriod.id}.template`);
+}
+
+async function importFiles(
+    zipFile,
+    dbContents,
+    idLookupByTable,
+    insertedRowsByTable
+) {
+    const reverseUploadLookup = _.invert(idLookupByTable.uploads);
+    const reversePeriodLookup = _.invert(idLookupByTable.reporting_periods);
+    const copies = [
+        ...insertedRowsByTable.uploads.map((upload) => ({
+            from: path.basename(
+                uploadFSName({
+                    ...upload,
+                    id: reverseUploadLookup[upload.id],
+                })
+            ),
+            to: uploadFSName(upload),
+        })),
+        ...insertedRowsByTable.reporting_periods
+            .filter(
+                (reportingPeriod) => reportingPeriod.template_filename !== null
+            )
+            .map((reportingPeriod) => ({
+                from: path.basename(
+                    periodTemplatePath({
+                        ...reportingPeriod,
+                        id: reversePeriodLookup[reportingPeriod.id],
+                    })
+                ),
+                to: periodTemplatePath(reportingPeriod),
+            })),
+    ];
+
+    for (const { from, to } of copies) {
+        await mkdirp(path.dirname(to));
+        zipFile.extractEntryTo(
+            path.join("files", from),
+            path.dirname(to),
+            false /* maintainEntryPath */,
+            false /* overwrite */,
+            path.basename(to)
+        );
+    }
+
+    return _.map(copies, "to");
+}
+
 async function main() {
     console.log(
         "ARPA Reporter dump importer using DB",
         process.env.POSTGRES_URL
     );
 
-    const { inputFilename } = await inquirer.prompt([
+    const { inputFilename, outputFilename } = await inquirer.prompt([
         {
             type: "input",
             name: "inputFilename",
@@ -338,6 +407,14 @@ async function main() {
 
             // TODO: remove
             default: "/Users/mattb/Desktop/dump.zip",
+        },
+        {
+            type: "input",
+            name: "outputFilename",
+            message: "Output log JSON:",
+            default: `import_arpa_reporter_dump_${new Date()
+                .toISOString()
+                .replace(/[^0-9]/g, "")}.json`,
         },
     ]);
 
@@ -347,10 +424,32 @@ async function main() {
     const sqlJson = zipFile.readAsText(sqlEntry);
     const dbContents = JSON.parse(sqlJson);
 
-    console.log("Zip opened successfully; starting DB import");
-    await importDatabase(dbContents);
+    console.log("Zip opened successfully");
+    console.log("Starting DB import");
+    const { idLookupByTable, insertedRowsByTable } = await importDatabase(
+        dbContents
+    );
 
-    // TODO: handled uploaded files
+    console.log("Importing uploaded files...");
+    const createdFiles = await importFiles(
+        zipFile,
+        dbContents,
+        idLookupByTable,
+        insertedRowsByTable
+    );
+
+    const debugJson = { idLookupByTable, insertedRowsByTable, createdFiles };
+    await fs.writeFile(
+        outputFilename,
+        JSON.stringify(debugJson, undefined, 2),
+        { encoding: "utf8", flag: "w" }
+    );
+
+    console.log("Done!");
+    console.log("Remember to delete ZIP and JSON files when you're done!", {
+        inputFilename,
+        outputFilename,
+    });
 }
 
 if (require.main === module) {
