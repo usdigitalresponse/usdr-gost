@@ -20,23 +20,22 @@ describe('db', () => {
 
     context('getGrantsInterested', () => {
         it('gets the most recent interested grant', async () => {
-            const result = await db.getGrantsInterested({ perPage: 1, currentPage: 1 });
-            // console.log(fixtures.grantsInterested.entry2);
-            expect(result.rows[0]).to.have.property('grant_id').with.lengthOf(6);
-            expect(result.rows[0].grant_id).to.equal(fixtures.grantsInterested.entry2.grant_id);
+            const rows = await db.getGrantsInterested({ agencyId: fixtures.users.staffUser.agency_id, perPage: 1, currentPage: 1 });
+            expect(rows[0]).to.have.property('grant_id').with.lengthOf(6);
+            expect(rows[0].grant_id).to.equal(fixtures.grantsInterested.entry2.grant_id);
             // in the grants interested table the grant with the most recent created_at has the grant id of 335255
-            expect(result.rows[0]).to.have.property('grant_id').equal('335255');
+            expect(rows[0]).to.have.property('grant_id').equal('335255');
         });
         it('gets the two most recent interested grants', async () => {
             // testing pagination
-            const result = await db.getGrantsInterested({ perPage: 2, currentPage: 1 });
-            expect(result.rows).to.have.lengthOf(2);
+            const rows = await db.getGrantsInterested({ agencyId: fixtures.users.staffUser.agency_id, perPage: 2, currentPage: 1 });
+            expect(rows).to.have.lengthOf(2);
         });
     });
     context('getTotalInterestedGrants', () => {
         it('gets total interested grants count', async () => {
-            const result = await db.getTotalInterestedGrants();
-            expect(result).to.equal(+'4');
+            const result = await db.getTotalInterestedGrants(fixtures.users.staffUser.agency_id);
+            expect(result).to.equal(3);
         });
     });
 
@@ -126,19 +125,19 @@ describe('db', () => {
         it('gets the desired grant', async () => {
             const grantId = '335255';
             const agencies = [];
-            const result = await db.getSingleGrantDetails({ grantId, agencies });
+            const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
             expect(result.grant_id).to.equal('335255');
         });
         it('gets the interested agencies', async () => {
             const grantId = '335255';
             const agencies = [0];
-            const result = await db.getSingleGrantDetails({ grantId, agencies });
+            const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
             expect(result.interested_agencies.length).to.equal(1);
         });
         it('returns dates in string format without timezone', async () => {
             const grantId = '335255';
             const agencies = [0];
-            const result = await db.getSingleGrantDetails({ grantId, agencies });
+            const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
             expect(result.open_date).to.equal('2021-08-11');
             expect(result.close_date).to.equal('2021-11-03');
         });
@@ -147,7 +146,7 @@ describe('db', () => {
     context('getGrantsAssignedAgency', () => {
         it('gets grants assigned to agency', async () => {
             const result = await db.getGrants({
-                agencies: [],
+                tenantId: fixtures.users.staffUser.tenant_id,
                 filters: {
                     assignedToAgency: fixtures.users.staffUser.agency_id.toString(),
                 },
