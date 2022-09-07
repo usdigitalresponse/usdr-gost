@@ -3,17 +3,17 @@ const { getUser, inTenant } = require('../db');
 /**
  * Determine if a user is authorized for an agency.
  *
- * @param {Number} userId
+ * @param {Object} user
  * @param {Number} agencyId
- * @returns {Boolean} true if the agency is the user's or a descendant; false otherwise
- */
-async function isAuthorized(userId, agencyId) {
-    const user = await getUser(userId);
-    return await isUserAuthorized(user, agencyId);
+ * @returns {Boolean} true if the agency is in the same tenant as the user
+ * */
+async function isUserAuthorized(user, agencyId) {
+    return inTenant(user.id, user.tenant_id, agencyId);
 }
 
-async function isUserAuthorized(user, agencyId) {
-    return await inTenant(user.id, user.tenant_id, agencyId);
+async function isAuthorized(userId, agencyId) {
+    const user = await getUser(userId);
+    return isUserAuthorized(user, agencyId);
 }
 
 async function requireAdminUser(req, res, next) {

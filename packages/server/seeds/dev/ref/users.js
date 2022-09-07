@@ -5,7 +5,7 @@ const roles = require('./roles');
 const tenants = require('./tenants');
 
 const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
-const usdrSubAgency = agencies.find((a) => a.abbreviation == 'TSDR');
+const usdrSubAgency = agencies.find((a) => a.abbreviation === 'TSDR');
 const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
 const procurementAgency = agencies.find((a) => a.abbreviation === 'NPO');
 const dallasAgency = agencies.find((a) => a.abbreviation === 'DLA');

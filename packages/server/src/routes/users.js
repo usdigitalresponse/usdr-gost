@@ -6,7 +6,7 @@ const { sendWelcomeEmail } = require('../lib/email');
 const db = require('../db');
 
 router.post('/', requireAdminUser, async (req, res, next) => {
-    const { user, selectedAgency } = req.session;
+    const { user } = req.session;
     if (!req.body.email) {
         res.status(400).send('User email is required');
         return;

@@ -498,7 +498,7 @@ async function markGrantAsInterested({
 
 async function getGrantsInterested({ agencyId, perPage, currentPage }) {
     const agencies = await getAgencyTree(agencyId);
-    return await knex('grants_interested')
+    return knex('grants_interested')
         .select(knex.raw(`grants_interested.created_at,
                           agencies.name,
                           interested_codes.is_rejection,
@@ -564,7 +564,7 @@ async function getAgency(agencyId) {
 }
 
 async function getTenantAgencies(tenantId) {
-    return await knex(TABLES.agencies)
+    return knex(TABLES.agencies)
         .select(`${TABLES.agencies}.id`,
             `${TABLES.agencies}.name`,
             `${TABLES.agencies}.abbreviation`,
@@ -591,14 +591,13 @@ async function getAgencyTree(rootAgency) {
     return result.rows;
 }
 
-// Use agency id for lookup for now
-async function getTenant(main_agency_id) {
-    return await knex(TABLES.tenants)
+async function getTenant(mainAgencyId) {
+    return knex(TABLES.tenants)
         .select(`${TABLES.tenants}.id`,
             `${TABLES.tenants}.display_name`,
             `${TABLES.tenants}.main_agency_id`)
         .join(TABLES.users, `${TABLES.tenants}.id`, `${TABLES.users}.tenant_id`)
-        .where(`${TABLES.users}.id`, userId);
+        .where(`${TABLES.tenants}.main_agency_id`, mainAgencyId);
 }
 
 async function getAgencyEligibilityCodes(agencyId) {

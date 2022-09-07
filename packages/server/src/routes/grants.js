@@ -51,7 +51,7 @@ router.get('/', requireUser, async (req, res) => {
 // get a single grant details
 router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
     const { grantId } = req.params;
-    const { selectedAgency, user } = req.session;
+    const { user } = req.session;
     const response = await db.getSingleGrantDetails({ grantId, tenantId: user.tenant_id });
     res.json(response);
 });
@@ -157,7 +157,7 @@ router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {
 
 router.get('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { grantId } = req.params;
-    const { selectedAgency, user } = req.session;
+    const { user } = req.session;
     const response = await db.getGrantAssignedAgencies({ grantId, tenantId: user.tenant_id });
     res.json(response);
 });
@@ -201,7 +201,7 @@ router.get('/:grantId/interested', requireUser, async (req, res) => {
 
 router.get('/grantsInterested/:perPage/:currentPage', requireUser, async (req, res) => {
     const { perPage, currentPage } = req.params;
-    const { user, selectedAgency } = req.session;
+    const { selectedAgency } = req.session;
     const rows = await db.getGrantsInterested({ perPage, currentPage, agencyId: selectedAgency });
     res.json(rows);
 });

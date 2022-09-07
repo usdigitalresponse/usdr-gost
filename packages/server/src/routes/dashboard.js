@@ -7,7 +7,7 @@ const { requireUser } = require('../lib/access-helpers');
 router.get('/', requireUser, async (req, res) => {
     const result = {};
     let agencyCriteria;
-    const { user, selectedAgency } = req.session;
+    const { selectedAgency } = req.session;
 
     if (req.query.totalGrants || req.query.grantsCreatedFromTs || req.query.grantsUpdatedFromTs) {
         agencyCriteria = await db.getAgencyCriteriaForAgency(selectedAgency);

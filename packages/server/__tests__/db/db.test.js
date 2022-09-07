@@ -124,19 +124,16 @@ describe('db', () => {
     context('getSingleGrantDetails', () => {
         it('gets the desired grant', async () => {
             const grantId = '335255';
-            const agencies = [];
             const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
             expect(result.grant_id).to.equal('335255');
         });
         it('gets the interested agencies', async () => {
             const grantId = '335255';
-            const agencies = [0];
             const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
             expect(result.interested_agencies.length).to.equal(1);
         });
         it('returns dates in string format without timezone', async () => {
             const grantId = '335255';
-            const agencies = [0];
             const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
             expect(result.open_date).to.equal('2021-08-11');
             expect(result.close_date).to.equal('2021-11-03');
