@@ -110,7 +110,7 @@ router.post('/', requireAdminUser, async (req, res) => {
         parent: Number(req.body.parentId),
         warning_threshold: Number(req.body.warningThreshold),
         danger_threshold: Number(req.body.dangerThreshold),
-        tenant_id: user.tenant_id
+        tenant_id: user.tenant_id,
     };
     const parentAgency = await getAgency(agency.parent);
     if (!parentAgency) {

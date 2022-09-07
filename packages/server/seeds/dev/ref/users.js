@@ -127,5 +127,5 @@ module.exports = [
         agency_id: usdrSubAgency.id,
         role_id: roles[1].id,
         tenant_id: usdrTenant.id,
-    }
+    },
 ];

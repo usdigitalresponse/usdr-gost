@@ -71,7 +71,6 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
             });
         });
 
-
         context('by a user with staff role', () => {
             it('is forbidden', async () => {
                 // Will default to user's own agency ID

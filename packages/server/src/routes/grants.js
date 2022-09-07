@@ -202,7 +202,7 @@ router.get('/:grantId/interested', requireUser, async (req, res) => {
 router.get('/grantsInterested/:perPage/:currentPage', requireUser, async (req, res) => {
     const { perPage, currentPage } = req.params;
     const { user, selectedAgency } = req.session;
-    const rows = await db.getGrantsInterested({ perPage, currentPage, agencyId: selectedAgency});
+    const rows = await db.getGrantsInterested({ perPage, currentPage, agencyId: selectedAgency });
     res.json(rows);
 });
 
