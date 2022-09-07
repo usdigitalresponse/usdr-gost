@@ -248,6 +248,10 @@ async function importAgencies(
 }
 
 async function importUsers(dbContents, idLookupByTable, insertedRowsByTable) {
+    const roles = await knex('roles').select('*');
+    const adminRole = roles.find(r => r.name == 'admin').id;
+    const staffRole = roles.find(r => r.name == 'staff').id;
+
     const mainAgencyByTenant = _.chain(insertedRowsByTable.tenants)
         .keyBy("id")
         .mapValues("main_agency_id")
@@ -257,7 +261,9 @@ async function importUsers(dbContents, idLookupByTable, insertedRowsByTable) {
             {
                 email: user.email,
                 name: user.name,
-                role_id: 1,
+                // Note: ARPA Reporter had a "reporter" role. For our purposes,
+                // anything non-admin becomes "staff"
+                role_id: user.role === 'admin' ? adminRole : staffRole,
                 tenant_id: user.tenant_id,
                 // Copied users belong to the main agency of their tenant
                 agency_id:
