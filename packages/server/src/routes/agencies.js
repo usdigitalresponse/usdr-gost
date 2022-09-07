@@ -26,7 +26,7 @@ router.get('/impersonable', requireAdminUser, async (req, res) => {
     const { asAgency } = req.params;
     let agencyId = selectedAgency;
 
-    if (asAgency || asAgency == 0) {
+    if (Number.isFinite(asAgency)) {
         const allowed = await isUserAuthorized(user, asAgency);
         if (!allowed) {
             return res.status(403);
@@ -40,8 +40,13 @@ router.get('/impersonable', requireAdminUser, async (req, res) => {
 router.put('/:agency', requireAdminUser, async (req, res) => {
     // Currently, agencies are seeded into db; only thresholds are mutable.
     const { agency } = req.params;
-    // TODO(mbroussard/bspates): requireAdminUser only checks validity of :organizationId, but we need
-    // to check :agency too
+    const { user } = req.session;
+
+    const allowed = await isUserAuthorized(user, agency);
+    if (!allowed) {
+        res.sendStatus(403);
+        return;
+    }
 
     const { warningThreshold, dangerThreshold } = req.body;
     const result = await setAgencyThresholds(agency, warningThreshold, dangerThreshold);
@@ -50,8 +55,13 @@ router.put('/:agency', requireAdminUser, async (req, res) => {
 
 router.delete('/del/:agency', requireAdminUser, async (req, res) => {
     const { agency } = req.params;
-    // TODO(mbroussard/bspates): requireAdminUser only checks validity of :organizationId, but we need
-    // to check :agency too
+    const { user } = req.session;
+
+    const allowed = isUserAuthorized(user, agency);
+    if (!allowed) {
+        res.sendStatus(403);
+        return;
+    }
 
     const {
         parent, name, abbreviation, warningThreshold, dangerThreshold,
@@ -62,9 +72,13 @@ router.delete('/del/:agency', requireAdminUser, async (req, res) => {
 
 router.put('/name/:agency', requireAdminUser, async (req, res) => {
     const { agency } = req.params;
-    // TODO(mbroussard/bspates): requireAdminUser only checks validity of :organizationId, but we need
-    // to check :agency too
+    const { user } = req.session;
 
+    const allowed = await isUserAuthorized(user, agency);
+    if (!allowed) {
+        res.sendStatus(403);
+        return;
+    }
     const { name } = req.body;
     const result = await setAgencyName(agency, name);
     res.json(result);
