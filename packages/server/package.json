@@ -75,6 +75,7 @@
     "eslint-plugin-promise": "^5.2.0",
     "husky": "^4.3.0",
     "inquirer": "^8.2.2",
+    "inquirer-search-list": "^1.2.6",
     "lint-staged": "^10.5.0",
     "mocha": "^9.2.1",
     "node-fetch": "^2.6.1",
