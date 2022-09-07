@@ -192,14 +192,20 @@ async function importAgencies(
     insertedRowsByTable
 ) {
     // First, create all agencies, defaulting their parent pointer to point to themselves.
-    const agenciesToCreate = dbContents.agencies.map((agency) => ({
-        tenant_id: agency.tenant_id,
-        name: agency.name,
-        code: agency.code,
-        abbreviation: agency.code,
-        parent: knex.ref("id"),
-        main_agency_id: knex.ref("id"),
-    }));
+    const agenciesToCreate = dbContents.agencies.map((agency) =>
+        rekeyForeignKeys(
+            {
+                tenant_id: agency.tenant_id,
+                name: agency.name,
+                code: agency.code,
+                abbreviation: agency.code,
+                parent: knex.ref("id"),
+                main_agency_id: knex.ref("id"),
+            },
+            idLookupByTable,
+            ["main_agency_id", "parent"]
+        )
+    );
     let inserted = await knex("agencies")
         .insert(agenciesToCreate)
         .returning("*");
