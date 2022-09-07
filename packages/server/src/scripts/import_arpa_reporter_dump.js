@@ -64,6 +64,8 @@ function rekeyForeignKeys(row, idLookupByTable, ignoreKeys = []) {
 }
 
 async function importTable(tableName, rows, idLookupByTable) {
+    console.log("Importing table", tableName, "...");
+
     const rowsToInsert = rows.map((row) =>
         rekeyForeignKeys(_.omit(row, "id"), idLookupByTable)
     );
@@ -237,8 +239,49 @@ async function importAgencies(
     return { inserted, idLookup };
 }
 
-async function importUsers(dbContents, idLookupByTable) {
-    throw new Error("not implemented");
+async function importUsers(dbContents, idLookupByTable, insertedRowsByTable) {
+    const mainAgencyByTenant = _.chain(insertedRowsByTable.tenants)
+        .keyBy("id")
+        .mapValues("main_agency_id")
+        .value();
+    const usersToCreate = dbContents.users.map((user) =>
+        rekeyForeignKeys(
+            {
+                email: user.email,
+                name: user.name,
+                role_id: 1,
+                tenant_id: user.tenant_id,
+                // Copied users belong to the main agency of their tenant
+                agency_id:
+                    mainAgencyByTenant[idLookupByTable.tenants[user.tenant_id]],
+            },
+            idLookupByTable,
+            ["agency_id"]
+        )
+    );
+
+    // Check if there are any existing users with the specified emails
+    const usersWithDupeEmails = await knex("users")
+        .select("email")
+        .whereIn("email", _.map(usersToCreate, "email"));
+    if (usersWithDupeEmails.length != 0) {
+        console.error(
+            "Found duplicate emails",
+            _.map(usersWithDupeEmails, "email")
+        );
+        throw new Error(
+            "found users with duplicate emails! Delete them first, or update script to handle."
+        );
+    }
+
+    // Do the inserts
+    const inserted = await knex("users").insert(usersToCreate).returning("*");
+    const idLookup = _.chain(inserted)
+        .map((insertedRow, idx) => [dbContents.users[idx].id, insertedRow.id])
+        .fromPairs()
+        .value();
+
+    return { inserted, idLookup };
 }
 
 const specialTableHandlers = {
@@ -306,6 +349,8 @@ async function main() {
 
     console.log("Zip opened successfully; starting DB import");
     await importDatabase(dbContents);
+
+    // TODO: handled uploaded files
 }
 
 if (require.main === module) {
