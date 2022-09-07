@@ -39,7 +39,7 @@ module.exports = [
     },
     {
         id: 4,
-        email: 'grants.dev@usdigitalresponse.org', 
+        email: 'grants.dev@usdigitalresponse.org',
         name: 'USDR Dev Account',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
@@ -47,7 +47,7 @@ module.exports = [
     },
     {
         id: 5,
-        email: 'grants.dev+nv@usdigitalresponse.org', 
+        email: 'grants.dev+nv@usdigitalresponse.org',
         name: 'USDR Admin',
         agency_id: nevadaAgency.id,
         role_id: roles[0].id,
@@ -55,7 +55,7 @@ module.exports = [
     },
     {
         id: 6,
-        email: 'grants.dev+demo@usdigitalresponse.org', 
+        email: 'grants.dev+demo@usdigitalresponse.org',
         name: 'USDR Admin',
         agency_id: demoAgency.id,
         role_id: roles[0].id,
