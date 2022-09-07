@@ -74,7 +74,7 @@ async function importTable(tableName, rows, idLookupByTable) {
 
     const inserted = await knex(tableName).insert(rowsToInsert).returning("*");
     const idLookup = _.chain(inserted)
-        .map((insertedRow, idx) => [rowsToInsert[idx].id, insertedRow.id])
+        .map((insertedRow, idx) => [rows[idx].id, insertedRow.id])
         .fromPairs()
         .value();
 
