@@ -25,15 +25,7 @@
         "lib/email\\.js",
       ]
     },
-    // TODO: what to do about seeds?
-    "seeds/*": {
-      "dest": "packages/server/seeds/arpa_reporter_dev",
-      "excludePatterns": [
-        "01_roles.js",
-        "02_users.js",
-        "06_migrate_from_source.js",
-      ],
-    },
+    "seeds/*": null, // We will use a combination of GOST's existing seeds and new ones added in GOST repo separately
 
     // client code
     "scss": "packages/client/arpa_reporter",
@@ -66,9 +58,6 @@
         // TODO: actually exclude this? it exercises session cookie test helper
         "routes/session\\.spec\\.js",
         "reset-dbx\\.sh",
-        // TODO: what to do about seeds?
-        "seeds/01_roles\\.js",
-        "seeds/02_users\\.js",
       ],
     },
     "tests/server-nodemailer": null, // covers code that will not be copied
