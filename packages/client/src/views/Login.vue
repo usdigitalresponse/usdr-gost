@@ -60,7 +60,7 @@ export default {
 
       let bodyRaw = { email: this.email };
       if (this.redirectTo) {
-        bodyRaw = { ...bodyRaw, ...{ redirectTo: this.redirectTo } };
+        bodyRaw = { ...bodyRaw, redirect_to: this.redirectTo };
       }
 
       const body = JSON.stringify(bodyRaw);
