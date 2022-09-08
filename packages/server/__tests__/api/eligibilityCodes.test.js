@@ -7,14 +7,14 @@ describe('`/api/eligibility-codes` endpoint', () => {
 
     const agencies = {
         admin: {
-            own: 0,
-            ownSub: 385,
-            offLimits: 70,
+            own: 3,  // Test Agency, part of Test Tenant
+            ownSub: 4,  // Test Sub-agency, part of Test Tenant
+            offLimits: 0,  // USDR Agency, part of USDR Tenant
         },
         staff: {
-            own: 384,
-            ownSub: 3,
-            offLimits: 0,
+            own: 3,  // Test Agency, part of Test Tenant
+            ownSub: 4,  // Test Sub-agency, part of Test Tenant
+            offLimits: 0,  // USDR Agency, part of USDR Tenant
         },
     };
 
@@ -35,8 +35,8 @@ describe('`/api/eligibility-codes` endpoint', () => {
 
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('grants.dev+test.admin@usdigitalresponse.org');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('grants.dev+test.staff@usdigitalresponse.org');
     });
 
     context('GET /api/eligibility-codes?agency=N (list eligibility codes for an agency)', () => {

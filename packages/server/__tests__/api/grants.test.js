@@ -11,11 +11,9 @@ const { TABLES } = require('../../src/db/constants');
 
 describe('`/api/grants` endpoint', () => {
     const agencies = {
-        own: 384,
-        ownSub: 2,
-        ownSubAlternate: 1,
-        offLimits: 0,
-        dallasAdmin: 386,
+        own: 3,  // Test Agency, part of Test Tenant
+        ownSub: 4,  // Test Sub-agency, part of Test Tenant
+        offLimits: 0,  // USDR Agency, part of USDR Tenant
     };
 
     const fetchOptions = {
@@ -31,7 +29,7 @@ describe('`/api/grants` endpoint', () => {
                 cookie: undefined,
             },
         },
-        dallasAdmin: {
+        offLimitsAdmin: {
             headers: {
                 'Content-Type': 'application/json',
                 cookie: undefined,
@@ -41,9 +39,9 @@ describe('`/api/grants` endpoint', () => {
 
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
-        fetchOptions.dallasAdmin.headers.cookie = await getSessionCookie('user1@dallas.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('grants.dev+test.admin@usdigitalresponse.org');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('grants.dev+test.staff@usdigitalresponse.org');
+        fetchOptions.offLimitsAdmin.headers.cookie = await getSessionCookie('grants.dev@usdigitalresponse.org');
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', () => {
@@ -96,7 +94,7 @@ describe('`/api/grants` endpoint', () => {
         });
     });
     context('GET /api/grants/:grantId/assign/agencies', () => {
-        const assignedEndpoint = `335255/assign/agencies`;
+        const assignedEndpoint = `0/assign/agencies`;
         context('by a user with admin role', () => {
             let response;
             let json;
@@ -155,13 +153,13 @@ describe('`/api/grants` endpoint', () => {
         });
         context('by a user with admin role in another organization', () => {
             it('forbids requests for any agency outside of the main agency hierarchy', async () => {
-                const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.own, fetchOptions.dallasAdmin);
+                const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.own, fetchOptions.offLimitsAdmin);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
         });
     });
     context('PUT /api/grants/:grantId/assign/agencies', () => {
-        const assignEndpoint = `333816/assign/agencies`;
+        const assignEndpoint = `0/assign/agencies`;
         context('by a user with admin role', () => {
             it('assigns this user\'s own agency to a grant', async () => {
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.own, {
@@ -215,7 +213,7 @@ describe('`/api/grants` endpoint', () => {
     });
 
     context('DELETE /api/grants/:grantId/assign/agencies', () => {
-        const unassignEndpoint = `333816/assign/agencies`;
+        const unassignEndpoint = `0/assign/agencies`;
         context('by a user with admin role', () => {
             it('unassigns this user\'s own agency from a grant', async () => {
                 const response = await fetchApi(`/grants/${unassignEndpoint}`, agencies.own, {
@@ -268,7 +266,7 @@ describe('`/api/grants` endpoint', () => {
         });
     });
     context('GET /api/grants/:grantId/interested', () => {
-        const interestEndpoint = `335255/interested`;
+        const interestEndpoint = `0/interested`;
         context('by a user with admin role', () => {
             let response;
             let json;
@@ -353,7 +351,7 @@ describe('`/api/grants` endpoint', () => {
             });
         });
         context('by a user with staff role', () => {
-            const interestEndpoint = `333333/interested`;
+            const interestEndpoint = `1/interested`;
             it('records this user\'s own agency\'s interest in a grant', async () => {
                 const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.own}`, agencies.own, {
                     ...fetchOptions.staff,
@@ -381,11 +379,11 @@ describe('`/api/grants` endpoint', () => {
     context('GET /api/grants/exportCSV', () => {
         it('produces correct column format', async () => {
             // We constrain the result to a single grant that's listed in seeds/dev/ref/grants.js
-            const query = '?searchTerm=333816';
+            const query = '?searchTerm=0';
             const response = await fetchApi(`/grants/exportCSV${query}`, agencies.own, fetchOptions.staff);
 
             const expectedCsv = `Opportunity Number,Title,Viewed By,Interested Agencies,Status,Opportunity Category,Cost Sharing,Award Floor,Award Ceiling,Posted Date,Close Date,Agency Code,Grant Id,URL
-HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
+TEST_GRANT,Test Grant`;
 
             expect(response.statusText).to.equal('OK');
             expect(response.headers.get('Content-Type')).to.include('text/csv');

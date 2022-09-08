@@ -13,4 +13,8 @@ module.exports = [
         id: 3,
         display_name: 'Demo Tenant',
     },
+    {
+        id: 4,
+        display_name: 'Test Tenant',
+    },
 ];

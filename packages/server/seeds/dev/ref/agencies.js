@@ -26,4 +26,22 @@ module.exports = [
         main_agency_id: 2,
         tenant_id: 2,
     },
+    {
+        id: 3,  // For development testing purposes.
+        abbreviation: 'TEST',
+        code: 'TEST',
+        name: 'Test Agency',
+        parent: null,
+        main_agency_id: 3,
+        tenant_id: 3,
+    },
+    {
+        id: 4,  // For development testing purposes.
+        abbreviation: 'TEST2',
+        code: 'TEST2',
+        name: 'Test Sub-Agency',
+        parent: 3,
+        main_agency_id: 3,
+        tenant_id: 3,
+    },
 ];

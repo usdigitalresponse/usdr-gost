@@ -3,9 +3,9 @@ const { getSessionCookie, fetchApi } = require('./utils');
 
 describe('`/api/users` endpoint', () => {
     const agencies = {
-        own: 384,
-        ownSub: 113,
-        offLimits: 0,
+        own: 3,  // Test Agency, part of Test Tenant
+        ownSub: 4,  // Test Sub-agency, part of Test Tenant
+        offLimits: 0,  // USDR Agency, part of USDR Tenant
     };
 
     const fetchOptions = {
@@ -25,8 +25,8 @@ describe('`/api/users` endpoint', () => {
 
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('grants.dev+test.admin@usdigitalresponse.org');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('grants.dev+test.staff@usdigitalresponse.org');
     });
 
     context('POST /api/users (create a user for an agency)', () => {
@@ -97,13 +97,13 @@ describe('`/api/users` endpoint', () => {
                 const response = await fetchApi(`/users`, agencies.own, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(7);
+                expect(json.length).to.equal(2);
             });
             it('lists users for a subagency of this user\'s own agency', async () => {
                 const response = await fetchApi(`/users`, agencies.ownSub, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(3);
+                expect(json.length).to.equal(1);
             });
             it('is forbidden for an agency outside this user\'s hierarchy', async () => {
                 const response = await fetchApi(`/users`, agencies.offLimits, fetchOptions.admin);

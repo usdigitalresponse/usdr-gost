@@ -4,14 +4,14 @@ const { getSessionCookie, fetchApi } = require('./utils');
 describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
     const agencies = {
         admin: {
-            own: 0,
-            ownSub: 109,
-            offLimits: 70,
+            own: 3,  // Test Agency, part of Test Tenant
+            ownSub: 4,  // Test Sub-agency, part of Test Tenant
+            offLimits: 0,  // USDR Agency, part of USDR Tenant
         },
         staff: {
-            own: 384,
-            ownSub: 18,
-            offLimits: 70,
+            own: 3,  // Test Agency, part of Test Tenant
+            ownSub: 4,  // Test Sub-agency, part of Test Tenant
+            offLimits: 0,  // USDR Agency, part of USDR Tenant
         },
     };
 
@@ -32,8 +32,8 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
 
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('grants.dev+test.admin@usdigitalresponse.org');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('grants.dev+test.staff@usdigitalresponse.org');
     });
 
     context('GET organizations/:organizationId/agencies (list an agency and its subagencies)', () => {
