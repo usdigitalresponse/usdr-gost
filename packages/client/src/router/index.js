@@ -146,7 +146,6 @@ router.beforeEach((to, from, next) => {
       next({ name: 'login' });
     }
   } else {
-    // TODO: deal with invalid routes resulting from server-side redirect
     next();
   }
 });
