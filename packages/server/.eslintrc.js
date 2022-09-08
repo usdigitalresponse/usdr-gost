@@ -2,17 +2,20 @@ module.exports = {
     root: true,
     env: {
         node: true,
-        jest: true,
         mocha: true,
+        es6: true,
+    },
+    parserOptions: {
+        ecmaVersion: 'latest',
     },
     extends: [
-        'airbnb-base',
+        'eslint-config-airbnb-base',
     ],
     rules: {
         'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-        'camelcase': "off",
-        'consistent-return': "warn",
+        camelcase: 'off',
+        'consistent-return': 'warn',
         'array-callback-return': 'error',
         indent: ['error', 4, {
             SwitchCase: 1,
@@ -37,6 +40,10 @@ module.exports = {
             },
         ],
         'guard-for-in': 'off',
-        'max-len': 'warn',
+        'max-len': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+        'no-unused-expressions': 'off',
+        'import/no-dynamic-require': 'off',
+        'no-param-reassign': 'off',
+        'func-names': 'off',
     },
 };

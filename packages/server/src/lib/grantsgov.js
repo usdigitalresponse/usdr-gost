@@ -38,6 +38,9 @@ async function enrichHitWithDetails(keywords, hit) {
             desc = resp.body.forecast.forecastDesc;
             hit.awardCeiling = resp.body.forecast.awardCeiling;
             hit.costSharing = resp.body.forecast.costSharing;
+            if (resp.body.forecast.applicantTypes) {
+                hit.eligibilityCodes = resp.body.forecast.applicantTypes.map((appl) => appl.id).join(' ');
+            }
         }
         if (resp.body.opportunityCategory) {
             hit.opportunityCategory = resp.body.opportunityCategory.description;
@@ -84,15 +87,34 @@ async function getEligibilities() {
         oppNum: '',
         cfda: '',
         // oppStatuses: 'posted',
-        oppStatuses: 'posted|closed|archived',
+        oppStatuses: 'forecasted|posted|closed|archived',
         sortBy: 'openDate|desc',
     });
     const res = {};
     if (resp) {
+        /*
+        Example raw JSON response for `/search`
+        "eligibilities": [
+            {
+              "label": "City or township governments",
+              "value": "02",
+              "count": 1138
+            },
+            ...
+        ]
+        */
         resp.body.eligibilities.forEach((item) => {
             res[item.value] = item.label;
         });
     }
+
+    /*
+        Example `result`
+        {
+            "02": "City or township governments",
+            ...
+        }
+    */
     return res;
 }
 

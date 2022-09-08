@@ -6,6 +6,10 @@ function initialState() {
     eligibilityCodes: [],
     keywords: [],
     interestedCodes: [],
+    grantsInterested: [],
+    closestGrants: [],
+    totalUpcomingGrants: 0,
+    currentGrant: {},
   };
 }
 
@@ -15,6 +19,10 @@ export default {
   getters: {
     grants: (state) => state.grantsPaginated.data || [],
     grantsPagination: (state) => state.grantsPaginated.pagination,
+    grantsInterested: (state) => state.grantsInterested,
+    closestGrants: (state) => state.closestGrants,
+    totalUpcomingGrants: (state) => state.totalUpcomingGrants,
+    currentGrant: (state) => state.currentGrant,
     eligibilityCodes: (state) => state.eligibilityCodes,
     interestedCodes: (state) => ({
       rejections: state.interestedCodes.filter((c) => c.is_rejection),
@@ -24,10 +32,10 @@ export default {
   },
   actions: {
     fetchGrants({ commit }, {
-      currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToAgency, aging,
+      currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, rejected,
     }) {
       const query = Object.entries({
-        currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToAgency, aging,
+        currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, rejected,
       })
         // filter out undefined and nulls since api expects parameters not present as undefined
         // eslint-disable-next-line no-unused-vars
@@ -37,11 +45,26 @@ export default {
       return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
     },
+    fetchGrantsInterested({ commit }, { perPage, currentPage }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/grantsInterested/${perPage}/${currentPage}`)
+        .then((data) => commit('SET_GRANTS_INTERESTED', data));
+    },
+    fetchClosestGrants({ commit }, { perPage, currentPage }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/closestGrants/${perPage}/${currentPage}`)
+        .then((data) => commit('SET_CLOSEST_GRANTS', data));
+    },
+    fetchGrantDetails({ commit }, { grantId }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/grantDetails`)
+        .then((data) => commit('SET_GRANT_CURRENT', data));
+    },
     markGrantAsViewed(context, { grantId, agencyId }) {
       return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/view/${agencyId}`);
     },
     getGrantAssignedAgencies(context, { grantId }) {
       return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`);
+    },
+    getInterestedAgencies(context, { grantId }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/interested`);
     },
     assignAgenciesToGrant(context, { grantId, agencyIds }) {
       return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
@@ -51,6 +74,14 @@ export default {
     unassignAgenciesToGrant(context, { grantId, agencyIds }) {
       return fetchApi.deleteRequest(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
         agencyIds,
+      });
+    },
+    unmarkGrantAsInterested(context, {
+      grantId, agencyIds, interestedCode, agencyId,
+    }) {
+      return fetchApi.deleteRequest(`/api/organizations/:organizationId/grants/${grantId}/interested/${agencyId}`, {
+        agencyIds,
+        interestedCode,
       });
     },
     async generateGrantForm(context, { grantId }) {
@@ -94,15 +125,30 @@ export default {
       await fetchApi.deleteRequest(`/api/organizations/:organizationId/keywords/${keywordId}`);
       dispatch('fetchKeywords');
     },
+    exportCSV(context, queryParams) {
+      const query = Object.entries(queryParams)
+        // filter out undefined and nulls since api expects parameters not present as undefined
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value || typeof value === 'number')
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      const navUrl = fetchApi.addOrganizationId(`/api/organizations/:organizationId/grants/exportCSV?${query}`);
+      window.location = navUrl;
+    },
   },
   mutations: {
     SET_GRANTS(state, grants) {
       state.grantsPaginated = grants;
     },
     UPDATE_GRANT(state, { grantId, data }) {
-      const grant = state.grantsPaginated.data.find((g) => g.grant_id === grantId);
-      if (grant) {
-        Object.assign(grant, data);
+      if (state.grantsPaginated.data) {
+        const grant = state.grantsPaginated.data.find((g) => g.grant_id === grantId);
+        if (grant) {
+          Object.assign(grant, data);
+        }
+      }
+      if (state.currentGrant && state.currentGrant.grant_id === grantId) {
+        Object.assign(state.currentGrant, data);
       }
     },
     SET_ELIGIBILITY_CODES(state, eligibilityCodes) {
@@ -113,6 +159,16 @@ export default {
     },
     SET_KEYWORDS(state, keywords) {
       state.keywords = keywords;
+    },
+    SET_GRANTS_INTERESTED(state, grantsInterested) {
+      state.grantsInterested = grantsInterested;
+    },
+    SET_GRANT_CURRENT(state, currentGrant) {
+      state.currentGrant = currentGrant;
+    },
+    SET_CLOSEST_GRANTS(state, closestGrants) {
+      state.closestGrants = closestGrants.data;
+      state.totalUpcomingGrants = closestGrants.pagination.total;
     },
   },
 };

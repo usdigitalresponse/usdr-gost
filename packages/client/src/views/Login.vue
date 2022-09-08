@@ -39,6 +39,11 @@
         </div>
       </form>
       <div :class="messageClass" class="mt-3" v-if="message">{{ message }}</div>
+      <div>
+        To create an account for your government, please fill out
+        <a href="https://www.usdigitalresponse.org/contact-us" target="_blank">USDR's request form</a>
+        and indicate that you'd like to create an account on our Hosted Grants Tool.
+      </div>
     </b-card-text>
   </b-card>
 </template>
@@ -78,11 +83,7 @@ export default {
         'Content-Type': 'application/json',
       };
       let resStatus = 0;
-      fetch(`${process.env.VUE_APP_GRANTS_API_URL}/api/sessions`, {
-        method: 'POST',
-        headers,
-        body,
-      })
+      fetch('/api/sessions', { method: 'POST', headers, body })
         .then((r) => {
           resStatus = r.status;
           if (!r.ok) throw new Error(`login: ${r.statusText} (${r.status})`);

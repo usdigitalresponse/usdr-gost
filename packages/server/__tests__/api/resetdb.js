@@ -4,16 +4,15 @@ const { exec } = require('child_process');
 let { log } = console;
 let { dir } = console;
 dir(__dirname);
-const knexfilePath = path.resolve(__dirname, '../knexfile.js');
-// eslint-disable-next-line import/no-dynamic-require
-const knexfile = require(path.resolve(__dirname, '../knexfile.js'));
+const knexFilePath = path.resolve(__dirname, '../../knexfile.js');
+const knexFile = require(knexFilePath);
 
 function execShellCommand(cmd, options = {}) {
     return new Promise((resolve, reject) => {
         exec(cmd, { maxBuffer: 1024 * 500, ...options }, (error, stdout, stderr) => {
             if (error) {
                 reject(error);
-                return;
+                throw error;
             } if (stdout) {
                 log(stdout);
             } else {
@@ -30,7 +29,7 @@ async function resetDB({ verbose = false }) {
         dir = () => { };
     }
 
-    let url = knexfile.test.connection;
+    let url = knexFile.test.connection;
     if (!url) {
         console.log('You must set POSTGRES_TEST_URL as an environment variable');
         process.exit(0);
@@ -44,20 +43,27 @@ async function resetDB({ verbose = false }) {
 
     try {
         console.log(`Dropping database ${dbName}`);
-        await execShellCommand(`psql ${url} -c "DROP DATABASE IF EXISTS ${dbName}"`);
+        const dropDb = `psql ${url} -c "DROP DATABASE IF EXISTS ${dbName}"`;
+        await execShellCommand(dropDb);
+
         console.log(`Re-creating database ${dbName}`);
-        await execShellCommand(`psql ${url} -c "CREATE DATABASE ${dbName}"`);
+        const createDb = `psql ${url} -c "CREATE DATABASE ${dbName}"`;
+        await execShellCommand(createDb);
+
         console.log(`Seeding database ${dbName}`);
-        await execShellCommand(`yarn knex --knexfile ${knexfilePath} migrate:latest`, options);
-        await execShellCommand(`yarn knex --knexfile ${knexfilePath} seed:run`, options);
+        const migrateSeed = `yarn knex --knexfile ${knexFilePath} migrate:latest && yarn knex --knexfile ${knexFilePath} seed:run`;
+        await execShellCommand(migrateSeed, options);
     } catch (err) {
         console.dir(err);
-        return err;
+        throw err;
     }
     return null;
 }
 
-module.exports = resetDB;
+module.exports = {
+    resetDB,
+    execShellCommand,
+};
 
 /*
 

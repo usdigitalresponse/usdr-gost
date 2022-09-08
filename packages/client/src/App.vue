@@ -14,9 +14,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../../node_modules/bootstrap/scss/bootstrap.scss';
-@import '../../node_modules/bootstrap-vue/src/index.scss';
-@import "../../node_modules/vue-select/src/scss/vue-select.scss";
+@import 'bootstrap/scss/bootstrap.scss';
+@import 'bootstrap-vue/src/index.scss';
+@import 'vue-select/src/scss/vue-select.scss';
 
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -24,8 +24,8 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
+
 body {
   font-size: .875rem;
 }
-
 </style>
