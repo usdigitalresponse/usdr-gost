@@ -16,12 +16,18 @@ const {
 // links. Now, we send login links through a clientside redirect instead so this should not be necessary.
 const MAX_ACCESS_TOKEN_USES = 1;
 
+function validatePostLoginRedirectPath(url) {
+    // TODO implement
+    return url !== null;
+}
+
 // the validation URL is sent in the authentication email:
 //     http://localhost:8080/api/sessions/?passcode=97fa7091-77ae-4905-b62e-97a7b4699abd
 //
 router.get('/', async (req, res) => {
     const { passcode } = req.query;
     if (passcode) {
+        // TODO: clean this up
         if (process.env.NODE_ENV === 'test') {
             // reverted code change here: https://github.com/usdigitalresponse/usdr-gost/commit/3926582cf6e644c6f5ef029653afba828843c9b0#diff-ecce826cf8cbf1d020c07a6c345d0d7931488478a19821da68a979f4b74556f0R25
             const token = await getAccessToken(passcode);
@@ -79,8 +85,8 @@ router.post('/init', async (req, res) => {
             await markAccessTokenUsed(passcode);
         }
         let destination = WEBSITE_DOMAIN || '/';
-        if (redirect_to) {
-            destination += `#?redirect_to=${redirect_to}`;
+        if (redirect_to && validatePostLoginRedirectPath(redirect_to)) {
+            destination = (WEBSITE_DOMAIN || '') + redirect_to;
         }
         res.cookie('userId', token.user_id, { signed: true });
         res.redirect(destination);

@@ -1,12 +1,15 @@
+const { URL } = require('url');
 const getTransport = require('./email/service-email');
 
 const expiryMinutes = 30;
 
 function sendPassCode(email, passcode, httpOrigin, redirectTo) {
-    let href = `${httpOrigin}/api/sessions?passcode=${passcode}`;
+    const url = new URL(`${httpOrigin}/api/sessions`);
+    url.searchParams.set('passcode', passcode);
     if (redirectTo) {
-        href += `&redirect_to=${redirectTo}`;
+        url.searchParams.set('redirect_to', redirectTo);
     }
+    const href = url.toString();
 
     return getTransport().send({
         toAddress: email,
