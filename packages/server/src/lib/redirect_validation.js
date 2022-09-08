@@ -4,7 +4,7 @@ function validatePostLoginRedirectPath(url) {
     }
 
     // Non-relative URLs could create an open redirect usable for phishing attacks.
-    if (!url.startsWith('#') && !url.startsWith('/')) {
+    if (!url.startsWith('/')) {
         return null;
     }
 

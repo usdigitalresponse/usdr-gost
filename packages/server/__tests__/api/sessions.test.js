@@ -17,9 +17,10 @@ describe('/api/sessions', () => {
                 'https://usdigitalresponse.org/': false,
                 'usdigitalresponse.org': false,
                 '/api/sessions': false,
+                '#': false,
+                '#/grants': false, // hash based URLs should still be prefixed with /
                 '/': true,
-                '#': true,
-                '#/grants': true,
+                '/#/grants': true,
                 '/arpa_reporter/uploads': true,
             };
 
@@ -68,7 +69,7 @@ describe('/api/sessions', () => {
         }
 
         it('redirects to valid redirect_to', async () => {
-            const redirect_to = '#/grants';
+            const redirect_to = '/#/grants';
             const { redirectUrl } = await testLogin({ redirect_to });
             expect(redirectUrl).to.have.string(redirect_to);
         });
