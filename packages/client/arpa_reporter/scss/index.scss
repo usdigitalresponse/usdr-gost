@@ -1,0 +1,10 @@
+// override theme variables here
+
+$theme-colors: (
+  "primary": #1565c0,
+  "secondary": #607d8b,
+);
+
+@import "bootstrap/scss/bootstrap";
+
+/* NOTE: This file was copied from scss/index.scss (git @ d124c44d0e) in the arpa-reporter repo on 2022-09-08T23:48:24.330Z */
