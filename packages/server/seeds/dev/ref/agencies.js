@@ -2,6 +2,7 @@ module.exports = [
     {
         id: 0,
         abbreviation: 'USDR',
+        code: 'USDR',
         name: 'USDR',
         parent: null,
         main_agency_id: 0,
@@ -10,6 +11,7 @@ module.exports = [
     {
         id: 385,
         abbreviation: 'DFW',
+        code: 'DFW',
         name: 'Dallas, Texas',
         parent: 0,
         main_agency_id: 385,
@@ -18,6 +20,7 @@ module.exports = [
     {
         id: 386,
         abbreviation: 'DLA',
+        code: 'DLA',
         name: 'Dallas Admin',
         parent: 385,
         main_agency_id: 385,
@@ -26,6 +29,7 @@ module.exports = [
     {
         id: 384,
         abbreviation: 'NV',
+        code: 'NV',
         name: 'State of Nevada',
         parent: 0,
         main_agency_id: 384,
@@ -34,6 +38,7 @@ module.exports = [
     {
         id: 1,
         abbreviation: 'ADMIN',
+        code: 'ADMIN',
         name: 'Administration, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -42,6 +47,7 @@ module.exports = [
     {
         id: 2,
         abbreviation: 'ASD',
+        code: 'ASD',
         name: 'Administration: Administrative Services',
         parent: 1,
         main_agency_id: 384,
@@ -50,6 +56,7 @@ module.exports = [
     {
         id: 3,
         abbreviation: 'EITS',
+        code: 'EITS',
         name: 'Administration: Enterprise IT Services',
         parent: 1,
         main_agency_id: 384,
@@ -58,6 +65,7 @@ module.exports = [
     {
         id: 4,
         abbreviation: 'FSD',
+        code: 'FSD',
         name: 'Administration: Fleet Services Division',
         parent: 1,
         main_agency_id: 384,
@@ -66,6 +74,7 @@ module.exports = [
     {
         id: 5,
         abbreviation: 'GO',
+        code: 'GO',
         name: 'Administration: Grant Office',
         parent: 1,
         main_agency_id: 384,
@@ -74,6 +83,7 @@ module.exports = [
     {
         id: 6,
         abbreviation: 'AHA',
+        code: 'AHA',
         name: 'Administration: Hearings and Appeals',
         parent: 1,
         main_agency_id: 384,
@@ -82,6 +92,7 @@ module.exports = [
     {
         id: 7,
         abbreviation: 'SHRAB',
+        code: 'SHRAB',
         name: 'Administration: Historical Records Advisory Board, State',
         parent: 1,
         main_agency_id: 384,
@@ -90,6 +101,7 @@ module.exports = [
     {
         id: 8,
         abbreviation: 'HR',
+        code: 'HR',
         name: 'Administration: Human Resource Management',
         parent: 1,
         main_agency_id: 384,
@@ -98,6 +110,7 @@ module.exports = [
     {
         id: 9,
         abbreviation: 'IT',
+        code: 'IT',
         name: 'Administration: Information Technology',
         parent: 1,
         main_agency_id: 384,
@@ -106,6 +119,7 @@ module.exports = [
     {
         id: 10,
         abbreviation: 'NSTCLL',
+        code: 'NSTCLL',
         name: 'Administration: Libraries and Literacy, Nevada State Council',
         parent: 1,
         main_agency_id: 384,
@@ -114,6 +128,7 @@ module.exports = [
     {
         id: 11,
         abbreviation: 'ALA',
+        code: 'ALA',
         name: 'Administration: Library and Archives',
         parent: 1,
         main_agency_id: 384,
@@ -122,6 +137,7 @@ module.exports = [
     {
         id: 12,
         abbreviation: 'AOPM',
+        code: 'AOPM',
         name: 'Administration: Project Management, Office of',
         parent: 1,
         main_agency_id: 384,
@@ -130,6 +146,7 @@ module.exports = [
     {
         id: 13,
         abbreviation: 'SPWD',
+        code: 'SPWD',
         name: 'Administration: Public Works Division, State',
         parent: 1,
         main_agency_id: 384,
@@ -138,6 +155,7 @@ module.exports = [
     {
         id: 14,
         abbreviation: 'AP',
+        code: 'AP',
         name: 'Administration: Purchasing',
         parent: 1,
         main_agency_id: 384,
@@ -146,6 +164,7 @@ module.exports = [
     {
         id: 15,
         abbreviation: 'ARM',
+        code: 'ARM',
         name: 'Administration: Risk Management',
         parent: 1,
         main_agency_id: 384,
@@ -154,6 +173,7 @@ module.exports = [
     {
         id: 16,
         abbreviation: 'VOC',
+        code: 'VOC',
         name: 'Administration: Victims of Crime',
         parent: 1,
         main_agency_id: 384,
@@ -162,6 +182,7 @@ module.exports = [
     {
         id: 17,
         abbreviation: 'NCFW',
+        code: 'NCFW',
         name: 'Administration: Women, Nevada Commission for',
         parent: 1,
         main_agency_id: 384,
@@ -170,6 +191,7 @@ module.exports = [
     {
         id: 18,
         abbreviation: 'AG',
+        code: 'AG',
         name: 'Agriculture, State Department of',
         parent: 384,
         main_agency_id: 384,
@@ -178,6 +200,7 @@ module.exports = [
     {
         id: 19,
         abbreviation: 'AGAD',
+        code: 'AGAD',
         name: 'Agriculture: Administration Division',
         parent: 2,
         main_agency_id: 384,
@@ -186,6 +209,7 @@ module.exports = [
     {
         id: 20,
         abbreviation: 'BOAG',
+        code: 'BOAG',
         name: 'Agriculture: Agriculture, Board of',
         parent: 2,
         main_agency_id: 384,
@@ -194,6 +218,7 @@ module.exports = [
     {
         id: 21,
         abbreviation: 'ASAD',
+        code: 'ASAD',
         name: 'Agriculture: Alfalfa Seed Advisory Board',
         parent: 2,
         main_agency_id: 384,
@@ -202,6 +227,7 @@ module.exports = [
     {
         id: 22,
         abbreviation: 'AI',
+        code: 'AI',
         name: 'Agriculture: Animal Industry',
         parent: 2,
         main_agency_id: 384,
@@ -210,6 +236,7 @@ module.exports = [
     {
         id: 23,
         abbreviation: 'AGCE',
+        code: 'AGCE',
         name: 'Agriculture: Consumer Equitability',
         parent: 2,
         main_agency_id: 384,
@@ -218,6 +245,7 @@ module.exports = [
     {
         id: 24,
         abbreviation: 'FND',
+        code: 'FND',
         name: 'Agriculture: Food and Nutrition Division',
         parent: 2,
         main_agency_id: 384,
@@ -226,6 +254,7 @@ module.exports = [
     {
         id: 25,
         abbreviation: 'GOGAB',
+        code: 'GOGAB',
         name: 'Agriculture: Garlic and Onion Growers\' Advisory Board',
         parent: 2,
         main_agency_id: 384,
@@ -234,6 +263,7 @@ module.exports = [
     {
         id: 26,
         abbreviation: 'NJLSB',
+        code: 'NJLSB',
         name: 'Agriculture: Junior Livestock Show Board, Nevada',
         parent: 2,
         main_agency_id: 384,
@@ -242,6 +272,7 @@ module.exports = [
     {
         id: 27,
         abbreviation: 'AGLI',
+        code: 'AGLI',
         name: 'Agriculture: Livestock Identification',
         parent: 2,
         main_agency_id: 384,
@@ -250,6 +281,7 @@ module.exports = [
     {
         id: 28,
         abbreviation: 'NWS',
+        code: 'NWS',
         name: 'Agriculture: Nevada Wildlife Services',
         parent: 2,
         main_agency_id: 384,
@@ -258,6 +290,7 @@ module.exports = [
     {
         id: 29,
         abbreviation: 'AGPI',
+        code: 'AGPI',
         name: 'Agriculture: Plant Industry',
         parent: 2,
         main_agency_id: 384,
@@ -266,6 +299,7 @@ module.exports = [
     {
         id: 30,
         abbreviation: 'RRC',
+        code: 'RRC',
         name: 'Agriculture: Rangeland Resources Commission',
         parent: 2,
         main_agency_id: 384,
@@ -274,6 +308,7 @@ module.exports = [
     {
         id: 31,
         abbreviation: 'NSBOEADGC',
+        code: 'NSBOEADGC',
         name: 'Alcohol, Drug and Gambling Counselors; Nevada State Board of Examiners',
         parent: 384,
         main_agency_id: 384,
@@ -282,6 +317,7 @@ module.exports = [
     {
         id: 32,
         abbreviation: 'NSBAIDRD',
+        code: 'NSBAIDRD',
         name: 'Architecture, Interior Design and Residential Design; Nevada State Board of',
         parent: 384,
         main_agency_id: 384,
@@ -290,6 +326,7 @@ module.exports = [
     {
         id: 33,
         abbreviation: 'NSBAT',
+        code: 'NSBAT',
         name: 'Athletic Trainers, Nevada State Board of',
         parent: 384,
         main_agency_id: 384,
@@ -298,6 +335,7 @@ module.exports = [
     {
         id: 34,
         abbreviation: 'OAG',
+        code: 'OAG',
         name: 'Attorney General, Office of the',
         parent: 384,
         main_agency_id: 384,
@@ -306,6 +344,7 @@ module.exports = [
     {
         id: 35,
         abbreviation: 'OAGA',
+        code: 'OAGA',
         name: 'Attorney General: Administration',
         parent: 34,
         main_agency_id: 384,
@@ -314,6 +353,7 @@ module.exports = [
     {
         id: 36,
         abbreviation: 'AGBCP',
+        code: 'AGBCP',
         name: 'Attorney General: Consumer Protection, Bureau of',
         parent: 34,
         main_agency_id: 384,
@@ -322,6 +362,7 @@ module.exports = [
     {
         id: 37,
         abbreviation: 'AGBCJ',
+        code: 'AGBCJ',
         name: 'Attorney General: Criminal Justice, Bureau of',
         parent: 34,
         main_agency_id: 384,
@@ -330,6 +371,7 @@ module.exports = [
     {
         id: 38,
         abbreviation: 'AGBGA',
+        code: 'AGBGA',
         name: 'Attorney General: Governmental Affairs, Bureau of',
         parent: 34,
         main_agency_id: 384,
@@ -338,6 +380,7 @@ module.exports = [
     {
         id: 39,
         abbreviation: 'AGBL',
+        code: 'AGBL',
         name: 'Attorney General: Litigation, Bureau of',
         parent: 34,
         main_agency_id: 384,
@@ -346,6 +389,7 @@ module.exports = [
     {
         id: 40,
         abbreviation: 'BEN',
+        code: 'BEN',
         name: 'Bar Examiners of Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -354,6 +398,7 @@ module.exports = [
     {
         id: 41,
         abbreviation: 'SBHSB',
+        code: 'SBHSB',
         name: 'Barbers Health and Sanitation Board, State',
         parent: 384,
         main_agency_id: 384,
@@ -362,6 +407,7 @@ module.exports = [
     {
         id: 42,
         abbreviation: 'BIAPC',
+        code: 'BIAPC',
         name: 'Business and Industry: Appraisal Commission',
         parent: 384,
         main_agency_id: 384,
@@ -370,6 +416,7 @@ module.exports = [
     {
         id: 43,
         abbreviation: 'NSAC',
+        code: 'NSAC',
         name: 'Business and Industry: Nevada State Athletic Commission',
         parent: 384,
         main_agency_id: 384,
@@ -378,6 +425,7 @@ module.exports = [
     {
         id: 44,
         abbreviation: 'CCICCH',
+        code: 'CCICCH',
         name: 'Business and Industry: Common-Interest Communities and Condominium Hotels, Commission for',
         parent: 384,
         main_agency_id: 384,
@@ -386,6 +434,7 @@ module.exports = [
     {
         id: 45,
         abbreviation: 'DBI',
+        code: 'DBI',
         name: 'Department of Business and Industry',
         parent: 384,
         main_agency_id: 384,
@@ -394,6 +443,7 @@ module.exports = [
     {
         id: 46,
         abbreviation: 'DBIDO',
+        code: 'DBIDO',
         name: 'Business and Industry: Director\'s Office',
         parent: 45,
         main_agency_id: 384,
@@ -402,6 +452,7 @@ module.exports = [
     {
         id: 47,
         abbreviation: 'EMRB',
+        code: 'EMRB',
         name: 'Business and Industry: Employee Management Relations Board',
         parent: 45,
         main_agency_id: 384,
@@ -410,6 +461,7 @@ module.exports = [
     {
         id: 48,
         abbreviation: 'FID',
+        code: 'FID',
         name: 'Business and Industry: Financial Institutions Division',
         parent: 45,
         main_agency_id: 384,
@@ -418,6 +470,7 @@ module.exports = [
     {
         id: 49,
         abbreviation: 'BIHD',
+        code: 'BIHD',
         name: 'Business and Industry: Housing Division',
         parent: 45,
         main_agency_id: 384,
@@ -426,6 +479,7 @@ module.exports = [
     {
         id: 50,
         abbreviation: 'BIIR',
+        code: 'BIIR',
         name: 'Business and Industry: Industrial Relations',
         parent: 45,
         main_agency_id: 384,
@@ -434,6 +488,7 @@ module.exports = [
     {
         id: 51,
         abbreviation: 'AIW',
+        code: 'AIW',
         name: 'Business and Industry: Injured Workers, Attorney for',
         parent: 45,
         main_agency_id: 384,
@@ -442,6 +497,7 @@ module.exports = [
     {
         id: 52,
         abbreviation: 'BIID',
+        code: 'BIID',
         name: 'Business and Industry: Insurance Division',
         parent: 45,
         main_agency_id: 384,
@@ -450,6 +506,7 @@ module.exports = [
     {
         id: 53,
         abbreviation: 'BILC',
+        code: 'BILC',
         name: 'Business and Industry: Labor Commissioner',
         parent: 45,
         main_agency_id: 384,
@@ -458,6 +515,7 @@ module.exports = [
     {
         id: 54,
         abbreviation: 'BIMH',
+        code: 'BIMH',
         name: 'Business and Industry: Manufactured Housing',
         parent: 45,
         main_agency_id: 384,
@@ -466,6 +524,7 @@ module.exports = [
     {
         id: 55,
         abbreviation: 'NCMA',
+        code: 'NCMA',
         name: 'Business and Industry: Minority Affairs, Nevada Commission',
         parent: 45,
         main_agency_id: 384,
@@ -474,6 +533,7 @@ module.exports = [
     {
         id: 56,
         abbreviation: 'BIMLD',
+        code: 'BIMLD',
         name: 'Business and Industry: Mortgage Lending Division',
         parent: 45,
         main_agency_id: 384,
@@ -482,6 +542,7 @@ module.exports = [
     {
         id: 57,
         abbreviation: 'OCAM',
+        code: 'OCAM',
         name: 'Business and Industry: Ombudsman of Consumer Affairs for Minorities',
         parent: 45,
         main_agency_id: 384,
@@ -490,6 +551,7 @@ module.exports = [
     {
         id: 58,
         abbreviation: 'BIRE',
+        code: 'BIRE',
         name: 'Business and Industry: Real Estate',
         parent: 45,
         main_agency_id: 384,
@@ -498,6 +560,7 @@ module.exports = [
     {
         id: 59,
         abbreviation: 'BITA',
+        code: 'BITA',
         name: 'Business and Industry: Taxicab Authority',
         parent: 45,
         main_agency_id: 384,
@@ -506,6 +569,7 @@ module.exports = [
     {
         id: 60,
         abbreviation: 'BINTA',
+        code: 'BINTA',
         name: 'Business and Industry: Transportation Authority, Nevada',
         parent: 45,
         main_agency_id: 384,
@@ -514,6 +578,7 @@ module.exports = [
     {
         id: 61,
         abbreviation: 'CNFNS',
+        code: 'CNFNS',
         name: 'California and Nevada Fire Notification Service',
         parent: 384,
         main_agency_id: 384,
@@ -522,6 +587,7 @@ module.exports = [
     {
         id: 62,
         abbreviation: 'CCRB',
+        code: 'CCRB',
         name: 'Certified Court Reporters Board',
         parent: 384,
         main_agency_id: 384,
@@ -530,6 +596,7 @@ module.exports = [
     {
         id: 63,
         abbreviation: 'CPBN',
+        code: 'CPBN',
         name: 'Chiropractic Physicians\' Board of Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -538,6 +605,7 @@ module.exports = [
     {
         id: 64,
         abbreviation: 'CSN',
+        code: 'CSN',
         name: 'College of Southern Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -546,6 +614,7 @@ module.exports = [
     {
         id: 65,
         abbreviation: 'CSNA',
+        code: 'CSNA',
         name: 'College of Southern Nevada: Admissions',
         parent: 64,
         main_agency_id: 384,
@@ -554,6 +623,7 @@ module.exports = [
     {
         id: 66,
         abbreviation: 'CSNC',
+        code: 'CSNC',
         name: 'College of Southern Nevada: Catalog',
         parent: 64,
         main_agency_id: 384,
@@ -562,6 +632,7 @@ module.exports = [
     {
         id: 67,
         abbreviation: 'CRCN',
+        code: 'CRCN',
         name: 'Colorado River Commission of Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -570,6 +641,7 @@ module.exports = [
     {
         id: 68,
         abbreviation: 'DCNR',
+        code: 'DCNR',
         name: 'Conservation & Natural Resources, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -578,6 +650,7 @@ module.exports = [
     {
         id: 69,
         abbreviation: 'BCA',
+        code: 'BCA',
         name: 'Conservation and Natural Resources: Bureau of Corrective Actions',
         parent: 69,
         main_agency_id: 384,
@@ -586,6 +659,7 @@ module.exports = [
     {
         id: 70,
         abbreviation: 'SHPOCCA',
+        code: 'SHPOCCA',
         name: 'Conservation and Natural Resources: Commission for Cultural Affairs, State Historic Preservation Office',
         parent: 69,
         main_agency_id: 384,
@@ -594,6 +668,7 @@ module.exports = [
     {
         id: 71,
         abbreviation: 'CDP',
+        code: 'CDP',
         name: 'Conservation and Natural Resources: Conservation Districts Program',
         parent: 69,
         main_agency_id: 384,
@@ -602,6 +677,7 @@ module.exports = [
     {
         id: 72,
         abbreviation: 'DEP',
+        code: 'DEP',
         name: 'Conservation and Natural Resources: Environmental Protection, Division of',
         parent: 69,
         main_agency_id: 384,
@@ -610,6 +686,7 @@ module.exports = [
     {
         id: 73,
         abbreviation: 'DF',
+        code: 'DF',
         name: 'Conservation and Natural Resources: Forestry, Division of',
         parent: 69,
         main_agency_id: 384,
@@ -618,6 +695,7 @@ module.exports = [
     {
         id: 74,
         abbreviation: 'HPO',
+        code: 'HPO',
         name: 'Conservation and Natural Resources: Historic Preservation Office',
         parent: 69,
         main_agency_id: 384,
@@ -626,6 +704,7 @@ module.exports = [
     {
         id: 75,
         abbreviation: 'DOR',
+        code: 'DOR',
         name: 'Conservation and Natural Resources: Outdoor Recreation, Division of',
         parent: 69,
         main_agency_id: 384,
@@ -634,6 +713,7 @@ module.exports = [
     {
         id: 76,
         abbreviation: 'CNRNHP',
+        code: 'CNRNHP',
         name: 'Conservation and Natural Resources: Natural Heritage Program',
         parent: 69,
         main_agency_id: 384,
@@ -642,6 +722,7 @@ module.exports = [
     {
         id: 77,
         abbreviation: 'DSL',
+        code: 'DSL',
         name: 'Conservation and Natural Resources: State Lands, Division of',
         parent: 69,
         main_agency_id: 384,
@@ -650,6 +731,7 @@ module.exports = [
     {
         id: 78,
         abbreviation: 'DSP',
+        code: 'DSP',
         name: 'Conservation and Natural Resources: State Parks, Division of',
         parent: 69,
         main_agency_id: 384,
@@ -658,6 +740,7 @@ module.exports = [
     {
         id: 79,
         abbreviation: 'DSPWR',
+        code: 'DSPWR',
         name: 'Conservation and Natural Resources: Walker River State Recreation Area',
         parent: 69,
         main_agency_id: 384,
@@ -666,6 +749,7 @@ module.exports = [
     {
         id: 80,
         abbreviation: 'DWR',
+        code: 'DWR',
         name: 'Conservation and Natural Resources: Water Resources, Division of',
         parent: 69,
         main_agency_id: 384,
@@ -674,6 +758,7 @@ module.exports = [
     {
         id: 81,
         abbreviation: 'CSE',
+        code: 'CSE',
         name: 'Construction Education, Commission on',
         parent: 384,
         main_agency_id: 384,
@@ -682,6 +767,7 @@ module.exports = [
     {
         id: 82,
         abbreviation: 'SCB',
+        code: 'SCB',
         name: 'Contractors Board, State',
         parent: 384,
         main_agency_id: 384,
@@ -690,6 +776,7 @@ module.exports = [
     {
         id: 83,
         abbreviation: 'OSC',
+        code: 'OSC',
         name: 'Controller, Office of the State',
         parent: 384,
         main_agency_id: 384,
@@ -698,6 +785,7 @@ module.exports = [
     {
         id: 84,
         abbreviation: 'OSCDC',
+        code: 'OSCDC',
         name: 'Controller: Debt Collection',
         parent: 84,
         main_agency_id: 384,
@@ -706,6 +794,7 @@ module.exports = [
     {
         id: 85,
         abbreviation: 'DOC',
+        code: 'DOC',
         name: 'Corrections, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -714,6 +803,7 @@ module.exports = [
     {
         id: 86,
         abbreviation: 'DOCC',
+        code: 'DOCC',
         name: 'Corrections: Contracts',
         parent: 86,
         main_agency_id: 384,
@@ -722,6 +812,7 @@ module.exports = [
     {
         id: 87,
         abbreviation: 'DOCESP',
+        code: 'DOCESP',
         name: 'Corrections: Ely State Prison',
         parent: 86,
         main_agency_id: 384,
@@ -730,6 +821,7 @@ module.exports = [
     {
         id: 88,
         abbreviation: 'DOCII',
+        code: 'DOCII',
         name: 'Corrections: Inmate Information',
         parent: 86,
         main_agency_id: 384,
@@ -738,6 +830,7 @@ module.exports = [
     {
         id: 89,
         abbreviation: 'NBSPC',
+        code: 'NBSPC',
         name: 'Corrections: Prison Commissioners, Board of State',
         parent: 86,
         main_agency_id: 384,
@@ -746,6 +839,7 @@ module.exports = [
     {
         id: 90,
         abbreviation: 'DOCRPS',
+        code: 'DOCRPS',
         name: 'Corrections: Research Planning and Statistics',
         parent: 86,
         main_agency_id: 384,
@@ -754,6 +848,7 @@ module.exports = [
     {
         id: 91,
         abbreviation: 'SI',
+        code: 'SI',
         name: 'Corrections: Silverstate Industries',
         parent: 86,
         main_agency_id: 384,
@@ -762,6 +857,7 @@ module.exports = [
     {
         id: 92,
         abbreviation: 'NSBC',
+        code: 'NSBC',
         name: 'Cosmetology, State Board of',
         parent: 384,
         main_agency_id: 384,
@@ -770,6 +866,7 @@ module.exports = [
     {
         id: 93,
         abbreviation: 'NPEDCP',
+        code: 'NPEDCP',
         name: 'Deferred Compensation Program, Nevada Public Employees',
         parent: 384,
         main_agency_id: 384,
@@ -778,6 +875,7 @@ module.exports = [
     {
         id: 94,
         abbreviation: 'SD',
+        code: 'SD',
         name: 'Demographer, State',
         parent: 384,
         main_agency_id: 384,
@@ -786,6 +884,7 @@ module.exports = [
     {
         id: 95,
         abbreviation: 'BDEN',
+        code: 'BDEN',
         name: 'Dental Examiners of Nevada, Board of',
         parent: 384,
         main_agency_id: 384,
@@ -794,6 +893,7 @@ module.exports = [
     {
         id: 96,
         abbreviation: 'DRI',
+        code: 'DRI',
         name: 'Desert Research Institute',
         parent: 384,
         main_agency_id: 384,
@@ -802,6 +902,7 @@ module.exports = [
     {
         id: 97,
         abbreviation: 'DRIAIC',
+        code: 'DRIAIC',
         name: 'Desert Research Institute: Applied Innovation Center',
         parent: 384,
         main_agency_id: 384,
@@ -810,6 +911,7 @@ module.exports = [
     {
         id: 98,
         abbreviation: 'DRIAS',
+        code: 'DRIAS',
         name: 'Desert Research Institute: Atmospheric Sciences',
         parent: 96,
         main_agency_id: 384,
@@ -818,6 +920,7 @@ module.exports = [
     {
         id: 99,
         abbreviation: 'CIWS',
+        code: 'CIWS',
         name: 'Desert Research Institute: Center for International Water and Sustainability',
         parent: 96,
         main_agency_id: 384,
@@ -826,6 +929,7 @@ module.exports = [
     {
         id: 100,
         abbreviation: 'CTREC',
+        code: 'CTREC',
         name: 'Desert Research Institute: Clean Technologies and Renewable Energy Center',
         parent: 96,
         main_agency_id: 384,
@@ -834,6 +938,7 @@ module.exports = [
     {
         id: 101,
         abbreviation: 'DRKLF',
+        code: 'DRKLF',
         name: 'Desert Research Institute: DRI Labs and Facilities',
         parent: 96,
         main_agency_id: 384,
@@ -842,6 +947,7 @@ module.exports = [
     {
         id: 102,
         abbreviation: 'EES',
+        code: 'EES',
         name: 'Desert Research Institute: Earth and Ecosystem Sciences',
         parent: 96,
         main_agency_id: 384,
@@ -850,6 +956,7 @@ module.exports = [
     {
         id: 103,
         abbreviation: 'DRIHS',
+        code: 'DRIHS',
         name: 'Desert Research Institute: Hydrologic Sciences',
         parent: 96,
         main_agency_id: 384,
@@ -858,6 +965,7 @@ module.exports = [
     {
         id: 104,
         abbreviation: 'DRIRS',
+        code: 'DRIRS',
         name: 'Desert Research Institute: Research Services',
         parent: 96,
         main_agency_id: 384,
@@ -866,6 +974,7 @@ module.exports = [
     {
         id: 105,
         abbreviation: 'DRISS',
+        code: 'DRISS',
         name: 'Desert Research Institute: Scientific Services',
         parent: 96,
         main_agency_id: 384,
@@ -874,6 +983,7 @@ module.exports = [
     {
         id: 106,
         abbreviation: 'WRCC',
+        code: 'WRCC',
         name: 'Desert Research Institute: Western Regional Climate Center',
         parent: 96,
         main_agency_id: 384,
@@ -882,6 +992,7 @@ module.exports = [
     {
         id: 107,
         abbreviation: 'WFSC',
+        code: 'WFSC',
         name: 'Desert Research Institute: Wildland Fire Science Center',
         parent: 96,
         main_agency_id: 384,
@@ -890,6 +1001,7 @@ module.exports = [
     {
         id: 108,
         abbreviation: 'SNBDO',
+        code: 'SNBDO',
         name: 'Dispensing Opticians, State of Nevada Board of',
         parent: 384,
         main_agency_id: 384,
@@ -898,6 +1010,7 @@ module.exports = [
     {
         id: 109,
         abbreviation: 'CED',
+        code: 'CED',
         name: 'Economic Development, Commission on',
         parent: 384,
         main_agency_id: 384,
@@ -906,6 +1019,7 @@ module.exports = [
     {
         id: 110,
         abbreviation: 'ODRP',
+        code: 'ODRP',
         name: 'Economic Development: Diplomatic Relations and Protocol, Office of',
         parent: 109,
         main_agency_id: 384,
@@ -914,6 +1028,7 @@ module.exports = [
     {
         id: 111,
         abbreviation: 'NFO',
+        code: 'NFO',
         name: 'Economic Development: Film Office, Nevada',
         parent: 109,
         main_agency_id: 384,
@@ -922,6 +1037,7 @@ module.exports = [
     {
         id: 112,
         abbreviation: 'GBD',
+        code: 'GBD',
         name: 'Economic Development: Global Business Development',
         parent: 109,
         main_agency_id: 384,
@@ -930,6 +1046,7 @@ module.exports = [
     {
         id: 113,
         abbreviation: 'NPO',
+        code: 'NPO',
         name: 'Economic Development: Procurement Outreach, Nevada',
         parent: 109,
         main_agency_id: 384,
@@ -938,6 +1055,7 @@ module.exports = [
     {
         id: 114,
         abbreviation: 'REA',
+        code: 'REA',
         name: 'Economic Development: Relocation and Expansion Assistance',
         parent: 109,
         main_agency_id: 384,
@@ -946,6 +1064,7 @@ module.exports = [
     {
         id: 115,
         abbreviation: 'RCDD',
+        code: 'RCDD',
         name: 'Economic Development: Rural Community Development Division',
         parent: 109,
         main_agency_id: 384,
@@ -954,6 +1073,7 @@ module.exports = [
     {
         id: 116,
         abbreviation: 'EDSS',
+        code: 'EDSS',
         name: 'Economic Development: Site Selectors',
         parent: 109,
         main_agency_id: 384,
@@ -962,6 +1082,7 @@ module.exports = [
     {
         id: 117,
         abbreviation: 'DOE',
+        code: 'DOE',
         name: 'Education, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -970,6 +1091,7 @@ module.exports = [
     {
         id: 118,
         abbreviation: 'CEAS',
+        code: 'CEAS',
         name: 'Education: Academic Standards, Council to Establish',
         parent: 117,
         main_agency_id: 384,
@@ -978,6 +1100,7 @@ module.exports = [
     {
         id: 119,
         abbreviation: 'ADAM',
+        code: 'ADAM',
         name: 'Education: Assessment Data & Accountability Management',
         parent: 117,
         main_agency_id: 384,
@@ -986,6 +1109,7 @@ module.exports = [
     {
         id: 120,
         abbreviation: 'BSS',
+        code: 'BSS',
         name: 'Education: Business and Support Services',
         parent: 117,
         main_agency_id: 384,
@@ -994,6 +1118,7 @@ module.exports = [
     {
         id: 121,
         abbreviation: 'CRALEO',
+        code: 'CRALEO',
         name: 'Education: Career Readiness, Adult Learning & Education Options',
         parent: 117,
         main_agency_id: 384,
@@ -1002,6 +1127,7 @@ module.exports = [
     {
         id: 122,
         abbreviation: 'ELD',
+        code: 'ELD',
         name: 'Education: Early Learning and Development',
         parent: 117,
         main_agency_id: 384,
@@ -1010,6 +1136,7 @@ module.exports = [
     {
         id: 123,
         abbreviation: 'BOE',
+        code: 'BOE',
         name: 'Education: Education, Board of',
         parent: 117,
         main_agency_id: 384,
@@ -1018,6 +1145,7 @@ module.exports = [
     {
         id: 124,
         abbreviation: 'CET',
+        code: 'CET',
         name: 'Education: Educational Technology, Commission on',
         parent: 117,
         main_agency_id: 384,
@@ -1026,6 +1154,7 @@ module.exports = [
     {
         id: 125,
         abbreviation: 'EE',
+        code: 'EE',
         name: 'Education: Educator Effectiveness',
         parent: 117,
         main_agency_id: 384,
@@ -1034,6 +1163,7 @@ module.exports = [
     {
         id: 126,
         abbreviation: 'NIAA',
+        code: 'NIAA',
         name: 'Education: Interscholastic Activities Association, Nevada',
         parent: 117,
         main_agency_id: 384,
@@ -1042,6 +1172,7 @@ module.exports = [
     {
         id: 127,
         abbreviation: 'ADPIFE',
+        code: 'ADPIFE',
         name: 'Education: Parental Involvement and Family Engagement, Advisory Council on',
         parent: 117,
         main_agency_id: 384,
@@ -1050,6 +1181,7 @@ module.exports = [
     {
         id: 128,
         abbreviation: 'CPS',
+        code: 'CPS',
         name: 'Education: Professional Standards, Commission on',
         parent: 117,
         main_agency_id: 384,
@@ -1058,6 +1190,7 @@ module.exports = [
     {
         id: 129,
         abbreviation: 'SPCSA',
+        code: 'SPCSA',
         name: 'Education: Public Charter School Authority',
         parent: 117,
         main_agency_id: 384,
@@ -1066,6 +1199,7 @@ module.exports = [
     {
         id: 130,
         abbreviation: 'SE',
+        code: 'SE',
         name: 'Education: Special Education',
         parent: 117,
         main_agency_id: 384,
@@ -1074,6 +1208,7 @@ module.exports = [
     {
         id: 131,
         abbreviation: 'SEAC',
+        code: 'SEAC',
         name: 'Education: Special Education Advisory Committee',
         parent: 117,
         main_agency_id: 384,
@@ -1082,6 +1217,7 @@ module.exports = [
     {
         id: 132,
         abbreviation: 'SIS',
+        code: 'SIS',
         name: 'Education: Standards & Instructional Support',
         parent: 117,
         main_agency_id: 384,
@@ -1090,6 +1226,7 @@ module.exports = [
     {
         id: 133,
         abbreviation: 'OSSS',
+        code: 'OSSS',
         name: 'Education: Student & School Supporters, Office of',
         parent: 117,
         main_agency_id: 384,
@@ -1098,6 +1235,7 @@ module.exports = [
     {
         id: 134,
         abbreviation: 'TL',
+        code: 'TL',
         name: 'Education: Teacher Licensure',
         parent: 117,
         main_agency_id: 384,
@@ -1106,6 +1244,7 @@ module.exports = [
     {
         id: 135,
         abbreviation: 'TLC',
+        code: 'TLC',
         name: 'Education: Teachers and Leaders Council',
         parent: 117,
         main_agency_id: 384,
@@ -1114,6 +1253,7 @@ module.exports = [
     {
         id: 136,
         abbreviation: 'T1COP',
+        code: 'T1COP',
         name: 'Education: Title I Committee of Practitioners',
         parent: 117,
         main_agency_id: 384,
@@ -1122,6 +1262,7 @@ module.exports = [
     {
         id: 137,
         abbreviation: 'DETR',
+        code: 'DETR',
         name: 'Employment, Training and Rehabilitation, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -1130,6 +1271,7 @@ module.exports = [
     {
         id: 138,
         abbreviation: 'VETSPIAP',
+        code: 'VETSPIAP',
         name: 'Employment, Training and Rehabilitation: Veterans Employment and Training Service Performance and Incentives Award Program',
         parent: 137,
         main_agency_id: 384,
@@ -1138,6 +1280,7 @@ module.exports = [
     {
         id: 139,
         abbreviation: 'BECDH',
+        code: 'BECDH',
         name: 'Employment, Training and Rehabilitation: Displaced Homemakers, Board on the Education & Counseling of',
         parent: 137,
         main_agency_id: 384,
@@ -1146,6 +1289,7 @@ module.exports = [
     {
         id: 140,
         abbreviation: 'ESD',
+        code: 'ESD',
         name: 'Employment, Training and Rehabilitation: Employment Security Division',
         parent: 137,
         main_agency_id: 384,
@@ -1154,6 +1298,7 @@ module.exports = [
     {
         id: 141,
         abbreviation: 'NERC',
+        code: 'NERC',
         name: 'Employment, Training and Rehabilitation: Equal Rights Commission, Nevada',
         parent: 137,
         main_agency_id: 384,
@@ -1162,6 +1307,7 @@ module.exports = [
     {
         id: 142,
         abbreviation: 'GWIB',
+        code: 'GWIB',
         name: 'Employment, Training and Rehabilitation: Governor\'s Workforce Investment Board',
         parent: 137,
         main_agency_id: 384,
@@ -1170,6 +1316,7 @@ module.exports = [
     {
         id: 143,
         abbreviation: 'IDPD',
+        code: 'IDPD',
         name: 'Employment, Training and Rehabilitation: Information Development and Processing Division',
         parent: 137,
         main_agency_id: 384,
@@ -1178,6 +1325,7 @@ module.exports = [
     {
         id: 144,
         abbreviation: 'NJC',
+        code: 'NJC',
         name: 'Employment, Training and Rehabilitation: JobConnect, Nevada',
         parent: 137,
         main_agency_id: 384,
@@ -1186,6 +1334,7 @@ module.exports = [
     {
         id: 145,
         abbreviation: 'NSRC',
+        code: 'NSRC',
         name: 'Employment, Training and Rehabilitation: Rehabilitation Council, Nevada State',
         parent: 137,
         main_agency_id: 384,
@@ -1194,6 +1343,7 @@ module.exports = [
     {
         id: 146,
         abbreviation: 'DETRRD',
+        code: 'DETRRD',
         name: 'Employment, Training and Rehabilitation: Rehabilitation Division',
         parent: 137,
         main_agency_id: 384,
@@ -1202,6 +1352,7 @@ module.exports = [
     {
         id: 147,
         abbreviation: 'RAB',
+        code: 'RAB',
         name: 'Employment, Training and Rehabilitation: Research and Analysis Bureau',
         parent: 137,
         main_agency_id: 384,
@@ -1210,6 +1361,7 @@ module.exports = [
     {
         id: 148,
         abbreviation: 'NWI',
+        code: 'NWI',
         name: 'Employment, Training and Rehabilitation: Workforce Informer, Nevada',
         parent: 137,
         main_agency_id: 384,
@@ -1218,6 +1370,7 @@ module.exports = [
     {
         id: 149,
         abbreviation: 'NWIS',
+        code: 'NWIS',
         name: 'Employment, Training and Rehabilitation: Workforce Investment System, Nevada\'s',
         parent: 137,
         main_agency_id: 384,
@@ -1226,6 +1379,7 @@ module.exports = [
     {
         id: 150,
         abbreviation: 'NSBPELS',
+        code: 'NSBPELS',
         name: 'Engineers and Land Surveyors, Nevada State Board of Professional',
         parent: 384,
         main_agency_id: 384,
@@ -1234,6 +1388,7 @@ module.exports = [
     {
         id: 151,
         abbreviation: 'SNCE',
+        code: 'SNCE',
         name: 'Ethics, State of Nevada Commission on',
         parent: 384,
         main_agency_id: 384,
@@ -1242,6 +1397,7 @@ module.exports = [
     {
         id: 152,
         abbreviation: 'NSFB',
+        code: 'NSFB',
         name: 'Funeral Board, Nevada State',
         parent: 384,
         main_agency_id: 384,
@@ -1250,6 +1406,7 @@ module.exports = [
     {
         id: 153,
         abbreviation: 'NGCBGC',
+        code: 'NGCBGC',
         name: 'Gaming Commission, Nevada Gaming Control Board',
         parent: 384,
         main_agency_id: 384,
@@ -1258,6 +1415,7 @@ module.exports = [
     {
         id: 154,
         abbreviation: 'NGCBGCADMIN',
+        code: 'NGCBGCADMIN',
         name: 'Gaming Commission, Nevada Gaming Control Board: Administration Division',
         parent: 153,
         main_agency_id: 384,
@@ -1266,6 +1424,7 @@ module.exports = [
     {
         id: 155,
         abbreviation: 'NGCBGCAD',
+        code: 'NGCBGCAD',
         name: 'Gaming Commission, Nevada Gaming Control Board: Audit Division',
         parent: 153,
         main_agency_id: 384,
@@ -1274,6 +1433,7 @@ module.exports = [
     {
         id: 156,
         abbreviation: 'NGCBGCED',
+        code: 'NGCBGCED',
         name: 'Gaming Commission, Nevada Gaming Control Board: Enforcement Division',
         parent: 153,
         main_agency_id: 384,
@@ -1282,6 +1442,7 @@ module.exports = [
     {
         id: 157,
         abbreviation: 'NGCBGCID',
+        code: 'NGCBGCID',
         name: 'Gaming Commission, Nevada Gaming Control Board: Investigations Division',
         parent: 153,
         main_agency_id: 384,
@@ -1290,6 +1451,7 @@ module.exports = [
     {
         id: 158,
         abbreviation: 'NGCBGCTLD',
+        code: 'NGCBGCTLD',
         name: 'Gaming Commission, Nevada Gaming Control Board: Tax and License Division',
         parent: 153,
         main_agency_id: 384,
@@ -1298,6 +1460,7 @@ module.exports = [
     {
         id: 159,
         abbreviation: 'NGCBGCTD',
+        code: 'NGCBGCTD',
         name: 'Gaming Commission, Nevada Gaming Control Board: Technology Division',
         parent: 153,
         main_agency_id: 384,
@@ -1306,6 +1469,7 @@ module.exports = [
     {
         id: 160,
         abbreviation: 'NSBGN',
+        code: 'NSBGN',
         name: 'Geographic Names, Nevada State Board on',
         parent: 384,
         main_agency_id: 384,
@@ -1314,6 +1478,7 @@ module.exports = [
     {
         id: 161,
         abbreviation: 'GOV',
+        code: 'GOV',
         name: 'Governor, Office of the',
         parent: 384,
         main_agency_id: 384,
@@ -1322,6 +1487,7 @@ module.exports = [
     {
         id: 162,
         abbreviation: 'GOED',
+        code: 'GOED',
         name: 'Governor: Economic Development, Office of',
         parent: 161,
         main_agency_id: 384,
@@ -1330,6 +1496,7 @@ module.exports = [
     {
         id: 163,
         abbreviation: 'OE',
+        code: 'OE',
         name: 'Governor: Energy, Office of',
         parent: 161,
         main_agency_id: 384,
@@ -1338,6 +1505,7 @@ module.exports = [
     {
         id: 164,
         abbreviation: 'GFO',
+        code: 'GFO',
         name: 'Governor: Finance, Governor\'s Office of',
         parent: 161,
         main_agency_id: 384,
@@ -1346,6 +1514,7 @@ module.exports = [
     {
         id: 165,
         abbreviation: 'FL',
+        code: 'FL',
         name: 'Governor: First Lady',
         parent: 161,
         main_agency_id: 384,
@@ -1354,6 +1523,7 @@ module.exports = [
     {
         id: 166,
         abbreviation: 'GCB',
+        code: 'GCB',
         name: 'Governor: Governor\'s Conference on Business',
         parent: 161,
         main_agency_id: 384,
@@ -1362,6 +1532,7 @@ module.exports = [
     {
         id: 167,
         abbreviation: 'JIC',
+        code: 'JIC',
         name: 'Governor: Joint Information Committee',
         parent: 161,
         main_agency_id: 384,
@@ -1370,6 +1541,7 @@ module.exports = [
     {
         id: 168,
         abbreviation: 'NPA',
+        code: 'NPA',
         name: 'Governor: Nuclear Projects, Agency for',
         parent: 161,
         main_agency_id: 384,
@@ -1378,6 +1550,7 @@ module.exports = [
     {
         id: 169,
         abbreviation: 'OWINN',
+        code: 'OWINN',
         name: 'Governor: Office of Workforce Innovation',
         parent: 161,
         main_agency_id: 384,
@@ -1386,6 +1559,7 @@ module.exports = [
     {
         id: 170,
         abbreviation: 'REEEAN',
+        code: 'REEEAN',
         name: 'Governor: Renewable Energy and Energy Efficiency Authority, Nevada',
         parent: 161,
         main_agency_id: 384,
@@ -1394,6 +1568,7 @@ module.exports = [
     {
         id: 171,
         abbreviation: 'OSIT',
+        code: 'OSIT',
         name: 'Governor: Science, Innovation and Technology, Governor\'s Office of',
         parent: 161,
         main_agency_id: 384,
@@ -1402,6 +1577,7 @@ module.exports = [
     {
         id: 172,
         abbreviation: 'GBC',
+        code: 'GBC',
         name: 'Great Basin College',
         parent: 384,
         main_agency_id: 384,
@@ -1410,6 +1586,7 @@ module.exports = [
     {
         id: 173,
         abbreviation: 'GBCA',
+        code: 'GBCA',
         name: 'Great Basin College: Admissions',
         parent: 172,
         main_agency_id: 384,
@@ -1418,6 +1595,7 @@ module.exports = [
     {
         id: 174,
         abbreviation: 'GBCCS',
+        code: 'GBCCS',
         name: 'Great Basin College: Class Schedules',
         parent: 172,
         main_agency_id: 384,
@@ -1426,6 +1604,7 @@ module.exports = [
     {
         id: 175,
         abbreviation: 'DHHS',
+        code: 'DHHS',
         name: 'Health and Human Services, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -1434,6 +1613,7 @@ module.exports = [
     {
         id: 176,
         abbreviation: 'ADSD',
+        code: 'ADSD',
         name: 'Health and Human Services: Aging and Disability Services Division',
         parent: 175,
         main_agency_id: 384,
@@ -1442,6 +1622,7 @@ module.exports = [
     {
         id: 177,
         abbreviation: 'DCFS',
+        code: 'DCFS',
         name: 'Health and Human Services: Child and Family Services, Division of',
         parent: 175,
         main_agency_id: 384,
@@ -1450,6 +1631,7 @@ module.exports = [
     {
         id: 178,
         abbreviation: 'OCPG',
+        code: 'OCPG',
         name: 'Health and Human Services: Community Partnerships and Grants, Office for',
         parent: 175,
         main_agency_id: 384,
@@ -1458,6 +1640,7 @@ module.exports = [
     {
         id: 179,
         abbreviation: 'OCHA',
+        code: 'OCHA',
         name: 'Health and Human Services: Consumer Health Assistance, Office for',
         parent: 175,
         main_agency_id: 384,
@@ -1466,6 +1649,7 @@ module.exports = [
     {
         id: 180,
         abbreviation: 'DHHSDO',
+        code: 'DHHSDO',
         name: 'Health and Human Services: Director\'s Office',
         parent: 175,
         main_agency_id: 384,
@@ -1474,6 +1658,7 @@ module.exports = [
     {
         id: 181,
         abbreviation: 'DHCFP',
+        code: 'DHCFP',
         name: 'Health and Human Services: Health Care Financing and Policy, Division of',
         parent: 175,
         main_agency_id: 384,
@@ -1482,6 +1667,7 @@ module.exports = [
     {
         id: 182,
         abbreviation: 'OMH',
+        code: 'OMH',
         name: 'Health and Human Services: Minority Health, Office of',
         parent: 175,
         main_agency_id: 384,
@@ -1490,6 +1676,7 @@ module.exports = [
     {
         id: 183,
         abbreviation: 'OSPD',
+        code: 'OSPD',
         name: 'Health and Human Services: Public Defender, Office of the State',
         parent: 175,
         main_agency_id: 384,
@@ -1498,6 +1685,7 @@ module.exports = [
     {
         id: 184,
         abbreviation: 'DPBH',
+        code: 'DPBH',
         name: 'Health and Human Services: Public and Behavioral Health, Division of',
         parent: 175,
         main_agency_id: 384,
@@ -1506,6 +1694,7 @@ module.exports = [
     {
         id: 185,
         abbreviation: 'DWSS',
+        code: 'DWSS',
         name: 'Health and Human Services: Welfare and Supportive Services, Division of',
         parent: 175,
         main_agency_id: 384,
@@ -1514,6 +1703,7 @@ module.exports = [
     {
         id: 186,
         abbreviation: 'NSHE',
+        code: 'NSHE',
         name: 'Higher Education, Nevada System of',
         parent: 384,
         main_agency_id: 384,
@@ -1522,6 +1712,7 @@ module.exports = [
     {
         id: 187,
         abbreviation: 'NSHEADMIN',
+        code: 'NSHEADMIN',
         name: 'Higher Education, Nevada System of: Administration',
         parent: 186,
         main_agency_id: 384,
@@ -1530,6 +1721,7 @@ module.exports = [
     {
         id: 188,
         abbreviation: 'NSHEBR',
+        code: 'NSHEBR',
         name: 'Higher Education, Nevada System of: Board of Regents',
         parent: 186,
         main_agency_id: 384,
@@ -1538,6 +1730,7 @@ module.exports = [
     {
         id: 189,
         abbreviation: 'NHSC',
+        code: 'NHSC',
         name: 'Homeland Security Commission, Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -1546,6 +1739,7 @@ module.exports = [
     {
         id: 190,
         abbreviation: 'HMEB',
+        code: 'HMEB',
         name: 'Homeopathic Medical Examiners Board',
         parent: 384,
         main_agency_id: 384,
@@ -1554,6 +1748,7 @@ module.exports = [
     {
         id: 191,
         abbreviation: 'IC',
+        code: 'IC',
         name: 'Indian Commission',
         parent: 384,
         main_agency_id: 384,
@@ -1562,6 +1757,7 @@ module.exports = [
     {
         id: 192,
         abbreviation: 'DIDS',
+        code: 'DIDS',
         name: 'Indigent Defense Services, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -1570,6 +1766,7 @@ module.exports = [
     {
         id: 193,
         abbreviation: 'CJD',
+        code: 'CJD',
         name: 'Judicial Discipline, Commission on',
         parent: 384,
         main_agency_id: 384,
@@ -1578,6 +1775,7 @@ module.exports = [
     {
         id: 194,
         abbreviation: 'NVJ',
+        code: 'NVJ',
         name: 'Judiciary, Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -1586,6 +1784,7 @@ module.exports = [
     {
         id: 195,
         abbreviation: 'NVJADMIN',
+        code: 'NVJADMIN',
         name: 'Judiciary: Administrative Office',
         parent: 194,
         main_agency_id: 384,
@@ -1594,6 +1793,7 @@ module.exports = [
     {
         id: 196,
         abbreviation: 'CD',
+        code: 'CD',
         name: 'Judiciary: Court Directory',
         parent: 194,
         main_agency_id: 384,
@@ -1602,6 +1802,7 @@ module.exports = [
     {
         id: 197,
         abbreviation: 'DC',
+        code: 'DC',
         name: 'Judiciary: District Courts',
         parent: 194,
         main_agency_id: 384,
@@ -1610,6 +1811,7 @@ module.exports = [
     {
         id: 198,
         abbreviation: 'FM',
+        code: 'FM',
         name: 'Judiciary: Foreclosure Mediation',
         parent: 194,
         main_agency_id: 384,
@@ -1618,6 +1820,7 @@ module.exports = [
     {
         id: 199,
         abbreviation: 'JCSN',
+        code: 'JCSN',
         name: 'Judiciary: Judicial Council of the State of Nevada',
         parent: 194,
         main_agency_id: 384,
@@ -1626,6 +1829,7 @@ module.exports = [
     {
         id: 200,
         abbreviation: 'CJS',
+        code: 'CJS',
         name: 'Judiciary: Judicial Selection, Commission on',
         parent: 194,
         main_agency_id: 384,
@@ -1634,6 +1838,7 @@ module.exports = [
     {
         id: 201,
         abbreviation: 'JC',
+        code: 'JC',
         name: 'Judiciary: Justice Courts',
         parent: 194,
         main_agency_id: 384,
@@ -1642,6 +1847,7 @@ module.exports = [
     {
         id: 202,
         abbreviation: 'NSCLL',
+        code: 'NSCLL',
         name: 'Judiciary: Law Library, Nevada Supreme Court',
         parent: 194,
         main_agency_id: 384,
@@ -1650,6 +1856,7 @@ module.exports = [
     {
         id: 203,
         abbreviation: 'MC',
+        code: 'MC',
         name: 'Judiciary: Municipal Courts',
         parent: 194,
         main_agency_id: 384,
@@ -1658,6 +1865,7 @@ module.exports = [
     {
         id: 204,
         abbreviation: 'SC',
+        code: 'SC',
         name: 'Judiciary: Supreme Court',
         parent: 194,
         main_agency_id: 384,
@@ -1666,6 +1874,7 @@ module.exports = [
     {
         id: 205,
         abbreviation: 'CSC',
+        code: 'CSC',
         name: 'Judiciary: Supreme Court, Clerk of the',
         parent: 194,
         main_agency_id: 384,
@@ -1674,6 +1883,7 @@ module.exports = [
     {
         id: 206,
         abbreviation: 'NSBLA',
+        code: 'NSBLA',
         name: 'Landscape Architecture, Nevada State Board',
         parent: 384,
         main_agency_id: 384,
@@ -1682,6 +1892,7 @@ module.exports = [
     {
         id: 207,
         abbreviation: 'LEG',
+        code: 'LEG',
         name: 'Legislature, Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -1690,6 +1901,7 @@ module.exports = [
     {
         id: 208,
         abbreviation: 'LEGADMIN',
+        code: 'LEGADMIN',
         name: 'Legislature: Administrative Division',
         parent: 207,
         main_agency_id: 384,
@@ -1698,6 +1910,7 @@ module.exports = [
     {
         id: 209,
         abbreviation: 'LEGA',
+        code: 'LEGA',
         name: 'Legislature: Assembly',
         parent: 207,
         main_agency_id: 384,
@@ -1706,6 +1919,7 @@ module.exports = [
     {
         id: 210,
         abbreviation: 'LEGAD',
+        code: 'LEGAD',
         name: 'Legislature: Audit Division',
         parent: 207,
         main_agency_id: 384,
@@ -1714,6 +1928,7 @@ module.exports = [
     {
         id: 211,
         abbreviation: 'FAD',
+        code: 'FAD',
         name: 'Legislature: Fiscal Analysis Division',
         parent: 207,
         main_agency_id: 384,
@@ -1722,6 +1937,7 @@ module.exports = [
     {
         id: 212,
         abbreviation: 'IFC',
+        code: 'IFC',
         name: 'Legislature: Interim Finance Committee',
         parent: 207,
         main_agency_id: 384,
@@ -1730,6 +1946,7 @@ module.exports = [
     {
         id: 213,
         abbreviation: 'LD',
+        code: 'LD',
         name: 'Legislature: Legal Division',
         parent: 207,
         main_agency_id: 384,
@@ -1738,6 +1955,7 @@ module.exports = [
     {
         id: 214,
         abbreviation: 'LEGCO',
+        code: 'LEGCO',
         name: 'Legislature: Legislative Commission',
         parent: 207,
         main_agency_id: 384,
@@ -1746,6 +1964,7 @@ module.exports = [
     {
         id: 215,
         abbreviation: 'LCB',
+        code: 'LCB',
         name: 'Legislature: Legislative Counsel Bureau',
         parent: 207,
         main_agency_id: 384,
@@ -1754,6 +1973,7 @@ module.exports = [
     {
         id: 216,
         abbreviation: 'SPD',
+        code: 'SPD',
         name: 'Legislature: Printing Division, State',
         parent: 207,
         main_agency_id: 384,
@@ -1762,6 +1982,7 @@ module.exports = [
     {
         id: 217,
         abbreviation: 'LEGRD',
+        code: 'LEGRD',
         name: 'Legislature: Research Division',
         parent: 207,
         main_agency_id: 384,
@@ -1770,6 +1991,7 @@ module.exports = [
     {
         id: 218,
         abbreviation: 'LEGS',
+        code: 'LEGS',
         name: 'Legislature: Senate',
         parent: 207,
         main_agency_id: 384,
@@ -1778,6 +2000,7 @@ module.exports = [
     {
         id: 219,
         abbreviation: 'NSHLF',
+        code: 'NSHLF',
         name: 'Legislature: Silver Haired Legislative Forum, Nevada',
         parent: 207,
         main_agency_id: 384,
@@ -1786,6 +2009,7 @@ module.exports = [
     {
         id: 220,
         abbreviation: 'OLG',
+        code: 'OLG',
         name: 'Lieutenant Governor, Office of the',
         parent: 384,
         main_agency_id: 384,
@@ -1794,6 +2018,7 @@ module.exports = [
     {
         id: 221,
         abbreviation: 'NBRLPG',
+        code: 'NBRLPG',
         name: 'Liquefied Petroleum Gas, Nevada Board for the Regulation of',
         parent: 384,
         main_agency_id: 384,
@@ -1802,6 +2027,7 @@ module.exports = [
     {
         id: 222,
         abbreviation: 'NLTCA',
+        code: 'NLTCA',
         name: 'Long Term Care Administrators, Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -1810,6 +2036,7 @@ module.exports = [
     {
         id: 223,
         abbreviation: 'BOEMFTCPC',
+        code: 'BOEMFTCPC',
         name: 'Marriage and Family Therapists and Clinical Professional Counselors, The Board of Examiners for',
         parent: 384,
         main_agency_id: 384,
@@ -1818,6 +2045,7 @@ module.exports = [
     {
         id: 224,
         abbreviation: 'NSBMT',
+        code: 'NSBMT',
         name: 'Massage Therapists, Nevada State Board of',
         parent: 384,
         main_agency_id: 384,
@@ -1826,6 +2054,7 @@ module.exports = [
     {
         id: 225,
         abbreviation: 'SBME',
+        code: 'SBME',
         name: 'Medical Examiners, State Board of',
         parent: 384,
         main_agency_id: 384,
@@ -1834,6 +2063,7 @@ module.exports = [
     {
         id: 226,
         abbreviation: 'MAB',
+        code: 'MAB',
         name: 'Merit Award Board',
         parent: 384,
         main_agency_id: 384,
@@ -1842,6 +2072,7 @@ module.exports = [
     {
         id: 227,
         abbreviation: 'OM',
+        code: 'OM',
         name: 'Military, Office of',
         parent: 384,
         main_agency_id: 384,
@@ -1850,6 +2081,7 @@ module.exports = [
     {
         id: 228,
         abbreviation: 'NVANG',
+        code: 'NVANG',
         name: 'Military: Air National Guard',
         parent: 227,
         main_agency_id: 384,
@@ -1858,6 +2090,7 @@ module.exports = [
     {
         id: 229,
         abbreviation: 'NVAG',
+        code: 'NVAG',
         name: 'Military: Army National Guard',
         parent: 227,
         main_agency_id: 384,
@@ -1866,6 +2099,7 @@ module.exports = [
     {
         id: 230,
         abbreviation: 'DOM',
+        code: 'DOM',
         name: 'Minerals, Division of',
         parent: 384,
         main_agency_id: 384,
@@ -1874,6 +2108,7 @@ module.exports = [
     {
         id: 231,
         abbreviation: 'NCMR',
+        code: 'NCMR',
         name: 'Mineral Resources, Nevada Commission on',
         parent: 384,
         main_agency_id: 384,
@@ -1882,6 +2117,7 @@ module.exports = [
     {
         id: 232,
         abbreviation: 'DMV',
+        code: 'DMV',
         name: 'Motor Vehicles, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -1890,6 +2126,7 @@ module.exports = [
     {
         id: 233,
         abbreviation: 'DMVADMIN',
+        code: 'DMVADMIN',
         name: 'Motor Vehicles: Administrative Services Division',
         parent: 233,
         main_agency_id: 384,
@@ -1898,6 +2135,7 @@ module.exports = [
     {
         id: 234,
         abbreviation: 'DMVCED',
+        code: 'DMVCED',
         name: 'Motor Vehicles: Compliance Enforcement Division',
         parent: 233,
         main_agency_id: 384,
@@ -1906,6 +2144,7 @@ module.exports = [
     {
         id: 235,
         abbreviation: 'NDL',
+        code: 'NDL',
         name: 'Motor Vehicles: Driver Licensing, Nevada',
         parent: 233,
         main_agency_id: 384,
@@ -1914,6 +2153,7 @@ module.exports = [
     {
         id: 236,
         abbreviation: 'LP',
+        code: 'LP',
         name: 'Motor Vehicles: License Plates',
         parent: 233,
         main_agency_id: 384,
@@ -1922,6 +2162,7 @@ module.exports = [
     {
         id: 237,
         abbreviation: 'MCD',
+        code: 'MCD',
         name: 'Motor Vehicles: Motor Carrier Division',
         parent: 233,
         main_agency_id: 384,
@@ -1930,6 +2171,7 @@ module.exports = [
     {
         id: 238,
         abbreviation: 'OS',
+        code: 'OS',
         name: 'Motor Vehicles: Online Services',
         parent: 233,
         main_agency_id: 384,
@@ -1938,6 +2180,7 @@ module.exports = [
     {
         id: 239,
         abbreviation: 'VR',
+        code: 'VR',
         name: 'Motor Vehicles: Vehicle Registration',
         parent: 233,
         main_agency_id: 384,
@@ -1946,6 +2189,7 @@ module.exports = [
     {
         id: 240,
         abbreviation: 'NSCO',
+        code: 'NSCO',
         name: 'Climate Office, Nevada State',
         parent: 384,
         main_agency_id: 384,
@@ -1954,6 +2198,7 @@ module.exports = [
     {
         id: 241,
         abbreviation: 'NSC',
+        code: 'NSC',
         name: 'Nevada State College',
         parent: 384,
         main_agency_id: 384,
@@ -1962,6 +2207,7 @@ module.exports = [
     {
         id: 242,
         abbreviation: 'NSCA',
+        code: 'NSCA',
         name: 'Nevada State College: Admissions',
         parent: 241,
         main_agency_id: 384,
@@ -1970,6 +2216,7 @@ module.exports = [
     {
         id: 243,
         abbreviation: 'NSCCS',
+        code: 'NSCCS',
         name: 'Nevada State College: Class Schedules',
         parent: 241,
         main_agency_id: 384,
@@ -1977,7 +2224,8 @@ module.exports = [
     },
     {
         id: 244,
-        abbreviation: 'NV',
+        abbreviation: 'NVV',
+        code: 'NVV',
         name: 'Nevada Volunteers',
         parent: 384,
         main_agency_id: 384,
@@ -1986,6 +2234,7 @@ module.exports = [
     {
         id: 245,
         abbreviation: 'SBN',
+        code: 'SBN',
         name: 'Nursing, State Board of',
         parent: 384,
         main_agency_id: 384,
@@ -1994,6 +2243,7 @@ module.exports = [
     {
         id: 246,
         abbreviation: 'OTB',
+        code: 'OTB',
         name: 'Occupational Therapy Board',
         parent: 384,
         main_agency_id: 384,
@@ -2002,6 +2252,7 @@ module.exports = [
     {
         id: 247,
         abbreviation: 'NCOHV',
+        code: 'NCOHV',
         name: 'Off-Highway Vehicles, Nevada Commission on',
         parent: 384,
         main_agency_id: 384,
@@ -2010,6 +2261,7 @@ module.exports = [
     {
         id: 248,
         abbreviation: 'OG',
+        code: 'OG',
         name: 'Open Government',
         parent: 384,
         main_agency_id: 384,
@@ -2018,6 +2270,7 @@ module.exports = [
     {
         id: 249,
         abbreviation: 'BDO',
+        code: 'BDO',
         name: 'Opticians, Board of Dispensing',
         parent: 384,
         main_agency_id: 384,
@@ -2026,6 +2279,7 @@ module.exports = [
     {
         id: 250,
         abbreviation: 'SBO',
+        code: 'SBO',
         name: 'Optometry, State Board of',
         parent: 384,
         main_agency_id: 384,
@@ -2034,6 +2288,7 @@ module.exports = [
     {
         id: 251,
         abbreviation: 'OMSB',
+        code: 'OMSB',
         name: 'Oriental Medicine State Board',
         parent: 384,
         main_agency_id: 384,
@@ -2042,6 +2297,7 @@ module.exports = [
     {
         id: 252,
         abbreviation: 'OMB',
+        code: 'OMB',
         name: 'Osteopathic Medicine Board',
         parent: 384,
         main_agency_id: 384,
@@ -2050,6 +2306,7 @@ module.exports = [
     {
         id: 253,
         abbreviation: 'POSTC',
+        code: 'POSTC',
         name: 'Peace Officer Standards and Training Commission',
         parent: 384,
         main_agency_id: 384,
@@ -2058,6 +2315,7 @@ module.exports = [
     {
         id: 254,
         abbreviation: 'PC',
+        code: 'PC',
         name: 'Personnel Commission',
         parent: 384,
         main_agency_id: 384,
@@ -2066,6 +2324,7 @@ module.exports = [
     {
         id: 255,
         abbreviation: 'SBP',
+        code: 'SBP',
         name: 'Pharmacy, State Board of',
         parent: 384,
         main_agency_id: 384,
@@ -2074,6 +2333,7 @@ module.exports = [
     {
         id: 256,
         abbreviation: 'SBPTE',
+        code: 'SBPTE',
         name: 'Physical Therapy Examiners, State Board',
         parent: 384,
         main_agency_id: 384,
@@ -2082,6 +2342,7 @@ module.exports = [
     {
         id: 257,
         abbreviation: 'PSB',
+        code: 'PSB',
         name: 'Podiatry State Board',
         parent: 384,
         main_agency_id: 384,
@@ -2090,6 +2351,7 @@ module.exports = [
     {
         id: 258,
         abbreviation: 'CPE',
+        code: 'CPE',
         name: 'Postsecondary Education, Commission on',
         parent: 384,
         main_agency_id: 384,
@@ -2098,6 +2360,7 @@ module.exports = [
     {
         id: 259,
         abbreviation: 'NACPA',
+        code: 'NACPA',
         name: 'Prosecuting Attorneys, Nevada Advisory Council for',
         parent: 384,
         main_agency_id: 384,
@@ -2106,6 +2369,7 @@ module.exports = [
     {
         id: 260,
         abbreviation: 'PEB',
+        code: 'PEB',
         name: 'Psychological Examiners Board',
         parent: 384,
         main_agency_id: 384,
@@ -2114,6 +2378,7 @@ module.exports = [
     {
         id: 261,
         abbreviation: 'PEBP',
+        code: 'PEBP',
         name: 'Public Employees Benefit Program',
         parent: 384,
         main_agency_id: 384,
@@ -2122,6 +2387,7 @@ module.exports = [
     {
         id: 262,
         abbreviation: 'BPEBP',
+        code: 'BPEBP',
         name: 'Public Employees Benefit Program, Board of',
         parent: 384,
         main_agency_id: 384,
@@ -2130,6 +2396,7 @@ module.exports = [
     {
         id: 263,
         abbreviation: 'PEDCP',
+        code: 'PEDCP',
         name: 'Public Employees Deferred Compensation Program',
         parent: 384,
         main_agency_id: 384,
@@ -2138,6 +2405,7 @@ module.exports = [
     {
         id: 264,
         abbreviation: 'PERS',
+        code: 'PERS',
         name: 'Public Employees\' Retirement System of Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -2146,6 +2414,7 @@ module.exports = [
     {
         id: 265,
         abbreviation: 'DPS',
+        code: 'DPS',
         name: 'Public Safety, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -2154,6 +2423,7 @@ module.exports = [
     {
         id: 266,
         abbreviation: 'CPD',
+        code: 'CPD',
         name: 'Public Safety: Capitol Police Division',
         parent: 266,
         main_agency_id: 384,
@@ -2162,6 +2432,7 @@ module.exports = [
     {
         id: 267,
         abbreviation: 'OCJA',
+        code: 'OCJA',
         name: 'Public Safety: Criminal Justice Assistance, Office of',
         parent: 266,
         main_agency_id: 384,
@@ -2170,6 +2441,7 @@ module.exports = [
     {
         id: 268,
         abbreviation: 'EM',
+        code: 'EM',
         name: 'Public Safety: Emergency Management/Homeland Security, Division of',
         parent: 266,
         main_agency_id: 384,
@@ -2178,6 +2450,7 @@ module.exports = [
     {
         id: 269,
         abbreviation: 'NSERC',
+        code: 'NSERC',
         name: 'Public Safety: Emergency Response Commission, Nevada State',
         parent: 266,
         main_agency_id: 384,
@@ -2186,6 +2459,7 @@ module.exports = [
     {
         id: 270,
         abbreviation: 'SFMD',
+        code: 'SFMD',
         name: 'Public Safety: Fire Marshal Division, State',
         parent: 266,
         main_agency_id: 384,
@@ -2194,6 +2468,7 @@ module.exports = [
     {
         id: 271,
         abbreviation: 'GSD',
+        code: 'GSD',
         name: 'Public Safety: General Services Division',
         parent: 266,
         main_agency_id: 384,
@@ -2202,6 +2477,7 @@ module.exports = [
     {
         id: 272,
         abbreviation: 'NHP',
+        code: 'NHP',
         name: 'Public Safety: Highway Patrol, Nevada',
         parent: 266,
         main_agency_id: 384,
@@ -2210,6 +2486,7 @@ module.exports = [
     {
         id: 273,
         abbreviation: 'NHS',
+        code: 'NHS',
         name: 'Public Safety: Homeland Security, Nevada',
         parent: 266,
         main_agency_id: 384,
@@ -2218,6 +2495,7 @@ module.exports = [
     {
         id: 274,
         abbreviation: 'DPSID',
+        code: 'DPSID',
         name: 'Public Safety: Investigations Division',
         parent: 266,
         main_agency_id: 384,
@@ -2226,6 +2504,7 @@ module.exports = [
     {
         id: 275,
         abbreviation: 'NPB',
+        code: 'NPB',
         name: 'Public Safety: Pardons Commissioners, Nevada Board of',
         parent: 266,
         main_agency_id: 384,
@@ -2234,6 +2513,7 @@ module.exports = [
     {
         id: 276,
         abbreviation: 'NBPC',
+        code: 'NBPC',
         name: 'Public Safety: Parole Commissioners, Nevada Board of',
         parent: 266,
         main_agency_id: 384,
@@ -2242,6 +2522,7 @@ module.exports = [
     {
         id: 277,
         abbreviation: 'NPP',
+        code: 'NPP',
         name: 'Public Safety: Parole and Probation',
         parent: 266,
         main_agency_id: 384,
@@ -2250,6 +2531,7 @@ module.exports = [
     {
         id: 278,
         abbreviation: 'OPR',
+        code: 'OPR',
         name: 'Public Safety: Professional Responsibility, Office of',
         parent: 266,
         main_agency_id: 384,
@@ -2258,6 +2540,7 @@ module.exports = [
     {
         id: 279,
         abbreviation: 'NSOR',
+        code: 'NSOR',
         name: 'Public Safety: Sex Offender Registry, Nevada',
         parent: 266,
         main_agency_id: 384,
@@ -2266,6 +2549,7 @@ module.exports = [
     {
         id: 280,
         abbreviation: 'OTS',
+        code: 'OTS',
         name: 'Public Safety: Traffic Safety, Office of',
         parent: 266,
         main_agency_id: 384,
@@ -2274,6 +2558,7 @@ module.exports = [
     {
         id: 281,
         abbreviation: 'DPST',
+        code: 'DPST',
         name: 'Public Safety: Training',
         parent: 266,
         main_agency_id: 384,
@@ -2282,6 +2567,7 @@ module.exports = [
     {
         id: 282,
         abbreviation: 'PUCN',
+        code: 'PUCN',
         name: 'Public Utilities Commission of Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -2290,6 +2576,7 @@ module.exports = [
     {
         id: 283,
         abbreviation: 'DCCR',
+        code: 'DCCR',
         name: 'Public Utilities: Consumer Complaint Resolution, Division of',
         parent: 283,
         main_agency_id: 384,
@@ -2298,6 +2585,7 @@ module.exports = [
     {
         id: 284,
         abbreviation: 'BREHS',
+        code: 'BREHS',
         name: 'Registered Environmental Health Specialists, Board of',
         parent: 384,
         main_agency_id: 384,
@@ -2306,6 +2594,7 @@ module.exports = [
     {
         id: 285,
         abbreviation: 'SOS',
+        code: 'SOS',
         name: 'Secretary of State, Office of the',
         parent: 384,
         main_agency_id: 384,
@@ -2314,6 +2603,7 @@ module.exports = [
     {
         id: 286,
         abbreviation: 'BC',
+        code: 'BC',
         name: 'Secretary of State: Business Center',
         parent: 286,
         main_agency_id: 384,
@@ -2322,6 +2612,7 @@ module.exports = [
     {
         id: 287,
         abbreviation: 'BES',
+        code: 'BES',
         name: 'Secretary of State: Business Entity Search',
         parent: 286,
         main_agency_id: 384,
@@ -2330,6 +2621,7 @@ module.exports = [
     {
         id: 288,
         abbreviation: 'EC',
+        code: 'EC',
         name: 'Secretary of State: Election Center',
         parent: 286,
         main_agency_id: 384,
@@ -2338,6 +2630,7 @@ module.exports = [
     {
         id: 289,
         abbreviation: 'LC',
+        code: 'LC',
         name: 'Secretary of State: Licensing Center',
         parent: 286,
         main_agency_id: 384,
@@ -2346,6 +2639,7 @@ module.exports = [
     {
         id: 290,
         abbreviation: 'SOSOS',
+        code: 'SOSOS',
         name: 'Secretary of State: Online Services',
         parent: 286,
         main_agency_id: 384,
@@ -2354,6 +2648,7 @@ module.exports = [
     {
         id: 291,
         abbreviation: 'SOSSC',
+        code: 'SOSSC',
         name: 'Secretary of State: Securities Center',
         parent: 286,
         main_agency_id: 384,
@@ -2362,6 +2657,7 @@ module.exports = [
     {
         id: 292,
         abbreviation: 'SOSSA',
+        code: 'SOSSA',
         name: 'Secretary of State: Sports Agents',
         parent: 286,
         main_agency_id: 384,
@@ -2370,6 +2666,7 @@ module.exports = [
     {
         id: 293,
         abbreviation: 'SAB',
+        code: 'SAB',
         name: 'Secretary of State: Start a Business',
         parent: 286,
         main_agency_id: 384,
@@ -2378,6 +2675,7 @@ module.exports = [
     {
         id: 294,
         abbreviation: 'SBL',
+        code: 'SBL',
         name: 'Secretary of State: State Business License',
         parent: 286,
         main_agency_id: 384,
@@ -2386,6 +2684,7 @@ module.exports = [
     {
         id: 295,
         abbreviation: 'UES',
+        code: 'UES',
         name: 'Secretary of State: UCC eFilings & Searches',
         parent: 286,
         main_agency_id: 384,
@@ -2394,6 +2693,7 @@ module.exports = [
     {
         id: 296,
         abbreviation: 'SOSVR',
+        code: 'SOSVR',
         name: 'Secretary of State: Voter Registration',
         parent: 286,
         main_agency_id: 384,
@@ -2402,6 +2702,7 @@ module.exports = [
     {
         id: 297,
         abbreviation: 'SSHIE',
+        code: 'SSHIE',
         name: 'Silver State Health Insurance Exchange',
         parent: 384,
         main_agency_id: 384,
@@ -2410,6 +2711,7 @@ module.exports = [
     {
         id: 298,
         abbreviation: 'BOESW',
+        code: 'BOESW',
         name: 'Social Workers, Board of Examiners',
         parent: 384,
         main_agency_id: 384,
@@ -2418,6 +2720,7 @@ module.exports = [
     {
         id: 299,
         abbreviation: 'AHADB',
+        code: 'AHADB',
         name: 'Speech-Language Pathology, Audiology and Hearing Aid Dispensing Board',
         parent: 384,
         main_agency_id: 384,
@@ -2426,6 +2729,7 @@ module.exports = [
     {
         id: 300,
         abbreviation: 'TRPA',
+        code: 'TRPA',
         name: 'Tahoe Regional Planning Agency',
         parent: 384,
         main_agency_id: 384,
@@ -2434,6 +2738,7 @@ module.exports = [
     {
         id: 301,
         abbreviation: 'TAX',
+        code: 'TAX',
         name: 'Taxation, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -2442,6 +2747,7 @@ module.exports = [
     {
         id: 302,
         abbreviation: 'ACB',
+        code: 'ACB',
         name: 'Taxation: Appraiser Certification Board',
         parent: 301,
         main_agency_id: 384,
@@ -2450,6 +2756,7 @@ module.exports = [
     {
         id: 303,
         abbreviation: 'AS',
+        code: 'AS',
         name: 'Taxation: Assessment Standards',
         parent: 301,
         main_agency_id: 384,
@@ -2458,6 +2765,7 @@ module.exports = [
     {
         id: 304,
         abbreviation: 'AD',
+        code: 'AD',
         name: 'Taxation: Audit Division',
         parent: 301,
         main_agency_id: 384,
@@ -2466,6 +2774,7 @@ module.exports = [
     {
         id: 305,
         abbreviation: 'SBE',
+        code: 'SBE',
         name: 'Taxation: Equalization, State Board of',
         parent: 301,
         main_agency_id: 384,
@@ -2474,6 +2783,7 @@ module.exports = [
     {
         id: 306,
         abbreviation: 'TAXOS',
+        code: 'TAXOS',
         name: 'Taxation: Online Services',
         parent: 301,
         main_agency_id: 384,
@@ -2482,6 +2792,7 @@ module.exports = [
     {
         id: 307,
         abbreviation: 'SUT',
+        code: 'SUT',
         name: 'Taxation: Sales & Use Taxes',
         parent: 301,
         main_agency_id: 384,
@@ -2490,6 +2801,7 @@ module.exports = [
     {
         id: 308,
         abbreviation: 'NTC',
+        code: 'NTC',
         name: 'Taxation: Tax Commission, Nevada',
         parent: 301,
         main_agency_id: 384,
@@ -2498,6 +2810,7 @@ module.exports = [
     {
         id: 309,
         abbreviation: 'DTCA',
+        code: 'DTCA',
         name: 'Tourism and Cultural Affairs, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -2506,6 +2819,7 @@ module.exports = [
     {
         id: 310,
         abbreviation: 'NAC',
+        code: 'NAC',
         name: 'Tourism and Cultural Affairs: Arts Council, Nevada',
         parent: 309,
         main_agency_id: 384,
@@ -2514,6 +2828,7 @@ module.exports = [
     {
         id: 311,
         abbreviation: 'COT',
+        code: 'COT',
         name: 'Tourism and Cultural Affairs: Commission on Tourism',
         parent: 309,
         main_agency_id: 384,
@@ -2522,6 +2837,7 @@ module.exports = [
     {
         id: 312,
         abbreviation: 'NIC',
+        code: 'NIC',
         name: 'Tourism and Cultural Affairs: Indian Commission',
         parent: 309,
         main_agency_id: 384,
@@ -2530,6 +2846,7 @@ module.exports = [
     {
         id: 313,
         abbreviation: 'MH',
+        code: 'MH',
         name: 'Tourism and Cultural Affairs: Museums and History',
         parent: 309,
         main_agency_id: 384,
@@ -2538,6 +2855,7 @@ module.exports = [
     {
         id: 314,
         abbreviation: 'BMH',
+        code: 'BMH',
         name: 'Tourism and Cultural Affairs: Museums and History, Board of',
         parent: 309,
         main_agency_id: 384,
@@ -2546,6 +2864,7 @@ module.exports = [
     {
         id: 315,
         abbreviation: 'NVMAG',
+        code: 'NVMAG',
         name: 'Tourism and Cultural Affairs: Nevada Magazine',
         parent: 309,
         main_agency_id: 384,
@@ -2554,6 +2873,7 @@ module.exports = [
     {
         id: 316,
         abbreviation: 'TN',
+        code: 'TN',
         name: 'Tourism and Cultural Affairs: TravelNevada',
         parent: 309,
         main_agency_id: 384,
@@ -2562,6 +2882,7 @@ module.exports = [
     {
         id: 317,
         abbreviation: 'DOT',
+        code: 'DOT',
         name: 'Transportation, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -2570,6 +2891,7 @@ module.exports = [
     {
         id: 318,
         abbreviation: 'DOTADMIN',
+        code: 'DOTADMIN',
         name: 'Transportation: Administrative Services',
         parent: 317,
         main_agency_id: 384,
@@ -2578,6 +2900,7 @@ module.exports = [
     {
         id: 319,
         abbreviation: 'DOTC',
+        code: 'DOTC',
         name: 'Transportation: Construction',
         parent: 317,
         main_agency_id: 384,
@@ -2586,6 +2909,7 @@ module.exports = [
     {
         id: 320,
         abbreviation: 'DOTDD',
+        code: 'DOTDD',
         name: 'Transportation: Design Division',
         parent: 317,
         main_agency_id: 384,
@@ -2594,6 +2918,7 @@ module.exports = [
     {
         id: 321,
         abbreviation: 'DOTESD',
+        code: 'DOTESD',
         name: 'Transportation: Environmental Services Division',
         parent: 317,
         main_agency_id: 384,
@@ -2602,6 +2927,7 @@ module.exports = [
     {
         id: 322,
         abbreviation: 'GTS',
+        code: 'GTS',
         name: 'Transportation: Geotechnical Section',
         parent: 317,
         main_agency_id: 384,
@@ -2610,6 +2936,7 @@ module.exports = [
     {
         id: 323,
         abbreviation: 'MAMD',
+        code: 'MAMD',
         name: 'Transportation: Maintenance and Asset Management Division',
         parent: 317,
         main_agency_id: 384,
@@ -2618,6 +2945,7 @@ module.exports = [
     {
         id: 324,
         abbreviation: 'DOTMS',
+        code: 'DOTMS',
         name: 'Transportation: Materials Section',
         parent: 317,
         main_agency_id: 384,
@@ -2626,6 +2954,7 @@ module.exports = [
     {
         id: 325,
         abbreviation: 'DOTO',
+        code: 'DOTO',
         name: 'Transportation: Operations',
         parent: 317,
         main_agency_id: 384,
@@ -2634,6 +2963,7 @@ module.exports = [
     {
         id: 326,
         abbreviation: 'PEROW',
+        code: 'PEROW',
         name: 'Transportation: Permanent Encroachment/Right-of-Way',
         parent: 317,
         main_agency_id: 384,
@@ -2642,6 +2972,7 @@ module.exports = [
     {
         id: 327,
         abbreviation: 'DOTP',
+        code: 'DOTP',
         name: 'Transportation: Planning',
         parent: 317,
         main_agency_id: 384,
@@ -2650,6 +2981,7 @@ module.exports = [
     {
         id: 328,
         abbreviation: 'DOTPM',
+        code: 'DOTPM',
         name: 'Transportation: Project Management',
         parent: 317,
         main_agency_id: 384,
@@ -2658,6 +2990,7 @@ module.exports = [
     {
         id: 329,
         abbreviation: 'DOTRS',
+        code: 'DOTRS',
         name: 'Transportation: Roadway Safety',
         parent: 317,
         main_agency_id: 384,
@@ -2666,6 +2999,7 @@ module.exports = [
     {
         id: 330,
         abbreviation: 'DOTRSYS',
+        code: 'DOTRSYS',
         name: 'Transportation: Roadway Systems',
         parent: 317,
         main_agency_id: 384,
@@ -2674,6 +3008,7 @@ module.exports = [
     {
         id: 331,
         abbreviation: 'DOTSD',
+        code: 'DOTSD',
         name: 'Transportation: Structures Division',
         parent: 317,
         main_agency_id: 384,
@@ -2682,6 +3017,7 @@ module.exports = [
     {
         id: 332,
         abbreviation: 'TPD',
+        code: 'TPD',
         name: 'Transportation: Transportation Planning Division',
         parent: 317,
         main_agency_id: 384,
@@ -2690,6 +3026,7 @@ module.exports = [
     {
         id: 333,
         abbreviation: 'TI',
+        code: 'TI',
         name: 'Transportation: Travel Information',
         parent: 317,
         main_agency_id: 384,
@@ -2698,6 +3035,7 @@ module.exports = [
     {
         id: 334,
         abbreviation: 'TIM',
+        code: 'TIM',
         name: 'Transportation: Travel Information: Maps',
         parent: 317,
         main_agency_id: 384,
@@ -2706,6 +3044,7 @@ module.exports = [
     {
         id: 335,
         abbreviation: 'STO',
+        code: 'STO',
         name: 'Treasurer, Office of the State',
         parent: 384,
         main_agency_id: 384,
@@ -2714,6 +3053,7 @@ module.exports = [
     {
         id: 336,
         abbreviation: 'CM',
+        code: 'CM',
         name: 'Treasurer: Cash Management',
         parent: 335,
         main_agency_id: 384,
@@ -2722,6 +3062,7 @@ module.exports = [
     {
         id: 337,
         abbreviation: 'CP',
+        code: 'CP',
         name: 'Treasurer: Collateral Pool',
         parent: 335,
         main_agency_id: 384,
@@ -2730,6 +3071,7 @@ module.exports = [
     {
         id: 338,
         abbreviation: 'NCSP',
+        code: 'NCSP',
         name: 'Treasurer: College Savings Plans, Nevada\'s',
         parent: 335,
         main_agency_id: 384,
@@ -2738,6 +3080,7 @@ module.exports = [
     {
         id: 339,
         abbreviation: 'DMD',
+        code: 'DMD',
         name: 'Treasurer: Debt Management Division',
         parent: 335,
         main_agency_id: 384,
@@ -2746,6 +3089,7 @@ module.exports = [
     {
         id: 340,
         abbreviation: 'BOF',
+        code: 'BOF',
         name: 'Treasurer: Finance, Board of',
         parent: 335,
         main_agency_id: 384,
@@ -2754,6 +3098,7 @@ module.exports = [
     {
         id: 341,
         abbreviation: 'MS',
+        code: 'MS',
         name: 'Treasurer: Millennium Scholarship',
         parent: 335,
         main_agency_id: 384,
@@ -2762,6 +3107,7 @@ module.exports = [
     {
         id: 342,
         abbreviation: 'NCIC',
+        code: 'NCIC',
         name: 'Treasurer: Nevada Capital Investment Corporation',
         parent: 335,
         main_agency_id: 384,
@@ -2770,6 +3116,7 @@ module.exports = [
     {
         id: 343,
         abbreviation: 'PT',
+        code: 'PT',
         name: 'Treasurer: Prepaid Tuition',
         parent: 335,
         main_agency_id: 384,
@@ -2778,6 +3125,7 @@ module.exports = [
     {
         id: 344,
         abbreviation: 'UP',
+        code: 'UP',
         name: 'Treasurer: Unclaimed Property',
         parent: 335,
         main_agency_id: 384,
@@ -2786,6 +3134,7 @@ module.exports = [
     {
         id: 345,
         abbreviation: 'TMCC',
+        code: 'TMCC',
         name: 'Truckee Meadows Community College',
         parent: 384,
         main_agency_id: 384,
@@ -2794,6 +3143,7 @@ module.exports = [
     {
         id: 346,
         abbreviation: 'TMCCA',
+        code: 'TMCCA',
         name: 'Truckee Meadows Community College: Admissions',
         parent: 346,
         main_agency_id: 384,
@@ -2802,6 +3152,7 @@ module.exports = [
     {
         id: 347,
         abbreviation: 'TMCCCS',
+        code: 'TMCCCS',
         name: 'Truckee Meadows Community College: Class Schedules',
         parent: 346,
         main_agency_id: 384,
@@ -2810,6 +3161,7 @@ module.exports = [
     {
         id: 348,
         abbreviation: 'TMCCFIAG',
+        code: 'TMCCFIAG',
         name: 'Truckee Meadows Community College: Foundation & Institutional Advancement, Grants',
         parent: 346,
         main_agency_id: 384,
@@ -2818,6 +3170,7 @@ module.exports = [
     {
         id: 349,
         abbreviation: 'TMRPA',
+        code: 'TMRPA',
         name: 'Truckee Meadows Regional Planning Agency',
         parent: 384,
         main_agency_id: 384,
@@ -2826,6 +3179,7 @@ module.exports = [
     {
         id: 350,
         abbreviation: 'UNCE',
+        code: 'UNCE',
         name: 'University of Nevada Cooperative Extension',
         parent: 349,
         main_agency_id: 384,
@@ -2834,6 +3188,7 @@ module.exports = [
     {
         id: 351,
         abbreviation: 'UNCEE',
+        code: 'UNCEE',
         name: 'University of Nevada Cooperative Extension: Elko',
         parent: 349,
         main_agency_id: 384,
@@ -2842,6 +3197,7 @@ module.exports = [
     {
         id: 352,
         abbreviation: 'UNLV',
+        code: 'UNLV',
         name: 'University of Nevada Las Vegas',
         parent: 384,
         main_agency_id: 384,
@@ -2850,6 +3206,7 @@ module.exports = [
     {
         id: 353,
         abbreviation: 'UNLVA',
+        code: 'UNLVA',
         name: 'University of Nevada Las Vegas: Admissions',
         parent: 352,
         main_agency_id: 384,
@@ -2858,6 +3215,7 @@ module.exports = [
     {
         id: 354,
         abbreviation: 'UNLVCS',
+        code: 'UNLVCS',
         name: 'University of Nevada Las Vegas: Class Schedules',
         parent: 352,
         main_agency_id: 384,
@@ -2866,6 +3224,7 @@ module.exports = [
     {
         id: 355,
         abbreviation: 'UNLVSCHS',
+        code: 'UNLVSCHS',
         name: 'University of Nevada Las Vegas: Community Health Sciences, School of',
         parent: 352,
         main_agency_id: 384,
@@ -2874,6 +3233,7 @@ module.exports = [
     {
         id: 356,
         abbreviation: 'UNLVOCP',
+        code: 'UNLVOCP',
         name: 'University of Nevada Las Vegas: Community Partnerships, Office of',
         parent: 352,
         main_agency_id: 384,
@@ -2882,6 +3242,7 @@ module.exports = [
     {
         id: 357,
         abbreviation: 'UNLVOSP',
+        code: 'UNLVOSP',
         name: 'University of Nevada Las Vegas: Sponsored Projects, Office of',
         parent: 352,
         main_agency_id: 384,
@@ -2890,6 +3251,7 @@ module.exports = [
     {
         id: 358,
         abbreviation: 'UNR',
+        code: 'UNR',
         name: 'University of Nevada Reno',
         parent: 384,
         main_agency_id: 384,
@@ -2898,6 +3260,7 @@ module.exports = [
     {
         id: 359,
         abbreviation: 'UNRA',
+        code: 'UNRA',
         name: 'University of Nevada Reno: Admissions',
         parent: 358,
         main_agency_id: 384,
@@ -2906,6 +3269,7 @@ module.exports = [
     {
         id: 360,
         abbreviation: 'UNRCEP',
+        code: 'UNRCEP',
         name: 'University of Nevada Reno: Counseling and Educational Psychology',
         parent: 358,
         main_agency_id: 384,
@@ -2914,6 +3278,7 @@ module.exports = [
     {
         id: 361,
         abbreviation: 'UNRCS',
+        code: 'UNRCS',
         name: 'University of Nevada Reno: Class Schedules',
         parent: 358,
         main_agency_id: 384,
@@ -2922,6 +3287,7 @@ module.exports = [
     {
         id: 362,
         abbreviation: 'UNRMS',
+        code: 'UNRMS',
         name: 'University of Nevada Reno: Medical School',
         parent: 358,
         main_agency_id: 384,
@@ -2930,6 +3296,7 @@ module.exports = [
     {
         id: 363,
         abbreviation: 'UNRMOSI',
+        code: 'UNRMOSI',
         name: 'University of Nevada Reno: Medical School, Office of Statewide Initiatives',
         parent: 358,
         main_agency_id: 384,
@@ -2938,6 +3305,7 @@ module.exports = [
     {
         id: 364,
         abbreviation: 'BMG',
+        code: 'BMG',
         name: 'University of Nevada Reno: Mines and Geology, Bureau of',
         parent: 358,
         main_agency_id: 384,
@@ -2946,6 +3314,7 @@ module.exports = [
     {
         id: 365,
         abbreviation: 'UNROSP',
+        code: 'UNROSP',
         name: 'University of Nevada Reno: Sponsored Projects, Office of',
         parent: 358,
         main_agency_id: 384,
@@ -2954,6 +3323,7 @@ module.exports = [
     {
         id: 366,
         abbreviation: 'UNRRI',
+        code: 'UNRRI',
         name: 'University of Nevada Reno Research & Innovation',
         parent: 358,
         main_agency_id: 384,
@@ -2962,6 +3332,7 @@ module.exports = [
     {
         id: 367,
         abbreviation: 'NOVS',
+        code: 'NOVS',
         name: 'Veteran\'s Services, Nevada Office of',
         parent: 384,
         main_agency_id: 384,
@@ -2970,6 +3341,7 @@ module.exports = [
     {
         id: 368,
         abbreviation: 'NVSC',
+        code: 'NVSC',
         name: 'Veteran\'s Services Commission, Nevada',
         parent: 384,
         main_agency_id: 384,
@@ -2978,6 +3350,7 @@ module.exports = [
     {
         id: 369,
         abbreviation: 'SBVME',
+        code: 'SBVME',
         name: 'Veterinary Medical Examiners, State Board',
         parent: 384,
         main_agency_id: 384,
@@ -2986,6 +3359,7 @@ module.exports = [
     {
         id: 370,
         abbreviation: 'WICHE',
+        code: 'WICHE',
         name: 'Western Interstate Commission for Higher Education',
         parent: 384,
         main_agency_id: 384,
@@ -2994,6 +3368,7 @@ module.exports = [
     {
         id: 371,
         abbreviation: 'WNC',
+        code: 'WNC',
         name: 'Western Nevada College',
         parent: 384,
         main_agency_id: 384,
@@ -3002,6 +3377,7 @@ module.exports = [
     {
         id: 372,
         abbreviation: 'WNCA',
+        code: 'WNCA',
         name: 'Western Nevada College: Admissions',
         parent: 371,
         main_agency_id: 384,
@@ -3010,6 +3386,7 @@ module.exports = [
     {
         id: 373,
         abbreviation: 'WNCCS',
+        code: 'WNCCS',
         name: 'Western Nevada College: Class Schedules',
         parent: 371,
         main_agency_id: 384,
@@ -3018,6 +3395,7 @@ module.exports = [
     {
         id: 374,
         abbreviation: 'DOW',
+        code: 'DOW',
         name: 'Wildlife, Department of',
         parent: 384,
         main_agency_id: 384,
@@ -3026,6 +3404,7 @@ module.exports = [
     {
         id: 375,
         abbreviation: 'DOWCED',
+        code: 'DOWCED',
         name: 'Wildlife: Conservation Education Division',
         parent: 374,
         main_agency_id: 384,
@@ -3034,6 +3413,7 @@ module.exports = [
     {
         id: 376,
         abbreviation: 'DOWF',
+        code: 'DOWF',
         name: 'Wildlife: Fisheries Division',
         parent: 374,
         main_agency_id: 384,
@@ -3042,6 +3422,7 @@ module.exports = [
     {
         id: 377,
         abbreviation: 'DOWG',
+        code: 'DOWG',
         name: 'Wildlife: Game Division',
         parent: 374,
         main_agency_id: 384,
@@ -3050,6 +3431,7 @@ module.exports = [
     {
         id: 378,
         abbreviation: 'DOWH',
+        code: 'DOWH',
         name: 'Wildlife: Habitat Division',
         parent: 374,
         main_agency_id: 384,
@@ -3058,6 +3440,7 @@ module.exports = [
     {
         id: 379,
         abbreviation: 'DOWLE',
+        code: 'DOWLE',
         name: 'Wildlife: Law Enforcement Division',
         parent: 374,
         main_agency_id: 384,
@@ -3066,6 +3449,7 @@ module.exports = [
     {
         id: 380,
         abbreviation: 'DOWOP',
+        code: 'DOWOP',
         name: 'Wildlife: Operations Division',
         parent: 374,
         main_agency_id: 384,
@@ -3074,6 +3458,7 @@ module.exports = [
     {
         id: 381,
         abbreviation: 'NBWC',
+        code: 'NBWC',
         name: 'Wildlife: Wildlife Commissioners, Nevada Board of',
         parent: 374,
         main_agency_id: 384,
@@ -3082,6 +3467,7 @@ module.exports = [
     {
         id: 382,
         abbreviation: 'WD',
+        code: 'WD',
         name: 'Wildlife: Wildlife Diversity',
         parent: 374,
         main_agency_id: 384,
@@ -3090,6 +3476,7 @@ module.exports = [
     {
         id: 383,
         abbreviation: 'SBA',
+        code: 'SBA',
         name: 'State Board of Accountancy',
         parent: 384,
         main_agency_id: 384,

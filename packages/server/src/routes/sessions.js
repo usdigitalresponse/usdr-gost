@@ -17,7 +17,7 @@ const {
 const MAX_ACCESS_TOKEN_USES = 1;
 
 // the validation URL is sent in the authentication email:
-//     http://localhost:3000/api/sessions/?passcode=97fa7091-77ae-4905-b62e-97a7b4699abd
+//     http://localhost:8080/api/sessions/?passcode=97fa7091-77ae-4905-b62e-97a7b4699abd
 //
 router.get('/', async (req, res) => {
     const { passcode } = req.query;
@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
                 res.redirect(process.env.WEBSITE_DOMAIN || '/');
             }
         } else {
-            res.sendFile(path.join(__dirname, '../../static/login_redirect.html'));
+            res.sendFile(path.join(__dirname, '../static/login_redirect.html'));
         }
     } else if (req.signedCookies && req.signedCookies.userId) {
         const user = await getUser(req.signedCookies.userId);
@@ -106,8 +106,9 @@ router.post('/', async (req, res, next) => {
     const { redirectTo } = req.body;
     try {
         const passcode = await createAccessToken(email);
-        const apiDomain = process.env.API_DOMAIN || req.headers.origin;
-        await sendPassCode(email, passcode, apiDomain, redirectTo);
+        const domain = process.env.WEBSITE_DOMAIN || req.headers.origin;
+        await sendPassCode(email, passcode, domain, redirectTo);
+
         res.json({
             success: true,
             message: `Email sent to ${email}. Check your inbox`,

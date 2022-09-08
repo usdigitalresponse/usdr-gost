@@ -67,7 +67,7 @@ export default {
       const headers = {
         'Content-Type': 'application/json',
       };
-      fetch(`${process.env.VUE_APP_GRANTS_API_URL}/api/sessions`, { method: 'POST', headers, body })
+      fetch('/api/sessions', { method: 'POST', headers, body })
         .then((r) => {
           if (!r.ok) throw new Error(`login: ${r.statusText} (${r.status})`);
           return r;
