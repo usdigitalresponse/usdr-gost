@@ -1,7 +1,12 @@
 <template>
   <div>
     <b-navbar type="dark" variant="dark">
-      <b-navbar-brand href="/#/grants">Grants Identification Tool</b-navbar-brand>
+      <b-navbar-brand href="/#/grants" class="d-flex align-items-center">
+      <b-img :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo in white" />
+      <span class="ml-3">Grants Identification Tool</span>
+    </b-navbar-brand>
+      <!-- <b-navbar-brand href="/#/grants">
+      Grants Identification Tool</b-navbar-brand> -->
 
       <b-collapse id="nav-collapse" is-nav>
 
