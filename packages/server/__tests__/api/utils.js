@@ -60,6 +60,7 @@ function fetchApi(url, agencyId, fetchOptions) {
 }
 
 module.exports = {
+    getTestDomain,
     getSessionCookie,
     fetchApi,
     knex,

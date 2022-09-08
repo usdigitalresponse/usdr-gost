@@ -2,6 +2,7 @@ const express = require('express');
 const _ = require('lodash-checkit');
 const path = require('path');
 const { sendPassCode } = require('../lib/email');
+const { validatePostLoginRedirectPath } = require('../lib/redirect_validation');
 
 const router = express.Router({ mergeParams: true });
 const {
@@ -15,25 +16,6 @@ const {
 // NOTE(mbroussard): previously we allowed 2 uses to accommodate automated email systems that prefetch
 // links. Now, we send login links through a clientside redirect instead so this should not be necessary.
 const MAX_ACCESS_TOKEN_USES = 1;
-
-function validatePostLoginRedirectPath(url) {
-    if (!url) {
-        return null;
-    }
-
-    // Non-relative URLs could create an open redirect usable for phishing attacks.
-    if (!url.startsWith('#') && !url.startsWith('/')) {
-        return null;
-    }
-
-    // Redirects to API routes could allow users to be tricked into performing
-    // unintended actions if they click a malicious link
-    if (url.startsWith('/api')) {
-        return null;
-    }
-
-    return url;
-}
 
 // the validation URL is sent in the authentication email:
 //     http://localhost:8080/api/sessions/?passcode=97fa7091-77ae-4905-b62e-97a7b4699abd
