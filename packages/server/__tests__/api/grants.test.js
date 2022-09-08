@@ -11,9 +11,9 @@ const { TABLES } = require('../../src/db/constants');
 
 describe('`/api/grants` endpoint', () => {
     const agencies = {
-        own: 3,  // Test Agency, part of Test Tenant
-        ownSub: 4,  // Test Sub-agency, part of Test Tenant
-        offLimits: 0,  // USDR Agency, part of USDR Tenant
+        own: 3, // Test Agency, part of Test Tenant
+        ownSub: 4, // Test Sub-agency, part of Test Tenant
+        offLimits: 0, // USDR Agency, part of USDR Tenant
     };
 
     const fetchOptions = {

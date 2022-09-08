@@ -66,7 +66,7 @@ module.exports = [
     },
     {
         id: 7,
-        email: 'grants.dev+test.admin@usdigitalresponse.org',  // For testing
+        email: 'grants.dev+test.admin@usdigitalresponse.org', // For development testing purposes.
         name: 'USDR Dev Admin',
         agency_id: testAgency.id,
         role_id: roles[0].id,
@@ -74,7 +74,7 @@ module.exports = [
     },
     {
         id: 8,
-        email: 'grants.dev+test.staff@usdigitalresponse.org',  // For testing
+        email: 'grants.dev+test.staff@usdigitalresponse.org', // For development testing purposes.
         name: 'USDR Dev Staff',
         agency_id: testAgency.id,
         role_id: roles[1].id,
@@ -82,7 +82,7 @@ module.exports = [
     },
     {
         id: 8,
-        email: 'grants.dev+test.admin2@usdigitalresponse.org',  // For testing
+        email: 'grants.dev+test.admin2@usdigitalresponse.org', // For development testing purposes.
         name: 'USDR Dev Admin',
         agency_id: testSubAgency.id,
         role_id: roles[0].id,

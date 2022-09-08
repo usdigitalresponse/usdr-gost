@@ -7,14 +7,14 @@ const { TABLES } = require('../../src/db/constants');
 describe('`/api/keywords` endpoint', () => {
     const agencies = {
         admin: {
-            own: 3,  // Test Agency, part of Test Tenant
-            ownSub: 4,  // Test Sub-agency, part of Test Tenant
-            offLimits: 0,  // USDR Agency, part of USDR Tenant
+            own: 3, // Test Agency, part of Test Tenant
+            ownSub: 4, // Test Sub-agency, part of Test Tenant
+            offLimits: 0, // USDR Agency, part of USDR Tenant
         },
         staff: {
-            own: 3,  // Test Agency, part of Test Tenant
-            ownSub: 4,  // Test Sub-agency, part of Test Tenant
-            offLimits: 0,  // USDR Agency, part of USDR Tenant
+            own: 3, // Test Agency, part of Test Tenant
+            ownSub: 4, // Test Sub-agency, part of Test Tenant
+            offLimits: 0, // USDR Agency, part of USDR Tenant
         },
     };
 
@@ -39,7 +39,7 @@ describe('`/api/keywords` endpoint', () => {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('grants.dev+test.admin@usdigitalresponse.org');
         fetchOptions.staff.headers.cookie = await getSessionCookie('grants.dev+test.staff@usdigitalresponse.org');
- 
+
         // Tests below assume the presence of at least one keyword per agency. Previously, we had
         // a db seed that created some default COVID-related keywords but now that that is gone, we
         // create some here to avoid dependence on the global keywords seed.

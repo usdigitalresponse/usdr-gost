@@ -4,14 +4,14 @@ const { getSessionCookie, fetchApi } = require('./utils');
 describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
     const agencies = {
         admin: {
-            own: 3,  // Test Agency, part of Test Tenant
-            ownSub: 4,  // Test Sub-agency, part of Test Tenant
-            offLimits: 0,  // USDR Agency, part of USDR Tenant
+            own: 3, // Test Agency, part of Test Tenant
+            ownSub: 4, // Test Sub-agency, part of Test Tenant
+            offLimits: 0, // USDR Agency, part of USDR Tenant
         },
         staff: {
-            own: 3,  // Test Agency, part of Test Tenant
-            ownSub: 4,  // Test Sub-agency, part of Test Tenant
-            offLimits: 0,  // USDR Agency, part of USDR Tenant
+            own: 3, // Test Agency, part of Test Tenant
+            ownSub: 4, // Test Sub-agency, part of Test Tenant
+            offLimits: 0, // USDR Agency, part of USDR Tenant
         },
     };
 
