@@ -13,9 +13,7 @@ async function seedReportingPeriods(knex, tenantId) {
         .where('tenant_id', tenantId)
         .count('name', { as: 'count' });
     if (count !== '0') {
-        throw new Error(
-            `db already has ${count} reporting periods for tenant ${tenantId}...`,
-        );
+        throw new Error(`db already has ${count} reporting periods for tenant ${tenantId}...`);
     }
 
     // first period is all of 2021
@@ -52,6 +50,11 @@ async function seedReportingPeriods(knex, tenantId) {
 }
 
 async function seedApplicationSettings(knex, tenantId) {
+    const existing = await knex('application_settings').select('*');
+    if (existing.length !== 0) {
+        throw new Error(`db already has an application_settings row for tenant ${tenantId}...`);
+    }
+
     // TODO(mbroussard): Is this right? Should we instead pick one close to the current date?
     const { firstPeriod } = await knex('reporting_periods')
         .where('tenant_id', tenantId)
@@ -62,7 +65,7 @@ async function seedApplicationSettings(knex, tenantId) {
     );
 }
 
-exports.seed = async function (knex) {
+const seed = async function (knex) {
     const tenants = await knex('tenants')
         .leftJoin('reporting_periods', 'tenants.id', 'reporting_periods.tenant_id')
         .leftJoin(
@@ -92,4 +95,10 @@ exports.seed = async function (knex) {
             }
         },
     ));
+};
+
+module.exports = {
+    seed,
+    seedReportingPeriods,
+    seedApplicationSettings,
 };
