@@ -58,9 +58,9 @@ export default {
         return;
       }
 
-      let bodyRaw = { email: this.email };
+      const bodyRaw = { email: this.email };
       if (this.redirectTo) {
-        bodyRaw = { ...bodyRaw, redirect_to: this.redirectTo };
+        bodyRaw.redirect_to = this.redirectTo;
       }
 
       const body = JSON.stringify(bodyRaw);

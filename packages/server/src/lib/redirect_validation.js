@@ -1,3 +1,8 @@
+// This function ensures that URLs passed to the "redirect_to" argument during
+// the login flow are valid and safe to redirect to. Returns null if the argument
+// should be discarded (and redirect to default page); if argument is valid, the
+// redirect URL is returned. In the future, this function could also transform
+// the URL if needed.
 function validatePostLoginRedirectPath(url) {
     if (!url) {
         return null;
