@@ -50,7 +50,7 @@ async function seedReportingPeriods(knex, tenantId) {
 }
 
 async function seedApplicationSettings(knex, tenantId) {
-    const existing = await knex('application_settings').select('*');
+    const existing = await knex('application_settings').where('tenant_id', tenantId).select('*');
     if (existing.length !== 0) {
         throw new Error(`db already has an application_settings row for tenant ${tenantId}...`);
     }
