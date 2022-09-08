@@ -4,6 +4,11 @@ const getTransport = require('./email/service-email');
 const expiryMinutes = 30;
 
 function sendPassCode(email, passcode, httpOrigin, redirectTo) {
+    if (!httpOrigin) {
+        throw new Error('must specify httpOrigin in sendPassCode');
+    }
+
+    // TODO: URL constructor fails if httpOrigin empty, is that possible here?
     const url = new URL(`${httpOrigin}/api/sessions`);
     url.searchParams.set('passcode', passcode);
     if (redirectTo) {

@@ -17,8 +17,22 @@ const {
 const MAX_ACCESS_TOKEN_USES = 1;
 
 function validatePostLoginRedirectPath(url) {
-    // TODO implement
-    return url !== null;
+    if (!url) {
+        return null;
+    }
+
+    // Non-relative URLs could create an open redirect usable for phishing attacks.
+    if (!url.startsWith('#') && !url.startsWith('/')) {
+        return null;
+    }
+
+    // Redirects to API routes could allow users to be tricked into performing
+    // unintended actions if they click a malicious link
+    if (url.startsWith('/api')) {
+        return null;
+    }
+
+    return url;
 }
 
 // the validation URL is sent in the authentication email:
@@ -62,7 +76,7 @@ router.get('/', async (req, res) => {
 
 router.post('/init', async (req, res) => {
     const WEBSITE_DOMAIN = process.env.WEBSITE_DOMAIN || '';
-    const { passcode, redirect_to } = req.body;
+    const { passcode } = req.body;
     if (!passcode) {
         res.redirect(`${WEBSITE_DOMAIN}/#/login?message=${encodeURIComponent('Invalid access token')}`);
         return;
@@ -85,8 +99,9 @@ router.post('/init', async (req, res) => {
             await markAccessTokenUsed(passcode);
         }
         let destination = WEBSITE_DOMAIN || '/';
-        if (redirect_to && validatePostLoginRedirectPath(redirect_to)) {
-            destination = (WEBSITE_DOMAIN || '') + redirect_to;
+        const redirectTo = validatePostLoginRedirectPath(req.body.redirect_to);
+        if (redirectTo) {
+            destination = (WEBSITE_DOMAIN || '') + redirectTo;
         }
         res.cookie('userId', token.user_id, { signed: true });
         res.redirect(destination);
@@ -109,11 +124,11 @@ router.post('/', async (req, res, next) => {
         res.statusMessage = 'Invalid Email Address';
         return res.sendStatus(400);
     }
-    const { redirect_to } = req.body;
     try {
         const passcode = await createAccessToken(email);
         const domain = process.env.WEBSITE_DOMAIN || req.headers.origin;
-        await sendPassCode(email, passcode, domain, redirect_to);
+        const redirectTo = validatePostLoginRedirectPath(req.body.redirect_to);
+        await sendPassCode(email, passcode, domain, redirectTo);
 
         res.json({
             success: true,
