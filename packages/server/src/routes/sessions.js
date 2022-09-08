@@ -41,31 +41,7 @@ function validatePostLoginRedirectPath(url) {
 router.get('/', async (req, res) => {
     const { passcode } = req.query;
     if (passcode) {
-        // TODO: clean this up
-        if (process.env.NODE_ENV === 'test') {
-            // reverted code change here: https://github.com/usdigitalresponse/usdr-gost/commit/3926582cf6e644c6f5ef029653afba828843c9b0#diff-ecce826cf8cbf1d020c07a6c345d0d7931488478a19821da68a979f4b74556f0R25
-            const token = await getAccessToken(passcode);
-            if (!token) {
-                res.redirect(`/#/login?message=${encodeURIComponent('Invalid access token')}`);
-            } else if (new Date() > token.expires) {
-                res.redirect(
-                    `/#/login?message=${encodeURIComponent('Access token has expired')}`,
-                );
-            } else if (token.used) {
-                res.redirect(`/#/login?message=${encodeURIComponent(
-                    'Login link has already been used - please re-submit your email address',
-                )}`);
-            } else {
-                const uses = await incrementAccessTokenUses(passcode);
-                if (uses > 1) {
-                    await markAccessTokenUsed(passcode);
-                }
-                res.cookie('userId', token.user_id, { signed: true });
-                res.redirect(process.env.WEBSITE_DOMAIN || '/');
-            }
-        } else {
-            res.sendFile(path.join(__dirname, '../static/login_redirect.html'));
-        }
+        res.sendFile(path.join(__dirname, '../static/login_redirect.html'));
     } else if (req.signedCookies && req.signedCookies.userId) {
         const user = await getUser(req.signedCookies.userId);
         res.json({ user });
