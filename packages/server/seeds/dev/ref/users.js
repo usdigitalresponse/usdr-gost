@@ -18,7 +18,7 @@ const testTenant = tenants.find((t) => t.display_name === 'Test Tenant');
 module.exports = [
     {
         id: 1,
-        email: 'mindy@usdigitalresponse.org',
+        email: 'mhuang@usdigitalresponse.org',
         name: 'Mindy Huang',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
