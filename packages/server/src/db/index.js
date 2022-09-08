@@ -382,19 +382,18 @@ async function getSingleGrantDetails({ grantId, tenantId }) {
 async function getClosestGrants({
     agency, perPage, currentPage, timestampForTest,
 }) {
+    const agencies = await getAgencyTree(agency);
+
     // updated to no longer limit result # & specify user association
     const timestamp = (timestampForTest || new Date()).toLocaleDateString('en-US');
-    const query = await knex(TABLES.grants_interested)
+    return knex(TABLES.grants_interested)
         .select('grants.title', 'grants.close_date', 'grants.grant_id')
         .join('agencies', 'agencies.id', 'grants_interested.agency_id')
         .join('grants', 'grants.grant_id', 'grants_interested.grant_id')
-        .where('agencies.id', agency)
+        .whereIn('agencies.id', agencies.map((a) => a.id))
         .andWhere('close_date', '>=', timestamp)
         .orderBy('close_date', 'asc')
-        .paginate({ currentPage, perPage, isLengthAware: true })
-        .then((data) => data)
-        .catch((err) => console.log(err));
-    return query;
+        .paginate({ currentPage, perPage, isLengthAware: true });
 }
 
 async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
