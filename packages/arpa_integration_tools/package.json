@@ -24,9 +24,7 @@
   },
   "scripts": {
     "test:rewrite": "ts-node-transpile-only rewrite_imports.ts",
-    "test:copier": "ts-node-transpile-only copy_with_rewrites.ts simple_test.json5",
     "copier": "ts-node-transpile-only copy_with_rewrites.ts arpa-to-gost.json5",
-    "undo:test:copier": "ts-node-transpile-only undo_copies.ts simple_test-results.json",
     "undo:copier": "ts-node-transpile-only undo_copies.ts arpa-to-gost-results.json",
     "tsc": "tsc --noEmit"
   }
