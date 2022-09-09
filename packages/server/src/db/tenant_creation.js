@@ -210,7 +210,6 @@ async function createTenant(options, trns = knex) {
     await seedReportingPeriods(trns, tenantId);
     await seedApplicationSettings(trns, tenantId);
 
-    console.log('Done');
     return { tenantId, agencyId, adminId };
 }
 
