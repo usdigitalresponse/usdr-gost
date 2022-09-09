@@ -572,15 +572,11 @@ async function getTenant(main_agency_id) {
 }
 
 async function createTenant(tenant) {
-    const response = await knex
+    const rows = await knex('tenants')
         .insert(tenant)
-        .into('tenants')
-        .returning(['id', 'created_at']);
-    return {
-        ...tenant,
-        id: response[0].id,
-        created_at: response[0].created_at,
-    };
+        .returning('*');
+
+    return rows[0];
 }
 
 async function getAgencyEligibilityCodes(agencyId) {
@@ -705,15 +701,6 @@ function setAgencyParent(id, agen_parent) {
         .update({ parent: agen_parent });
 }
 
-function setAgencyTenantId(id, tenant_id) {
-    console.log({id, tenant_id})
-    return knex(TABLES.agencies)
-        .where({
-            id,
-        })
-        .update({ tenant_id }, ['id', 'tenant_id']);
-}
-
 function setTenantDisplayName(id, display_name) {
     return knex(TABLES.tenants)
         .where({
@@ -819,7 +806,6 @@ module.exports = {
     setAgencyAbbr,
     setAgencyCode,
     setAgencyParent,
-    setAgencyTenantId,
     setTenantDisplayName,
     createKeyword,
     deleteKeyword,

@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { requireAdminUser, requireUser } = require('../lib/access-helpers');
 const {
-    getTenant, createTenant, setTenantDisplayName, createAgency, setAgencyTenantId,
+    getTenant, createTenant, setTenantDisplayName, createAgency,
 } = require('../db');
 
 router.get('/', requireUser, async (req, res) => {
@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
 
         const createdTenant = await createTenant(tenant);
 
-        _ = await setAgencyTenantId(createdAgency.id, createdTenant.id);
+        // _ = await setAgencyTenantId(createdAgency.id, createdTenant.id);
 
         res.json({ tenant: createdTenant });
     } catch (e) {
