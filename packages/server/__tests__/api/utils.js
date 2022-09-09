@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const { URLSearchParams } = require('url');
 require('dotenv').config();
 const { knex } = require('../../src/db');
 
@@ -32,7 +33,12 @@ async function getSessionCookie(email) {
         const passcode = row?.passcode;
 
         // Use the passcode to generate a sessionID ...
-        const response = await fetch(`${getTestDomain()}/api/sessions/?passcode=${passcode}`, { redirect: 'manual' });
+        const passcodeParam = new URLSearchParams();
+        passcodeParam.set('passcode', passcode);
+        const response = await fetch(
+            `${getTestDomain()}/api/sessions/init`,
+            { method: 'POST', body: passcodeParam, redirect: 'manual' },
+        );
         const responseHeaders = await response.headers;
         const cookie = responseHeaders.get('set-cookie');
         // console.log('responseHeaders:', JSON.stringify(responseHeaders.raw(), null, 2));
@@ -54,6 +60,7 @@ function fetchApi(url, agencyId, fetchOptions) {
 }
 
 module.exports = {
+    getTestDomain,
     getSessionCookie,
     fetchApi,
     knex,

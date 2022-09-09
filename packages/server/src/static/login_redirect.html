@@ -12,18 +12,28 @@
       // If the passcode is missing somehow, we redirect anyway since only server knows WEBSITE_DOMAIN
       // to correctly redirect to login page. This really only matters in dev environment where
       // website vs. API domains are different.
-      const passcode = new URLSearchParams(window.location.search).get('passcode') || 'missing_passcode';
+      const searchParams = new URLSearchParams(window.location.search);
+      const passcode = searchParams.get('passcode') || 'missing_passcode';
+      const redirectTo = searchParams.get('redirect_to');
       if (self === top) {
         const form = document.createElement('form');
         form.action = '/api/sessions/init';
         form.method = 'post';
         
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'passcode';
-        input.value = passcode;
+        const passcodeInput = document.createElement('input');
+        passcodeInput.type = 'hidden';
+        passcodeInput.name = 'passcode';
+        passcodeInput.value = passcode;
+        form.appendChild(passcodeInput);
 
-        form.appendChild(input);
+        if (redirectTo) {
+          const redirectInput = document.createElement('input');
+          redirectInput.type = 'hidden';
+          redirectInput.name = 'redirect_to';
+          redirectInput.value = redirectTo;
+          form.appendChild(redirectInput)
+        }
+
         document.body.appendChild(form);
         form.submit();
       }
