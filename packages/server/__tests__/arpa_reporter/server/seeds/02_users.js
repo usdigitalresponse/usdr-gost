@@ -3,10 +3,10 @@ require('dotenv').config()
 const { isRunningInGOST } = require('../helpers/is_gost')
 const _ = require('lodash')
 
-const adminList = (process.env.INITIAL_ADMIN_EMAILS || '').split(/\s*,\s*/)
+const adminList = (process.env.INITIAL_ADMIN_EMAILS || '').split(/\s*,\s*/).filter(_.identity)
 const agencyUserList = (process.env.INITIAL_AGENCY_EMAILS || '').split(
   /\s*,\s*/
-)
+).filter(_.identity)
 
 const unitTestUsers = [
   {
