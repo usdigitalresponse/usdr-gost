@@ -55,13 +55,12 @@ async function seedApplicationSettings(knex, tenantId) {
         throw new Error(`db already has an application_settings row for tenant ${tenantId}...`);
     }
 
-    // TODO(mbroussard): Is this right? Should we instead pick one close to the current date?
-    const { firstPeriod } = await knex('reporting_periods')
+    const { firstPeriodId } = await knex('reporting_periods')
         .where('tenant_id', tenantId)
-        .first('id AS firstPeriod');
+        .first('id AS firstPeriodId');
 
     await knex('application_settings').insert(
-        { title: 'ARPA Reporter', current_reporting_period_id: firstPeriod, tenant_id: tenantId },
+        { title: 'ARPA Reporter', current_reporting_period_id: firstPeriodId, tenant_id: tenantId },
     );
 }
 
