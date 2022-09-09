@@ -21,7 +21,9 @@ router.post('/', requireAdminUser, async (req, res, next) => {
         };
         const result = await db.createUser(user);
         res.json({ user: result });
-        await sendWelcomeEmail(user.email, req.headers.origin);
+
+        const domain = process.env.WEBSITE_DOMAIN || req.headers.origin;
+        await sendWelcomeEmail(user.email, domain);
     } catch (e) {
         if (e.message.match(/violates unique constraint/)) {
             console.log(e.message);
