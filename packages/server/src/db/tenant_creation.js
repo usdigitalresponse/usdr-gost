@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const _ = require('lodash');
 const inquirer = require('inquirer');
 const { validate: validateEmail } = require('email-validator');
 const knex = require('./connection');
@@ -39,49 +40,109 @@ async function firstAgencyId(trns = knex) {
     return trns('agencies').first('id').then((agency) => agency.id);
 }
 
-async function main(trns = knex) {
-    const { tenantName, agency, adminUser } = await inquirer.prompt([
+const buildInquirerQuestionsForCreateTenantOptions = (trns) => [
+    {
+        name: 'tenantName',
+        type: 'input',
+        message: 'Name of new tenant:',
+        validate: (name) => validateTenantName(name, trns),
+    },
+    {
+        name: 'agencyName',
+        type: 'input',
+        message: 'Name of root agency for new tenant:',
+        validate: (s) => s.trim().length > 0 || 'Root agency name required',
+        default: (answers) => answers.tenantName,
+    },
+    {
+        name: 'agencyAbbreviation',
+        type: 'input',
+        message: 'Abbreviation of root agency for new tenant:',
+        validate: (s) => s.trim().length > 0 || 'Root agency abbrev required',
+    },
+    {
+        name: 'agencyCode',
+        type: 'input',
+        message: 'ARPA Reporter agency code of root agency for new tenant:',
+        validate: (s) => s.trim().length > 0 || 'Root agency code required',
+        default: (answers) => answers.agencyAbbreviation,
+    },
+    {
+        name: 'adminUserEmail',
+        type: 'input',
+        message: 'Email of admin user:',
+        validate: (email) => validateUserEmail(email, trns),
+        filter: (s) => s.toLowerCase(),
+    },
+    {
+        name: 'adminUserName',
+        type: 'input',
+        message: 'Display name of admin user:',
+        validate: (s) => s.trim().length > 0 || 'Admin user name required',
+        default: (answers) => answers.adminUserEmail,
+    },
+];
+
+// Returns true if valid, error message string otherwise
+async function validateCreateTenantOptions(options, trns = knex) {
+    const questions = buildInquirerQuestionsForCreateTenantOptions(trns);
+
+    // Make sure the options object has all the right keys and no extras
+    const expectedKeys = _.map(questions, 'name');
+    const actualKeys = Object.keys(options);
+    const missingKeys = _.difference(expectedKeys, actualKeys);
+    const extraKeys = _.difference(actualKeys, expectedKeys);
+    if (missingKeys.length > 0) {
+        return `Missing required options: ${missingKeys.join(', ')}`;
+    }
+    if (extraKeys.length > 0) {
+        return `Unknown options: ${extraKeys.join(', ')}`;
+    }
+
+    const errors = (await Promise.all(questions.map(async (question) => {
+        const validator = question.validate || (() => true);
+        const valid = await validator(options[question.name]);
+        return valid !== true ? valid : null;
+    }))).filter(_.identity);
+
+    if (errors.length > 0) {
+        return errors.join('; ');
+    }
+
+    return true;
+}
+
+async function promptForCreateTenantOptions(trns = knex) {
+    const questions = buildInquirerQuestionsForCreateTenantOptions(trns);
+    const { confirmed, ...options } = await inquirer.prompt([
+        ...questions,
         {
-            name: 'tenantName',
-            type: 'input',
-            message: 'Name of new tenant:',
-            validate: (name) => validateTenantName(name, trns),
-        },
-        {
-            name: 'agency.name',
-            type: 'input',
-            message: 'Name of root agency for new tenant:',
-            validate: (s) => s.trim().length > 0 || 'Root agency name required',
-            default: (answers) => answers.tenantName,
-        },
-        {
-            name: 'agency.abbreviation',
-            type: 'input',
-            message: 'Abbreviation of root agency for new tenant:',
-            validate: (s) => s.trim().length > 0 || 'Root agency abbrev required',
-        },
-        {
-            name: 'agency.code',
-            type: 'input',
-            message: 'ARPA Reporter agency code of root agency for new tenant:',
-            validate: (s) => s.trim().length > 0 || 'Root agency code required',
-            default: (answers) => answers.agency.abbreviation,
-        },
-        {
-            name: 'adminUser.email',
-            type: 'input',
-            message: 'Email of admin user:',
-            validate: (email) => validateUserEmail(email, trns),
-            filter: (s) => s.toLowerCase(),
-        },
-        {
-            name: 'adminUser.name',
-            type: 'input',
-            message: 'Display name of admin user:',
-            validate: (s) => s.trim().length > 0 || 'Admin user name required',
-            default: (answers) => answers.adminEmail,
+            name: 'confirmed',
+            type: 'confirm',
+            message: (answers) => {
+                console.log(answers);
+                return 'Everything look good?';
+            },
         },
     ]);
+
+    if (!confirmed) {
+        console.log('Aborting');
+        process.exit(0);
+        return null;
+    }
+
+    return options;
+}
+
+async function createTenant(options, trns = knex) {
+    const optionsValid = await validateCreateTenantOptions(options, trns);
+    if (optionsValid !== true) {
+        throw new Error(`invalid create tenant options: ${optionsValid}`);
+    }
+    const {
+        tenantName, agencyName, agencyAbbreviation, agencyCode, adminUserEmail, adminUserName,
+    } = options;
 
     // Seeded tenants, agencies, and users with fixed IDs can screw up the autoincrement, apparently
     await Promise.all(['tenants', 'agencies', 'users'].map((tableName) => trns.raw(`select setval('${tableName}_id_seq', max(id)) from ${tableName}`)));
@@ -95,14 +156,15 @@ async function main(trns = knex) {
         })
         .returning('id as tenantId')
         .then((rows) => rows[0]);
-    console.log('Created tenant', tenantId);
 
     // Create root agency
     // We don't use db.createAgency because it expects a creatorId, but we are
     // creating in a new tenant that has no users yet.
     const { agencyId } = await trns('agencies')
         .insert({
-            ...agency,
+            name: agencyName,
+            abbreviation: agencyAbbreviation,
+            code: agencyCode,
             parent: null,
             // main_agency_id is non-nullable, but trns.ref('id') doesn't seem to work. So we have
             // to set to an existing value, then update it afterward.
@@ -114,7 +176,6 @@ async function main(trns = knex) {
         })
         .returning('id as agencyId')
         .then((rows) => rows[0]);
-    console.log('Created root agency', agencyId);
 
     // Update main_agency_id
     await trns('agencies')
@@ -131,22 +192,36 @@ async function main(trns = knex) {
         .then((rows) => rows[0]);
     const { adminId } = await trns('users')
         .insert({
-            ...adminUser,
+            email: adminUserEmail,
+            name: adminUserName,
             tenant_id: tenantId,
             agency_id: agencyId,
             role_id: adminRole.id,
         })
         .returning('id as adminId')
         .then((rows) => rows[0]);
-    console.log('Created root agency admin', adminId, 'with email', adminUser.email);
 
     console.log('Done');
+    return { tenantId, agencyId, adminId };
 }
 
-function withTransaction(f) {
-    return knex.transaction((trns) => f(trns));
+async function main() {
+    await knex.transaction(async (trns) => {
+        const options = await promptForCreateTenantOptions(trns);
+        const { tenantId, agencyId, adminId } = await createTenant(options, trns);
+
+        console.log('Created tenant', tenantId);
+        console.log('Created root agency', agencyId);
+        console.log('Created root agency admin', adminId, 'with email', options.adminUserEmail);
+        console.log('Note: no welcome email sent');
+    });
 }
+
+module.exports = {
+    createTenant,
+    validateCreateTenantOptions,
+};
 
 if (require.main === module) {
-    withTransaction(main).then(() => process.exit(0));
+    main().then(() => process.exit(0));
 }
