@@ -2,8 +2,9 @@ require('dotenv').config();
 
 const inquirer = require('inquirer');
 const { validate: validateEmail } = require('email-validator');
-const knex = require('../db/connection');
+const knex = require('./connection');
 
+// Returns true if valid, error message string otherwise
 async function validateTenantName(tenantName, trns = knex) {
     const existingTenants = await trns('tenants').select('*').where('display_name', tenantName);
     if (existingTenants.length !== 0) {
@@ -19,6 +20,7 @@ async function validateTenantName(tenantName, trns = knex) {
     return true;
 }
 
+// Returns true if valid, error message string otherwise
 async function validateUserEmail(email, trns = knex) {
     if (!validateEmail(email)) {
         return 'Invalid email';

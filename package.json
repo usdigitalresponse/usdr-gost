@@ -15,7 +15,7 @@
     "npm": "please-use-yarn"
   },
   "scripts": {
-    "create_tenant": "cd packages/server && node src/scripts/create_tenant.js",
+    "create_tenant": "cd packages/server && node src/db/tenant_creation.js",
     "bootstrap": "lerna bootstrap",
     "setup": "yarn install && yarn run bootstrap",
     "start": "lerna run start --stream",
