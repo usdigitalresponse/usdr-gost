@@ -595,7 +595,6 @@ async function getTenant(mainAgencyId) {
         .select(`${TABLES.tenants}.id`,
             `${TABLES.tenants}.display_name`,
             `${TABLES.tenants}.main_agency_id`)
-        .join(TABLES.users, `${TABLES.tenants}.id`, `${TABLES.users}.tenant_id`)
         .where(`${TABLES.tenants}.main_agency_id`, mainAgencyId);
 }
 
