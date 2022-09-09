@@ -8,8 +8,6 @@ import router from './router';
 import store from './store';
 import './assets/fix-sticky-headers.css';
 
-require('dotenv').config();
-
 const fetchApi = require('@/helpers/fetchApi');
 
 // Install BootstrapVue
