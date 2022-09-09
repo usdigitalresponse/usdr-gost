@@ -3,6 +3,7 @@ require('dotenv').config();
 const inquirer = require('inquirer');
 const { validate: validateEmail } = require('email-validator');
 const knex = require('../db/connection');
+const { seedReportingPeriods, seedApplicationSettings } = require('../../seeds/dev/02_backfill_arpa_reporting_periods');
 
 async function validateTenantName(tenantName, trns = knex) {
     const existingTenants = await trns('tenants').select('*').where('display_name', tenantName);
@@ -137,6 +138,10 @@ async function main(trns = knex) {
         .returning('id as adminId')
         .then((rows) => rows[0]);
     console.log('Created root agency admin', adminId, 'with email', adminUser.email);
+
+    // Initialize ARPA Reporter tables for this tenant
+    await seedReportingPeriods(trns, tenantId);
+    await seedApplicationSettings(trns, tenantId);
 
     console.log('Done');
 }
