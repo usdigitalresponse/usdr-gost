@@ -8,6 +8,7 @@ const _ = require('lodash');
 const inquirer = require('inquirer');
 const { validate: validateEmail } = require('email-validator');
 const knex = require('./connection');
+const { seedReportingPeriods, seedApplicationSettings } = require('../../seeds/dev/02_backfill_arpa_reporting_periods');
 
 // Returns true if valid, error message string otherwise
 async function validateTenantName(tenantName, trns = knex) {
@@ -204,6 +205,10 @@ async function createTenant(options, trns = knex) {
         })
         .returning('id as adminId')
         .then((rows) => rows[0]);
+
+    // Initialize ARPA Reporter tables for this tenant
+    await seedReportingPeriods(trns, tenantId);
+    await seedApplicationSettings(trns, tenantId);
 
     console.log('Done');
     return { tenantId, agencyId, adminId };
