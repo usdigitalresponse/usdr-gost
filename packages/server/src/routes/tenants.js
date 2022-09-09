@@ -28,7 +28,7 @@ router.post('/', requireUSDRSuperAdminUser, async (req, res) => {
 });
 
 router.put('/:tenantId', requireUSDRSuperAdminUser, async (req, res) => {
-    // Currently, tenants are seeded into db; only display name is mutable.
+    // Only display name is mutable after creation.
     const { tenantId } = req.params;
     const { displayName } = req.body;
     const result = await setTenantDisplayName(tenantId, displayName);
