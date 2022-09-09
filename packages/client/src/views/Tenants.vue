@@ -33,6 +33,7 @@ export default {
   data() {
     return {
       fields: [
+        { key: 'id', sortable: true, label: 'ID' },
         {
           key: 'display_name',
           sortable: true,
