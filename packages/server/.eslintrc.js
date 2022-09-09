@@ -2,7 +2,6 @@ module.exports = {
     root: true,
     env: {
         node: true,
-        jest: true,
         mocha: true,
         es6: true,
     },
@@ -45,5 +44,6 @@ module.exports = {
         'no-unused-expressions': 'off',
         'import/no-dynamic-require': 'off',
         'no-param-reassign': 'off',
+        'func-names': 'off',
     },
 };

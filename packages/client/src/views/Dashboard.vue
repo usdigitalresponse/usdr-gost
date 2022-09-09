@@ -6,50 +6,63 @@
         <div class="row">
           <b-col cols="1"></b-col>
           <b-col>
-            <b-card title='Recent Activity'>
-              <b-table sticky-header='300px' hover :items='activityItems' :fields='activityFields'
-                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none">
+            <b-card>
+              <div class="card-block text-left">
+                <h4 class="card-title gutter-title1 row">Recent Activity</h4>
+              </div>
+              <b-table sticky-header='500px' hover :items='activityItems' :fields='activityFields'
+                :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none"
+                selectable
+                select-mode="single"
+                @row-selected="onRowSelected">
                 <template #cell(icon)="list">
-                  <b-icon v-if="list.item.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
-                  <b-icon v-else icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                  <div class="gutter-icon row">
+                    <b-icon v-if="list.item.interested === 0" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
+                    <b-icon v-if="list.item.interested === 1" icon="check-circle-fill" scale="1" variant="success"></b-icon>
+                    <b-icon v-if="list.item.interested === 2" icon="arrow-right-circle-fill" scale="1"></b-icon>
+                  </div>
                 </template>
                 <template #cell(agencyAndGrant)="agencies">
                   <div>{{ agencies.item.agency }}
-                    <span v-if="agencies.item.interested"> is
-                      <span class="color-green">interested </span> in
-                    </span>
-                    <span v-if="!agencies.item.interested" class="color-red"> rejected </span>{{ agencies.item.grant }}
+                    <span v-if="agencies.item.interested === 0" class="color-red" > <strong> rejected </strong> </span>
+                    <span v-if="agencies.item.interested === 1" > is
+                    <span class="color-green">
+                      <strong> interested </strong>
+                    </span> in </span>
+                    <span v-if="agencies.item.interested === 2" > was<strong> assigned </strong> </span>{{ agencies.item.grant }}
                   </div>
                 </template>
                 <template #cell(date)="dates">
                   <div class="color-gray">{{ dates.item.date }}</div>
                 </template>
               </b-table>
-              <b-row align-v="center">
-                <b-navbar toggleable="sm py-0" bg-transparent>
+              <b-row align-v="center" >
+                <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
                   <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
                 </b-navbar>
               </b-row>
             </b-card>
           </b-col>
           <b-col>
-            <b-card title='Upcoming Closing Dates'>
-              <b-table sticky-header='350px' hover :items='upcomingItems' :fields='upcomingFields'
-                class='table table-borderless' thead-class="d-none">
-                <template #cell(date)="dates">
-                  <!-- color the date to gray, yellow, or red based on the dateColor boolean -->
-                  <div v-if="dates.item.dateColor === 0" class="color-gray">{{ dates.item.date }}</div>
-                  <div v-if="dates.item.dateColor === 1" class="color-yellow">{{ dates.item.date }}</div>
-                  <div v-if="dates.item.dateColor === 2" class="color-red">{{ dates.item.date }}</div>
-                </template>
-                <template #cell(agencyAndGrant)="agencies">
-                  <!-- display the interestedAgencies in a new <div> so it appears below the grant -->
-                  <div>{{ agencies.item.agencyAndGrant }}</div>
-                  <div class="color-gray">{{ agencies.item.interestedAgencies }}</div>
+            <b-card>
+              <div class="card-block text-left">
+                <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
+              </div>
+              <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
+                class='table table-borderless' thead-class="d-none"
+                selectable
+                select-mode="single"
+                @row-selected="onRowSelected">
+                <template #cell()="{ field, value, index }">
+                  <div v-if="field.key == 'title'">{{value}}</div>
+                  <div v-if="field.key == 'close_date' && yellowDate == true" :style="field.trStyle" v-text="value"></div>
+                  <div v-if="field.key == 'close_date' && redDate == true" :style="field.tdStyle" v-text="value"></div>
+                  <div v-if="field.key == 'close_date' && blackDate == true" :style="field.tlStyle" v-text="value"></div>
+                  <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
               <b-row align-v="center">
-                 <b-navbar toggleable="sm py-0" bg-transparent>
+                <b-navbar toggleable="sm py-0" bg-transparent class="gutter-upcoming row">
                   <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
                 </b-navbar>
               </b-row>
@@ -59,6 +72,7 @@
         </div>
       </b-container>
     </div>
+
     <b-row>
       <b-col cols='4'>
         <b-card bg-variant='secondary' text-variant='white' header='New Grants Matching Search Criteria, Last 24Hrs'
@@ -85,93 +99,121 @@
     <b-card title="Total Interested Grants by Agencies">
       <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
         <template #cell()="{field, value}">
-          <div :style="field.style" v-text="value"></div>
+          <div :style="field.style" v-text="value">
+          </div>
         </template>
       </b-table>
     </b-card>
+    <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 
 <style scoped>
 .color-gray{
-  color: gray;
+  color: #757575;
 }
 .color-yellow{
-  /* darkkhaki is used in place of traditional yellow for readability */
-  color:darkkhaki;
+  color: #aa8866;
 }
 .color-red{
-  color:red;
+  color: #ae1818;
 }
-.color-green{
+
+.color-green {
   color: green;
 }
+.gutter-icon.row {
+    margin-right: -8px;
+    margin-left: -8px;
+    margin-top: 3px;
+  }
+  .gutter-activity.row {
+    margin-left: -10px;
+    margin-top: -8px;
+    margin-bottom: -6px;
+  }
+  .gutter-upcoming.row {
+    margin-left: -2px;
+    margin-top: -8px;
+    margin-bottom: -6px;
+  }
+  .gutter-title1.row {
+    margin-left: +4px;
+  }
+  .gutter-title2.row {
+    margin-left: +10px;
+  }
 
 </style>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
+import GrantDetails from '@/components/Modals/GrantDetails.vue';
 
 export default {
-  components: {
-  },
+  components: { GrantDetails },
   data() {
     return {
+      dateColors: [],
       sortBy: 'dateSort',
       sortAsc: true,
+      perPage: 4,
+      perPageClosest: 3,
+      currentPage: 1,
+      grantsAndIntAgens: [],
       activityFields: [
         {
           // col for the check or X icon
           key: 'icon',
           label: '',
-          thStyle: { width: '1%' },
+          // thStyle: { width: '1%' },
         },
         {
           // col for the agency is interested or not in grant
           key: 'agencyAndGrant',
           label: '',
-          thStyle: { width: '79%' },
+          // thStyle: { width: '79%' },
         },
         {
           // col for when the event being displayed happened
           key: 'date',
           label: '',
-          thStyle: { width: '20%' },
+          // thStyle: { width: '20%' },
         },
       ],
       upcomingFields: [
         {
           // col for Grants and interested agencies
-          key: 'agencyAndGrant',
+          key: 'title',
           label: '',
           thStyle: { width: '80%' },
         },
         {
           // col for when the grant will be closing
-          key: 'date',
+          key: 'close_date',
           label: '',
+          formatter: 'formatDate',
           thStyle: { width: '20%' },
-        },
-      ],
-      upcomingItems: [
-        {
-          agencyAndGrant: 'FY21 Supplemental for the Northeast Corridor Cooperative Agreement to the National Railroad Passenger Corporation',
-          interestedAgencies: 'Dept of Admin, State of Nevada,',
-          date: '12/12/12',
-          dateColor: 2, // 2 corresponds to red, 1 corresponds to yellow, 0 corresponds to gray
-        },
-        {
-          agencyAndGrant: 'Environmental Justice Collaborative Problem-Solving (EJCPS) Cooperative Agreement Program',
-          interestedAgencies: 'GO, AP, SNV',
-          date: '12/12/12',
-          dateColor: 1,
+          tdStyle: {
+            color: '#ae1818',
+            fontWeight: 'bold',
+          },
+          tlStyle: {
+            color: 'black',
+          },
+          trStyle: {
+            color: '#aa8866',
+            fontWeight: 'bold',
+          },
+          fontWeight: 'bold',
         },
         {
-          agencyAndGrant: 'Strengthening Public Health Research and Implementation Science (Operations Research) to Control and Eliminate Infectious Diseases Globally',
-          interestedAgencies: 'SHRAB, SNV',
-          date: '12/20/12',
-          dateColor: 0,
+          key: 'interested_agencies',
+          label: '',
+          thClass: 'd-none',
+          tdClass: 'd-none',
+          thStyle: { width: '20%' },
         },
       ],
       groupByFields: [
@@ -179,16 +221,13 @@ export default {
           key: 'name',
           sortable: true,
           thStyle: {
-            width: '40%',
+            width: '45%',
           },
         },
         {
           label: 'Total',
           key: 'count',
           sortable: true,
-          style: {
-            'font-weight': 'bold',
-          },
           thStyle: {
             // makes monetary value column closer,
             // also gives more space for grant money value since it will be a longer number
@@ -200,13 +239,21 @@ export default {
           key: 'total_grant_money',
           sortByFormatted: false,
           formatter: 'formatMoney',
+          style: {
+            color: '#757575',
+          },
+          class: 'text-right',
+        },
+        {
+          key: 'empty1',
+          label: '',
+          thStyle: {
+            width: '11%',
+          },
         },
         {
           key: 'interested',
           sortable: true,
-          style: {
-            'font-weight': 'bold',
-          },
           thStyle: {
             // makes monetary value column closer,
             // also gives more space for grant money value since it will be a longer number
@@ -218,15 +265,20 @@ export default {
           key: 'total_interested_grant_money',
           sortByFormatted: false,
           formatter: 'formatMoney',
+          class: 'text-right',
           style: {
             color: 'green',
           },
         },
         {
-          key: 'rejections',
-          style: {
-            'font-weight': 'bold',
+          key: 'empty2',
+          label: '',
+          thStyle: {
+            width: '11%',
           },
+        },
+        {
+          key: 'rejections',
           sortable: true,
           thStyle: {
             // makes monetary value column closer,
@@ -239,18 +291,26 @@ export default {
           key: 'total_rejected_grant_money',
           sortByFormatted: false,
           formatter: 'formatMoney',
+          class: 'text-right',
           style: {
-            color: 'red',
+            color: '#ae1818',
+          },
+        },
+        {
+          key: 'empty3',
+          label: '',
+          thStyle: {
+            width: '11%',
           },
         },
       ],
-
+      selectedGrant: null,
     };
   },
 
   mixins: [resizableTableMixin],
-  mounted() {
-    this.setup();
+  async mounted() {
+    await this.setup();
   },
   computed: {
     ...mapGetters({
@@ -264,9 +324,11 @@ export default {
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedAgency: 'users/selectedAgency',
+      closestGrants: 'grants/closestGrants',
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
-      getClosestGrants: 'grants/getClosestGrants',
+      agency: 'users/agency',
+      currentGrant: 'grants/currentGrant',
     }),
     activityItems() {
       const rtf = new Intl.RelativeTimeFormat('en', {
@@ -276,25 +338,71 @@ export default {
       return this.grantsInterested.map((grantsInterested) => ({
         agency: grantsInterested.name,
         grant: grantsInterested.title,
-        interested: !grantsInterested.is_rejection,
+        grant_id: grantsInterested.grant_id,
+        interested: (() => {
+          let retVal = null;
+          if (grantsInterested.is_rejection != null) {
+            if (grantsInterested.is_rejection) {
+              retVal = 0;
+            } else {
+              retVal = 1;
+            }
+          } else if (grantsInterested.assigned_by != null) {
+            // 2 means its assigned not interested
+            retVal = 2;
+          }
+          return retVal;
+        })(),
         dateSort: new Date(grantsInterested.created_at).toLocaleString(),
-        date: rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').charAt(0).toUpperCase() + rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day').slice(1),
+        date: (() => {
+          const timeSince = rtf.format(Math.round((new Date(grantsInterested.created_at).getTime() - new Date().getTime()) / oneDayInMs), 'day');
+          const timeSinceInt = parseInt(timeSince, 10);
+          if (!Number.isNaN(timeSinceInt) && timeSinceInt > 7) {
+            return new Date(grantsInterested.created_at).toLocaleDateString('en-US');
+          }
+          return timeSince.charAt(0).toUpperCase() + timeSince.slice(1);
+        })(),
       }));
+    },
+    upcomingItems() {
+      // https://stackoverflow.com/a/48643055
+      return this.closestGrants;
     },
   },
   watch: {
-    selectedAgency() {
-      this.setup();
+    async selectedAgency() {
+      await this.setup();
+    },
+    upcomingItems() {
+      // https://lukashermann.dev/writing/how-to-use-async-await-with-vuejs-components/
+      this.formatUpcoming();
+    },
+    async selectedGrant() {
+      if (!this.selectedGrant) {
+        await this.fetchGrantsInterested();
+        await this.fetchClosestGrants();
+      }
+    },
+    currentGrant() {
+      if (this.selectedGrant && this.currentGrant) {
+        this.onRowSelected([this.currentGrant]);
+      }
     },
   },
   methods: {
     ...mapActions({
       fetchDashboard: 'dashboard/fetchDashboard',
+      getInterestedAgenciesAction: 'grants/getInterestedAgencies',
+      getAgency: 'agencies/getAgency',
+      fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
+      fetchGrantDetails: 'grants/fetchGrantDetails',
+      fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
-    setup() {
+    async setup() {
       this.fetchDashboard();
-      this.fetchGrantsInterested();
+      this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
+      this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
     formatMoney(value) {
       const res = Number(value).toLocaleString('en-US', {
@@ -304,6 +412,72 @@ export default {
         currency: 'USD',
       });
       return (`(${res})`);
+    },
+    formatDate(value) {
+      // value is the close date of grant
+      //                  get threshold of agency
+      const warn = this.agency.warning_threshold;
+      const danger = this.agency.danger_threshold;
+      //                grant close date + danger thresh
+      const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
+      //                grant close date + warn thresh
+      const warnDate = new Date(new Date().setDate(new Date().getDate() + warn));
+      //          if the grant close date is <= danger date---------------
+      const days = (aa, bb) => {
+        const difference = aa.getTime() - bb.getTime();
+        const TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
+        return TotalDays;
+      };
+      const daysTillDanger = days(dangerDate, new Date());
+      const daysTillWarn = days(warnDate, new Date());
+      const daysTillClose = days(new Date(value), new Date());
+      //                      ---assigning correct colors---
+      this.yellowDate = null;
+      this.redDate = null;
+      this.blackDate = null;
+      for (let i = 0; i < this.grantsAndIntAgens.length; i += 1) {
+        if ((daysTillClose <= warn) && (daysTillWarn > danger) && ((daysTillClose > danger) || (daysTillDanger <= daysTillClose))) {
+          this.yellowDate = true;
+          this.redDate = false;
+          this.blackDate = false;
+        } else if ((daysTillClose <= danger) || (daysTillDanger >= daysTillClose)) {
+          this.redDate = true;
+          this.yellowDate = false;
+          this.blackDate = false;
+        } else {
+          this.blackDate = true;
+          this.redDate = false;
+          this.yellowDate = false;
+        }
+      }
+      //                      format date in MM/DD/YY
+      const year = value.slice(2, 4);
+      const month = value.slice(5, 7);
+      const day = value.slice(8, 10);
+      const finalDate = [month, day, year].join('/');
+      return (`${finalDate}`);
+    },
+    async formatUpcoming() {
+      this.grantsAndIntAgens = [];
+      // https://stackoverflow.com/a/67219279
+      this.closestGrants.map(async (grant, idx) => {
+        const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
+        const updateGrant = {
+          ...grant,
+          interested_agencies: arr.map((agency) => agency.agency_abbreviation).join(', '),
+        };
+        // https://v2.vuejs.org/v2/guide/reactivity.html#For-Arrays
+        // https://stackoverflow.com/a/45336400
+        this.$set(this.grantsAndIntAgens, idx, updateGrant);
+      });
+    },
+    async onRowSelected(items) {
+      const [row] = items;
+      if (row) {
+        await this.fetchGrantDetails({ grantId: row.grant_id }).then(() => {
+          this.selectedGrant = this.currentGrant;
+        });
+      }
     },
   },
 };

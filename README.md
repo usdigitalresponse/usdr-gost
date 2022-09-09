@@ -23,13 +23,15 @@ Each folder inside packages/ is considered a workspace. To see a list of all wor
 
 # Setup
 
-1). Ensure using NODE Version 14 (v14.19.0)
+These steps are for an install on a Mac. The Windows instructions are [here](https://github.com/usdigitalresponse/usdr-gost/wiki/Setting-up-a-development-environment-on-Windows-(native)).
+
+1). Ensure using the correct version of NODE Version
 
 First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. If you are using [Nodenv](https://github.com/nodenv/nodenv) or [NVM](https://nvm.sh/), it should pick up on the correct version.
 
 To setup your workspace run the following commands at the root of the project
 
-1.1). (optional) Setup nvm
+1.1). Setup nvm
 
 ```
 > brew install nvm
@@ -96,7 +98,7 @@ Set environment variable pointing to local postgres DB, this is used for migrati
 
 4.1). Setup Gmail
 
-Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below)
+Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below). *Note: Select "Mac" even if you're not using a Mac.*
 
 In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
 
@@ -115,7 +117,7 @@ If running into `Error: Invalid login: 535-5.7.8 Username and Password not accep
 
 In server workspace, run migrations:
 
-**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**.
+**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**. *Use lower-case email address.*
 Then run seeds:
 
 ```
@@ -256,7 +258,7 @@ After installing depedencies, IntelliJ should start using eslint automatically:
 
 ```
 > cd packages/server
-> yarn test
+> yarn test && yarn test:apis
   ...
 
 OR
@@ -272,7 +274,9 @@ OR
 ## Client
 
 ```
-
+> yarn test
+...
+> yarn test:e2e
 ```
 
 
@@ -292,15 +296,17 @@ OR
 
 ![update-web-env-vars](docs/img/update-web-env-vars.png)
 
+**NOTE:** Don't set `NODE_ENV=production` else NPM dev deps will not be installed and prod deployments will fail [(source)](https://github.com/vuejs/vue-cli/issues/5107#issuecomment-586701382)
+
+![prod-env-error](docs/img/prod-env-error.png)
+
 ```
 POSTGRES_URL=<POSTGRE_CONNECTION_STRING> # Render Internal connection string ie postgres://cares_opportunity_user:<pass>@<domain>/cares_opportunity_1e53
 
 COOKIE_SECRET=<RANDOM_ALPHANUMERIC_SECRET>
 
-API_DOMAIN=<WEB_SERVICE_URL> # Render web service url ie. https://cares-grant-opportunities-qi8i.onrender.com
-VUE_APP_GRANTS_API_URL=<WEB_SERVICE_URL> # ie. https://cares-grant-opportunities-qi8i.onrender.com
+WEBSITE_DOMAIN=<WEB_SERVICE_URL> # Render web service url ie. https://cares-grant-opportunities-qi8i.onrender.com
 
-STATE_NAME=Nevada
 NODE_ENV=development or production or test
 
 NOTIFICATIONS_EMAIL="grants-identification@usdigitalresponse.org"
@@ -336,6 +342,12 @@ npx knex seed:run
 ```
 
 After that you should be able to access the site and login with the users set in the migration.
+
+
+## Debugging
+
+Sometimes `lerna` seems to hang w/ no output. [By adding `--stream` you can get more information about the error.](https://github.com/lerna/lerna/issues/2183#issuecomment-511976236)
+
 
 ## Code of Conduct
 

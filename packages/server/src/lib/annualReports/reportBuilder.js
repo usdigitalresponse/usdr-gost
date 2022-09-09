@@ -21,6 +21,15 @@ const genericTemplateParser = (book) => {
     const projectSheet = book.Sheets[PROJECT_DATA];
     const impactSheet = book.Sheets['Impact Statement'];
 
+    // This is the editable one, and should be preferred
+    const editableImpactStatement = impactSheet.E16;
+    let impactStatement;
+    if (editableImpactStatement) {
+        impactStatement = editableImpactStatement.v;
+    } else {
+        impactStatement = impactSheet.E8.v;
+    }
+
     return {
         name: projectSheet.C9.v,
         recipient: projectSheet.C10.v,
@@ -28,7 +37,38 @@ const genericTemplateParser = (book) => {
         description: projectSheet.C21.v,
         amountSpent: projectSheet.C17.v,
         website: projectSheet.C24.v,
-        impactStatement: impactSheet.E16.v,
+        impactStatement,
+    };
+};
+
+/**
+ * Pulls the information relevant to the docx generator out of the excel workbook
+ * @param book
+ * @returns {ProjectData}
+ */
+const tulsaTemplateParser = (book) => {
+    const projectSheet = book.Sheets[PROJECT_DATA];
+    const impactSheet = book.Sheets['Impact Statement'];
+
+    // This is the editable one, and should be preferred
+    const editableImpactStatement = impactSheet.E16;
+    let impactStatement;
+    if (editableImpactStatement) {
+        impactStatement = editableImpactStatement.v;
+    } else {
+        impactStatement = impactSheet.E8.v;
+    }
+
+    return {
+        name: projectSheet.C9.v,
+        recipient: projectSheet.C10.v,
+
+        // All of Tulsa's programs fall into EC 6
+        category: '6 - Revenue Replacement',
+        description: '', // not on Tulsa's template
+        amountSpent: projectSheet.C18.v, // Differs between templates
+        website: '', // not on Tulsa's template
+        impactStatement,
     };
 };
 
@@ -46,12 +86,10 @@ const parseDataFromWorkbook = (book, fullAnnualData) => {
     const projectSheet = book.Sheets[PROJECT_DATA];
     let projectData;
 
-    // If this cell says "Expenditure Category" then it's the generic template
-    // This workflow is extremely fragile based on this key. We've asked them not to modify
-    // Any cells other than where input is required, this trim() and lowercase() is just a hedge
-    // in case some kind of unexpected auto-format is applied
-    const isGeneric = projectSheet.B19.v.trim().toLowerCase() === 'expenditure category';
-    if (isGeneric) {
+    const isTulsa = !projectSheet.B19;
+    if (isTulsa) {
+        projectData = tulsaTemplateParser(book);
+    } else {
         projectData = genericTemplateParser(book);
     }
 

@@ -1,9 +1,7 @@
 const { expect } = require('chai');
-require('dotenv').config();
-
 const { getSessionCookie, fetchApi } = require('./utils');
 
-describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
+describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
     const agencies = {
         admin: {
             own: 0,
@@ -38,8 +36,8 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
         fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
     });
 
-    context('GET organizations/:organizationId/agencies (list an agency and its subagencies)', async () => {
-        context('by a user with admin role', async () => {
+    context('GET organizations/:organizationId/agencies (list an agency and its subagencies)', () => {
+        context('by a user with admin role', () => {
             it('lists this user\'s own agency and its subagencies', async () => {
                 // Will default to user's own agency ID
                 const response = await fetchApi('/agencies', agencies.admin.own, fetchOptions.admin);
@@ -58,7 +56,8 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
-        context('by a user with staff role', async () => {
+
+        context('by a user with staff role', () => {
             it('lists this user\'s own agency', async () => {
                 // Will default to user's own agency ID
                 const response = await fetchApi('/agencies', agencies.staff.own, fetchOptions.staff);
@@ -77,10 +76,11 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
             });
         });
     });
-    context('PUT /organizations/:organizationId/agencies/:id (modify an agency\'s data)', async () => {
+
+    context('PUT /organizations/:organizationId/agencies/:id (modify an agency\'s data)', () => {
         const body = JSON.stringify({ warningThreshold: 2, dangerThreshold: 1 });
 
-        context('by a user with admin role', async () => {
+        context('by a user with admin role', () => {
             it('updates this user\'s own agency', async () => {
                 const response = await fetchApi(`/agencies/${agencies.admin.own}`, agencies.admin.own, { ...fetchOptions.admin, method: 'put', body });
                 expect(response.statusText).to.equal('OK');
@@ -94,7 +94,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', async () => {
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
-        context('by a user with staff role', async () => {
+        context('by a user with staff role', () => {
             it('is forbidden for this user\'s own agency', async () => {
                 const response = await fetchApi(`/agencies/${agencies.staff.own}`, agencies.staff.own, { ...fetchOptions.staff, method: 'put', body });
                 expect(response.statusText).to.equal('Forbidden');

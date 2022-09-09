@@ -33,7 +33,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 16.14.0
           cache: yarn
 
       - name: Install dependencies
@@ -53,4 +53,5 @@ jobs:
           # The .env file needs to be present; the example file is good enough.
           cp packages/server/.env.example packages/server/.env
           cp packages/client/.env.example packages/client/.env
-          yarn test
+          cd packages/server/; yarn test:apis
+          export CI=true; yarn test

@@ -6,8 +6,7 @@ import Vuelidate from 'vuelidate';
 import App from './App.vue';
 import router from './router';
 import store from './store';
-
-require('dotenv').config();
+import './assets/fix-sticky-headers.css';
 
 const fetchApi = require('@/helpers/fetchApi');
 

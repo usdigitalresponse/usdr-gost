@@ -79,7 +79,7 @@ async function getKeywords() {
 }
 
 async function getEligibilities() {
-    const rows = await db.getElegibilityCodes();
+    const rows = await db.getEligibilityCodes();
     const enabledCodes = rows.filter((row) => row.enabled).map((row) => row.code);
     return enabledCodes.join('|');
 }
