@@ -4,8 +4,8 @@ const inquirer = require('inquirer');
 const { validate: validateEmail } = require('email-validator');
 const knex = require('../db/connection');
 
-async function validateTenantName(tenantName) {
-    const existingTenants = await knex('tenants').select('*').where('display_name', tenantName);
+async function validateTenantName(tenantName, trns = knex) {
+    const existingTenants = await trns('tenants').select('*').where('display_name', tenantName);
     if (existingTenants.length !== 0) {
         // This is not a SQL constraint, but it's confusing to have multiple tenants with the same
         // name and is most likely a mistake.
@@ -19,12 +19,12 @@ async function validateTenantName(tenantName) {
     return true;
 }
 
-async function validateUserEmail(email) {
+async function validateUserEmail(email, trns = knex) {
     if (!validateEmail(email)) {
         return 'Invalid email';
     }
 
-    const existingUsers = await knex('users').select('*').where('email', email);
+    const existingUsers = await trns('users').select('*').where('email', email);
     if (existingUsers.length !== 0) {
         return 'User with that email already exists';
     }
@@ -32,18 +32,18 @@ async function validateUserEmail(email) {
     return true;
 }
 
-async function firstAgencyId() {
+async function firstAgencyId(trns = knex) {
     // Don't want to assume 0 or 1 exist, they could have been deleted
-    return knex('agencies').first('id').then((agency) => agency.id);
+    return trns('agencies').first('id').then((agency) => agency.id);
 }
 
-async function main() {
+async function main(trns = knex) {
     const { tenantName, agency, adminUser } = await inquirer.prompt([
         {
             name: 'tenantName',
             type: 'input',
             message: 'Name of new tenant:',
-            validate: validateTenantName,
+            validate: (name) => validateTenantName(name, trns),
         },
         {
             name: 'agency.name',
@@ -69,7 +69,7 @@ async function main() {
             name: 'adminUser.email',
             type: 'input',
             message: 'Email of admin user:',
-            validate: validateUserEmail,
+            validate: (email) => validateUserEmail(email, trns),
             filter: (s) => s.toLowerCase(),
         },
         {
@@ -82,10 +82,10 @@ async function main() {
     ]);
 
     // Seeded tenants, agencies, and users with fixed IDs can screw up the autoincrement, apparently
-    await Promise.all(['tenants', 'agencies', 'users'].map((tableName) => knex.raw(`select setval('${tableName}_id_seq', max(id)) from ${tableName}`)));
+    await Promise.all(['tenants', 'agencies', 'users'].map((tableName) => trns.raw(`select setval('${tableName}_id_seq', max(id)) from ${tableName}`)));
 
     // Create tenant
-    const { tenantId } = await knex('tenants')
+    const { tenantId } = await trns('tenants')
         .insert({
             display_name: tenantName,
             // main_agency_id null because we haven't yet created the agency, so don't know its ID
@@ -98,16 +98,16 @@ async function main() {
     // Create root agency
     // We don't use db.createAgency because it expects a creatorId, but we are
     // creating in a new tenant that has no users yet.
-    const { agencyId } = await knex('agencies')
+    const { agencyId } = await trns('agencies')
         .insert({
             ...agency,
             parent: null,
-            // main_agency_id is non-nullable, but knex.ref('id') doesn't seem to work. So we have
+            // main_agency_id is non-nullable, but trns.ref('id') doesn't seem to work. So we have
             // to set to an existing value, then update it afterward.
             //
             // TODO(mbroussard): should we remove the NOT NULL constraint and have null mean root
-            // agency vs. having self-loops?
-            main_agency_id: await firstAgencyId(),
+            // agency vs. having self-loops (similar to parent field)?
+            main_agency_id: await firstAgencyId(trns),
             tenant_id: tenantId,
         })
         .returning('id as agencyId')
@@ -115,19 +115,19 @@ async function main() {
     console.log('Created root agency', agencyId);
 
     // Update main_agency_id
-    await knex('agencies')
+    await trns('agencies')
         .where('id', agencyId)
         .update({ main_agency_id: agencyId });
-    await knex('tenants')
+    await trns('tenants')
         .where('id', tenantId)
         .update({ main_agency_id: agencyId });
 
     // Create admin user
-    const adminRole = await knex('roles')
+    const adminRole = await trns('roles')
         .select('*')
         .where('name', 'admin')
         .then((rows) => rows[0]);
-    const { adminId } = await knex('users')
+    const { adminId } = await trns('users')
         .insert({
             ...adminUser,
             tenant_id: tenantId,
@@ -141,6 +141,10 @@ async function main() {
     console.log('Done');
 }
 
+function withTransaction(f) {
+    return knex.transaction((trns) => f(trns));
+}
+
 if (require.main === module) {
-    main().then(() => process.exit(0));
+    withTransaction(main).then(() => process.exit(0));
 }
