@@ -3,8 +3,9 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const { requireAdminUser, requireUser } = require('../lib/access-helpers');
 const {
-    getTenant, createTenant, setTenantDisplayName, createAgency,
+    getTenant, setTenantDisplayName, knex,
 } = require('../db');
+const { createTenant, validateCreateTenantOptions } = require('../db/tenant_creation');
 
 router.get('/', requireUser, async (req, res) => {
     const { user } = req.session;
@@ -18,37 +19,20 @@ router.get('/', requireUser, async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    if (!req.body.tenant_name || !req.body.agency_name || !req.body.agency_abbreviation) {
-        res.status(400).send('Tenant name, agency name, and agency abbreivation is required');
-        return;
-    }
+    // TODO: access control
 
-    try {
-        const agency = {
-            name: req.body.agency_name,
-            abbreviation: req.body.agency_abbreviation,
-            parent: 0,
-            warning_threshold: 30,
-            danger_threshhold: 15,
-        };
-
-        const createdAgency = await createAgency(agency, 15);
-
-        const tenant = {
-            display_name: req.body.tenant_name,
-        };
-
-        const createdTenant = await createTenant(tenant);
-
-        // _ = await setAgencyTenantId(createdAgency.id, createdTenant.id);
-
-        res.json({ tenant: createdTenant });
-    } catch (e) {
-        if (e.message.match(/violates unique constraint "agencies_name_unique"/)) {
-            console.log(e.message);
-            res.status(400).send('Agency with that name already exists');
+    const result = await knex.transaction(async (trns) => {
+        const options = req.body;
+        const valid = await validateCreateTenantOptions(options, trns);
+        if (valid !== true) {
+            res.status(400).json({ error: valid });
+            return null;
         }
-    }
+
+        return createTenant(options, trns);
+    });
+
+    res.json(result);
 });
 
 router.put('/:tenant', requireAdminUser, async (req, res) => {

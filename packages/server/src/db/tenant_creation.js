@@ -1,5 +1,9 @@
 require('dotenv').config();
 
+// This file contains logic for creating a new tenant. Creating a new tenant also creates a root agency for it
+// and a single admin user (who can then login and make additional agencies/users within the tenant using UI).
+// The logic in this file is called from both routes/tenants and as a standalone console script.
+
 const _ = require('lodash');
 const inquirer = require('inquirer');
 const { validate: validateEmail } = require('email-validator');

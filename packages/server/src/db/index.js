@@ -571,14 +571,6 @@ async function getTenant(main_agency_id) {
     return result.rows;
 }
 
-async function createTenant(tenant) {
-    const rows = await knex('tenants')
-        .insert(tenant)
-        .returning('*');
-
-    return rows[0];
-}
-
 async function getAgencyEligibilityCodes(agencyId) {
     const eligibilityCodes = await knex(TABLES.eligibility_codes).orderBy('code');
     const agencyEligibilityCodes = await knex(TABLES.agency_eligibility_codes)
@@ -794,7 +786,6 @@ module.exports = {
     getAgency,
     getAgencies,
     getTenant,
-    createTenant,
     getAgencyEligibilityCodes,
     setAgencyEligibilityCodeEnabled,
     getKeyword,
