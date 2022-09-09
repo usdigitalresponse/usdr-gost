@@ -4,6 +4,16 @@ function isPartOfAgency(agencies, agencyId) {
     return agencies.find((s) => s.id === Number(agencyId));
 }
 
+// TODO: in prod, there are a bunch of non-USDR looking users set as admin in USDR tenant?
+// some are CTG interns, but some are @cityoftulsa.org, @treasury.gov, etc.
+// probably need to move them out
+const USDR_TENANT_ID = 1;
+const USDR_AGENCY_ID = 0;
+function isUSDRSuperAdmin(user) {
+    // Note: this function assumes an augmented user object from db.getUser(), not just a raw DB row
+    return (user.tenant_id === USDR_TENANT_ID && user.agency_id === USDR_AGENCY_ID && user.role_name === 'admin');
+}
+
 /**
  * Determine if a user is authorized for an agency.
  *
@@ -68,6 +78,17 @@ async function requireUser(req, res, next) {
     next();
 }
 
+async function requireUSDRSuperAdminUser(req, res, next) {
+    await requireAdminUser(req, res, () => {
+        if (!isUSDRSuperAdmin(req.session.user)) {
+            res.sendStatus(403);
+            return;
+        }
+
+        next();
+    });
+}
+
 module.exports = {
-    requireAdminUser, requireUser, isAuthorized, isPartOfAgency,
+    requireAdminUser, requireUser, isAuthorized, isPartOfAgency, isUSDRSuperAdmin, requireUSDRSuperAdminUser,
 };

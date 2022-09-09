@@ -1,26 +1,18 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
-const { requireAdminUser, requireUser } = require('../lib/access-helpers');
+const { requireUSDRSuperAdminUser } = require('../lib/access-helpers');
 const {
     getTenant, setTenantDisplayName, knex,
 } = require('../db');
 const { createTenant, validateCreateTenantOptions } = require('../db/tenant_creation');
 
-router.get('/', requireUser, async (req, res) => {
-    const { user } = req.session;
-    let response;
-    if (user.role.name === 'admin') {
-        response = await getTenant(req.session.selectedAgency);
-    } else {
-        throw new Error(`You dont have access to tenants`);
-    }
-    res.json(response);
+router.get('/', requireUSDRSuperAdminUser, async (req, res) => {
+    const currentTenant = await getTenant(req.session.user.tenant_id);
+    res.json(currentTenant);
 });
 
-router.post('/', async (req, res) => {
-    // TODO: access control
-
+router.post('/', requireUSDRSuperAdminUser, async (req, res) => {
     const result = await knex.transaction(async (trns) => {
         const options = req.body;
         const valid = await validateCreateTenantOptions(options, trns);
@@ -35,11 +27,11 @@ router.post('/', async (req, res) => {
     res.json(result);
 });
 
-router.put('/:tenant', requireAdminUser, async (req, res) => {
+router.put('/:tenantId', requireUSDRSuperAdminUser, async (req, res) => {
     // Currently, tenants are seeded into db; only display name is mutable.
-    const { tenant } = req.params;
+    const { tenantId } = req.params;
     const { displayName } = req.body;
-    const result = await setTenantDisplayName(tenant, displayName);
+    const result = await setTenantDisplayName(tenantId, displayName);
     res.json(result);
 });
 

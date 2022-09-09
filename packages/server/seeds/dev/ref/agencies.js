@@ -1,5 +1,6 @@
 module.exports = [
     {
+        // Note: USDR must always be id=0; super-admin access checks use this
         id: 0,
         abbreviation: 'USDR',
         code: 'USDR',

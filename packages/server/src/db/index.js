@@ -562,13 +562,8 @@ async function getAgencies(rootAgency) {
     return result.rows;
 }
 
-// Use agency id for lookup for now
-async function getTenant(main_agency_id) {
-    const query = `SELECT id, display_name, main_agency_id
-    FROM tenants WHERE main_agency_id = ?;`;
-    const result = await knex.raw(query, main_agency_id);
-
-    return result.rows;
+async function getTenant(tenantId) {
+    return knex('tenants').select('*').where('id', tenantId).then((rows) => rows[0]);
 }
 
 async function getAgencyEligibilityCodes(agencyId) {

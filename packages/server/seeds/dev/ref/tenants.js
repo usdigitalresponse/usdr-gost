@@ -2,6 +2,7 @@
 
 module.exports = [
     {
+        // Note: USDR must always be id=1; super-admin access checks use this
         id: 1,
         display_name: 'USDR Tenant',
     },
