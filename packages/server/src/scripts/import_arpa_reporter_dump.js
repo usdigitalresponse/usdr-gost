@@ -166,9 +166,6 @@ async function importTenants(
             // TODO: if creating a new main agency, should we also create a new admin user for
             // that agency? Right now all users get assigned to the main agency so as long as source
             // has an admin, destination will; but there's another TODO about maybe changing that?
-            //
-            // TODO: can/should we reuse any of the tenant_creation code from https://github.com/usdigitalresponse/usdr-gost/pull/189
-            // for creating tenant and main agency?
         ])
         .flatten()
         .value();
@@ -367,6 +364,7 @@ async function reassignDuplicateUserEmailsIfNeeded(
     // NOTE: we must do this sequentially, not in a Promise.all, because only one
     // inquirer prompt can run at a time
     // TODO: maybe cleaner to build a questions list ahead of time then call inquirer once?
+    // TODO: maybe we should output a list of remapped emails to the json?
     let ret = [];
     for (const user of usersToCreate) {
         if (!usersWithDupeEmails.find((u) => u.email === user.email)) {
@@ -581,9 +579,6 @@ async function main() {
             type: "input",
             name: "inputFilename",
             message: "Input zip:",
-
-            // TODO: remove
-            default: "/Users/mattb/Desktop/dump.zip",
         },
         {
             type: "input",
