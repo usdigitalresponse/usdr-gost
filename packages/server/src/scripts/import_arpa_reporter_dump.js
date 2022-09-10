@@ -40,6 +40,7 @@ const foreignKeyNames = {
     user_id: "users",
     validated_by: "users",
     tenant_id: "tenants",
+    parent: "agencies",
 };
 
 function rekeyForeignKeys(row, idLookupByTable, ignoreKeys = []) {
@@ -52,6 +53,12 @@ function rekeyForeignKeys(row, idLookupByTable, ignoreKeys = []) {
         }
 
         const colValue = row[colName];
+
+        // Null values are not remapped
+        if (colValue === null) {
+            continue;
+        }
+
         const fkValue = idLookupByTable[fkTable][colValue];
         if (fkValue === undefined) {
             throw new Error(
@@ -129,6 +136,11 @@ async function importTenants(dbContents, idLookupByTable) {
                     })),
                 ],
             },
+            // TODO: if creating a new main agency, should we also create a new admin user for
+            // that agency?
+            //
+            // TODO: can/should we reuse any of the tenant_creation code from https://github.com/usdigitalresponse/usdr-gost/pull/189
+            // for creating tenant and main agency?
         ])
         .flatten()
         .value();
@@ -191,7 +203,8 @@ async function importAgencies(
     idLookupByTable,
     insertedRowsByTable
 ) {
-    // First, create all agencies, defaulting their parent pointer to point to themselves.
+    // First, create all agencies, defaulting their parent and main_agency_id pointers to null (need the
+    // rows inserted to know IDs).
     const agenciesToCreate = dbContents.agencies.map((agency) =>
         rekeyForeignKeys(
             {
@@ -199,8 +212,8 @@ async function importAgencies(
                 name: agency.name,
                 code: agency.code,
                 abbreviation: agency.code,
-                parent: knex.ref("id"),
-                main_agency_id: knex.ref("id"),
+                parent: null,
+                main_agency_id: null,
             },
             idLookupByTable,
             ["main_agency_id", "parent"]
@@ -232,13 +245,23 @@ async function importAgencies(
     await knex.raw(
         `
         UPDATE agencies
-        SET
-            parent = tenants.main_agency_id,
-            main_agency_id = tenants.main_agency_id,
+        SET main_agency_id = tenants.main_agency_id
         FROM tenants
         WHERE
             agencies.tenant_id = tenants.id
             AND agencies.id in :agencyIds
+        `,
+        { agencyIds }
+    );
+    await knex.raw(
+        `
+        UPDATE agencies
+        SET parent = tenants.main_agency_id
+        FROM tenants
+        WHERE
+            agencies.tenant_id = tenants.id
+            AND agencies.id in :agencyIds
+            AND agencies.id != tenants.main_agency_id
         `,
         { agencyIds }
     );
