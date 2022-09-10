@@ -191,7 +191,8 @@ async function importTenants(
                 // because there is a circular FK between tenants/agencies tables
                 main_agency_id: null,
             })
-            .returning("*");
+            .returning("*")
+            .then(rows => rows[0]);
 
         if (mainAgencyId) {
             tenant.__unmappedFutureMainAgencyId = mainAgencyId;
