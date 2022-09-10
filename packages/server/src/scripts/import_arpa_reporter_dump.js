@@ -72,14 +72,14 @@ function rekeyForeignKeys(row, idLookupByTable, ignoreKeys = []) {
     return row;
 }
 
-async function importTable(tableName, rows, idLookupByTable) {
+async function importTable(tableName, rows, idLookupByTable, trns = knex) {
     console.log("Importing table", tableName, "...");
 
     const rowsToInsert = rows.map((row) =>
         rekeyForeignKeys(_.omit(row, "id"), idLookupByTable)
     );
 
-    const inserted = await knex(tableName).insert(rowsToInsert).returning("*");
+    const inserted = await trns(tableName).insert(rowsToInsert).returning("*");
     const idLookup = _.chain(inserted)
         .map((insertedRow, idx) => [rows[idx].id, insertedRow.id])
         .fromPairs()
@@ -99,7 +99,7 @@ function getAllTenantIds(dbContents) {
         .value();
 }
 
-async function importTenants(dbContents, idLookupByTable) {
+async function importTenants(dbContents, idLookupByTable, trns = knex) {
     // First, we ask users for tenant names and main agencies for all tenants that
     // will be created (this should be just one, but technically could be more than
     // one, so we have to account for it here)
@@ -165,7 +165,7 @@ async function importTenants(dbContents, idLookupByTable) {
         const tenantName = tenantNames[tenantId];
         const mainAgencyId = mainAgencies[tenantId];
 
-        const tenant = await knex("tenants")
+        const tenant = await trns("tenants")
             .insert({
                 display_name: tenantName,
                 // main_agency_id must be populated in a second pass in importAgencies
@@ -202,7 +202,8 @@ async function importTenants(dbContents, idLookupByTable) {
 async function importAgencies(
     dbContents,
     idLookupByTable,
-    insertedRowsByTable
+    insertedRowsByTable,
+    trns = knex
 ) {
     // First, create all agencies, defaulting their parent and main_agency_id pointers to null (need the
     // rows inserted to know IDs).
@@ -220,7 +221,7 @@ async function importAgencies(
             ["main_agency_id", "parent"]
         )
     );
-    let inserted = await knex("agencies")
+    let inserted = await trns("agencies")
         .insert(agenciesToCreate)
         .returning("*");
     const idLookup = _.chain(inserted)
@@ -235,7 +236,7 @@ async function importAgencies(
     for (const tenant of insertedRowsByTable.tenants) {
         const mainAgencyId = idLookup[tenant.__unmappedFutureMainAgencyId];
         tenant.main_agency_id = mainAgencyId;
-        await knex("tenants")
+        await trns("tenants")
             .where("id", tenant.id)
             .update({ main_agency_id: mainAgencyId });
     }
@@ -243,7 +244,7 @@ async function importAgencies(
     // Then update any non-main agencies to be parented by their tenant's main agency (since
     // standalone ARPA Reporter did not have a concept of parent agencies)
     const agencyIds = _.map(inserted, "id");
-    await knex.raw(
+    await trns.raw(
         `
         UPDATE agencies
         SET main_agency_id = tenants.main_agency_id
@@ -254,7 +255,7 @@ async function importAgencies(
         `,
         { agencyIds }
     );
-    await knex.raw(
+    await trns.raw(
         `
         UPDATE agencies
         SET parent = tenants.main_agency_id
@@ -266,26 +267,36 @@ async function importAgencies(
         `,
         { agencyIds }
     );
-    inserted = await knex("agencies").select("*").whereIn("id", agencyIds);
+    inserted = await trns("agencies").select("*").whereIn("id", agencyIds);
 
     // Tell the user about any new agencies created (not just copied) by this script
     _.chain(dbContents.agencies)
-        .filter('__isMainAgency')
-        .map('id')
-        .map(id => idLookup[id])
-        .map(id => inserted.find(agency => agency.id === id))
-        .forEach(agency => {
-            console.log('Created new main agency', agency.id, 'for new tenant', agency.tenant_id);
+        .filter("__isMainAgency")
+        .map("id")
+        .map((id) => idLookup[id])
+        .map((id) => inserted.find((agency) => agency.id === id))
+        .forEach((agency) => {
+            console.log(
+                "Created new main agency",
+                agency.id,
+                "for new tenant",
+                agency.tenant_id
+            );
         })
         .value();
 
     return { inserted, idLookup };
 }
 
-async function importUsers(dbContents, idLookupByTable, insertedRowsByTable) {
-    const roles = await knex('roles').select('*');
-    const adminRole = roles.find(r => r.name == 'admin').id;
-    const staffRole = roles.find(r => r.name == 'staff').id;
+async function importUsers(
+    dbContents,
+    idLookupByTable,
+    insertedRowsByTable,
+    trns = knex
+) {
+    const roles = await trns("roles").select("*");
+    const adminRole = roles.find((r) => r.name == "admin").id;
+    const staffRole = roles.find((r) => r.name == "staff").id;
 
     const mainAgencyByTenant = _.chain(insertedRowsByTable.tenants)
         .keyBy("id")
@@ -298,7 +309,7 @@ async function importUsers(dbContents, idLookupByTable, insertedRowsByTable) {
                 name: user.name,
                 // Note: ARPA Reporter had a "reporter" role. For our purposes,
                 // anything non-admin becomes "staff"
-                role_id: user.role === 'admin' ? adminRole : staffRole,
+                role_id: user.role === "admin" ? adminRole : staffRole,
                 tenant_id: user.tenant_id,
                 // Copied users belong to the main agency of their tenant
                 agency_id:
@@ -310,7 +321,7 @@ async function importUsers(dbContents, idLookupByTable, insertedRowsByTable) {
     );
 
     // Check if there are any existing users with the specified emails
-    const usersWithDupeEmails = await knex("users")
+    const usersWithDupeEmails = await trns("users")
         .select("email")
         .whereIn("email", _.map(usersToCreate, "email"));
     if (usersWithDupeEmails.length != 0) {
@@ -324,7 +335,7 @@ async function importUsers(dbContents, idLookupByTable, insertedRowsByTable) {
     }
 
     // Do the inserts
-    const inserted = await knex("users").insert(usersToCreate).returning("*");
+    const inserted = await trns("users").insert(usersToCreate).returning("*");
     const idLookup = _.chain(inserted)
         .map((insertedRow, idx) => [dbContents.users[idx].id, insertedRow.id])
         .fromPairs()
@@ -339,7 +350,7 @@ const specialTableHandlers = {
     agencies: importAgencies,
 };
 
-async function importDatabase(dbContents) {
+async function importDatabase(dbContents, trns = knex) {
     const idLookupByTable = {};
     const insertedRowsByTable = {};
 
@@ -351,13 +362,15 @@ async function importDatabase(dbContents) {
             ? await specialHandler(
                   dbContents,
                   idLookupByTable,
-                  insertedRowsByTable
+                  insertedRowsByTable,
+                  trns
               )
             : await importTable(
                   tableName,
                   dbContents[tableName],
                   idLookupByTable,
-                  insertedRowsByTable
+                  insertedRowsByTable,
+                  trns
               );
 
         idLookupByTable[tableName] = {
@@ -397,7 +410,8 @@ async function importFiles(
     zipFile,
     dbContents,
     idLookupByTable,
-    insertedRowsByTable
+    insertedRowsByTable,
+    dryRun = false
 ) {
     const reverseUploadLookup = _.invert(idLookupByTable.uploads);
     const reversePeriodLookup = _.invert(idLookupByTable.reporting_periods);
@@ -426,15 +440,17 @@ async function importFiles(
             })),
     ];
 
-    for (const { from, to } of copies) {
-        await mkdirp(path.dirname(to));
-        zipFile.extractEntryTo(
-            path.join("files", from),
-            path.dirname(to),
-            false /* maintainEntryPath */,
-            false /* overwrite */,
-            path.basename(to)
-        );
+    if (!dryRun) {
+        for (const { from, to } of copies) {
+            await mkdirp(path.dirname(to));
+            zipFile.extractEntryTo(
+                path.join("files", from),
+                path.dirname(to),
+                false /* maintainEntryPath */,
+                false /* overwrite */,
+                path.basename(to)
+            );
+        }
     }
 
     return _.map(copies, "to");
@@ -446,7 +462,7 @@ async function main() {
         process.env.POSTGRES_URL
     );
 
-    const { inputFilename, outputFilename } = await inquirer.prompt([
+    const { inputFilename, outputFilename, dryRun } = await inquirer.prompt([
         {
             type: "input",
             name: "inputFilename",
@@ -463,6 +479,19 @@ async function main() {
                 .toISOString()
                 .replace(/[^0-9]/g, "")}.json`,
         },
+        {
+            type: "list",
+            name: "dryRun",
+            message: "Mode:",
+            choices: [
+                {
+                    value: true,
+                    name: "Dry run (rolls back transaction & files not actually extracted)",
+                },
+                { value: false, name: "Commit" },
+            ],
+            default: true,
+        },
     ]);
 
     const zipFile = new AdmZip(inputFilename);
@@ -473,9 +502,29 @@ async function main() {
 
     console.log("Zip opened successfully");
     console.log("Starting DB import");
-    const { idLookupByTable, insertedRowsByTable } = await importDatabase(
-        dbContents
-    );
+
+    let rollbackExpected = false;
+    let idLookupByTable;
+    let insertedRowsByTable;
+    await knex
+        .transaction(async (trns) => {
+            ({ idLookupByTable, insertedRowsByTable } = await importDatabase(
+                dbContents,
+                trns
+            ));
+
+            if (dryRun) {
+                rollbackExpected = true;
+                throw new Error("intentional rollback for dryRun mode");
+            }
+        })
+        .catch((err) => {
+            if (!rollbackExpected) {
+                throw err;
+            } else {
+                console.log("Dry run mode: transaction rolled back");
+            }
+        });
 
     console.log("Importing uploaded files...");
     const createdFiles = await importFiles(
@@ -485,7 +534,13 @@ async function main() {
         insertedRowsByTable
     );
 
-    const debugJson = { idLookupByTable, insertedRowsByTable, createdFiles };
+    const debugJson = {
+        dryRun,
+        inputFilename,
+        idLookupByTable,
+        insertedRowsByTable,
+        createdFiles,
+    };
     await fs.writeFile(
         outputFilename,
         JSON.stringify(debugJson, undefined, 2),
