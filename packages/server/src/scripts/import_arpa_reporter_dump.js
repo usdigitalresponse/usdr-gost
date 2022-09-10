@@ -72,7 +72,13 @@ function rekeyForeignKeys(row, idLookupByTable, ignoreKeys = []) {
     return row;
 }
 
-async function importTable(tableName, rows, idLookupByTable, trns = knex) {
+async function importTable(
+    tableName,
+    rows,
+    idLookupByTable,
+    insertedRowsByTable,
+    trns = knex
+) {
     console.log("Importing table", tableName, "...");
 
     const rowsToInsert = rows.map((row) =>
@@ -99,7 +105,12 @@ function getAllTenantIds(dbContents) {
         .value();
 }
 
-async function importTenants(dbContents, idLookupByTable, trns = knex) {
+async function importTenants(
+    dbContents,
+    idLookupByTable,
+    insertedRowsByTable,
+    trns = knex
+) {
     // First, we ask users for tenant names and main agencies for all tenants that
     // will be created (this should be just one, but technically could be more than
     // one, so we have to account for it here)
