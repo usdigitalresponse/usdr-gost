@@ -173,7 +173,6 @@ async function importTenants(dbContents, idLookupByTable) {
                 main_agency_id: null,
             })
             .returning("*");
-        inserted.push(tenant);
 
         if (mainAgencyId) {
             tenant.__unmappedFutureMainAgencyId = mainAgencyId;
@@ -188,6 +187,8 @@ async function importTenants(dbContents, idLookupByTable) {
             dbContents.agencies.splice(0, 0, agencyToInsert);
             tenant.__unmappedFutureMainAgencyId = agencyToInsert.id;
         }
+
+        inserted.push(tenant);
     }
 
     const idLookup = _.chain(inserted)
@@ -266,6 +267,17 @@ async function importAgencies(
         { agencyIds }
     );
     inserted = await knex("agencies").select("*").whereIn("id", agencyIds);
+
+    // Tell the user about any new agencies created (not just copied) by this script
+    _.chain(dbContents.agencies)
+        .filter('__isMainAgency')
+        .map('id')
+        .map(id => idLookup[id])
+        .map(id => inserted.find(agency => agency.id === id))
+        .forEach(agency => {
+            console.log('Created new main agency', agency.id, 'for new tenant', agency.tenant_id);
+        })
+        .value();
 
     return { inserted, idLookup };
 }
