@@ -1,9 +1,12 @@
 /* eslint-disable */
 
+require("dotenv").config();
+
 const _ = require("lodash");
 const AdmZip = require("adm-zip");
 const mkdirp = require("mkdirp");
 const fs = require("fs/promises");
+const path = require("path");
 
 const inquirer = require("inquirer");
 inquirer.registerPrompt("search-list", require("inquirer-search-list"));
@@ -468,6 +471,10 @@ async function importFiles(
 }
 
 async function main() {
+    if (!process.env.POSTGRES_URL) {
+        console.error("must specify POSTGRES_URL env variable");
+        return;
+    }
     console.log(
         "ARPA Reporter dump importer using DB",
         process.env.POSTGRES_URL
@@ -486,9 +493,13 @@ async function main() {
             type: "input",
             name: "outputFilename",
             message: "Output log JSON:",
-            default: `import_arpa_reporter_dump_${new Date()
-                .toISOString()
-                .replace(/[^0-9]/g, "")}.json`,
+            default: (answers) => {
+                const fname = `import_arpa_reporter_dump_${new Date()
+                    .toISOString()
+                    .replace(/[^0-9]/g, "")}.json`;
+                const { dir } = path.parse(answers.inputFilename);
+                return path.join(dir, fname);
+            },
         },
         {
             type: "list",
