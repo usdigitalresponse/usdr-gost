@@ -365,8 +365,8 @@ const specialTableHandlers = {
 };
 
 async function importDatabase(dbContents, trns = knex) {
-    const idLookupByTable = {};
-    const insertedRowsByTable = {};
+    const idLookupByTable = _.fromPairs(TABLES.map(tableName => [tableName, {}]));
+    const insertedRowsByTable = _.fromPairs(TABLES.map(tableName => [tableName, []]));
 
     for (const tableName of TABLES) {
         console.log("Importing table", tableName, "...");
@@ -387,14 +387,8 @@ async function importDatabase(dbContents, trns = knex) {
                   trns
               );
 
-        idLookupByTable[tableName] = {
-            ...idLookupByTable[tableName],
-            ...idLookup,
-        };
-        insertedRowsByTable[tableName] = [
-            ...insertedRowsByTable[tableName],
-            ...inserted,
-        ];
+        Object.assign(idLookupByTable[tableName], idLookup);
+        insertedRowsByTable[tableName] = insertedRowsByTable[tableName].concat(inserted);
     }
 
     return { idLookupByTable, insertedRowsByTable };
