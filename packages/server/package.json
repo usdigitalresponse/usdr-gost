@@ -25,7 +25,8 @@
     "test:apis": "NODE_ENV=test SUPPRESS_EMAIL=TRUE node src > test.log & TEST_SERVER_PID=$!; NODE_ENV=test mocha --exit --bail --require __tests__/api/fixtures.js __tests__/api/*.test.js; TEST_RET_VAL=$?; kill $TEST_SERVER_PID; exit $TEST_RET_VAL",
     "test:arpa": "NODE_ENV=test __tests__/run_arpa_reporter_tests.sh",
     "lint": "eslint '**/*.js'",
-    "pre-commit": "yarn lint"
+    "pre-commit": "yarn lint",
+    "import-arpa-dump": "node src/scripts/import_arpa_reporter_dump.js"
   },
   "dependencies": {
     "adm-zip": "0.5.9",

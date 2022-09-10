@@ -164,7 +164,8 @@ async function importTenants(
                 ],
             },
             // TODO: if creating a new main agency, should we also create a new admin user for
-            // that agency?
+            // that agency? Right now all users get assigned to the main agency so as long as source
+            // has an admin, destination will; but there's another TODO about maybe changing that?
             //
             // TODO: can/should we reuse any of the tenant_creation code from https://github.com/usdigitalresponse/usdr-gost/pull/189
             // for creating tenant and main agency?
@@ -556,6 +557,7 @@ async function importFiles(
                 path.dirname(to),
                 false /* maintainEntryPath */,
                 false /* overwrite */,
+                false /* keepOriginalPermission */,
                 path.basename(to)
             );
         }
