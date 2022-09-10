@@ -7,7 +7,7 @@ const AdmZip = require("adm-zip");
 const mkdirp = require("mkdirp");
 const fs = require("fs/promises");
 const path = require("path");
-
+const { validate: validateEmail } = require("email-validator");
 const inquirer = require("inquirer");
 inquirer.registerPrompt("search-list", require("inquirer-search-list"));
 
@@ -89,8 +89,6 @@ async function importTable(
     insertedRowsByTable,
     trns = knexWithoutTransaction
 ) {
-    console.log("Importing table", tableName, "...");
-
     const rowsToInsert = rows.map((row) =>
         rekeyForeignKeys(tableName, row, idLookupByTable)
     );
@@ -314,6 +312,86 @@ async function importAgencies(
     return { inserted, idLookup };
 }
 
+async function emailExists(email, trns = knexWithoutTransaction) {
+    const rows = await trns("users").select("id").where("email", email);
+    return rows.length !== 0;
+}
+
+function getDefaultEmailReassignment(user) {
+    const { email, tenant_id } = user;
+    const hint = `tenant${user.tenant_id}`;
+
+    // These domains support plus-addressing, so suggest an email with a plus address
+    const domains = ["gmail\\.com", "usdigitalresponse\\.org"];
+    const c = "[a-z0-9_.-]";
+    const regex = new RegExp(`^${c}+(\\+${c}+)?@(${domains.join("|")})$`, "i");
+    const matches = user.email.match(regex);
+    if (!matches) {
+        return undefined;
+    }
+
+    const plusAddr = matches[1];
+    if (plusAddr) {
+        return email.replace(plusAddr, `${plusAddr}-${hint}`);
+    }
+
+    return email.replace("@", `+${hint}@`);
+}
+
+async function reassignDuplicateUserEmailsIfNeeded(
+    usersToCreate,
+    trns = knexWithoutTransaction
+) {
+    const usersWithDupeEmails = await trns("users")
+        .select("email")
+        .whereIn("email", _.map(usersToCreate, "email"));
+    if (usersWithDupeEmails.length === 0) {
+        return usersToCreate;
+    }
+
+    console.error(
+        "Found",
+        usersWithDupeEmails.length,
+        "duplicate emails; you must reassign different emails for these users."
+    );
+
+    // NOTE: we must do this sequentially, not in a Promise.all, because only one
+    // inquirer prompt can run at a time
+    // TODO: maybe cleaner to build a questions list ahead of time then call inquirer once?
+    let ret = [];
+    for (const user of usersToCreate) {
+        if (!usersWithDupeEmails.find((u) => u.email === user.email)) {
+            ret.push(user);
+            continue;
+        }
+
+        const { newEmail } = await inquirer.prompt([
+            {
+                type: "input",
+                name: "newEmail",
+                message: `New email for ${user.email}:`,
+                filter: (e) => e.toLowerCase(),
+                validate: async (email) => {
+                    if (!validateEmail(email)) {
+                        return "Invalid email";
+                    }
+
+                    if (await emailExists(email)) {
+                        return `Email ${email} also already exists`;
+                    }
+
+                    return true;
+                },
+                default: getDefaultEmailReassignment(user),
+            },
+        ]);
+
+        ret.push({ ...user, email: newEmail });
+    }
+
+    return ret;
+}
+
 async function importUsers(
     dbContents,
     idLookupByTable,
@@ -328,7 +406,7 @@ async function importUsers(
         .keyBy("id")
         .mapValues("main_agency_id")
         .value();
-    const usersToCreate = dbContents.users.map((user) =>
+    let usersToCreate = dbContents.users.map((user) =>
         rekeyForeignKeys(
             "users",
             {
@@ -352,18 +430,10 @@ async function importUsers(
     );
 
     // Check if there are any existing users with the specified emails
-    const usersWithDupeEmails = await trns("users")
-        .select("email")
-        .whereIn("email", _.map(usersToCreate, "email"));
-    if (usersWithDupeEmails.length != 0) {
-        console.error(
-            "Found duplicate emails",
-            _.map(usersWithDupeEmails, "email")
-        );
-        throw new Error(
-            "found users with duplicate emails! Delete them first, or update script to handle."
-        );
-    }
+    usersToCreate = await reassignDuplicateUserEmailsIfNeeded(
+        usersToCreate,
+        trns
+    );
 
     // Do the inserts
     const inserted = await trns("users").insert(usersToCreate).returning("*");
