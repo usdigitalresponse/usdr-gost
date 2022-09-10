@@ -89,6 +89,10 @@ async function importTable(
     insertedRowsByTable,
     trns = knexWithoutTransaction
 ) {
+    if (rows.length === 0) {
+        return { inserted: [], idLookup: {} };
+    }
+
     const rowsToInsert = rows.map((row) =>
         rekeyForeignKeys(tableName, row, idLookupByTable)
     );
