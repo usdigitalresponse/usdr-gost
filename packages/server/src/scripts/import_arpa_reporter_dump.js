@@ -47,6 +47,7 @@ const foreignKeyNames = {
 };
 
 function rekeyForeignKeys(tableName, row, idLookupByTable, ignoreKeys = []) {
+    // Make a copy so we don't mutate the original
     row = { ...row };
 
     for (const colName of Object.keys(row)) {
@@ -72,6 +73,10 @@ function rekeyForeignKeys(tableName, row, idLookupByTable, ignoreKeys = []) {
         row[colName] = fkValue;
     }
 
+    // This function is used to prepare rows for insertion to the DB, where they will get new IDs
+    // Instead of calling _.omit(row, "id") at every callsite, just drop the ID field here.
+    delete row.id;
+
     return row;
 }
 
@@ -85,7 +90,7 @@ async function importTable(
     console.log("Importing table", tableName, "...");
 
     const rowsToInsert = rows.map((row) =>
-        rekeyForeignKeys(tableName, _.omit(row, "id"), idLookupByTable)
+        rekeyForeignKeys(tableName, row, idLookupByTable)
     );
 
     const inserted = await trns(tableName).insert(rowsToInsert).returning("*");
@@ -231,9 +236,11 @@ async function importAgencies(
                 abbreviation: agency.code,
                 parent: null,
                 main_agency_id: null,
+                // Note: id field gets dropped by rekeyForeignKeys, but is useful for debug logging
+                // if the rekey fails
+                id: agency.id,
             },
-            idLookupByTable,
-            ["main_agency_id", "parent"]
+            idLookupByTable
         )
     );
     let inserted = await trns("agencies")
@@ -328,8 +335,12 @@ async function importUsers(
                 role_id: user.role === "admin" ? adminRole : staffRole,
                 tenant_id: user.tenant_id,
                 // Copied users belong to the main agency of their tenant
+                // TODO: is that right? should we be only doing that for users with null agency ID in ARPA?
                 agency_id:
                     mainAgencyByTenant[idLookupByTable.tenants[user.tenant_id]],
+                // Note: id field gets dropped by rekeyForeignKeys, but is useful for debug logging
+                // if the rekey fails
+                id: user.id,
             },
             idLookupByTable,
             ["agency_id"]
