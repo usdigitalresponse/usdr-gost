@@ -46,7 +46,7 @@ const foreignKeyNames = {
     parent: "agencies",
 };
 
-function rekeyForeignKeys(row, idLookupByTable, ignoreKeys = []) {
+function rekeyForeignKeys(tableName, row, idLookupByTable, ignoreKeys = []) {
     row = { ...row };
 
     for (const colName of Object.keys(row)) {
@@ -85,7 +85,7 @@ async function importTable(
     console.log("Importing table", tableName, "...");
 
     const rowsToInsert = rows.map((row) =>
-        rekeyForeignKeys(_.omit(row, "id"), idLookupByTable)
+        rekeyForeignKeys(tableName, _.omit(row, "id"), idLookupByTable)
     );
 
     const inserted = await trns(tableName).insert(rowsToInsert).returning("*");
@@ -223,6 +223,7 @@ async function importAgencies(
     // rows inserted to know IDs).
     const agenciesToCreate = dbContents.agencies.map((agency) =>
         rekeyForeignKeys(
+            'agencies',
             {
                 tenant_id: agency.tenant_id,
                 name: agency.name,
@@ -318,6 +319,7 @@ async function importUsers(
         .value();
     const usersToCreate = dbContents.users.map((user) =>
         rekeyForeignKeys(
+            'users',
             {
                 email: user.email,
                 name: user.name,
