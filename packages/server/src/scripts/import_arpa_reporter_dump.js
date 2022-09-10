@@ -647,7 +647,8 @@ async function main() {
         zipFile,
         dbContents,
         idLookupByTable,
-        insertedRowsByTable
+        insertedRowsByTable,
+        dryRun
     );
 
     const debugJson = {
