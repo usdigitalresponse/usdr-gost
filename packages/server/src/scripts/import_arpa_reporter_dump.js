@@ -11,7 +11,9 @@ const path = require("path");
 const inquirer = require("inquirer");
 inquirer.registerPrompt("search-list", require("inquirer-search-list"));
 
-const knex = require("../db/connection");
+// This is so named to keep from accidentally typing "knex" out of habit and thus having some
+// queries inadvertently outside the transaction.
+const knexWithoutTransaction = require("../db/connection");
 
 const TABLES = [
     // This table does not exist in the dump, but we create rows in GOST's based on tenant_ids seen
@@ -85,7 +87,7 @@ async function importTable(
     rows,
     idLookupByTable,
     insertedRowsByTable,
-    trns = knex
+    trns = knexWithoutTransaction
 ) {
     console.log("Importing table", tableName, "...");
 
@@ -117,7 +119,7 @@ async function importTenants(
     dbContents,
     idLookupByTable,
     insertedRowsByTable,
-    trns = knex
+    trns = knexWithoutTransaction
 ) {
     // First, we ask users for tenant names and main agencies for all tenants that
     // will be created (this should be just one, but technically could be more than
@@ -223,7 +225,7 @@ async function importAgencies(
     dbContents,
     idLookupByTable,
     insertedRowsByTable,
-    trns = knex
+    trns = knexWithoutTransaction
 ) {
     // main_agency_id is non-nullable, so we need to init agencies with a main_agency_id of some value,
     // even though we're going to overwrite it after insert. Since it's a FK, that value has to correspond
@@ -316,7 +318,7 @@ async function importUsers(
     dbContents,
     idLookupByTable,
     insertedRowsByTable,
-    trns = knex
+    trns = knexWithoutTransaction
 ) {
     const roles = await trns("roles").select("*");
     const adminRole = roles.find((r) => r.name == "admin").id;
@@ -379,7 +381,7 @@ const specialTableHandlers = {
     agencies: importAgencies,
 };
 
-async function importDatabase(dbContents, trns = knex) {
+async function importDatabase(dbContents, trns = knexWithoutTransaction) {
     const idLookupByTable = _.fromPairs(
         TABLES.map((tableName) => [tableName, {}])
     );
@@ -542,7 +544,7 @@ async function main() {
     let rollbackExpected = false;
     let idLookupByTable;
     let insertedRowsByTable;
-    await knex
+    await knexWithoutTransaction
         .transaction(async (trns) => {
             ({ idLookupByTable, insertedRowsByTable } = await importDatabase(
                 dbContents,
