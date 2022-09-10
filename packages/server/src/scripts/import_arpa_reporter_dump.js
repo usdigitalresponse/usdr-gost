@@ -99,6 +99,10 @@ async function importTable(
 
     const inserted = await trns(tableName).insert(rowsToInsert).returning("*");
     const idLookup = _.chain(inserted)
+        .filter(
+            // NOTE: ARPA Reporter has one table, application_settings, that doesn't have an id column.
+            (row) => "id" in row
+        )
         .map((insertedRow, idx) => [rows[idx].id, insertedRow.id])
         .fromPairs()
         .value();
