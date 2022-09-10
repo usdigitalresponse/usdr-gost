@@ -192,7 +192,7 @@ async function importTenants(
                 main_agency_id: null,
             })
             .returning("*")
-            .then(rows => rows[0]);
+            .then((rows) => rows[0]);
 
         if (mainAgencyId) {
             tenant.__unmappedFutureMainAgencyId = mainAgencyId;
@@ -231,13 +231,15 @@ async function importAgencies(
     //
     // TODO(mbroussard): should we remove the NOT NULL constraint and have null mean root
     // agency vs. having self-loops (similar to parent field)?
-    const someExistingAgencyId = await trns('agencies').first('id').then(row => row.id);
+    const someExistingAgencyId = await trns("agencies")
+        .first("id")
+        .then((row) => row.id);
 
     // First, create all agencies, defaulting their parent and main_agency_id pointers to null (need the
     // rows inserted to know IDs).
     const agenciesToCreate = dbContents.agencies.map((agency) =>
         rekeyForeignKeys(
-            'agencies',
+            "agencies",
             {
                 tenant_id: agency.tenant_id,
                 name: agency.name,
@@ -275,28 +277,19 @@ async function importAgencies(
     // Then update any non-main agencies to be parented by their tenant's main agency (since
     // standalone ARPA Reporter did not have a concept of parent agencies)
     const agencyIds = _.map(inserted, "id");
-    await trns.raw(
-        `
-        UPDATE agencies
-        SET main_agency_id = tenants.main_agency_id
-        FROM tenants
-        WHERE
-            agencies.tenant_id = tenants.id
-            AND agencies.id in :agencyIds
-        `,
-        { agencyIds }
-    );
-    await trns.raw(
-        `
-        UPDATE agencies
-        SET parent = tenants.main_agency_id
-        FROM tenants
-        WHERE
-            agencies.tenant_id = tenants.id
-            AND agencies.id in :agencyIds
-            AND agencies.id != tenants.main_agency_id
-        `,
-        { agencyIds }
+    const tenantsById = _.keyBy(insertedRowsByTable.tenants, "id");
+    await Promise.all(
+        inserted.map((agency) => {
+            const mainAgencyId = tenantsById[agency.tenant_id].main_agency_id;
+            return trns("agencies")
+                .where("id", agency.id)
+                .update({
+                    main_agency_id: mainAgencyId,
+                    // Main agencies have no parent; non-main agencies have their main
+                    // agency as parent.
+                    parent: mainAgencyId === agency.id ? null : mainAgencyId,
+                });
+        })
     );
     inserted = await trns("agencies").select("*").whereIn("id", agencyIds);
 
@@ -335,7 +328,7 @@ async function importUsers(
         .value();
     const usersToCreate = dbContents.users.map((user) =>
         rekeyForeignKeys(
-            'users',
+            "users",
             {
                 email: user.email,
                 name: user.name,
@@ -387,8 +380,12 @@ const specialTableHandlers = {
 };
 
 async function importDatabase(dbContents, trns = knex) {
-    const idLookupByTable = _.fromPairs(TABLES.map(tableName => [tableName, {}]));
-    const insertedRowsByTable = _.fromPairs(TABLES.map(tableName => [tableName, []]));
+    const idLookupByTable = _.fromPairs(
+        TABLES.map((tableName) => [tableName, {}])
+    );
+    const insertedRowsByTable = _.fromPairs(
+        TABLES.map((tableName) => [tableName, []])
+    );
 
     for (const tableName of TABLES) {
         console.log("Importing table", tableName, "...");
@@ -410,7 +407,8 @@ async function importDatabase(dbContents, trns = knex) {
               );
 
         Object.assign(idLookupByTable[tableName], idLookup);
-        insertedRowsByTable[tableName] = insertedRowsByTable[tableName].concat(inserted);
+        insertedRowsByTable[tableName] =
+            insertedRowsByTable[tableName].concat(inserted);
     }
 
     return { idLookupByTable, insertedRowsByTable };
