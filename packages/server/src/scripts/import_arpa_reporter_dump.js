@@ -225,6 +225,14 @@ async function importAgencies(
     insertedRowsByTable,
     trns = knex
 ) {
+    // main_agency_id is non-nullable, so we need to init agencies with a main_agency_id of some value,
+    // even though we're going to overwrite it after insert. Since it's a FK, that value has to correspond
+    // to a real row.
+    //
+    // TODO(mbroussard): should we remove the NOT NULL constraint and have null mean root
+    // agency vs. having self-loops (similar to parent field)?
+    const someExistingAgencyId = await trns('agencies').first('id').then(row => row.id);
+
     // First, create all agencies, defaulting their parent and main_agency_id pointers to null (need the
     // rows inserted to know IDs).
     const agenciesToCreate = dbContents.agencies.map((agency) =>
@@ -236,7 +244,7 @@ async function importAgencies(
                 code: agency.code,
                 abbreviation: agency.code,
                 parent: null,
-                main_agency_id: null,
+                main_agency_id: someExistingAgencyId,
                 // Note: id field gets dropped by rekeyForeignKeys, but is useful for debug logging
                 // if the rekey fails
                 id: agency.id,
