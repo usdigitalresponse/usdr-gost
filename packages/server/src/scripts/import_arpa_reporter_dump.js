@@ -488,6 +488,8 @@ async function importDatabase(dbContents, trns = knexWithoutTransaction) {
         Object.assign(idLookupByTable[tableName], idLookup);
         insertedRowsByTable[tableName] =
             insertedRowsByTable[tableName].concat(inserted);
+
+        console.log("Inserted", inserted.length, "rows to table", tableName);
     }
 
     return { idLookupByTable, insertedRowsByTable };
