@@ -812,8 +812,8 @@ async function inTenant(userId, tenantId, agencyIds) {
         .andWhere('users.tenant_id', tenantId);
 
     if (agencyIds.length > 1) {
-        q.andWhere((qb) => qb.whereIn('agencies.id', agencyId));
-    } else if (agencyIds.length == 1) {
+        q.andWhere((qb) => qb.whereIn('agencies.id', agencyIds));
+    } else if (agencyIds.length === 1) {
         q.andWhere('agencies.id', agencyIds[0]);
     } else {
         return false;
