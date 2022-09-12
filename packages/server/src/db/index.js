@@ -564,13 +564,13 @@ async function getAgency(agencyId) {
 
 async function getTenantAgencies(tenantId) {
     return knex(TABLES.agencies)
-        .select(`${TABLES.agencies}.id`,
-            `${TABLES.agencies}.name`,
-            `${TABLES.agencies}.abbreviation`,
-            `${TABLES.agencies}.parent`,
-            `${TABLES.agencies}.warning_threshold`,
-            `${TABLES.agencies}.danger_threshold`)
-        .where(`${TABLES.agencies}.tenant_id`, tenantId)
+        .select('id',
+            'name',
+            'abbreviation',
+            'parent',
+            'warning_threshold',
+            'danger_threshold')
+        .where('tenant_id', tenantId)
         .orderBy('name');
 }
 
@@ -592,10 +592,10 @@ async function getAgencyTree(rootAgency) {
 
 async function getTenant(mainAgencyId) {
     return knex(TABLES.tenants)
-        .select(`${TABLES.tenants}.id`,
-            `${TABLES.tenants}.display_name`,
-            `${TABLES.tenants}.main_agency_id`)
-        .where(`${TABLES.tenants}.main_agency_id`, mainAgencyId);
+        .select('id',
+            'display_name',
+            'main_agency_id')
+        .where('main_agency_id', mainAgencyId);
 }
 
 async function getAgencyEligibilityCodes(agencyId) {
@@ -796,6 +796,13 @@ async function sync(tableName, syncKey, updateCols, newRows) {
     }
 }
 
+/**
+ * Determines if a user is in an agency and that agency is in the same tenant
+ * @param  int     userId
+ * @param  int     tenantId
+ * @parm   int     agencyId
+ * @return boolean
+ * */
 async function inTenant(userId, tenantId, agencyId) {
     const q = knex(TABLES.users)
         .select('users.id as user_id', 'agencies.id as agency_id')
