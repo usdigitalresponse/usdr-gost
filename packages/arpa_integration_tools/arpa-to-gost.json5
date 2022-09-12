@@ -85,6 +85,7 @@
       "dest": "packages/server/src/scripts",
       "excludePatterns": [
         "initRender\\.mjs", // After GOST merge, won't be deploying any new ARPA Reporter instances
+        "dump_data\\.js" // This script is used for migrating legacy ARPA Reporter deployments, not needed in GOST
       ],
     },
     "importdb": null, // Seems old/unused
