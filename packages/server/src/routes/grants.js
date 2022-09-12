@@ -167,8 +167,8 @@ router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { agencyIds } = req.body;
 
-    const allowed = await isUserAuthorized(user, agencyIds);
-    if (!allowed) {
+    const inSameTenant = await db.inTenant(user.id, user.tenant_id, agencyIds);
+    if (!inSameTenant) {
         res.sendStatus(403);
         return;
     }

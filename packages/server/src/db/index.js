@@ -798,12 +798,12 @@ async function sync(tableName, syncKey, updateCols, newRows) {
 
 /**
  * Determines if a user is in an agency and that agency is in the same tenant
- * @param  int     userId
- * @param  int     tenantId
- * @parm   int     agencyId
+ * @param  int        userId
+ * @param  int        tenantId
+ * @parm   Array[int] agencyIds
  * @return boolean
  * */
-async function inTenant(userId, tenantId, agencyId) {
+async function inTenant(userId, tenantId, agencyIds) {
     const q = knex(TABLES.users)
         .select('users.id as user_id', 'agencies.id as agency_id')
         .leftJoin('agencies', 'users.tenant_id', 'agencies.tenant_id')
@@ -811,10 +811,12 @@ async function inTenant(userId, tenantId, agencyId) {
         .where('users.id', userId)
         .andWhere('users.tenant_id', tenantId);
 
-    if (Array.isArray(agencyId)) {
+    if (agencyIds.length > 1) {
         q.andWhere((qb) => qb.whereIn('agencies.id', agencyId));
+    } else if (agencyIds.length == 1) {
+        q.andWhere('agencies.id', agencyIds[0]);
     } else {
-        q.andWhere('agencies.id', agencyId);
+        return false;
     }
 
     const [user] = await q;

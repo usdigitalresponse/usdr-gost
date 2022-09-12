@@ -8,7 +8,7 @@ const { getUser, inTenant } = require('../db');
  * @returns {Boolean} true if the agency is in the same tenant as the user
  * */
 async function isUserAuthorized(user, agencyId) {
-    return inTenant(user.id, user.tenant_id, agencyId);
+    return inTenant(user.id, user.tenant_id, [agencyId]);
 }
 
 async function isAuthorized(userId, agencyId) {
