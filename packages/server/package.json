@@ -25,7 +25,8 @@
     "test:apis": "NODE_ENV=test SUPPRESS_EMAIL=TRUE node src > test.log & TEST_SERVER_PID=$!; NODE_ENV=test mocha --exit --bail --require __tests__/api/fixtures.js __tests__/api/*.test.js; TEST_RET_VAL=$?; kill $TEST_SERVER_PID; exit $TEST_RET_VAL",
     "test:arpa": "NODE_ENV=test __tests__/run_arpa_reporter_tests.sh",
     "lint": "eslint '**/*.js'",
-    "pre-commit": "yarn lint"
+    "pre-commit": "yarn lint",
+    "import-arpa-dump": "node src/scripts/import_arpa_reporter_dump.js"
   },
   "dependencies": {
     "adm-zip": "0.5.9",
@@ -43,6 +44,7 @@
     "express-async-errors": "^3.1.1",
     "got": "^11.1.4",
     "inquirer": "^8.2.2",
+    "inquirer-search-list": "^1.2.6",
     "knex": "^1.0.4",
     "knex-paginate": "^1.2.3",
     "lodash": "^4.17.21",
@@ -79,6 +81,7 @@
     "eslint-plugin-promise": "^5.2.0",
     "husky": "^4.3.0",
     "lint-staged": "^10.5.0",
+    "mkdirp": "^1.0.4",
     "mocha": "^9.2.1",
     "node-fetch": "^2.6.1",
     "nodemon": "2.0.15",
