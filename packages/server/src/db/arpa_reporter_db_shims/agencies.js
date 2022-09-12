@@ -24,8 +24,9 @@ async function agencies() {
     return gostDb.getAgencies(mainAgencyId);
 }
 
-function agencyById(id) {
-    return gostDb.getAgency(id);
+async function agencyById(id) {
+    const rows = await gostDb.getAgency(id);
+    return rows[0];
 }
 
 function agencyByCode(code) {
@@ -35,14 +36,26 @@ function agencyByCode(code) {
         .where({ tenant_id: tenantId, code });
 }
 
-function createAgency(agency) {
+async function createAgency(agency) {
     const tenantId = useTenantId();
+    const { main_agency_id } = await knex('tenants')
+        .select('main_agency_id')
+        .where('id', tenantId)
+        .then((rows) => rows[0]);
     const creator = useUser();
-    return gostDb.createAgency({ ...agency, tenant_id: tenantId }, creator.id);
+
+    return gostDb.createAgency({
+        ...agency,
+        parent: main_agency_id,
+        abbreviation: agency.code,
+        warning_threshold: 30,
+        danger_threshold: 15,
+        tenant_id: tenantId,
+    }, creator.id);
 }
 
 async function updateAgency(agency) {
-    await gostDb.setAgencyName(agency.name);
+    await gostDb.setAgencyName(agency.id, agency.name);
     await knex('agencies')
         .where('id', agency.id)
         .update({ code: agency.code });

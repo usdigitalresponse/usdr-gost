@@ -542,8 +542,7 @@ function getInterestedCodes() {
 }
 
 async function getAgency(agencyId) {
-    const query = `SELECT id, name, abbreviation, parent, warning_threshold, danger_threshold, code
-    FROM agencies WHERE id = ?;`;
+    const query = `SELECT * FROM agencies WHERE id = ?;`;
     const result = await knex.raw(query, agencyId);
 
     return result.rows;
@@ -608,7 +607,7 @@ async function createAgency(agency, creatorId) {
 
     // Enforce tenant isolation by using the tenant_id from the user
     // and the main_agency_id from the tenant.
-    return knex.raw(`
+    const result = await knex.raw(`
         WITH upd AS (
             SELECT
               :parent::integer,
@@ -628,10 +627,12 @@ async function createAgency(agency, creatorId) {
             abbreviation,
             warning_threshold,
             danger_threshold,
+            code,
             tenant_id,
-            main_agency_id,
-            code
-        ) (SELECT * FROM upd)`, update);
+            main_agency_id
+        ) (SELECT * FROM upd) RETURNING *`, update);
+
+    return result.rows[0];
 }
 
 async function deleteAgency(
