@@ -21,6 +21,7 @@
     "start": "lerna run start --stream",
     "start:client": "cd packages/client && yarn serve",
     "start:server": "cd packages/server && yarn serve",
+    "debug:server": "cd packages/server && yarn debug",
     "start:op": "POSTGRES_URL=postgres://localhost/opportunities lerna run start --stream",
     "serve:op": "POSTGRES_URL=postgres://localhost/opportunities lerna run start --stream",
     "build": "lerna run build --stream",

@@ -14,6 +14,7 @@
     "start": "node src",
     "start:dev": "nodemon src",
     "serve": "nodemon src",
+    "debug": "nodemon --inspect=0.0.0.0:9229 src",
     "db:migrate": "knex migrate:latest",
     "db:rollback": "knex migrate:rollback",
     "migrate:make": "knex migrate:make",
