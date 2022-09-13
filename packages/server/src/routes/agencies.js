@@ -4,7 +4,6 @@ const router = express.Router({ mergeParams: true });
 const { requireAdminUser, requireUser, isUserAuthorized } = require('../lib/access-helpers');
 const {
     getAgency,
-    getAgencyTree,
     getTenantAgencies,
     setAgencyThresholds,
     createAgency,
