@@ -388,9 +388,8 @@ async function getClosestGrants({
     const timestamp = (timestampForTest || new Date()).toLocaleDateString('en-US');
     return knex(TABLES.grants_interested)
         .select('grants.title', 'grants.close_date', 'grants.grant_id')
-        .join('agencies', 'agencies.id', 'grants_interested.agency_id')
         .join('grants', 'grants.grant_id', 'grants_interested.grant_id')
-        .whereIn('agencies.id', agencies.map((a) => a.id))
+        .whereIn('grants_interested.agency_id', agencies.map((a) => a.id))
         .andWhere('close_date', '>=', timestamp)
         .orderBy('close_date', 'asc')
         .paginate({ currentPage, perPage, isLengthAware: true });
@@ -812,11 +811,11 @@ async function inTenant(userId, tenantId, agencyIds) {
         .andWhere('users.tenant_id', tenantId);
 
     if (agencyIds.length > 1) {
-        q.andWhere((qb) => qb.whereIn('agencies.id', agencyIds));
+        q.whereIn('agencies.id', agencyIds);
     } else if (agencyIds.length === 1) {
         q.andWhere('agencies.id', agencyIds[0]);
     } else {
-        return false;
+        throw new Error('inTenant() called with empty agencyIds list');
     }
 
     const [user] = await q;

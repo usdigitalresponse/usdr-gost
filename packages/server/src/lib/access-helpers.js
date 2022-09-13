@@ -62,7 +62,6 @@ async function requireUser(req, res, next) {
         return;
     }
 
-    // TODO: Do I need to change this?
     if (req.params.organizationId && user.role_name === 'staff' && (req.params.organizationId !== user.agency_id.toString())) {
         res.sendStatus(403); // Staff are restricted to their own agency.
         return;
