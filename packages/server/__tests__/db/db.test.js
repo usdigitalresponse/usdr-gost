@@ -30,7 +30,7 @@ describe('db', () => {
             // testing pagination
             const rows = await db.getGrantsInterested({ agencyId: fixtures.users.staffUser.agency_id, perPage: 2, currentPage: 1 });
             expect(rows).to.have.lengthOf(2);
-            expect(rows.map(r => r.created_at.getTime())).to.have.all.members([ 1663117521515, 1659827033570 ]);
+            expect(rows.map((r) => r.created_at.getTime())).to.have.all.members([1663117521515, 1659827033570]);
         });
     });
     context('getTotalInterestedGrants', () => {

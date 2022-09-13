@@ -43,7 +43,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
             expect(response.statusText).to.equal('OK');
             const json = await response.json();
             expect(json.length).to.equal(4);
-            expect(json.map(j => j.id)).to.have.all.members([0, 400, 401, 402]);
+            expect(json.map((j) => j.id)).to.have.all.members([0, 400, 401, 402]);
         });
         it('is forbidden for an agency outside this user\'s tenant', async () => {
             const response = await fetchApi('/agencies', agencies.admin.offLimits, fetchOptions.admin);
