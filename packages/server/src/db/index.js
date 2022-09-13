@@ -796,7 +796,7 @@ async function sync(tableName, syncKey, updateCols, newRows) {
 }
 
 /**
- * Determines if a user is in an agency and that agency is in the same tenant
+ * Determines if a user's tenant is the same as the agency's tenant
  * @param  int        userId
  * @param  int        tenantId
  * @parm   Array[int] agencyIds
