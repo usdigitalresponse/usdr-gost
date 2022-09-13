@@ -222,6 +222,7 @@ const assignedAgencyGrants = {
         grant_id: grants.earFellowship.grant_id,
         agency_id: agencies.accountancy.id,
         assigned_by: users.adminUser.id,
+        created_at: '2022-09-13T18:05:21.515-07',
     },
 };
 
