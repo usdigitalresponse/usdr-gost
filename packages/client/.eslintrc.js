@@ -11,6 +11,12 @@ module.exports = {
   parserOptions: {
     parser: 'babel-eslint',
   },
+  ignorePatterns: [
+    // NOTE(mbroussard): this is temporary, just to make committing on ARPA integration dev branch a bit
+    // less annoying.
+    'src/arpa_reporter/**/*',
+    'tests/**/arpa_reporter/**/*',
+  ],
   rules: {
     'max-len': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     // ['warn', {
