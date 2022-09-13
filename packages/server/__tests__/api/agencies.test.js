@@ -50,36 +50,6 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
         });
     });
 
-    context('GET organizations/:organizationId/agencies/impersonable (list an agency and its subagencies for impersonation)', () => {
-        context('by a user with admin role', () => {
-            it('lists this user\'s own agency and its subagencies', async () => {
-                // Will default to user's own agency ID
-                const response = await fetchApi('/agencies/impersonable', agencies.admin.own, fetchOptions.admin);
-                expect(response.statusText).to.equal('OK');
-                const json = await response.json();
-                expect(json.length).to.equal(4);
-            });
-            it('lists a subagency of this user\'s own agency and that subagency\'s subagencies', async () => {
-                const response = await fetchApi('/agencies/impersonable', agencies.admin.ownSub, fetchOptions.admin);
-                expect(response.statusText).to.equal('OK');
-                const json = await response.json();
-                expect(json.length).to.equal(2);
-            });
-            it('is forbidden for an agency outside this user\'s hierarchy', async () => {
-                const response = await fetchApi('/agencies', agencies.admin.offLimits, fetchOptions.admin);
-                expect(response.statusText).to.equal('Forbidden');
-            });
-        });
-
-        context('by a user with staff role', () => {
-            it('is forbidden', async () => {
-                // Will default to user's own agency ID
-                const response = await fetchApi('/agencies/impersonable', agencies.staff.own, fetchOptions.staff);
-                expect(response.statusText).to.equal('Forbidden');
-            });
-        });
-    });
-
     context('PUT /organizations/:organizationId/agencies/:id (modify an agency\'s data)', () => {
         const body = JSON.stringify({ warningThreshold: 2, dangerThreshold: 1 });
 
