@@ -2,6 +2,7 @@
 // Eventually, the functions in this file should have callsites updated to use GOST's existing methods
 // and this file can be deleted.
 
+const _ = require('lodash');
 const knex = require('../connection');
 const gostDb = require('..');
 
@@ -23,7 +24,7 @@ async function users() {
 
 function createUser(u) {
     const tenantId = useTenantId();
-    return gostDb.createUser({ ...u, tenant_id: tenantId });
+    return gostDb.createUser({ ..._.omit(u, 'role'), role_id: u.role.id, tenant_id: tenantId });
 }
 
 function updateUser(u) {
