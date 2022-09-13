@@ -85,28 +85,39 @@ router.put('/name/:agency', requireAdminUser, async (req, res) => {
 });
 
 router.put('/abbr/:agency', requireAdminUser, async (req, res) => {
+    const { user } = req.session;
     const { agency } = req.params;
-    // TODO(mbroussard/bspates): requireAdminUser only checks validity of :organizationId, but we need
-    // to check :agency too
-
     const { abbreviation } = req.body;
+    const allowed = await isUserAuthorized(user, agency);
+    if (!allowed) {
+        res.sendStatus(403);
+        return;
+    }
     const result = await setAgencyAbbr(agency, abbreviation);
     res.json(result);
 });
 
 router.put('/code/:agency', requireAdminUser, async (req, res) => {
+    const { user } = req.session;
     const { agency } = req.params;
-    // TODO(mbroussard/bspates): requireAdminUser only checks validity of :organizationId, but we need
-    // to check :agency too
-
     const { code } = req.body;
+    const allowed = await isUserAuthorized(user, agency);
+    if (!allowed) {
+        res.sendStatus(403);
+        return;
+    }
     const result = await setAgencyCode(agency, code);
     res.json(result);
 });
 
 router.put('/parent/:agency', requireAdminUser, async (req, res) => {
+    const { user } = req.session;
     const { agency } = req.params;
-
+    const allowed = await isUserAuthorized(user, agency);
+    if (!allowed) {
+        res.sendStatus(403);
+        return;
+    }
     const result = await setAgencyParent(agency, Number(req.body.parentId));
     res.json(result);
 });
@@ -115,7 +126,8 @@ router.post('/', requireAdminUser, async (req, res) => {
     const { user } = req.session;
     const allowed = await isUserAuthorized(user, req.body.parentId);
     if (!allowed) {
-        throw new Error(`You dont have access parent agency`);
+        res.sendStatus(403);
+        return;
     }
     const agency = {
         name: req.body.name,
