@@ -5,6 +5,7 @@ const roles = require('./roles');
 const tenants = require('./tenants');
 
 const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
+const usdrSubAgency = agencies.find((a) => a.abbreviation === 'TSDR');
 const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
 const procurementAgency = agencies.find((a) => a.abbreviation === 'NPO');
 const dallasAgency = agencies.find((a) => a.abbreviation === 'DLA');
@@ -118,5 +119,13 @@ module.exports = [
         agency_id: nevadaAgency.id,
         role_id: roles[0].id,
         tenant_id: nevadaenant.id,
+    },
+    {
+        id: 14,
+        email: 'mindy+testsub@usdigitalresponse.org',
+        name: 'USDR tenant sub agency user',
+        agency_id: usdrSubAgency.id,
+        role_id: roles[1].id,
+        tenant_id: usdrTenant.id,
     },
 ];

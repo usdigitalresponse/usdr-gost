@@ -107,8 +107,7 @@ export default {
         formData.append('files', file);
       });
 
-      const baseUrl = process.env.VUE_APP_GRANTS_API_URL;
-      fetch(`${baseUrl}/api/annual-reports`, { body: formData, method: 'POST' })
+      fetch('/api/annual-reports', { body: formData, method: 'POST' })
         .then((res) => res.arrayBuffer())
         .then((data) => {
           const blob = new Blob([data], { type: 'application/octet-stream' });

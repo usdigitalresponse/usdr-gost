@@ -33,7 +33,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 16.14.0
           cache: yarn
 
       - name: Install dependencies
@@ -46,6 +46,9 @@ jobs:
       - name: Run unit tests
         env:
           POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
+          # This is intentional to set POSTGRES_URL=POSTGRES_TEST_URL; ARPA Reporter test runner gates
+          # dev vs. CI differences based on whether these are the same.
+          POSTGRES_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
           AWS_ACCESS_KEY_ID: "Fake AWS Key"
           AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
           NOTIFICATIONS_EMAIL: grants-identification@usdigitalresponse.org
@@ -53,5 +56,4 @@ jobs:
           # The .env file needs to be present; the example file is good enough.
           cp packages/server/.env.example packages/server/.env
           cp packages/client/.env.example packages/client/.env
-          cd packages/server/; yarn test:apis
           export CI=true; yarn test

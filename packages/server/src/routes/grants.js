@@ -3,37 +3,9 @@ const express = require('express');
 const { stringify: csvStringify } = require('csv-stringify/sync');
 const db = require('../db');
 const pdf = require('../lib/pdf');
-const { requireUser, isPartOfAgency } = require('../lib/access-helpers');
+const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 
 const router = express.Router({ mergeParams: true });
-
-/**
- * Based on arguments passed, return the list of agencies appropiate for this request. This
- * list agency will be used by the query to perform filtering based on user agency access.
- * @param {Number} selectedAgency agency id
- * @param {Object} user User record
- * @param {Object} opts
- * @param {Boolean} opts.filterByMainAgency - If true, it will return a list of ids
- * for all agencies from the main agency.
- * @returns {String[]} array of agency ids
- */
-async function getAgencyForUser(selectedAgency, user, { filterByMainAgency } = {}) {
-    let agencies = [];
-
-    if (selectedAgency === user.agency_id) {
-        agencies = user.agency.subagencies;
-    }
-    if (agencies.length === 0) {
-        if (filterByMainAgency && user.agency.main_agency_id) {
-            // Get all agencies from the main agency. Usually the agency of the organization,
-            // in other words the root parent agency (for example nevada agency)
-            agencies = await db.getAgencies(user.agency.main_agency_id);
-        } else {
-            agencies = await db.getAgencies(selectedAgency);
-        }
-    }
-    return agencies.map((s) => s.id);
-}
 
 // Award floor field was requested for CSV export but is not stored as a dedicated column,
 // so we have to extract it from raw_body
@@ -54,19 +26,19 @@ function getAwardFloor(grant) {
 }
 
 router.get('/', requireUser, async (req, res) => {
+    const { selectedAgency, user } = req.session;
     let agencyCriteria;
     // if we want interested, assigned, grants for a user, do not filter by eligibility or keywords
     if (!req.query.interestedByMe && !req.query.assignedToAgency) {
-        agencyCriteria = await db.getAgencyCriteriaForAgency(req.session.selectedAgency);
+        agencyCriteria = await db.getAgencyCriteriaForAgency(selectedAgency);
     }
-    const { selectedAgency, user } = req.session;
-    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
 
     const grants = await db.getGrants({
         ...req.query,
-        agencies,
+        tenantId: user.tenant_id,
         filters: {
             agencyCriteria,
+            interestedByAgency: req.query.interestedByAgency ? selectedAgency : null,
             interestedByUser: req.query.interestedByMe ? req.signedCookies.userId : null,
             assignedToAgency: req.query.assignedToAgency ? req.query.assignedToAgency : null,
             positiveInterest: req.query.positiveInterest ? true : null,
@@ -79,9 +51,8 @@ router.get('/', requireUser, async (req, res) => {
 // get a single grant details
 router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
     const { grantId } = req.params;
-    const { selectedAgency, user } = req.session;
-    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
-    const response = await db.getSingleGrantDetails({ grantId, agencies });
+    const { user } = req.session;
+    const response = await db.getSingleGrantDetails({ grantId, tenantId: user.tenant_id });
     res.json(response);
 });
 
@@ -95,20 +66,19 @@ router.get('/closestGrants/:perPage/:currentPage', requireUser, async (req, res)
 // without the test having to insert 10k rows, which slows down the test.
 const MAX_CSV_EXPORT_ROWS = process.env.NODE_ENV !== 'test' ? 10000 : 100;
 router.get('/exportCSV', requireUser, async (req, res) => {
+    const { selectedAgency, user } = req.session;
     // First load the grants. This logic is intentionally identical to the endpoint above that
     // serves the grants table UI, except there is no pagination.
     let agencyCriteria;
     // if we want interested, assigned, grants for a user, do not filter by eligibility or keywords
     if (!req.query.interestedByMe && !req.query.assignedToAgency) {
-        agencyCriteria = await db.getAgencyCriteriaForAgency(req.session.selectedAgency);
+        agencyCriteria = await db.getAgencyCriteriaForAgency(selectedAgency);
     }
-    const { selectedAgency, user } = req.session;
-    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
     const { data, pagination } = await db.getGrants({
         ...req.query,
         currentPage: 1,
         perPage: MAX_CSV_EXPORT_ROWS,
-        agencies,
+        tenantId: user.tenant_id,
         filters: {
             agencyCriteria,
             interestedByUser: req.query.interestedByMe ? req.signedCookies.userId : null,
@@ -176,7 +146,8 @@ router.get('/exportCSV', requireUser, async (req, res) => {
 router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {
     const { agencyId, grantId } = req.params;
     const { user } = req.session;
-    if (!isPartOfAgency(user.agency.subagencies, agencyId)) {
+    const allowed = await isUserAuthorized(user, agencyId);
+    if (!allowed) {
         res.sendStatus(403);
         return;
     }
@@ -186,9 +157,8 @@ router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {
 
 router.get('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { grantId } = req.params;
-    const { selectedAgency, user } = req.session;
-    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
-    const response = await db.getGrantAssignedAgencies({ grantId, agencies });
+    const { user } = req.session;
+    const response = await db.getGrantAssignedAgencies({ grantId, tenantId: user.tenant_id });
     res.json(response);
 });
 
@@ -196,7 +166,9 @@ router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { user } = req.session;
     const { grantId } = req.params;
     const { agencyIds } = req.body;
-    if (!agencyIds.every((agencyId) => isPartOfAgency(user.agency.subagencies, agencyId))) {
+
+    const inSameTenant = await db.inTenant(user.id, user.tenant_id, agencyIds);
+    if (!inSameTenant) {
         res.sendStatus(403);
         return;
     }
@@ -209,7 +181,9 @@ router.delete('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { user } = req.session;
     const { grantId } = req.params;
     const { agencyIds } = req.body;
-    if (!agencyIds.every((agencyId) => isPartOfAgency(user.agency.subagencies, agencyId))) {
+
+    const inSameTenant = await db.inTenant(user.id, user.tenant_id, agencyIds);
+    if (!inSameTenant) {
         res.sendStatus(403);
         return;
     }
@@ -220,16 +194,16 @@ router.delete('/:grantId/assign/agencies', requireUser, async (req, res) => {
 
 router.get('/:grantId/interested', requireUser, async (req, res) => {
     const { grantId } = req.params;
-    const { selectedAgency, user } = req.session;
-    const agencies = await getAgencyForUser(selectedAgency, user, { filterByMainAgency: true });
-    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], agencies });
+    const { user } = req.session;
+    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], tenantId: user.tenant_id });
     res.json(interestedAgencies);
 });
 
 router.get('/grantsInterested/:perPage/:currentPage', requireUser, async (req, res) => {
     const { perPage, currentPage } = req.params;
-    const rows = await db.getGrantsInterested({ perPage, currentPage });
-    res.json(rows.rows);
+    const { selectedAgency } = req.session;
+    const rows = await db.getGrantsInterested({ perPage, currentPage, agencyId: selectedAgency });
+    res.json(rows);
 });
 
 router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
@@ -240,7 +214,8 @@ router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
         interestedCode = req.body.interestedCode;
     }
 
-    if (!isPartOfAgency(user.agency.subagencies, agencyId)) {
+    const allowed = await isUserAuthorized(user, agencyId);
+    if (!allowed) {
         res.sendStatus(403);
         return;
     }
@@ -252,15 +227,17 @@ router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
         interestedCode,
     });
 
-    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], agencies: [agencyId] });
+    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], tenantId: user.tenant_id });
     res.json(interestedAgencies);
 });
 
 router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
     const { user } = req.session;
-    const { grantId } = req.params;
+    const { grantId, agencyId } = req.params;
     const { agencyIds } = req.body;
-    if (!agencyIds.every((agencyId) => isPartOfAgency(user.agency.subagencies, agencyId))) {
+    console.log(agencyIds);
+    const allowed = await isUserAuthorized(user, agencyIds || agencyId);
+    if (!allowed) {
         res.sendStatus(403);
         return;
     }
@@ -311,7 +288,7 @@ router.get('/:grantId/form/:formName', requireUser, async (req, res) => {
         ...user,
         ...grant,
     });
-    res.json({ filePath: `${process.env.API_DOMAIN}${filePath}` });
+    res.json({ filePath });
 });
 
 module.exports = router;

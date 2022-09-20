@@ -23,13 +23,15 @@ Each folder inside packages/ is considered a workspace. To see a list of all wor
 
 # Setup
 
-1). Ensure using NODE Version 14 (v14.19.0)
+These steps are for an install on a Mac. The Windows instructions are [here](https://github.com/usdigitalresponse/usdr-gost/wiki/Setting-up-a-development-environment-on-Windows-(native)).
+
+1). Ensure using the correct version of NODE Version
 
 First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. If you are using [Nodenv](https://github.com/nodenv/nodenv) or [NVM](https://nvm.sh/), it should pick up on the correct version.
 
 To setup your workspace run the following commands at the root of the project
 
-1.1). (optional) Setup nvm
+1.1). Setup nvm
 
 ```
 > brew install nvm
@@ -85,12 +87,6 @@ Then export the environment variables
 > cd packages/client && export $(cat .env)
 > cd packages/server && export $(cat .env)
 ```
-
-Set environment variable pointing to local postgres DB, this is used for migrations (knex does not load .env file)
-
-`export POSTGRES_URL=postgresql://localhost:5432/usdr_grants` (individual vars) or `export $(cat .env)` (whole file)
-
-**NOTE:** if using `export $(cat .env)` need to remove all comments from `.env` file.
 
 **_Note:_** In order to login, the server must be able to send email. Set the relevant environment variables under `# Email Server:` in .env to credentials for a personal email account (e.g. for Gmail, see (4.1)[here](https://support.google.com/mail/answer/7126229)).
 
@@ -303,10 +299,8 @@ POSTGRES_URL=<POSTGRE_CONNECTION_STRING> # Render Internal connection string ie 
 
 COOKIE_SECRET=<RANDOM_ALPHANUMERIC_SECRET>
 
-API_DOMAIN=<WEB_SERVICE_URL> # Render web service url ie. https://cares-grant-opportunities-qi8i.onrender.com
-VUE_APP_GRANTS_API_URL=<WEB_SERVICE_URL> # ie. https://cares-grant-opportunities-qi8i.onrender.com
+WEBSITE_DOMAIN=<WEB_SERVICE_URL> # Render web service url ie. https://cares-grant-opportunities-qi8i.onrender.com
 
-STATE_NAME=Nevada
 NODE_ENV=development or production or test
 
 NOTIFICATIONS_EMAIL="grants-identification@usdigitalresponse.org"
