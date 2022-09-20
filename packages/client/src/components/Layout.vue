@@ -81,7 +81,7 @@ export default {
       this.showProfileSettingModal = true;
     },
     giveFeedback() {
-      window.open("https://usdr.link/grants/feedback")
+      window.open('https://usdr.link/grants/feedback');
     },
   },
 };
