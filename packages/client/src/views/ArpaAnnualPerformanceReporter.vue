@@ -6,6 +6,9 @@
         click Generate Report.
         <br>
         After generating the report, a download link will appear.
+        <a download href="./ARPA_Annual_Performance_Report_Workbook.xlsx">
+          (workbook template)
+        </a>
       </p>
 
       <div
