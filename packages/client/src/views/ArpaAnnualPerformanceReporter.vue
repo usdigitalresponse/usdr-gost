@@ -7,6 +7,7 @@
         <br>
         After generating the report, a download link will appear.
       </p>
+
       <div
         class="drop-zone"
         @dragenter.prevent
@@ -32,19 +33,27 @@
       </div>
       <div class="mt-2">
         <div class="text-center">
-          <button
-            class="btn btn-primary px-5 py-2"
-            :class="{disabled: !fileList.length}"
-            :disabled="!fileList.length"
-            type="button"
-            @click="post"
-          >{{ reportGenerated ? 'Regenerate Report' : 'Generate Report' }}</button>
+          <b-overlay
+            :show="busy"
+            rounded
+            opacity="0.6"
+            spinner-variant="primary"
+            class="d-inline-block"
+          >
+            <button
+              class="btn btn-primary px-5 py-2"
+              :class="{disabled: !fileList.length}"
+              :disabled="!fileList.length"
+              type="button"
+              @click="post"
+            >{{ reportGenerated ? 'Regenerate Report' : 'Generate Report' }}</button>
+          </b-overlay>
           <br>
           <a
             id="download-link"
             href="#"
             class="mt-2 btn btn-success d-inline-block"
-            :class="{visible: reportGenerated, invisible: !reportGenerated}"
+            :class="{visible: reportGenerated && !busy, invisible: !reportGenerated || busy}"
           >Download Annual Report Template</a>
         </div>
         <h4>Files Uploaded:</h4>
@@ -70,6 +79,7 @@ export default {
       fileList: [],
       errorMessages: [],
       reportGenerated: false,
+      busy: false,
     };
   },
   methods: {
@@ -102,6 +112,7 @@ export default {
       this.addFiles(e.target.files);
     },
     post() {
+      this.busy = true;
       const formData = new FormData();
       this.fileList.forEach((file) => {
         formData.append('files', file);
@@ -115,6 +126,7 @@ export default {
           link.href = URL.createObjectURL(blob);
           link.download = 'AnnualReportTemplate.docx';
           this.reportGenerated = true;
+          this.busy = false;
         })
         .catch(console.error);
     },
