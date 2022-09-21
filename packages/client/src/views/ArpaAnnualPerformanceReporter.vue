@@ -53,7 +53,7 @@
             id="download-link"
             href="#"
             class="mt-2 btn btn-success d-inline-block"
-            :class="{visible: reportGenerated, invisible: !reportGenerated}"
+            :class="{visible: reportGenerated && !busy, invisible: !reportGenerated || busy}"
           >Download Annual Report Template</a>
         </div>
         <h4>Files Uploaded:</h4>
