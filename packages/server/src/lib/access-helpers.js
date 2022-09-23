@@ -1,13 +1,19 @@
 const { getUser, inTenant } = require('../db');
 
-// TODO: in prod, there are a bunch of non-USDR looking users set as admin in USDR tenant?
-// some are CTG interns, but some are @cityoftulsa.org, @treasury.gov, etc.
-// probably need to move them out
 const USDR_TENANT_ID = 1;
 const USDR_AGENCY_ID = 0;
+const USDR_EMAIL_DOMAIN = 'usdigitalresponse.org';
 function isUSDRSuperAdmin(user) {
     // Note: this function assumes an augmented user object from db.getUser(), not just a raw DB row
-    return (user.tenant_id === USDR_TENANT_ID && user.agency_id === USDR_AGENCY_ID && user.role_name === 'admin');
+    // (necessary for role_name field)
+    return (
+        user.tenant_id === USDR_TENANT_ID
+        && user.agency_id === USDR_AGENCY_ID
+        && user.role_name === 'admin'
+        // TODO: Right now there are a bunch of non-USDR users in USDR tenant in prod, so we need to
+        // restrict this further. But this will also prevent USDR volunteers from having this permission.
+        && user.email.endsWith(`@${USDR_EMAIL_DOMAIN}`)
+    );
 }
 
 /**
