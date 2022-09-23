@@ -46,6 +46,7 @@ const foreignKeyNames = {
     validated_by: "users",
     tenant_id: "tenants",
     parent: "agencies",
+    certified_by: "users",
 };
 
 function rekeyForeignKeys(tableName, row, idLookupByTable, ignoreKeys = []) {
