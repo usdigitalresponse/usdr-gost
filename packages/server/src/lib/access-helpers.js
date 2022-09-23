@@ -1,5 +1,21 @@
 const { getUser, inTenant } = require('../db');
 
+const USDR_TENANT_ID = 1;
+const USDR_AGENCY_ID = 0;
+const USDR_EMAIL_DOMAIN = 'usdigitalresponse.org';
+function isUSDRSuperAdmin(user) {
+    // Note: this function assumes an augmented user object from db.getUser(), not just a raw DB row
+    // (necessary for role_name field)
+    return (
+        user.tenant_id === USDR_TENANT_ID
+        && user.agency_id === USDR_AGENCY_ID
+        && user.role_name === 'admin'
+        // TODO: Right now there are a bunch of non-USDR users in USDR tenant in prod, so we need to
+        // restrict this further. But this will also prevent USDR volunteers from having this permission.
+        && user.email.endsWith(`@${USDR_EMAIL_DOMAIN}`)
+    );
+}
+
 /**
  * Determine if a user is authorized for an agency.
  *
@@ -78,6 +94,17 @@ async function requireUser(req, res, next) {
     next();
 }
 
+async function requireUSDRSuperAdminUser(req, res, next) {
+    await requireAdminUser(req, res, () => {
+        if (!isUSDRSuperAdmin(req.session.user)) {
+            res.sendStatus(403);
+            return;
+        }
+
+        next();
+    });
+}
+
 module.exports = {
-    requireAdminUser, requireUser, isAuthorized, isUserAuthorized,
+    requireAdminUser, requireUser, isAuthorized, isUserAuthorized, isUSDRSuperAdmin, requireUSDRSuperAdminUser,
 };
