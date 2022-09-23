@@ -6,10 +6,7 @@ const _ = require('lodash');
 const knex = require('../connection');
 const gostDb = require('..');
 
-// TODO(mbroussard): after merge, replace with an import to ARPA's use-request module
-function useTenantId() {
-    throw new Error('import missing -- need to update after ARPA merge');
-}
+const { useTenantId } = require('../../arpa_reporter/use-request');
 
 async function users() {
     const tenantId = useTenantId();
