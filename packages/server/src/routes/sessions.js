@@ -12,6 +12,7 @@ const {
     incrementAccessTokenUses,
     markAccessTokenUsed,
 } = require('../db');
+const { isUSDRSuperAdmin } = require('../lib/access-helpers');
 
 // NOTE(mbroussard): previously we allowed 2 uses to accommodate automated email systems that prefetch
 // links. Now, we send login links through a clientside redirect instead so this should not be necessary.
@@ -26,7 +27,7 @@ router.get('/', async (req, res) => {
         res.sendFile(path.join(__dirname, '../static/login_redirect.html'));
     } else if (req.signedCookies && req.signedCookies.userId) {
         const user = await getUser(req.signedCookies.userId);
-        res.json({ user });
+        res.json({ user: { ...user, isUSDRSuperAdmin: isUSDRSuperAdmin(user) } });
     } else {
         res.json({ message: 'No session' });
     }

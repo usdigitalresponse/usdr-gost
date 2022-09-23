@@ -589,12 +589,12 @@ async function getAgencyTree(rootAgency) {
     return result.rows;
 }
 
-async function getTenant(mainAgencyId) {
-    return knex(TABLES.tenants)
-        .select('id',
-            'display_name',
-            'main_agency_id')
-        .where('main_agency_id', mainAgencyId);
+async function getTenant(tenantId) {
+    return knex('tenants').select('*').where('id', tenantId).then((rows) => rows[0]);
+}
+
+async function getTenants() {
+    return knex('tenants').select('*');
 }
 
 async function getAgencyEligibilityCodes(agencyId) {
@@ -627,7 +627,6 @@ function getAgencyKeywords(agencyId) {
 
 async function createAgency(agency, creatorId) {
     const update = { ...agency, creator_id: creatorId };
-
     // seeded agencies with hardcoded ids will make autoicrement fail since it doesnt
     // know which is the next id
     await knex.raw('select setval(\'agencies_id_seq\', max(id)) from agencies');
@@ -845,6 +844,7 @@ module.exports = {
     getAgencyTree,
     getTenantAgencies,
     getTenant,
+    getTenants,
     getAgencyEligibilityCodes,
     setAgencyEligibilityCodeEnabled,
     getKeyword,
