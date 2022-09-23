@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 
 import Login from '../views/Login.vue';
 import Layout from '../components/Layout.vue';
+import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
 
 import store from '../store';
 
@@ -13,6 +14,14 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login,
+  },
+  {
+    path: '/arpa-annual-performance-reporter',
+    name: 'annualReporter',
+    component: ArpaAnnualPerformanceReporter,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/',
@@ -27,6 +36,22 @@ const routes = [
         path: '/dashboard',
         name: 'dashboard',
         component: () => import('../views/Dashboard.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: '/RecentActivity',
+        name: 'RecentActivity',
+        component: () => import('../views/RecentActivity.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: '/UpcomingClosingDates',
+        name: 'UpcomingClosingDates',
+        component: () => import('../views/UpcomingClosingDates.vue'),
         meta: {
           requiresAuth: true,
         },
@@ -108,7 +133,10 @@ function loggedIn() {
 router.beforeEach((to, from, next) => {
   const authenticated = loggedIn();
   if (to.meta.requiresAuth && !authenticated) {
-    next({ name: 'login' });
+    // This will include any router base URL, if configured
+    const redirectTo = router.resolve(to.fullPath).href;
+
+    next({ name: 'login', query: { redirect_to: redirectTo } });
   } else if (to.name === 'login' && authenticated) {
     next({ name: 'grants' });
   } else if (to.name === 'not-found') {

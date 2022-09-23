@@ -6,8 +6,8 @@ function getDefaultHeaders() {
   return headers;
 }
 
-function addOrganizationId(url) {
-  return `${process.env.VUE_APP_GRANTS_API_URL}${url.replace(':organizationId', store.getters['users/selectedAgencyId'])}`;
+export function addOrganizationId(url) {
+  return url.replace(':organizationId', store.getters['users/selectedAgencyId']);
 }
 
 export function get(url) {
@@ -32,14 +32,15 @@ export function deleteRequest(url, body) {
     headers: getDefaultHeaders(),
     body: JSON.stringify(body),
   };
-  return fetch(addOrganizationId(url), options).then((r) => {
-    if (r.ok) {
-      return r.json();
-    }
-    return r
-      .text()
-      .then((text) => Promise.reject(new Error(text || r.statusText)));
-  });
+  return fetch(addOrganizationId(url), options)
+    .then((r) => {
+      if (r.ok) {
+        return r.json();
+      }
+      return r
+        .text()
+        .then((text) => Promise.reject(new Error(text || r.statusText)));
+    });
 }
 
 export function post(url, body) {
@@ -49,14 +50,15 @@ export function post(url, body) {
     headers: getDefaultHeaders(),
     body: JSON.stringify(body),
   };
-  return fetch(addOrganizationId(url), options).then((r) => {
-    if (r.ok) {
-      return r.json();
-    }
-    return r
-      .text()
-      .then((text) => Promise.reject(new Error(text || r.statusText)));
-  });
+  return fetch(addOrganizationId(url), options)
+    .then((r) => {
+      if (r.ok) {
+        return r.json();
+      }
+      return r
+        .text()
+        .then((text) => Promise.reject(new Error(text || r.statusText)));
+    });
 }
 
 export function put(url, body) {
@@ -66,12 +68,13 @@ export function put(url, body) {
     headers: getDefaultHeaders(),
     body: JSON.stringify(body),
   };
-  return fetch(addOrganizationId(url), options).then((r) => {
-    if (r.ok) {
-      return r.json();
-    }
-    return r
-      .text()
-      .then((text) => Promise.reject(new Error(text || r.statusText)));
-  });
+  return fetch(addOrganizationId(url), options)
+    .then((r) => {
+      if (r.ok) {
+        return r.json();
+      }
+      return r
+        .text()
+        .then((text) => Promise.reject(new Error(text || r.statusText)));
+    });
 }

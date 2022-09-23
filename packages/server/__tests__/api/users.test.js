@@ -1,13 +1,11 @@
 const { expect } = require('chai');
-require('dotenv').config();
-
 const { getSessionCookie, fetchApi } = require('./utils');
 
-describe('`/api/users` endpoint', async () => {
+describe('`/api/users` endpoint', () => {
     const agencies = {
-        own: 384,
-        ownSub: 113,
-        offLimits: 0,
+        own: 0,
+        ownSub: 401,
+        offLimits: 384,
     };
 
     const fetchOptions = {
@@ -27,11 +25,11 @@ describe('`/api/users` endpoint', async () => {
 
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('michael@nv.gov');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('mindy+testsub@usdigitalresponse.org');
     });
 
-    context('POST /api/users (create a user for an agency)', async () => {
+    context('POST /api/users (create a user for an agency)', () => {
         const user = {
             email: 'test@example.com',
             name: 'Test Name',
@@ -39,7 +37,7 @@ describe('`/api/users` endpoint', async () => {
             agency: undefined,
         };
 
-        context('by a user with admin role', async () => {
+        context('by a user with admin role', () => {
             it('creates a user in this user\'s own agency', async () => {
                 const response = await fetchApi(`/users`, agencies.own, {
                     ...fetchOptions.admin,
@@ -65,7 +63,7 @@ describe('`/api/users` endpoint', async () => {
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
-        context('by a user with staff role', async () => {
+        context('by a user with staff role', () => {
             it('is forbidden for this user\'s own agency', async () => {
                 const response = await fetchApi(`/users`, agencies.own, {
                     ...fetchOptions.staff,
@@ -93,21 +91,15 @@ describe('`/api/users` endpoint', async () => {
         });
     });
 
-    context('GET /api/users?agency=N (list users for an agency)', async () => {
-        context('by a user with admin role', async () => {
-            it('lists users for this user\'s own agency', async () => {
+    context('GET /api/users?agency=N (list users for a tenant)', () => {
+        context('by a user with admin role', () => {
+            it('lists all users in the tenant', async () => {
                 const response = await fetchApi(`/users`, agencies.own, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(11);
+                expect(json.length).to.equal(9);
             });
-            it('lists users for a subagency of this user\'s own agency', async () => {
-                const response = await fetchApi(`/users`, agencies.ownSub, fetchOptions.admin);
-                expect(response.statusText).to.equal('OK');
-                const json = await response.json();
-                expect(json.length).to.equal(6);
-            });
-            it('is forbidden for an agency outside this user\'s hierarchy', async () => {
+            it('lists users for an agency outside this user\'s hierarchy but in the same tenant', async () => {
                 const response = await fetchApi(`/users`, agencies.offLimits, fetchOptions.admin);
                 expect(response.statusText).to.equal('Forbidden');
             });
@@ -127,47 +119,27 @@ describe('`/api/users` endpoint', async () => {
             });
         });
     });
-    context('DELETE /api/users/:id', async () => {
-        context('by a user with admin role', async () => {
-            it('deletes a user in this user\'s own agency', async () => {
-                const response = await fetchApi(`/users/8`, agencies.own, {
+
+    context('DELETE /api/users/:id', () => {
+        context('by a user with admin role', () => {
+            it('deletes a user in this user\'s tenant', async () => {
+                const response = await fetchApi(`/users/4`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'delete',
                 });
                 expect(response.statusText).to.equal('OK');
             });
-            it('deletes a user in a subagency of this user\'s own agency', async () => {
-                const response = await fetchApi(`/users/9`, agencies.ownSub, {
-                    ...fetchOptions.admin,
-                    method: 'delete',
-                });
-                expect(response.statusText).to.equal('OK');
-            });
-            it('is forbidden for a user in an agency outside this user\'s hierarchy', async () => {
-                const response = await fetchApi(`/users/4`, agencies.offLimits, {
+            it('is forbidden for a user in an agency outside this user\'s tenant', async () => {
+                const response = await fetchApi(`/users/8`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'delete',
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
-        context('by a user with staff role', async () => {
-            it('is forbidden for this user\'s own agency', async () => {
-                const response = await fetchApi(`/users/8`, agencies.own, {
-                    ...fetchOptions.staff,
-                    method: 'delete',
-                });
-                expect(response.statusText).to.equal('Forbidden');
-            });
-            it('is forbidden for a subagency of this user\'s own agency', async () => {
-                const response = await fetchApi(`/users/9`, agencies.ownSub, {
-                    ...fetchOptions.staff,
-                    method: 'delete',
-                });
-                expect(response.statusText).to.equal('Forbidden');
-            });
-            it('is forbidden for an agency outside this user\'s hierarchy', async () => {
-                const response = await fetchApi(`/users/4`, agencies.offLimits, {
+        context('by a user with staff role', () => {
+            it('is forbidden for this user\'s own tenant', async () => {
+                const response = await fetchApi(`/users/3`, agencies.own, {
                     ...fetchOptions.staff,
                     method: 'delete',
                 });

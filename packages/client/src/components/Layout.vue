@@ -1,7 +1,12 @@
 <template>
   <div>
     <b-navbar type="dark" variant="dark">
-      <b-navbar-brand href="/#/grants">Grants Identification Tool</b-navbar-brand>
+      <b-navbar-brand href="/#/grants" class="d-flex align-items-center">
+      <b-img :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo in white" />
+      <span class="ml-3">Grants Identification Tool</span>
+    </b-navbar-brand>
+      <!-- <b-navbar-brand href="/#/grants">
+      Grants Identification Tool</b-navbar-brand> -->
 
       <b-collapse id="nav-collapse" is-nav>
 
@@ -18,6 +23,7 @@
               <em>{{loggedInUser.email}}</em>
             </template>
             <b-dropdown-item-button href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="giveFeedback">Give Feedback</b-dropdown-item-button>
             <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -31,7 +37,7 @@
         <b-nav-item to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
         <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
         <b-nav-item to="/Agencies" exact exact-active-class="active">Agencies</b-nav-item>
-        <b-nav-item to="/Tenants" exact exact-active-class="active">Tenants</b-nav-item>
+        <b-nav-item v-if="canSeeTenantsTab" to="/tenants" exact exact-active-class="active">Tenants</b-nav-item>
     </b-nav>
     <div style="margin-top: 10px">
       <router-view />
@@ -63,6 +69,9 @@ export default {
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
     }),
+    canSeeTenantsTab() {
+      return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
+    },
   },
   methods: {
     logout(e) {
@@ -73,6 +82,9 @@ export default {
     },
     settingsClicked() {
       this.showProfileSettingModal = true;
+    },
+    giveFeedback() {
+      window.open('https://usdr.link/grants/feedback');
     },
   },
 };

@@ -9,28 +9,41 @@
   "workspaces": [
     "packages/*"
   ],
+  "engines": {
+    "node": "16.14.0",
+    "yarn": ">=1.22.4",
+    "npm": "please-use-yarn"
+  },
   "scripts": {
+    "create_tenant": "cd packages/server && node src/db/tenant_creation.js",
     "bootstrap": "lerna bootstrap",
     "setup": "yarn install && yarn run bootstrap",
     "start": "lerna run start --stream",
+    "start:client": "cd packages/client && yarn serve",
+    "start:server": "cd packages/server && yarn serve",
+    "debug:server": "cd packages/server && yarn debug",
     "start:op": "POSTGRES_URL=postgres://localhost/opportunities lerna run start --stream",
     "serve:op": "POSTGRES_URL=postgres://localhost/opportunities lerna run start --stream",
     "build": "lerna run build --stream",
+    "env": "export $(cat .env)",
     "db:migrate": "lerna run db:migrate --stream",
+    "db:seed": "cd packages/server && lerna run db:seed",
     "serve": "lerna run serve --stream",
     "serve:server": "lerna run start --stream --scope server",
-    "test": "lerna run test",
+    "test": "lerna run test --stream",
     "lint": "lerna run lint",
     "pre-commit": "yarn lint",
-    "psql": "psql opportunities pg"
+    "psql": "psql opportunities pg",
+    "test:client": "cd packages/client && yarn test",
+    "test:server": "cd packages/client && yarn test"
   },
   "dependencies": {},
   "devDependencies": {
-    "@commitlint/cli": "^11.0.0",
-    "@commitlint/config-conventional": "^11.0.0",
-    "@commitlint/config-lerna-scopes": "^11.0.0",
+    "@commitlint/cli": "^17.0.0",
+    "@commitlint/config-conventional": "^17.0.0",
+    "@commitlint/config-lerna-scopes": "^17.0.0",
     "husky": "^4.3.0",
-    "lerna": "^3.22.1",
+    "lerna": "^5.2.0",
     "lint-staged": "^10.5.0"
   }
 }

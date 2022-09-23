@@ -9,7 +9,7 @@
         {{row.item.display_name}}
       </template>
       <template #cell(actions)="row">
-      <b-button v-if="userRole === 'admin'" class="mr-1" size="sm" @click="openEditTenantModal(row.item)">
+      <b-button class="mr-1" size="sm" @click="openEditTenantModal(row.item)">
         <b-icon icon="pencil-fill" aria-hidden="true"></b-icon>
       </b-button>
     </template>
@@ -33,6 +33,7 @@ export default {
   data() {
     return {
       fields: [
+        { key: 'id', sortable: true, label: 'ID' },
         {
           key: 'display_name',
           sortable: true,

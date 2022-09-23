@@ -1,26 +1,39 @@
+const { URL } = require('url');
 const getTransport = require('./email/service-email');
 
 const expiryMinutes = 30;
 
-const stateName = process.env.STATE_NAME || '';
+function sendPassCode(email, passcode, httpOrigin, redirectTo) {
+    if (!httpOrigin) {
+        throw new Error('must specify httpOrigin in sendPassCode');
+    }
 
-function sendPasscode(email, passcode, httpOrigin) {
+    const url = new URL(`${httpOrigin}/api/sessions`);
+    url.searchParams.set('passcode', passcode);
+    if (redirectTo) {
+        url.searchParams.set('redirect_to', redirectTo);
+    }
+    const href = url.toString();
+
     return getTransport().send({
         toAddress: email,
-        subject: 'Welcome to CARES grants',
-        body: `<p>Your link to access the ${stateName} Grant Notification and Coordination Tool is
-     <a href="${httpOrigin}/api/sessions?passcode=${passcode}">${httpOrigin}/api/sessions/?passcode=${passcode}</a>.
+        subject: 'USDR Grants Tool Access Link',
+        body: `<p>Your link to access USDR's Grants Tool is <a href=${href}>${href}</a>.
      It expires in ${expiryMinutes} minutes</p>`,
     });
 }
 
 function sendWelcomeEmail(email, httpOrigin) {
+    if (!httpOrigin) {
+        throw new Error('must specify httpOrigin in sendWelcomeEmail');
+    }
+
     return getTransport().send({
         toAddress: email,
-        subject: `${stateName} Grant Notification and Coordination Tool Access Link`,
-        body: `<p>You have been granted access to the CARES Grants:
+        subject: 'Welcome to USDR Grants Tool',
+        body: `<p>Visit USDR's Grants Tool at:
      <a href="${httpOrigin}">${httpOrigin}</a>.`,
     });
 }
 
-module.exports = { sendPasscode, sendWelcomeEmail };
+module.exports = { sendPassCode, sendWelcomeEmail };

@@ -14,35 +14,51 @@
         <b-form-group
           :state="!$v.formData.name.$invalid"
           label-for="name-input"
+          invalid-feedback="Required"
         >
           <template slot="label">Name</template>
           <b-form-input
               autofocus
               id="name-input"
               type="text"
-              min=2
               v-model="formData.name"
-              :state="!$v.formData.name.$invalid"
               required
             ></b-form-input>
         </b-form-group>
         <b-form-group
           :state="!$v.formData.abbreviation.$invalid"
           label-for="abbreviation-input"
+          invalid-feedback="Required"
         >
           <template slot="label">Abbreviation</template>
+          <template slot="description">This is used for displaying lists of agencies in compact form (e.g. in a table).</template>
           <b-form-input
               id="abbreviation-input"
               type="text"
               min=2
               max=8
               v-model="formData.abbreviation"
-              :state="!$v.formData.abbreviation.$invalid"
               required
             ></b-form-input>
         </b-form-group>
         <b-form-group
-          :state="!$v.formData.abbreviation.$invalid"
+          :state="!$v.formData.code.$invalid"
+          label-for="code-input"
+          invalid-feedback="Required"
+        >
+          <template slot="label">Code</template>
+          <template slot="description">This should match the Agency Code field in ARPA Reporter spreadsheet uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across agencies.</template>
+          <b-form-input
+              id="code-input"
+              type="text"
+              min=2
+              max=8
+              v-model="formData.code"
+              v-bind:placeholder="formData.abbreviation"
+            ></b-form-input>
+        </b-form-group>
+        <b-form-group
+          :state="!$v.formData.parentAgency.$invalid"
           label-for="agency-input"
           invalid-feedback="Must select a parent agency"
         >
@@ -70,13 +86,13 @@
             type="number"
             min=2
             v-model="formData.warningThreshold"
-            :state="!$v.formData.warningThreshold.$invalid"
             required
           ></b-form-input>
         </b-form-group>
         <b-form-group
+          :state="!$v.formData.dangerThreshold.$invalid"
           label-for="dangerThreshold-input"
-          invalid-feedback="Danger Threshold must be greater than zero and less than Warning Threshold"
+          invalid-feedback="Danger Threshold must be greater than 0 and less than Warning Threshold"
         >
         <template slot="label">Close Date <span class="text-danger">Danger</span> Threshold</template>
         <template slot="description">How many days out to show grant close dates with <span class="text-danger">danger</span> status</template>
@@ -85,7 +101,6 @@
             type="number"
             min=1
             v-model="formData.dangerThreshold"
-            :state="!$v.formData.dangerThreshold.$invalid"
             required
           ></b-form-input>
         </b-form-group>
@@ -96,7 +111,12 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { required, numeric, minValue } from 'vuelidate/lib/validators';
+import {
+  required,
+  requiredUnless,
+  numeric,
+  minValue,
+} from 'vuelidate/lib/validators';
 
 export default {
   props: {
@@ -107,8 +127,9 @@ export default {
       formData: {
         name: null,
         abbreviation: null,
-        warningThreshold: null,
-        dangerThreshold: null,
+        code: null,
+        warningThreshold: 14,
+        dangerThreshold: 7,
         parentAgency: null,
       },
     };
@@ -120,6 +141,11 @@ export default {
       },
       abbreviation: {
         required,
+      },
+      code: {
+        required: requiredUnless(function () {
+          return this.canDefaultCodeToAbbreviation;
+        }),
       },
       warningThreshold: {
         required,
@@ -139,8 +165,7 @@ export default {
       },
     },
   },
-  watch: {
-  },
+  watch: {},
   computed: {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
@@ -150,6 +175,9 @@ export default {
         return [];
       }
       return this.loggedInUser.agency.subagencies;
+    },
+    canDefaultCodeToAbbreviation() {
+      return Boolean(this.formData.abbreviation && this.formData.abbreviation.trim().length > 0);
     },
   },
   mounted() {
@@ -171,8 +199,11 @@ export default {
       }
       const body = {
         ...this.formData,
+        code: this.formData.code || this.formData.abbreviation,
         parentId: this.formData.parentAgency.id,
       };
+      // TODO(mbroussard): this can potentially fail if e.g. name or code is not unique, and we don't
+      // do anything useful to handle such an error in the UI right now.
       await this.createAgency(body);
       this.resetModal();
     },
