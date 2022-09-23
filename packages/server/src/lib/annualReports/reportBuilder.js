@@ -1,4 +1,4 @@
-const PROJECT_DATA = 'Project Data';
+const PROJECT_DATA = 'Project Information';
 
 /**
  * @typedef ProjectData

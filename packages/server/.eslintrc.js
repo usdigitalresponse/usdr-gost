@@ -11,6 +11,13 @@ module.exports = {
     extends: [
         'eslint-config-airbnb-base',
     ],
+    ignorePatterns: [
+        // NOTE(mbroussard): this is temporary, just to make committing on ARPA integration dev branch a bit
+        // less annoying.
+        'src/arpa_reporter/**/*',
+        'seeds/arpa_reporter_dev/*',
+        '__tests__/arpa_reporter/**/*',
+    ],
     rules: {
         'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',

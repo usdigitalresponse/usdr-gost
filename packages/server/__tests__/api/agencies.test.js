@@ -5,8 +5,8 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
     const agencies = {
         admin: {
             own: 0,
-            ownSub: 109,
-            offLimits: 70,
+            ownSub: 400,
+            offLimits: 109,
         },
         staff: {
             own: 384,
@@ -36,44 +36,18 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
         fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
     });
 
-    context('GET organizations/:organizationId/agencies (list an agency and its subagencies)', () => {
-        context('by a user with admin role', () => {
-            it('lists this user\'s own agency and its subagencies', async () => {
-                // Will default to user's own agency ID
-                const response = await fetchApi('/agencies', agencies.admin.own, fetchOptions.admin);
-                expect(response.statusText).to.equal('OK');
-                const json = await response.json();
-                expect(json.length).to.equal(330);
-            });
-            it('lists a subagency of this user\'s own agency and that subagency\'s subagencies', async () => {
-                const response = await fetchApi('/agencies', agencies.admin.ownSub, fetchOptions.admin);
-                expect(response.statusText).to.equal('OK');
-                const json = await response.json();
-                expect(json.length).to.equal(8);
-            });
-            it('is forbidden for an agency outside this user\'s hierarchy', async () => {
-                const response = await fetchApi('/agencies', agencies.admin.offLimits, fetchOptions.admin);
-                expect(response.statusText).to.equal('Forbidden');
-            });
+    context('GET organizations/:organizationId/agencies', () => {
+        it('lists all agencies within a tenant', async () => {
+            // Will default to user's own agency ID
+            const response = await fetchApi('/agencies', agencies.admin.own, fetchOptions.admin);
+            expect(response.statusText).to.equal('OK');
+            const json = await response.json();
+            expect(json.length).to.equal(4);
+            expect(json.map((j) => j.id)).to.have.all.members([0, 400, 401, 402]);
         });
-
-        context('by a user with staff role', () => {
-            it('lists this user\'s own agency', async () => {
-                // Will default to user's own agency ID
-                const response = await fetchApi('/agencies', agencies.staff.own, fetchOptions.staff);
-                expect(response.statusText).to.equal('OK');
-                const json = await response.json();
-                expect(json.length).to.equal(1);
-                expect(json[0].id).to.equal(agencies.staff.own);
-            });
-            it('is forbidden for a subagency of this user\'s own agency', async () => {
-                const response = await fetchApi('/agencies', agencies.staff.ownSub, fetchOptions.staff);
-                expect(response.statusText).to.equal('Forbidden');
-            });
-            it('is forbidden for an agency outside this user\'s hierarchy', async () => {
-                const response = await fetchApi('/agencies', agencies.staff.offLimits, fetchOptions.staff);
-                expect(response.statusText).to.equal('Forbidden');
-            });
+        it('is forbidden for an agency outside this user\'s tenant', async () => {
+            const response = await fetchApi('/agencies', agencies.admin.offLimits, fetchOptions.admin);
+            expect(response.statusText).to.equal('Forbidden');
         });
     });
 

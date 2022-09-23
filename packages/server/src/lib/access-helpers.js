@@ -1,8 +1,4 @@
-const { getUser } = require('../db');
-
-function isPartOfAgency(agencies, agencyId) {
-    return agencies.find((s) => s.id === Number(agencyId));
-}
+const { getUser, inTenant } = require('../db');
 
 // TODO: in prod, there are a bunch of non-USDR looking users set as admin in USDR tenant?
 // some are CTG interns, but some are @cityoftulsa.org, @treasury.gov, etc.
@@ -17,13 +13,17 @@ function isUSDRSuperAdmin(user) {
 /**
  * Determine if a user is authorized for an agency.
  *
- * @param {Number} userId
+ * @param {Object} user
  * @param {Number} agencyId
- * @returns {Boolean} true if the agency is the user's or a descendant; false otherwise
- */
+ * @returns {Boolean} true if the agency is in the same tenant as the user
+ * */
+async function isUserAuthorized(user, agencyId) {
+    return inTenant(user.id, user.tenant_id, [agencyId]);
+}
+
 async function isAuthorized(userId, agencyId) {
     const user = await getUser(userId);
-    return isPartOfAgency(user.agency.subagencies, agencyId);
+    return isUserAuthorized(user, agencyId);
 }
 
 async function requireAdminUser(req, res, next) {
@@ -33,6 +33,11 @@ async function requireAdminUser(req, res, next) {
     }
 
     const user = await getUser(req.signedCookies.userId);
+    if (!user) {
+        res.sendStatus(403);
+        return;
+    }
+
     if (user.role_name !== 'admin') {
         res.sendStatus(403);
         return;
@@ -42,7 +47,7 @@ async function requireAdminUser(req, res, next) {
     const requestAgency = Number(paramAgencyId);
 
     if (!Number.isNaN(requestAgency)) {
-        const authorized = await isAuthorized(req.signedCookies.userId, requestAgency);
+        const authorized = await isUserAuthorized(user, requestAgency);
         if (!authorized) {
             res.sendStatus(403);
             return;
@@ -62,6 +67,11 @@ async function requireUser(req, res, next) {
     }
 
     const user = await getUser(req.signedCookies.userId);
+    if (!user) {
+        res.sendStatus(403);
+        return;
+    }
+
     if (req.params.organizationId && user.role_name === 'staff' && (req.params.organizationId !== user.agency_id.toString())) {
         res.sendStatus(403); // Staff are restricted to their own agency.
         return;
@@ -90,5 +100,5 @@ async function requireUSDRSuperAdminUser(req, res, next) {
 }
 
 module.exports = {
-    requireAdminUser, requireUser, isAuthorized, isPartOfAgency, isUSDRSuperAdmin, requireUSDRSuperAdminUser,
+    requireAdminUser, requireUser, isAuthorized, isUserAuthorized, isUSDRSuperAdmin, requireUSDRSuperAdminUser,
 };

@@ -7,9 +7,10 @@ const { requireUser } = require('../lib/access-helpers');
 router.get('/', requireUser, async (req, res) => {
     const result = {};
     let agencyCriteria;
+    const { selectedAgency } = req.session;
 
     if (req.query.totalGrants || req.query.grantsCreatedFromTs || req.query.grantsUpdatedFromTs) {
-        agencyCriteria = await db.getAgencyCriteriaForAgency(req.session.selectedAgency);
+        agencyCriteria = await db.getAgencyCriteriaForAgency(selectedAgency);
     }
 
     if (req.query.totalGrants) {
@@ -20,10 +21,10 @@ router.get('/', requireUser, async (req, res) => {
         result.totalViewedGrants = await db.getTotalViewedGrants();
     }
     if (req.query.totalInterestedGrants) {
-        result.totalInterestedGrants = await db.getTotalInterestedGrants();
+        result.totalInterestedGrants = await db.getTotalInterestedGrants(selectedAgency);
     }
     if (req.query.totalInterestedGrantsByAgencies) {
-        result.totalInterestedGrantsByAgencies = await db.getTotalInterestedGrantsByAgencies();
+        result.totalInterestedGrantsByAgencies = await db.getTotalInterestedGrantsByAgencies(selectedAgency);
     }
     if (req.query.grantsCreatedFromTs) {
         const fromTs = req.query.grantsCreatedFromTs;

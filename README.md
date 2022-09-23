@@ -88,12 +88,6 @@ Then export the environment variables
 > cd packages/server && export $(cat .env)
 ```
 
-Set environment variable pointing to local postgres DB, this is used for migrations (knex does not load .env file)
-
-`export POSTGRES_URL=postgresql://localhost:5432/usdr_grants` (individual vars) or `export $(cat .env)` (whole file)
-
-**NOTE:** if using `export $(cat .env)` need to remove all comments from `.env` file.
-
 **_Note:_** In order to login, the server must be able to send email. Set the relevant environment variables under `# Email Server:` in .env to credentials for a personal email account (e.g. for Gmail, see (4.1)[here](https://support.google.com/mail/answer/7126229)).
 
 4.1). Setup Gmail

@@ -216,6 +216,7 @@ export default {
           currentPage: this.currentPage,
           orderBy: this.orderBy,
           searchTerm: this.debouncedSearchInput,
+          interestedByAgency: this.showInterested,
           interestedByMe: this.showMyInterested,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,

@@ -23,6 +23,7 @@
               <em>{{loggedInUser.email}}</em>
             </template>
             <b-dropdown-item-button href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="giveFeedback">Give Feedback</b-dropdown-item-button>
             <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -81,6 +82,9 @@ export default {
     },
     settingsClicked() {
       this.showProfileSettingModal = true;
+    },
+    giveFeedback() {
+      window.open('https://usdr.link/grants/feedback');
     },
   },
 };
