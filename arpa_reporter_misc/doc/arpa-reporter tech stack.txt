@@ -1,0 +1,42 @@
+Tech stack summary for ARPA Reporter
+
+We use Render.com for hosting the server and database.
+The server is Node-based; it serves an API powered by Express and a front-end powered by Vue.
+We use AWS SES for email.
+
+The NPM dependencies of the API server are:
+    "express"
+    "body-parser"
+    "connect-history-api-fallback"
+    "cookie-parser"
+    "morgan" - for http logging
+
+The NPM dependencies of the API database are:
+    "knex" - abstraction for PostgreSQL
+    "pg" - direct control of PostgreSQL
+
+The NPM dependencies of the API services are:
+    "multer" - for multipart form uploads
+    "aws-sdk" - for SES for emails, using USDR's AWS account
+
+    "date-fns" - for formatting dates
+    "moment" - also for formatting dates
+    "numeral" - for formatting numbers
+
+    "dotenv" - for reading configuration files
+    "lodash" - low-level Javascript helper functions
+    "lodash-checkit" - more low-level Javascript helper functions
+    "uuid" - uuid generator
+    "xlsx" - converts xlsx spreadsheets to json and back
+
+The NPM dependencies of the Vue component are:
+    "vue"
+    "@vue/cli"
+    "vue-router"
+    "vuex"
+    "mustache"
+
+Toolchain
+    The VCS is Github. Changes to the master branch automatically deploy to the production instances on Render.com.
+    The test framework is Mocha/Chai
+    The issue tracker is Airtable
