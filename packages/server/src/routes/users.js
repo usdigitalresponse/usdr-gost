@@ -20,7 +20,8 @@ router.post('/', requireAdminUser, async (req, res, next) => {
     try {
         const allowed = await isUserAuthorized(user, agencyId);
         if (!allowed) {
-            return res.status(403).send('Cannot assign user to agency outside of the tenant');
+            res.status(403).send('Cannot assign user to agency outside of the tenant');
+            return;
         }
         const newUser = {
             email: req.body.email.toLowerCase(),
