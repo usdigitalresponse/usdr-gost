@@ -10,13 +10,7 @@ const { useTenantId } = require('../../arpa_reporter/use-request');
 
 async function users() {
     const tenantId = useTenantId();
-    const tenant = await knex('tenants')
-        .where('id', tenantId)
-        .select('*')
-        .then((rows) => rows[0]);
-    const mainAgencyId = tenant.main_agency_id;
-
-    return gostDb.getUsers(mainAgencyId);
+    return gostDb.getUsers(tenantId);
 }
 
 function createUser(u) {
