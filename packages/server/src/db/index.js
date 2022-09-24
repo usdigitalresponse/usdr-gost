@@ -563,12 +563,7 @@ async function getAgency(agencyId) {
 
 async function getTenantAgencies(tenantId) {
     return knex(TABLES.agencies)
-        .select('id',
-            'name',
-            'abbreviation',
-            'parent',
-            'warning_threshold',
-            'danger_threshold')
+        .select('*')
         .where('tenant_id', tenantId)
         .orderBy('name');
 }

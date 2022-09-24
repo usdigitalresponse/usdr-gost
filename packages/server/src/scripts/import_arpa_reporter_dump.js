@@ -26,7 +26,7 @@ const TABLES = [
     "users",
 
     // Purely ARPA Reporter tables
-    "reporting_periods",
+    "reporting_periods", // has FK to users
     "uploads", // has FK to reporting_periods
     "arpa_subrecipients", // has FK to uploads
     "application_settings", // has FK to reporting_periods
@@ -46,6 +46,7 @@ const foreignKeyNames = {
     validated_by: "users",
     tenant_id: "tenants",
     parent: "agencies",
+    certified_by: "users",
 };
 
 function rekeyForeignKeys(tableName, row, idLookupByTable, ignoreKeys = []) {
