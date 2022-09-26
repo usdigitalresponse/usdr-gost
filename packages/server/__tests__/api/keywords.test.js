@@ -155,13 +155,13 @@ describe('`/api/keywords` endpoint', () => {
             });
         });
         context('by a user with staff role', () => {
-            it('is forbidden for this user\'s own agency', async () => {
+            it('creates a keyword for this user\'s own agency', async () => {
                 const response = await fetchApi(`/keywords`, agencies.staff.own, {
                     ...fetchOptions.staff,
                     method: 'post',
                     body: JSON.stringify({ ...keyword }),
                 });
-                expect(response.statusText).to.equal('Forbidden');
+                expect(response.statusText).to.equal('OK');
             });
             it('is forbidden for a subagency of this user\'s own agency', async () => {
                 const response = await fetchApi(`/keywords`, agencies.staff.ownSub, {
@@ -209,14 +209,14 @@ describe('`/api/keywords` endpoint', () => {
             });
         });
         context('by a user with staff role', () => {
-            it('is forbidden for this user\'s own agency', async () => {
+            it('deletes a keyword for this user\'s own agency', async () => {
                 // Note: staff and admin test users share the same "own" agency id
                 const keywordId = testKeywordsByAgency[agencies.staff.own][1].id;
                 const response = await fetchApi(`/keywords/${keywordId}`, agencies.staff.own, {
                     ...fetchOptions.staff,
                     method: 'delete',
                 });
-                expect(response.statusText).to.equal('Forbidden');
+                expect(response.statusText).to.equal('OK');
             });
             it('is forbidden for a subagency of this user\'s own agency', async () => {
                 const keywordId = testKeywordsByAgency[agencies.staff.ownSub][0].id;
