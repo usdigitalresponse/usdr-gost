@@ -94,10 +94,10 @@ describe('`/api/eligibility-codes` endpoint', () => {
             });
         });
         context('by a user with staff role', () => {
-            it('is forbidden for this user\'s own agency', async () => {
+            it('updates an eligibility code of this user\'s own agency', async () => {
                 // Will default to user's own agency ID
                 const response = await fetchApi('/eligibility-codes/01/enable/false', agencies.staff.own, { ...fetchOptions.staff, method: 'put' });
-                expect(response.statusText).to.equal('Forbidden');
+                expect(response.statusText).to.equal('OK');
             });
             it('is forbidden for a subagency of this user\'s own agency', async () => {
                 const response = await fetchApi('/eligibility-codes/02/enable/false', agencies.staff.ownSub, { ...fetchOptions.staff, method: 'put' });
