@@ -33,22 +33,14 @@ To setup your workspace run the following commands at the root of the project
 
 1.1). Setup nvm
 
-```
-> brew install nvm
-> vim ~/.zshrc
-  # add the follow lines to your .zshrc file
-  export NVM_DIR="$HOME/.nvm"
-  source "$NVM_DIR/nvm.sh"
-> esc
-> :wq
-```
+Follow the install directions at https://github.com/nvm-sh/nvm#install--update-script
 
-***Make sure to use new terminals once modified `~/.zshrc`***
+***Make sure to use new terminals after completing install***
 
 
 ```
-> nvm install v14.19.0
-> nvm use v14.19.0
+> nvm install v16.14.0
+> nvm use v16.14.0
 ```
 
 2). Install dependencies
@@ -111,7 +103,7 @@ If running into `Error: Invalid login: 535-5.7.8 Username and Password not accep
 
 In server workspace, run migrations:
 
-**_NOTE:_** In `server/seeds/dev/index.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**. *Use lower-case email address.*
+**_NOTE:_** In `server/seeds/dev/01_main.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**. *Use lower-case email address.*
 Then run seeds:
 
 ```
@@ -125,7 +117,7 @@ Then run seeds:
 
 Now you should be able to serve the frontend.
 
-**_*Ensure using node v14*_**
+**_*Ensure you are using the correct node version and are in the project root directory*_**
 
 ```
 > yarn start:client
@@ -137,7 +129,7 @@ Now you should be able to serve the backend.
 
 **NOTE:** update `WEBSITE_DOMAIN` in `.env` to your client endpoint from Step 6 else When you get the login email link, change the redirected path from `localhost:8000/api/sessions/...` to your client_url e.g `localhost:8080/api/sessions/`
 
-**_Ensure using node v14_**
+**_*Ensure you are using the correct node version and are in the project root directory*_**
 
 ```
 > yarn start:server
