@@ -39,6 +39,9 @@
         <b-nav-item to="/Agencies" exact exact-active-class="active">Agencies</b-nav-item>
         <b-nav-item v-if="canSeeTenantsTab" to="/tenants" exact exact-active-class="active">Tenants</b-nav-item>
     </b-nav>
+
+    <AlertBox v-for="(alert, alertId) in alerts" :key="alertId" v-bind="alert" v-on:dismiss="dismissAlert(alertId)" />
+
     <div style="margin-top: 10px">
       <router-view />
     </div>
@@ -49,12 +52,13 @@
 
 <script>
 import { mapGetters } from 'vuex';
-
 import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
+import AlertBox from '../arpa_reporter/components/AlertBox.vue';
 
 export default {
   name: 'Layout',
   components: {
+    AlertBox,
     ProfileSettingsModal,
   },
   data() {
@@ -68,9 +72,13 @@ export default {
       loggedInUser: 'users/loggedInUser',
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
+
     }),
     canSeeTenantsTab() {
       return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
+    },
+    alerts() {
+      return this.$store.state.alerts;
     },
   },
   methods: {
@@ -85,6 +93,9 @@ export default {
     },
     giveFeedback() {
       window.open('https://usdr.link/grants/feedback');
+    },
+    dismissAlert(alertId) {
+      this.$store.commit('dismissAlert', alertId);
     },
   },
 };

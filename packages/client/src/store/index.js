@@ -13,6 +13,10 @@ Vue.use(Vuex);
 
 const debug = process.env.NODE_ENV !== 'production';
 
+function randomId() {
+  return Math.random().toString(16).substr(2, 10);
+}
+
 export default new Vuex.Store({
   strict: debug,
   modules: {
@@ -23,5 +27,16 @@ export default new Vuex.Store({
     dashboard,
     organization,
     tenants,
+  },
+  state: {
+    alerts: {},
+  },
+  mutations: {
+    addAlert(state, alert) {
+      Vue.set(state.alerts, randomId(), alert);
+    },
+    dismissAlert(state, alertId) {
+      Vue.delete(state.alerts, alertId);
+    },
   },
 });

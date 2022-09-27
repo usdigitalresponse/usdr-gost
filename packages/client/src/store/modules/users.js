@@ -7,6 +7,7 @@ function initialState() {
       selectedAgencyId: null,
     },
     users: [],
+    alerts: {},
   };
 }
 

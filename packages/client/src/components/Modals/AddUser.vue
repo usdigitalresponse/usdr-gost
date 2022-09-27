@@ -150,7 +150,10 @@ export default {
       try {
         await this.createUser(this.formData);
       } catch (error) {
-        alert(error);
+        this.$store.commit('addAlert', {
+          text: `Error adding user: ${error.message}`,
+          level: 'err',
+        });
       }
       // Push the name to submitted names
       // Hide the modal manually
