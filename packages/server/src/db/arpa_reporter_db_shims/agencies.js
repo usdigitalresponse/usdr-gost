@@ -5,23 +5,11 @@
 const knex = require('../connection');
 const gostDb = require('..');
 
-// TODO(mbroussard): after merge, replace with an import to ARPA's use-request module
-function useTenantId() {
-    throw new Error('import missing -- need to update after ARPA merge');
-}
-function useUser() {
-    throw new Error('import missing -- need to update after ARPA merge');
-}
+const { useTenantId, useUser } = require('../../arpa_reporter/use-request');
 
 async function agencies() {
     const tenantId = useTenantId();
-    const tenant = await knex('tenants')
-        .where('id', tenantId)
-        .select('*')
-        .then((rows) => rows[0]);
-    const mainAgencyId = tenant.main_agency_id;
-
-    return gostDb.getAgencies(mainAgencyId);
+    return gostDb.getTenantAgencies(tenantId);
 }
 
 async function agencyById(id) {

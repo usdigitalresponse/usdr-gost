@@ -16,8 +16,8 @@ export default {
     fetchTenants({ commit }) {
       fetchApi.get('/api/organizations/:organizationId/tenants').then((data) => commit('SET_TENANTS', data));
     },
-    async createTenants({ dispatch }, body) {
-      await fetchApi.post('/api/organizations/:organizationId/tenants/', body);
+    async createTenant({ dispatch }, options) {
+      await fetchApi.post('/api/organizations/:organizationId/tenants/', options);
       dispatch('fetchTenants');
     },
     async updateDisplayName({ dispatch }, { tenantId, displayName }) {

@@ -23,6 +23,7 @@
               <em>{{loggedInUser.email}}</em>
             </template>
             <b-dropdown-item-button href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="giveFeedback">Give Feedback</b-dropdown-item-button>
             <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -36,7 +37,7 @@
         <b-nav-item to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
         <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
         <b-nav-item to="/Agencies" exact exact-active-class="active">Agencies</b-nav-item>
-        <b-nav-item to="/Tenants" exact exact-active-class="active">Tenants</b-nav-item>
+        <b-nav-item v-if="canSeeTenantsTab" to="/tenants" exact exact-active-class="active">Tenants</b-nav-item>
     </b-nav>
     <div style="margin-top: 10px">
       <router-view />
@@ -68,6 +69,9 @@ export default {
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
     }),
+    canSeeTenantsTab() {
+      return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
+    },
   },
   methods: {
     logout(e) {
@@ -78,6 +82,9 @@ export default {
     },
     settingsClicked() {
       this.showProfileSettingModal = true;
+    },
+    giveFeedback() {
+      window.open('https://usdr.link/grants/feedback');
     },
   },
 };
