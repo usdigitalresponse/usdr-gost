@@ -40,9 +40,11 @@
         <b-nav-item v-if="canSeeTenantsTab" to="/tenants" exact exact-active-class="active">Tenants</b-nav-item>
     </b-nav>
 
-    <AlertBox v-for="(alert, alertId) in alerts" :key="alertId" v-bind="alert" v-on:dismiss="dismissAlert(alertId)" />
-
     <div style="margin-top: 10px">
+      <section class="container-fluid">
+        <AlertBox v-for="(alert, alertId) in alerts" :key="alertId" v-bind="alert" v-on:dismiss="dismissAlert(alertId)" />
+      </section>
+
       <router-view />
     </div>
     <ProfileSettingsModal
