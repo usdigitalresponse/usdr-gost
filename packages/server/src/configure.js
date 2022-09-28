@@ -27,7 +27,16 @@ function configureApiRoutes(app) {
 }
 
 function configureApp(app) {
-    app.use(morgan('common'));
+    app.use(morgan('common', {
+        skip: (req) => {
+            // Render hits the health check path extremely often, so don't clutter logs with it.
+            if (req.originalUrl === '/api/health') {
+                return true;
+            }
+
+            return false;
+        },
+    }));
     app.use(cookieParser(process.env.COOKIE_SECRET));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
