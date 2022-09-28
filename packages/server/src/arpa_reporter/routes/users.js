@@ -67,7 +67,7 @@ router.post('/', requireAdminUser, async function (req, res, next) {
       const updatedUser = await createUser(user)
       res.json({ user: updatedUser })
 
-      void sendWelcomeEmail(updatedUser.email, req.headers.origin)
+      void sendWelcomeEmail(updatedUser.email, req.headers.origin + '/arpa_reporter')
     }
   } catch (e) {
     console.dir(e)
