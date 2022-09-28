@@ -1,15 +1,15 @@
-const express = require('express')
-const router = express.Router()
-const knex = require('../../db/connection')
+const express = require('express');
 
-router.get('/', async function (req, res) {
-  const dbResult = await knex
-    .raw("SELECT 'OK' AS ok")
-    .timeout(500, { cancel: true })
+const router = express.Router();
+const knex = require('../db/connection');
 
-  res.json({ success: true, db: dbResult.rows[0].ok })
-})
+router.get('/', async (req, res) => {
+    // if DB call fails, this will throw and health route will 500
+    const dbResult = await knex
+        .raw('SELECT \'OK\' AS ok')
+        .timeout(500, { cancel: true });
 
-module.exports = router
+    res.json({ success: true, db: dbResult.rows[0].ok });
+});
 
-// NOTE: This file was copied from src/server/routes/health.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
+module.exports = router;
