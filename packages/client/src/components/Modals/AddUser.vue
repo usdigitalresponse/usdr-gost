@@ -150,7 +150,7 @@ export default {
       try {
         await this.createUser(this.formData);
       } catch (error) {
-        this.$store.commit('addAlert', {
+        this.$store.commit('alerts/addAlert', {
           text: `Error adding user: ${error.message}`,
           level: 'err',
         });

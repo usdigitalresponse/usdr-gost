@@ -74,13 +74,10 @@ export default {
       loggedInUser: 'users/loggedInUser',
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
-
+      alerts: 'alerts/alerts',
     }),
     canSeeTenantsTab() {
       return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
-    },
-    alerts() {
-      return this.$store.state.alerts;
     },
   },
   methods: {
@@ -97,7 +94,7 @@ export default {
       window.open('https://usdr.link/grants/feedback');
     },
     dismissAlert(alertId) {
-      this.$store.commit('dismissAlert', alertId);
+      this.$store.commit('alerts/dismissAlert', alertId);
     },
   },
 };
