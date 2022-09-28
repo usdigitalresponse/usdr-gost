@@ -67,7 +67,13 @@ router.post('/', requireAdminUser, async function (req, res, next) {
       const updatedUser = await createUser(user)
       res.json({ user: updatedUser })
 
-      void sendWelcomeEmail(updatedUser.email, req.headers.origin)
+      let origin = req.headers.origin;
+
+      if (req.headers.referer.indexOf('arpa_reporter')) {
+        origin += '/arpa_reporter'
+      }
+
+      void sendWelcomeEmail(updatedUser.email, origin)
     }
   } catch (e) {
     console.dir(e)
