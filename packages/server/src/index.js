@@ -13,14 +13,16 @@ const server = app.listen(PORT, () => console.log(`App running on port ${PORT}!`
 
 if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
     const job = new CronJob(
-        '* 30 * * * *',
+        // once per hour at :30
+        '30 * * * *',
         grantscraper.run,
     );
     job.start();
 }
 
 const cleanGeneratedPdfCron = new CronJob(
-    '* 1 * * *',
+    // once per day at 01:00
+    '0 1 * * *',
     async () => {
         const generatedPath = path.resolve(__dirname, './static/forms/generated');
         try {
