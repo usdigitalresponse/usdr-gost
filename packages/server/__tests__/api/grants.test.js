@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const { getSessionCookie, fetchApi, knex } = require('./utils');
+const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 
 /*
@@ -39,11 +39,19 @@ describe('`/api/grants` endpoint', () => {
         },
     };
 
+    let testServer;
+    let fetchApi;
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
         fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
         fetchOptions.dallasAdmin.headers.cookie = await getSessionCookie('user1@dallas.gov');
+
+        testServer = await makeTestServer();
+        fetchApi = testServer.fetchApi;
+    });
+    after(() => {
+        testServer.stop();
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', () => {
