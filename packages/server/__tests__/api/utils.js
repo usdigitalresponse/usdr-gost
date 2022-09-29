@@ -8,12 +8,6 @@ const { sign: signCookie } = require('cookie-signature');
 const { knex } = require('../../src/db');
 const { configureApp } = require('../../src/configure');
 
-// deprecated, use makeTestServer.fetchApi instead
-function getTestDomain() {
-    const { PORT = 3000 } = process.env;
-    return `http://localhost:${PORT}`;
-}
-
 async function getSessionCookie(userIdOrEmail) {
     if (typeof userIdOrEmail === 'string') {
         const email = userIdOrEmail;
@@ -32,16 +26,6 @@ async function getSessionCookie(userIdOrEmail) {
     // NOTE: the structure of this cookie value comes from Express itself, see implementation of
     // Response.cookie() and the cookie-parser middleware
     return `userId=s:${signCookie(String(userId), process.env.COOKIE_SECRET)}`;
-}
-
-// deprecated, use makeTestServer.fetchApi instead
-function getEndpoint({ agencyId, url }) {
-    return `${getTestDomain()}/api/organizations/${agencyId}${url}`;
-}
-
-// deprecated, use makeTestServer.fetchApi instead
-function fetchApi(url, agencyId, fetchOptions) {
-    return fetch(getEndpoint({ agencyId, url }), fetchOptions);
 }
 
 async function makeTestServer(configureAppFn = configureApp) {
@@ -107,9 +91,7 @@ async function makeTestServer(configureAppFn = configureApp) {
 }
 
 module.exports = {
-    getTestDomain,
     getSessionCookie,
-    fetchApi,
     makeTestServer,
     knex,
 };
