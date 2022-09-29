@@ -57,12 +57,8 @@ export default {
         .then((data) => commit('SET_USERS', data));
     },
     async createUser({ dispatch }, user) {
-      try {
-        await fetchApi.post('/api/organizations/:organizationId/users', user);
-        await dispatch('fetchUsers');
-      } catch (error) {
-        throw new Error(error.message);
-      }
+      await fetchApi.post('/api/organizations/:organizationId/users', user);
+      await dispatch('fetchUsers');
     },
     async deleteUser({ dispatch }, userId) {
       await fetchApi.deleteRequest(`/api/organizations/:organizationId/users/${userId}`);
