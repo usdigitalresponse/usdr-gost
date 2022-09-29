@@ -43,6 +43,12 @@ async function makeTestServer(configureAppFn = configureApp) {
     // Setup Express
     const app = express();
     configureAppFn(app);
+    // eslint-disable-next-line no-unused-vars
+    app.use((err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500);
+        res.json({ status: 500, message: 'Internal Server Error' });
+    });
 
     // Start server and wait for listening event
     let onListening;

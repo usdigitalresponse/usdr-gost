@@ -6,7 +6,7 @@ describe('/api/exports', () => {
   let tenantACookie
   let tenantBCookie
   before(async () => {
-    server = makeTestServer()
+    server = await makeTestServer()
     tenantACookie = await getSessionCookie('mbroussard+unit-test-admin@usdigitalresponse.org')
     tenantBCookie = await getSessionCookie('mbroussard+unit-test-user2@usdigitalresponse.org')
   })

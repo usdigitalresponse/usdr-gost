@@ -3,8 +3,8 @@ const { makeTestServer } = require('./route_test_helpers')
 
 describe('/api/health', () => {
   let server
-  before(() => {
-    server = makeTestServer()
+  before(async () => {
+    server = await makeTestServer()
   })
   after(() => {
     server.stop()
