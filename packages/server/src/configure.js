@@ -25,7 +25,10 @@ function configureApiRoutes(app) {
     app.use('/api/annual-reports/', require('./routes/annualReports'));
 }
 
-function configureApp(app) {
+function configureApp(app, options = {}) {
+    if (!options.disableRequestLogging) {
+        app.use(morgan('common'));
+    }
     app.use(morgan('common'));
     app.use(cookieParser(process.env.COOKIE_SECRET));
     app.use(bodyParser.json());

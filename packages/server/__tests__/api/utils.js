@@ -28,6 +28,13 @@ async function getSessionCookie(userIdOrEmail) {
     return `userId=s:${signCookie(String(userId), process.env.COOKIE_SECRET)}`;
 }
 
+function defaultConfigureApp(app) {
+    configureApp(app, {
+        // The normal request logging from Morgan just clutters Mocha's test runner output
+        disableRequestLogging: true,
+    });
+}
+
 // This returns a Supertest object that can be used to test API routes.
 //
 // There are two ways to interact with it:
@@ -39,7 +46,7 @@ async function getSessionCookie(userIdOrEmail) {
 //
 // In general, you should call makeTestServer() in a Mocha before hook and call
 // testServer.stop() in a Mocha after hook
-async function makeTestServer(configureAppFn = configureApp) {
+async function makeTestServer(configureAppFn = defaultConfigureApp) {
     // Setup Express
     const app = express();
     configureAppFn(app);

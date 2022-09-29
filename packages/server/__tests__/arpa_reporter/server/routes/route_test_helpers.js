@@ -11,7 +11,10 @@ function makeTestServer () {
     // all routes registered, we won't need this extra call.
     app.use(requestProviderMiddleware);
 
-    configureApp(app);
+    configureApp(app, {
+      // The normal request logging from Morgan just clutters Mocha's test runner output
+      disableRequestLogging: true,
+    });
   });
 }
 
