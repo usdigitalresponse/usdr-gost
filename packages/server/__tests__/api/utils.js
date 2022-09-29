@@ -28,10 +28,23 @@ async function getSessionCookie(userIdOrEmail) {
     return `userId=s:${signCookie(String(userId), process.env.COOKIE_SECRET)}`;
 }
 
+// This returns a Supertest object that can be used to test API routes.
+//
+// There are two ways to interact with it:
+//  1. Use Supertest API:
+//       await testServer.get('/api/organizations/0/users').expect(200);
+//  2. Use fetch/fetchApi helpers:
+//       const json = await testServer.fetchApi('/users', 0, {}).then(resp => resp.json());
+//       expect(json.length).to.equal(4);
+//
+// In general, you should call makeTestServer() in a Mocha before hook and call
+// testServer.stop() in a Mocha after hook
 async function makeTestServer(configureAppFn = configureApp) {
+    // Setup Express
     const app = express();
     configureAppFn(app);
 
+    // Start server and wait for listening event
     let onListening;
     const listeningPromise = new Promise((resolve) => {
         onListening = resolve;
@@ -39,17 +52,8 @@ async function makeTestServer(configureAppFn = configureApp) {
     const server = app.listen(0 /* chooses a random available port */, onListening);
     await listeningPromise;
 
-    const { port } = server.address();
+    // Init Supertest and extend with some extra properties
     const tester = supertest(server);
-
-    if ('stop' in tester) {
-        throw new Error('makeTestServer adds a stop method and expects Supertest not to have its own');
-    }
-
-    if ('fetch' in tester) {
-        throw new Error('makeTestServer adds a fetch method and expects Supertest not to have its own');
-    }
-
     const extraProps = {
         // Supertest has inconsistent behavior around closing server sockets (autoclose when calling
         // end(), but not when using async/await) -- so instead we manage the server socket ourselves
@@ -66,6 +70,7 @@ async function makeTestServer(configureAppFn = configureApp) {
                 throw new Error('expected only relative urls in makeTestServer fetch function');
             }
 
+            const { port } = server.address();
             return fetch(`http://localhost:${port}${url}`, options);
         },
         fetchApi: (url, agencyId, fetchOptions) => extraProps.fetch(`/api/organizations/${agencyId}${url}`, fetchOptions),
@@ -77,17 +82,8 @@ async function makeTestServer(configureAppFn = configureApp) {
         }
     });
 
-    // We wrap Supertest's object in a proxy to add some properties.
-    // TODO: can we just Object.assign?
-    return new Proxy(tester, {
-        get(target, prop, receiver) {
-            if (prop in extraProps) {
-                return extraProps[prop];
-            }
-
-            return Reflect.get(target, prop, receiver);
-        },
-    });
+    Object.assign(tester, extraProps);
+    return tester;
 }
 
 module.exports = {
