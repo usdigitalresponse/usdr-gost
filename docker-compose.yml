@@ -1,0 +1,64 @@
+services:
+  app:
+    container_name: gost-app
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: api
+    volumes:
+      - ./:/app
+      - type: volume
+        source: node_modules
+        target: /app/node_modules
+    networks:
+      - app
+      - postgres
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+    env_file:
+      - ./packages/server/.env
+
+  frontend:
+    container_name: gost-frontend
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: client
+    volumes:
+      - ./:/app
+      - type: volume
+        source: node_modules
+        target: /app/node_modules
+    networks:
+      - app
+    ports:
+      - 8080:8080
+    environment:
+      - VUE_APP_API_URL=http://app:3000/
+    env_file:
+      - ./packages/client/.env
+
+  postgres:
+    container_name: gost-postgres
+    hostname: postgres
+    image: 'bitnami/postgresql:14.4.0'
+    networks:
+      - postgres
+    environment:
+      - POSTGRESQL_PASSWORD=password123
+      - POSTGRESQL_DATABASE=usdr_grants
+      - POSTGRESQL_USER=postgres
+    volumes:
+      - ./docker/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./docker/postgres/docker-entrypoint-preinitdb.d:/docker-entrypoint-preinitdb.d
+      # - ./docker/postgres/persistence:/bitnami/postgresql
+
+networks:
+  app:
+    driver: bridge
+  postgres:
+
+volumes:
+  node_modules:
