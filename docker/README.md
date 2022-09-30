@@ -15,7 +15,7 @@ steps to prepare your environment:
   - `POSTGRES_URL=postgresql://postgres:password123@postgres:5432/usdr_grants`
   - `POSTGRES_TEST_URL=postgresql://postgres:password123@postgres:5432/usdr_grants_test`
   - You may also have to set the `WEBSITE_DOMAIN` hostname if you are not developing on `localhost`
-  ([More info](#cookbook-non-localhost)).
+  ([more info](#cookbook-non-localhost)).
 3. Run `docker compose up -d` to start the services.
 
 
@@ -26,19 +26,19 @@ via `docker compose <subcommand>` in your command-line environment, but your sys
 that you invoke it by running `docker-compose <subcommand>`.
 
 
-### Development Cookbook
+## Development Cookbook
 
 Refer to this section for common scenarios and their solutions when using Docker
 for development.
 
 
-#### Seed and apply migrations to the database
+### Seed and apply migrations to the database
 
 - To apply database migrations, run: `docker compose exec app yarn db:migrate`
 - To seed the database, run: `docker compose exec app yarn db:seed`
 
 
-#### Run tests
+### Run tests
 
 To execute a test suite, use `docker compose exec` to run the test command in the container.
 A few examples:
@@ -55,7 +55,7 @@ A few examples:
 ```
 
 
-#### Docker runs on something other than `localhost`<a name="cookbook-non-localhost"></a>
+### Docker runs on something other than `localhost`<a name="cookbook-non-localhost"></a>
 
 When the client and server containers run on a remote machine, the remote hostname must be
 specified by setting the appropriate environment variables in the container runtime.
@@ -69,7 +69,7 @@ Hint: In the above examples, remember to substitute `<remote-hostname>` for the 
 that applies to your development environment.
 
 
-#### Customize Postgres databases or container environment at startup
+### Customize Postgres databases or container environment at startup
 
 The Postgres container environment can be customized by placing scripts in dedicated mounted
 volumes before the container is executed.
@@ -87,7 +87,7 @@ For more information, see the "Configuration" section of the `bitnami/postgresql
 documentation: https://hub.docker.com/r/bitnami/postgresql
 
 
-#### Persist data across postgres containers
+### Persist data across postgres containers
 
 By default, postgres container databases and their data will be lost when the container
 is removed/rebuilt, which helps ensure a clean and consistent database state in newly-created
