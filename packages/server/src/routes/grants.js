@@ -235,14 +235,16 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
     const { user } = req.session;
     const { grantId, agencyId } = req.params;
     const { agencyIds } = req.body;
-    const allowed = await isUserAuthorized(user, ...(agencyIds.length ? agencyIds : [agencyId]));
+    // If agencyIds is not empty, use that. Otherwise, use the single agencyId value.
+    const considerAgencyIds = agencyIds.length ? agencyIds : [agencyId];
 
+    const allowed = await isUserAuthorized(user, ...considerAgencyIds);
     if (!allowed) {
         res.sendStatus(403);
         return;
     }
 
-    await db.unmarkGrantAsInterested({ grantId, agencyIds, userId: user.id });
+    await db.unmarkGrantAsInterested({ grantId, considerAgencyIds, userId: user.id });
     res.json({});
 });
 
