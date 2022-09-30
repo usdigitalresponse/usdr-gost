@@ -20,11 +20,11 @@ function isUSDRSuperAdmin(user) {
  * Determine if a user is authorized for an agency.
  *
  * @param {Object} user
- * @param {Number} agencyId
+ * @param {...Number} agencyIds
  * @returns {Boolean} true if the agency is in the same tenant as the user
  * */
-async function isUserAuthorized(user, agencyId) {
-    return inTenant(user.id, user.tenant_id, [agencyId]);
+async function isUserAuthorized(user, ...agencyIds) {
+    return inTenant(user.id, user.tenant_id, agencyIds);
 }
 
 async function isAuthorized(userId, agencyId) {

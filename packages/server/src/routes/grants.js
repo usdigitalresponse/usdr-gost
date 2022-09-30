@@ -235,14 +235,7 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
     const { user } = req.session;
     const { grantId, agencyId } = req.params;
     const { agencyIds } = req.body;
-    let authorizedAgencyId = agencyId;
-    if (agencyIds.length > 0) {
-        // Note: ran into a ES lint error so had to declare the variable first
-        // and then assign it to authorizedAgencyId.
-        const [firstAgency] = agencyIds;
-        authorizedAgencyId = firstAgency;
-    }
-    const allowed = await isUserAuthorized(user, authorizedAgencyId);
+    const allowed = await isUserAuthorized(user, ...(agencyIds.length ? agencyIds : [agencyId]));
 
     if (!allowed) {
         res.sendStatus(403);
