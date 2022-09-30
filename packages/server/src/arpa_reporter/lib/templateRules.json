@@ -1,7 +1,7 @@
 {
   "logic": {
     "version": {
-      "version": "v:20220705",
+      "version": "v:20220929",
       "key": "version",
       "index": 0,
       "required": false,
@@ -728,8 +728,8 @@
         "Adaptations to congregate living facilities",
         "Affordable housing supportive housing or recovery housing",
         "Behavioral health facilities and equipment",
-        "Childcare, daycare and early learning facilities",
-        "COVID-19 testing sites and laboratories and acquisition of related equipment",
+        "Childcare, daycare, and early learning facilities",
+        "COVID-19 testing sites and laboratories",
         "COVID-19 vaccination sites",
         "Devices and equipment that assist households in accessing the internet",
         "Emergency operations centers and acquisition of emergency response equipment",
@@ -739,7 +739,7 @@
         "Job and workforce training centers",
         "Medical equipment and facilities",
         "Medical facilities generally dedicated to COVID-19 treatment and mitigation",
-        "Mitigation measures in small businesses, nonprofits and impacted industries",
+        "Mitigation measures in small businesses, nonprofits, and impacted industries",
         "Parks, green spaces, recreational facilities, sidewalks",
         "Public health data systems",
         "Rehabilitations, renovation, remediation, cleanup, or conversions",
@@ -2568,8 +2568,8 @@
         "Adaptations to congregate living facilities",
         "Affordable housing supportive housing or recovery housing",
         "Behavioral health facilities and equipment",
-        "Childcare, daycare and early learning facilities",
-        "COVID-19 testing sites and laboratories and acquisition of related equipment",
+        "Childcare, daycare, and early learning facilities",
+        "COVID-19 testing sites and laboratories",
         "COVID-19 vaccination sites",
         "Devices and equipment that assist households in accessing the internet",
         "Emergency operations centers and acquisition of emergency response equipment",
@@ -2579,7 +2579,7 @@
         "Job and workforce training centers",
         "Medical equipment and facilities",
         "Medical facilities generally dedicated to COVID-19 treatment and mitigation",
-        "Mitigation measures in small businesses, nonprofits and impacted industries",
+        "Mitigation measures in small businesses, nonprofits, and impacted industries",
         "Parks, green spaces, recreational facilities, sidewalks",
         "Public health data systems",
         "Rehabilitations, renovation, remediation, cleanup, or conversions",
@@ -3448,7 +3448,7 @@
       "columnName": "AV",
       "humanColName": "Number of workers enrolled in sectoral job training programs",
       "ecCodes": [
-        "2.1"
+        "2.10"
       ]
     },
     "Number_Workers_Competing_Sectoral__c": {
@@ -3461,7 +3461,7 @@
       "columnName": "AW",
       "humanColName": "Number of workers completing sectoral job training programs ",
       "ecCodes": [
-        "2.1"
+        "2.10"
       ]
     },
     "Number_People_Summer_Youth__c": {
@@ -3474,7 +3474,7 @@
       "columnName": "AX",
       "humanColName": "Number of people participating in summer youth employment programs",
       "ecCodes": [
-        "2.1"
+        "2.10"
       ]
     },
     "Number_Households_Eviction_Prevention__c": {
@@ -3919,8 +3919,8 @@
         "Adaptations to congregate living facilities",
         "Affordable housing supportive housing or recovery housing",
         "Behavioral health facilities and equipment",
-        "Childcare, daycare and early learning facilities",
-        "COVID-19 testing sites and laboratories and acquisition of related equipment",
+        "Childcare, daycare, and early learning facilities",
+        "COVID-19 testing sites and laboratories",
         "COVID-19 vaccination sites",
         "Devices and equipment that assist households in accessing the internet",
         "Emergency operations centers and acquisition of emergency response equipment",
@@ -3930,7 +3930,7 @@
         "Job and workforce training centers",
         "Medical equipment and facilities",
         "Medical facilities generally dedicated to COVID-19 treatment and mitigation",
-        "Mitigation measures in small businesses, nonprofits and impacted industries",
+        "Mitigation measures in small businesses, nonprofits, and impacted industries",
         "Parks, green spaces, recreational facilities, sidewalks",
         "Public health data systems",
         "Rehabilitations, renovation, remediation, cleanup, or conversions",
@@ -5677,6 +5677,21 @@
         "5.18"
       ]
     },
+    "Is_project_designed_provide_hh_service__c": {
+      "key": "Is_project_designed_provide_hh_service__c",
+      "index": 38,
+      "required": "Conditional",
+      "dataType": "Pick List",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AM",
+      "humanColName": "Is project designed to provide service to households?",
+      "ecCodes": [
+        "5.19",
+        "5.20",
+        "5.21"
+      ]
+    },
     "Technology_Type_Planned__c": {
       "key": "Technology_Type_Planned__c",
       "index": 39,
@@ -5846,11 +5861,7 @@
       "listVals": [],
       "columnName": "AX",
       "humanColName": "Planned Total Number of Funded Locations Served, broken out by speeds (Post-SLFRF investment, Number receiving minimum 1 Gbps)",
-      "ecCodes": [
-        "5.19",
-        "5.20",
-        "5.21"
-      ]
+      "ecCodes": []
     },
     "Actual_Funded_Locations_Minimum_1_Gbps__c": {
       "key": "Actual_Funded_Locations_Minimum_1_Gbps__c",
@@ -5861,11 +5872,7 @@
       "listVals": [],
       "columnName": "AY",
       "humanColName": "Actual Total Number of Funded Locations Served, broken out by speeds (Post-SLFRF investment, Number receiving minimum 1 Gbps)",
-      "ecCodes": [
-        "5.19",
-        "5.20",
-        "5.21"
-      ]
+      "ecCodes": []
     },
     "Planned_Funded_Locations_Minimum_100_100__c": {
       "key": "Planned_Funded_Locations_Minimum_100_100__c",
@@ -6081,11 +6088,11 @@
       "key": "Confirm_Service_Provider__c",
       "index": 65,
       "required": "Conditional",
-      "dataType": "String",
-      "maxLength": 250,
+      "dataType": "Pick List",
+      "maxLength": null,
       "listVals": [],
       "columnName": "BN",
-      "humanColName": "Confirm Service Provider",
+      "humanColName": "Confirm that the service provider for the project has, or will upon completion of the project, either participated in the Federal Communications Commission (FCC)'s Affordable Connectivity Program (ACP) or otherwise provided access to a broad-based affordability program that proides benefits to households commensurate with those provided under the ACP to low-income consumers in the proposed service area of the broadband infrastructure (applicable only to projects that provide service to households)",
       "ecCodes": [
         "5.19",
         "5.20",
@@ -6120,6 +6127,36 @@
         "5.16",
         "5.17",
         "5.18",
+        "5.19",
+        "5.20",
+        "5.21"
+      ]
+    },
+    "Planned_Sum_Speed_Types_Explanation__c": {
+      "key": "Planned_Sum_Speed_Types_Explanation__c",
+      "index": 67,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 1500,
+      "listVals": [],
+      "columnName": "BP",
+      "humanColName": "Explanation if the sum of broadband speed types does not equal total number of funded locations served\r\nPlanned",
+      "ecCodes": [
+        "5.19",
+        "5.20",
+        "5.21"
+      ]
+    },
+    "Actual_Sum_Speed_Types_Explanation__c": {
+      "key": "Actual_Sum_Speed_Types_Explanation__c",
+      "index": 68,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 1500,
+      "listVals": [],
+      "columnName": "BQ",
+      "humanColName": "Explanation if the sum of broadband speed types does not equal total number of funded locations served\r\nActual",
+      "ecCodes": [
         "5.19",
         "5.20",
         "5.21"
@@ -6287,8 +6324,8 @@
         "Adaptations to congregate living facilities",
         "Affordable housing supportive housing or recovery housing",
         "Behavioral health facilities and equipment",
-        "Childcare, daycare and early learning facilities",
-        "COVID-19 testing sites and laboratories and acquisition of related equipment",
+        "Childcare, daycare, and early learning facilities",
+        "COVID-19 testing sites and laboratories",
         "COVID-19 vaccination sites",
         "Devices and equipment that assist households in accessing the internet",
         "Emergency operations centers and acquisition of emergency response equipment",
@@ -6298,7 +6335,7 @@
         "Job and workforce training centers",
         "Medical equipment and facilities",
         "Medical facilities generally dedicated to COVID-19 treatment and mitigation",
-        "Mitigation measures in small businesses, nonprofits and impacted industries",
+        "Mitigation measures in small businesses, nonprofits, and impacted industries",
         "Parks, green spaces, recreational facilities, sidewalks",
         "Public health data systems",
         "Rehabilitations, renovation, remediation, cleanup, or conversions",
@@ -6425,10 +6462,7 @@
       ],
       "columnName": "S",
       "humanColName": "Project Demographic Distribution - Primary Populations Served",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Primary_Project_Demographics_Explanation__c": {
       "key": "Primary_Project_Demographics_Explanation__c",
@@ -6439,10 +6473,7 @@
       "listVals": [],
       "columnName": "T",
       "humanColName": "Primary Project Demographic Explanation",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Secondary_Project_Demographics__c": {
       "key": "Secondary_Project_Demographics__c",
@@ -6482,10 +6513,7 @@
       ],
       "columnName": "U",
       "humanColName": "Project Demographic Distribution - Secondary Populations Served",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Secondary_Proj_Demographics_Explanation__c": {
       "key": "Secondary_Proj_Demographics_Explanation__c",
@@ -6496,10 +6524,7 @@
       "listVals": [],
       "columnName": "V",
       "humanColName": "Secondary Project Demographic Explanation",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Tertiary_Project_Demographics__c": {
       "key": "Tertiary_Project_Demographics__c",
@@ -6539,10 +6564,7 @@
       ],
       "columnName": "W",
       "humanColName": "Project Demographic Distribution - Tertiary Populations Served",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Tertiary_Proj_Demographics_Explanation__c": {
       "key": "Tertiary_Proj_Demographics_Explanation__c",
@@ -6553,10 +6575,7 @@
       "listVals": [],
       "columnName": "X",
       "humanColName": "Tertiary Project Demographic Explanation",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Structure_Objectives_of_Asst_Programs__c": {
       "key": "Structure_Objectives_of_Asst_Programs__c",
@@ -6605,23 +6624,23 @@
     "Unique_Entity_Identifier__c": {
       "key": "Unique_Entity_Identifier__c",
       "index": 2,
-      "required": false,
+      "required": "RequiredOptional",
       "dataType": "String",
       "maxLength": 12,
       "listVals": [],
       "columnName": "C",
-      "humanColName": "Sub-Recipient UEI",
+      "humanColName": "UEI",
       "ecCodes": false
     },
     "EIN__c": {
       "key": "EIN__c",
       "index": 3,
-      "required": false,
-      "dataType": "Numeric",
+      "required": "RequiredOptional",
+      "dataType": "String",
       "maxLength": 9,
       "listVals": [],
       "columnName": "D",
-      "humanColName": "Subrecipient TIN",
+      "humanColName": "TIN",
       "ecCodes": false
     },
     "Name": {
@@ -6780,7 +6799,7 @@
       "key": "Zip__c",
       "index": 12,
       "required": true,
-      "dataType": "Numeric",
+      "dataType": "String",
       "maxLength": 5,
       "listVals": [],
       "columnName": "M",
@@ -6791,7 +6810,7 @@
       "key": "Zip_4__c",
       "index": 13,
       "required": false,
-      "dataType": "Numeric",
+      "dataType": "String",
       "maxLength": 4,
       "listVals": [],
       "columnName": "N",
@@ -6969,23 +6988,23 @@
     "Recipient_UEI__c": {
       "key": "Recipient_UEI__c",
       "index": 2,
-      "required": false,
+      "required": "RequiredOptional",
       "dataType": "String",
       "maxLength": 12,
       "listVals": [],
       "columnName": "C",
-      "humanColName": "Subrecipient UEI",
+      "humanColName": "UEI",
       "ecCodes": false
     },
     "Recipient_EIN__c": {
       "key": "Recipient_EIN__c",
       "index": 3,
-      "required": false,
+      "required": "RequiredOptional",
       "dataType": "Numeric",
       "maxLength": 9,
       "listVals": [],
       "columnName": "D",
-      "humanColName": "Subrecipient TIN",
+      "humanColName": "TIN",
       "ecCodes": false
     },
     "Project_Identification_Number__c": {
@@ -7098,7 +7117,7 @@
     "If_Other__c": {
       "key": "If_Other__c",
       "index": 10,
-      "required": "**only required if Primary Sector is Other",
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 100,
       "listVals": [],
@@ -7109,7 +7128,7 @@
     "Purpose_of_Funds__c": {
       "key": "Purpose_of_Funds__c",
       "index": 11,
-      "required": "TBD",
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 3000,
       "listVals": [],
@@ -7285,6 +7304,28 @@
       "listVals": [],
       "columnName": "V",
       "humanColName": "SubAward Description",
+      "ecCodes": false
+    },
+    "Subaward_Changed__c": {
+      "key": "Subaward_Changed__c",
+      "index": 22,
+      "required": true,
+      "dataType": "Pick List",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "W",
+      "humanColName": "Did the Subaward Amount (Obligation) Change From Last Reporting Period?",
+      "ecCodes": false
+    },
+    "Change_Reason__c": {
+      "key": "Change_Reason__c",
+      "index": 23,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 250,
+      "listVals": [],
+      "columnName": "X",
+      "humanColName": "Reason for the Subaward Amount (Obligation) Change",
       "ecCodes": false
     }
   },

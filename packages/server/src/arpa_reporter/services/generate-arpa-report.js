@@ -667,8 +667,7 @@ async function generateProject519521 (records) {
             capitalizeFirstLetter(record.content.Is_project_designed_to_meet_100_mbps__c),
             record.content.Project_not_met_100_mbps_explanation__c,
             capitalizeFirstLetter(record.content.Is_project_designed_to_exceed_100_mbps__c),
-            'CHANGEME',
-            // TODO: Replace CHANGEME with this field once the workbook includes it: capitalizeFirstLetter(record.content.Is_project_designed_provide_hh_service__c),
+            capitalizeFirstLetter(record.content.Is_project_designed_provide_hh_service__c),
             record.content.Confirm_Service_Provider__c,
             record.content.Technology_Type_Planned__c,
             record.content.Technology_Type_Planned_Other__c,
@@ -684,10 +683,8 @@ async function generateProject519521 (records) {
             record.content.Actual_Funded_Locations_Minimum_100_100__c,
             record.content.Planned_Funded_Locations_Minimum_100_20__c,
             record.content.Actual_Funded_Locations_Minimum_100_20__c,
-            'CHANGEME',
-            // TODO: Replace CHANGEME with this field once the workbook includes it: record.content.Planned_Sum_Speed_Types_Explanation__c,
-            'CHANGEME',
-            // TODO: Replace CHANGEME with this field once the workbook includes it: record.content.Actual_Sum_Speed_Types_Explanation__c,
+            record.content.Planned_Sum_Speed_Types_Explanation__c,
+            record.content.Actual_Sum_Speed_Types_Explanation__c,
             record.content.Planned_Funded_Locations_Residential__c,
             record.content.Actual_Funded_Locations_Residential__c,
             record.content.Planned_Funded_Locations_Total_Housing__c,
@@ -878,7 +875,7 @@ async function generateSubRecipient (records, periodId) {
       null, // first col is blank
       record.Unique_Entity_Identifier__c,
       tin(record.EIN__c),
-      null, // TODO: Update reporting to include Recipient_Profile_Id__c if it exists
+      null, // TODO: Update reporting to include Recipient_Profile_Id__c if it exists/is known
       record.Name,
       multiselect(record.Entity_Type_2__c),
       record.POC_Email_Address__c,

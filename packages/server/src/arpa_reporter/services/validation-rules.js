@@ -24,17 +24,21 @@ const dropdownCorrections = {
   'Affordable housing supportive housing or recovery housing': {
     correctedValue: 'Affordable housing, supportive housing, or recovery housing'
   },
-  'COVID-19 testing sites and laboratories and acquisition of related equipment': {
-    correctedValue: 'COVID-19 testing sites and laboratories, and acquisition of related equipment'
+  'Childcare, daycare, and early learning facilities': {
+    correctedValue: 'Childcare, daycare and early learning facilities'
+  },
+  'COVID-19 testing sites and laboratories': {
+    allowableLegacyValues: [
+      'COVID-19 testing sites and laboratories, and acquisition of related equipment',
+      'COVID-19 testing sites and laboratories and acquisition of related equipment'
+    ]
+  },
+  'Mitigation measures in small businesses, nonprofits, and impacted industries': {
+    correctedValue: 'Mitigation measures in small businesses, nonprofits and impacted industries'
   },
   'Family or child care': {
     allowableLegacyValues: ['Family or childcare']
   }
-  /*
-  'Mitigation measures in small businesses, nonprofits and impacted industries': {
-    correctedValue: 'TODO'  What is the correct value here?
-  }
-  */
 }
 
 function generateRules () {
