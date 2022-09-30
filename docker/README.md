@@ -45,14 +45,16 @@ A few examples:
 
 ```shell
 # Run all test suites for both the client and the server
-> docker compose exec yarn test
+> docker compose exec app yarn test
 
 # Run all test suites for the server
-> docker compose exec yarn test:server
+> docker compose exec app yarn test:server
 
 # Run just the "apis" test suite for the server
-> docker compose exec --workdir /app/packages/server yarn test:apis
+> docker compose exec --workdir /app/packages/server app yarn test:apis
 ```
+
+Note: The above examples will execute in the `app` container.
 
 
 ### Docker runs on something other than `localhost`<a name="cookbook-non-localhost"></a>
