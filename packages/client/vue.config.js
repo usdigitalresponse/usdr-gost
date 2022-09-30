@@ -16,12 +16,13 @@ module.exports = {
     },
   },
   devServer: {
+    allowedHosts: process.env.VUE_ALLOWED_HOSTS || 'auto',
     client: {
       progress: false,
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: process.env.VUE_APP_API_URL || 'http://localhost:3000',
       },
     },
     historyApiFallback: {
