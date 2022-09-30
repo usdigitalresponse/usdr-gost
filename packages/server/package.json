@@ -23,7 +23,7 @@
     "test": "yarn test:apis && yarn test:arpa && yarn test:db && yarn test:email",
     "test:email": "NODE_ENV=test mocha __tests__/email/*.test.js",
     "test:db": "NODE_ENV=test mocha --timeout 10000 __tests__/db/*.test.js",
-    "test:apis": "NODE_ENV=test SUPPRESS_EMAIL=TRUE node src > test.log & TEST_SERVER_PID=$!; NODE_ENV=test mocha --exit --bail --require __tests__/api/fixtures.js __tests__/api/*.test.js; TEST_RET_VAL=$?; kill $TEST_SERVER_PID; exit $TEST_RET_VAL",
+    "test:apis": "NODE_ENV=test SUPPRESS_EMAIL=true mocha --exit --bail --require __tests__/api/fixtures.js __tests__/api/*.test.js",
     "test:arpa": "NODE_ENV=test __tests__/run_arpa_reporter_tests.sh",
     "lint": "eslint '**/*.js'",
     "pre-commit": "yarn lint",
@@ -88,6 +88,7 @@
     "nodemon": "2.0.15",
     "openapi-types": "^12.0.2",
     "prettier": "2.6.1",
+    "sinon": "^14.0.0",
     "standard": "^16.0.3",
     "supertest": "^6.2.3",
     "typescript": "^4.7.2"

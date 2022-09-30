@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 
 const _ = require('lodash-checkit');
-const { getSessionCookie, fetchApi, knex } = require('./utils');
+const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 
 describe('`/api/keywords` endpoint', () => {
@@ -34,7 +34,8 @@ describe('`/api/keywords` endpoint', () => {
     };
 
     let testKeywordsByAgency = null;
-
+    let testServer;
+    let fetchApi;
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
@@ -58,6 +59,12 @@ describe('`/api/keywords` endpoint', () => {
             .merge()
             .returning(['id', 'agency_id']);
         testKeywordsByAgency = _.groupBy(createdKeywords, 'agency_id');
+
+        testServer = await makeTestServer();
+        fetchApi = testServer.fetchApi;
+    });
+    after(() => {
+        testServer.stop();
     });
 
     after(async () => {

@@ -26,11 +26,16 @@ function configureApiRoutes(app) {
     app.use('/api/health', require('./routes/health'));
 }
 
-function configureApp(app) {
+function configureApp(app, options = {}) {
     app.use(morgan('common', {
         skip: (req) => {
             // Render hits the health check path extremely often, so don't clutter logs with it.
             if (req.originalUrl === '/api/health') {
+                return true;
+            }
+
+            // We disable request logging during API tests because it makes the Mocha test output noisy
+            if (options.disableRequestLogging) {
                 return true;
             }
 

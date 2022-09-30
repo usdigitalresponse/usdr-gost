@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { getSessionCookie, fetchApi } = require('./utils');
+const { getSessionCookie, makeTestServer } = require('./utils');
 
 describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
     const agencies = {
@@ -30,10 +30,18 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
         },
     };
 
+    let testServer;
+    let fetchApi;
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
         fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
+
+        testServer = await makeTestServer();
+        fetchApi = testServer.fetchApi;
+    });
+    after(() => {
+        testServer.stop();
     });
 
     context('GET organizations/:organizationId/agencies', () => {
