@@ -6,7 +6,7 @@ const { getCurrentReportingPeriodID } = require('../db/settings')
 const { recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records')
 const { log } = require('./log')
 const { usedForTreasuryExport } = require('../db/uploads')
-const { WEBSITE_DOMAIN } = require('../environment')
+const { ARPA_REPORTER_BASE_URL } = require('../environment')
 
 const COLUMN = {
   EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -28,7 +28,7 @@ async function generate (requestHost) {
   const periodId = await getCurrentReportingPeriodID()
   log(`generate(${periodId})`)
 
-  const domain = WEBSITE_DOMAIN ?? requestHost
+  const domain = ARPA_REPORTER_BASE_URL ?? requestHost
 
   // generate sheets
   const [
