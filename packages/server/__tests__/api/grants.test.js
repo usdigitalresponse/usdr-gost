@@ -327,7 +327,7 @@ describe('`/api/grants` endpoint', () => {
     context('DELETE /api/grants/:grantId/interested/:agencyId', () => {
         context('by an admin user', () => {
             const interestEndpoint = `335255/interested`;
-            it("records this admin's ability to delete a grant", async () => {
+            it('records this admin\'s ability to delete a grant', async () => {
                 const response = await fetchApi(`/grants/${interestEndpoint}/undefined`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'delete',
