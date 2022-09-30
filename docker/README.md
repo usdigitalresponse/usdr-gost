@@ -57,6 +57,16 @@ A few examples:
 Note: The above examples will execute in the `app` container.
 
 
+### Start an interactive shell within a docker container
+
+You can shell into a running container's linux environment by running
+`docker compose exec <service> bash`, where `service` is one of the service names defined
+in `docker-compose.yml` (e.g. `app`, `frontend`, or `postgres`). This is akin to accessing
+a remote host using SSH.
+
+To end the interactive session, use the commmand, `exit`.
+
+
 ### Docker runs on something other than `localhost`<a name="cookbook-non-localhost"></a>
 
 When the client and server containers run on a remote machine, the remote hostname must be
