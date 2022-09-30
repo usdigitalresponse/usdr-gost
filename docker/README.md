@@ -57,7 +57,7 @@ A few examples:
 Note: The above examples will execute in the `app` container.
 
 
-### Start an interactive shell within a docker container
+### Access an interactive shell within a docker container
 
 You can shell into a running container's linux environment by running
 `docker compose exec <service> bash`, where `service` is one of the service names defined
