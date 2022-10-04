@@ -327,13 +327,56 @@ describe('`/api/grants` endpoint', () => {
     context('DELETE /api/grants/:grantId/interested/:agencyId', () => {
         context('by an admin user', () => {
             const interestEndpoint = `335255/interested`;
-            it('records this admin\'s ability to delete a grant', async () => {
+            it('allows removing grant interest for a single agency', async () => {
                 const response = await fetchApi(`/grants/${interestEndpoint}/undefined`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'delete',
                     body: JSON.stringify({ agencyIds: [agencies.own], interestedCode: null }),
                 });
                 expect(response.statusText).to.equal('OK');
+            });
+            it('allows removing grant interest for multiple authorized agencies', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/undefined`, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'delete',
+                    body: JSON.stringify({ agencyIds: [agencies.own, agencies.ownSub], interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+        });
+        context('by a user with a staff role', () => {
+            const interestEndpoint = `335255/interested`;
+            it('allows removing grant interest for a single agency', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.own}`, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'delete',
+                    body: JSON.stringify({ agencyIds: [agencies.own], interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+            it('allows removing grant interest for a multiple authorized agencies', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.own}`, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'delete',
+                    body: JSON.stringify({ agencyIds: [agencies.own, agencies.ownSub], interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+            it('forbids removing grant interest when one of the agencies is not this user\'s agency', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.own}`, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'delete',
+                    body: JSON.stringify({ agencyIds: [agencies.offLimits, agencies.own], interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('Forbidden');
+            });
+            it('forbids removing grant interest when the agency is not this user\'s agency', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.offLimits}`, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'delete',
+                    body: JSON.stringify({ interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('Forbidden');
             });
         });
     });
