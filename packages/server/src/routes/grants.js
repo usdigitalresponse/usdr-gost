@@ -236,7 +236,7 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
     const { grantId, agencyId } = req.params;
     const { agencyIds } = req.body;
     // If agencyIds is not empty, use that. Otherwise, use the single agencyId value.
-    const submittedAgencyIds = agencyIds.length > 0 ? agencyIds : [agencyId];
+    const submittedAgencyIds = (agencyIds || []).length > 0 ? agencyIds : [agencyId];
 
     const allowed = await isUserAuthorized(user, ...submittedAgencyIds);
     if (!allowed) {
