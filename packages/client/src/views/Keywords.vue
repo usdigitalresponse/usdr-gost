@@ -39,12 +39,6 @@ export default {
         {
           key: 'notes',
         },
-        {
-          key: 'created_at',
-        },
-        {
-          key: 'updated_at',
-        },
         { key: 'actions', label: 'Actions' },
       ],
       showAddKeywordModal: false,
