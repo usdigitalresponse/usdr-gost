@@ -796,7 +796,7 @@ async function sync(tableName, syncKey, updateCols, newRows) {
  * @parm   Array[int] agencyIds
  * @return boolean
  * */
- async function inTenant(userId, tenantId, agencyIds) {
+async function inTenant(userId, tenantId, agencyIds) {
     const uniqueAgencyIds = Array.from(new Set(agencyIds));
 
     const result = await knex(
@@ -804,11 +804,12 @@ async function sync(tableName, syncKey, updateCols, newRows) {
             .select('id as agency_id')
             .where('tenant_id', tenantId)
             .whereIn('id', uniqueAgencyIds)
-            .as('agencies_in_tenant')
+            .as('agencies_in_tenant'),
     ).select(
         knex.raw(
             'coalesce(? <@ array_agg(agencies_in_tenant.agency_id), false) as same_tenant',
-            [uniqueAgencyIds]),
+            [uniqueAgencyIds],
+        ),
     ).first();
 
     return result.same_tenant === true;
