@@ -1,8 +1,8 @@
 [![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg?style=flat)](./CODE_OF_CONDUCT.md)
 
-# USDR: Grants
+# USDR: Grants One Stop Tool (GOST)
 
-GOST (Grants One Stop Tool) is a platform that hosts tools to enable state and local government officials to more easily apply for and report on their federal grants. Feel free to make a contribution, or if you'd like to volunteer with us in a more in-depth manner you can sign up at [usdigitalresponse.org/volunteer](https://www.usdigitalresponse.org/volunteer).
+GOST is a platform that hosts tools to enable state and local government officials to more easily apply for and report on their federal grants. Feel free to make a contribution, or if you'd like to volunteer with us in a more in-depth manner you can sign up at [usdigitalresponse.org/volunteer](https://www.usdigitalresponse.org/volunteer).
 
 This application is currently hosted at grants.usdigitalresponse.org. Changes made to the main branch will be reflected immediately on this site.
 
