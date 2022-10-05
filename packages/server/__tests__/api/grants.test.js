@@ -362,7 +362,7 @@ describe('`/api/grants` endpoint', () => {
                 });
                 expect(response.statusText).to.equal('OK');
             });
-            it('forbids removing grant interest when one of the agencies is not this user\'s agency', async () => {
+            it('forbids removing grant interest when one of the agencies is not in this user\'s tenant', async () => {
                 const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.own}`, agencies.own, {
                     ...fetchOptions.staff,
                     method: 'delete',
@@ -370,7 +370,7 @@ describe('`/api/grants` endpoint', () => {
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
-            it('forbids removing grant interest when the agency is not this user\'s agency', async () => {
+            it('forbids removing grant interest when the agency is not in this user\'s tenant', async () => {
                 const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.offLimits}`, agencies.own, {
                     ...fetchOptions.staff,
                     method: 'delete',
