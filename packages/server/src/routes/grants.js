@@ -167,7 +167,7 @@ router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { agencyIds } = req.body;
 
-    const inSameTenant = await db.inTenant(user.id, user.tenant_id, agencyIds);
+    const inSameTenant = await db.inTenant(user.tenant_id, agencyIds);
     if (!inSameTenant) {
         res.sendStatus(403);
         return;
@@ -182,7 +182,7 @@ router.delete('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { agencyIds } = req.body;
 
-    const inSameTenant = await db.inTenant(user.id, user.tenant_id, agencyIds);
+    const inSameTenant = await db.inTenant(user.tenant_id, agencyIds);
     if (!inSameTenant) {
         res.sendStatus(403);
         return;

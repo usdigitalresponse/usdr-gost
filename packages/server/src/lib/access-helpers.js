@@ -24,7 +24,7 @@ function isUSDRSuperAdmin(user) {
  * @returns {Boolean} true if the agency is in the same tenant as the user
  * */
 async function isUserAuthorized(user, ...agencyIds) {
-    return inTenant(user.id, user.tenant_id, agencyIds);
+    return inTenant(user.tenant_id, agencyIds);
 }
 
 async function isAuthorized(userId, agencyId) {
