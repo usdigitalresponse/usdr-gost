@@ -167,7 +167,7 @@ router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { agencyIds } = req.body;
 
-    const inSameTenant = await db.inTenant(user.id, user.tenant_id, agencyIds);
+    const inSameTenant = await db.inTenant(user.tenant_id, agencyIds);
     if (!inSameTenant) {
         res.sendStatus(403);
         return;
@@ -182,7 +182,7 @@ router.delete('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { agencyIds } = req.body;
 
-    const inSameTenant = await db.inTenant(user.id, user.tenant_id, agencyIds);
+    const inSameTenant = await db.inTenant(user.tenant_id, agencyIds);
     if (!inSameTenant) {
         res.sendStatus(403);
         return;
@@ -235,14 +235,16 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
     const { user } = req.session;
     const { grantId, agencyId } = req.params;
     const { agencyIds } = req.body;
-    console.log(agencyIds);
-    const allowed = await isUserAuthorized(user, agencyIds || agencyId);
+    // If agencyIds is not empty, use that. Otherwise, use the single agencyId value.
+    const submittedAgencyIds = (agencyIds || []).length > 0 ? agencyIds : [agencyId];
+
+    const allowed = await isUserAuthorized(user, ...submittedAgencyIds);
     if (!allowed) {
         res.sendStatus(403);
         return;
     }
 
-    await db.unmarkGrantAsInterested({ grantId, agencyIds, userId: user.id });
+    await db.unmarkGrantAsInterested({ grantId, agencyIds: submittedAgencyIds, userId: user.id });
     res.json({});
 });
 
