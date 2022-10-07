@@ -8,6 +8,7 @@ Last updated 8/22/2022
   - `packages/server/package.json`: `engines` field
   - `.nvmrc` (`.node-version` symlinks to this)
   - `.github/workflows/ci.yaml`: `node-version` field under `Install Node.js` build step
+  - `README.md`: instructions for setting up dev environment
 
 2. `npx lerna bootstrap` to rerun `yarn install` in both packages
 

@@ -83,8 +83,8 @@ async function generateProject111210 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -136,8 +136,8 @@ async function generateProject18 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -183,8 +183,8 @@ async function generateProject19 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -232,8 +232,8 @@ async function generateProject211214 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -287,8 +287,8 @@ async function generateProject2128 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -338,8 +338,8 @@ async function generateProject215218 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -388,8 +388,8 @@ async function generateProject224227 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -435,8 +435,8 @@ async function generateProject236 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -481,8 +481,8 @@ async function generateProject31 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -521,8 +521,8 @@ async function generateProject32 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -562,8 +562,8 @@ async function generateProject4142 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             record.content.Project_Description__c,
             currency(record.content.Program_Income_Earned__c),
             currency(record.content.Program_Income_Expended__c),
@@ -615,8 +615,8 @@ async function generateProject51518 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             record.content.Project_Description__c,
             currency(record.content.Program_Income_Earned__c),
             currency(record.content.Program_Income_Expended__c),
@@ -657,8 +657,8 @@ async function generateProject519521 (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             record.content.Project_Description__c,
             currency(record.content.Program_Income_Earned__c),
             currency(record.content.Program_Income_Expended__c),
@@ -667,6 +667,8 @@ async function generateProject519521 (records) {
             capitalizeFirstLetter(record.content.Is_project_designed_to_meet_100_mbps__c),
             record.content.Project_not_met_100_mbps_explanation__c,
             capitalizeFirstLetter(record.content.Is_project_designed_to_exceed_100_mbps__c),
+            capitalizeFirstLetter(record.content.Is_project_designed_provide_hh_service__c),
+            record.content.Confirm_Service_Provider__c,
             record.content.Technology_Type_Planned__c,
             record.content.Technology_Type_Planned_Other__c,
             record.content.Technology_Type_Actual__c,
@@ -677,12 +679,12 @@ async function generateProject519521 (records) {
             record.content.Actual_Funded_Locations_Served__c,
             record.content.Planned_Funded_Locations_25_3_Below__c,
             record.content.Planned_Funded_Locations_Between_25_100__c,
-            record.content.Planned_Funded_Locations_Minimum_1_Gbps__c,
-            record.content.Actual_Funded_Locations_Minimum_1_Gbps__c,
             record.content.Planned_Funded_Locations_Minimum_100_100__c,
             record.content.Actual_Funded_Locations_Minimum_100_100__c,
             record.content.Planned_Funded_Locations_Minimum_100_20__c,
             record.content.Actual_Funded_Locations_Minimum_100_20__c,
+            record.content.Planned_Sum_Speed_Types_Explanation__c,
+            record.content.Actual_Sum_Speed_Types_Explanation__c,
             record.content.Planned_Funded_Locations_Residential__c,
             record.content.Actual_Funded_Locations_Residential__c,
             record.content.Planned_Funded_Locations_Total_Housing__c,
@@ -691,11 +693,8 @@ async function generateProject519521 (records) {
             record.content.Actual_Funded_Locations_Business__c,
             record.content.Planned_Funded_Locations_Community__c,
             record.content.Actual_Funded_Locations_Community__c,
-            record.content.Technology_Type_Planned__c,
-            record.content.Technology_Type_Actual__c,
             record.content.Planned_Funded_Locations_Explanation__c,
             record.content.Actual_Funded_Locations_Explanation__c,
-            record.content.Confirm_Service_Provider__c
           ]
         }
         default:
@@ -747,8 +746,8 @@ async function generateProjectBaseline (records) {
             currency(record.content.Adopted_Budget__c),
             currency(record.content.Total_Obligations__c),
             currency(record.content.Total_Expenditures__c),
-            currency(record.content.Q2_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
-            currency(record.content.Q2_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
+            currency(record.content.Q3_2022_Obligations__c ?? record.content.Current_Period_Obligations__c),
+            currency(record.content.Q3_2022_Expenditures__c ?? record.content.Current_Period_Expenditures__c),
             capitalizeFirstLetter(record.content.Does_Project_Include_Capital_Expenditure__c),
             currency(record.content.Total_Cost_Capital_Expenditure__c),
             record.content.Type_of_Capital_Expenditure__c,
@@ -876,6 +875,7 @@ async function generateSubRecipient (records, periodId) {
       null, // first col is blank
       record.Unique_Entity_Identifier__c,
       tin(record.EIN__c),
+      null, // TODO: Update reporting to include Recipient_Profile_Id__c if it exists/is known
       record.Name,
       multiselect(record.Entity_Type_2__c),
       record.POC_Email_Address__c,
@@ -959,15 +959,17 @@ async function generateReport (periodId) {
 
     const template = await getTemplate(name)
 
-    // 2022-07-08 Treasury expects LF line endings _within_ cells and CRLF line
-    // endings _between_ rows.  Failure to adhere to either of these requirements
-    // can result in an opaque error that looks like the following:
-    // "List index out of bounds: 1"
+    // 2022-09-29
+    // The treasury portal csv parser doesn't adhere to correct semantics for parsing some line
+    // ending characters. To correct for that, we'll strip any of this problematic characters out
+    // of the export. The csv upload validator doesn't depend on any of the values with linebreaks
+    // so this doesn't break parsing, though it might cause minor formatting differences in the
+    // downloaded exports.
     const escapedContent = [...template, ...csvData].map(row =>
-      row.map(value => typeof value === 'string' ? value.replace(/\r\n/g, '\n') : value)
+      row.map(value => typeof value === 'string' ? value.replace(/\r\n|\r|\n/g, ' -- ') : value)
     )
     const sheet = XLSX.utils.aoa_to_sheet(escapedContent, { dateNF: 'MM/DD/YYYY' })
-    const csvString = XLSX.utils.sheet_to_csv(sheet, { forceQuotes: true, RS: '\r\n' })
+    const csvString = XLSX.utils.sheet_to_csv(sheet, { RS: '\r\n' })
     const buffer = Buffer.from(BOM + csvString, 'utf8')
 
     zip.addFile(name + '.csv', buffer)

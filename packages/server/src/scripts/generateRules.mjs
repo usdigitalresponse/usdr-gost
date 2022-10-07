@@ -8,9 +8,9 @@ import chalk from 'chalk'
 import XLSX from 'xlsx'
 import lodash from 'lodash'
 
-import { DATA_SHEET_TYPES, readVersionRecord } from '../src/server/services/records.js'
-import { SERVER_DATA_DIR, EMPTY_TEMPLATE_NAME, SERVER_CODE_DIR } from '../src/server/environment.js'
-import { dropdownCorrections } from '../src/server/services/validation-rules.js'
+import { DATA_SHEET_TYPES, readVersionRecord } from '../arpa_reporter/services/records.js'
+import { SERVER_DATA_DIR, EMPTY_TEMPLATE_NAME, SERVER_CODE_DIR } from '../arpa_reporter/environment.js'
+import { dropdownCorrections } from '../arpa_reporter/services/validation-rules.js'
 
 const { merge } = lodash
 const log = (msg) => { console.log(chalk.green(msg)) }

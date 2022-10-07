@@ -1,0 +1,2465 @@
+{
+  "expendituresGT50000BulkUpload.xlsx": {
+    "version": "2022.03.28",
+    "templateName": "SLFRF Bulk Upload Template for Sub-Award Expenditures-Reporting-GT-50000",
+    "fields": [
+      {
+        "fieldId": "Sub_Award_Lookup__c",
+        "fieldName": "Required",
+        "required": "Subaward Number"
+      },
+      {
+        "fieldId": "Expenditure_Start__c",
+        "fieldName": "Required",
+        "required": "Expenditure Start Date"
+      },
+      {
+        "fieldId": "Expenditure_End__c",
+        "fieldName": "Required",
+        "required": "Expenditure End Date"
+      },
+      {
+        "fieldId": "Expenditure_Amount__c",
+        "fieldName": "Required",
+        "required": "Expenditure Amount"
+      }
+    ]
+  },
+  "expendituresLT50000BulkUpload.xlsx": {
+    "version": "2022.03.28",
+    "templateName": "Sub Award Expenditure Reporting-lt-50000-Individuals",
+    "fields": [
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Required",
+        "required": "Recipient Project Id"
+      },
+      {
+        "fieldId": "Sub_Award_Type_Aggregates_SLFRF__c",
+        "fieldName": "Required",
+        "required": "Sub Award Type Aggregates SLFRF"
+      },
+      {
+        "fieldId": "Quarterly_Obligation_Amt_Aggregates__c",
+        "fieldName": "Required",
+        "required": "Total Period Obligation Amount (Aggregates)"
+      },
+      {
+        "fieldId": "Quarterly_Expenditure_Amt_Aggregates__c",
+        "fieldName": "Required",
+        "required": "Total Period Expenditure Amount  (Aggregates)"
+      }
+    ]
+  },
+  "paymentsIndividualsLT50000BulkUpload.xlsx": {
+    "version": "Version - 2022.03.28",
+    "templateName": "SLFRF Bulk Upload Template for Payments to Individuals \t",
+    "fields": [
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Required",
+        "required": "Recipient Project Id"
+      },
+      {
+        "fieldId": "Quarterly_Obligation_Amt_Aggregates__c",
+        "fieldName": "Required",
+        "required": "Total Period Obligation Amount (Aggregates)"
+      },
+      {
+        "fieldId": "Quarterly_Expenditure_Amt_Aggregates__c",
+        "fieldName": "Required",
+        "required": "Total Period Expenditure Amount  (Aggregates)"
+      }
+    ]
+  },
+  "project111210BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk File Upload Template For EC 1.11, 2.10",
+    "ecCodes": [
+      "1.11",
+      "2.10"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Primarily Populations Served",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics_Explanation__c",
+        "fieldName": "Primary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Secondary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Secondary_Proj_Demographics_Explanation__c",
+        "fieldName": "Secondary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Tertiary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Tertiary_Proj_Demographics_Explanation__c",
+        "fieldName": "Tertiary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Number_Workers_Enrolled_Sectoral__c",
+        "fieldName": "Workers enrolled in sectoral job training programs",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Number_Workers_Competing_Sectoral__c",
+        "fieldName": "Workers completing sectoral job training programs",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Number_People_Summer_Youth__c",
+        "fieldName": "People participating in summer youth employment programs",
+        "required": "Conditional"
+      }
+    ]
+  },
+  "project18_229233BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk File Upload Template For EC 1.8, 2.29 - 2.33",
+    "ecCodes": [
+      "1.8",
+      "2.29",
+      "2.30",
+      "2.31",
+      "2.32",
+      "2.33"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Primarily Populations Served",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics_Explanation__c",
+        "fieldName": "Primary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Secondary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Secondary_Proj_Demographics_Explanation__c",
+        "fieldName": "Secondary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Tertiary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Tertiary_Proj_Demographics_Explanation__c",
+        "fieldName": "Tertiary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Small_Businesses_Served__c",
+        "fieldName": "Number of Small Businesses Served ",
+        "required": "Required"
+      }
+    ]
+  },
+  "project19_234BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk File Upload Template For EC 1.9, 2.34",
+    "ecCodes": [
+      "1.9",
+      "2.34"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Primarily Populations Served",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics_Explanation__c",
+        "fieldName": "Primary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Secondary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Secondary_Proj_Demographics_Explanation__c",
+        "fieldName": "Secondary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Tertiary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Tertiary_Proj_Demographics_Explanation__c",
+        "fieldName": "Tertiary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Number_Non_Profits_Served__c",
+        "fieldName": "Non-Profits Served",
+        "required": "Required"
+      }
+    ]
+  },
+  "project211214BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk File Upload Template For EC 2.11-2.14",
+    "ecCodes": [
+      "2.11",
+      "2.12",
+      "2.13",
+      "2.14"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Primarily Populations Served",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics_Explanation__c",
+        "fieldName": "Primary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Secondary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Secondary_Proj_Demographics_Explanation__c",
+        "fieldName": "Secondary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Tertiary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Tertiary_Proj_Demographics_Explanation__c",
+        "fieldName": "Tertiary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      },
+      {
+        "fieldId": "School_ID_or_District_ID__c",
+        "fieldName": "NCES School ID or NCES District ID.",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Number_Children_Served_Childcare__c",
+        "fieldName": "Children served by childcare and early learning services (pre-school/pre-K/ages 3-5)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Number_Families_Served_Home_Visiting__c",
+        "fieldName": "Families served by home visiting",
+        "required": "Conditional"
+      }
+    ]
+  },
+  "project2128BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "Bulk File Upload Template for EC 2.1 - 2.8",
+    "ecCodes": [
+      "2.1",
+      "2.2",
+      "2.3",
+      "2.4",
+      "2.5",
+      "2.6",
+      "2.7",
+      "2.8"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Primarily Populations Served",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics_Explanation__c",
+        "fieldName": "Primary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Secondary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Secondary_Proj_Demographics_Explanation__c",
+        "fieldName": "Secondary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Tertiary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Tertiary_Proj_Demographics_Explanation__c",
+        "fieldName": "Tertiary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Individuals_Served__c",
+        "fieldName": "Households Served",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Number_Households_Eviction_Prevention__c",
+        "fieldName": "Households receiving eviction prevention services ",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Number_Affordable_Housing_Units__c",
+        "fieldName": "Affordable housing units preserved or developed",
+        "required": "Required"
+      }
+    ]
+  },
+  "project215218BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk File Upload Template For EC 2.15-2.16, 2.17-2.18",
+    "ecCodes": [
+      "2.15",
+      "2.16",
+      "2.17",
+      "2.18"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Primarily Populations Served",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics_Explanation__c",
+        "fieldName": "Primary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Secondary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Secondary_Proj_Demographics_Explanation__c",
+        "fieldName": "Secondary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Tertiary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Tertiary_Proj_Demographics_Explanation__c",
+        "fieldName": "Tertiary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Number_Households_Eviction_Prevention__c",
+        "fieldName": "Households receiving eviction prevention services ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Number_Affordable_Housing_Units__c",
+        "fieldName": "Affordable housing units preserved or developed",
+        "required": "Conditional"
+      }
+    ]
+  },
+  "project224227BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk File Upload Template For EC 2.24 - 2.27",
+    "ecCodes": [
+      "2.24",
+      "2.25",
+      "2.26",
+      "2.27"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Primarily Populations Served",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics_Explanation__c",
+        "fieldName": "Primary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Secondary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Secondary_Proj_Demographics_Explanation__c",
+        "fieldName": "Secondary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Tertiary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Tertiary_Proj_Demographics_Explanation__c",
+        "fieldName": "Tertiary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      },
+      {
+        "fieldId": "School_ID_or_District_ID__c",
+        "fieldName": "NCES School ID or NCES District ID.",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Number_Students_Tutoring_Programs__c",
+        "fieldName": "Students participating in evidence-based tutoring programs",
+        "required": "Conditional"
+      }
+    ]
+  },
+  "project236BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk File Upload Template for EC 2.36",
+    "ecCodes": [
+      "2.36"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Primarily Populations Served",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics_Explanation__c",
+        "fieldName": "Primary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Secondary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Secondary_Proj_Demographics_Explanation__c",
+        "fieldName": "Secondary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Tertiary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Tertiary_Proj_Demographics_Explanation__c",
+        "fieldName": "Tertiary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Industry_Experienced_8_Percent_Loss__c",
+        "fieldName": "Industry other than tourism Narrative",
+        "required": "Required"
+      }
+    ]
+  },
+  "project31BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk Upload Template for EC 3.1",
+    "ecCodes": [
+      "3.1"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Payroll_Public_Health_Safety__c",
+        "fieldName": "Number of government FTEs responding",
+        "required": "Required"
+      }
+    ]
+  },
+  "project32BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk File Upload Template for EC 3.2",
+    "ecCodes": [
+      "3.2"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Number_of_FTEs_Rehired__c",
+        "fieldName": "Number of FTEs rehired by governments under this authority",
+        "required": "Required"
+      }
+    ]
+  },
+  "project4142BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk Upload Template for EC 4.1 - 4.2",
+    "ecCodes": [
+      "4.1",
+      "4.2"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Sectors_Critical_to_Health_Well_Being__c",
+        "fieldName": "List of sectors designated as critical to protecting the health and well-being of residents by the chief executive of the jurisdiction",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Workers_Served__c",
+        "fieldName": "Number of workers to be served",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Premium_Pay_Narrative__c",
+        "fieldName": "Premium Pay Narrative",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Number_of_Workers_K_12__c",
+        "fieldName": "K-12 Workers Served",
+        "required": "Required"
+      }
+    ]
+  },
+  "project51518BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk Upload Template For EC 5.1 - 5.18",
+    "ecCodes": [
+      "5.1",
+      "5.2",
+      "5.3",
+      "5.4",
+      "5.5",
+      "5.6",
+      "5.7",
+      "5.8",
+      "5.9",
+      "5.10",
+      "5.11",
+      "5.12",
+      "5.13",
+      "5.14",
+      "5.15",
+      "5.16",
+      "5.17",
+      "5.18"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Proj_Actual_Construction_Start_Date__c",
+        "fieldName": "Projected/actual construction start date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Initiation_of_Operations_Date__c",
+        "fieldName": "Projected/actual initiation of operations date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Location__c",
+        "fieldName": "Location (for broadband, geospatial location data)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Location_Detail__c",
+        "fieldName": "Location Details",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "National_Pollutant_Discharge_Number__c",
+        "fieldName": "National Pollutant Discharge Elimination System (NPDES)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Public_Water_System_PWS_ID_number__c",
+        "fieldName": "Public Water System (PWS) ID number   ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Median_Household_Income_Service_Area__c",
+        "fieldName": "Median Household Income of service area ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Lowest_Quintile_Income__c",
+        "fieldName": "Lowest Quintile Income of the service area ",
+        "required": "Conditional"
+      }
+    ]
+  },
+  "project519521BulkUpload.xlsx": {
+    "version": "2022.06.21",
+    "templateName": "SLFRF Bulk Upload Template For EC 5.19 - 5.21",
+    "ecCodes": [
+      "5.19",
+      "5.20",
+      "5.21"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Proj_Actual_Construction_Start_Date__c",
+        "fieldName": "Projected/actual construction start date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Initiation_of_Operations_Date__c",
+        "fieldName": "Projected/actual initiation of operations date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Is_project_designed_to_meet_100_mbps__c",
+        "fieldName": "Confirm that the project is designed to, upon completion, reliably meet or exceed symmetrical 100 Mbps download and upload speeds. ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_not_met_100_mbps_explanation__c",
+        "fieldName": "If the project is not designed to reliably meet or exceed symmetrical 100 Mbps download and upload speeds, explain why not, ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Is_project_designed_to_exceed_100_mbps__c",
+        "fieldName": "Confirm that the project is designed to, upon completion, meet or exceed symmetrical 100 Mbps download speed and between at least 20 Mbps and 100 Mbps upload speed, and be scalable to a minimum of 100 Mbps download speed and 100 Mbps upload speed.",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Is_project_designed_provide_hh_service__c",
+        "fieldName": "Is project designed to provide service to households?",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Confirm_Service_Provider__c",
+        "fieldName": "If yes, Confirm that the service provider for the project has, or will upon completion of the project, either participated in the Federal Communications Commission (FCC)s Affordable Connectivity Program (ACP) or otherwise provided access to a broad-based affordability program that provides benefits to households commensurate with those provided under the ACP to low-income consumers in the proposed service area of the broadband infrastructure",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Technology_Type_Planned__c",
+        "fieldName": "Technology Type Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Technology_Type_Planned_Other__c",
+        "fieldName": "If Technology Type Planned is \"Other\" please specify.",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Technology_Type_Actual__c",
+        "fieldName": "Technology Type Actual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Technology_Type_Actual_Other__c",
+        "fieldName": "If Technology Type Actual is \"Other\" please specify.",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Total_Miles_of_Fiber_Deployed__c",
+        "fieldName": "Total Miles of Fiber Deployed Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Miles_of_Fiber_Deployed_Actual__c",
+        "fieldName": "Total Miles of Fiber Deployed Actual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Planned_Funded_Locations_Served__c",
+        "fieldName": "Total Number of Funded Locations Served Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Actual_Funded_Locations_Served__c",
+        "fieldName": "Total Number of Funded Locations Served Actual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Planned_Funded_Locations_25_3_Below__c",
+        "fieldName": "Total Number of Funded Locations Served Receiving 25/3 Mbps or below Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Planned_Funded_Locations_Between_25_100__c",
+        "fieldName": "Total Number of Funded Locations Served Receiving between 25/3 Mbps and 100/20 Mbps Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Planned_Funded_Locations_Minimum_100_100__c",
+        "fieldName": "Total Number Receiving Minimum 100/100 Mbps Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Actual_Funded_Locations_Minimum_100_100__c",
+        "fieldName": "Total Number Receiving Minimum 100/100 Mbps Actual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Planned_Funded_Locations_Minimum_100_20__c",
+        "fieldName": "Total Number Receiving Minimum 100/20 Mbps and scalable to 100/100 Mbps Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Actual_Funded_Locations_Minimum_100_20__c",
+        "fieldName": "Total Number Receiving Minimum 100/20 Mbps and scalable to 100/100 Mbps Actual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Planned_Sum_Speed_Types_Explanation__c",
+        "fieldName": "Explanation if the sum of broadband speed types does not equal total number of funded locations served\r\nPlanned",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Actual_Sum_Speed_Types_Explanation__c",
+        "fieldName": "Explanation if the sum of broadband speed types does not equal total number of funded locations served\r\nActual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Planned_Funded_Locations_Residential__c",
+        "fieldName": "Funded Locations that are Residential Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Actual_Funded_Locations_Residential__c",
+        "fieldName": "Funded Locations that are Residential Actual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Planned_Funded_Locations_Total_Housing__c",
+        "fieldName": "Funded Locations that are Total Housing Units Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Actual_Funded_Locations_Total_Housing__c",
+        "fieldName": "Funded Locations that are Total Housing Units Actual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Planned_Funded_Locations_Business__c",
+        "fieldName": "Funded Locations that are Businesses Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Actual_Funded_Locations_Business__c",
+        "fieldName": "Funded Locations that are Businesses Actual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Planned_Funded_Locations_Community__c",
+        "fieldName": "Funded Locations that are Community Anchor Institutions Planned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Actual_Funded_Locations_Community__c",
+        "fieldName": "Funded Locations that are Community Anchor Institutions Actual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Planned_Funded_Locations_Explanation__c",
+        "fieldName": "Explanation if the sum of residential, business, and community anchor institutions does not equal total number of funded locations served\r\nPlanned",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Actual_Funded_Locations_Explanation__c",
+        "fieldName": "Explanation if the sum of residential, business, and community anchor institutions does not equal total number of funded locations served\r\nActual",
+        "required": "Conditional"
+      }
+    ]
+  },
+  "projectBaselineBulkUploadTemplate.xlsx": {
+    "version": "2022.07.13",
+    "templateName": "SLFRF Bulk Upload Template for Base Projects",
+    "ecCodes": [
+      "1.1",
+      "1.2",
+      "1.3",
+      "1.4",
+      "1.5",
+      "1.6",
+      "1.7",
+      "1.10",
+      "1.12",
+      "1.13",
+      "1.14",
+      "2.9",
+      "2.19",
+      "2.20",
+      "2.21",
+      "2.22",
+      "2.23",
+      "2.28",
+      "2.35",
+      "2.37",
+      "3.3",
+      "3.4",
+      "3.5",
+      "7.1",
+      "7.2"
+    ],
+    "fields": [
+      {
+        "fieldId": "Project_Expenditure_Category__c",
+        "fieldName": "Project Expenditure Category Group",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Sub_Category__c",
+        "fieldName": "Project Expenditure Category",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Project Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Project Identification Number\r\n(Assigned by recipient)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Completion_Status__c",
+        "fieldName": "Status of Completion",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Cancellation_Reason__c",
+        "fieldName": "Cancelled Status of Completion Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Adopted_Budget__c",
+        "fieldName": "Adopted Budget",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Total_Obligations__c",
+        "fieldName": "Total Cumulative \r\nObligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Expenditures__c",
+        "fieldName": "Total Cumulative \r\nExpenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Obligations__c",
+        "fieldName": "Current Period Obligations",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Q3_2022_Expenditures__c",
+        "fieldName": "Current Period Expenditures",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Does_Project_Include_Capital_Expenditure__c",
+        "fieldName": "Does this project include a capital expenditure?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Total_Cost_Capital_Expenditure__c",
+        "fieldName": "If yes, what is the total expected capital expenditure, including pre-development costs, if applicable? ",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure__c",
+        "fieldName": "Capital Expenditure Type",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Type_of_Capital_Expenditure_Other__c",
+        "fieldName": "Other Capital Expenditure Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Capital_Expenditure_Justification__c",
+        "fieldName": "Capital Expenditure Narrative",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_Description__c",
+        "fieldName": "Project Description",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Program_Income_Earned__c",
+        "fieldName": "Program Income Earned",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Program_Income_Expended__c",
+        "fieldName": "Program Income Expended",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Primarily Populations Served",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Primary_Project_Demographics_Explanation__c",
+        "fieldName": "Primary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Secondary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Secondary_Proj_Demographics_Explanation__c",
+        "fieldName": "Secondary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Tertiary_Project_Demographics__c",
+        "fieldName": "Project Demographic Distribution - Additional Populations Served",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Tertiary_Proj_Demographics_Explanation__c",
+        "fieldName": "Tertiary Project Demographic Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Structure_Objectives_of_Asst_Programs__c",
+        "fieldName": "Structure and objectives of assistance program",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Recipient_Approach_Description__c",
+        "fieldName": "Recipients approach",
+        "required": "Required"
+      }
+    ]
+  },
+  "subRecipientBulkUpload.xlsx": {
+    "version": "2022.03.28",
+    "templateName": "Subrecipient Profile",
+    "fields": [
+      {
+        "fieldId": "Unique_Entity_Identifier__c",
+        "fieldName": "Subrecipient UEI",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "EIN__c",
+        "fieldName": "Subrecipient TIN",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Recipient_Profile_Id__c",
+        "fieldName": "Id",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Name",
+        "fieldName": "Sub-Recipient Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Entity_Type_2__c",
+        "fieldName": "Entity Type",
+        "required": "Required"
+      },
+      {
+        "fieldId": "POC_Email_Address__c",
+        "fieldName": "POC Email Address",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Address__c",
+        "fieldName": "Address Line 1",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Address_2__c",
+        "fieldName": "Address Line 2",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Address_3__c",
+        "fieldName": "Address Line 3",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "City__c",
+        "fieldName": "City Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "State_Abbreviated__c",
+        "fieldName": "State Code",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Zip__c",
+        "fieldName": "Zip5",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Zip_4__c",
+        "fieldName": "Zip4",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Registered_in_Sam_gov__c",
+        "fieldName": "Sub-recipient SAM.gov Registration",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Federal_Funds_80_or_More_of_Revenue__c",
+        "fieldName": "In its preceding fiscal year, did recipient receive 80% or more of its annual gross revenue from federal funds?",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Derives_25_Million_or_More_from_Federal__c",
+        "fieldName": "In the preceding fiscal year, did recipient receive $25 million or more of its annual gross revenue from federal funds?",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Total_Compensation_for_Officers_Public__c",
+        "fieldName": "Is the \"total compensation\" for the organization's five highest paid officers publicly listed or otherwise listed in SAM.gov?",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Officer_Name__c",
+        "fieldName": "Executive Name (1)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Officer_Total_Comp__c",
+        "fieldName": "Total Compensation Executive (1)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Officer_2_Name__c",
+        "fieldName": "Executive Name (2)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Officer_2_Total_Comp__c",
+        "fieldName": "Total Compensation Executive (2)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Officer_3_Name__c",
+        "fieldName": "Executive Name (3)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Officer_3_Total_Comp__c",
+        "fieldName": "Total Compensation Executive (3)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Officer_4_Name__c",
+        "fieldName": "Executive Name (4)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Officer_4_Total_Comp__c",
+        "fieldName": "Total Compensation Executive (4)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Officer_5_Name__c",
+        "fieldName": "Executive Name (5)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Officer_5_Total_Comp__c",
+        "fieldName": "Total Compensation Executive (5)",
+        "required": "Conditional"
+      }
+    ]
+  },
+  "subawardBulkUpload.xlsx": {
+    "version": "2022.03.28",
+    "templateName": "Subaward Reporting",
+    "fields": [
+      {
+        "fieldId": "Recipient_UEI__c",
+        "fieldName": "Subrecipient UEI",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Recipient_EIN__c",
+        "fieldName": "Subrecipient TIN",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Project_Identification_Number__c",
+        "fieldName": "Recipient Project Id ",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Award_No__c",
+        "fieldName": "SubAward No.",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Award_Type__c",
+        "fieldName": "SubAward Type",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Award_Amount__c",
+        "fieldName": "SubAward Amount (Obligation)",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Award_Date__c",
+        "fieldName": "SubAward Award Date",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Primary_Sector__c",
+        "fieldName": "Primary Sector",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "If_Other__c",
+        "fieldName": "If Other",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Period_of_Performance_Start__c",
+        "fieldName": "Period of Performance Start",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Period_of_Performance_End__c",
+        "fieldName": "Period of Performance End",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Place_of_Performance_Address_1__c",
+        "fieldName": "Place of Performance Address 1",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Place_of_Performance_Address_2__c",
+        "fieldName": "Place of Performance Address 2",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Place_of_Performance_Address_3__c",
+        "fieldName": "Place of Performance Address 3",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Place_of_Performance_City__c",
+        "fieldName": "Place of Performance City",
+        "required": "Required"
+      },
+      {
+        "fieldId": "State_Abbreviated__c",
+        "fieldName": "Place of Performance State Code",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Place_of_Performance_Zip__c",
+        "fieldName": "Place of Performance Zip",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Place_of_Performance_Zip_4__c",
+        "fieldName": "Place of Performance Zip4",
+        "required": "Optional"
+      },
+      {
+        "fieldId": "Purpose_of_Funds__c",
+        "fieldName": "Purpose of Funds",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Description__c",
+        "fieldName": "SubAward Description",
+        "required": "Required"
+      }
+    ]
+  }
+}

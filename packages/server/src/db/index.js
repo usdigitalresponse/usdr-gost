@@ -790,31 +790,31 @@ async function sync(tableName, syncKey, updateCols, newRows) {
 }
 
 /**
- * Determines if a user's tenant is the same as the agency's tenant
- * @param  int        userId
+ * Determines if all given agencies belong to the same given tenant
  * @param  int        tenantId
  * @parm   Array[int] agencyIds
  * @return boolean
  * */
-async function inTenant(userId, tenantId, agencyIds) {
-    const q = knex(TABLES.users)
-        .select('users.id as user_id', 'agencies.id as agency_id')
-        .leftJoin('agencies', 'users.tenant_id', 'agencies.tenant_id')
-        .leftJoin('tenants', 'tenants.id', 'users.tenant_id')
-        .where('users.id', userId)
-        .andWhere('users.tenant_id', tenantId);
+async function inTenant(tenantId, agencyIds) {
+    const uniqueAgencyIds = Array.from(new Set(agencyIds));
 
-    if (agencyIds.length > 1) {
-        q.whereIn('agencies.id', agencyIds);
-    } else if (agencyIds.length === 1) {
-        q.andWhere('agencies.id', agencyIds[0]);
-    } else {
-        throw new Error('inTenant() called with empty agencyIds list');
-    }
+    const result = await knex(
+        knex('agencies')
+            .select('id as agency_id')
+            .where('tenant_id', tenantId)
+            .whereIn('id', uniqueAgencyIds)
+            .as('agencies_in_tenant'),
+    ).select(
+        // Aggregate the results of the subquery into an array, and check that
+        // all our expected agencyIds member values are contained by the aggregation.
+        // Coalesce the result of the check so that it always returns boolean.
+        knex.raw(
+            'coalesce(? <@ array_agg(agencies_in_tenant.agency_id), false) as same_tenant',
+            [uniqueAgencyIds],
+        ),
+    ).first();
 
-    const [user] = await q;
-
-    return !!user;
+    return result.same_tenant === true;
 }
 
 function close() {

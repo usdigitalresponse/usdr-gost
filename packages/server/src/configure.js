@@ -23,10 +23,25 @@ function configureApiRoutes(app) {
     app.use('/api/organizations/:organizationId/keywords', require('./routes/keywords'));
     app.use('/api/organizations/:organizationId/refresh', require('./routes/refresh'));
     app.use('/api/annual-reports/', require('./routes/annualReports'));
+    app.use('/api/health', require('./routes/health'));
 }
 
-function configureApp(app) {
-    app.use(morgan('common'));
+function configureApp(app, options = {}) {
+    app.use(morgan('common', {
+        skip: (req) => {
+            // Render hits the health check path extremely often, so don't clutter logs with it.
+            if (req.originalUrl === '/api/health') {
+                return true;
+            }
+
+            // We disable request logging during API tests because it makes the Mocha test output noisy
+            if (options.disableRequestLogging) {
+                return true;
+            }
+
+            return false;
+        },
+    }));
     app.use(cookieParser(process.env.COOKIE_SECRET));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
