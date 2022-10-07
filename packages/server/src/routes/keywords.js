@@ -36,6 +36,10 @@ router.delete('/:keywordId', requireUser, async (req, res) => {
 
 router.get('/', requireUser, async (req, res) => {
     const keywords = await db.getAgencyKeywords(req.session.selectedAgency);
+    keywords.forEach((kw) => {
+        delete kw.created_at;
+        delete kw.updated_at;
+    });
     res.json(keywords);
 });
 
