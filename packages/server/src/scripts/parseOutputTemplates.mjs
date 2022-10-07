@@ -71,7 +71,7 @@ const run = async () => {
         }
 
         // Project files have important data to parse, like EC codes
-        const buffer =  readFileSync(path.join(templateDir, filename));
+        const buffer = readFileSync(path.join(templateDir, filename));
         const workbook = XLSX.read(buffer, { type: 'buffer' });
         if (Object.keys(workbook.Sheets).length !== 1) {
             console.log(`Unexpected multiple sheets in file ${filename}`);
@@ -79,15 +79,17 @@ const run = async () => {
         const sheetName = Object.keys(workbook.Sheets)[0];
         const sheet = workbook.Sheets[sheetName];
         const version = parseVersion(sheet.A1.v);
-        outputTemplateData[filename] = {
+        const templateData = {
             version,
             templateName: parseTemplateName(sheet.A2.v),
-            fields: parseFields(sheet),
         };
+        // Putting the ec-code before the fields array makes this easier for a human to quickly read
         if (filename.includes('project')) {
             // Project files have additional data about EC codes that should be parsed
-            outputTemplateData[filename].ecCodes = parseECCodes(sheet.C7.v);
+            templateData.ecCodes = parseECCodes(sheet.C7.v);
         }
+        templateData.fields = parseFields(sheet);
+        outputTemplateData[filename] = templateData;
     });
     const destPath = path.join(SERVER_CODE_DIR, 'lib', 'outputTemplates.json');
     const strData = JSON.stringify(outputTemplateData, null, 2);
