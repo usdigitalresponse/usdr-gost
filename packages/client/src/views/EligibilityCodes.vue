@@ -33,9 +33,6 @@ export default {
         {
           key: 'enabled',
         },
-        {
-          key: 'updated_at',
-        },
       ],
     };
   },

@@ -5,8 +5,12 @@ const db = require('../db');
 const { requireUser } = require('../lib/access-helpers');
 
 router.get('/', requireUser, async (req, res) => {
-    const elegibilityCodes = await db.getAgencyEligibilityCodes(req.session.selectedAgency);
-    res.json(elegibilityCodes);
+    const eligibilityCodes = await db.getAgencyEligibilityCodes(req.session.selectedAgency);
+    eligibilityCodes.forEach((ec) => {
+        delete ec.created_at;
+        delete ec.updated_at;
+    });
+    res.json(eligibilityCodes);
 });
 
 router.put('/:code/enable/:value', requireUser, async (req, res) => {
