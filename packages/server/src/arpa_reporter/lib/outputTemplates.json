@@ -1851,12 +1851,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q2_2022_Obligations__c",
+        "fieldId": "Q3_2022_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q2_2022_Expenditures__c",
+        "fieldId": "Q3_2022_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1901,9 +1901,19 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Is_project_designed_provide_hh_service__c",
+        "fieldName": "Is project designed to provide service to households?",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Confirm_Service_Provider__c",
+        "fieldName": "If yes, Confirm that the service provider for the project has, or will upon completion of the project, either participated in the Federal Communications Commission (FCC)s Affordable Connectivity Program (ACP) or otherwise provided access to a broad-based affordability program that provides benefits to households commensurate with those provided under the ACP to low-income consumers in the proposed service area of the broadband infrastructure",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Technology_Type_Planned__c",
         "fieldName": "Technology Type Planned",
-        "required": "Conditional"
+        "required": "Required"
       },
       {
         "fieldId": "Technology_Type_Planned_Other__c",
@@ -1923,126 +1933,111 @@
       {
         "fieldId": "Total_Miles_of_Fiber_Deployed__c",
         "fieldName": "Total Miles of Fiber Deployed Planned",
-        "required": "Conditional"
+        "required": "Required"
       },
       {
         "fieldId": "Total_Miles_of_Fiber_Deployed_Actual__c",
-        "fieldName": "",
+        "fieldName": "Total Miles of Fiber Deployed Actual",
         "required": "Conditional"
       },
       {
         "fieldId": "Planned_Funded_Locations_Served__c",
-        "fieldName": "",
-        "required": "Conditional"
+        "fieldName": "Total Number of Funded Locations Served Planned",
+        "required": "Required"
       },
       {
         "fieldId": "Actual_Funded_Locations_Served__c",
-        "fieldName": "",
+        "fieldName": "Total Number of Funded Locations Served Actual",
         "required": "Conditional"
       },
       {
         "fieldId": "Planned_Funded_Locations_25_3_Below__c",
-        "fieldName": "",
-        "required": "Conditional"
+        "fieldName": "Total Number of Funded Locations Served Receiving 25/3 Mbps or below Planned",
+        "required": "Required"
       },
       {
         "fieldId": "Planned_Funded_Locations_Between_25_100__c",
-        "fieldName": "",
-        "required": "Conditional"
-      },
-      {
-        "fieldId": "Planned_Funded_Locations_Minimum_1_Gbps__c",
-        "fieldName": "",
-        "required": "Conditional"
-      },
-      {
-        "fieldId": "Actual_Funded_Locations_Minimum_1_Gbps__c",
-        "fieldName": "",
-        "required": "Conditional"
+        "fieldName": "Total Number of Funded Locations Served Receiving between 25/3 Mbps and 100/20 Mbps Planned",
+        "required": "Required"
       },
       {
         "fieldId": "Planned_Funded_Locations_Minimum_100_100__c",
-        "fieldName": "",
-        "required": "Conditional"
+        "fieldName": "Total Number Receiving Minimum 100/100 Mbps Planned",
+        "required": "Required"
       },
       {
         "fieldId": "Actual_Funded_Locations_Minimum_100_100__c",
-        "fieldName": "",
+        "fieldName": "Total Number Receiving Minimum 100/100 Mbps Actual",
         "required": "Conditional"
       },
       {
         "fieldId": "Planned_Funded_Locations_Minimum_100_20__c",
-        "fieldName": "",
-        "required": "Conditional"
+        "fieldName": "Total Number Receiving Minimum 100/20 Mbps and scalable to 100/100 Mbps Planned",
+        "required": "Required"
       },
       {
         "fieldId": "Actual_Funded_Locations_Minimum_100_20__c",
-        "fieldName": "",
+        "fieldName": "Total Number Receiving Minimum 100/20 Mbps and scalable to 100/100 Mbps Actual",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Planned_Sum_Speed_Types_Explanation__c",
+        "fieldName": "Explanation if the sum of broadband speed types does not equal total number of funded locations served\r\nPlanned",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Actual_Sum_Speed_Types_Explanation__c",
+        "fieldName": "Explanation if the sum of broadband speed types does not equal total number of funded locations served\r\nActual",
         "required": "Conditional"
       },
       {
         "fieldId": "Planned_Funded_Locations_Residential__c",
-        "fieldName": "",
-        "required": "Conditional"
+        "fieldName": "Funded Locations that are Residential Planned",
+        "required": "Required"
       },
       {
         "fieldId": "Actual_Funded_Locations_Residential__c",
-        "fieldName": "",
+        "fieldName": "Funded Locations that are Residential Actual",
         "required": "Conditional"
       },
       {
         "fieldId": "Planned_Funded_Locations_Total_Housing__c",
-        "fieldName": "",
-        "required": "Conditional"
+        "fieldName": "Funded Locations that are Total Housing Units Planned",
+        "required": "Required"
       },
       {
         "fieldId": "Actual_Funded_Locations_Total_Housing__c",
-        "fieldName": "",
+        "fieldName": "Funded Locations that are Total Housing Units Actual",
         "required": "Conditional"
       },
       {
         "fieldId": "Planned_Funded_Locations_Business__c",
-        "fieldName": "",
-        "required": "Conditional"
+        "fieldName": "Funded Locations that are Businesses Planned",
+        "required": "Required"
       },
       {
         "fieldId": "Actual_Funded_Locations_Business__c",
-        "fieldName": "",
+        "fieldName": "Funded Locations that are Businesses Actual",
         "required": "Conditional"
       },
       {
         "fieldId": "Planned_Funded_Locations_Community__c",
-        "fieldName": "",
-        "required": "Conditional"
+        "fieldName": "Funded Locations that are Community Anchor Institutions Planned",
+        "required": "Required"
       },
       {
         "fieldId": "Actual_Funded_Locations_Community__c",
-        "fieldName": "",
-        "required": "Conditional"
-      },
-      {
-        "fieldId": "Technology_Type_Planned__c",
-        "fieldName": "",
-        "required": "Conditional"
-      },
-      {
-        "fieldId": "Technology_Type_Actual__c",
-        "fieldName": "",
+        "fieldName": "Funded Locations that are Community Anchor Institutions Actual",
         "required": "Conditional"
       },
       {
         "fieldId": "Planned_Funded_Locations_Explanation__c",
-        "fieldName": "",
-        "required": "Conditional"
+        "fieldName": "Explanation if the sum of residential, business, and community anchor institutions does not equal total number of funded locations served\r\nPlanned",
+        "required": "Required"
       },
       {
         "fieldId": "Actual_Funded_Locations_Explanation__c",
-        "fieldName": "",
-        "required": "Conditional"
-      },
-      {
-        "fieldId": "Confirm_Service_Provider__c",
-        "fieldName": "",
+        "fieldName": "Explanation if the sum of residential, business, and community anchor institutions does not equal total number of funded locations served\r\nActual",
         "required": "Conditional"
       }
     ],
