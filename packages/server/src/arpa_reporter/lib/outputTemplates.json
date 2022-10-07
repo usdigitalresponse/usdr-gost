@@ -75,6 +75,10 @@
   "project111210BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk File Upload Template For EC 1.11, 2.10",
+    "ecCodes": [
+      "1.11",
+      "2.10"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -226,15 +230,19 @@
         "fieldName": "People participating in summer youth employment programs",
         "required": "Conditional"
       }
-    ],
-    "ecCodes": [
-      "1.11",
-      "2.10"
     ]
   },
   "project18_229233BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk File Upload Template For EC 1.8, 2.29 - 2.33",
+    "ecCodes": [
+      "1.8",
+      "2.29",
+      "2.30",
+      "2.31",
+      "2.32",
+      "2.33"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -376,19 +384,15 @@
         "fieldName": "Number of Small Businesses Served ",
         "required": "Required"
       }
-    ],
-    "ecCodes": [
-      "1.8",
-      "2.29",
-      "2.30",
-      "2.31",
-      "2.32",
-      "2.33"
     ]
   },
   "project19_234BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk File Upload Template For EC 1.9, 2.34",
+    "ecCodes": [
+      "1.9",
+      "2.34"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -530,15 +534,17 @@
         "fieldName": "Non-Profits Served",
         "required": "Required"
       }
-    ],
-    "ecCodes": [
-      "1.9",
-      "2.34"
     ]
   },
   "project211214BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk File Upload Template For EC 2.11-2.14",
+    "ecCodes": [
+      "2.11",
+      "2.12",
+      "2.13",
+      "2.14"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -690,17 +696,21 @@
         "fieldName": "Families served by home visiting",
         "required": "Conditional"
       }
-    ],
-    "ecCodes": [
-      "2.11",
-      "2.12",
-      "2.13",
-      "2.14"
     ]
   },
   "project2128BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "Bulk File Upload Template for EC 2.1 - 2.8",
+    "ecCodes": [
+      "2.1",
+      "2.2",
+      "2.3",
+      "2.4",
+      "2.5",
+      "2.6",
+      "2.7",
+      "2.8"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -852,21 +862,17 @@
         "fieldName": "Affordable housing units preserved or developed",
         "required": "Required"
       }
-    ],
-    "ecCodes": [
-      "2.1",
-      "2.2",
-      "2.3",
-      "2.4",
-      "2.5",
-      "2.6",
-      "2.7",
-      "2.8"
     ]
   },
   "project215218BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk File Upload Template For EC 2.15-2.16, 2.17-2.18",
+    "ecCodes": [
+      "2.15",
+      "2.16",
+      "2.17",
+      "2.18"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -1013,17 +1019,17 @@
         "fieldName": "Affordable housing units preserved or developed",
         "required": "Conditional"
       }
-    ],
-    "ecCodes": [
-      "2.15",
-      "2.16",
-      "2.17",
-      "2.18"
     ]
   },
   "project224227BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk File Upload Template For EC 2.24 - 2.27",
+    "ecCodes": [
+      "2.24",
+      "2.25",
+      "2.26",
+      "2.27"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -1170,17 +1176,14 @@
         "fieldName": "Students participating in evidence-based tutoring programs",
         "required": "Conditional"
       }
-    ],
-    "ecCodes": [
-      "2.24",
-      "2.25",
-      "2.26",
-      "2.27"
     ]
   },
   "project236BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk File Upload Template for EC 2.36",
+    "ecCodes": [
+      "2.36"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -1322,14 +1325,14 @@
         "fieldName": "Industry other than tourism Narrative",
         "required": "Required"
       }
-    ],
-    "ecCodes": [
-      "2.36"
     ]
   },
   "project31BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk Upload Template for EC 3.1",
+    "ecCodes": [
+      "3.1"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -1441,14 +1444,14 @@
         "fieldName": "Number of government FTEs responding",
         "required": "Required"
       }
-    ],
-    "ecCodes": [
-      "3.1"
     ]
   },
   "project32BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk File Upload Template for EC 3.2",
+    "ecCodes": [
+      "3.2"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -1560,14 +1563,15 @@
         "fieldName": "Number of FTEs rehired by governments under this authority",
         "required": "Required"
       }
-    ],
-    "ecCodes": [
-      "3.2"
     ]
   },
   "project4142BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk Upload Template for EC 4.1 - 4.2",
+    "ecCodes": [
+      "4.1",
+      "4.2"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -1659,15 +1663,31 @@
         "fieldName": "K-12 Workers Served",
         "required": "Required"
       }
-    ],
-    "ecCodes": [
-      "4.1",
-      "4.2"
     ]
   },
   "project51518BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk Upload Template For EC 5.1 - 5.18",
+    "ecCodes": [
+      "5.1",
+      "5.2",
+      "5.3",
+      "5.4",
+      "5.5",
+      "5.6",
+      "5.7",
+      "5.8",
+      "5.9",
+      "5.10",
+      "5.11",
+      "5.12",
+      "5.13",
+      "5.14",
+      "5.15",
+      "5.16",
+      "5.17",
+      "5.18"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -1779,31 +1799,16 @@
         "fieldName": "Lowest Quintile Income of the service area ",
         "required": "Conditional"
       }
-    ],
-    "ecCodes": [
-      "5.1",
-      "5.2",
-      "5.3",
-      "5.4",
-      "5.5",
-      "5.6",
-      "5.7",
-      "5.8",
-      "5.9",
-      "5.10",
-      "5.11",
-      "5.12",
-      "5.13",
-      "5.14",
-      "5.15",
-      "5.16",
-      "5.17",
-      "5.18"
     ]
   },
   "project519521BulkUpload.xlsx": {
     "version": "2022.06.21",
     "templateName": "SLFRF Bulk Upload Template For EC 5.19 - 5.21",
+    "ecCodes": [
+      "5.19",
+      "5.20",
+      "5.21"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -2040,16 +2045,38 @@
         "fieldName": "Explanation if the sum of residential, business, and community anchor institutions does not equal total number of funded locations served\r\nActual",
         "required": "Conditional"
       }
-    ],
-    "ecCodes": [
-      "5.19",
-      "5.20",
-      "5.21"
     ]
   },
   "projectBaselineBulkUploadTemplate.xlsx": {
     "version": "2022.07.13",
     "templateName": "SLFRF Bulk Upload Template for Base Projects",
+    "ecCodes": [
+      "1.1",
+      "1.2",
+      "1.3",
+      "1.4",
+      "1.5",
+      "1.6",
+      "1.7",
+      "1.10",
+      "1.12",
+      "1.13",
+      "1.14",
+      "2.9",
+      "2.19",
+      "2.20",
+      "2.21",
+      "2.22",
+      "2.23",
+      "2.28",
+      "2.35",
+      "2.37",
+      "3.3",
+      "3.4",
+      "3.5",
+      "7.1",
+      "7.2"
+    ],
     "fields": [
       {
         "fieldId": "Project_Expenditure_Category__c",
@@ -2186,33 +2213,6 @@
         "fieldName": "Recipients approach",
         "required": "Required"
       }
-    ],
-    "ecCodes": [
-      "1.1",
-      "1.2",
-      "1.3",
-      "1.4",
-      "1.5",
-      "1.6",
-      "1.7",
-      "1.10",
-      "1.12",
-      "1.13",
-      "1.14",
-      "2.9",
-      "2.19",
-      "2.20",
-      "2.21",
-      "2.22",
-      "2.23",
-      "2.28",
-      "2.35",
-      "2.37",
-      "3.3",
-      "3.4",
-      "3.5",
-      "7.1",
-      "7.2"
     ]
   },
   "subRecipientBulkUpload.xlsx": {
