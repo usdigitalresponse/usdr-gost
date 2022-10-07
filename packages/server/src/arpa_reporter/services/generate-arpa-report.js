@@ -959,15 +959,17 @@ async function generateReport (periodId) {
 
     const template = await getTemplate(name)
 
-    // 2022-07-08 Treasury expects LF line endings _within_ cells and CRLF line
-    // endings _between_ rows.  Failure to adhere to either of these requirements
-    // can result in an opaque error that looks like the following:
-    // "List index out of bounds: 1"
+    // 2022-09-29
+    // The treasury portal csv parser doesn't adhere to correct semantics for parsing some line
+    // ending characters. To correct for that, we'll strip any of this problematic characters out
+    // of the export. The csv upload validator doesn't depend on any of the values with linebreaks
+    // so this doesn't break parsing, though it might cause minor formatting differences in the
+    // downloaded exports.
     const escapedContent = [...template, ...csvData].map(row =>
-      row.map(value => typeof value === 'string' ? value.replace(/\r\n/g, '\n') : value)
+      row.map(value => typeof value === 'string' ? value.replace(/\r\n|\r|\n/g, ' -- ') : value)
     )
     const sheet = XLSX.utils.aoa_to_sheet(escapedContent, { dateNF: 'MM/DD/YYYY' })
-    const csvString = XLSX.utils.sheet_to_csv(sheet, { forceQuotes: true, RS: '\r\n' })
+    const csvString = XLSX.utils.sheet_to_csv(sheet, { RS: '\r\n' })
     const buffer = Buffer.from(BOM + csvString, 'utf8')
 
     zip.addFile(name + '.csv', buffer)
