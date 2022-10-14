@@ -21,3 +21,12 @@ jobs:
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Enable auto-merge if dependency semver changes are minor or patch
+        if: ${{contains(fromJson('["version-update:semver-patch", "version-update:semver-minor"]'), steps.dependabot-metadata.outputs.update-type)}}
+        run: |
+          echo "Enabling auto-merge for Dependabot $UPDATE_TYPE"
+          gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          UPDATE_TYPE: ${{steps.dependabot-metadata.outputs.update-type}}
