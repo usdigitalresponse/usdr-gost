@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 
 const _ = require('lodash-checkit');
-const { getSessionCookie, fetchApi, knex } = require('./utils');
+const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 
 describe('`/api/keywords` endpoint', () => {
@@ -34,7 +34,8 @@ describe('`/api/keywords` endpoint', () => {
     };
 
     let testKeywordsByAgency = null;
-
+    let testServer;
+    let fetchApi;
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
@@ -58,6 +59,12 @@ describe('`/api/keywords` endpoint', () => {
             .merge()
             .returning(['id', 'agency_id']);
         testKeywordsByAgency = _.groupBy(createdKeywords, 'agency_id');
+
+        testServer = await makeTestServer();
+        fetchApi = testServer.fetchApi;
+    });
+    after(() => {
+        testServer.stop();
     });
 
     after(async () => {
@@ -155,13 +162,13 @@ describe('`/api/keywords` endpoint', () => {
             });
         });
         context('by a user with staff role', () => {
-            it('is forbidden for this user\'s own agency', async () => {
+            it('creates a keyword for this user\'s own agency', async () => {
                 const response = await fetchApi(`/keywords`, agencies.staff.own, {
                     ...fetchOptions.staff,
                     method: 'post',
                     body: JSON.stringify({ ...keyword }),
                 });
-                expect(response.statusText).to.equal('Forbidden');
+                expect(response.statusText).to.equal('OK');
             });
             it('is forbidden for a subagency of this user\'s own agency', async () => {
                 const response = await fetchApi(`/keywords`, agencies.staff.ownSub, {
@@ -209,14 +216,14 @@ describe('`/api/keywords` endpoint', () => {
             });
         });
         context('by a user with staff role', () => {
-            it('is forbidden for this user\'s own agency', async () => {
+            it('deletes a keyword for this user\'s own agency', async () => {
                 // Note: staff and admin test users share the same "own" agency id
                 const keywordId = testKeywordsByAgency[agencies.staff.own][1].id;
                 const response = await fetchApi(`/keywords/${keywordId}`, agencies.staff.own, {
                     ...fetchOptions.staff,
                     method: 'delete',
                 });
-                expect(response.statusText).to.equal('Forbidden');
+                expect(response.statusText).to.equal('OK');
             });
             it('is forbidden for a subagency of this user\'s own agency', async () => {
                 const keywordId = testKeywordsByAgency[agencies.staff.ownSub][0].id;

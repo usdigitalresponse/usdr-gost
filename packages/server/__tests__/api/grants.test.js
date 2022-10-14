@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-const { getSessionCookie, fetchApi, knex } = require('./utils');
+const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 
 /*
@@ -39,11 +39,19 @@ describe('`/api/grants` endpoint', () => {
         },
     };
 
+    let testServer;
+    let fetchApi;
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
         fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
         fetchOptions.dallasAdmin.headers.cookie = await getSessionCookie('user1@dallas.gov');
+
+        testServer = await makeTestServer();
+        fetchApi = testServer.fetchApi;
+    });
+    after(() => {
+        testServer.stop();
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', () => {
@@ -321,6 +329,62 @@ describe('`/api/grants` endpoint', () => {
             it('forbids requests for any agency except this user\'s own agency', async () => {
                 const badResponse = await fetchApi(`/grants/${interestEndpoint}`, agencies.ownSub, fetchOptions.staff);
                 expect(badResponse.statusText).to.equal('Forbidden');
+            });
+        });
+    });
+    context('DELETE /api/grants/:grantId/interested/:agencyId', () => {
+        context('by an admin user', () => {
+            const interestEndpoint = `335255/interested`;
+            it('allows removing grant interest for a single agency', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/undefined`, agencies.own, {
+                    ...fetchOptions.admin,
+                    method: 'delete',
+                    body: JSON.stringify({ agencyIds: [agencies.own], interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+            it('allows removing grant interest for multiple authorized agencies', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/undefined`, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'delete',
+                    body: JSON.stringify({ agencyIds: [agencies.own, agencies.ownSub], interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+        });
+        context('by a user with a staff role', () => {
+            const interestEndpoint = `335255/interested`;
+            it('allows removing grant interest for a single agency', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.own}`, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'delete',
+                    body: JSON.stringify({ agencyIds: [agencies.own], interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+            it('allows removing grant interest for a multiple authorized agencies', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.own}`, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'delete',
+                    body: JSON.stringify({ agencyIds: [agencies.own, agencies.ownSub], interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+            it('forbids removing grant interest when one of the agencies is not in this user\'s tenant', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.own}`, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'delete',
+                    body: JSON.stringify({ agencyIds: [agencies.offLimits, agencies.own], interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('Forbidden');
+            });
+            it('forbids removing grant interest when the agency is not in this user\'s tenant', async () => {
+                const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.offLimits}`, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'delete',
+                    body: JSON.stringify({ interestedCode: null }),
+                });
+                expect(response.statusText).to.equal('Forbidden');
             });
         });
     });

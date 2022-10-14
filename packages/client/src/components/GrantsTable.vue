@@ -107,6 +107,10 @@ export default {
           sortable: true,
         },
         {
+          key: 'open_date',
+          sortable: true,
+        },
+        {
           key: 'close_date',
           sortable: true,
         },
@@ -153,6 +157,7 @@ export default {
         status: grant.opportunity_status,
         award_floor: this.getAwardFloor(grant),
         award_ceiling: grant.award_ceiling,
+        open_date: new Date(grant.open_date).toLocaleDateString('en-US'),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US'),
         _cellVariants: (() => {
           const diff = new Date(grant.close_date) - now;
@@ -216,7 +221,7 @@ export default {
           currentPage: this.currentPage,
           orderBy: this.orderBy,
           searchTerm: this.debouncedSearchInput,
-          interestedByAgency: this.showInterested,
+          interestedByAgency: this.showInterested || this.showRejected,
           interestedByMe: this.showMyInterested,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,

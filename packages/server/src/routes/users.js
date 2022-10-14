@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router({ mergeParams: true });
 const { requireAdminUser, isAuthorized, isUserAuthorized } = require('../lib/access-helpers');
-const { sendWelcomeEmail } = require('../lib/email');
+const email = require('../lib/email');
 const db = require('../db');
 
 router.post('/', requireAdminUser, async (req, res, next) => {
@@ -34,7 +34,7 @@ router.post('/', requireAdminUser, async (req, res, next) => {
         res.json({ user: result });
 
         const domain = process.env.WEBSITE_DOMAIN || req.headers.origin;
-        await sendWelcomeEmail(newUser.email, domain);
+        await email.sendWelcomeEmail(newUser.email, domain);
     } catch (e) {
         if (e.message.match(/violates unique constraint/)) {
             console.log(e.message);

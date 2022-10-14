@@ -2,13 +2,22 @@ require('dotenv').config();
 
 const _ = require('lodash');
 const { expect } = require('chai');
-const fetch = require('node-fetch');
 const { URLSearchParams } = require('url');
 const { validatePostLoginRedirectPath } = require('../../src/lib/redirect_validation');
-const { getTestDomain } = require('./utils');
 const knex = require('../../src/db/connection');
+const { makeTestServer } = require('./utils');
 
 describe('/api/sessions', () => {
+    let testServer;
+    let fetch;
+    before(async () => {
+        testServer = await makeTestServer();
+        fetch = testServer.fetch;
+    });
+    after(() => {
+        testServer.stop();
+    });
+
     context('post-login redirects', () => {
         it('validates redirect urls correctly', () => {
             const tests = {
@@ -34,7 +43,7 @@ describe('/api/sessions', () => {
 
         async function testLogin(initBody = {}) {
             const email = 'mindy@usdigitalresponse.org';
-            const resp1 = await fetch(`${getTestDomain()}/api/sessions`, {
+            const resp1 = await fetch(`/api/sessions`, {
                 method: 'POST',
                 body: JSON.stringify({ email }),
                 headers: { 'Content-Type': 'application/json' },
@@ -57,7 +66,7 @@ describe('/api/sessions', () => {
             params.set('passcode', passcode);
             _.forEach(initBody, (v, k) => params.set(k, v));
             const resp2 = await fetch(
-                `${getTestDomain()}/api/sessions/init`,
+                `/api/sessions/init`,
                 { method: 'POST', body: params, redirect: 'manual' },
             );
 

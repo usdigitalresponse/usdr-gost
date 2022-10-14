@@ -32,14 +32,19 @@
     <b-nav tabs justified style="margin-top: 20px">
         <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
         <b-nav-item to="/my-grants" exact exact-active-class="active">My Grants</b-nav-item>
-        <b-nav-item to="/grants" exact exact-active-class="active">Grants</b-nav-item>
+        <b-nav-item to="/grants" exact exact-active-class="active">Browse Grants</b-nav-item>
         <b-nav-item to="/eligibility-codes" exact exact-active-class="active">Eligibility Codes</b-nav-item>
         <b-nav-item to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
         <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
         <b-nav-item to="/Agencies" exact exact-active-class="active">Agencies</b-nav-item>
         <b-nav-item v-if="canSeeTenantsTab" to="/tenants" exact exact-active-class="active">Tenants</b-nav-item>
     </b-nav>
+
     <div style="margin-top: 10px">
+      <section class="container-fluid">
+        <AlertBox v-for="(alert, alertId) in alerts" :key="alertId" v-bind="alert" v-on:dismiss="dismissAlert(alertId)" />
+      </section>
+
       <router-view />
     </div>
     <ProfileSettingsModal
@@ -49,12 +54,13 @@
 
 <script>
 import { mapGetters } from 'vuex';
-
 import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
+import AlertBox from '../arpa_reporter/components/AlertBox.vue';
 
 export default {
   name: 'Layout',
   components: {
+    AlertBox,
     ProfileSettingsModal,
   },
   data() {
@@ -68,6 +74,7 @@ export default {
       loggedInUser: 'users/loggedInUser',
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
+      alerts: 'alerts/alerts',
     }),
     canSeeTenantsTab() {
       return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
@@ -85,6 +92,9 @@ export default {
     },
     giveFeedback() {
       window.open('https://usdr.link/grants/feedback');
+    },
+    dismissAlert(alertId) {
+      this.$store.commit('alerts/dismissAlert', alertId);
     },
   },
 };

@@ -14,7 +14,7 @@
           :state="!$v.formData.email.$invalid"
           label="Email"
           label-for="email-input"
-          invalid-feedback="Required"
+          invalid-feedback="Please enter a valid email address"
         >
           <b-form-input
             id="email-input"
@@ -26,7 +26,7 @@
           :state="!$v.formData.name.$invalid"
           label="Name"
           label-for="name-input"
-          invalid-feedback="Required"
+          invalid-feedback="Please enter your preferred first and last name"
         >
           <b-form-input
             id="name-input"
@@ -38,7 +38,7 @@
           :state="!$v.formData.role.$invalid"
           label="Role"
           label-for="role-select"
-          invalid-feedback="Required"
+          invalid-feedback="Please select your role"
         >
           <b-form-select
           id="role-select"
@@ -48,7 +48,7 @@
           :state="!$v.formData.agency.$invalid"
           label="Agency"
           label-for="agency-select"
-          invalid-feedback="Required"
+          invalid-feedback="Please select your agency"
         >
           <b-form-select
           id="agency-select"
@@ -147,7 +147,14 @@ export default {
       if (this.$v.formData.$invalid) {
         return;
       }
-      await this.createUser(this.formData);
+      try {
+        await this.createUser(this.formData);
+      } catch (error) {
+        this.$store.commit('alerts/addAlert', {
+          text: `Error adding user: ${error.message}`,
+          level: 'err',
+        });
+      }
       // Push the name to submitted names
       // Hide the modal manually
       this.$nextTick(() => {

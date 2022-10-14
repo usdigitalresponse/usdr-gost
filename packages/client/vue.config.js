@@ -9,19 +9,20 @@ module.exports = {
       template: 'public/index.html',
       filename: 'index.html',
     },
-    // arpaReporter: {
-    //   entry: 'src/arpa_reporter/main.js',
-    //   template: 'public/arpa_reporter/index.html',
-    //   filename: 'arpa_reporter/index.html',
-    // },
+    arpaReporter: {
+      entry: 'src/arpa_reporter/main.js',
+      template: 'public/arpa_reporter/index.html',
+      filename: 'arpa_reporter/index.html',
+    },
   },
   devServer: {
+    allowedHosts: process.env.VUE_ALLOWED_HOSTS || 'auto',
     client: {
       progress: false,
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: process.env.GOST_API_URL || 'http://localhost:3000',
       },
     },
     historyApiFallback: {
