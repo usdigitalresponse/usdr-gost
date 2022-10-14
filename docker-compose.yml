@@ -53,7 +53,7 @@ services:
     volumes:
       - ./docker/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./docker/postgres/docker-entrypoint-preinitdb.d:/docker-entrypoint-preinitdb.d
-      # - ./docker/postgres/persistence:/bitnami/postgresql
+      - ./docker/postgres/persistence:/bitnami/postgresql
 
 networks:
   app:
