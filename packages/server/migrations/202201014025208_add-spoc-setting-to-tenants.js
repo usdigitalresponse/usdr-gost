@@ -2,7 +2,7 @@
 exports.up = function (knex) {
     return knex.schema
         .table('tenants', (table) => {
-            table.bool('uses_spoc_process').defaultTo(false);
+            table.bool('uses_spoc_process').defaultTo(false).notNullable();
         });
 };
 
