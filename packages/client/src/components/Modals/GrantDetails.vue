@@ -182,8 +182,7 @@ export default {
       );
     },
     shouldShowSpocButton() {
-      if (!this.currentTenant.uses_spoc_process) return false;
-      return true;
+      return this.currentTenant.uses_spoc_process;
     },
     interested() {
       if (!this.selectedGrant) {
