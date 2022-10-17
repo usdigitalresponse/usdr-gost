@@ -498,4 +498,36 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
             expect(lastRow).to.include('Error:');
         });
     });
+    context('GET /api/organizations/:orgId/grants?currentPage=:pageNumber&perPage=:grantsPerPage', () => {
+        context('by a user with staff role', () => {
+            it('should return sorted rows', async () => {
+                let response;
+                let queryJson;
+                let previousOpenDate = new Date('1970-01-01T00:00:00');
+                let previousCloseDate = new Date('1970-01-01T00:00:00');
+                let i = 1;
+                let moreRows = true;
+                while (moreRows) {
+                    // eslint-disable-next-line no-await-in-loop
+                    response = await fetchApi(`/grants?currentPage=${i}&perPage=10`, agencies.own, fetchOptions.staff);
+                    expect(response.statusText).to.equal('OK');
+                    // eslint-disable-next-line no-await-in-loop
+                    queryJson = await response.json();
+                    if (queryJson.data.length === 0) {
+                        moreRows = false;
+                    } else {
+                        for (let j = 0; j < queryJson.data.length; j += 1) {
+                            const currentOpenDate = `$(new Date(queryJson.data[j].open_date}T00:00:00`;
+                            expect(previousOpenDate).to.lessThanOrEqual(currentOpenDate);
+                            previousOpenDate = currentOpenDate;
+                            const currentCloseDate = `$(new Date(queryJson.data[j].close_date}T00:00:00`;
+                            expect(previousCloseDate).to.lessThanOrEqual(currentCloseDate);
+                            previousCloseDate = currentCloseDate;
+                        }
+                        i += 1;
+                    }
+                }
+            });
+        });
+    });
 });
