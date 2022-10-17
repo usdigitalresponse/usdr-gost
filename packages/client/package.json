@@ -57,6 +57,7 @@
     "eslint-plugin-promise": "^5.2.0",
     "eslint-plugin-vue": "^8.5.0",
     "mocha": "^9.2.1",
+    "nyc": "^15.1.0",
     "prettier": "2.6.1",
     "sass": "1.52.1",
     "sass-loader": "13.0.0",
