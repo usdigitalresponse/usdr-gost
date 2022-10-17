@@ -122,9 +122,9 @@ export default {
         interested: (() => {
           let retVal = null;
           if (grantsInterested.status_code != null) {
-            if (grantsInterested.status_code == 'Rejected') {
+            if (grantsInterested.status_code === 'Rejected') {
               retVal = 0;
-            } else if ((grantsInterested.status_code == 'Interested')) {
+            } else if ((grantsInterested.status_code === 'Interested')) {
               retVal = 1;
             }
           } else if (grantsInterested.assigned_by != null) {
