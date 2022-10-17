@@ -503,8 +503,8 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
             it('should return sorted rows', async () => {
                 let response;
                 let queryJson;
-                let previousOpenDate = new Date('1970-01-01T00:00:00');
-                let previousCloseDate = new Date('1970-01-01T00:00:00');
+                let previousOpenDate = '1970-01-01';
+                let previousCloseDate = '1970-01-01';
                 let i = 1;
                 let moreRows = true;
                 while (moreRows) {
@@ -517,11 +517,15 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
                         moreRows = false;
                     } else {
                         for (let j = 0; j < queryJson.data.length; j += 1) {
-                            const currentOpenDate = `$(new Date(queryJson.data[j].open_date}T00:00:00`;
-                            expect(previousOpenDate).to.lessThanOrEqual(currentOpenDate);
+                            const currentOpenDate = queryJson.data[j].open_date;
+                            if (previousOpenDate.localeCompare(currentOpenDate) === 1) {
+                                expect(false).to.equal(true);
+                            }
                             previousOpenDate = currentOpenDate;
-                            const currentCloseDate = `$(new Date(queryJson.data[j].close_date}T00:00:00`;
-                            expect(previousCloseDate).to.lessThanOrEqual(currentCloseDate);
+                            const currentCloseDate = queryJson.data[j].close_date;
+                            if (previousCloseDate.localeCompare(currentCloseDate) === 1) {
+                                expect(false).to.equal(true);
+                            }
                             previousCloseDate = currentCloseDate;
                         }
                         i += 1;
