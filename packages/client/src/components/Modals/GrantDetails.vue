@@ -186,7 +186,7 @@ export default {
     },
     interested() {
       if (!this.selectedGrant) {
-        return false;
+        return undefined;
       }
       return this.selectedGrant.interested_agencies.find(
         (interested) => interested.agency_id.toString() === this.selectedAgencyId,
