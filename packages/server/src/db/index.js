@@ -575,7 +575,7 @@ async function getAgency(agencyId) {
         .where({
             id: agencyId,
         })
-        .leftJoin('tenants', 'tenants.main_agency_id', '=', `${TABLES.agencies}.main_agency_id`);
+        .leftJoin('tenants', 'tenants.id', '=', `${TABLES.agencies}.tenant_id`);
     const result = await query;
 
     return result;
