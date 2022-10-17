@@ -504,12 +504,11 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
                 let response;
                 let queryJson;
                 let previousOpenDate = '1970-01-01';
-                let previousCloseDate = '1970-01-01';
                 let i = 1;
                 let moreRows = true;
                 while (moreRows) {
                     // eslint-disable-next-line no-await-in-loop
-                    response = await fetchApi(`/grants?currentPage=${i}&perPage=10`, agencies.own, fetchOptions.staff);
+                    response = await fetchApi(`/grants?currentPage=${i}&perPage=10&orderBy=open_date&ascending=false`, agencies.own, fetchOptions.staff);
                     expect(response.statusText).to.equal('OK');
                     // eslint-disable-next-line no-await-in-loop
                     queryJson = await response.json();
@@ -518,15 +517,11 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
                     } else {
                         for (let j = 0; j < queryJson.data.length; j += 1) {
                             const currentOpenDate = queryJson.data[j].open_date;
-                            if (previousOpenDate.localeCompare(currentOpenDate) === 1) {
+                            // Couldn't find any chai greaterThanOrEqual to handle string comparison verifications.
+                            if (previousOpenDate.localeCompare(currentOpenDate) < 1) {
                                 expect(false).to.equal(true);
                             }
                             previousOpenDate = currentOpenDate;
-                            const currentCloseDate = queryJson.data[j].close_date;
-                            if (previousCloseDate.localeCompare(currentCloseDate) === 1) {
-                                expect(false).to.equal(true);
-                            }
-                            previousCloseDate = currentCloseDate;
                         }
                         i += 1;
                     }
