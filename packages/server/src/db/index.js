@@ -326,8 +326,6 @@ async function getGrants({
                     if (orderArgs.length > 1) {
                         console.log(`Too many orderArgs: ${orderArgs}`);
                     }
-                    console.log('orderArgs[0]: %o', orderArgs[0]);
-                    console.log('orderDirection: %o', orderDirection);
                     queryBuilder.orderBy(orderArgs[0], orderDirection);
                 }
             }

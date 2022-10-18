@@ -503,12 +503,12 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
             it('should return sorted rows', async () => {
                 let response;
                 let queryJson;
-                let previousOpenDate = '1970-01-01';
-                let i = 1;
+                let previousOpenDate = null;
+                let pageNumber = 1;
                 let moreRows = true;
                 while (moreRows) {
                     // eslint-disable-next-line no-await-in-loop
-                    response = await fetchApi(`/grants?currentPage=${i}&perPage=10&orderBy=open_date&ascending=false`, agencies.own, fetchOptions.staff);
+                    response = await fetchApi(`/grants?currentPage=${pageNumber}&perPage=10&orderBy=open_date&ascending=false`, agencies.own, fetchOptions.staff);
                     expect(response.statusText).to.equal('OK');
                     // eslint-disable-next-line no-await-in-loop
                     queryJson = await response.json();
@@ -516,14 +516,13 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
                         moreRows = false;
                     } else {
                         for (let j = 0; j < queryJson.data.length; j += 1) {
-                            const currentOpenDate = queryJson.data[j].open_date;
-                            // Couldn't find any chai greaterThanOrEqual to handle string comparison verifications.
-                            if (previousOpenDate.localeCompare(currentOpenDate) < 1) {
-                                expect(false).to.equal(true);
+                            const currentOpenDate = new Date(`${queryJson.data[j].open_date}T00:00:00`);
+                            if (previousOpenDate !== null) {
+                                expect(previousOpenDate).to.be.greaterThanOrEqual(currentOpenDate);
                             }
                             previousOpenDate = currentOpenDate;
                         }
-                        i += 1;
+                        pageNumber += 1;
                     }
                 }
             });
