@@ -53,7 +53,7 @@ jobs:
           cp packages/client/.env.example packages/client/.env
           export CI=true; yarn coverage
       - name: Publish coverage report to CodeClimate
-        uses: paambaati/codeclimate-action@v3
+        uses: paambaati/codeclimate-action@v3.1.0
         env:
           CC_TEST_REPORTER_ID: c0ab87c312e9ca57ec34d55ebec07ed396f96f039b3c725221918a75be71a0eb
         with:
