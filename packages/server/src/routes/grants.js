@@ -45,7 +45,6 @@ router.get('/', requireUser, async (req, res) => {
             rejected: req.query.rejected ? true : null,
         },
         orderBy: req.query.orderBy,
-        searchTerm: 'null',
         ascending: req.query.ascending,
     });
     res.json(grants);
