@@ -351,6 +351,7 @@ async function validateRules ({ upload, records, rules, trns }) {
 
   return errors
 }
+
 // Subrecipients can use either the uei, or the tin, or both as their identifier.
 // This helper takes those 2 nullable fields and converts it to a reliable format
 // so we can index and search by them.
@@ -361,8 +362,7 @@ function subrecipientIdString(uei, tin) {
   return JSON.stringify({ uei, tin })
 }
 
-async function validateReferences({ records }) {
-  const errors = []
+function sortRecords(records, errors) {
   // These 3 types need to search-able by their unique id so we can quickly verify they exist
   const projects = {}
   const subrecipients = {}
@@ -415,19 +415,20 @@ async function validateReferences({ records }) {
         // Skip these sheets, they don't include records
         continue
       default:
-        console.log(`Unexpected record type: ${record.type}`)
+        console.error(`Unexpected record type: ${record.type}`)
     }
   }
 
-  // Must include at least 1 project in the upload
-  if (Object.keys(projects).length === 0) {
-    errors.push(
-      new ValidationError(
-        `Upload doesn't include any project records`,
-        { severity: 'err' })
-    )
+  return {
+    projects,
+    subrecipients,
+    awardsGT50k,
+    awards,
+    expendituresGT50k,
   }
+}
 
+function validateSubawardRefs(awardsGT50k, projects, subrecipients, errors) {
   // Any subawards must reference valid projects and subrecipients.
   // Track the subrecipient ids that were referenced, since we'll need them later
   const usedSubrecipients = new Set()
@@ -446,15 +447,21 @@ async function validateReferences({ records }) {
     }
     usedSubrecipients.add(subRecipRef)
   }
+  // Return this so that it can be used in the subrecipient validations
+  return usedSubrecipients
+}
 
+function validateSubrecipientRefs(subrecipients, usedSubrecipients, errors) {
   // Make sure that every subrecip included in this upload was referenced by at least one subaward
-  for(const subRecipId of Object.keys(subrecipients)) {
+  for (const subRecipId of Object.keys(subrecipients)) {
     if (!(subRecipId && usedSubrecipients.has(subRecipId))) {
       errors.push(betaValidationWarning(
         `Subrecipient with id ${subRecipId} has no related subawards and can be ommitted.`))
     }
   }
+}
 
+function validateExpenditureRefs(expendituresGT50k, awardsGT50k, errors) {
   // Make sure each expenditure references a valid subward
   for (const expenditure of expendituresGT50k) {
     const awardRef = expenditure.Sub_Award_Lookup__c;
@@ -463,6 +470,29 @@ async function validateReferences({ records }) {
         `An expenditure referenced an unknown award number ${awardRef}`))
     }
   }
+}
+
+async function validateReferences({ records }) {
+  const errors = []
+
+  const sortedRecords = sortRecords(records, errors)
+
+  // Must include at least 1 project in the upload
+  if (Object.keys(sortedRecords.projects).length === 0) {
+    errors.push(
+      new ValidationError(
+        `Upload doesn't include any project records`,
+        { severity: 'err' })
+    )
+  }
+
+  const usedSubrecipients = validateSubawardRefs(
+    sortedRecords.awardsGT50k,
+    sortedRecords.projects,
+    sortedRecords.subrecipients,
+    errors)
+  validateSubrecipientRefs(sortedRecords.subrecipients, usedSubrecipients, errors)
+  validateExpenditureRefs(sortedRecords.expendituresGT50k, sortedRecords.awardsGT50k, errors)
 
   return errors;
 }
