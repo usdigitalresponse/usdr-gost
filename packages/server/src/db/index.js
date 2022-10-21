@@ -135,10 +135,6 @@ async function getUser(id) {
         }
         user.agency.subagencies = subagencies;
     }
-    delete user.tenant_id;
-    delete user.tenant_display_name;
-    delete user.tenant_main_agency_id;
-    delete user.tenant_uses_spoc_process;
     return user;
 }
 
