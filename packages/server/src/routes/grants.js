@@ -44,6 +44,8 @@ router.get('/', requireUser, async (req, res) => {
             positiveInterest: req.query.positiveInterest ? true : null,
             rejected: req.query.rejected ? true : null,
         },
+        orderBy: req.query.orderBy,
+        ascending: req.query.ascending,
     });
     res.json(grants);
 });

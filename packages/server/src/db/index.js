@@ -264,7 +264,7 @@ function deleteKeyword(id) {
 }
 
 async function getGrants({
-    currentPage, perPage, tenantId, filters, orderBy, searchTerm,
+    currentPage, perPage, tenantId, filters, orderBy, searchTerm, ascending,
 } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
@@ -309,7 +309,6 @@ async function getGrants({
                     },
                 );
             }
-
             if (orderBy && orderBy !== 'undefined') {
                 if (orderBy.includes('interested_agencies')) {
                     queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
@@ -323,7 +322,11 @@ async function getGrants({
                     queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
                 } else {
                     const orderArgs = orderBy.split('|');
-                    queryBuilder.orderBy(...orderArgs);
+                    const orderDirection = ((ascending === 'true') ? 'asc' : 'desc');
+                    if (orderArgs.length > 1) {
+                        console.log(`Too many orderArgs: ${orderArgs}`);
+                    }
+                    queryBuilder.orderBy(orderArgs[0], orderDirection);
                 }
             }
         })
