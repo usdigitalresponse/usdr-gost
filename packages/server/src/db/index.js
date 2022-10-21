@@ -90,11 +90,16 @@ async function getUser(id) {
             'agencies.main_agency_id as agency_main_agency_id',
             'agencies.warning_threshold as agency_warning_threshold',
             'agencies.danger_threshold as agency_danger_threshold',
+            'tenants.id as tenant_id',
+            'tenants.display_name as tenant_display_name',
+            'tenants.main_agency_id as tenant_main_agency_id',
+            'tenants.uses_spoc_process as tenant_uses_spoc_process',
             'users.tags',
             'users.tenant_id',
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
+        .leftJoin('tenants', 'tenants.main_agency_id', 'agencies.main_agency_id')
         .where('users.id', id);
 
     if (!user) return null;
@@ -115,6 +120,12 @@ async function getUser(id) {
             warning_threshold: user.agency_warning_threshold,
             danger_threshold: user.agency_danger_threshold,
             main_agency_id: user.agency_main_agency_id,
+        };
+        user.tenant = {
+            id: user.tenant_id,
+            display_name: user.tenant_display_name,
+            main_agency_id: user.tenant_main_agency_id,
+            uses_spoc_process: user.tenant_uses_spoc_process,
         };
         let subagencies = [];
         if (user.role.name === 'admin') {
@@ -558,10 +569,15 @@ function getInterestedCodes() {
 }
 
 async function getAgency(agencyId) {
-    const query = `SELECT * FROM agencies WHERE id = ?;`;
-    const result = await knex.raw(query, agencyId);
+    const query = knex.select()
+        .from(TABLES.agencies)
+        .where({
+            id: agencyId,
+        })
+        .leftJoin('tenants', 'tenants.id', '=', `${TABLES.agencies}.tenant_id`);
+    const result = await query;
 
-    return result.rows;
+    return result;
 }
 
 async function getTenantAgencies(tenantId) {
