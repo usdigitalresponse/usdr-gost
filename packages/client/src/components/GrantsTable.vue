@@ -122,7 +122,7 @@ export default {
       searchInput: null,
       debouncedSearchInput: null,
       reviewStatusFilters: [],
-      reviewStatusOptions: ['interested', 'rejected'],
+      reviewStatusOptions: ['interested', 'result', 'rejected'],
     };
   },
   mounted() {
@@ -222,12 +222,12 @@ export default {
           currentPage: this.currentPage,
           orderBy: this.orderBy,
           searchTerm: this.debouncedSearchInput,
-          interestedByAgency: this.showInterested || this.showRejected,
+          interestedByAgency: this.showInterested || this.showResult || this.showRejected,
           interestedByMe: this.showMyInterested,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
           positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
-          result: this.showResult ? true : null,
+          result: this.showResult || (this.reviewStatusFilters.includes('result') ? true : null),
           rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
         });
       } catch (e) {
@@ -312,7 +312,7 @@ export default {
         aging: this.showAging,
         assignedToAgency: this.showAssignedToAgency,
         positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
-        result: this.showResult ? true : null,
+        result: this.showResult || (this.reviewStatusFilters.includes('result') ? true : null),
         rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
       });
     },

@@ -42,7 +42,7 @@ router.get('/', requireUser, async (req, res) => {
             interestedByUser: req.query.interestedByMe ? req.signedCookies.userId : null,
             assignedToAgency: req.query.assignedToAgency ? req.query.assignedToAgency : null,
             positiveInterest: req.query.positiveInterest ? true : null,
-            result: req.query.results ? true : null,
+            result: req.query.result ? true : null,
             rejected: req.query.rejected ? true : null,
         },
         orderBy: req.query.orderBy,
