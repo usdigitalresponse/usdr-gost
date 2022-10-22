@@ -25,7 +25,7 @@
       </b-col>
     </b-row>
     <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields" selectable striped
-      :sort-by.sync="orderBy" :sort-desc.sync="orderDesc" :no-local-sorting="true" @sort-changed="sortingChanged"
+      :sort-by.sync="orderBy" :sort-desc.sync="orderDesc" :no-local-sorting="true"
       select-mode="single" :busy="loading" @row-selected="onRowSelected">
       <template #cell(award_floor)="row">
         <p> {{ formatMoney(row.item.award_floor) }}</p>
@@ -187,6 +187,9 @@ export default {
     orderBy() {
       this.paginateGrants();
     },
+    orderDesc() {
+      this.paginateGrants();
+    },
     selectedGrantIndex() {
       this.changeSelectedGrant();
     },
@@ -236,11 +239,6 @@ export default {
       } finally {
         this.loading = false;
       }
-    },
-    async sortingChanged(ctx) {
-      this.orderBy = ctx.orderBy;
-      this.orderDesc = ctx.orderDesc;
-      await this.paginateGrants();
     },
     getAwardFloor(grant) {
       let body;
