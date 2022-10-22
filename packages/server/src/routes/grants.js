@@ -45,7 +45,7 @@ router.get('/', requireUser, async (req, res) => {
             rejected: req.query.rejected ? true : null,
         },
         orderBy: req.query.orderBy,
-        ascending: req.query.ascending,
+        orderDesc: req.query.orderDesc,
     });
     res.json(grants);
 });

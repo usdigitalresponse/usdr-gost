@@ -508,7 +508,7 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
                 let moreRows = true;
                 while (moreRows) {
                     // eslint-disable-next-line no-await-in-loop
-                    response = await fetchApi(`/grants?currentPage=${pageNumber}&perPage=10&orderBy=open_date&ascending=false`, agencies.own, fetchOptions.staff);
+                    response = await fetchApi(`/grants?currentPage=${pageNumber}&perPage=10&orderBy=open_date&orderDesc=true`, agencies.own, fetchOptions.staff);
                     expect(response.statusText).to.equal('OK');
                     // eslint-disable-next-line no-await-in-loop
                     queryJson = await response.json();
