@@ -101,7 +101,6 @@ export default {
         },
         {
           key: 'award_floor',
-          sortable: true,
         },
         {
           key: 'award_ceiling',
