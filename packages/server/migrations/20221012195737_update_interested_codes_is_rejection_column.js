@@ -9,10 +9,6 @@ exports.up = async function (knex) {
     // Copying existing is_rejection column values over to the new column
     await knex('interested_codes').where({ is_rejection: false }).update({ status_code: 'Interested' });
     await knex('interested_codes').where({ is_rejection: true }).update({ status_code: 'Rejected' });
-
-    // Add new grant statuses and set the auto_increment counter for id to the accurate number as
-    // knex was trying to add new entries at id=1
-    await knex.raw('SELECT setval(\'interested_codes_id_seq\', max(id)) FROM interested_codes');
     await knex('interested_codes').insert([
         {
             name: 'Applied',
