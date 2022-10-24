@@ -289,7 +289,7 @@ async function getGrants({
                 );
             }
             if (filters) {
-                if (filters.interestedByUser || filters.positiveInterest || filters.rejected || filters.interestedByAgency) {
+                if (filters.interestedByUser || filters.positiveInterest || filters.result || filters.rejected || filters.interestedByAgency) {
                     queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
                         .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
                 }
@@ -309,12 +309,15 @@ async function getGrants({
                         if (filters.assignedToAgency) {
                             qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgency);
                         }
-                        if (!(filters.positiveInterest && filters.rejected)) {
+                        if (!(filters.positiveInterest && filters.result && filters.rejected)) {
                             if (filters.positiveInterest) {
-                                qb.where(`${TABLES.interested_codes}.is_rejection`, '=', false);
+                                qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Interested');
+                            }
+                            if (filters.result) {
+                                qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Result');
                             }
                             if (filters.rejected) {
-                                qb.where(`${TABLES.interested_codes}.is_rejection`, '=', true);
+                                qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Rejected');
                             }
                         }
                     },
@@ -433,15 +436,15 @@ async function getTotalInterestedGrantsByAgencies(agencyId) {
     const agencies = await getAgencyTree(agencyId);
     const rows = await knex(TABLES.grants_interested)
         .select(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`,
-            knex.raw('SUM(CASE WHEN is_rejection = TRUE THEN 1 ELSE 0 END) rejections'),
-            knex.raw('SUM(CASE WHEN is_rejection = FALSE THEN 1 ELSE 0 END) interested'),
+            knex.raw('SUM(CASE WHEN status_code = "Rejected" THEN 1 ELSE 0 END) rejections'),
+            knex.raw('SUM(CASE WHEN status_code = "Interested" THEN 1 ELSE 0 END) interested'),
             knex.raw('SUM(award_ceiling::numeric) total_grant_money'),
-            knex.raw('SUM(CASE WHEN is_rejection = FALSE THEN award_ceiling::numeric ELSE 0 END) total_interested_grant_money'),
-            knex.raw('SUM(CASE WHEN is_rejection = TRUE THEN award_ceiling::numeric ELSE 0 END) total_rejected_grant_money'))
+            knex.raw('SUM(CASE WHEN status_code = "Rejected" THEN award_ceiling::numeric ELSE 0 END) total_interested_grant_money'),
+            knex.raw('SUM(CASE WHEN status_code = "Interested" THEN award_ceiling::numeric ELSE 0 END) total_rejected_grant_money'))
         .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
         .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
         .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`)
-        .count(`${TABLES.interested_codes}.is_rejection`)
+        .count(`${TABLES.interested_codes}.status_code`)
         .whereIn('agencies.id', agencies.map((a) => a.id))
         .groupBy(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
     return rows;
@@ -490,7 +493,7 @@ async function getInterestedAgencies({ grantIds, tenantId }) {
     const result = await query.select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
         `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
         `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,
-        `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`, `${TABLES.interested_codes}.is_rejection as interested_is_rejection`);
+        `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`, `${TABLES.interested_codes}.status_code as interested_status_code`);
 
     return result;
 }
@@ -513,7 +516,7 @@ async function getGrantsInterested({ agencyId, perPage, currentPage }) {
     return knex('grants_interested')
         .select(knex.raw(`grants_interested.created_at,
                           agencies.name,
-                          interested_codes.is_rejection,
+                          interested_codes.status_code,
                           grants_interested.agency_id,
                           grants.title,
                           grants.grant_id,
@@ -525,7 +528,7 @@ async function getGrantsInterested({ agencyId, perPage, currentPage }) {
         .unionAll((qb) => {
             qb.select(knex.raw(`assigned_grants_agency.created_at,
                                 agencies.name,
-                                NULL AS is_rejection,
+                                NULL AS status_code,
                                 assigned_grants_agency.agency_id,
                                 grants.title,
                                 grants.grant_id,

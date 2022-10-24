@@ -25,8 +25,9 @@ export default {
     currentGrant: (state) => state.currentGrant,
     eligibilityCodes: (state) => state.eligibilityCodes,
     interestedCodes: (state) => ({
-      rejections: state.interestedCodes.filter((c) => c.is_rejection),
-      interested: state.interestedCodes.filter((c) => !c.is_rejection),
+      rejections: state.interestedCodes.filter((c) => c.status_code === 'Rejected'),
+      result: state.interestedCodes.filter((c) => c.status_code === 'Result'),
+      interested: state.interestedCodes.filter((c) => c.status_code === 'Interested'),
     }),
     keywords: (state) => state.keywords,
   },
