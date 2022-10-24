@@ -25,6 +25,7 @@
       </b-col>
     </b-row>
     <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields" selectable striped
+      :sort-by.sync="orderBy" :sort-desc.sync="orderDesc" :no-local-sorting="true"
       select-mode="single" :busy="loading" @row-selected="onRowSelected">
       <template #cell(award_floor)="row">
         <p> {{ formatMoney(row.item.award_floor) }}</p>
@@ -101,7 +102,6 @@ export default {
         },
         {
           key: 'award_floor',
-          sortable: true,
         },
         {
           key: 'award_ceiling',
@@ -118,7 +118,8 @@ export default {
       ],
       selectedGrant: null,
       selectedGrantIndex: null,
-      orderBy: '',
+      orderBy: 'open_date',
+      orderDesc: true,
       searchInput: null,
       debouncedSearchInput: null,
       reviewStatusFilters: [],
@@ -186,6 +187,9 @@ export default {
     orderBy() {
       this.paginateGrants();
     },
+    orderDesc() {
+      this.paginateGrants();
+    },
     selectedGrantIndex() {
       this.changeSelectedGrant();
     },
@@ -221,6 +225,7 @@ export default {
           perPage: this.perPage,
           currentPage: this.currentPage,
           orderBy: this.orderBy,
+          orderDesc: this.orderDesc,
           searchTerm: this.debouncedSearchInput,
           interestedByAgency: this.showInterested || this.showResult || this.showRejected,
           interestedByMe: this.showMyInterested,

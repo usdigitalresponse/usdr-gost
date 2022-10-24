@@ -275,7 +275,7 @@ function deleteKeyword(id) {
 }
 
 async function getGrants({
-    currentPage, perPage, tenantId, filters, orderBy, searchTerm, ascending,
+    currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
 } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
@@ -336,7 +336,7 @@ async function getGrants({
                     queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
                 } else {
                     const orderArgs = orderBy.split('|');
-                    const orderDirection = ((ascending === 'true') ? 'asc' : 'desc');
+                    const orderDirection = ((orderDesc === 'true') ? 'desc' : 'asc');
                     if (orderArgs.length > 1) {
                         console.log(`Too many orderArgs: ${orderArgs}`);
                     }
