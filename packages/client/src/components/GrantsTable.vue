@@ -16,7 +16,7 @@
         </b-button>
       </b-col>
     </b-row>
-    <b-row v-if="!showInterested && !showRejected && !showAssignedToAgency" class="mt-3 mb-3" align-h="between"
+    <b-row v-if="!showInterested && !showRejected && !showResult && !showAssignedToAgency" class="mt-3 mb-3" align-h="between"
       style="position: relative; z-index: 999">
       <b-col cols="3">
         <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions" :multiple="true"
@@ -62,6 +62,7 @@ export default {
     showMyInterested: Boolean,
     showInterested: Boolean,
     showRejected: Boolean,
+    showResult: Boolean,
     showAging: Boolean,
     showAssignedToAgency: String,
   },
@@ -121,7 +122,7 @@ export default {
       searchInput: null,
       debouncedSearchInput: null,
       reviewStatusFilters: [],
-      reviewStatusOptions: ['interested', 'rejected'],
+      reviewStatusOptions: ['interested', 'result', 'rejected'],
     };
   },
   mounted() {
@@ -221,11 +222,12 @@ export default {
           currentPage: this.currentPage,
           orderBy: this.orderBy,
           searchTerm: this.debouncedSearchInput,
-          interestedByAgency: this.showInterested || this.showRejected,
+          interestedByAgency: this.showInterested || this.showResult || this.showRejected,
           interestedByMe: this.showMyInterested,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
           positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
+          result: this.showResult || (this.reviewStatusFilters.includes('result') ? true : null),
           rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
         });
       } catch (e) {
@@ -310,6 +312,7 @@ export default {
         aging: this.showAging,
         assignedToAgency: this.showAssignedToAgency,
         positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
+        result: this.showResult || (this.reviewStatusFilters.includes('result') ? true : null),
         rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
       });
     },
