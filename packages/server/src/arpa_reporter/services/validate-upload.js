@@ -12,6 +12,11 @@ const { getRules } = require('./validation-rules')
 const { ecCodes } = require('../lib/arpa-ec-codes')
 
 const ValidationError = require('../lib/validation-error')
+
+// Currency strings are must be at least one digit long (\d+)
+// They can optionally have a decimal point followed by 1 or 2 more digits (?: \.\d{ 1, 2 })
+const CURRENCY_REGEX_PATTERN = /^\d+(?: \.\d{ 1, 2 })?$/g
+
 const BETA_VALIDATION_MESSAGE = "[BETA] This is a new validation that is running in beta mode (as a warning instead of a blocking error). If you see anything incorrect about this validation, please report it at grants-helpdesk@usdigitalresponse.org"
 
 // This is a convenience wrapper that lets us use consistent behavior for new validation errors.
@@ -283,6 +288,15 @@ async function validateRecord ({ upload, record, typeRules: rules }) {
               ))
             }
           }
+        }
+      }
+
+      if (rule.dataType === 'Currency') {
+        if (value && typeof value === 'string' && !value.match(CURRENCY_REGEX_PATTERN)) {
+          errors.push(new ValidationError(
+            `Data entered in cell is "${value}", but it must be a number with at most 2 decimals`,
+            { severity: 'err', col: rule.columnName }
+          ))
         }
       }
 
