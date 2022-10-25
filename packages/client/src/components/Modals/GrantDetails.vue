@@ -40,6 +40,10 @@
                   <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
                     {{ code.name }}</b-form-select-option>
                 </b-form-select-option-group>
+                <b-form-select-option-group label="Result">
+                  <b-form-select-option v-for="code in interestedCodes.result" :key="code.id" :value="code.id">
+                    {{ code.name }}</b-form-select-option>
+                </b-form-select-option-group>
                 <b-form-select-option-group label="Rejections">
                   <b-form-select-option v-for="code in interestedCodes.rejections" :key="code.id" :value="code.id">
                     {{ code.name }}</b-form-select-option>
@@ -50,7 +54,7 @@
               <b-button variant="outline-success" @click="markGrantAsInterested">Submit</b-button>
             </b-col>
           </b-row>
-          <b-row v-if="interested && !interested.interested_is_rejection">
+          <b-row v-if="interested && interested.interested_status_code !== 'Rejection'&& shouldShowSpocButton">
             <b-col>
               <b-button variant="primary" @click="generateSpoc">Generate SPOC</b-button>
             </b-col>
@@ -167,6 +171,7 @@ export default {
       agency: 'users/agency',
       selectedAgencyId: 'users/selectedAgencyId',
       agencies: 'agencies/agencies',
+      currentTenant: 'users/currentTenant',
       users: 'users/users',
       interestedCodes: 'grants/interestedCodes',
       loggedInUser: 'users/loggedInUser',
@@ -176,13 +181,20 @@ export default {
       if (!this.selectedGrant) {
         return false;
       }
-      return this.selectedGrant.viewed_by_agencies.find((viewed) => viewed.agency_id.toString() === this.selectedAgencyId);
+      return this.selectedGrant.viewed_by_agencies.find(
+        (viewed) => viewed.agency_id.toString() === this.selectedAgencyId,
+      );
+    },
+    shouldShowSpocButton() {
+      return this.currentTenant.uses_spoc_process;
     },
     interested() {
       if (!this.selectedGrant) {
-        return false;
+        return undefined;
       }
-      return this.selectedGrant.interested_agencies.find((interested) => interested.agency_id.toString() === this.selectedAgencyId);
+      return this.selectedGrant.interested_agencies.find(
+        (interested) => interested.agency_id.toString() === this.selectedAgencyId,
+      );
     },
   },
   watch: {

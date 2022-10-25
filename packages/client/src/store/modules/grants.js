@@ -25,17 +25,20 @@ export default {
     currentGrant: (state) => state.currentGrant,
     eligibilityCodes: (state) => state.eligibilityCodes,
     interestedCodes: (state) => ({
-      rejections: state.interestedCodes.filter((c) => c.is_rejection),
-      interested: state.interestedCodes.filter((c) => !c.is_rejection),
+      rejections: state.interestedCodes.filter((c) => c.status_code === 'Rejected'),
+      result: state.interestedCodes.filter((c) => c.status_code === 'Result'),
+      interested: state.interestedCodes.filter((c) => c.status_code === 'Interested'),
     }),
     keywords: (state) => state.keywords,
   },
   actions: {
     fetchGrants({ commit }, {
-      currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
+      currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe,
+      assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency,
+      opportunityStatuses, opportunityCategories, costSharing,
     }) {
       const query = Object.entries({
-        currentPage, perPage, orderBy, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
+        currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
       })
         // filter out undefined and nulls since api expects parameters not present as undefined
         // eslint-disable-next-line no-unused-vars
