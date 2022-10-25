@@ -15,7 +15,6 @@ export default {
   state: initialState,
   getters: {
     loggedInUser: (state) => state.loggedInUser,
-    currentTenant: (state, getters) => (getters.loggedInUser ? getters.loggedInUser.tenant : null),
     users: (state) => state.users,
     userRole: (state, getters) => (getters.loggedInUser ? getters.loggedInUser.role.name : null),
     agency: (state, getters) => (getters.loggedInUser ? getters.loggedInUser.agency : null),

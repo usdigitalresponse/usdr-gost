@@ -1,47 +1,38 @@
 module.exports = [
     {
-        id: 0, name: 'Not applicable to needs/goals', status_code: 'Rejected',
+        id: 0, name: 'Not applicable to needs/goals', is_rejection: true,
     },
     {
-        id: 1, name: 'Inadequate program capacity', status_code: 'Rejected',
+        id: 1, name: 'Inadequate program capacity', is_rejection: true,
     },
     {
-        id: 2, name: 'Unable to implement', status_code: 'Rejected',
+        id: 2, name: 'Unable to implement', is_rejection: true,
     },
     {
-        id: 3, name: 'Lack match ability', status_code: 'Rejected',
+        id: 3, name: 'Lack match ability', is_rejection: true,
     },
     {
-        id: 4, name: 'Unfeasible to partner', status_code: 'Rejected',
+        id: 4, name: 'Unfeasible to partner', is_rejection: true,
     },
     {
-        id: 5, name: 'Unsustainable', status_code: 'Rejected',
+        id: 5, name: 'Unsustainable', is_rejection: true,
     },
     {
-        id: 6, name: 'Unable to meet state deadlines', status_code: 'Rejected',
+        id: 6, name: 'Unable to meet state deadlines', is_rejection: true,
     },
     {
-        id: 7, name: 'Inadequate state authority', status_code: 'Rejected',
+        id: 7, name: 'Inadequate state authority', is_rejection: true,
     },
     {
-        id: 8, name: 'Can\'t meet application deadline', status_code: 'Rejected',
+        id: 8, name: 'Can\'t meet application deadline', is_rejection: true,
     },
     {
-        id: 9, name: 'Will Apply', status_code: 'Interested',
+        id: 9, name: 'Will Apply', is_rejection: false,
     },
     {
-        id: 10, name: 'Will Consider', status_code: 'Interested',
+        id: 10, name: 'Will Consider', is_rejection: false,
     },
     {
-        id: 11, name: 'Will Support', status_code: 'Interested',
-    },
-    {
-        id: 12, name: 'Applied', status_code: 'Result',
-    },
-    {
-        id: 13, name: 'Awarded', status_code: 'Result',
-    },
-    {
-        id: 14, name: 'Rejected', status_code: 'Result',
+        id: 11, name: 'Will Support', is_rejection: false,
     },
 ];

@@ -15,10 +15,6 @@ services:
       - postgres
     ports:
       - 3000:3000
-      - 9229:9229
-    command:
-      - "yarn"
-      - "debug:server"
     depends_on:
       - postgres
     env_file:
