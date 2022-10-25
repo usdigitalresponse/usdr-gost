@@ -16,11 +16,25 @@
         </b-button>
       </b-col>
     </b-row>
-    <b-row v-if="!showInterested && !showRejected && !showAssignedToAgency" class="mt-3 mb-3" align-h="between"
-      style="position: relative; z-index: 999">
-      <b-col cols="3">
+    <b-row class="mt-3 mb-3" align-h="start" style="position: relative; z-index: 999">
+      <b-col v-if="!showInterested && !showRejected && !showAssignedToAgency" cols="3">
         <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions" :multiple="true"
           :close-on-select="false" :clear-on-select="false" placeholder="Review Status">
+        </multiselect>
+      </b-col>
+      <b-col cols="3">
+        <multiselect v-model="opportunityStatusFilters" :options="opportunityStatusOptions" :multiple="true"
+                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Status">
+        </multiselect>
+      </b-col>
+      <b-col cols="3">
+        <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true"
+                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category">
+        </multiselect>
+      </b-col>
+      <b-col cols="2">
+        <multiselect v-model="costSharingFilter" :options="costSharingOptions" :multiple="false"
+                     :close-on-select="true" :clear-on-select="false" placeholder="Cost Sharing">
         </multiselect>
       </b-col>
     </b-row>
@@ -121,7 +135,13 @@ export default {
       searchInput: null,
       debouncedSearchInput: null,
       reviewStatusFilters: [],
+      opportunityStatusFilters: [],
+      opportunityCategoryFilters: [],
+      costSharingFilter: null,
       reviewStatusOptions: ['interested', 'rejected'],
+      opportunityStatusOptions: ['Forecasted', 'Posted', 'Closed / Archived'],
+      opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
+      costSharingOptions: ['Yes', 'No'],
     };
   },
   mounted() {
@@ -176,6 +196,15 @@ export default {
     reviewStatusFilters() {
       this.paginateGrants();
     },
+    opportunityStatusFilters() {
+      this.paginateGrants();
+    },
+    opportunityCategoryFilters() {
+      this.paginateGrants();
+    },
+    costSharingFilter() {
+      this.paginateGrants();
+    },
     selectedAgency() {
       this.setup();
     },
@@ -227,6 +256,9 @@ export default {
           assignedToAgency: this.showAssignedToAgency,
           positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
           rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
+          opportunityStatuses: this.parseOpportunityStatusFilters(),
+          opportunityCategories: this.opportunityCategoryFilters,
+          costSharing: this.costSharingFilter,
         });
       } catch (e) {
         console.log(e);
@@ -311,7 +343,21 @@ export default {
         assignedToAgency: this.showAssignedToAgency,
         positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
         rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
+        opportunityStatuses: this.parseOpportunityStatusFilters(),
+        opportunityCategories: this.opportunityCategoryFilters,
+        costSharing: this.costSharingFilter,
       });
+    },
+    parseOpportunityStatusFilters() {
+      const filtersCopy = this.opportunityStatusFilters.map((status) => status.toLowerCase());
+      const i = filtersCopy.indexOf('closed / archived');
+      if (i === -1) {
+        return filtersCopy;
+      }
+      filtersCopy.splice(i, 1);
+      filtersCopy.push('closed');
+      filtersCopy.push('archived');
+      return filtersCopy;
     },
     formatMoney(value) {
       if (value === undefined) {

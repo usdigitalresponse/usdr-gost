@@ -306,6 +306,15 @@ async function getGrants({
                                 qb.where(`${TABLES.interested_codes}.is_rejection`, '=', true);
                             }
                         }
+                        if (filters.opportunityStatuses.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_status`, filters.opportunityStatuses);
+                        }
+                        if (filters.opportunityCategories.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
+                        }
+                        if (filters.costSharing) {
+                            qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
+                        }
                     },
                 );
             }

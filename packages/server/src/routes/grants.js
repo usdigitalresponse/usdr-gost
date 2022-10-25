@@ -25,6 +25,11 @@ function getAwardFloor(grant) {
     return floor;
 }
 
+function parseCollectionQueryParam(req, param) {
+    const value = req.query[param];
+    return (value && value.split(',')) || [];
+}
+
 router.get('/', requireUser, async (req, res) => {
     const { selectedAgency, user } = req.session;
     let agencyCriteria;
@@ -43,6 +48,9 @@ router.get('/', requireUser, async (req, res) => {
             assignedToAgency: req.query.assignedToAgency ? req.query.assignedToAgency : null,
             positiveInterest: req.query.positiveInterest ? true : null,
             rejected: req.query.rejected ? true : null,
+            costSharing: req.query.costSharing || null,
+            opportunityStatuses: parseCollectionQueryParam(req, 'opportunityStatuses'),
+            opportunityCategories: parseCollectionQueryParam(req, 'opportunityCategories'),
         },
     });
     res.json(grants);
