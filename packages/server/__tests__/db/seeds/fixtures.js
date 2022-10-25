@@ -67,10 +67,10 @@ const keywords = {
 
 const interestedCodes = {
     notApplicable: {
-        id: 0, name: 'Not applicable to needs/goals', is_rejection: false,
+        id: 0, name: 'Not applicable to needs/goals', status_code: 'Rejected',
     },
     inadequateCapacity: {
-        id: 1, name: 'Inadequate program capacity', is_rejection: true,
+        id: 1, name: 'Inadequate program capacity', status_code: 'Rejected',
     },
 };
 
