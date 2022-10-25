@@ -9,9 +9,6 @@
     <b-tab title="Rejected">
       <GrantsTable :showRejected="true"/>
     </b-tab>
-    <b-tab title="Result">
-        <GrantsTable :showResult="true"/>
-    </b-tab>
   </b-tabs>
 </template>
 

@@ -13,20 +13,6 @@ const { ecCodes } = require('../lib/arpa-ec-codes')
 
 const ValidationError = require('../lib/validation-error')
 
-// Currency strings are must be at least one digit long (\d+)
-// They can optionally have a decimal point followed by 1 or 2 more digits (?: \.\d{ 1, 2 })
-const CURRENCY_REGEX_PATTERN = /^\d+(?: \.\d{ 1, 2 })?$/g
-
-const BETA_VALIDATION_MESSAGE = "[BETA] This is a new validation that is running in beta mode (as a warning instead of a blocking error). If you see anything incorrect about this validation, please report it at grants-helpdesk@usdigitalresponse.org"
-
-// This is a convenience wrapper that lets us use consistent behavior for new validation errors.
-// Specifically, all new validations should have a message explaining they are in beta and errors
-// should be reported to us. The validation should also be a warning (not a blocking error) until
-// it graduates out of beta
-function betaValidationWarning(message) {
-  return new ValidationError(`${message} -- ${BETA_VALIDATION_MESSAGE}`, { severity: 'warn' })
-}
-
 async function validateAgencyId ({ upload, records, trns }) {
   // grab agency id from the cover sheet
   const coverSheet = records.find(doc => doc.type === 'cover').content
@@ -291,15 +277,6 @@ async function validateRecord ({ upload, record, typeRules: rules }) {
         }
       }
 
-      if (rule.dataType === 'Currency') {
-        if (value && typeof value === 'string' && !value.match(CURRENCY_REGEX_PATTERN)) {
-          errors.push(new ValidationError(
-            `Data entered in cell is "${value}", but it must be a number with at most 2 decimals`,
-            { severity: 'err', col: rule.columnName }
-          ))
-        }
-      }
-
       // make sure max length is not too long
       if (rule.maxLength) {
         if (rule.dataType === 'String' && String(record[key]).length > rule.maxLength) {
@@ -366,151 +343,6 @@ async function validateRules ({ upload, records, rules, trns }) {
   return errors
 }
 
-// Subrecipients can use either the uei, or the tin, or both as their identifier.
-// This helper takes those 2 nullable fields and converts it to a reliable format
-// so we can index and search by them.
-function subrecipientIdString(uei, tin) {
-  if (!uei && !tin) {
-    return '';
-  }
-  return JSON.stringify({ uei, tin })
-}
-
-function sortRecords(records, errors) {
-  // These 3 types need to search-able by their unique id so we can quickly verify they exist
-  const projects = {}
-  const subrecipients = {}
-  const awardsGT50k = {}
-
-  const awards = []
-  const expendituresGT50k = []
-  for (const record of records) {
-    switch (record.type) {
-      case 'ec1':
-      case 'ec2':
-      case 'ec3':
-      case 'ec4':
-      case 'ec5':
-      case 'ec7':
-        const projectID = record.content.Project_Identification_Number__c
-        if (projectID in projects) {
-          errors.push(betaValidationWarning(
-            `Project ids must be unique, but another row used the id ${projectID}`))
-        }
-        projects[projectID] = record.content;
-        break
-      case 'subrecipient':
-        const subRecipId = subrecipientIdString(
-          record.content.Unique_Entity_Identifier__c,
-          record.content.EIN__c)
-        if (subRecipId && subRecipId in subrecipients) {
-          errors.push(betaValidationWarning(
-            `Subrecipient ids must be unique, but another row used the id ${subRecipId}`))
-        }
-        subrecipients[subRecipId] = record.content
-        break
-      case 'awards50k':
-        const awardNumber = record.content.Award_No__c
-        if (awardNumber && awardNumber in awardsGT50k) {
-          errors.push(betaValidationWarning(
-            `Award numbers must be unique, but another row used the number ${awardNumber}`))
-        }
-        awardsGT50k[awardNumber] = record.content
-        break
-      case 'awards':
-        awards.push(record.content)
-        break
-      case 'expenditures50k':
-        expendituresGT50k.push(record.content)
-        break
-      case 'certification':
-      case 'cover':
-      case 'logic':
-        // Skip these sheets, they don't include records
-        continue
-      default:
-        console.error(`Unexpected record type: ${record.type}`)
-    }
-  }
-
-  return {
-    projects,
-    subrecipients,
-    awardsGT50k,
-    awards,
-    expendituresGT50k,
-  }
-}
-
-function validateSubawardRefs(awardsGT50k, projects, subrecipients, errors) {
-  // Any subawards must reference valid projects and subrecipients.
-  // Track the subrecipient ids that were referenced, since we'll need them later
-  const usedSubrecipients = new Set()
-  for ([awardNumber, subaward] of Object.entries(awardsGT50k)) {
-    const projectRef = subaward.Project_Identification_Number__c
-    if (!(projectRef in projects)) {
-      errors.push(betaValidationWarning(
-        `Subaward number ${awardNumber} referenced a non-existent projectId ${projectRef}`))
-    }
-    const subRecipRef = subrecipientIdString(
-      subaward.Recipient_UEI__c,
-      subaward.Recipient_EIN__c)
-    if (!(subRecipRef in subrecipients)) {
-      errors.push(betaValidationWarning(
-        `Subaward number ${awardNumber} referenced a non-existent subrecipient with id ${subRecipRef}`))
-    }
-    usedSubrecipients.add(subRecipRef)
-  }
-  // Return this so that it can be used in the subrecipient validations
-  return usedSubrecipients
-}
-
-function validateSubrecipientRefs(subrecipients, usedSubrecipients, errors) {
-  // Make sure that every subrecip included in this upload was referenced by at least one subaward
-  for (const subRecipId of Object.keys(subrecipients)) {
-    if (!(subRecipId && usedSubrecipients.has(subRecipId))) {
-      errors.push(betaValidationWarning(
-        `Subrecipient with id ${subRecipId} has no related subawards and can be ommitted.`))
-    }
-  }
-}
-
-function validateExpenditureRefs(expendituresGT50k, awardsGT50k, errors) {
-  // Make sure each expenditure references a valid subward
-  for (const expenditure of expendituresGT50k) {
-    const awardRef = expenditure.Sub_Award_Lookup__c;
-    if (!(awardRef in awardsGT50k)) {
-      errors.push(betaValidationWarning(
-        `An expenditure referenced an unknown award number ${awardRef}`))
-    }
-  }
-}
-
-async function validateReferences({ records }) {
-  const errors = []
-
-  const sortedRecords = sortRecords(records, errors)
-
-  // Must include at least 1 project in the upload
-  if (Object.keys(sortedRecords.projects).length === 0) {
-    errors.push(
-      new ValidationError(
-        `Upload doesn't include any project records`,
-        { severity: 'err' })
-    )
-  }
-
-  const usedSubrecipients = validateSubawardRefs(
-    sortedRecords.awardsGT50k,
-    sortedRecords.projects,
-    sortedRecords.subrecipients,
-    errors)
-  validateSubrecipientRefs(sortedRecords.subrecipients, usedSubrecipients, errors)
-  validateExpenditureRefs(sortedRecords.expendituresGT50k, sortedRecords.awardsGT50k, errors)
-
-  return errors;
-}
-
 async function validateUpload (upload, user, trns = null) {
   // holder for our validation errors
   const errors = []
@@ -529,8 +361,7 @@ async function validateUpload (upload, user, trns = null) {
     validateAgencyId,
     validateEcCode,
     validateReportingPeriod,
-    validateRules,
-    validateReferences,
+    validateRules
   ]
 
   // we should do this in a transaction, unless someone is doing it for us

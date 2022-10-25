@@ -121,10 +121,10 @@ export default {
         grant_id: grantsInterested.grant_id,
         interested: (() => {
           let retVal = null;
-          if (grantsInterested.status_code != null) {
-            if (grantsInterested.status_code === 'Rejected') {
+          if (grantsInterested.is_rejection != null) {
+            if (grantsInterested.is_rejection) {
               retVal = 0;
-            } else if ((grantsInterested.status_code === 'Interested')) {
+            } else {
               retVal = 1;
             }
           } else if (grantsInterested.assigned_by != null) {
