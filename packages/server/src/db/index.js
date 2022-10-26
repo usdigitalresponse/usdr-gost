@@ -298,7 +298,13 @@ async function getGrants({
                 }
                 queryBuilder.andWhere(
                     (qb) => {
-                        helpers.whereAgencyCriteriaMatch(qb, filters.agencyCriteria);
+                        const isMyGrantsQuery = filters.interestedByAgency !== null
+                                                || filters.assignedToAgency !== null
+                                                || filters.rejected !== null
+                                                || filters.result !== null;
+                        if (!isMyGrantsQuery) {
+                            helpers.whereAgencyCriteriaMatch(qb, filters.agencyCriteria);
+                        }
 
                         if (filters.interestedByAgency != null) {
                             qb.where('grants_interested.agency_id', filters.interestedByAgency);

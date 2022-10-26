@@ -1,7 +1,6 @@
 const moment = require('moment')
 const XLSX = require('xlsx')
 
-const { capitalizeFirstLetter, currency, multiselect } = require('./format')
 const { getPreviousReportingPeriods, getReportingPeriod } = require('../db/reporting-periods')
 const { getCurrentReportingPeriodID } = require('../db/settings')
 const { recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records')
@@ -124,7 +123,6 @@ async function createProjectSummaries (periodId, domain) {
     const reportingPeriod = await getReportingPeriod(record.upload.reporting_period_id)
 
     return {
-      // PROJECT SUMMARIES
       'Project ID': record.content.Project_Identification_Number__c,
       'Upload': getUploadLink(domain, record.upload.id, record.upload.filename),
       'Last Reported': reportingPeriod.name,
@@ -133,105 +131,7 @@ async function createProjectSummaries (periodId, domain) {
       'Total Cumulative Obligations': record.content.Total_Obligations__c,
       'Total Cumulative Expenditures': record.content.Total_Expenditures__c,
       'Current Period Obligations': record.content.Current_Period_Obligations__c,
-      'Current Period Expenditures': record.content.Current_Period_Expenditures__c,
-
-      // PROJECT KPIS
-      // baseline
-      Program_Income_Earned__c: currency(record.content.Program_Income_Earned__c),
-      Program_Income_Expended__c: currency(record.content.Program_Income_Expended__c),
-      Primary_Project_Demographics__c: record.content.Primary_Project_Demographics__c,
-      Primary_Project_Demographics_Explanation__c: record.content.Primary_Project_Demographics_Explanation__c,
-      Secondary_Project_Demographics__c: record.content.Secondary_Project_Demographics__c,
-      Secondary_Proj_Demographics_Explanation__c: record.content.Secondary_Proj_Demographics_Explanation__c,
-      Tertiary_Project_Demographics__c: record.content.Tertiary_Project_Demographics__c,
-      Tertiary_Proj_Demographics_Explanation__c: record.content.Tertiary_Proj_Demographics_Explanation__c,
-      Structure_Objectives_of_Asst_Programs__c: record.content.Structure_Objectives_of_Asst_Programs__c,
-      Recipient_Approach_Description__c: record.content.Recipient_Approach_Description__c,
-
-      // 111210
-      Number_Workers_Enrolled_Sectoral__c: record.content.Number_Workers_Enrolled_Sectoral__c,
-      Number_Workers_Competing_Sectoral__c: record.content.Number_Workers_Competing_Sectoral__c,
-      Number_People_Summer_Youth__c: record.content.Number_People_Summer_Youth__c,
-
-      // 18
-      Small_Businesses_Served__c: record.content.Small_Businesses_Served__c,
-
-      // 19
-      Number_Non_Profits_Served__c: record.content.Number_Non_Profits_Served__c,
-
-      // 211214
-      School_ID_or_District_ID__c: record.content.School_ID_or_District_ID__c,
-      Number_Children_Served_Childcare__c: record.content.Number_Children_Served_Childcare__c,
-      Number_Families_Served_Home_Visiting__c: record.content.Number_Families_Served_Home_Visiting__c,
-
-      // 2128
-      Individuals_Served__c: record.content.Individuals_Served__c,
-      Number_Households_Eviction_Prevention__c: record.content.Number_Households_Eviction_Prevention__c,
-      Number_Affordable_Housing_Units__c: record.content.Number_Affordable_Housing_Units__c,
-
-      // 215218
-      // --
-
-      // 224227
-      Number_Students_Tutoring_Programs__c: record.content.Number_Students_Tutoring_Programs__c,
-
-      // 236
-      Industry_Experienced_8_Percent_Loss__c: record.content.Industry_Experienced_8_Percent_Loss__c,
-
-      // 31
-      Payroll_Public_Health_Safety__c: record.content.Payroll_Public_Health_Safety__c,
-
-      // 32
-      Number_of_FTEs_Rehired__c: record.content.Number_of_FTEs_Rehired__c,
-
-      // 4142
-      Sectors_Critical_to_Health_Well_Being__c: multiselect(record.content.Sectors_Critical_to_Health_Well_Being__c),
-      Workers_Served__c: record.content.Workers_Served__c,
-      Premium_Pay_Narrative__c: record.content.Premium_Pay_Narrative__c,
-      Number_of_Workers_K_12__c: record.content.Number_of_Workers_K_12__c,
-
-      // 51518
-      Proj_Actual_Construction_Start_Date__c: record.content.Proj_Actual_Construction_Start_Date__c,
-      Initiation_of_Operations_Date__c: record.content.Initiation_of_Operations_Date__c,
-      Location__c: record.content.Location__c,
-      Location_Detail__c: record.content.Location_Detail__c,
-      National_Pollutant_Discharge_Number__c: record.content.National_Pollutant_Discharge_Number__c,
-      Public_Water_System_PWS_ID_number__c: record.content.Public_Water_System_PWS_ID_number__c,
-      Median_Household_Income_Service_Area__c: record.content.Median_Household_Income_Service_Area__c,
-      Lowest_Quintile_Income__c: currency(record.content.Lowest_Quintile_Income__c),
-
-      // 519521
-      Is_project_designed_to_meet_100_mbps__c: capitalizeFirstLetter(record.content.Is_project_designed_to_meet_100_mbps__c),
-      Project_not_met_100_mbps_explanation__c: record.content.Project_not_met_100_mbps_explanation__c,
-      Is_project_designed_to_exceed_100_mbps__c: capitalizeFirstLetter(record.content.Is_project_designed_to_exceed_100_mbps__c),
-      Is_project_designed_provide_hh_service__c: capitalizeFirstLetter(record.content.Is_project_designed_provide_hh_service__c),
-      Confirm_Service_Provider__c: record.content.Confirm_Service_Provider__c,
-      Technology_Type_Planned__c: record.content.Technology_Type_Planned__c,
-      Technology_Type_Planned_Other__c: record.content.Technology_Type_Planned_Other__c,
-      Technology_Type_Actual__c: record.content.Technology_Type_Actual__c,
-      Technology_Type_Actual_Other__c: record.content.Technology_Type_Actual_Other__c,
-      Total_Miles_of_Fiber_Deployed__c: record.content.Total_Miles_of_Fiber_Deployed__c,
-      Total_Miles_of_Fiber_Deployed_Actual__c: record.content.Total_Miles_of_Fiber_Deployed_Actual__c,
-      Planned_Funded_Locations_Served__c: record.content.Planned_Funded_Locations_Served__c,
-      Actual_Funded_Locations_Served__c: record.content.Actual_Funded_Locations_Served__c,
-      Planned_Funded_Locations_25_3_Below__c: record.content.Planned_Funded_Locations_25_3_Below__c,
-      Planned_Funded_Locations_Between_25_100__c: record.content.Planned_Funded_Locations_Between_25_100__c,
-      Planned_Funded_Locations_Minimum_100_100__c: record.content.Planned_Funded_Locations_Minimum_100_100__c,
-      Actual_Funded_Locations_Minimum_100_100__c: record.content.Actual_Funded_Locations_Minimum_100_100__c,
-      Planned_Funded_Locations_Minimum_100_20__c: record.content.Planned_Funded_Locations_Minimum_100_20__c,
-      Actual_Funded_Locations_Minimum_100_20__c: record.content.Actual_Funded_Locations_Minimum_100_20__c,
-      Planned_Sum_Speed_Types_Explanation__c: record.content.Planned_Sum_Speed_Types_Explanation__c,
-      Actual_Sum_Speed_Types_Explanation__c: record.content.Actual_Sum_Speed_Types_Explanation__c,
-      Planned_Funded_Locations_Residential__c: record.content.Planned_Funded_Locations_Residential__c,
-      Actual_Funded_Locations_Residential__c: record.content.Actual_Funded_Locations_Residential__c,
-      Planned_Funded_Locations_Total_Housing__c: record.content.Planned_Funded_Locations_Total_Housing__c,
-      Actual_Funded_Locations_Total_Housing__c: record.content.Actual_Funded_Locations_Total_Housing__c,
-      Planned_Funded_Locations_Business__c: record.content.Planned_Funded_Locations_Business__c,
-      Actual_Funded_Locations_Business__c: record.content.Actual_Funded_Locations_Business__c,
-      Planned_Funded_Locations_Community__c: record.content.Planned_Funded_Locations_Community__c,
-      Actual_Funded_Locations_Community__c: record.content.Actual_Funded_Locations_Community__c,
-      Planned_Funded_Locations_Explanation__c: record.content.Planned_Funded_Locations_Explanation__c,
-      Actual_Funded_Locations_Explanation__c: record.content.Actual_Funded_Locations_Explanation__c,
+      'Current Period Expenditures': record.content.Current_Period_Expenditures__c
     }
   })
 
