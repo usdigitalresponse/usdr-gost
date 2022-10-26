@@ -25,7 +25,7 @@ const EXPENDITURE_CATEGORIES = {
  * @returns {string}
  */
 function capitalizeFirstLetter (value) {
-  if (value == null || value === '') return value
+  if (typeof value !== 'string' || value === '') return value
   return `${value[0].toUpperCase()}${value.slice(1).toLowerCase()}`
 }
 
