@@ -97,6 +97,9 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             positiveInterest: req.query.positiveInterest ? true : null,
             result: req.query.results ? true : null,
             rejected: req.query.rejected ? true : null,
+            costSharing: req.query.costSharing || null,
+            opportunityStatuses: parseCollectionQueryParam(req, 'opportunityStatuses'),
+            opportunityCategories: parseCollectionQueryParam(req, 'opportunityCategories'),
         },
     });
 
