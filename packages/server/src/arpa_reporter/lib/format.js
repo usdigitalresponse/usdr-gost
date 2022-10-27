@@ -30,7 +30,7 @@ function capitalizeFirstLetter (value) {
 }
 
 function currency (value) {
-  if (value == null) return value
+  if (typeof value !== 'number') return value
   return round(value, 2).toString()
 }
 
@@ -45,7 +45,7 @@ function ec (value) {
  * @returns {string} normalized value
  */
 function multiselect (value) {
-  if (value == null) return value
+  if (typeof value !== 'string') return value
   return value
     .trim()
     .replace(/^-/, '') // remove preceding hyphen
