@@ -18,6 +18,12 @@ function getAwardFloor(grant) {
         return undefined;
     }
 
+    // For some reason, some grants rows have null raw_body.
+    // TODO: investigate how this can happen
+    if (!body) {
+        return undefined;
+    }
+
     const floor = parseInt(body.synopsis && body.synopsis.awardFloor, 10);
     if (Number.isNaN(floor)) {
         return undefined;
