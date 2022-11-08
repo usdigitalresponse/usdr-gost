@@ -157,7 +157,6 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
     const { selectedAgency } = req.session;
     const { perPage, currentPage } = req.query;
     const data = await db.getGrantsInterested({ perPage, currentPage, agencyId: selectedAgency });
-    console.log(data);
     // extract user_ids and filter out null values
     const user_ids = data.map((grant) => grant.assigned_by).filter((id) => id);
     const users = {};
