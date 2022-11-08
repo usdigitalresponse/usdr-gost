@@ -153,6 +153,52 @@ router.get('/exportCSV', requireUser, async (req, res) => {
     res.send(csv);
 });
 
+router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
+    const { selectedAgency } = req.session;
+    const { perPage, currentPage } = req.query;
+    const data = await db.getGrantsInterested({ perPage, currentPage, agencyId: selectedAgency });
+    console.log(data);
+    // extract user_ids and filter out null values
+    const user_ids = data.map((grant) => grant.assigned_by).filter((id) => id);
+    const users = {};
+    for (const id of user_ids) {
+        const user = await db.getUser(id);
+        users[id] = { name: user.name, email: user.email };
+    }
+
+    const formattedData = data.map((grant) => ({
+        ...grant,
+        date: new Date(grant.created_at).toLocaleDateString('en-US'),
+        agency: grant.name,
+        grant: grant.title,
+        status_code: grant.status_code,
+        name: users[grant.assigned_by]?.name,
+        email: users[grant.assigned_by]?.email,
+    }));
+
+    if (data.length === 0) {
+        formattedData.push({});
+    }
+
+    const csv = csvStringify(formattedData, {
+        header: true,
+        columns: [
+            { key: 'date', header: 'Date' },
+            { key: 'agency', header: 'Agency' },
+            { key: 'grant', header: 'Grant' },
+            { key: 'status_code', header: 'Status Code' },
+            { key: 'name', header: 'Grant Assigned By' },
+            { key: 'email', header: 'Email' },
+        ],
+    });
+
+    const filename = 'recent_activity.csv';
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Length', csv.length);
+    res.send(csv);
+});
+
 router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {
     const { agencyId, grantId } = req.params;
     const { user } = req.session;

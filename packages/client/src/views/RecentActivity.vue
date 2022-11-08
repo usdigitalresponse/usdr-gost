@@ -2,6 +2,12 @@
   <section class="container">
     <b-card class="border-0">
       <h4 class="card-title gutter-title1 row">Recent Activity</h4>
+    <b-col class="d-flex justify-content-end">
+      <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
+        <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
+        Export to CSV
+      </b-button>
+    </b-col>
     <b-table
       hover
       :items="activityItems"
@@ -169,6 +175,7 @@ export default {
       fetchDashboard: 'dashboard/fetchDashboard',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
       fetchGrantDetails: 'grants/fetchGrantDetails',
+      exportCSVRecentActivities: 'grants/exportCSVRecentActivities',
     }),
     setup() {
       this.fetchDashboard();
@@ -181,6 +188,9 @@ export default {
           this.selectedGrant = this.currentGrant;
         });
       }
+    },
+    exportCSV() {
+      this.exportCSVRecentActivities({ perPage: this.perPage, currentPage: this.currentPage });
     },
   },
 };
