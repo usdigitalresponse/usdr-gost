@@ -6022,9 +6022,9 @@ csstype@^3.1.0:
   integrity sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==
 
 csv-stringify@^6.0.5:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.2.0.tgz#f89881e8f61293bf5af11f421266b5da7b744030"
-  integrity sha512-dcUbQLRTTDcgQxgEU8V9IctkaCwHZjZfzUZ5ZB3RY8Y+pXtdtl5iVQHfGzANytFFkRKanYzBXrkfpNdGR7eviA==
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.2.1.tgz#de4f9940abd8c9780eda41130c737a18d24e5986"
+  integrity sha512-+DT/YEgqRy82aMPMA7yUUpFJPx9X8iZy7UhfyTE2bHmFJcjDiz1j29wzTFkYTtuNVceNgz8efsjICch+O1WcLQ==
 
 d@1, d@^1.0.1:
   version "1.0.1"
