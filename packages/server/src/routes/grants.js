@@ -157,13 +157,12 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
     const { selectedAgency } = req.session;
     const { perPage, currentPage } = req.query;
     const data = await db.getGrantsInterested({ perPage, currentPage, agencyId: selectedAgency });
+
     // extract user_ids and filter out null values
-    const user_ids = data.map((grant) => grant.assigned_by).filter((id) => id);
     const users = {};
-    for (const id of user_ids) {
-        const user = await db.getUser(id);
-        users[id] = { name: user.name, email: user.email };
-    }
+    const user_ids = data.map((grant) => grant.assigned_by).filter((id) => id);
+    const users_emails_names = await db.getUsersEmailAndName(user_ids);
+    users_emails_names.forEach((user) => { users[user.id] = { name: user.name, email: user.email }; });
 
     const formattedData = data.map((grant) => ({
         ...grant,
