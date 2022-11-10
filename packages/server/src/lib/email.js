@@ -2,7 +2,6 @@ const { URL } = require('url');
 const fileSystem = require('fs');
 const path = require('path');
 const mustache = require('mustache');
-const constants = require('../db/constants');
 const getTransport = require('./email/service-email');
 
 const expiryMinutes = 30;
@@ -31,7 +30,6 @@ function sendWelcomeEmail(email, httpOrigin) {
     if (!httpOrigin) {
         throw new Error('must specify httpOrigin in sendWelcomeEmail');
     }
-
 
     return getTransport().send({
         toAddress: email,
@@ -94,6 +92,5 @@ function sendGrantNotificationEmail(toAddress, httpOrigin, grant, assignor, assi
     });
 }
 // sendGrantNotificationEmail('asridhar@usdigitalresponse.org', 'localhost:3000');
-
 
 module.exports = { sendPassCode, sendWelcomeEmail, sendGrantNotificationEmail };
