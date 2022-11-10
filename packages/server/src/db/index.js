@@ -373,6 +373,7 @@ async function getGrants({
 }
 
 async function getGrant({ grantId }) {
+    console.log(grantId);
     const results = await knex.table(TABLES.grants)
         .select('*')
         .where({ grant_id: grantId });
@@ -581,6 +582,16 @@ async function getAgency(agencyId) {
     const query = knex.select()
         .from(TABLES.agencies)
         .where('agencies.id', agencyId)
+        .leftJoin('tenants', 'tenants.id', '=', `${TABLES.agencies}.tenant_id`);
+    const result = await query;
+
+    return result;
+}
+
+async function getAgenciesByIds(agencyIds) {
+    const query = knex.select()
+        .from(TABLES.agencies)
+        .whereIn('agencies.id', agencyIds)
         .leftJoin('tenants', 'tenants.id', '=', `${TABLES.agencies}.tenant_id`);
     const result = await query;
 
@@ -862,6 +873,7 @@ module.exports = {
     inTenant,
     markAccessTokenUsed,
     getAgency,
+    getAgenciesByIds,
     getAgencyTree,
     getTenantAgencies,
     getTenant,

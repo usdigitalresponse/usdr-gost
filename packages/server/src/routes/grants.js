@@ -2,6 +2,7 @@ const express = require('express');
 // eslint-disable-next-line import/no-unresolved
 const { stringify: csvStringify } = require('csv-stringify/sync');
 const db = require('../db');
+const { sendGrantNotificationEmail } = require('../lib/email');
 const pdf = require('../lib/pdf');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 
@@ -176,8 +177,24 @@ router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
         res.sendStatus(403);
         return;
     }
-
+    console.log(grantId);
+    const grant = await db.getGrant({ grantId });
     await db.assignGrantsToAgencies({ grantId, agencyIds, userId: user.id });
+
+    const agencies = await db.getAgenciesByIds(agencyIds);
+    console.log(agencies);
+    for (const agency in agencies) {
+        console.log(agency.name);
+        console.log(agency);
+        sendGrantNotificationEmail(
+            'asridhar@usdigitalresponse.org',
+            'localhost:3000',
+            grant,
+            user,
+            agencies[agency],
+        );
+    }
+
     res.json({});
 });
 
@@ -191,7 +208,6 @@ router.delete('/:grantId/assign/agencies', requireUser, async (req, res) => {
         res.sendStatus(403);
         return;
     }
-
     await db.unassignAgenciesToGrant({ grantId, agencyIds, userId: user.id });
     res.json({});
 });

@@ -1,6 +1,7 @@
 /* eslint-disable global-require */
 require('dotenv').config();
 require('express-async-errors');
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -49,11 +50,14 @@ function configureApp(app, options = {}) {
 
     configureApiRoutes(app);
     configureArpaReporterApiRoutes(app);
+    app.use('/aditya', express.static(path.join(__dirname, '/static/public')));
+    console.log(path.join(__dirname, '/static/public'));
 
     // "public" folder: HTML and JS built by Vue/Webpack, and other static files in client/public
     //  - In dev: these files are served by webpack-dev-server and the requests don't get to here
     //  - In prod: these files are prebuilt and served by this middleware
     const publicPath = resolve(__dirname, '../../client/dist');
+    console.log(publicPath);
     const staticMiddleware = express.static(publicPath, {
         etag: true,
         lastModified: true,
