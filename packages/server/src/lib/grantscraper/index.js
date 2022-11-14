@@ -46,21 +46,25 @@ async function syncGrants(hits) {
     );
 }
 
+function formatElapsedMs(millis) {
+    let seconds = millis / 1000;
+    let minutes = seconds / 60;
+    const hours = minutes / 60;
+    seconds = Math.floor(seconds) % 60;
+    const paddedSeconds = seconds.toString().padStart(2, '0');
+    minutes = Math.floor(minutes) % 60;
+    const paddedMinutes = minutes.toString().padStart(2, '0');
+    const paddedHours = Math.floor(hours).toString().padStart(2, '0');
+    return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+}
+
 async function updateFromGrantsGov(keywords, elCodes) {
-    // const existingRows = await db.getGrants();
     const previousHits = [];
-    // for (const oppNum in existingRows) {
-    //     const id = parseInt(existingRows[oppNum].grant_id, 10);
-    //     if (id > 200 || Number.isNaN(id)) {
-    //         previousHits.push({
-    //             id: existingRows[oppNum].grant_id,
-    //             number: oppNum,
-    //         });
-    //     }
-    // }
     // eslint-disable-next-line max-len
+    const now = new Date();
     await grantsgov.allOpportunitiesOnlyMatchDescription(previousHits, keywords, elCodes, syncGrants);
-    console.log('sync complete!');
+    const elapsedMs = (new Date()).getTime() - now.getTime();
+    console.log(`sync complete!, elapsed: ${formatElapsedMs(elapsedMs)}`);
 }
 
 async function getKeywords() {
