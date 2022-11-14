@@ -5,8 +5,11 @@ const grantsgov = require('../grantsgov');
 
 const { TABLES } = require('../../db/constants');
 
+let processedGrantCount = 0;
+
 async function syncGrants(hits) {
     console.log(`found ${hits.length} total results on grants.gov`);
+    processedGrantCount += hits.length;
     const rows = hits.map((hit) => ({
         status: 'inbox',
         grant_id: hit.id,
@@ -62,9 +65,13 @@ async function updateFromGrantsGov(keywords, elCodes) {
     const previousHits = [];
     // eslint-disable-next-line max-len
     const now = new Date();
+    const then = new Date();
+    then.setDate(then.getDate() - process.env.GRANTS_SCRAPER_DATE_RANGE);
+    console.log(`starting sync from: ${then}`);
+    processedGrantCount = 0;
     await grantsgov.allOpportunitiesOnlyMatchDescription(previousHits, keywords, elCodes, syncGrants);
     const elapsedMs = (new Date()).getTime() - now.getTime();
-    console.log(`sync complete!, elapsed: ${formatElapsedMs(elapsedMs)}`);
+    console.log(`sync complete!, elapsed: ${formatElapsedMs(elapsedMs)}, processedGrantCount: ${processedGrantCount}`);
 }
 
 async function getKeywords() {
