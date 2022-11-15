@@ -7,6 +7,17 @@ const { TABLES } = require('../../db/constants');
 
 let processedGrantCount = 0;
 
+const millisPerDay = 24 * 60 * 60 * 1000;
+
+// Postgres default time zone is GMT (UTC). Convert to eastern standard time.
+function convertDateToEST(dateString) {
+    const theDate = new Date(Date.parse(dateString));
+    theDate.setTime(theDate.getTime() - millisPerDay);
+    const paddedMonth = (theDate.getMonth() + 1).toString().padStart(2, '0');
+    const paddedDay = theDate.getDate().toString().padStart(2, '0');
+    return `${theDate.getFullYear()}-${paddedMonth}-${paddedDay}`;
+}
+
 async function syncGrants(hits) {
     console.log(`found ${hits.length} total results on grants.gov`);
     processedGrantCount += hits.length;
@@ -20,8 +31,8 @@ async function syncGrants(hits) {
         cost_sharing: hit.costSharing ? 'Yes' : 'No',
         title: hit.title,
         cfda_list: (hit.cfdaList && hit.cfdaList.join(', ')),
-        open_date: hit.openDate,
-        close_date: hit.closeDate || '2100-01-01',
+        open_date: convertDateToEST(hit.openDate),
+        close_date: convertDateToEST(hit.closeDate || '2100-01-01'),
         notes: 'auto-inserted by script',
         search_terms: `${hit.matchingKeywords.map((kw) => `${kw} [in title/desc]\n`).join('')}${hit.searchKeywords.filter((kw) => hit.matchingKeywords.indexOf(kw) === -1).join('\n')}`,
         reviewer_name: 'none',
@@ -64,14 +75,13 @@ function formatElapsedMs(millis) {
 async function updateFromGrantsGov(keywords, elCodes) {
     const previousHits = [];
     // eslint-disable-next-line max-len
-    const now = new Date();
-    const then = new Date();
-    then.setDate(then.getDate() - process.env.GRANTS_SCRAPER_DATE_RANGE);
-    console.log(`starting sync from: ${then}`);
     processedGrantCount = 0;
+    const now = new Date();
     await grantsgov.allOpportunitiesOnlyMatchDescription(previousHits, keywords, elCodes, syncGrants);
+    const then = new Date();
+    then.setTime(then.getTime() - (millisPerDay * process.env.GRANTS_SCRAPER_DATE_RANGE));
     const elapsedMs = (new Date()).getTime() - now.getTime();
-    console.log(`sync complete!, elapsed: ${formatElapsedMs(elapsedMs)}, processedGrantCount: ${processedGrantCount}`);
+    console.log(`sync complete!, elapsed: ${formatElapsedMs(elapsedMs)}, processedGrantCount: ${processedGrantCount}, since ${then}`);
 }
 
 async function getKeywords() {
