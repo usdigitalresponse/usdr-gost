@@ -1,7 +1,8 @@
 const { expect } = require('chai');
-
+const sinon = require('sinon');
 const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
+const email = require('../../src/lib/email');
 
 /*
     In general, these tests ...
@@ -52,6 +53,11 @@ describe('`/api/grants` endpoint', () => {
     });
     after(() => {
         testServer.stop();
+    });
+
+    const sandbox = sinon.createSandbox();
+    afterEach(() => {
+        sandbox.restore();
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', () => {
@@ -172,28 +178,36 @@ describe('`/api/grants` endpoint', () => {
         const assignEndpoint = `333816/assign/agencies`;
         context('by a user with admin role', () => {
             it('assigns this user\'s own agency to a grant', async () => {
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.own] }),
                 });
                 expect(response.statusText).to.equal('OK');
+                expect(emailSpy.calledOnceWith({ grantId: '333816', agencyIds: [agencies.own], userId: 13 })).to.equal(true);
+                expect(emailSpy.called).to.equal(true);
             });
             it('assigns subagencies of this user\'s own agency to a grant', async () => {
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.ownSub, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.ownSub] }),
                 });
                 expect(response.statusText).to.equal('OK');
+                expect(emailSpy.calledOnceWith({ grantId: '333816', agencyIds: [agencies.ownSub], userId: 13 })).to.equal(true);
+                expect(emailSpy.called).to.equal(true);
             });
             it('forbids requests for any agency outside this user\'s hierarchy', async () => {
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.offLimits] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
+                expect(emailSpy.notCalled).to.equal(true);
             });
         });
         context('by a user with staff role', () => {
