@@ -587,6 +587,16 @@ async function getAgency(agencyId) {
     return result;
 }
 
+async function getAgenciesByIds(agencyIds) {
+    const query = knex.select()
+        .from(TABLES.agencies)
+        .whereIn('agencies.id', agencyIds)
+        .leftJoin('tenants', 'tenants.id', '=', `${TABLES.agencies}.tenant_id`);
+    const result = await query;
+
+    return result;
+}
+
 async function getTenantAgencies(tenantId) {
     return knex(TABLES.agencies)
         .select('*')
@@ -862,6 +872,7 @@ module.exports = {
     inTenant,
     markAccessTokenUsed,
     getAgency,
+    getAgenciesByIds,
     getAgencyTree,
     getTenantAgencies,
     getTenant,
