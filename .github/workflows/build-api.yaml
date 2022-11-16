@@ -43,3 +43,4 @@ jobs:
           push: true
           file: docker/production-api.Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
+          platforms: linux/amd64,linux/arm64
