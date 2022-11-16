@@ -578,11 +578,7 @@ function getInterestedCodes() {
 }
 
 async function getAgency(agencyId) {
-    const query = knex.select()
-        .from(TABLES.agencies)
-        .where('agencies.id', agencyId)
-        .leftJoin('tenants', 'tenants.id', '=', `${TABLES.agencies}.tenant_id`);
-    const result = await query;
+    const result = await getAgenciesByIds([agencyId]);
 
     return result;
 }

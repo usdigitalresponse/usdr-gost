@@ -156,6 +156,17 @@ describe('db', () => {
         });
     });
 
+    context('getAgency', () => {
+        it('returns undefined if no agency matches argument', async () => {
+            const result = await db.getAgency(999);
+            expect(result.length).to.equal(0);
+        });
+        it('returns single agency if valid ID is supplied', async () => {
+            const result = await db.getAgency(fixtures.agencies.accountancy.id);
+            expect(result[0].name).to.equal('State Board of Accountancy');
+        });
+    });
+
     context('getAgenciesByIds', () => {
         it('returns all agencies matching ID list', async () => {
             const result = await db.getAgenciesByIds([
