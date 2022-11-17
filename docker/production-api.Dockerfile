@@ -8,7 +8,8 @@ RUN ["chown", "-R", "node:node", "/home/node"]
 # Install the app (server package) and its dependencies
 WORKDIR /app
 COPY ./packages/server /app
-RUN ["yarn", "install", "--frozen-lockfile", "--network-timeout", "300000"]
+COPY ./yarn.lock /app/yarn.lock
+RUN ["yarn", "install", "--frozen-lockfile", "--production", "--network-timeout", "300000"]
 RUN ["yarn", "cache", "clean"]
 
 # Start the server
