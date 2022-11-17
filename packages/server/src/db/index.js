@@ -74,6 +74,12 @@ async function createUser(user) {
     };
 }
 
+async function getUsersByAgency(agencyId) {
+    const users = await knex('users').where('users.agency_id', agencyId);
+
+    return users;
+}
+
 async function getUser(id) {
     const [user] = await knex('users')
         .select(
@@ -858,6 +864,7 @@ module.exports = {
     getUsers,
     createUser,
     deleteUser,
+    getUsersByAgency,
     getUser,
     getAgencyCriteriaForAgency,
     isSubOrganization,

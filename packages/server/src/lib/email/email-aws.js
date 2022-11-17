@@ -49,6 +49,10 @@ function send(message) {
                     Data: message.body,
                 },
             },
+            Text: {
+                Charset: 'UTF-8',
+                Data: message.text,
+            },
         },
     };
     transport.sendEmail(params).promise();
