@@ -1,10 +1,15 @@
-name: Publish a Docker image for the GOST API
+name: Build Docker image for GOST API
 
 on:
   push:
     branches:
       - _staging
       - main
+    paths:
+      - "packages/server/**"
+      - "docker/production-api.Dockerfile"
+      - "yarn.lock"
+      - ".github/workflows/build-api.yaml"
   pull_request: {}
   release:
     types:
@@ -19,7 +24,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}-api
 
 jobs:
-  build-and-push-image:
+  build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -57,3 +62,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           platforms: linux/amd64,linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
+      - if: ${{ github.event_name == 'pull_request' }}
+        run: echo "Builds triggered by pull requests are not published."
