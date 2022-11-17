@@ -48,3 +48,4 @@ jobs:
           file: docker/production-api.Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           platforms: linux/amd64,linux/arm64
+          labels: ${{ steps.meta.outputs.labels }}
