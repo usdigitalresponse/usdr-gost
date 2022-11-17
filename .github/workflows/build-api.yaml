@@ -3,9 +3,9 @@ name: Publish a Docker image for the GOST API
 on:
   push:
     branches:
-      # - _staging
-      - '609-api-build-pipeline'
-  # pull_request: {}
+      - _staging
+      - main
+  pull_request: {}
   release:
     types:
       - published
