@@ -184,4 +184,15 @@ describe('db', () => {
             expect(result).to.have.lengthOf(0);
         });
     });
+
+    context('getUsersByAgency', () => {
+        it('returns all users part of the agency', async () => {
+            const result = await db.getUsersByAgency(fixtures.agencies.accountancy.id);
+            expect(result.length).to.equal(2);
+        });
+        it('returns empty list if no users are part of the agency', async () => {
+            const result = await db.getUsersByAgency(fixtures.agencies.fleetServices.id);
+            expect(result.length).to.equal(0);
+        });
+    });
 });
