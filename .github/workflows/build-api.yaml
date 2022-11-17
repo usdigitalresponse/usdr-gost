@@ -42,7 +42,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,enable=true,priority=100,prefix=sha-,suffix=,format=short
+            type=sha,enable=true,priority=100,prefix=,suffix=,format=short
             type=raw,enable=true,priority=200,prefix=,suffix=,value={{date 'YYYYMMDD.HHmm'}}
           labels: |
             org.opencontainers.image.title=usdr-gost-api
