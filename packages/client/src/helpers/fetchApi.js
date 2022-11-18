@@ -1,4 +1,10 @@
 import store from '@/store';
+import urlJoin from 'url-join';
+
+export function apiURL(endpointPath) {
+  const baseURL = process.env.GOST_API_URL || '';
+  return urlJoin(baseURL, endpointPath);
+}
 
 function getDefaultHeaders() {
   const headers = new Headers();
@@ -15,7 +21,7 @@ export function get(url) {
     credentials: 'include',
     headers: getDefaultHeaders(),
   };
-  return fetch(addOrganizationId(url), options).then((r) => {
+  return fetch(addOrganizationId(apiURL(url)), options).then((r) => {
     if (r.ok) {
       return r.json();
     }
@@ -32,7 +38,7 @@ export function deleteRequest(url, body) {
     headers: getDefaultHeaders(),
     body: JSON.stringify(body),
   };
-  return fetch(addOrganizationId(url), options)
+  return fetch(addOrganizationId(apiURL(url)), options)
     .then((r) => {
       if (r.ok) {
         return r.json();
@@ -50,7 +56,7 @@ export function post(url, body) {
     headers: getDefaultHeaders(),
     body: JSON.stringify(body),
   };
-  return fetch(addOrganizationId(url), options)
+  return fetch(addOrganizationId(apiURL(url)), options)
     .then((r) => {
       if (r.ok) {
         return r.json();
@@ -68,7 +74,7 @@ export function put(url, body) {
     headers: getDefaultHeaders(),
     body: JSON.stringify(body),
   };
-  return fetch(addOrganizationId(url), options)
+  return fetch(addOrganizationId(apiURL(url)), options)
     .then((r) => {
       if (r.ok) {
         return r.json();
