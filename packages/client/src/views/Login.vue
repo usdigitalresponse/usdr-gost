@@ -89,7 +89,7 @@ export default {
         'Content-Type': 'application/json',
       };
       let resStatus = 0;
-      fetch('/api/sessions', { method: 'POST', headers, body })
+      fetch(apiURL('/api/sessions'), { method: 'POST', headers, body })
         .then((r) => {
           resStatus = r.status;
           if (!r.ok) throw new Error(`login: ${r.statusText} (${r.status})`);
