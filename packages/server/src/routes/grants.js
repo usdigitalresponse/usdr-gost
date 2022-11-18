@@ -2,6 +2,7 @@ const express = require('express');
 // eslint-disable-next-line import/no-unresolved
 const { stringify: csvStringify } = require('csv-stringify/sync');
 const db = require('../db');
+const email = require('../lib/email');
 const pdf = require('../lib/pdf');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 
@@ -184,6 +185,8 @@ router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
     }
 
     await db.assignGrantsToAgencies({ grantId, agencyIds, userId: user.id });
+    email.sendGrantAssignedEmail({ grantId, agencyIds, userId: user.id });
+
     res.json({});
 });
 

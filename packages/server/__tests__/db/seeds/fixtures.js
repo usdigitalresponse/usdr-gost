@@ -227,6 +227,7 @@ const assignedAgencyGrants = {
 };
 
 module.exports = {
+    agencies,
     users,
     agencyEligibilityCodes,
     keywords,
