@@ -50,6 +50,7 @@
 
 <script>
 /* eslint-disable import/no-unresolved */
+import { apiURL } from '@/helpers/fetchApi';
 import _ from 'lodash-checkit';
 
 export default {

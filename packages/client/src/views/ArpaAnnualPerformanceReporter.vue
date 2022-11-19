@@ -73,6 +73,8 @@
     </div>
 </template>
 <script>
+import { apiURL } from '@/helpers/fetchApi';
+
 export default {
   name: 'AnnualRollup',
   data() {
