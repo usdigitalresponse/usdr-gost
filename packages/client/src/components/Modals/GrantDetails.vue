@@ -30,7 +30,7 @@
       <br />
       <b-row>
         <b-col>
-          <h4>Interested Agencies</h4>
+          <h4>Agency Status</h4>
         </b-col>
         <b-col class="text-right">
           <b-row v-if="!interested">

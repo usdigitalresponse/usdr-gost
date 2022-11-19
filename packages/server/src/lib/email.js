@@ -36,4 +36,8 @@ function sendWelcomeEmail(email, httpOrigin) {
     });
 }
 
-module.exports = { sendPassCode, sendWelcomeEmail };
+async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
+    console.log(`SendGrantAssignedEmail is called with arguments ${grantId}, ${agencyIds}, ${userId}`);
+}
+
+module.exports = { sendPassCode, sendWelcomeEmail, sendGrantAssignedEmail };
