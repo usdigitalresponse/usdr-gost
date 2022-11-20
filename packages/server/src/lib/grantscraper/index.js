@@ -74,14 +74,15 @@ function formatElapsedMs(millis) {
 
 async function updateFromGrantsGov(keywords, elCodes) {
     const previousHits = [];
-    // eslint-disable-next-line max-len
     processedGrantCount = 0;
     const now = new Date();
-    await grantsgov.allOpportunitiesOnlyMatchDescription(previousHits, keywords, elCodes, syncGrants);
     const then = new Date();
     then.setTime(then.getTime() - (millisPerDay * process.env.GRANTS_SCRAPER_DATE_RANGE));
+    console.log(`Starting sync since ${then} (${process.env.GRANTS_SCRAPER_DATE_RANGE} days)`);
+    await grantsgov.allOpportunitiesOnlyMatchDescription(previousHits, keywords, elCodes, syncGrants);
     const elapsedMs = (new Date()).getTime() - now.getTime();
-    console.log(`sync complete!, elapsed: ${formatElapsedMs(elapsedMs)}, processedGrantCount: ${processedGrantCount}, since ${then}`);
+    console.log(`sync complete!, elapsed: ${formatElapsedMs(elapsedMs)}, processedGrantCount: \
+${processedGrantCount}, since ${then} (${process.env.GRANTS_SCRAPER_DATE_RANGE} days)`);
 }
 
 async function getKeywords() {
