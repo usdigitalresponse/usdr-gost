@@ -1,0 +1,70 @@
+name: Build GOST Website
+
+on:
+  push:
+    branches:
+      - _staging
+      - main
+    paths:
+      - "packages/client/**"
+      - "yarn.lock"
+      - ".github/workflows/build-website.yaml"
+  pull_request: {}
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUILD_DIR: packages/client
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.14.0
+          cache: yarn
+      - name: Install dependencies
+        working-directory: ${{ env.BUILD_DIR }}
+        run: yarn setup
+      - name: Build the website
+        working-directory: ${{ env.BUILD_DIR }}
+        run: yarn build
+      - name: Upload build artifact
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: website-${ github.sha }
+          path: ${{ env.BUILD_DIR }}/dist
+
+  deploy:
+    needs:
+      - build
+    strategy:
+      matrix:
+        target:
+          - ref: _staging
+            environment: website-staging
+          - ref: main
+            environment: website-production
+    environment: ${{ matrix.target.environment }}
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == matrix.target.ref }}
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: website-${ github.sha }
+          path: dist
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
+      - name: Upload to S3
+        run: aws s3 sync ./dist ${{ secrets.S3_DEPLOYMENT_URI }} --sse --delete
