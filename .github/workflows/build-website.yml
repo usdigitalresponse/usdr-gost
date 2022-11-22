@@ -49,25 +49,26 @@ jobs:
     strategy:
       matrix:
         target:
-          - ref: _staging
+          - ref: refs/heads/_staging
             environment: website-staging
-          - ref: main
+          - ref: refs/heads/main
             environment: website-production
     environment: ${{ matrix.target.environment }}
     runs-on: ubuntu-latest
-    # if: github.event_name == 'push'
-    if: >
-      github.event_name == 'push' && github.ref == matrix.target.ref
+    if: github.event_name == 'push'
     steps:
       - name: Download build
+        if: github.ref == matrix.target.ref
         uses: actions/download-artifact@v3
         with:
           name: website-${ github.sha }
           path: dist
       - name: Configure AWS Credentials
+        if: github.ref == matrix.target.ref
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: us-west-2
           role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
-      - name: Upload to S3
+      - name: Upload to S3 using environment ${{ matrix.target.environment }}
+        if: github.ref == matrix.target.ref
         run: aws s3 sync ./dist ${{ secrets.S3_DEPLOYMENT_URI }} --sse --delete
