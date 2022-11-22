@@ -36,7 +36,7 @@
     "pre-commit": "yarn lint",
     "psql": "psql opportunities pg",
     "test:client": "cd packages/client && yarn test",
-    "test:server": "cd packages/client && yarn test"
+    "test:server": "cd packages/server && yarn test"
   },
   "dependencies": {},
   "devDependencies": {
