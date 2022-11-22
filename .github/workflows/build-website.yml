@@ -55,7 +55,7 @@ jobs:
             environment: website-production
     environment: ${{ matrix.target.environment }}
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && github.ref == matrix.target.ref }}
+    if: github.event_name == 'push' && github.ref == matrix.target.ref
     steps:
       - uses: actions/download-artifact@v3
         with:
