@@ -25,6 +25,7 @@
     "moment": "^2.29.2",
     "numeral": "^2.0.6",
     "popper.js": "1.16.1",
+    "url-join": "^5.0.0",
     "vue": "^2.7.12",
     "vue-good-table": "^2.21.11",
     "vue-multiselect": "^2.1.6",

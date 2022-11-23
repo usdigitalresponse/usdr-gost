@@ -73,6 +73,8 @@
     </div>
 </template>
 <script>
+import { apiURL } from '@/helpers/fetchApi';
+
 export default {
   name: 'AnnualRollup',
   data() {
@@ -121,7 +123,7 @@ export default {
         formData.append('files', file);
       });
 
-      fetch('/api/annual-reports', { body: formData, method: 'POST' })
+      fetch(apiURL('/api/annual-reports'), { body: formData, method: 'POST' })
         .then((res) => res.arrayBuffer())
         .then((data) => {
           const blob = new Blob([data], { type: 'application/octet-stream' });
