@@ -5,6 +5,7 @@ on:
     branches:
       - _staging
       - main
+      - 626-website-pipeline
     paths:
       - "packages/client/**"
       - "yarn.lock"
@@ -57,6 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
+      - run: echo ${{ github.ref }}
       - name: Download build
         if: github.ref == matrix.target.ref
         uses: actions/download-artifact@v3
