@@ -39,7 +39,7 @@ jobs:
         working-directory: ${{ env.BUILD_DIR }}
         run: yarn build
       - name: Upload build artifact
-        if: ${{ github.event_name != 'pull_request' }}
+        # if: ${{ github.event_name != 'pull_request' }} # TODO
         uses: actions/upload-artifact@v3
         with:
           name: website-${ github.sha }
@@ -59,7 +59,7 @@ jobs:
             environment: website-sandbox
     environment: ${{ matrix.target.environment }}
     runs-on: ubuntu-latest
-    # if: github.event_name == 'push'
+    # if: github.event_name == 'push' # TODO
     steps:
       - name: Download build
         if: github.ref == matrix.target.ref
