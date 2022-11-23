@@ -805,7 +805,7 @@ async function sync(tableName, syncKey, updateCols, newRows) {
                     await updateRecord(tableName, syncKey, oldRows[syncKeyValue][syncKey], updatedFields);
                     console.log(`updated ${oldRows[syncKeyValue][syncKey]} in ${tableName}`);
                 } catch (err) {
-                    console.error(`knex error when updating ${oldRows[syncKeyValue][syncKey]} with ${JSON.stringify(updatedFields)}: ${err}`);
+                    console.error(`knex error when updating ${oldRows[syncKeyValue][syncKey]} in ${tableName} with ${JSON.stringify(updatedFields)}: ${err}`);
                 }
             }
         } else {
@@ -815,7 +815,7 @@ async function sync(tableName, syncKey, updateCols, newRows) {
                 await createRecord(tableName, newRow);
                 console.log(`created ${newRow[syncKey]} in ${tableName}`);
             } catch (err) {
-                console.error(`knex error when creating a new row with key ${newRow[syncKey]}`);
+                console.error(`knex error when creating a new row with key ${newRow[syncKey]} in ${tableName}: ${err}`);
             }
         }
     }
