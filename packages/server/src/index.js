@@ -13,8 +13,8 @@ const server = app.listen(PORT, () => console.log(`App running on port ${PORT}!`
 
 if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
     const job = new CronJob(
-        // once per hour at :30
-        '30 * * * *',
+        // once per day at 6:30a UTC (1:30 am Eastern Time)
+        '30 6 * * *',
         grantscraper.run,
     );
     job.start();
