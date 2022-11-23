@@ -25,6 +25,7 @@ jobs:
     permissions:
       contents: read
     steps:
+      - run: echo ${{ github.ref }}
       - uses: actions/checkout@v3
       - name: Install Node.js
         uses: actions/setup-node@v2
@@ -58,7 +59,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
-      - run: echo ${{ github.ref }}
       - name: Download build
         if: github.ref == matrix.target.ref
         uses: actions/download-artifact@v3
