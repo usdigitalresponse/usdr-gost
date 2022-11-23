@@ -2,7 +2,7 @@ const { URL } = require('url');
 const fileSystem = require('fs');
 const path = require('path');
 const mustache = require('mustache');
-const getTransport = require('./email/service-email');
+const emailService = require('./email/service-email');
 const db = require('../db');
 
 const expiryMinutes = 30;
@@ -19,7 +19,7 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
     }
     const href = url.toString();
 
-    return getTransport().send({
+    return emailService.getTransport().send({
         toAddress: email,
         subject: 'USDR Grants Tool Access Link',
         body: `<p>Your link to access USDR's Grants Tool is <a href=${href}>${href}</a>.
@@ -33,7 +33,7 @@ function sendWelcomeEmail(email, httpOrigin) {
         throw new Error('must specify httpOrigin in sendWelcomeEmail');
     }
 
-    return getTransport().send({
+    return emailService.getTransport().send({
         toAddress: email,
         subject: 'Welcome to USDR Grants Tool',
         body: `<p>Visit USDR's Grants Tool at:
@@ -63,7 +63,8 @@ function buildGrantDetail(grantId) {
 }
 
 async function deliverGrantAssigntmentToAssignee(toAddress, emailHTML, emailPlain, subject) {
-    return getTransport().send({
+    console.log(emailService.getTransport);
+    return emailService.getTransport().send({
         toAddress,
         subject,
         body: emailHTML,
@@ -115,4 +116,9 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
     console.log(`SendGrantAssignedEmail is called with arguments ${grantId}, ${agencyIds}, ${userId}`);
 }
 
-module.exports = { sendPassCode, sendWelcomeEmail, sendGrantAssignedEmail };
+// Creating a namespace for private functions that can be exported purely for the purposes of testing
+function Private() { return { deliverGrantAssigntmentToAssignee, buildGrantDetail, sendGrantAssignedNotficationForAgency }; }
+
+module.exports = {
+    sendPassCode, sendWelcomeEmail, sendGrantAssignedEmail, Private,
+};

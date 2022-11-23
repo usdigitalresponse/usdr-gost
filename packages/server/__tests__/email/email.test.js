@@ -2,7 +2,9 @@
 
 const { expect } = require('chai');
 require('dotenv').config();
-const getTransport = require('../../src/lib/email/service-email');
+const sinon = require('sinon');
+const emailService = require('../../src/lib/email/service-email');
+const email = require('../../src/lib/email');
 
 const {
     TEST_EMAIL_RECIPIENT,
@@ -64,7 +66,7 @@ describe('Email module', () => {
             const expects = 'No email transport provider credentials in environment';
             let err = { message: 'No error' };
             try {
-                getTransport();
+                emailService.getTransport();
             } catch (e) {
                 err = e;
             }
@@ -86,7 +88,7 @@ describe('Email module', () => {
             let err = { message: 'No error' };
 
             try {
-                await getTransport().send(testEmail);
+                await emailService.getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -98,7 +100,7 @@ describe('Email module', () => {
             let err = { message: 'No error' };
 
             try {
-                await getTransport().send(testEmail);
+                await emailService.getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -110,7 +112,7 @@ describe('Email module', () => {
             let err = { message: 'No error' };
 
             try {
-                await getTransport().send(testEmail);
+                await emailService.getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -121,7 +123,7 @@ describe('Email module', () => {
             let err;
             let result;
             try {
-                result = await getTransport().send(testEmail);
+                result = await emailService.getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -140,7 +142,7 @@ describe('Email module', () => {
             let err = { message: 'No error' };
 
             try {
-                await getTransport().send(testEmail);
+                await emailService.getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -152,7 +154,7 @@ describe('Email module', () => {
             let err = { message: 'No error' };
 
             try {
-                await getTransport().send(testEmail);
+                await emailService.getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -164,7 +166,7 @@ describe('Email module', () => {
             let err = { message: 'No error' };
 
             try {
-                await getTransport().send(testEmail);
+                await emailService.getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -176,13 +178,42 @@ describe('Email module', () => {
 
             let result;
             try {
-                result = await getTransport().send(testEmail);
+                result = await emailService.getTransport().send(testEmail);
             } catch (e) {
                 err = e;
             }
 
             expect(err.message).to.equal(expects);
             expect(result.accepted[0]).to.equal(testEmail.toAddress);
+        });
+    });
+});
+
+describe('Email sender', () => {
+    const sandbox = sinon.createSandbox();
+
+    beforeEach(() => {
+        sandbox.spy(emailService);
+    });
+
+    afterEach(() => {
+        sandbox.restore();
+    });
+
+    context('grant assigned email', () => {
+        it('deliverGrantAssigntmentToAssignee calls the transport function with appropriate parameters', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ send: sendFake }));
+
+            email.Private().deliverGrantAssigntmentToAssignee(
+                'foo@bar.com',
+                '<p>foo</p>',
+                'foo',
+                'test foo email',
+            );
+
+            expect(sendFake.calledOnce).to.equal(true);
+            console.log(sendFake.firstCall);
         });
     });
 });
