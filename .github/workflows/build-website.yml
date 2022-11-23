@@ -55,9 +55,11 @@ jobs:
             environment: website-staging
           - ref: refs/heads/main
             environment: website-production
+          - ref: refs/pull/627/merge
+            environment: website-sandbox
     environment: ${{ matrix.target.environment }}
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    # if: github.event_name == 'push'
     steps:
       - name: Download build
         if: github.ref == matrix.target.ref
