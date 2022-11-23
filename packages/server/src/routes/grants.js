@@ -108,8 +108,8 @@ router.get('/exportCSV', requireUser, async (req, res) => {
         viewed_by: grant.viewed_by_agencies
             .map((v) => v.agency_abbreviation)
             .join(', '),
-        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'Europe/London' }),
-        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'Europe/London' }),
+        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
+        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         award_floor: getAwardFloor(grant),
         url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
     }));
