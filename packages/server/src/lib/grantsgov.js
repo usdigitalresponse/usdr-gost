@@ -50,7 +50,9 @@ async function enrichHitWithDetails(keywords, hit) {
                 simplifyString(desc).includes(simplifyString(kw))
         || simplifyString(resp.body.opportunityTitle).includes(simplifyString(kw))
             ) {
-                // console.log(`matches ${kw}`);
+                if (kw) {
+                    console.log(`matches ${kw}`);
+                }
                 hit.matchingKeywords.push(kw);
             }
         });
