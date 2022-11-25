@@ -781,6 +781,12 @@ async function getAllRows(tableName, syncKey, fetchCols) {
     return rows;
 }
 
+function logTransaction(logStr) {
+    if (process.env.VERBOSE) {
+        console.log(logStr);
+    }
+}
+
 async function sync(tableName, syncKey, updateCols, newRows) {
     const oldRows = await getAllRows(tableName, syncKey, updateCols);
     const alreadyUpdated = {};
@@ -803,7 +809,7 @@ async function sync(tableName, syncKey, updateCols, newRows) {
             if (Object.values(updatedFields).length > 0) {
                 try {
                     await updateRecord(tableName, syncKey, oldRows[syncKeyValue][syncKey], updatedFields);
-                    console.log(`updated ${oldRows[syncKeyValue][syncKey]} in ${tableName}`);
+                    logTransaction(`updated ${oldRows[syncKeyValue][syncKey]} in ${tableName}`);
                 } catch (err) {
                     console.error(`knex error when updating ${oldRows[syncKeyValue][syncKey]} in ${tableName} with ${JSON.stringify(updatedFields)}: ${err}`);
                 }
@@ -813,7 +819,7 @@ async function sync(tableName, syncKey, updateCols, newRows) {
             alreadyUpdated[syncKeyValue] = true;
             try {
                 await createRecord(tableName, newRow);
-                console.log(`created ${newRow[syncKey]} in ${tableName}`);
+                logTransaction(`created ${newRow[syncKey]} in ${tableName}`);
             } catch (err) {
                 console.error(`knex error when creating a new row with key ${newRow[syncKey]} in ${tableName}: ${err}`);
             }

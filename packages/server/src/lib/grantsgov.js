@@ -178,10 +178,12 @@ async function processGrants({
         }
     }
     await syncFn(grantsToSynch);
-    const used = process.memoryUsage();
-    for (const key in used) {
-        // eslint-disable-next-line no-mixed-operators
-        console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+    if (process.env.VERBOSE) {
+        const used = process.memoryUsage();
+        for (const key in used) {
+            // eslint-disable-next-line no-mixed-operators
+            console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+        }
     }
 }
 
