@@ -184,4 +184,22 @@ describe('db', () => {
             expect(result).to.have.lengthOf(0);
         });
     });
+
+    context('getUsersEmailAndName', () => {
+        it('returns email and name from users', async () => {
+            const result = await db.getUsersEmailAndName([
+                fixtures.users.adminUser.id,
+                fixtures.users.staffUser.id,
+            ]);
+            expect(result[0]).to.deep.equal({ id: 1, name: 'Admin User', email: 'admin.user@test.com' });
+            expect(result[1]).to.deep.equal({ id: 2, name: 'Staff User', email: 'staff.user@test.com' });
+        });
+        it('returns empty array when invalid ID is passed in', async () => {
+            const result = await db.getUsersEmailAndName([
+                999,
+                998,
+            ]);
+            expect(result).to.have.lengthOf(0);
+        });
+    });
 });
