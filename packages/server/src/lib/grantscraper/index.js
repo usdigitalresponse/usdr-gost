@@ -5,11 +5,12 @@ const grantsgov = require('../grantsgov');
 
 const { TABLES } = require('../../db/constants');
 
-let totalGrantsProcessed = 0;
+let totalGrantsReturned = 0;
+let uniqueGrantsProcessed = new Set();
 
 async function syncGrants(hits) {
     console.log(`found ${hits.length} total results on grants.gov`);
-    totalGrantsProcessed += hits.length;
+    totalGrantsReturned += hits.length;
     const rows = hits.map((hit) => ({
         status: 'inbox',
         grant_id: hit.id,
@@ -31,6 +32,8 @@ async function syncGrants(hits) {
         opportunity_status: hit.oppStatus,
         raw_body: hit.rawBody,
     }));
+    // eslint-disable-next-line no-unused-vars
+    rows.forEach((row, i) => uniqueGrantsProcessed.add(row.grant_id));
     await db.sync(
         TABLES.grants,
         'grant_id',
@@ -64,11 +67,13 @@ function formatElapsedMs(millis) {
 async function updateFromGrantsGov(keywords, elCodes) {
     const previousHits = [];
     const now = new Date();
-    totalGrantsProcessed = 0;
+    totalGrantsReturned = 0;
+    uniqueGrantsProcessed = new Set();
     console.log(`starting sync for ${(process.env.GRANTS_SCRAPER_DATE_RANGE || 56).toString()} days back`);
     await grantsgov.allOpportunitiesOnlyMatchDescription(previousHits, keywords, elCodes, syncGrants);
     const elapsedMs = (new Date()).getTime() - now.getTime();
-    console.log(`sync complete!, elapsed: ${formatElapsedMs(elapsedMs)}, totalGrantsProcessed: ${totalGrantsProcessed}`);
+    console.log(`sync complete!, elapsed: ${formatElapsedMs(elapsedMs)}, totalGrantsReturned: ${totalGrantsReturned}, \
+uniqueGrantsProcessed: ${uniqueGrantsProcessed.size}`);
 }
 
 async function getKeywords() {
