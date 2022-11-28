@@ -1,17 +1,18 @@
 name: Build GOST Website
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - _staging
-      - main
-      - 626-website-pipeline
-    paths:
-      - "packages/client/**"
-      - "yarn.lock"
-      - ".github/workflows/build-website.yaml"
-  pull_request: {}
+
+on: workflow_dispatch
+# on:
+#   push:
+#     branches:
+#       - _staging
+#       - main
+#       - 626-website-pipeline
+#     paths:
+#       - "packages/client/**"
+#       - "yarn.lock"
+#       - ".github/workflows/build-website.yaml"
+#   pull_request: {}
 
 concurrency:
   group: ${{ github.ref }}
