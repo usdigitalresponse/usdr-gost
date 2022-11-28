@@ -56,7 +56,7 @@ jobs:
             environment: website-staging
           - ref: refs/heads/main
             environment: website-production
-          - ref: refs/heads/626-website-pipeline
+          - ref: refs/heads/626-pipeline-v2
             environment: website-sandbox
     environment: ${{ matrix.target.environment }}
     runs-on: ubuntu-latest
