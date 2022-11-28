@@ -16,6 +16,18 @@ on:
   push:
     branches:
       - "626-pipeline-v2"
+    paths:
+      - "packages/client/**"
+      - "yarn.lock"
+      - ".github/workflows/build-website.yaml"
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: read
 
 env:
   BUILD_DIR: packages/client
