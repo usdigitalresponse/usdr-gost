@@ -192,7 +192,7 @@ export default {
       }
     },
     exportCSV() {
-      this.exportCSVRecentActivities({ perPage: this.perPage, currentPage: this.currentPage });
+      this.exportCSVRecentActivities();
     },
   },
 };

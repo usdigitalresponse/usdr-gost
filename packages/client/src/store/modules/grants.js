@@ -136,13 +136,8 @@ export default {
       const navUrl = fetchApi.addOrganizationId(`/api/organizations/:organizationId/grants/exportCSV?${query}`);
       window.location = navUrl;
     },
-    exportCSVRecentActivities(context, queryParams) {
-      const query = Object.entries(queryParams)
-        .filter(([, value]) => value || typeof value === 'number')
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
-      const navUrl = fetchApi.addOrganizationId(`/api/organizations/:organizationId/grants/exportCSVRecentActivities?${query}`);
-      window.location = navUrl;
+    exportCSVRecentActivities() {
+      window.location = fetchApi.addOrganizationId('/api/organizations/:organizationId/grants/exportCSVRecentActivities');
     },
   },
   mutations: {
