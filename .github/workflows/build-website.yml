@@ -56,13 +56,13 @@ jobs:
     steps:
       - uses: kanga333/variable-mapper@master
         with:
-          key: "${{ github.ref }}"
+          key: "${{ github.ref_name }}"
           map: |
             {
-              "refs/heads/_staging": {
+              "_staging": {
                 "selected": "website-staging"
               },
-              "refs/heads/main": {
+              "main": {
                 "selected": "website-production"
               },
               ".*": {
@@ -71,12 +71,11 @@ jobs:
             }
           export_to: log,env
           mode: first_match
-      - run: env
     outputs:
       selected: ${{ env.selected }}
 
   deploy:
-    name: Deploy website to selected environment
+    name: Deploy website
     if: github.event_name != 'pull_request'
     needs:
       - build_website_artifact
