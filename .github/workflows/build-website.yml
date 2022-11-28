@@ -55,12 +55,13 @@ jobs:
             environment: website-staging
           - ref: refs/heads/main
             environment: website-production
-          - ref: refs/pull/627/merge
+          - ref: refs/heads/626-website-pipeline
             environment: website-sandbox
     environment: ${{ matrix.target.environment }}
     runs-on: ubuntu-latest
     # if: github.event_name == 'push' # TODO
     steps:
+      - run: env
       - name: Download build
         if: github.ref == matrix.target.ref
         uses: actions/download-artifact@v3
