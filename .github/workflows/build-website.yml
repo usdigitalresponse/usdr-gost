@@ -16,6 +16,7 @@ on:
   push:
     branches:
       - "626-pipeline-v2"
+  pull_request: {}
 
 concurrency:
   group: ${{ github.ref }}
@@ -96,4 +97,4 @@ jobs:
           name: website-${ github.sha }
           path: dist
       - name: Upload artifact to S3
-        run: aws s3 sync ./dist ${{ secrets.S3_DEPLOYMENT_URI }} --sse --delete
+        run: aws s3 sync ./dist ${{ secrets.S3_DEPLOYMENT_URI }} --sse --delete --no-progress
