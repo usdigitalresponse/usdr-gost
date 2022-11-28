@@ -54,7 +54,7 @@ jobs:
     name: Select deployment environment
     runs-on: ubuntu-latest
     steps:
-      - uses: kanga333/variable-mapper
+      - uses: kanga333/variable-mapper@master
         with:
           key: "${{ github.ref }}"
           map: |
