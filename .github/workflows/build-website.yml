@@ -70,8 +70,6 @@ jobs:
     runs-on: ubuntu-latest
     # if: github.event_name == 'push' # TODO
     steps:
-      - run: echo ${{ matrix.target.environment }}
-      - run: env
       - name: Configure AWS Credentials
         if: github.ref == matrix.target.ref
         uses: aws-actions/configure-aws-credentials@v1
