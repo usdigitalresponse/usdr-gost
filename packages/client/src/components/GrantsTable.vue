@@ -159,8 +159,8 @@ export default {
         status: grant.opportunity_status,
         award_floor: this.getAwardFloor(grant),
         award_ceiling: grant.award_ceiling,
-        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'Europe/London' }),
-        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'Europe/London' }),
+        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
+        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         _cellVariants: (() => {
           const diff = new Date(grant.close_date) - now;
           if (diff <= dangerThreshold) {
