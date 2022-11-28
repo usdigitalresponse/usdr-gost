@@ -34,7 +34,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 16.14.0
+          node-version-file: '.nvmrc'
           cache: yarn
       - name: Install dependencies
         working-directory: ${{ env.BUILD_DIR }}
