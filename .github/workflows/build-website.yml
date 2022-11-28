@@ -38,7 +38,7 @@ jobs:
           cache: yarn
       - name: Install dependencies
         working-directory: ${{ env.BUILD_DIR }}
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Build the website
         working-directory: ${{ env.BUILD_DIR }}
         run: yarn build
