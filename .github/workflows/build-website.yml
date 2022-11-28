@@ -21,18 +21,14 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  id-token: write
-  contents: read
-
-env:
-  BUILD_DIR: packages/client
-
 jobs:
-  build:
+  build_website_artifact:
+    name: Build website deployment artifact
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      BUILD_DIR: packages/client
     steps:
       - run: echo ${{ github.ref }}
       - uses: actions/checkout@v3
@@ -48,40 +44,58 @@ jobs:
         working-directory: ${{ env.BUILD_DIR }}
         run: yarn build
       - name: Upload build artifact
-        # if: ${{ github.event_name != 'pull_request' }} # TODO
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-artifact@v3
         with:
           name: website-${ github.sha }
           path: ${{ env.BUILD_DIR }}/dist
 
-  deploy:
-    needs:
-      - build
-    strategy:
-      matrix:
-        target:
-          - ref: refs/heads/_staging
-            environment: website-staging
-          - ref: refs/heads/main
-            environment: website-production
-          - ref: refs/heads/626-pipeline-v2
-            environment: website-sandbox
-    environment: ${{ matrix.target.environment }}
+  select_website_deployment_environment:
+    name: Select deployment environment
     runs-on: ubuntu-latest
-    # if: github.event_name == 'push' # TODO
+    steps:
+      - uses: kanga333/variable-mapper
+        with:
+          key: "${{ github.ref }}"
+          map: |
+            {
+              "refs/heads/_staging": {
+                "selected": "website-staging"
+              },
+              "refs/heads/main": {
+                "selected": "website-production"
+              },
+              ".*": {
+                "selected": "website-sandbox"
+              }
+            }
+          export_to: log,env
+          mode: first_match
+      - run: env
+    outputs:
+      selected: ${{ env.selected }}
+
+  deploy:
+    name: Deploy website to selected environment
+    if: github.event_name != 'pull_request'
+    needs:
+      - build_website_artifact
+      - select_website_deployment_environment
+    environment: ${{ needs.select_website_deployment_environment.outputs.selected }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Configure AWS Credentials
-        if: github.ref == matrix.target.ref
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: us-west-2
           role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
       - name: Download build
-        if: github.ref == matrix.target.ref
         uses: actions/download-artifact@v3
         with:
           name: website-${ github.sha }
           path: dist
-      - name: Upload to S3 using environment ${{ matrix.target.environment }}
-        if: github.ref == matrix.target.ref
+      - name: Upload artifact to S3
         run: aws s3 sync ./dist ${{ secrets.S3_DEPLOYMENT_URI }} --sse --delete
