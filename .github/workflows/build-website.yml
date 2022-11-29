@@ -91,6 +91,13 @@ jobs:
         with:
           aws-region: us-west-2
           role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
+      - name: Get deployment parameters
+        uses: dkershner6/aws-ssm-getparameters-action@v1
+        with:
+          withDecryption: "true"
+          parameterPairs: |
+            /usdr/gost/deployment-config/website/s3-uri = S3_DEPLOYMENT_URI,
+            /usdr/gost/deployment-config/website/distribution-id = CLOUDFRONT_DISTRIBUTION_ID,
       - name: Download build
         uses: actions/download-artifact@v3
         with:
