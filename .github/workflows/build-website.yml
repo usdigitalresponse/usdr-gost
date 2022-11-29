@@ -7,6 +7,12 @@ on:
       - _staging
       - main
       - 626-pipeline-v2
+    paths:
+      - ".github/workflows/build-website.yml"
+      - "packages/client/**"
+      - ".node-version"
+      - ".nvmrc"
+      - "yarn.lock"
 
 concurrency:
   group: ${{ github.ref }}
