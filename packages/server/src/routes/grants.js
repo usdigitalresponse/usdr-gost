@@ -32,6 +32,11 @@ function getAwardFloor(grant) {
     return floor;
 }
 
+function parseCollectionQueryParam(req, param) {
+    const value = req.query[param];
+    return (value && value.split(',')) || [];
+}
+
 router.get('/', requireUser, async (req, res) => {
     const { selectedAgency, user } = req.session;
     let agencyCriteria;
@@ -51,6 +56,9 @@ router.get('/', requireUser, async (req, res) => {
             positiveInterest: req.query.positiveInterest ? true : null,
             result: req.query.result ? true : null,
             rejected: req.query.rejected ? true : null,
+            costSharing: req.query.costSharing || null,
+            opportunityStatuses: parseCollectionQueryParam(req, 'opportunityStatuses'),
+            opportunityCategories: parseCollectionQueryParam(req, 'opportunityCategories'),
         },
         orderBy: req.query.orderBy,
         orderDesc: req.query.orderDesc,
@@ -96,6 +104,9 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             positiveInterest: req.query.positiveInterest ? true : null,
             result: req.query.results ? true : null,
             rejected: req.query.rejected ? true : null,
+            costSharing: req.query.costSharing || null,
+            opportunityStatuses: parseCollectionQueryParam(req, 'opportunityStatuses'),
+            opportunityCategories: parseCollectionQueryParam(req, 'opportunityCategories'),
         },
     });
 
