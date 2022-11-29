@@ -1,22 +1,18 @@
 name: Build GOST Website
 
-# on:
-#   push:
-#     branches:
-#       - _staging
-#       - main
-#       - 626-website-pipeline
-#     paths:
-#       - "packages/client/**"
-#       - "yarn.lock"
-#       - ".github/workflows/build-website.yaml"
-#   pull_request: {}
-
 on:
+  pull_request: {}
   push:
     branches:
-      - "626-pipeline-v2"
-  pull_request: {}
+      - _staging
+      - main
+      - 626-website-pipeline
+    paths:
+      - ".github/workflows/build-website.yaml"
+      - "packages/client/**"
+      - ".node-version"
+      - ".nvmrc"
+      - "yarn.lock"
 
 concurrency:
   group: ${{ github.ref }}
