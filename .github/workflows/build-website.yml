@@ -95,14 +95,15 @@ jobs:
         uses: dkershner6/aws-ssm-getparameters-action@v1
         with:
           withDecryption: "true"
-          parameterPairs: "/usdr/gost/deployment-config/website/s3-uri = S3_DEPLOYMENT_URI,
-            /usdr/gost/deployment-config/website/distribution-id = CLOUDFRONT_DISTRIBUTION_ID"
+          parameterPairs: |
+            /usdr/gost/deployment-config/website/s3-uri = S3_DEPLOYMENT_URI,
+            /usdr/gost/deployment-config/website/distribution-id = CLOUDFRONT_DISTRIBUTION_ID
       - name: Download build
         uses: actions/download-artifact@v3
         with:
           name: website-${ github.sha }
           path: dist
       - name: Upload artifact to S3
-        run: aws s3 sync ./dist ${{ secrets.S3_DEPLOYMENT_URI }} --sse --delete --no-progress
+        run: aws s3 sync ./dist ${{ env.S3_DEPLOYMENT_URI }} --sse --delete --no-progress
       - name: Invalidate CloudFront cache
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}
