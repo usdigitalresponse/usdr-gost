@@ -6,7 +6,7 @@ on:
     branches:
       - _staging
       - main
-      - 626-website-pipeline
+      - 626-pipeline-v2
     paths:
       - ".github/workflows/build-website.yaml"
       - "packages/client/**"
