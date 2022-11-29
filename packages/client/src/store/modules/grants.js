@@ -33,10 +33,12 @@ export default {
   },
   actions: {
     fetchGrants({ commit }, {
-      currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency,
+      currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe,
+      assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency,
+      opportunityStatuses, opportunityCategories, costSharing,
     }) {
       const query = Object.entries({
-        currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency,
+        currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
       })
         // filter out undefined and nulls since api expects parameters not present as undefined
         // eslint-disable-next-line no-unused-vars
