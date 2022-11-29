@@ -106,4 +106,4 @@ jobs:
       - name: Upload artifact to S3
         run: aws s3 sync ./dist ${{ env.S3_DEPLOYMENT_URI }} --sse --delete --no-progress
       - name: Invalidate CloudFront cache
-        run: aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: aws cloudfront create-invalidation --paths "/*" --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}
