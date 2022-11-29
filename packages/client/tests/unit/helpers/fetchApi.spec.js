@@ -37,7 +37,7 @@ describe('apiURL()', () => {
       expect(apiURL('/')).to.equal('https://example.com/path/to/');
     });
   });
-  describe('When GOST_API_URL env var is path only', () => {
+  describe('When window.apiURLForGOST is path only', () => {
     let restoreConfig;
     beforeEach(() => {
       restoreConfig = setupConfigRestore();
@@ -60,7 +60,7 @@ describe('apiURL()', () => {
       expect(apiURL('/')).to.equal('/path/to/');
     });
   });
-  describe('When GOST_API_URL env var not set', () => {
+  describe('When window.apiURLForGOST not set', () => {
     let restoreConfig;
     beforeEach(() => {
       restoreConfig = setupConfigRestore();
@@ -79,7 +79,6 @@ describe('apiURL()', () => {
       expect(result).to.equal('/oops/forgot/slash');
     });
     it('correctly formats empty paths', () => {
-      console.log(`API URL IS: ${apiURL('')}`);
       expect(apiURL('')).to.equal('');
       expect(apiURL('/')).to.equal('/');
     });
