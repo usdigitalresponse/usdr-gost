@@ -138,6 +138,9 @@ export default {
       const navUrl = fetchApi.addOrganizationId(`/api/organizations/:organizationId/grants/exportCSV?${query}`);
       window.location = navUrl;
     },
+    exportCSVRecentActivities() {
+      window.location = fetchApi.addOrganizationId('/api/organizations/:organizationId/grants/exportCSVRecentActivities');
+    },
   },
   mutations: {
     SET_GRANTS(state, grants) {
