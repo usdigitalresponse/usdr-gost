@@ -9,9 +9,6 @@ const nodemailerTransport = require('./email-nodemailer');
 
 function getTransport() {
     switch (true) {
-        case !!process.env.AWS_ACCESS_KEY_ID:
-            return awsTransport;
-
         case !!process.env.NODEMAILER_HOST:
             return nodemailerTransport;
 
