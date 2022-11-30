@@ -10,7 +10,6 @@ const AWS = require('aws-sdk');
 function createTransport() {
     const requiredEnvironmentVariables = [
         'NOTIFICATIONS_EMAIL',
-        'SES_REGION',
     ];
     for (let i = 0; i < requiredEnvironmentVariables.length; i += 1) {
         const ev = process.env[requiredEnvironmentVariables[i]];
@@ -24,7 +23,13 @@ function createTransport() {
             };
         }
     }
-    return new AWS.SES({ region: process.env.SES_REGION });
+
+    let sesOptions = {};
+    if (process.env.SES_REGION) {
+        sesOptions.region = process.env.SES_REGION;
+    }
+
+    return new AWS.SES(sesOptions);
 }
 
 function send(message) {
