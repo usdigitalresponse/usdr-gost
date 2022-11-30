@@ -13,7 +13,7 @@ function getTransport() {
             return nodemailerTransport;
 
         default:
-            throw new Error('No email transport provider credentials in environment');
+            return awsTransport;
     }
 }
 
