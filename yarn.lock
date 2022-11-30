@@ -6013,9 +6013,9 @@ csstype@^3.1.0:
   integrity sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==
 
 csv-stringify@^6.0.5:
-  version "6.2.2"
-  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.2.2.tgz#3f398c79e14353f799c9d2583bafa06ebe68ac21"
-  integrity sha512-spGNdHxkAgoKk9ChAIR/k8JSFmvAyUQvODPUss5Djqgm/wBuU9qBRuGZ04LTAsGGnClQ8hD4TFz+hbBf1gpTMg==
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.2.3.tgz#fefd25e66fd48f8f42f43b85a66a4663a2c3e796"
+  integrity sha512-4qGjUMwnlaRc00gc2jrIYh2w/h1fo25B0mTuY9K8fBiIgtmCX3LcgUbrEGViL98Ci4Se/F5LFEtu8k+dItJVZQ==
 
 d@1, d@^1.0.1:
   version "1.0.1"
