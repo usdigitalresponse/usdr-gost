@@ -7,7 +7,7 @@
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
         <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
           Export to CSV
-          </b-button>
+        </b-button>
       </div>
     </div>
     <b-table
