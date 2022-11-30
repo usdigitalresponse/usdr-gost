@@ -8,19 +8,17 @@
 const AWS = require('aws-sdk');
 
 function createTransport() {
-    const environmentVariable = [
-        'AWS_ACCESS_KEY_ID',
-        'AWS_SECRET_ACCESS_KEY',
-        'SES_REGION',
+    const requiredEnvironmentVariables = [
         'NOTIFICATIONS_EMAIL',
+        'SES_REGION',
     ];
-    for (let i = 0; i < environmentVariable.length; i += 1) {
-        const ev = process.env[environmentVariable[i]];
+    for (let i = 0; i < requiredEnvironmentVariables.length; i += 1) {
+        const ev = process.env[requiredEnvironmentVariables[i]];
         if (!ev) {
             return {
                 sendEmail: () => {
                     throw new Error(
-                        `Missing environment variable ${environmentVariable[i]}!`,
+                        `Missing environment variable ${requiredEnvironmentVariables[i]}!`,
                     );
                 },
             };
