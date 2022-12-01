@@ -590,7 +590,7 @@ async function getAgency(agencyId) {
 }
 
 async function getAgenciesByIds(agencyIds) {
-    const query = knex.select()
+    const query = knex.select('agencies.*')
         .from(TABLES.agencies)
         .whereIn('agencies.id', agencyIds)
         .leftJoin('tenants', 'tenants.id', '=', `${TABLES.agencies}.tenant_id`);

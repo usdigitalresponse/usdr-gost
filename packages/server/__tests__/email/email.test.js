@@ -5,6 +5,8 @@ require('dotenv').config();
 const sinon = require('sinon');
 const emailService = require('../../src/lib/email/service-email');
 const email = require('../../src/lib/email');
+const fixtures = require('../db/seeds/fixtures');
+const db = require('../../src/db');
 
 const {
     TEST_EMAIL_RECIPIENT,
@@ -191,12 +193,19 @@ describe('Email module', () => {
 
 describe('Email sender', () => {
     const sandbox = sinon.createSandbox();
+    before(async () => {
+        await fixtures.seed(db.knex);
+    });
+    after(async () => {
+        await db.knex.destroy();
+    });
 
     beforeEach(() => {
         sandbox.spy(emailService);
     });
 
     afterEach(() => {
+        sinon.restore();
         sandbox.restore();
     });
 
@@ -205,7 +214,7 @@ describe('Email sender', () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ send: sendFake }));
 
-            email.Private().deliverGrantAssigntmentToAssignee(
+            email.deliverGrantAssigntmentToAssignee(
                 'foo@bar.com',
                 '<p>foo</p>',
                 'foo',
@@ -213,7 +222,46 @@ describe('Email sender', () => {
             );
 
             expect(sendFake.calledOnce).to.equal(true);
-            console.log(sendFake.firstCall);
+            expect(sendFake.firstCall.args).to.deep.equal([{
+                toAddress: 'foo@bar.com',
+                subject: 'test foo email',
+                body: '<p>foo</p>',
+                text: 'foo',
+            }]);
+        });
+        it('sendGrantAssignedEmail ensures email is sent for all agencies', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'sendGrantAssignedNotficationForAgency', sendFake);
+
+            await email.sendGrantAssignedEmail({ grantId: '335255', agencyIds: [0, 1], userId: 1 });
+
+            expect(sendFake.calledTwice).to.equal(true);
+
+            expect(sendFake.firstCall.firstArg.name).to.equal('State Board of Accountancy');
+            expect(sendFake.firstCall.args[1].includes('<table')).to.equal(true);
+            expect(sendFake.firstCall.lastArg).to.equal(1);
+
+            expect(sendFake.secondCall.firstArg.name).to.equal('State Board of Sub Accountancy');
+            expect(sendFake.secondCall.args[1].includes('<table')).to.equal(true);
+            expect(sendFake.secondCall.lastArg).to.equal(1);
+        });
+        it('sendGrantAssignedNotficationForAgency delivers email for all users within agency', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'deliverGrantAssigntmentToAssignee', sendFake);
+
+            await email.sendGrantAssignedNotficationForAgency(fixtures.agencies.accountancy, '<p>sample html</p>', fixtures.users.adminUser.id);
+
+            expect(sendFake.calledTwice).to.equal(true);
+
+            expect(sendFake.firstCall.args.length).to.equal(4);
+            expect(sendFake.firstCall.args[0]).to.equal(fixtures.users.adminUser.email);
+            expect(sendFake.firstCall.args[1].includes('<table')).to.equal(true);
+            expect(sendFake.firstCall.args[3]).to.equal('Grant Assigned to State Board of Accountancy');
+
+            expect(sendFake.secondCall.args.length).to.equal(4);
+            expect(sendFake.secondCall.args[0]).to.equal(fixtures.users.staffUser.email);
+            expect(sendFake.secondCall.args[1].includes('<table')).to.equal(true);
+            expect(sendFake.secondCall.args[3]).to.equal('Grant Assigned to State Board of Accountancy');
         });
     });
 });

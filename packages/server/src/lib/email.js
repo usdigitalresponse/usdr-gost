@@ -42,28 +42,28 @@ function sendWelcomeEmail(email, httpOrigin) {
     });
 }
 
-function buildGrantDetail(grantId) {
-    const grant = db.getGrant({ grantId });
+async function buildGrantDetail(grantId) {
+    const grant = await db.getGrant({ grantId });
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
             title: grant.title,
             description: grant.description,
             status: grant.status,
-            open_date: grant.open_date,
-            close_date: grant.close_date,
-            award_floor: grant.award_floor,
-            award_ceiling: grant.award_ceiling,
-            estimated_funding: grant.estimated_funding,
+            show_date_range: grant.open_date && grant.close_date,
+            open_date: grant.open_date ? new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
+            close_date: grant.close_date ? new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
+            award_floor: grant.award_floor || '$0',
+            award_ceiling: grant.award_ceiling || 'Not available',
+            // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
-            link_url: '',
+            link_url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
         },
     );
     return grantDetail;
 }
 
 async function deliverGrantAssigntmentToAssignee(toAddress, emailHTML, emailPlain, subject) {
-    console.log(emailService.getTransport);
     return emailService.getTransport().send({
         toAddress,
         subject,
@@ -87,17 +87,22 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     });
     const emailHTML = mustache.render(baseTemplate.toString(), {
         tool_name: 'Grants Identification Tool',
+        title: 'Grants Assigned Notification',
+        webview_available: false, // Preheader and webview are not setup for Grant notification email.
+        // preheader: 'Test preheader',
+        // webview_url: 'http://localhost:8080',
+        usdr_url: 'http://usdigitalresponse.org',
+        usdr_logo_url: 'https://grants.usdigitalresponse.org/usdr_logo_transparent.png',
+        // Manually send an email to Mindy for now to change notification preferences.
+        notifications_url: 'mailto:mindy@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant assigned notification email.',
     }, {
         email_body: grantAssignedBody,
     });
     const emailPlain = emailHTML;
     const emailSubject = `Grant Assigned to ${assignee_agency.name}`;
-
     const assginees = await db.getUsersByAgency(assignee_agency.id);
 
-    assginees.forEach((assignee) => deliverGrantAssigntmentToAssignee(assignee.email, emailHTML, emailPlain, emailSubject));
-
-    console.log(`${assignee_agency} ${grantDetail}${assignorUserId}`);
+    assginees.forEach((assignee) => module.exports.deliverGrantAssigntmentToAssignee(assignee.email, emailHTML, emailPlain, emailSubject));
 }
 
 async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
@@ -108,17 +113,16 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
         2b. For each user part of the agency
             i. Send email
     */
-
-    const grantDetail = buildGrantDetail(grantId);
+    const grantDetail = await buildGrantDetail(grantId);
     const agencies = await db.getAgenciesByIds(agencyIds);
-    agencies.forEach((agency) => sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
-
-    console.log(`SendGrantAssignedEmail is called with arguments ${grantId}, ${agencyIds}, ${userId}`);
+    agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
 }
 
-// Creating a namespace for private functions that can be exported purely for the purposes of testing
-function Private() { return { deliverGrantAssigntmentToAssignee, buildGrantDetail, sendGrantAssignedNotficationForAgency }; }
-
 module.exports = {
-    sendPassCode, sendWelcomeEmail, sendGrantAssignedEmail, Private,
+    sendPassCode,
+    sendWelcomeEmail,
+    sendGrantAssignedEmail,
+    deliverGrantAssigntmentToAssignee,
+    buildGrantDetail,
+    sendGrantAssignedNotficationForAgency,
 };
