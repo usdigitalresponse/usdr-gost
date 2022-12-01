@@ -53,4 +53,12 @@ module.exports = {
         'no-param-reassign': 'off',
         'func-names': 'off',
     },
+    overrides: [
+        {
+            files: ['*.test.js', '*.spec.js'],
+            rules: {
+                'no-underscore-dangle': 'off',
+            },
+        },
+    ],
 };
