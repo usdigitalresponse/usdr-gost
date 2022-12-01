@@ -71,26 +71,48 @@ describe('Email module', () => {
         });
     });
     context('AWS SES', () => {
-        beforeEach(clearNodemailerEnvironmentVariables);
+        beforeEach(() => {
+            clearNodemailerEnvironmentVariables();
+        });
 
-        it('Sets transport region when SES_REGION is set', async () => {
+        context('SES_REGION', () => {
             const awsTransportPatched = rewire('../../src/lib/email/email-aws');
-            const sendEmailPromiseSpy = sandbox.spy();
-            const MockSDK = {
-                SES: sandbox.stub().returns({
-                    sendEmail: () => ({ promise: sendEmailPromiseSpy }),
-                }),
-            };
-
-            awsTransportPatched.__with__({ AWS: MockSDK })(() => {
-                process.env.SES_REGION = 'eu-central-1';
-                awsTransportPatched.send(sandbox.spy());
+            let sendEmailPromiseSpy;
+            let MockSDK;
+            beforeEach(() => {
+                sendEmailPromiseSpy = sandbox.spy();
+                MockSDK = {
+                    SES: sandbox.stub().returns({
+                        sendEmail: () => ({ promise: sendEmailPromiseSpy }),
+                    }),
+                };
+            });
+            afterEach(() => {
+                sandbox.restore();
             });
 
-            expect(MockSDK.SES.callCount).to.equal(1);
-            expect(MockSDK.SES.calledWithExactly({ region: 'eu-central-1' })).to.equal(true);
-            expect(sendEmailPromiseSpy.callCount).to.equal(1);
+            it('Sets transport region when SES_REGION is set', async () => {
+                awsTransportPatched.__with__({ AWS: MockSDK })(() => {
+                    process.env.SES_REGION = 'eu-central-1';
+                    awsTransportPatched.send(sandbox.spy());
+                });
+
+                expect(MockSDK.SES.callCount).to.equal(1);
+                expect(MockSDK.SES.calledWithExactly({ region: 'eu-central-1' })).to.equal(true);
+                expect(sendEmailPromiseSpy.callCount).to.equal(1);
+            });
+            it('Does not configure an explicit region when SES_REGION is not set', async () => {
+                awsTransportPatched.__with__({ AWS: MockSDK })(() => {
+                    delete process.env.SES_REGION;
+                    awsTransportPatched.send(sandbox.spy());
+                });
+
+                expect(MockSDK.SES.callCount).to.equal(1);
+                expect(MockSDK.SES.calledWithExactly({})).to.equal(true);
+                expect(sendEmailPromiseSpy.callCount).to.equal(1);
+            });
         });
+
         it('Fails when NOTIFICATIONS_EMAIL is missing', async () => {
             delete process.env.NOTIFICATIONS_EMAIL;
             const expects = 'Missing environment variable NOTIFICATIONS_EMAIL!';
