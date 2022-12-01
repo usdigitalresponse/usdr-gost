@@ -80,6 +80,10 @@ async function getUsersByAgency(agencyId) {
     return users;
 }
 
+async function getUsersEmailAndName(ids) {
+    return knex.select('id', 'name', 'email').from('users').whereIn('id', ids);
+}
+
 async function getUser(id) {
     const [user] = await knex('users')
         .select(
@@ -331,6 +335,15 @@ async function getGrants({
                             if (filters.rejected) {
                                 qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Rejected');
                             }
+                        }
+                        if (filters.opportunityStatuses?.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_status`, filters.opportunityStatuses);
+                        }
+                        if (filters.opportunityCategories?.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
+                        }
+                        if (filters.costSharing) {
+                            qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
                         }
                     },
                 );
@@ -865,6 +878,7 @@ module.exports = {
     createUser,
     deleteUser,
     getUsersByAgency,
+    getUsersEmailAndName,
     getUser,
     getAgencyCriteriaForAgency,
     isSubOrganization,

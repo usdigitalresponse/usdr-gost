@@ -1,0 +1,104 @@
+name: Build GOST Website
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - _staging
+      - main
+    paths:
+      - ".github/workflows/build-website.yml"
+      - "packages/client/**"
+      - ".node-version"
+      - ".nvmrc"
+      - "yarn.lock"
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_website_artifact:
+    name: Build website deployment artifact
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      BUILD_DIR: packages/client
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+          cache: yarn
+      - name: Install dependencies
+        working-directory: ${{ env.BUILD_DIR }}
+        run: yarn install --frozen-lockfile
+      - name: Build the website
+        working-directory: ${{ env.BUILD_DIR }}
+        run: yarn build
+      - name: Upload build artifact
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: website-${ github.sha }
+          path: ${{ env.BUILD_DIR }}/dist
+
+  select_website_deployment_environment:
+    name: Select deployment environment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kanga333/variable-mapper@master
+        with:
+          key: "${{ github.ref_name }}"
+          map: |
+            {
+              "_staging": {
+                "selected": "website-staging"
+              },
+              "main": {
+                "selected": "website-production"
+              },
+              ".*": {
+                "selected": "website-sandbox"
+              }
+            }
+          export_to: log,env
+          mode: first_match
+    outputs:
+      selected: ${{ env.selected }}
+
+  deploy:
+    name: Deploy website
+    if: github.event_name != 'pull_request'
+    needs:
+      - build_website_artifact
+      - select_website_deployment_environment
+    environment: ${{ needs.select_website_deployment_environment.outputs.selected }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
+      - name: Get deployment parameters
+        uses: dkershner6/aws-ssm-getparameters-action@v1
+        with:
+          withDecryption: "true"
+          parameterPairs: |
+            /usdr/gost/deployment-config/website/s3-uri = S3_DEPLOYMENT_URI,
+            /usdr/gost/deployment-config/website/distribution-id = CLOUDFRONT_DISTRIBUTION_ID
+      - name: Download build
+        uses: actions/download-artifact@v3
+        with:
+          name: website-${ github.sha }
+          path: dist
+      - name: Upload artifact to S3
+        run: aws s3 sync ./dist ${{ env.S3_DEPLOYMENT_URI }} --sse --delete --no-progress
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --paths "/*" --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}

@@ -1,12 +1,14 @@
 /**  global context */
 
 const { expect } = require('chai');
-require('dotenv').config();
+const rewire = require('rewire');
 const sinon = require('sinon');
+require('dotenv').config();
 const emailService = require('../../src/lib/email/service-email');
 const email = require('../../src/lib/email');
 const fixtures = require('../db/seeds/fixtures');
 const db = require('../../src/db');
+const awsTransport = require('../../src/lib/email/email-aws');
 
 const {
     TEST_EMAIL_RECIPIENT,
@@ -55,59 +57,65 @@ describe('Email module', () => {
         delete process.env.NOTIFICATIONS_EMAIL;
     }
 
+    const sandbox = sinon.createSandbox();
     afterEach(() => {
         restoreEnvironmentVariables();
         testEmail.subject = 'Test email';
+        sandbox.restore();
     });
 
     context('Transport missing', () => {
-        it('Fails with no transport', async () => {
+        it('Defaults to AWS transport when nodemailer is not configured', async () => {
             clearSESEnvironmentVariables();
             clearNodemailerEnvironmentVariables();
 
-            const expects = 'No email transport provider credentials in environment';
-            let err = { message: 'No error' };
-            try {
-                emailService.getTransport();
-            } catch (e) {
-                err = e;
-            }
-            expect(err.message).to.equal(expects);
+            const transport = emailService.getTransport();
+            expect(transport).to.equal(awsTransport);
         });
     });
     context('AWS SES', () => {
         beforeEach(() => {
             clearNodemailerEnvironmentVariables();
-            testEmail.subject = 'Test AWS-SES email';
-
-            // these might be missing in dev .env file
-            process.env.AWS_ACCESS_KEY_ID = 'Fake AWS Key';
-            process.env.AWS_SECRET_ACCESS_KEY = 'Fake AWS Secret';
         });
-        it('Fails when SES_REGION is missing', async () => {
-            delete process.env.SES_REGION;
-            const expects = 'Missing environment variable SES_REGION!';
-            let err = { message: 'No error' };
 
-            try {
-                await emailService.getTransport().send(testEmail);
-            } catch (e) {
-                err = e;
-            }
-            expect(err.message).to.equal(expects);
-        });
-        it('Fails when AWS_SECRET_ACCESS_KEY is missing', async () => {
-            delete process.env.AWS_SECRET_ACCESS_KEY;
-            const expects = 'Missing environment variable AWS_SECRET_ACCESS_KEY!';
-            let err = { message: 'No error' };
+        context('SES_REGION', () => {
+            const awsTransportPatched = rewire('../../src/lib/email/email-aws');
+            let sendEmailPromiseSpy;
+            let MockSDK;
+            beforeEach(() => {
+                sendEmailPromiseSpy = sandbox.spy();
+                MockSDK = {
+                    SES: sandbox.stub().returns({
+                        sendEmail: () => ({ promise: sendEmailPromiseSpy }),
+                    }),
+                };
+            });
+            afterEach(() => {
+                sandbox.restore();
+            });
 
-            try {
-                await emailService.getTransport().send(testEmail);
-            } catch (e) {
-                err = e;
-            }
-            expect(err.message).to.equal(expects);
+            it('Sets transport region when SES_REGION is set', async () => {
+                awsTransportPatched.__with__({ AWS: MockSDK })(() => {
+                    process.env.SES_REGION = 'eu-central-1';
+                    awsTransportPatched.send(sandbox.spy());
+                });
+
+                expect(MockSDK.SES.callCount).to.equal(1);
+                expect(MockSDK.SES.calledWithExactly({ region: 'eu-central-1' })).to.equal(true);
+                expect(sendEmailPromiseSpy.callCount).to.equal(1);
+            });
+            it('Does not configure an explicit region when SES_REGION is not set', async () => {
+                awsTransportPatched.__with__({ AWS: MockSDK })(() => {
+                    delete process.env.SES_REGION;
+                    awsTransportPatched.send(sandbox.spy());
+                });
+
+                expect(MockSDK.SES.callCount).to.equal(1);
+                expect(MockSDK.SES.calledWithExactly({})).to.equal(true);
+                expect(sendEmailPromiseSpy.callCount).to.equal(1);
+            });
         });
+
         it('Fails when NOTIFICATIONS_EMAIL is missing', async () => {
             delete process.env.NOTIFICATIONS_EMAIL;
             const expects = 'Missing environment variable NOTIFICATIONS_EMAIL!';
@@ -120,7 +128,7 @@ describe('Email module', () => {
             }
             expect(err.message).to.equal(expects);
         });
-        xit('Works when AWS credentials are valid but expect email to be unverified', async () => {
+        it('Works when AWS credentials are valid but expect email to be unverified', async () => {
             const expects = 'Email address is not verified.';
             let err;
             let result;
