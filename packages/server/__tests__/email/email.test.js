@@ -54,7 +54,7 @@ describe('Email module', () => {
         delete process.env.NOTIFICATIONS_EMAIL;
     }
 
-    sandbox = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
     afterEach(() => {
         restoreEnvironmentVariables();
         testEmail.subject = 'Test email';
@@ -66,7 +66,7 @@ describe('Email module', () => {
             clearSESEnvironmentVariables();
             clearNodemailerEnvironmentVariables();
 
-            let transport = getTransport();
+            const transport = getTransport();
             expect(transport).to.equal(awsTransport);
         });
     });
@@ -74,19 +74,21 @@ describe('Email module', () => {
         beforeEach(clearNodemailerEnvironmentVariables);
 
         it('Sets transport region when SES_REGION is set', async () => {
-            awsTransportPatched = rewire('../../src/lib/email/email-aws');
-            let sendEmailPromiseSpy = sandbox.spy();
-            let MockSDK = {
-                SES: sandbox.stub().returns({sendEmail: () => ({promise: sendEmailPromiseSpy})}),
+            const awsTransportPatched = rewire('../../src/lib/email/email-aws');
+            const sendEmailPromiseSpy = sandbox.spy();
+            const MockSDK = {
+                SES: sandbox.stub().returns({
+                    sendEmail: () => ({ promise: sendEmailPromiseSpy }),
+                }),
             };
 
-            awsTransportPatched.__with__({AWS: MockSDK})(() => {
+            awsTransportPatched.__with__({ AWS: MockSDK })(() => {
                 process.env.SES_REGION = 'eu-central-1';
                 awsTransportPatched.send(sandbox.spy());
             });
 
             expect(MockSDK.SES.callCount).to.equal(1);
-            expect(MockSDK.SES.calledWithExactly({region: 'eu-central-1'})).to.equal(true);
+            expect(MockSDK.SES.calledWithExactly({ region: 'eu-central-1' })).to.equal(true);
             expect(sendEmailPromiseSpy.callCount).to.equal(1);
         });
         it('Fails when NOTIFICATIONS_EMAIL is missing', async () => {

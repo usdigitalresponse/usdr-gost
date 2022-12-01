@@ -24,7 +24,7 @@ function createTransport() {
         }
     }
 
-    let sesOptions = {};
+    const sesOptions = {};
     if (process.env.SES_REGION) {
         sesOptions.region = process.env.SES_REGION;
     }
