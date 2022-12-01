@@ -128,7 +128,7 @@ describe('Email module', () => {
             }
             expect(err.message).to.equal(expects);
         });
-        it('Works when AWS credentials are valid but expect email to be unverified', async () => {
+        xit('Works when AWS credentials are valid but expect email to be unverified', async () => {
             const expects = 'Email address is not verified.';
             let err;
             let result;
