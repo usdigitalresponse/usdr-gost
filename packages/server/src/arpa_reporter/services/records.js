@@ -97,15 +97,15 @@ async function loadRecordsForUpload (upload) {
     // entire sheet
     const sheetRange = XLSX.utils.decode_range(sheet['!ref'])
 
-    // range B3:3
+    // range C3:3
     const headerRange = merge({}, sheetRange, {
-      s: { c: 1, r: 2 },
+      s: { c: 2, r: 2 },
       e: { r: 2 }
     })
 
     // TODO: How can we safely get the row number in which data starts
     // across template versions?
-    // range B13:
+    // range C13:
     const contentRange = merge({}, sheetRange, { s: { c: 2, r: 12 } })
 
     const [header] = XLSX.utils.sheet_to_json(sheet, {
