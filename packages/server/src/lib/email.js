@@ -64,6 +64,11 @@ async function buildGrantDetail(grantId) {
 }
 
 async function deliverGrantAssigntmentToAssignee(toAddress, emailHTML, emailPlain, subject) {
+    if (process.env.WEBSITE_DOMAIN === 'https://grants.usdigitalresponse.org') {
+        console.log(`Attempted to send an email to ${toAddress} with subject ${subject}.`);
+        return undefined;
+    }
+
     return emailService.getTransport().send({
         toAddress,
         subject,
