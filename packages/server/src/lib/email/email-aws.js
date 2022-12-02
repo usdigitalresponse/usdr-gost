@@ -51,10 +51,10 @@ function send(message) {
                     Charset: 'UTF-8',
                     Data: message.body,
                 },
-            },
-            Text: {
-                Charset: 'UTF-8',
-                Data: message.text,
+                Text: {
+                    Charset: 'UTF-8',
+                    Data: message.text,
+                },
             },
         },
     };
