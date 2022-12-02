@@ -74,6 +74,12 @@ async function createUser(user) {
     };
 }
 
+async function getUsersByAgency(agencyId) {
+    const users = await knex('users').where('users.agency_id', agencyId);
+
+    return users;
+}
+
 async function getUsersEmailAndName(ids) {
     return knex.select('id', 'name', 'email').from('users').whereIn('id', ids);
 }
@@ -597,7 +603,7 @@ async function getAgency(agencyId) {
 }
 
 async function getAgenciesByIds(agencyIds) {
-    const query = knex.select()
+    const query = knex.select('agencies.*')
         .from(TABLES.agencies)
         .whereIn('agencies.id', agencyIds)
         .leftJoin('tenants', 'tenants.id', '=', `${TABLES.agencies}.tenant_id`);
@@ -871,6 +877,7 @@ module.exports = {
     getUsers,
     createUser,
     deleteUser,
+    getUsersByAgency,
     getUsersEmailAndName,
     getUser,
     getAgencyCriteriaForAgency,

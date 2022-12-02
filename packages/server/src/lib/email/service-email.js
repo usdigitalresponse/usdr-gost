@@ -17,6 +17,6 @@ function getTransport() {
     }
 }
 
-module.exports = getTransport;
+module.exports = { getTransport };
 
 /*                                  *  *  *                                   */
