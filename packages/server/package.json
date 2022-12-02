@@ -71,6 +71,7 @@
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
     "api": "^4.2.1",
+    "aws-sdk-mock": "5.8.0",
     "chai": "^4.3.4",
     "chalk": "^5.0.1",
     "cookie-signature": "^1.2.0",
