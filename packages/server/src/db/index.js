@@ -285,7 +285,7 @@ function deleteKeyword(id) {
 }
 
 async function getNewGrantsForAgency(agency) {
-    console.log(`${agency.name}`);
+    console.log(`Getting grants for ${agency.name}`);
     const query = knex(TABLES.grants)
         .limit(5);
     const result = await query;
