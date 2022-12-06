@@ -216,15 +216,15 @@ describe('db', () => {
     context('deleteAgency', () => {
         it('deletes agency with keywords', async () => {
             await db.deleteAgency(
-                fixtures.agencies.accountancy.id,
-                fixtures.agencies.accountancy.parent,
-                fixtures.agencies.accountancy.name,
-                fixtures.agencies.accountancy.abbreviation,
+                fixtures.agencies.fleetServices.id,
+                fixtures.agencies.fleetServices.parent,
+                fixtures.agencies.fleetServices.name,
+                fixtures.agencies.fleetServices.abbreviation,
                 null,
                 null,
             );
-            const agency = await db.getAgency(fixtures.agencies.accountancy.id);
-            expect(agency).equal(null);
+            const agency = await db.getAgency(fixtures.agencies.fleetServices.id);
+            expect(agency).to.equal(null);
         });
     });
 });
