@@ -41,6 +41,8 @@
 </template>
 
 <script>
+import { apiURL } from '@/helpers/fetchApi'
+
 export default {
   name: 'NewUpload',
   data: function () {
@@ -77,7 +79,7 @@ export default {
       formData.append('spreadsheet', file)
 
       try {
-        const resp = await fetch('/api/uploads', { method: 'POST', body: formData })
+        const resp = await fetch(apiURL('/api/uploads'), { method: 'POST', body: formData })
         const result = (await resp.json()) || { error: (await resp.body) }
 
         if (resp.ok) {

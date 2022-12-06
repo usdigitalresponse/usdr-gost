@@ -38,6 +38,8 @@
 </template>
 
 <script>
+import { apiURL } from '@/helpers/fetchApi'
+
 export default {
   name: 'NewTemplate',
   data: function () {
@@ -73,7 +75,7 @@ export default {
 
       this.uploading = true
 
-      const url = `/api/reporting_periods/${this.reportingPeriodId}/template`
+      const url = apiURL(`/api/reporting_periods/${this.reportingPeriodId}/template`)
       const formData = new FormData()
       formData.append('template', file)
 

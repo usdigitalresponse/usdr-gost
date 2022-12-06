@@ -36,6 +36,10 @@ describe('server/lib/format', () => {
       expect(capitalizeFirstLetter('YES')).to.equal('Yes')
       expect(capitalizeFirstLetter('NO')).to.equal('No')
     })
+    it('passes through non-string values', () => {
+      expect(capitalizeFirstLetter(123)).to.equal(123)
+      expect(capitalizeFirstLetter([])).to.deep.equal([])
+    })
   })
 
   describe('currency', () => {
@@ -51,6 +55,10 @@ describe('server/lib/format', () => {
       expect(currency(0.0001)).to.equal('0')
       expect(currency(150000.435302)).to.equal('150000.44')
       expect(currency(150000.431302)).to.equal('150000.43')
+    })
+    it('passes through non-numeric values', () => {
+      expect(capitalizeFirstLetter('123')).to.equal('123')
+      expect(capitalizeFirstLetter([])).to.deep.equal([])
     })
   })
 
@@ -98,6 +106,10 @@ describe('server/lib/format', () => {
       expect(multiselect('a,b,c')).to.equal('abc')
       expect(multiselect('a,b;c,d')).to.equal('ab;cd')
       expect(multiselect(',a,b; -c,d')).to.equal('ab;cd')
+    })
+    it('passes through non-string values', () => {
+      expect(capitalizeFirstLetter(123)).to.equal(123)
+      expect(capitalizeFirstLetter([])).to.deep.equal([])
     })
   })
 

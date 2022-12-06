@@ -26,6 +26,15 @@ const agencies = {
         tenant_id: tenants.SBA.id,
         main_agency_id: 0,
     },
+    subAccountancy: {
+        id: 1,
+        abbreviation: 'Sub SBA',
+        code: 'SSBA',
+        name: 'State Board of Sub Accountancy',
+        parent: 0,
+        tenant_id: tenants.SBA.id,
+        main_agency_id: 0,
+    },
     fleetServices: {
         id: 4,
         abbreviation: 'FSD',
@@ -54,6 +63,14 @@ const users = {
         id: roles.staffRole.id,
         tenant_id: agencies.accountancy.tenant_id,
     },
+    subStaffUser: {
+        email: 'sub.staff.user@test.com',
+        name: 'Sub Staff User',
+        agency_id: agencies.subAccountancy.id,
+        role_id: roles.staffRole.id,
+        id: 3,
+        tenant_id: agencies.subAccountancy.tenant_id,
+    },
 };
 
 const keywords = {
@@ -67,10 +84,10 @@ const keywords = {
 
 const interestedCodes = {
     notApplicable: {
-        id: 0, name: 'Not applicable to needs/goals', is_rejection: false,
+        id: 0, name: 'Not applicable to needs/goals', status_code: 'Rejected',
     },
     inadequateCapacity: {
-        id: 1, name: 'Inadequate program capacity', is_rejection: true,
+        id: 1, name: 'Inadequate program capacity', status_code: 'Rejected',
     },
 };
 
@@ -227,6 +244,7 @@ const assignedAgencyGrants = {
 };
 
 module.exports = {
+    agencies,
     users,
     agencyEligibilityCodes,
     keywords,
@@ -241,6 +259,7 @@ module.exports.seed = async (knex) => {
     await knex.raw(truncateStmt).catch(
         async (err) => {
             console.log(err.stack);
+            console.log('migrating the database to the latest');
             await knex.migrate.latest();
         },
     );

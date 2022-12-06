@@ -29,20 +29,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 16.14.0
           cache: yarn
-
       - name: Install dependencies
         run: yarn setup
-
       - name: Run Linter
-        run: |
-          yarn lint
-
+        run: yarn lint
       - name: Run unit tests
         env:
           POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
@@ -56,4 +51,11 @@ jobs:
           # The .env file needs to be present; the example file is good enough.
           cp packages/server/.env.example packages/server/.env
           cp packages/client/.env.example packages/client/.env
-          export CI=true; yarn test
+          export CI=true; yarn coverage
+      - name: Publish coverage report to CodeClimate
+        uses: paambaati/codeclimate-action@v3.2.0
+        env:
+          CC_TEST_REPORTER_ID: c0ab87c312e9ca57ec34d55ebec07ed396f96f039b3c725221918a75be71a0eb
+        with:
+          coverageLocations: |
+            ${{github.workspace}}/coverage/lcov.info:lcov

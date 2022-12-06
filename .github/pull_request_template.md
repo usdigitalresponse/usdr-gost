@@ -12,5 +12,6 @@
 - [ ] Provided screenshots/demo
 - [ ] Provided testing information
 - [ ] Provided adequate test coverage for all new code
+- [ ] Run automated tests (docker compose exec app yarn test)
 - [ ] Added PR reviewers
 - [ ] Ensure at least 1 review before merging

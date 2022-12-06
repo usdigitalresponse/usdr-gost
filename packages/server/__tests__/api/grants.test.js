@@ -1,7 +1,8 @@
 const { expect } = require('chai');
-
+const sinon = require('sinon');
 const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
+const email = require('../../src/lib/email');
 
 /*
     In general, these tests ...
@@ -52,6 +53,11 @@ describe('`/api/grants` endpoint', () => {
     });
     after(() => {
         testServer.stop();
+    });
+
+    const sandbox = sinon.createSandbox();
+    afterEach(() => {
+        sandbox.restore();
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', () => {
@@ -172,52 +178,67 @@ describe('`/api/grants` endpoint', () => {
         const assignEndpoint = `333816/assign/agencies`;
         context('by a user with admin role', () => {
             it('assigns this user\'s own agency to a grant', async () => {
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.own] }),
                 });
                 expect(response.statusText).to.equal('OK');
+                expect(emailSpy.calledOnceWith({ grantId: '333816', agencyIds: [agencies.own], userId: 13 })).to.equal(true);
+                expect(emailSpy.called).to.equal(true);
             });
             it('assigns subagencies of this user\'s own agency to a grant', async () => {
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.ownSub, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.ownSub] }),
                 });
                 expect(response.statusText).to.equal('OK');
+                expect(emailSpy.calledOnceWith({ grantId: '333816', agencyIds: [agencies.ownSub], userId: 13 })).to.equal(true);
+                expect(emailSpy.called).to.equal(true);
             });
             it('forbids requests for any agency outside this user\'s hierarchy', async () => {
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.offLimits] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
+                expect(emailSpy.notCalled).to.equal(true);
             });
         });
         context('by a user with staff role', () => {
             it('assigns this user\'s own agency to a grant', async () => {
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.own, {
                     ...fetchOptions.staff,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.own] }),
                 });
                 expect(response.statusText).to.equal('OK');
+                expect(emailSpy.calledOnceWith({ grantId: '333816', agencyIds: [agencies.own], userId: 6 })).to.equal(true);
+                expect(emailSpy.called).to.equal(true);
             });
             it('forbids requests for any agency except this user\'s own agency', async () => {
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
                 let response = await fetchApi(`/grants/${assignEndpoint}`, agencies.ownSub, {
                     ...fetchOptions.staff,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.ownSub] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
+                expect(emailSpy.notCalled).to.equal(true);
+
                 response = await fetchApi(`/grants/${assignEndpoint}`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ agencyIds: [agencies.offLimits] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
+                expect(emailSpy.notCalled).to.equal(true);
             });
         });
     });
@@ -496,6 +517,51 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
 
             const lastRow = lines[lines.length - 2];
             expect(lastRow).to.include('Error:');
+        });
+    });
+    context('GET /exportCSVRecentActivities', () => {
+        it('produces the expected column headers', async () => {
+            const expectedCsvHeaders = 'Date,Agency,Grant,Status Code,Grant Assigned By,Email';
+            const agencyId = agencies.own;
+            const role = fetchOptions.staff;
+
+            const response = await fetchApi('/grants/exportCSVRecentActivities', agencyId, role);
+
+            expect(response.statusText).to.equal('OK');
+            expect(response.headers.get('Content-Type')).to.include('text/csv');
+            expect(response.headers.get('Content-Disposition')).to.include('attachment');
+
+            expect(await response.text()).to.contain(expectedCsvHeaders);
+        });
+    });
+    context('GET /api/organizations/:orgId/grants?currentPage=:pageNumber&perPage=:grantsPerPage', () => {
+        context('by a user with staff role', () => {
+            it('should return sorted rows', async () => {
+                let response;
+                let queryJson;
+                let previousOpenDate = null;
+                let pageNumber = 1;
+                let moreRows = true;
+                while (moreRows) {
+                    // eslint-disable-next-line no-await-in-loop
+                    response = await fetchApi(`/grants?currentPage=${pageNumber}&perPage=10&orderBy=open_date&orderDesc=true`, agencies.own, fetchOptions.staff);
+                    expect(response.statusText).to.equal('OK');
+                    // eslint-disable-next-line no-await-in-loop
+                    queryJson = await response.json();
+                    if (queryJson.data.length === 0) {
+                        moreRows = false;
+                    } else {
+                        for (let j = 0; j < queryJson.data.length; j += 1) {
+                            const currentOpenDate = new Date(`${queryJson.data[j].open_date}T00:00:00`);
+                            if (previousOpenDate !== null) {
+                                expect(previousOpenDate).to.be.greaterThanOrEqual(currentOpenDate);
+                            }
+                            previousOpenDate = currentOpenDate;
+                        }
+                        pageNumber += 1;
+                    }
+                }
+            });
         });
     });
 });
