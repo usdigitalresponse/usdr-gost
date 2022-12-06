@@ -284,6 +284,14 @@ function deleteKeyword(id) {
         .del();
 }
 
+async function getNewGrantsForAgency(agency) {
+    console.log(`${agency.name}`);
+    const query = knex(TABLES.grants)
+        .limit(5);
+    const result = await query;
+    return result;
+}
+
 async function getGrants({
     currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
 } = {}) {
@@ -612,6 +620,14 @@ async function getAgenciesByIds(agencyIds) {
     return result;
 }
 
+async function getAgenciesSubscribedToDigest() {
+    const query = knex.select('agencies.*')
+        .from(TABLES.agencies);
+    const result = await query;
+
+    return result;
+}
+
 async function getTenantAgencies(tenantId) {
     return knex(TABLES.agencies)
         .select('*')
@@ -891,6 +907,7 @@ module.exports = {
     getAgency,
     getAgenciesByIds,
     getAgencyTree,
+    getAgenciesSubscribedToDigest,
     getTenantAgencies,
     getTenant,
     getTenants,
@@ -909,6 +926,7 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getNewGrantsForAgency,
     getSingleGrantDetails,
     getClosestGrants,
     getGrant,
