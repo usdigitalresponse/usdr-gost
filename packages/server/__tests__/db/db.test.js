@@ -2,6 +2,7 @@ const { expect } = require('chai');
 const db = require('../../src/db');
 const { TABLES } = require('../../src/db/constants');
 const fixtures = require('./seeds/fixtures');
+const knex = require('../../src/db/connection');
 
 describe('db', () => {
     before(async () => {
@@ -215,7 +216,10 @@ describe('db', () => {
     });
     context('deleteAgency', () => {
         it('deletes agency with keywords', async () => {
-            await db.deleteAgency(
+            await knex(TABLES.agency_eligibility_codes)
+                .where('agency_eligibility_codes.agency_id', fixtures.agencies.fleetServices.id)
+                .del();
+            const del = await db.deleteAgency(
                 fixtures.agencies.fleetServices.id,
                 fixtures.agencies.fleetServices.parent,
                 fixtures.agencies.fleetServices.name,
@@ -223,8 +227,7 @@ describe('db', () => {
                 null,
                 null,
             );
-            const agency = await db.getAgency(fixtures.agencies.fleetServices.id);
-            expect(agency).to.equal(null);
+            expect(del).to.equal(1);
         });
     });
 });
