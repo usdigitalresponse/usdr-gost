@@ -74,6 +74,16 @@ async function createUser(user) {
     };
 }
 
+async function getUsersByAgency(agencyId) {
+    const users = await knex('users').where('users.agency_id', agencyId);
+
+    return users;
+}
+
+async function getUsersEmailAndName(ids) {
+    return knex.select('id', 'name', 'email').from('users').whereIn('id', ids);
+}
+
 async function getUser(id) {
     const [user] = await knex('users')
         .select(
@@ -325,6 +335,15 @@ async function getGrants({
                             if (filters.rejected) {
                                 qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Rejected');
                             }
+                        }
+                        if (filters.opportunityStatuses?.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_status`, filters.opportunityStatuses);
+                        }
+                        if (filters.opportunityCategories?.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
+                        }
+                        if (filters.costSharing) {
+                            qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
                         }
                     },
                 );
@@ -578,9 +597,15 @@ function getInterestedCodes() {
 }
 
 async function getAgency(agencyId) {
-    const query = knex.select()
+    const result = await getAgenciesByIds([agencyId]);
+
+    return result;
+}
+
+async function getAgenciesByIds(agencyIds) {
+    const query = knex.select('agencies.*')
         .from(TABLES.agencies)
-        .where('agencies.id', agencyId)
+        .whereIn('agencies.id', agencyIds)
         .leftJoin('tenants', 'tenants.id', '=', `${TABLES.agencies}.tenant_id`);
     const result = await query;
 
@@ -799,7 +824,7 @@ async function sync(tableName, syncKey, updateCols, newRows) {
                     await updateRecord(tableName, syncKey, oldRows[syncKeyValue][syncKey], updatedFields);
                     console.log(`updated ${oldRows[syncKeyValue][syncKey]} in ${tableName}`);
                 } catch (err) {
-                    console.error(`knex error when updating ${oldRows[syncKeyValue][syncKey]} with ${JSON.stringify(updatedFields)}: ${err}`);
+                    console.error(`knex error when updating ${oldRows[syncKeyValue][syncKey]} in ${tableName} with ${JSON.stringify(updatedFields)}: ${err}`);
                 }
             }
         } else {
@@ -809,7 +834,7 @@ async function sync(tableName, syncKey, updateCols, newRows) {
                 await createRecord(tableName, newRow);
                 console.log(`created ${newRow[syncKey]} in ${tableName}`);
             } catch (err) {
-                console.error(`knex error when creating a new row with key ${newRow[syncKey]}`);
+                console.error(`knex error when creating a new row with key ${newRow[syncKey]} in ${tableName}: ${err}`);
             }
         }
     }
@@ -852,6 +877,8 @@ module.exports = {
     getUsers,
     createUser,
     deleteUser,
+    getUsersByAgency,
+    getUsersEmailAndName,
     getUser,
     getAgencyCriteriaForAgency,
     isSubOrganization,
@@ -862,6 +889,7 @@ module.exports = {
     inTenant,
     markAccessTokenUsed,
     getAgency,
+    getAgenciesByIds,
     getAgencyTree,
     getTenantAgencies,
     getTenant,

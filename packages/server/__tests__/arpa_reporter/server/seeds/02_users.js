@@ -8,18 +8,32 @@ const agencyUserList = (process.env.INITIAL_AGENCY_EMAILS || '').split(
   /\s*,\s*/
 ).filter(_.identity)
 
+const agencies = {
+  accountancy: {
+      id: 0,
+      abbreviation: 'SBA',
+      code: 'SBA',
+      name: 'State Board of Accountancy',
+      parent: null,
+      tenant_id: 0,
+      main_agency_id: 0,
+  },
+};
+
 const unitTestUsers = [
   {
     email: 'mbroussard+unit-test-admin@usdigitalresponse.org',
     name: 'Unit Test Admin 1',
     role: 'admin',
-    tenant_id: 0
+    tenant_id: 0,
+    agency_id: 0,
   },
   {
     email: 'mbroussard+unit-test-user2@usdigitalresponse.org',
     name: 'Unit Test User 2',
     role: 'reporter',
-    tenant_id: 1
+    tenant_id: 1,
+    agency_id: 0,
   }
 ]
 
@@ -47,6 +61,7 @@ exports.seed = async function (knex) {
     .del()
 
   const roles = await knex('roles').select('*')
+  await knex('agencies').insert(Object.values(agencies))
   const users = [
     // Fixed test users specified in this file
     ...unitTestUsers,
