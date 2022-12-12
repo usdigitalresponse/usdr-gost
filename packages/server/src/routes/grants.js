@@ -2,6 +2,7 @@ const express = require('express');
 // eslint-disable-next-line import/no-unresolved
 const { stringify: csvStringify } = require('csv-stringify/sync');
 const db = require('../db');
+const email = require('../lib/email');
 const pdf = require('../lib/pdf');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 
@@ -18,11 +19,22 @@ function getAwardFloor(grant) {
         return undefined;
     }
 
+    // For some reason, some grants rows have null raw_body.
+    // TODO: investigate how this can happen
+    if (!body) {
+        return undefined;
+    }
+
     const floor = parseInt(body.synopsis && body.synopsis.awardFloor, 10);
     if (Number.isNaN(floor)) {
         return undefined;
     }
     return floor;
+}
+
+function parseCollectionQueryParam(req, param) {
+    const value = req.query[param];
+    return (value && value.split(',')) || [];
 }
 
 router.get('/', requireUser, async (req, res) => {
@@ -44,6 +56,9 @@ router.get('/', requireUser, async (req, res) => {
             positiveInterest: req.query.positiveInterest ? true : null,
             result: req.query.result ? true : null,
             rejected: req.query.rejected ? true : null,
+            costSharing: req.query.costSharing || null,
+            opportunityStatuses: parseCollectionQueryParam(req, 'opportunityStatuses'),
+            opportunityCategories: parseCollectionQueryParam(req, 'opportunityCategories'),
         },
         orderBy: req.query.orderBy,
         orderDesc: req.query.orderDesc,
@@ -89,6 +104,9 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             positiveInterest: req.query.positiveInterest ? true : null,
             result: req.query.results ? true : null,
             rejected: req.query.rejected ? true : null,
+            costSharing: req.query.costSharing || null,
+            opportunityStatuses: parseCollectionQueryParam(req, 'opportunityStatuses'),
+            opportunityCategories: parseCollectionQueryParam(req, 'opportunityCategories'),
         },
     });
 
@@ -101,9 +119,8 @@ router.get('/exportCSV', requireUser, async (req, res) => {
         viewed_by: grant.viewed_by_agencies
             .map((v) => v.agency_abbreviation)
             .join(', '),
-        // TODO: how does server timezone affect the rendering of these dates?
-        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
-        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
+        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
+        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         award_floor: getAwardFloor(grant),
         url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
     }));
@@ -147,6 +164,51 @@ router.get('/exportCSV', requireUser, async (req, res) => {
     res.send(csv);
 });
 
+router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
+    const { selectedAgency } = req.session;
+    const perPage = MAX_CSV_EXPORT_ROWS;
+    const currentPage = 1;
+    const data = await db.getGrantsInterested({ perPage, currentPage, agencyId: selectedAgency });
+
+    // extract user_ids and filter out null values
+    const users = {};
+    const user_ids = data.map((grant) => grant.assigned_by).filter((id) => id);
+    const users_emails_names = await db.getUsersEmailAndName(user_ids);
+    users_emails_names.forEach((user) => { users[user.id] = { name: user.name, email: user.email }; });
+
+    const formattedData = data.map((grant) => ({
+        ...grant,
+        date: new Date(grant.created_at).toLocaleDateString('en-US'),
+        agency: grant.name,
+        grant: grant.title,
+        status_code: grant.status_code,
+        name: users[grant.assigned_by]?.name,
+        email: users[grant.assigned_by]?.email,
+    }));
+
+    if (data.length === 0) {
+        formattedData.push({});
+    }
+
+    const csv = csvStringify(formattedData, {
+        header: true,
+        columns: [
+            { key: 'date', header: 'Date' },
+            { key: 'agency', header: 'Agency' },
+            { key: 'grant', header: 'Grant' },
+            { key: 'status_code', header: 'Status Code' },
+            { key: 'name', header: 'Grant Assigned By' },
+            { key: 'email', header: 'Email' },
+        ],
+    });
+
+    const filename = 'recent_activity.csv';
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Length', csv.length);
+    res.send(csv);
+});
+
 router.put('/:grantId/view/:agencyId', requireUser, async (req, res) => {
     const { agencyId, grantId } = req.params;
     const { user } = req.session;
@@ -178,6 +240,8 @@ router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
     }
 
     await db.assignGrantsToAgencies({ grantId, agencyIds, userId: user.id });
+    email.sendGrantAssignedEmail({ grantId, agencyIds, userId: user.id });
+
     res.json({});
 });
 

@@ -4,6 +4,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import moment from 'moment'
 import _ from 'lodash'
+import { apiURL } from '@/helpers/fetchApi'
 
 Vue.use(Vuex)
 
@@ -11,7 +12,7 @@ export function get (url) {
   const options = {
     credentials: 'include'
   }
-  return fetch(url, options)
+  return fetch(apiURL(url), options)
 }
 
 // this function always returns an object. in case of success, the object is
@@ -21,7 +22,7 @@ export async function getJson (url) {
   // did we get an error even making the request?
   let resp
   try {
-    resp = await fetch(url)
+    resp = await fetch(apiURL(url))
   } catch (e) {
     return { error: e, status: null }
   }
@@ -54,7 +55,7 @@ export async function post (url, body) {
     },
     body: JSON.stringify(body)
   }
-  const resp = await fetch(url, options)
+  const resp = await fetch(apiURL(url), options)
   if (resp.ok) return resp.json()
 
   const text = await resp.text()
@@ -75,7 +76,7 @@ export function postForm (url, formData) {
     credentials: 'include',
     body: formData
   }
-  return fetch(url, options)
+  return fetch(apiURL(url), options)
 }
 
 export function put (url, body) {
@@ -87,7 +88,7 @@ export function put (url, body) {
     },
     body: JSON.stringify(body)
   }
-  return fetch(url, options).then(r => {
+  return fetch(apiURL(url), options).then(r => {
     if (r.ok) {
       return r.json()
     }
@@ -171,7 +172,7 @@ export default new Vuex.Store({
       ])
     },
     logout ({ commit }) {
-      fetch('/api/sessions/logout').then(() => commit('setUser', null))
+      fetch(apiURL('/api/sessions/logout')).then(() => commit('setUser', null))
     },
     setViewPeriodID ({ commit }, period_id) {
       commit('setViewPeriodID', period_id)

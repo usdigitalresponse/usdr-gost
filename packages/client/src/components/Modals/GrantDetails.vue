@@ -16,9 +16,9 @@
         </b-col>
       </b-row>
       <p><span style="font-weight:bold">Valid from:</span> {{ new
-          Date(selectedGrant.open_date).toLocaleDateString('en-US')
+          Date(selectedGrant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
       }}-{{ new
-    Date(selectedGrant.close_date).toLocaleDateString('en-US')
+    Date(selectedGrant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
 }}</p>
       <div v-for="field in dialogFields" :key="field">
         <p><span style="font-weight:bold">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
@@ -30,7 +30,7 @@
       <br />
       <b-row>
         <b-col>
-          <h4>Interested Agencies</h4>
+          <h4>Agency Status</h4>
         </b-col>
         <b-col class="text-right">
           <b-row v-if="!interested">
