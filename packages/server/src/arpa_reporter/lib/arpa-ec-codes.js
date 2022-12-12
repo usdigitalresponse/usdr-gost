@@ -22,7 +22,7 @@ const ecCodes = {
   '2.7': 'Household Assistance: Services for Un/Unbanked',
   '2.8': 'Household Assistance: Survivors Benefits',
   '2.9': 'Unemployment Benefits or Cash Assistance to Unemployed Workers',
-  '2.10': 'Assistance to Unemployed or Underemployed Workers (e.g. job training, subsidized employment, employment supports or incentives)',
+  '2.10': 'Assistance to Unemployed or Underemployed Workers (e.g. job training subsidized employment employment supports or incentives)',
   '2.11': 'Healthy Childhood Environments: Child Care',
   '2.12': 'Healthy Childhood Environments: Home Visiting',
   '2.13': 'Healthy Childhood Environments: Services to Foster Youth or Families Involved in Child Welfare System',
