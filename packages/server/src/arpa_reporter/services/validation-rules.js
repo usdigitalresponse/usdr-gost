@@ -1,12 +1,13 @@
 
 const srcRules = require('../lib/templateRules.json')
+const _ = require('lodash');
 
 const recordValueFormatters = {
   makeString: (val) => String(val),
-  trimWhitespace: (val) => val ? val.trim() : val,
-  removeCommas: (val) => val.replace(/,/g, ''),
-  removeSepDashes: (val) => val.replace(/^-/, '').replace(/;\s*-/g, ';'),
-  toLowerCase: (val) => val.toLowerCase()
+  trimWhitespace: (val) => _.isString(val) ? val.trim() : val,
+  removeCommas: (val) => _.isString(val) ? val.replace(/,/g, '') : val,
+  removeSepDashes: (val) => _.isString(val) ? val.replace(/^-/, '').replace(/;\s*-/g, ';'): val,
+  toLowerCase: (val) => _.isString(val) ? val.toLowerCase() : val
 }
 
 /*
