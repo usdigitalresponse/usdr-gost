@@ -1,3 +1,5 @@
+const knex = require('./connection');
+
 function whereAgencyCriteriaMatch(qb, criteria) {
     if (!criteria) {
         return;
@@ -11,6 +13,12 @@ function whereAgencyCriteriaMatch(qb, criteria) {
     }
 }
 
+async function hasOutstandingMigrations() {
+    const [, newMigrations] = await knex.migrate.list();
+    return newMigrations.length > 0;
+}
+
 module.exports = {
     whereAgencyCriteriaMatch,
+    hasOutstandingMigrations,
 };

@@ -6,6 +6,7 @@ const path = require('path');
 const { configureApp } = require('./configure');
 const grantscraper = require('./lib/grantscraper');
 const emailService = require('./lib/email');
+const { hasOutstandingMigrations } = require('./db/helpers');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -45,5 +46,15 @@ const cleanGeneratedPdfCron = new CronJob(
     },
 );
 cleanGeneratedPdfCron.start();
+
+hasOutstandingMigrations().then((hasMigrations) => {
+    if (!hasMigrations) {
+        return;
+    }
+    console.error('There are outstanding db migrations. Run \'yarn db:migrate\' before trying again');
+    if (process.env.NODE_ENV === 'development') {
+        process.exit(1);
+    }
+});
 
 module.exports = server;

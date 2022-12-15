@@ -13,6 +13,12 @@ async function deliverEmail({
     emailPlain,
     subject,
 }) {
+    // Ensures grants-related emails are only sent in non-production environments.
+    if (subject.toLowerCase().includes('grant') && process.env.WEBSITE_DOMAIN === 'https://grants.usdigitalresponse.org') {
+        console.log(`Attempted to send an email to ${toAddress} with subject ${subject}.`);
+        return undefined;
+    }
+
     return emailService.getTransport().send({
         toAddress,
         subject,
