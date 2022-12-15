@@ -218,16 +218,16 @@ describe('Email sender', () => {
     });
 
     context('grant assigned email', () => {
-        it('deliverGrantAssigntmentToAssignee calls the transport function with appropriate parameters', async () => {
+        it('deliverEmail calls the transport function with appropriate parameters', async () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ send: sendFake }));
 
-            email.deliverGrantAssigntmentToAssignee(
-                'foo@bar.com',
-                '<p>foo</p>',
-                'foo',
-                'test foo email',
-            );
+            email.deliverEmail({
+                toAddress: 'foo@bar.com',
+                emailHTML: '<p>foo</p>',
+                emailPlain: 'foo',
+                subject: 'test foo email',
+            });
 
             expect(sendFake.calledOnce).to.equal(true);
             expect(sendFake.firstCall.args).to.deep.equal([{
@@ -255,21 +255,21 @@ describe('Email sender', () => {
         });
         it('sendGrantAssignedNotficationForAgency delivers email for all users within agency', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'deliverGrantAssigntmentToAssignee', sendFake);
+            sinon.replace(email, 'deliverEmail', sendFake);
 
             await email.sendGrantAssignedNotficationForAgency(fixtures.agencies.accountancy, '<p>sample html</p>', fixtures.users.adminUser.id);
 
             expect(sendFake.calledTwice).to.equal(true);
 
-            expect(sendFake.firstCall.args.length).to.equal(4);
-            expect(sendFake.firstCall.args[0]).to.equal(fixtures.users.adminUser.email);
-            expect(sendFake.firstCall.args[1].includes('<table')).to.equal(true);
-            expect(sendFake.firstCall.args[3]).to.equal('Grant Assigned to State Board of Accountancy');
+            expect(sendFake.firstCall.args.length).to.equal(1);
+            expect(sendFake.firstCall.args[0].toAddress).to.equal(fixtures.users.adminUser.email);
+            expect(sendFake.firstCall.args[0].emailHTML.includes('<table')).to.equal(true);
+            expect(sendFake.firstCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
 
-            expect(sendFake.secondCall.args.length).to.equal(4);
-            expect(sendFake.secondCall.args[0]).to.equal(fixtures.users.staffUser.email);
-            expect(sendFake.secondCall.args[1].includes('<table')).to.equal(true);
-            expect(sendFake.secondCall.args[3]).to.equal('Grant Assigned to State Board of Accountancy');
+            expect(sendFake.secondCall.args.length).to.equal(1);
+            expect(sendFake.secondCall.args[0].toAddress).to.equal(fixtures.users.staffUser.email);
+            expect(sendFake.secondCall.args[0].emailHTML.includes('<table')).to.equal(true);
+            expect(sendFake.secondCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
         });
     });
 });

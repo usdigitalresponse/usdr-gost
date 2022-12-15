@@ -59,13 +59,19 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
     }
     const href = url.toString();
 
-    const emailHTML = module.exports.addBaseBranding(
-        `<p>Your link to access USDR's Grants Tool is <a href=${href}>${href}</a>.
+    const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
+
+    const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
+        body_title: 'Login Passcode',
+        body_detail: `<p>Your link to access USDR's Grants Tool is <a href=${href}>${href}</a>.
         It expires in ${expiryMinutes} minutes</p>`,
+    });
+
+    const emailHTML = module.exports.addBaseBranding(
+        formattedBody,
         {
             tool_name: 'Grants Identification Tool',
             title: 'Login Passcode',
-            notifications_url: 'mailto:mindy@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant assigned notification email.',
         },
     );
 
@@ -81,14 +87,19 @@ function sendWelcomeEmail(email, httpOrigin) {
     if (!httpOrigin) {
         throw new Error('must specify httpOrigin in sendWelcomeEmail');
     }
+    const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
+
+    const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
+        body_title: 'Welcome!',
+        body_detail: `<p>Visit USDR's Grants Tool at:
+        <a href="${httpOrigin}">${httpOrigin}</a>.`,
+    });
 
     const emailHTML = module.exports.addBaseBranding(
-        `<p>Visit USDR's Grants Tool at:
-        <a href="${httpOrigin}">${httpOrigin}</a>.`,
+        formattedBody,
         {
             tool_name: 'Grants Identification Tool',
             title: 'Welcome to the USDR Grants tool',
-            notifications_url: 'mailto:mindy@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant assigned notification email.',
         },
     );
 
@@ -181,13 +192,27 @@ async function sendGrantDigestForAgency(agency) {
 
     const grantDetails = [];
     newGrants.forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant)));
-    const emailHTML = module.exports.addBaseBranding(grantDetails.join('\n'), {
+
+    const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
+    const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
+    const contentSpacerStr = contentSpacerTemplate.toString();
+
+    const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
+        body_title: 'New grants have been posted',
+        body_detail: `There are ${newGrants.length} new grants matching your agency's keywords and settings.`,
+        additional_body: grantDetails.join(contentSpacerStr),
+    });
+
+    const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'New Grants Digest',
         notifications_url: 'mailto:mindy@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant assigned notification email.',
     });
     const emailPlain = emailHTML;
+
+    fileSystem.writeFileSync('rendered.html', emailHTML);
     const recipients = await db.getUsersByAgency(agency.id);
+    console.log(recipients.length);
     recipients.forEach(
         (recipient) => module.exports.deliverEmail(
             {
