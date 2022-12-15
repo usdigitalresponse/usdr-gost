@@ -213,4 +213,14 @@ describe('db', () => {
             expect(result).to.have.lengthOf(0);
         });
     });
+
+    context('getAgenciesSubscribedToDigest', () => {
+        it('returns agencies with keywords setup', async () => {
+            const result = await db.getAgenciesSubscribedToDigest();
+            expect(result.length).to.equal(2);
+            // Ensures 'State Board of Sub Accountancy' is not part of the list since it does not have keywords.
+            expect(result[0].name).to.equal('State Board of Accountancy');
+            expect(result[1].name).to.equal('Administration: Fleet Services Division');
+        });
+    });
 });

@@ -621,8 +621,22 @@ async function getAgenciesByIds(agencyIds) {
 }
 
 async function getAgenciesSubscribedToDigest() {
-    const query = knex.select('agencies.*')
-        .from(TABLES.agencies).join(TABLES.keywords, 'keywords.agency_id', '=', 'agencies.id');
+    const query = knex
+        .select(
+            'agencies.id',
+            'agencies.name',
+            'agencies.abbreviation',
+            'agencies.code',
+        )
+        .from(TABLES.agencies)
+        .join(TABLES.keywords, 'keywords.agency_id', '=', 'agencies.id')
+        .orderBy('agencies.id')
+        .groupBy(
+            'agencies.id',
+            'agencies.name',
+            'agencies.abbreviation',
+            'agencies.code',
+        );
     const result = await query;
 
     return result;
