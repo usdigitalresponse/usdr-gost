@@ -191,16 +191,23 @@ async function sendGrantDigestForAgency(agency) {
     }
 
     const grantDetails = [];
-    newGrants.forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant)));
+    newGrants.slice(0, 3).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant)));
 
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
     const contentSpacerStr = contentSpacerTemplate.toString();
 
+    let additionalBody = grantDetails.join(contentSpacerStr);
+
+    if (newGrants.length > 3) {
+        const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
+        additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: process.env.WEBSITE_DOMAIN });
+    }
+
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
         body_title: 'New grants have been posted',
         body_detail: `There are ${newGrants.length} new grants matching your agency's keywords and settings.`,
-        additional_body: grantDetails.join(contentSpacerStr),
+        additional_body: additionalBody,
     });
 
     const emailHTML = module.exports.addBaseBranding(formattedBody, {

@@ -622,7 +622,7 @@ async function getAgenciesByIds(agencyIds) {
 
 async function getAgenciesSubscribedToDigest() {
     const query = knex.select('agencies.*')
-        .from(TABLES.agencies);
+        .from(TABLES.agencies).join(TABLES.keywords, 'keywords.agency_id', '=', 'agencies.id');
     const result = await query;
 
     return result;
