@@ -21,6 +21,19 @@
           </template>
         </v-select>
       </b-form>
+      <!--
+      <hr />
+      <h6>Email Notifications (Coming soon): </h6>
+      <b-form-group label="" v-slot="{ ariaDescribedby }">
+      <b-form-checkbox-group
+        v-model="selected"
+        :options="options"
+        :aria-describedby="ariaDescribedby"
+        switches
+        stacked
+      ></b-form-checkbox-group>
+      </b-form-group>
+      -->
     </b-modal>
   </div>
 </template>
@@ -35,6 +48,12 @@ export default {
   },
   data() {
     return {
+      selected: [], // Must be an array reference!
+      options: [
+        { text: 'Grant Assignment', value: 'grant_assigned', disabled: true },
+        { text: 'Grant marked as interested or rejected', value: 'grant_interest', disabled: true },
+        { text: 'New Grants', value: 'grant_digest', disabled: true },
+      ],
       formData: {
         selectedAgency: null,
       },
