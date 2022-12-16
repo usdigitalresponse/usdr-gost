@@ -85,7 +85,7 @@ router.post('/', async (req, res, next) => {
     }
     try {
         const passcode = await createAccessToken(email);
-        const domain = process.env.WEBSITE_DOMAIN || req.headers.origin;
+        const domain = process.env.API_DOMAIN || process.env.WEBSITE_DOMAIN || req.headers.origin;
         const redirectTo = validatePostLoginRedirectPath(req.body.redirect_to);
         await sendPassCode(email, passcode, domain, redirectTo);
 
