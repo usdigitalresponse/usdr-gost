@@ -70,7 +70,7 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
     const emailHTML = module.exports.addBaseBranding(
         formattedBody,
         {
-            tool_name: 'Grants Identification Tool',
+            tool_name: href.includes('reporter') ? 'Grants Reporter Tool' : 'Grants Identification Tool',
             title: 'Login Passcode',
         },
     );
@@ -98,7 +98,7 @@ function sendWelcomeEmail(email, httpOrigin) {
     const emailHTML = module.exports.addBaseBranding(
         formattedBody,
         {
-            tool_name: 'Grants Identification Tool',
+            tool_name: httpOrigin.includes('reporter') ? 'Grants Reporter Tool' : 'Grants Identification Tool',
             title: 'Welcome to the USDR Grants tool',
         },
     );
@@ -154,7 +154,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const emailHTML = module.exports.addBaseBranding(grantAssignedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'Grants Assigned Notification',
-        notifications_url: 'mailto:mindy@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant assigned notification email.',
+        notifications_url: 'mailto:grants-helpdesk@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant assigned notification email.',
     });
     const emailPlain = emailHTML;
     const emailSubject = `Grant Assigned to ${assignee_agency.name}`;
@@ -213,7 +213,7 @@ async function sendGrantDigestForAgency(agency) {
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'New Grants Digest',
-        notifications_url: 'mailto:mindy@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant assigned notification email.',
+        notifications_url: 'mailto:grants-helpdesk@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant digest notification email.',
     });
     const emailPlain = emailHTML;
 
