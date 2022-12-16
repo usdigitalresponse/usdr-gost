@@ -220,9 +220,7 @@ async function sendGrantDigestForAgency(agency) {
     });
     const emailPlain = emailHTML;
 
-    fileSystem.writeFileSync('rendered.html', emailHTML);
     const recipients = await db.getUsersByAgency(agency.id);
-    console.log(recipients.length);
     recipients.forEach(
         (recipient) => module.exports.deliverEmail(
             {
