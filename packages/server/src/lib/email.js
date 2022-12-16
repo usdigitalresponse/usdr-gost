@@ -13,10 +13,13 @@ async function deliverEmail({
     emailPlain,
     subject,
 }) {
-    // Ensures grants-related emails are only sent in non-production environments.
-    if (subject.toLowerCase().includes('grant') && process.env.WEBSITE_DOMAIN === 'https://grants.usdigitalresponse.org') {
-        console.log(`Attempted to send an email to ${toAddress} with subject ${subject}.`);
-        return undefined;
+    // Ensures new grants-related emails are only sent in non-production environments.
+    const formattedSubject = subject.toLowerCase();
+    if (formattedSubject.includes('grant assigned') || formattedSubject.includes('new grants')) {
+        if (process.env.WEBSITE_DOMAIN === 'https://grants.usdigitalresponse.org' || !toAddress.endsWith('@usdigitalresponse.org')) {
+            console.log(`Attempted to send an email to ${toAddress} with subject ${subject}.`);
+            return undefined;
+        }
     }
 
     return emailService.getTransport().send({

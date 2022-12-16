@@ -22,11 +22,11 @@ if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
     job.start();
 }
 
-const generateGrantDigest = new CronJob(
-    // once per day at 01:00
-    '0 1 * * *', emailService.buildAndSendGrantDigest,
+const generateGrantDigestCron = new CronJob(
+    // once per day at 12:00 UTC
+    '0 0 12 * * *', emailService.buildAndSendGrantDigest,
 );
-generateGrantDigest.start();
+generateGrantDigestCron.start();
 
 const cleanGeneratedPdfCron = new CronJob(
     // once per day at 01:00
