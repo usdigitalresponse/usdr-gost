@@ -1,4 +1,5 @@
 const { URL } = require('url');
+const moment = require('moment');
 const fileSystem = require('fs');
 const path = require('path');
 const mustache = require('mustache');
@@ -159,7 +160,9 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
         title: 'Grants Assigned Notification',
         notifications_url: 'mailto:grants-helpdesk@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant assigned notification email.',
     });
-    const emailPlain = emailHTML;
+
+    // TODO: add plain text version of the email
+    const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
     const emailSubject = `Grant Assigned to ${assignee_agency.name}`;
     const assginees = await db.getUsersByAgency(assignee_agency.id);
 
@@ -187,14 +190,22 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
 }
 
 async function sendGrantDigestForAgency(agency) {
+    console.log(`${agency.name} is subscribed for notifications on ${moment().format('YYYY-MM-DD')}`);
     const newGrants = await db.getNewGrantsForAgency(agency);
 
     if (newGrants.length === 0) {
+        console.log(`${agency.name} has no new grants on ${moment().format('YYYY-MM-DD')}`);
+        return undefined;
+    }
+
+    const recipients = await db.getUsersByAgency(agency.id);
+    if (recipients.length === 0) {
+        console.log(`${agency.name} has no users for grants digest on ${moment().format('YYYY-MM-DD')}`);
         return undefined;
     }
 
     const grantDetails = [];
-    newGrants.slice(0, 3).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant)));
+    newGrants.forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant)));
 
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
@@ -202,14 +213,14 @@ async function sendGrantDigestForAgency(agency) {
 
     let additionalBody = grantDetails.join(contentSpacerStr);
 
-    if (newGrants.length > 3) {
+    if (newGrants[0].total_grants > 3) {
         const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
         additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: process.env.WEBSITE_DOMAIN });
     }
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
         body_title: 'New grants have been posted',
-        body_detail: `There are ${newGrants.length} new grants matching your agency's keywords and settings.`,
+        body_detail: `There are ${newGrants[0].total_grants} new grants matching your agency's keywords and settings.`,
         additional_body: additionalBody,
     });
 
@@ -218,9 +229,10 @@ async function sendGrantDigestForAgency(agency) {
         title: 'New Grants Digest',
         notifications_url: 'mailto:grants-helpdesk@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant digest notification email.',
     });
-    const emailPlain = emailHTML;
 
-    const recipients = await db.getUsersByAgency(agency.id);
+    // TODO: add plain text version of the email
+    const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
+
     recipients.forEach(
         (recipient) => module.exports.deliverEmail(
             {
@@ -236,6 +248,7 @@ async function sendGrantDigestForAgency(agency) {
 }
 
 async function buildAndSendGrantDigest() {
+    console.log(`Building and sending Grants Digest email for all agencies on ${moment().format('YYYY-MM-DD')}`);
     /*
     1. get all agencies with notificaiton turned on (temporarily get all agencies with a custom keyword)
     2. for each agency

@@ -289,10 +289,12 @@ async function getNewGrantsForAgency(agency) {
     const agencyCriteria = await getAgencyCriteriaForAgency(agency.id);
 
     const rows = await knex(TABLES.grants)
+        .select(knex.raw(`${TABLES.grants}.*, count(*) OVER() AS total_grants`))
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
         .modify((qb) => {
             qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') });
-        });
+        })
+        .limit(3);
 
     return rows;
 }
@@ -633,8 +635,8 @@ async function getAgenciesSubscribedToDigest() {
             'agencies.abbreviation',
             'agencies.code',
         )
-        .from(TABLES.agencies)
-        .join(TABLES.keywords, 'keywords.agency_id', '=', 'agencies.id')
+        .from('agencies')
+        .join('keywords', 'keywords.agency_id', '=', 'agencies.id')
         .orderBy('agencies.id')
         .groupBy(
             'agencies.id',
