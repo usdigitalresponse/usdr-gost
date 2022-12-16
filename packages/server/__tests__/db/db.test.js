@@ -1,4 +1,6 @@
 const { expect } = require('chai');
+const sinon = require('sinon');
+const knex = require('../../src/db/connection');
 const db = require('../../src/db');
 const { TABLES } = require('../../src/db/constants');
 const fixtures = require('./seeds/fixtures');
@@ -221,6 +223,28 @@ describe('db', () => {
             // Ensures 'State Board of Sub Accountancy' is not part of the list since it does not have keywords.
             expect(result[0].name).to.equal('State Board of Accountancy');
             expect(result[1].name).to.equal('Administration: Fleet Services Division');
+        });
+    });
+
+    context('getNewGrantsForAgency', () => {
+        beforeEach(() => {
+            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            this.clock = this.clockFn('2022-06-22');
+        });
+        afterEach(() => {
+            this.clock.restore();
+        });
+        it('returns zero grants if no grants match criteria and opened yesterday', async () => {
+            const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
+            expect(result.length).to.equal(0);
+        });
+        it('returns zero grants if no grants match criteria and opened yesterday', async () => {
+            const newGrant = fixtures.grants.healthAide;
+            newGrant.grant_id = '444816';
+            newGrant.open_date = '2022-06-21';
+            await knex(TABLES.grants).insert(Object.values([newGrant]));
+            const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
+            expect(result.length).to.equal(1);
         });
     });
 });

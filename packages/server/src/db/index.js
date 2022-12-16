@@ -17,6 +17,7 @@ try {
     ({ v4 } = require('uuid'));
 }
 
+const moment = require('moment');
 const knex = require('./connection');
 const { TABLES } = require('./constants');
 const helpers = require('./helpers');
@@ -285,11 +286,15 @@ function deleteKeyword(id) {
 }
 
 async function getNewGrantsForAgency(agency) {
-    console.log(`Getting grants for ${agency.name}`);
-    const query = knex(TABLES.grants)
-        .limit(5);
-    const result = await query;
-    return result;
+    const agencyCriteria = await getAgencyCriteriaForAgency(agency.id);
+
+    const rows = await knex(TABLES.grants)
+        .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
+        .modify((qb) => {
+            qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') });
+        });
+
+    return rows;
 }
 
 async function getGrants({

@@ -250,6 +250,7 @@ module.exports = {
     keywords,
     assignedAgencyGrants,
     grantsInterested,
+    grants,
     interestedCodes,
 };
 
