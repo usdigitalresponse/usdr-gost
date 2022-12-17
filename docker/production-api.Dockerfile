@@ -1,7 +1,7 @@
 FROM node:16.14.0-alpine as app_base
 
 # Prepare the environment
-RUN ["apk", "--update", "add", "bash", "postgresql-client"]
+RUN ["apk", "--update", "add", "bash", "postgresql-client", "util-linux"]
 RUN ["mkdir", "-p", "/home/node"]
 RUN ["chown", "-R", "node:node", "/home/node"]
 

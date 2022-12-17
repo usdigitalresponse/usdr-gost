@@ -21,8 +21,11 @@ export function get (url) {
 export async function getJson (url) {
   // did we get an error even making the request?
   let resp
+  const options = {
+    credentials: 'include',
+  }
   try {
-    resp = await fetch(apiURL(url))
+    resp = await fetch(apiURL(url), options)
   } catch (e) {
     return { error: e, status: null }
   }
