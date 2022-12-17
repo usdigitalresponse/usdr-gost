@@ -20,7 +20,7 @@
     "migrate:make": "knex migrate:make",
     "env": "export $(cat .env)",
     "db:seed": "yarn db:migrate && knex seed:run",
-    "test": "yarn test:apis && yarn test:arpa && yarn test:db && yarn test:email",
+    "test": "yarn test:apis && yarn test:arpa && yarn test:db && yarn test:userimport && yarn test:email",
     "test:email": "NODE_ENV=test mocha __tests__/email/*.test.js",
     "test:db": "NODE_ENV=test mocha --timeout 10000 __tests__/db/*.test.js",
     "test:apis": "NODE_ENV=test SUPPRESS_EMAIL=true mocha --exit --bail --require __tests__/api/fixtures.js __tests__/api/*.test.js",
