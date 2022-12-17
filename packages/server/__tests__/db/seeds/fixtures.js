@@ -12,7 +12,7 @@ const tenants = {
     },
     FS: {
         id: 1,
-        display_name: 'SBA',
+        display_name: 'FS',
     },
 };
 
@@ -244,6 +244,7 @@ const assignedAgencyGrants = {
 };
 
 module.exports = {
+    tenants,
     agencies,
     users,
     agencyEligibilityCodes,

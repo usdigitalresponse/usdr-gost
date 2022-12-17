@@ -1,0 +1,125 @@
+const XLSX = require('xlsx');
+const db = require('../db');
+const knex = require('../db/connection');
+
+const ADDED = 0;
+const UPDATED = 1;
+const NOT_CHANGED = 2;
+
+class UserImporter {
+    getRoleId(roleName) {
+        if (roleName === 'admin') {
+            return this.adminRoleId;
+        }
+        return this.staffRoleId;
+    }
+
+    userFromRow(row, user) {
+        return {
+            email: row.Email,
+            name: row.Name,
+            role_id: this.getRoleId(row.Role),
+            agency_id: this.agencies[row.Agency].id,
+            tenant_id: user.tenant_id,
+        };
+    }
+
+    checkRow(row, rowIndex) {
+        const ret = [];
+        const rowNumStr = `Row: ${rowIndex + 2}, `;
+        if (!row.Email) {
+            ret.push(`${rowNumStr}Email: Missing email`);
+        }
+        const validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+        if (!row.Email.match(validRegex)) {
+            ret.push(`${rowNumStr}Email: Incorrect format: ${row.Email}`);
+        }
+        if (!row.Name) {
+            ret.push(`${rowNumStr}Name: Missing name`);
+        }
+        if (!row.Role) {
+            ret.push(`${rowNumStr}Role: Missing role`);
+        }
+        if ((row.Role !== 'admin' && row.Role !== 'staff')) {
+            ret.push(`${rowNumStr}Role: Unknown role: ${row.Role}`);
+        }
+        if (!row.Agency) {
+            ret.push(`${rowNumStr}Agency: missing Agency`);
+        }
+        if (!this.agencies[row.Agency]) {
+            ret.push(`${rowNumStr}Agency: Unknown Agency: ${row.Agency}`);
+        }
+        return ret;
+    }
+
+    async handleRow(row, adminUser) {
+        const newUser = this.userFromRow(row, adminUser);
+        const existingUser = this.users[row.Email];
+        if (existingUser) {
+            if ((existingUser.email === row.Email)
+                && (existingUser.name === row.Name)
+                && (existingUser.role_id === this.getRoleId(row.Role))
+                && (existingUser.agency_id === this.agencies[row.Agency].id)
+                && (existingUser.tenant_id === adminUser.tenant_id)) {
+                return NOT_CHANGED;
+            }
+            // TODO :update
+            return UPDATED;
+        }
+        await db.createUser(newUser);
+        return ADDED;
+    }
+
+    async run(user, workbook) {
+        const roles = await knex('roles').select('*');
+        this.adminRoleId = roles.find((role) => role.name === 'admin').id;
+        this.staffRoleId = roles.find((role) => role.name === 'staff').id;
+
+        const agenciesArray = await db.getTenantAgencies(user.tenant_id);
+        this.agencies = {};
+        // eslint-disable-next-line no-restricted-syntax
+        for (const agency of agenciesArray) {
+            this.agencies[agency.name] = agency;
+        }
+        const usersArray = await db.getUsers(user.tenant_id);
+        this.users = {};
+        // eslint-disable-next-line no-restricted-syntax
+        for (const existingUser of usersArray) {
+            this.users[existingUser.email] = existingUser;
+        }
+        const sheet_name_list = workbook.SheetNames;
+        if (sheet_name_list.length > 1) {
+            console.log(`More than one sheet (number of sheets: ${sheet_name_list.length}): using first sheet.`);
+        }
+        const retVal = {
+            status: {
+                users: {
+                    added: 0,
+                    updated: 0,
+                    notChanged: 0,
+                    errored: 0,
+                },
+                errors: [],
+            },
+        };
+        const rowsList = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+        for (let rowIndex = 0; rowIndex < rowsList.length; rowIndex += 1) {
+            const theErrors = this.checkRow(rowsList[rowIndex], rowIndex);
+            if (theErrors.length > 0) {
+                retVal.status.users.errored += 1;
+                retVal.status.errors.push(...theErrors);
+            }
+            const theStatus = null; // TODO: = await this.handleRow(rowsList[rowIndex], user);
+            if (theStatus === ADDED) {
+                retVal.status.users.added += 1;
+            } else if (theStatus === UPDATED) {
+                retVal.status.users.updated += 1;
+            } else if (theStatus === NOT_CHANGED) {
+                retVal.status.users.notChanged += 1;
+            }
+        }
+        return retVal;
+    }
+}
+
+module.exports = UserImporter;
