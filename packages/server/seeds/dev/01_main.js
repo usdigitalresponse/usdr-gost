@@ -15,7 +15,7 @@ const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
 const adminList = [
     // Update me with the appropiate initial admin users
     {
-        email: 'thendrickson@usdigitalresponse.org',
+        email: 'grant-admin@usdigitalresponse.org',
         name: 'GRANT ADMIN',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
