@@ -5,6 +5,7 @@ const path = require('path');
 
 const { configureApp } = require('./configure');
 const grantscraper = require('./lib/grantscraper');
+const emailService = require('./lib/email');
 const { hasOutstandingMigrations } = require('./db/helpers');
 
 const { PORT = 3000 } = process.env;
@@ -20,6 +21,12 @@ if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
     );
     job.start();
 }
+
+const generateGrantDigestCron = new CronJob(
+    // once per day at 12:00 UTC
+    '0 0 12 * * *', emailService.buildAndSendGrantDigest,
+);
+generateGrantDigestCron.start();
 
 const cleanGeneratedPdfCron = new CronJob(
     // once per day at 01:00
