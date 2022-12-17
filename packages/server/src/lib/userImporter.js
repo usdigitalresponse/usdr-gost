@@ -27,27 +27,27 @@ class UserImporter {
     checkRow(row, rowIndex) {
         const ret = [];
         const rowNumStr = `Row: ${rowIndex + 2}, `;
-        if (!row.Email) {
-            ret.push(`${rowNumStr}Email: Missing email`);
+        if (!row.email) {
+            ret.push(`${rowNumStr}email: Missing email`);
         }
         const validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-        if (!row.Email.match(validRegex)) {
-            ret.push(`${rowNumStr}Email: Incorrect format: ${row.Email}`);
+        if (!row.email.match(validRegex)) {
+            ret.push(`${rowNumStr}email: Incorrect format: ${row.Email}`);
         }
-        if (!row.Name) {
-            ret.push(`${rowNumStr}Name: Missing name`);
+        if (!row.name) {
+            ret.push(`${rowNumStr}name: Missing name`);
         }
-        if (!row.Role) {
-            ret.push(`${rowNumStr}Role: Missing role`);
+        if (!row.role_name) {
+            ret.push(`${rowNumStr}role_name: Missing role`);
         }
-        if ((row.Role !== 'admin' && row.Role !== 'staff')) {
-            ret.push(`${rowNumStr}Role: Unknown role: ${row.Role}`);
+        if ((row.role_name !== 'admin' && row.role_name !== 'staff')) {
+            ret.push(`${rowNumStr}Role: Unknown role_name: ${row.role_name}`);
         }
-        if (!row.Agency) {
+        if (!row.agency_name) {
             ret.push(`${rowNumStr}Agency: missing Agency`);
         }
-        if (!this.agencies[row.Agency]) {
-            ret.push(`${rowNumStr}Agency: Unknown Agency: ${row.Agency}`);
+        if (!this.agencies[row.agency_name]) {
+            ret.push(`${rowNumStr}agency_name: Unknown Agency: ${row.agency_name}`);
         }
         return ret;
     }
@@ -70,7 +70,25 @@ class UserImporter {
         return ADDED;
     }
 
-    async run(user, workbook) {
+    static async export(adminUser) {
+        const users = await db.getUsers(adminUser.tenant_id);
+        const usersForExport = [];
+        // eslint-disable-next-line no-restricted-syntax
+        for (const user of users) {
+            usersForExport.push({
+                email: user.email,
+                name: user.name,
+                role_name: user.role_name,
+                agency_name: user.agency_name,
+            });
+        }
+        const workSheet = XLSX.utils.json_to_sheet(usersForExport);
+        const workBook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workBook, workSheet, 'Sheet 1');
+        return workBook;
+    }
+
+    async import(user, workbook) {
         const roles = await knex('roles').select('*');
         this.adminRoleId = roles.find((role) => role.name === 'admin').id;
         this.staffRoleId = roles.find((role) => role.name === 'staff').id;
