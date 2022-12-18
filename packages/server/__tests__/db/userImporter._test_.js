@@ -17,18 +17,22 @@ describe('userImporter class test', () => {
         await db.knex.destroy();
     });
 
+    async function testExportImport(expectedNotChanged) {
+        const workbook = await UserImporter.export(fixtures.users.adminUser);
+        const userImporter = new UserImporter();
+        const ret = await userImporter.import(fixtures.users.adminUser, workbook);
+        expect(ret.status.users.added).to.equal(0);
+        expect(ret.status.users.updated).to.equal(0);
+        expect(ret.status.users.notChanged).to.equal(expectedNotChanged);
+        expect(ret.status.users.errored).to.equal(0);
+        expect(ret.status.errors.length).to.equal(0);
+    }
+
     context('unit tests for UserImporter class', () => {
         it('verifies no new users are added from exported user list', async () => {
-            const workbook = await UserImporter.export(fixtures.users.adminUser);
-            const userImporter = new UserImporter();
-            const ret = await userImporter.import(fixtures.users.adminUser, workbook);
-            expect(ret.status.users.added).to.equal(0);
-            expect(ret.status.users.updated).to.equal(0);
-            expect(ret.status.users.notChanged).to.equal(3);
-            expect(ret.status.users.errored).to.equal(0);
-            expect(ret.status.errors.length).to.equal(0);
+            await testExportImport(3);
         });
-        it('checks that no users added, all return errors', async () => {
+        it('verifies that no users added when all should return errors', async () => {
             const userImporter = new UserImporter();
             const workbook = XLSX.readFile(path.join(__dirname, 'testUSDRUserUploadErrors.xlsx'));
             const ret = await userImporter.import(fixtures.users.adminUser, workbook);
@@ -38,7 +42,7 @@ describe('userImporter class test', () => {
             expect(ret.status.users.errored).to.equal(5);
             expect(ret.status.errors.length).to.equal(9);
         });
-        it('checks that correct number of users are added, updated or unchanged', async () => {
+        it('verifies that correct number of users are added, updated or unchanged', async () => {
             const userImporter = new UserImporter();
             const workbook = XLSX.readFile(path.join(__dirname, 'testUSDRUserUploadSuccess.xlsx'));
             const ret = await userImporter.import(fixtures.users.adminUser, workbook);
@@ -47,6 +51,7 @@ describe('userImporter class test', () => {
             expect(ret.status.users.notChanged).to.equal(1);
             expect(ret.status.users.errored).to.equal(0);
             expect(ret.status.errors.length).to.equal(0);
+            await testExportImport(5);
         });
     });
 });

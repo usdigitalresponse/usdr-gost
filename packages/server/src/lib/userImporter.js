@@ -53,18 +53,12 @@ class UserImporter {
         return ret;
     }
 
-    // TODO: users doesn't have an updated_at column :(
-    static async syncUser(newUser) {
-        await db.sync(
-            TABLES.users,
-            'email',
-            [
-                'name',
-                'role_id',
-                'agency_id',
-            ],
-            [newUser],
-        );
+    static async syncUser(user) {
+        knex(TABLES.users)
+            .where({ email: user.email })
+            .update({
+                ...user,
+            });
     }
 
     async handleRow(row, adminUser) {
@@ -77,7 +71,7 @@ class UserImporter {
                 && (existingUser.tenant_id === adminUser.tenant_id)) {
                 return NOT_CHANGED;
             }
-            // await UserImporter.syncUser(newUser);
+            await UserImporter.syncUser(newUser);
             return UPDATED;
         }
         await db.createUser(newUser);
@@ -103,26 +97,6 @@ class UserImporter {
     }
 
     async import(user, workbook) {
-        const roles = await knex('roles').select('*');
-        this.adminRoleId = roles.find((role) => role.name === 'admin').id;
-        this.staffRoleId = roles.find((role) => role.name === 'staff').id;
-
-        const agenciesArray = await db.getTenantAgencies(user.tenant_id);
-        this.agencies = {};
-        // eslint-disable-next-line no-restricted-syntax
-        for (const agency of agenciesArray) {
-            this.agencies[agency.name] = agency;
-        }
-        const usersArray = await db.getUsers(user.tenant_id);
-        this.users = {};
-        // eslint-disable-next-line no-restricted-syntax
-        for (const existingUser of usersArray) {
-            this.users[existingUser.email] = existingUser;
-        }
-        const sheet_name_list = workbook.SheetNames;
-        if (sheet_name_list.length > 1) {
-            console.log(`More than one sheet (number of sheets: ${sheet_name_list.length}): using first sheet.`);
-        }
         const retVal = {
             status: {
                 users: {
@@ -134,24 +108,49 @@ class UserImporter {
                 errors: [],
             },
         };
-        const rowsList = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-        // TO maybe DO: use iterator to get rid of eslint no-await-in-loop warning
-        for (let rowIndex = 0; rowIndex < rowsList.length; rowIndex += 1) {
-            const theErrors = this.checkRow(rowsList[rowIndex], rowIndex);
-            if (theErrors.length > 0) {
-                retVal.status.users.errored += 1;
-                retVal.status.errors.push(...theErrors);
-            } else {
-                // eslint-disable-next-line no-await-in-loop
-                const theStatus = await this.handleRow(rowsList[rowIndex], user);
-                if (theStatus === ADDED) {
-                    retVal.status.users.added += 1;
-                } else if (theStatus === UPDATED) {
-                    retVal.status.users.updated += 1;
-                } else if (theStatus === NOT_CHANGED) {
-                    retVal.status.users.notChanged += 1;
+        try {
+            const roles = await knex('roles').select('*');
+            this.adminRoleId = roles.find((role) => role.name === 'admin').id;
+            this.staffRoleId = roles.find((role) => role.name === 'staff').id;
+
+            const agenciesArray = await db.getTenantAgencies(user.tenant_id);
+            this.agencies = {};
+            // eslint-disable-next-line no-restricted-syntax
+            for (const agency of agenciesArray) {
+                this.agencies[agency.name] = agency;
+            }
+            const usersArray = await db.getUsers(user.tenant_id);
+            this.users = {};
+            // eslint-disable-next-line no-restricted-syntax
+            for (const existingUser of usersArray) {
+                this.users[existingUser.email] = existingUser;
+            }
+            const sheet_name_list = workbook.SheetNames;
+            if (sheet_name_list.length > 1) {
+                console.log(`More than one sheet (number of sheets: ${sheet_name_list.length}): using first sheet.`);
+            }
+            const rowsList = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+            // TO maybe DO: use iterator to get rid of eslint no-await-in-loop warning
+            for (let rowIndex = 0; rowIndex < rowsList.length; rowIndex += 1) {
+                const theErrors = this.checkRow(rowsList[rowIndex], rowIndex);
+                if (theErrors.length > 0) {
+                    retVal.status.users.errored += 1;
+                    retVal.status.errors.push(...theErrors);
+                } else {
+                    // eslint-disable-next-line no-await-in-loop
+                    const theStatus = await this.handleRow(rowsList[rowIndex], user);
+                    if (theStatus === ADDED) {
+                        retVal.status.users.added += 1;
+                    } else if (theStatus === UPDATED) {
+                        retVal.status.users.updated += 1;
+                    } else if (theStatus === NOT_CHANGED) {
+                        retVal.status.users.notChanged += 1;
+                    }
                 }
             }
+        } catch (e) {
+            console.log(e.toString());
+            retVal.status.errors.push(e.toString());
         }
         return retVal;
     }
