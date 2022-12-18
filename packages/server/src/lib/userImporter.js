@@ -16,10 +16,10 @@ class UserImporter {
 
     userFromRow(row, user) {
         return {
-            email: row.Email,
-            name: row.Name,
-            role_id: this.getRoleId(row.Role),
-            agency_id: this.agencies[row.Agency].id,
+            email: row.email,
+            name: row.name,
+            role_id: this.getRoleId(row.role_name),
+            agency_id: this.agencies[row.agency_name].id,
             tenant_id: user.tenant_id,
         };
     }
@@ -54,12 +54,11 @@ class UserImporter {
 
     async handleRow(row, adminUser) {
         const newUser = this.userFromRow(row, adminUser);
-        const existingUser = this.users[row.Email];
+        const existingUser = this.users[row.email];
         if (existingUser) {
-            if ((existingUser.email === row.Email)
-                && (existingUser.name === row.Name)
-                && (existingUser.role_id === this.getRoleId(row.Role))
-                && (existingUser.agency_id === this.agencies[row.Agency].id)
+            if ((existingUser.name === row.name)
+                && (existingUser.role_id === this.getRoleId(row.role_name))
+                && (existingUser.agency_id === this.agencies[row.agency_name].id)
                 && (existingUser.tenant_id === adminUser.tenant_id)) {
                 return NOT_CHANGED;
             }
@@ -126,14 +125,15 @@ class UserImporter {
             if (theErrors.length > 0) {
                 retVal.status.users.errored += 1;
                 retVal.status.errors.push(...theErrors);
-            }
-            const theStatus = null; // TODO: = await this.handleRow(rowsList[rowIndex], user);
-            if (theStatus === ADDED) {
-                retVal.status.users.added += 1;
-            } else if (theStatus === UPDATED) {
-                retVal.status.users.updated += 1;
-            } else if (theStatus === NOT_CHANGED) {
-                retVal.status.users.notChanged += 1;
+            } else {
+                const theStatus = await this.handleRow(rowsList[rowIndex], user);
+                if (theStatus === ADDED) {
+                    retVal.status.users.added += 1;
+                } else if (theStatus === UPDATED) {
+                    retVal.status.users.updated += 1;
+                } else if (theStatus === NOT_CHANGED) {
+                    retVal.status.users.notChanged += 1;
+                }
             }
         }
         return retVal;
