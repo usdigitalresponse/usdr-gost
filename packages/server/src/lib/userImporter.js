@@ -1,6 +1,7 @@
 const XLSX = require('xlsx');
 const db = require('../db');
 const knex = require('../db/connection');
+const { TABLES } = require('../db/constants');
 
 const ADDED = 0;
 const UPDATED = 1;
@@ -52,6 +53,20 @@ class UserImporter {
         return ret;
     }
 
+    // TODO: users doesn't have an updated_at column :(
+    static async syncUser(newUser) {
+        await db.sync(
+            TABLES.users,
+            'email',
+            [
+                'name',
+                'role_id',
+                'agency_id',
+            ],
+            [newUser],
+        );
+    }
+
     async handleRow(row, adminUser) {
         const newUser = this.userFromRow(row, adminUser);
         const existingUser = this.users[row.email];
@@ -62,7 +77,7 @@ class UserImporter {
                 && (existingUser.tenant_id === adminUser.tenant_id)) {
                 return NOT_CHANGED;
             }
-            // TODO :update
+            // await UserImporter.syncUser(newUser);
             return UPDATED;
         }
         await db.createUser(newUser);
@@ -120,12 +135,14 @@ class UserImporter {
             },
         };
         const rowsList = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+        // TO maybe DO: use iterator to get rid of eslint no-await-in-loop warning
         for (let rowIndex = 0; rowIndex < rowsList.length; rowIndex += 1) {
             const theErrors = this.checkRow(rowsList[rowIndex], rowIndex);
             if (theErrors.length > 0) {
                 retVal.status.users.errored += 1;
                 retVal.status.errors.push(...theErrors);
             } else {
+                // eslint-disable-next-line no-await-in-loop
                 const theStatus = await this.handleRow(rowsList[rowIndex], user);
                 if (theStatus === ADDED) {
                     retVal.status.users.added += 1;
