@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { apiURL } from '@/helpers/fetchApi'
+import { postForm } from '../store'
 
 export default {
   name: 'NewUpload',
@@ -79,7 +79,7 @@ export default {
       formData.append('spreadsheet', file)
 
       try {
-        const resp = await fetch(apiURL('/api/uploads'), { method: 'POST', body: formData })
+        const resp = await postForm('/api/uploads', formData);
         const result = (await resp.json()) || { error: (await resp.body) }
 
         if (resp.ok) {
