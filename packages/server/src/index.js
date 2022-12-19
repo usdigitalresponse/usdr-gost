@@ -15,18 +15,24 @@ const server = app.listen(PORT, () => console.log(`App running on port ${PORT}!`
 
 if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
     const job = new CronJob(
-        // once per hour at :30
-        '30 * * * *',
+        /*
+            once per hour between 2am-12pm UTC and once at 5pm UTC
+            This translates to (10pm-8am EDT and 1pm EDT) or (9pm-7am EST and 12pm EST)
+            ensuring that the job only runs with lowest overlap with working hours
+        */
+        '0 0 2-12,17 * * *',
         grantscraper.run,
     );
     job.start();
 }
 
-const generateGrantDigestCron = new CronJob(
-    // once per day at 12:00 UTC
-    '0 0 12 * * *', emailService.buildAndSendGrantDigest,
-);
-generateGrantDigestCron.start();
+if (process.env.ENABLE_GRANTS_DIGEST === 'true') {
+    const generateGrantDigestCron = new CronJob(
+        // once per day at 12:00 UTC
+        '0 0 12 * * *', emailService.buildAndSendGrantDigest,
+    );
+    generateGrantDigestCron.start();
+}
 
 const cleanGeneratedPdfCron = new CronJob(
     // once per day at 01:00
