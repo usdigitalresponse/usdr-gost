@@ -7,6 +7,7 @@ require('dotenv').config();
 const emailService = require('../../src/lib/email/service-email');
 const email = require('../../src/lib/email');
 const fixtures = require('../db/seeds/fixtures');
+const knex = require('../../src/db/connection');
 const db = require('../../src/db');
 const awsTransport = require('../../src/lib/email/email-aws');
 
@@ -218,16 +219,16 @@ describe('Email sender', () => {
     });
 
     context('grant assigned email', () => {
-        it('deliverGrantAssigntmentToAssignee calls the transport function with appropriate parameters', async () => {
+        it('deliverEmail calls the transport function with appropriate parameters', async () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ send: sendFake }));
 
-            email.deliverGrantAssigntmentToAssignee(
-                'foo@bar.com',
-                '<p>foo</p>',
-                'foo',
-                'test foo email',
-            );
+            email.deliverEmail({
+                toAddress: 'foo@bar.com',
+                emailHTML: '<p>foo</p>',
+                emailPlain: 'foo',
+                subject: 'test foo email',
+            });
 
             expect(sendFake.calledOnce).to.equal(true);
             expect(sendFake.firstCall.args).to.deep.equal([{
@@ -255,21 +256,66 @@ describe('Email sender', () => {
         });
         it('sendGrantAssignedNotficationForAgency delivers email for all users within agency', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'deliverGrantAssigntmentToAssignee', sendFake);
+            sinon.replace(email, 'deliverEmail', sendFake);
 
             await email.sendGrantAssignedNotficationForAgency(fixtures.agencies.accountancy, '<p>sample html</p>', fixtures.users.adminUser.id);
 
             expect(sendFake.calledTwice).to.equal(true);
 
-            expect(sendFake.firstCall.args.length).to.equal(4);
-            expect(sendFake.firstCall.args[0]).to.equal(fixtures.users.adminUser.email);
-            expect(sendFake.firstCall.args[1].includes('<table')).to.equal(true);
-            expect(sendFake.firstCall.args[3]).to.equal('Grant Assigned to State Board of Accountancy');
+            expect(sendFake.firstCall.args.length).to.equal(1);
+            expect(sendFake.firstCall.args[0].toAddress).to.equal(fixtures.users.adminUser.email);
+            expect(sendFake.firstCall.args[0].emailHTML.includes('<table')).to.equal(true);
+            expect(sendFake.firstCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
 
-            expect(sendFake.secondCall.args.length).to.equal(4);
-            expect(sendFake.secondCall.args[0]).to.equal(fixtures.users.staffUser.email);
-            expect(sendFake.secondCall.args[1].includes('<table')).to.equal(true);
-            expect(sendFake.secondCall.args[3]).to.equal('Grant Assigned to State Board of Accountancy');
+            expect(sendFake.secondCall.args.length).to.equal(1);
+            expect(sendFake.secondCall.args[0].toAddress).to.equal(fixtures.users.staffUser.email);
+            expect(sendFake.secondCall.args[0].emailHTML.includes('<table')).to.equal(true);
+            expect(sendFake.secondCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
+        });
+    });
+    context('grant digest email', () => {
+        before(async () => {
+            await fixtures.seed(db.knex);
+        });
+        after(async () => {
+            await db.knex.destroy();
+        });
+        beforeEach(async () => {
+            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            this.clock = this.clockFn('2022-06-22');
+        });
+        afterEach(async () => {
+            this.clock.restore();
+        });
+        it('buildAndSendGrantDigest sends grants for all subscribed agencies', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'sendGrantDigestForAgency', sendFake);
+
+            await email.buildAndSendGrantDigest();
+
+            expect(sendFake.calledTwice).to.equal(true);
+        });
+        it('sendGrantDigestForAgency sends no email when there are no grants to send', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'deliverEmail', sendFake);
+
+            const agencies = await db.getAgency(0);
+            await email.sendGrantDigestForAgency(agencies[0]);
+
+            expect(sendFake.called).to.equal(false);
+        });
+        it('sendGrantDigestForAgency sends email to all users when there are grants', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'deliverEmail', sendFake);
+            const newGrant = fixtures.grants.healthAide;
+            newGrant.grant_id = '444816';
+            newGrant.open_date = '2022-06-21';
+            await knex('grants').insert(Object.values([newGrant]));
+
+            const agencies = await db.getAgency(0);
+            await email.sendGrantDigestForAgency(agencies[0]);
+
+            expect(sendFake.calledTwice).to.equal(true);
         });
     });
 });

@@ -4,7 +4,6 @@ function initialState() {
   return {
     grantsPaginated: {},
     eligibilityCodes: [],
-    keywords: [],
     interestedCodes: [],
     grantsInterested: [],
     closestGrants: [],
@@ -29,7 +28,6 @@ export default {
       result: state.interestedCodes.filter((c) => c.status_code === 'Result'),
       interested: state.interestedCodes.filter((c) => c.status_code === 'Interested'),
     }),
-    keywords: (state) => state.keywords,
   },
   actions: {
     fetchGrants({ commit }, {
@@ -116,18 +114,6 @@ export default {
     async setEligibilityCodeEnabled(context, { code, enabled }) {
       await fetchApi.put(`/api/organizations/:organizationId/eligibility-codes/${code}/enable/${enabled}`);
     },
-    fetchKeywords({ commit }) {
-      fetchApi.get('/api/organizations/:organizationId/keywords')
-        .then((data) => commit('SET_KEYWORDS', data));
-    },
-    async createKeyword({ dispatch }, keyword) {
-      await fetchApi.post('/api/organizations/:organizationId/keywords', keyword);
-      dispatch('fetchKeywords');
-    },
-    async deleteKeyword({ dispatch }, keywordId) {
-      await fetchApi.deleteRequest(`/api/organizations/:organizationId/keywords/${keywordId}`);
-      dispatch('fetchKeywords');
-    },
     exportCSV(context, queryParams) {
       const query = Object.entries(queryParams)
         // filter out undefined and nulls since api expects parameters not present as undefined
@@ -162,9 +148,6 @@ export default {
     },
     SET_INTERESTED_CODES(state, interestedCodes) {
       state.interestedCodes = interestedCodes;
-    },
-    SET_KEYWORDS(state, keywords) {
-      state.keywords = keywords;
     },
     SET_GRANTS_INTERESTED(state, grantsInterested) {
       state.grantsInterested = grantsInterested;

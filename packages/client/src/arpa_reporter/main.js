@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import App from './App.vue'
-import { apiURL } from '@/helpers/fetchApi'
 import router from './router/index'
 import store from './store/index'
+import { get } from './store/index'
 
 Vue.config.productionTip = false
 
 async function main () {
-  const session = await fetch(apiURL('/api/sessions'))
+  const session = await get('/api/sessions')
   const data = await session.json()
 
   if (data && data.user) {
