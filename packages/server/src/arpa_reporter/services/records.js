@@ -125,7 +125,7 @@ async function loadRecordsForUpload (upload) {
       const formattedRow = {}
       Object.keys(row).forEach(fieldId => {
         let value = row[fieldId]
-        if (rulesForCurrentType[fieldId] === null) {
+        if (!rulesForCurrentType[fieldId]) {
           // No known rules for this type, so we can't format it.
           return
         }
