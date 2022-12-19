@@ -130,7 +130,6 @@ class UserImporter {
                 console.log(`More than one sheet (number of sheets: ${sheet_name_list.length}): using first sheet.`);
             }
             const rowsList = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-            // TO maybe DO: use iterator to get rid of eslint no-await-in-loop warning
             for (let rowIndex = 0; rowIndex < rowsList.length; rowIndex += 1) {
                 const theErrors = this.checkRow(rowsList[rowIndex], rowIndex);
                 if (theErrors.length > 0) {
