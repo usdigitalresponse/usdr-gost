@@ -26,6 +26,7 @@ describe('userImporter class test', () => {
         expect(ret.status.users.notChanged).to.equal(expectedNotChanged);
         expect(ret.status.users.errored).to.equal(0);
         expect(ret.status.errors.length).to.equal(0);
+        return workbook;
     }
 
     context('unit tests for UserImporter class', () => {
@@ -51,7 +52,14 @@ describe('userImporter class test', () => {
             expect(ret.status.users.notChanged).to.equal(1);
             expect(ret.status.users.errored).to.equal(0);
             expect(ret.status.errors.length).to.equal(0);
-            await testExportImport(5);
+            const workbook2 = await testExportImport(5);
+            const rowsList = XLSX.utils.sheet_to_json(workbook2.Sheets[workbook2.SheetNames[0]]);
+            for (let rowIndex = 0; rowIndex < rowsList.length; rowIndex += 1) {
+                if (rowsList[rowIndex].email === 'staff.user@test.com') {
+                    expect(rowsList[rowIndex].role_name).to.equal('admin');
+                    break;
+                }
+            }
         });
     });
 });

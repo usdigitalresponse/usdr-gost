@@ -54,7 +54,7 @@ class UserImporter {
     }
 
     static async syncUser(user) {
-        knex(TABLES.users)
+        await knex(TABLES.users)
             .where({ email: user.email })
             .update({
                 ...user,
