@@ -5,6 +5,8 @@ const path = require('path');
 
 const { configureApp } = require('./configure');
 const grantscraper = require('./lib/grantscraper');
+const emailService = require('./lib/email');
+const { hasOutstandingMigrations } = require('./db/helpers');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -19,6 +21,12 @@ if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
     );
     job.start();
 }
+
+const generateGrantDigestCron = new CronJob(
+    // once per day at 12:00 UTC
+    '0 0 12 * * *', emailService.buildAndSendGrantDigest,
+);
+generateGrantDigestCron.start();
 
 const cleanGeneratedPdfCron = new CronJob(
     // once per day at 01:00
@@ -38,5 +46,15 @@ const cleanGeneratedPdfCron = new CronJob(
     },
 );
 cleanGeneratedPdfCron.start();
+
+hasOutstandingMigrations().then((hasMigrations) => {
+    if (!hasMigrations) {
+        return;
+    }
+    console.error('There are outstanding db migrations. Run \'yarn db:migrate\' before trying again');
+    if (process.env.NODE_ENV === 'development') {
+        process.exit(1);
+    }
+});
 
 module.exports = server;

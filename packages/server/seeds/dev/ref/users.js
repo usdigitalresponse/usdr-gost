@@ -18,8 +18,8 @@ const dallasTenant = tenants.find((t) => t.display_name === 'Dallas Agency');
 module.exports = [
     {
         id: 1,
-        email: 'christina@usdigitalresponse.org',
-        name: 'Christina Roberts',
+        email: 'alex@usdigitalresponse.org',
+        name: 'Alex Allain',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
         tenant_id: usdrTenant.id,
@@ -42,16 +42,16 @@ module.exports = [
     },
     {
         id: 4,
-        email: 'rafael.pol@protonmail.com',
-        name: 'Rafael Pol',
+        email: 'asridhar@usdigitalresponse.org',
+        name: 'Aditya Sridhar',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
         tenant_id: usdrTenant.id,
     },
     {
         id: 5,
-        email: 'alex@usdigitalresponse.org',
-        name: 'Alex Allain',
+        email: 'thendrickson@usdigitalresponse.org',
+        name: 'Tyler Hendrickson',
         agency_id: usdrAgency.id,
         role_id: roles[0].id,
         tenant_id: usdrTenant.id,

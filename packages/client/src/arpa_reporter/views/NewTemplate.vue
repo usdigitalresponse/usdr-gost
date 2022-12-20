@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { apiURL } from '@/helpers/fetchApi'
+import { postForm } from '../store'
 
 export default {
   name: 'NewTemplate',
@@ -75,12 +75,12 @@ export default {
 
       this.uploading = true
 
-      const url = apiURL(`/api/reporting_periods/${this.reportingPeriodId}/template`)
+      const url = `/api/reporting_periods/${this.reportingPeriodId}/template`
       const formData = new FormData()
       formData.append('template', file)
 
       try {
-        const resp = await fetch(url, { method: 'POST', body: formData })
+        const resp = await postForm(url, formData)
         const result = (await resp.json()) || { error: (await resp.body) }
 
         if (resp.ok) {

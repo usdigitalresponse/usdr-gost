@@ -17,6 +17,7 @@ try {
     ({ v4 } = require('uuid'));
 }
 
+const moment = require('moment');
 const knex = require('./connection');
 const { TABLES } = require('./constants');
 const helpers = require('./helpers');
@@ -282,6 +283,20 @@ function deleteKeyword(id) {
     return knex(TABLES.keywords)
         .where('id', id)
         .del();
+}
+
+async function getNewGrantsForAgency(agency) {
+    const agencyCriteria = await getAgencyCriteriaForAgency(agency.id);
+
+    const rows = await knex(TABLES.grants)
+        .select(knex.raw(`${TABLES.grants}.*, count(*) OVER() AS total_grants`))
+        .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
+        .modify((qb) => {
+            qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') });
+        })
+        .limit(3);
+
+    return rows;
 }
 
 async function getGrants({
@@ -612,6 +627,28 @@ async function getAgenciesByIds(agencyIds) {
     return result;
 }
 
+async function getAgenciesSubscribedToDigest() {
+    const query = knex
+        .select(
+            'agencies.id',
+            'agencies.name',
+            'agencies.abbreviation',
+            'agencies.code',
+        )
+        .from('agencies')
+        .join('keywords', 'keywords.agency_id', '=', 'agencies.id')
+        .orderBy('agencies.id')
+        .groupBy(
+            'agencies.id',
+            'agencies.name',
+            'agencies.abbreviation',
+            'agencies.code',
+        );
+    const result = await query;
+
+    return result;
+}
+
 async function getTenantAgencies(tenantId) {
     return knex(TABLES.agencies)
         .select('*')
@@ -891,6 +928,7 @@ module.exports = {
     getAgency,
     getAgenciesByIds,
     getAgencyTree,
+    getAgenciesSubscribedToDigest,
     getTenantAgencies,
     getTenant,
     getTenants,
@@ -909,6 +947,7 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getNewGrantsForAgency,
     getSingleGrantDetails,
     getClosestGrants,
     getGrant,
