@@ -1,4 +1,3 @@
-const XLSX = require('xlsx');
 const db = require('../db');
 const knex = require('../db/connection');
 const { TABLES } = require('../db/constants');
@@ -15,13 +14,13 @@ class UserImporter {
         return this.staffRoleId;
     }
 
-    userFromRow(row, user) {
+    userFromRow(row, adminUser) {
         return {
             email: row.email,
             name: row.name,
             role_id: this.getRoleId(row.role_name),
             agency_id: this.agencies[row.agency_name].id,
-            tenant_id: user.tenant_id,
+            tenant_id: adminUser.tenant_id,
         };
     }
 
@@ -90,13 +89,10 @@ class UserImporter {
                 agency_name: user.agency_name,
             });
         }
-        const workSheet = XLSX.utils.json_to_sheet(usersForExport);
-        const workBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workBook, workSheet, 'Sheet 1');
-        return workBook;
+        return usersForExport;
     }
 
-    async import(user, workbook) {
+    async import(user, rowsList) {
         const retVal = {
             status: {
                 users: {
@@ -125,11 +121,6 @@ class UserImporter {
             for (const existingUser of usersArray) {
                 this.users[existingUser.email] = existingUser;
             }
-            const sheet_name_list = workbook.SheetNames;
-            if (sheet_name_list.length > 1) {
-                console.log(`More than one sheet (number of sheets: ${sheet_name_list.length}): using first sheet.`);
-            }
-            const rowsList = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
             for (let rowIndex = 0; rowIndex < rowsList.length; rowIndex += 1) {
                 const theErrors = this.checkRow(rowsList[rowIndex], rowIndex);
                 if (theErrors.length > 0) {
