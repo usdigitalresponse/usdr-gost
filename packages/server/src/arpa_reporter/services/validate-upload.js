@@ -246,6 +246,14 @@ async function validateRecord ({ upload, record, typeRules: rules }) {
           `Value is required for ${key}`,
           { col: rule.columnName, severity: 'err' }
         ))
+      } else if (rule.required === 'Conditional') {
+        if (rule.isRequiredFn && rule.isRequiredFn(record)) {
+          errors.push(new ValidationError(
+            // This message should make it clear that this field is conditionally required
+            `Based on other values in this row, a value is required for ${key}`,
+            { col: rule.columnName, severity: 'err' }
+          ))
+        }
       }
 
     // if there's something in the field, make sure it meets requirements
