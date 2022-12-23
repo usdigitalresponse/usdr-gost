@@ -195,6 +195,8 @@ async function validateSubrecipientRecord ({ upload, record: recipient, typeRule
       const recipientId = existing.uei || existing.tin
       const record = JSON.parse(existing.record)
 
+      /* Based on feedback from partners on 12/22/22, these warning are not helpful, and create
+         such a high volume of warnings that it is drowning out other more valid warnings.
       // make sure that each key in the record matches the recipient
       for (const [key, rule] of Object.entries(rules)) {
         if ((record[key] || recipient[key]) && record[key] !== recipient[key]) {
@@ -205,6 +207,7 @@ async function validateSubrecipientRecord ({ upload, record: recipient, typeRule
           ))
         }
       }
+      */
     }
 
   // if it's new, and it's passed validation, then insert it
