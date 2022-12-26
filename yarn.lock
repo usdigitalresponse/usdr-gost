@@ -13108,9 +13108,9 @@ rechoir@^0.8.0:
     resolve "^1.20.0"
 
 recursive-readdir-async@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/recursive-readdir-async/-/recursive-readdir-async-1.2.1.tgz#994beaa07a985e806a5946b4b795fe9b5f1a6b9b"
-  integrity sha512-fU8aySmHIhrycTlXn+hI7dS/p7GnrMHzr2xDdBSd8HZ16mbLkmfIEccIE80gLHftrkTt9oDJiGEJNIPY6n0v6A==
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/recursive-readdir-async/-/recursive-readdir-async-1.3.0.tgz#059bd7ed19f28d06022e7f63a328ecf2632b4bfe"
+  integrity sha512-7fZyD3/Ol9LwZBYTgE+PzE+Zuru/WxZxdXaZRaNZNPbdnvMDSvK8KLA51JDCoe8zDBkHHyLb/uutJ2RdJbbt4A==
 
 redent@^3.0.0:
   version "3.0.0"
