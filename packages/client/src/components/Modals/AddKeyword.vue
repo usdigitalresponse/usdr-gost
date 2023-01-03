@@ -81,7 +81,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      createKeyword: 'grants/createKeyword',
+      createKeyword: 'keywords/createKeyword',
     }),
     resetModal() {
       this.formData = {};

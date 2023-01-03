@@ -122,10 +122,16 @@ async function loadRecordsForUpload (upload) {
 
     // each row in the input sheet becomes a unique record
     for (const row of rows) {
+      // Don't include any Display_Only data in the records
+      delete row.Display_Only
+      // If the row is empty, don't include it in the records
+      if (Object.keys(row).length === 0) {
+        continue
+      }
       const formattedRow = {}
       Object.keys(row).forEach(fieldId => {
         let value = row[fieldId]
-        if (rulesForCurrentType[fieldId] === null) {
+        if (!rulesForCurrentType[fieldId]) {
           // No known rules for this type, so we can't format it.
           return
         }
