@@ -26,13 +26,11 @@ const optionalIfNotStartedFieldIds = new Set([
   'Primary_Project_Demographics__c',
   'Number_Students_Tutoring_Programs__c',
   'Does_Project_Include_Capital_Expenditure__c',
-  // Start off with just these 2 field ids for testing, before enabling for all of these ids
-  /*
   'Structure_Objectives_of_Asst_Programs__c',
   'Recipient_Approach_Description__c',
   'Individuals_Served__c',
   'Spending_Allocated_Toward_Evidence_Based_Interventions',
-  'Whether_program_evaluation_is_being_conducted', // XXX reduced ec?
+  'Whether_program_evaluation_is_being_conducted',
   'Small_Businesses_Served__c',
   'Number_Non_Profits_Served__c',
   'Number_Workers_Enrolled_Sectoral__c',
@@ -51,7 +49,6 @@ const optionalIfNotStartedFieldIds = new Set([
   'Premium_Pay_Narrative__c',
   'Number_of_Workers_K_12__c',
   'Technology_Type_Planned__c',
-  */
 ])
 
 /*
