@@ -23,9 +23,9 @@ describe('userImporter class test', () => {
         const ret = await userImporter.import(fixtures.users.adminUser, exportedUsers);
         expect(ret.status.users.added).to.equal(0);
         expect(ret.status.users.updated).to.equal(0);
-        expect(ret.status.users.notChanged).to.equal(expectedNotChanged);
-        expect(ret.status.users.errored).to.equal(0);
-        expect(ret.status.errors.length).to.equal(0);
+        expect(ret.status.users.notChanged).to.equal(0);
+        expect(ret.status.users.errored).to.equal(expectedNotChanged);
+        expect(ret.status.errors.length).to.equal(expectedNotChanged);
         return exportedUsers;
     }
 
@@ -54,10 +54,12 @@ describe('userImporter class test', () => {
             const rowsList = usersFromWorkbook(workbook);
             const ret = await userImporter.import(fixtures.users.adminUser, rowsList);
             expect(ret.status.users.added).to.equal(2);
-            expect(ret.status.users.updated).to.equal(1);
-            expect(ret.status.users.notChanged).to.equal(1);
-            expect(ret.status.users.errored).to.equal(0);
-            expect(ret.status.errors.length).to.equal(0);
+            expect(ret.status.users.updated).to.equal(0);
+            expect(ret.status.users.notChanged).to.equal(0);
+            expect(ret.status.users.errored).to.equal(2);
+            expect(ret.status.errors.length).to.equal(2);
+            await testExportImport(5);
+            /* update disabled.
             const rowsList2 = await testExportImport(5);
             for (let rowIndex = 0; rowIndex < rowsList2.length; rowIndex += 1) {
                 if (rowsList2[rowIndex].email === 'staff.user@test.com') {
@@ -65,6 +67,7 @@ describe('userImporter class test', () => {
                     break;
                 }
             }
+            */
         });
     });
 });
