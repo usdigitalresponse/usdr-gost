@@ -12,6 +12,7 @@ const {
     setAgencyParent,
     setAgencyCode,
     deleteAgency,
+    setAgencyEmailSubscriptionPreference,
 } = require('../db');
 
 router.get('/', requireUser, async (req, res) => {
@@ -50,6 +51,23 @@ router.delete('/del/:agency', requireAdminUser, async (req, res) => {
         parent, name, abbreviation, warningThreshold, dangerThreshold,
     } = req.body;
     const result = await deleteAgency(agency, parent, name, abbreviation, warningThreshold, dangerThreshold);
+    res.json(result);
+});
+
+router.put('/email_subscription/:agency', requireAdminUser, async (req, res) => {
+    const { agency } = req.params;
+    const { user } = req.session;
+
+    const allowed = await isUserAuthorized(user, agency);
+
+    if (!allowed) {
+        res.sendStatus(403);
+        return;
+    }
+
+    const { preferences } = req.body;
+
+    const result = await setAgencyEmailSubscriptionPreference(agency, preferences);
     res.json(result);
 });
 

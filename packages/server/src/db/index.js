@@ -20,6 +20,7 @@ try {
 const moment = require('moment');
 const knex = require('./connection');
 const { TABLES } = require('./constants');
+const emailConstants = require('../lib/email/constants');
 const helpers = require('./helpers');
 
 async function getUsers(tenantId) {
@@ -804,6 +805,28 @@ function setAgencyParent(id, agen_parent) {
         .update({ parent: agen_parent });
 }
 
+function setAgencyEmailSubscriptionPreference(id, preferences) {
+    const currentTime = Date.now();
+    const timestamps = { created_at: currentTime, updated_at: currentTime };
+
+    return knex('email_subscriptions')
+        .insert(Object.assign(emailConstants.defaultSubscriptionPreference, preferences, timestamps))
+        .onConflict(['agency_id', 'notification_type'])
+        .merge(['agency_id', 'status', 'updated_at']);
+}
+
+function getAgencyEmailSubscriptionPreference(id) {
+    const result = knex('email_subscriptions')
+        .where({ agency_id: id });
+
+    if (result.length === 0) {
+        return emailConstants.defaultSubscriptionPreference;
+    }
+
+    const preferences = Object.assign(...result.map((r) => ({ [r.notification_type]: r.status })));
+    return Object.assign(emailConstants.defaultSubscriptionPreference, preferences);
+}
+
 function setTenantDisplayName(id, display_name) {
     return knex(TABLES.tenants)
         .where({
@@ -938,11 +961,13 @@ module.exports = {
     getKeywords,
     getAgencyKeywords,
     getGrantsInterested,
+    getAgencyEmailSubscriptionPreference,
     setAgencyThresholds,
     setAgencyName,
     setAgencyAbbr,
     setAgencyCode,
     setAgencyParent,
+    setAgencyEmailSubscriptionPreference,
     setTenantDisplayName,
     createKeyword,
     deleteKeyword,

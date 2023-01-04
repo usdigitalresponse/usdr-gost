@@ -9,4 +9,6 @@ const emailSubscriptionStatus = {
     unsubscribed: 'UNSUBSCRIBED',
 };
 
-module.exports = { notificationType, emailSubscriptionStatus };
+const defaultSubscriptionPreference = Object.assign(...Object.values(notificationType).map((k) => ({ [k]: emailSubscriptionStatus.unsubscribed })));
+
+module.exports = { notificationType, emailSubscriptionStatus, defaultSubscriptionPreference };
