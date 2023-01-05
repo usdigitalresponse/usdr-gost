@@ -805,18 +805,29 @@ function setAgencyParent(id, agen_parent) {
         .update({ parent: agen_parent });
 }
 
-function setAgencyEmailSubscriptionPreference(id, preferences) {
-    const currentTime = Date.now();
-    const timestamps = { created_at: currentTime, updated_at: currentTime };
+async function setAgencyEmailSubscriptionPreference(agency_id, preferences) {
+    const updatedPreferences = { ...emailConstants.defaultSubscriptionPreference, ...preferences };
 
-    return knex('email_subscriptions')
-        .insert(Object.assign(emailConstants.defaultSubscriptionPreference, preferences, timestamps))
+    const insertValues = [];
+    for (const [notification_type, status] of Object.entries(updatedPreferences)) {
+        insertValues.push({
+            agency_id,
+            updated_at: knex.fn.now(),
+            notification_type,
+            status,
+        });
+    }
+
+    const result = await knex('email_subscriptions')
+        .insert(insertValues)
         .onConflict(['agency_id', 'notification_type'])
         .merge(['agency_id', 'status', 'updated_at']);
+
+    return result;
 }
 
-function getAgencyEmailSubscriptionPreference(id) {
-    const result = knex('email_subscriptions')
+async function getAgencyEmailSubscriptionPreference(id) {
+    const result = await knex('email_subscriptions')
         .where({ agency_id: id });
 
     if (result.length === 0) {
@@ -824,7 +835,7 @@ function getAgencyEmailSubscriptionPreference(id) {
     }
 
     const preferences = Object.assign(...result.map((r) => ({ [r.notification_type]: r.status })));
-    return Object.assign(emailConstants.defaultSubscriptionPreference, preferences);
+    return { ...emailConstants.defaultSubscriptionPreference, ...preferences };
 }
 
 function setTenantDisplayName(id, display_name) {
