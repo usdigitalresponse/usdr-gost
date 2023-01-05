@@ -6433,9 +6433,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 docx@^7.3.0:
-  version "7.8.1"
-  resolved "https://registry.yarnpkg.com/docx/-/docx-7.8.1.tgz#117a990a41fb1652b2f57d833eebc7dc08b0d501"
-  integrity sha512-RAS/IZb1jh4cyxul+h7iOr44ZC2uovX/qIjFo324Cs5K5VsYEgq2KhFCJ41Eo/sWrC3/oDEfzNe3zlVEfvTMHQ==
+  version "7.8.2"
+  resolved "https://registry.yarnpkg.com/docx/-/docx-7.8.2.tgz#a94ee1b05e8e0899ce906ab02d801a3fa8cd0588"
+  integrity sha512-ptaiVZunYO04z113E/jR3yZx7/VaeUap2CHM9V1YwlmGygJ2W8y2KBmAsVgzlzs+qT7+3d5W3Q7+57BgvGiL+Q==
   dependencies:
     "@types/node" "^18.0.0"
     jszip "^3.1.5"
