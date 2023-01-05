@@ -67,8 +67,13 @@ router.put('/email_subscription/:agency', requireAdminUser, async (req, res) => 
 
     const { preferences } = req.body;
 
-    const result = await setAgencyEmailSubscriptionPreference(agency, preferences);
-    res.json(result);
+    try {
+        await setAgencyEmailSubscriptionPreference(agency, preferences);
+        res.sendStatus(200);
+    } catch (e) {
+        console.error(`Unable to update agency email preferences for agency: ${agency} preferences: ${preferences}`);
+        res.sendStatus(500);
+    }
 });
 
 router.put('/name/:agency', requireAdminUser, async (req, res) => {

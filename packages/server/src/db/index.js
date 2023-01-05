@@ -818,12 +818,10 @@ async function setAgencyEmailSubscriptionPreference(agency_id, preferences) {
         });
     }
 
-    const result = await knex('email_subscriptions')
+    await knex('email_subscriptions')
         .insert(insertValues)
         .onConflict(['agency_id', 'notification_type'])
         .merge(['agency_id', 'status', 'updated_at']);
-
-    return result;
 }
 
 async function getAgencyEmailSubscriptionPreference(id) {
