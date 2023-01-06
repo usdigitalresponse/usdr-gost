@@ -81,10 +81,7 @@ class UserImporter {
             return UPDATED;
         }
         await db.createUser(newUser);
-        // Don't send emails when running automated tests.
-        if (domain) {
-            await email.sendWelcomeEmail(newUser.email, domain);
-        }
+        await email.sendWelcomeEmail(newUser.email, domain);
         return ADDED;
     }
 

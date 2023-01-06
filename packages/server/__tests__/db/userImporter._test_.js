@@ -1,7 +1,9 @@
 // This is named '_test_' instead of 'test' because it breaks other tests when run as part of db tests.
+const sinon = require('sinon');
 const { expect } = require('chai');
 const path = require('path');
 const XLSX = require('xlsx');
+const email = require('../../src/lib/email');
 const UserImporter = require('../../src/lib/userImporter');
 const fixtures = require('./seeds/fixtures');
 const db = require('../../src/db');
@@ -11,10 +13,12 @@ describe('userImporter class test', () => {
         await fixtures.seed(db.knex);
         // seeding doesn't set sequence id.
         await db.knex.raw('SELECT setval(\'users_id_seq\', (SELECT MAX(id) FROM users) + 1);');
+        sinon.replace(email, 'sendWelcomeEmail', sinon.fake.returns('foo'));
     });
 
     after(async () => {
         await db.knex.destroy();
+        sinon.reset();
     });
 
     async function testExportImport(expectedNotChanged) {
