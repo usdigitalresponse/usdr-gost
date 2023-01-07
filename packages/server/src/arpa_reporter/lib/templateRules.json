@@ -1,7 +1,7 @@
 {
   "logic": {
     "version": {
-      "version": "v:20221220",
+      "version": "v:20221228",
       "key": "version",
       "index": 0,
       "required": false,
@@ -6791,7 +6791,7 @@
     "Country__c": {
       "key": "Country__c",
       "index": 14,
-      "required": true,
+      "required": false,
       "dataType": "String",
       "maxLength": 2,
       "listVals": [],
