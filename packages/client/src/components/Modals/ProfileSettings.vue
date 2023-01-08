@@ -21,7 +21,6 @@
           </template>
         </v-select>
       </b-form>
-      <!--
       <hr />
       <h6>Email Notifications (Coming soon): </h6>
       <b-form-group label="" v-slot="{ ariaDescribedby }">
@@ -29,11 +28,11 @@
         v-model="selected"
         :options="options"
         :aria-describedby="ariaDescribedby"
+        @change="onAgencySubscriptionChangeSubmit"
         switches
         stacked
       ></b-form-checkbox-group>
       </b-form-group>
-      -->
     </b-modal>
   </div>
 </template>
@@ -47,12 +46,18 @@ export default {
     showModal: Boolean,
   },
   data() {
+    const sample = {
+      GRANT_ASSIGNMENT: Math.floor(Math.random() * 100) / 2 === 0 ? 'UNSUBSCRIBED' : 'SUBSCRIBED',
+      GRANT_DIGEST: Math.floor(Math.random() * 100) / 2 === 0 ? 'SUBSCRIBED' : 'UNSUBSCRIBED',
+    };
+    console.log(sample);
+    const emailPreferences = this.formData?.selectedAgency?.preferences || sample;
+    const subscribed = Object.keys(emailPreferences).filter((p) => emailPreferences[p] === 'SUBSCRIBED');
     return {
-      selected: [], // Must be an array reference!
+      selected: subscribed,
       options: [
-        { text: 'Grant Assignment', value: 'grant_assigned', disabled: true },
-        { text: 'Grant marked as interested or rejected', value: 'grant_interest', disabled: true },
-        { text: 'New Grants', value: 'grant_digest', disabled: true },
+        { text: 'Grant Assignments', value: 'GRANT_ASSIGNMENT' },
+        { text: 'New Grants Digest', value: 'GRANT_DIGEST' },
       ],
       formData: {
         selectedAgency: null,
@@ -89,9 +94,18 @@ export default {
   methods: {
     ...mapActions({
       changeSelectedAgency: 'users/changeSelectedAgency',
+      updateAgencyEmailSubscriptionPreferences: 'agencies/updateAgencyEmailSubscriptionPreferences',
     }),
     resetModal() {
       this.$emit('update:showModal', false);
+    },
+    onAgencySubscriptionChangeSubmit(data) {
+      const updatedPreferences = {};
+      data.forEach((notificationType) => { updatedPreferences[notificationType] = 'SUBSCRIBED'; });
+      this.updateAgencyEmailSubscriptionPreferences({
+        agencyId: this.formData.selectedAgency.id,
+        preferences: updatedPreferences,
+      });
     },
     onAgencyChangeSubmit(agency) {
       this.changeSelectedAgency(agency.id);

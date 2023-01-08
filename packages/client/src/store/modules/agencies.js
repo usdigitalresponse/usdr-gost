@@ -64,6 +64,12 @@ export default {
       });
       dispatch('fetchAgencies');
     },
+    async updateAgencyEmailSubscriptionPreferences({ dispatch }, { agencyId, preferences }) {
+      await fetchApi.put(`/api/organizations/:organizationId/agencies/email_subscription/${agencyId}`, {
+        preferences,
+      });
+      dispatch('fetchAgencies');
+    },
   },
   mutations: {
     SET_AGENCIES(state, agencies) {

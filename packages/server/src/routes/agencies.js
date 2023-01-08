@@ -69,10 +69,10 @@ router.put('/email_subscription/:agency', requireAdminUser, async (req, res) => 
 
     try {
         await setAgencyEmailSubscriptionPreference(agency, preferences);
-        res.sendStatus(200);
+        res.status(200).json({ message: 'Successfully updated preferences.' });
     } catch (e) {
         console.error(`Unable to update agency email preferences for agency: ${agency} preferences: ${preferences}`);
-        res.sendStatus(500);
+        res.status(500).json({ message: 'Something went wrong while updating preferences. Please try again or reach out to support.' });
     }
 });
 
