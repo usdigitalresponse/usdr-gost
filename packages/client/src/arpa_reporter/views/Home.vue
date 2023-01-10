@@ -10,7 +10,7 @@
       </div>
 
       <div class="col">
-        <button @click.prevent="startUpload" class="btn btn-primary btn-block">Submit Spreadsheet</button>
+        <button @click.prevent="startUpload" class="btn btn-primary btn-block">Submit Workbook</button>
       </div>
 
       <div class="col">
@@ -32,12 +32,12 @@
     <p>
       You will need to fill out one template for every EC code that your agency uses.
       Once you've filled out a template, please return here to submit it.
-      To do that, click the "Submit Spreadsheet" button, above.
-      You can only submit spreadsheets for the currently-open reporting period.
+      To do that, click the "Submit Workbook" button, above.
+      You can only submit workbooks for the currently-open reporting period.
     </p>
 
     <p>
-      To view a list of all submitted spreadsheets, please click on the "Uploads" tab.
+      To view a list of all submitted workbooks, please click on the "Uploads" tab.
     </p>
   </div>
 </template>

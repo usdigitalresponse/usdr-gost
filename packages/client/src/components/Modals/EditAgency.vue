@@ -43,7 +43,8 @@
           label-for="code-input"
         >
           <template slot="label">Code</template>
-          <template slot="description">This should match the Agency Code field in ARPA Reporter spreadsheet uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across agencies.</template>
+          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using
+            ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across agencies.</template>
           <b-form-input
               id="code-input"
               type="text"
