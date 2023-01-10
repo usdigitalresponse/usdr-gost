@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . .
 RUN ["mkdir", "-p", "/root/.config/yarn"]
 RUN ["chmod", "-R", "777", "/root"]
-RUN ["apk", "--update", "add", "bash"]
+RUN ["apk", "--update", "add", "bash", "python3", "g++", "make", "py3-pip"]
 RUN ["yarn", "run", "setup"]
 
 FROM app_base as client
