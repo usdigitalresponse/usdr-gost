@@ -60,9 +60,9 @@
         <b-form-group
           :state="!$v.formData.parentAgency.$invalid"
           label-for="agency-input"
-          invalid-feedback="Must select a parent agency"
+          invalid-feedback="Must select a team"
         >
-          <template slot="label">Parent Agency</template>
+          <template slot="label">Team</template>
           <v-select :options="agencies" label="name" :value="formData.parentAgency" v-model="formData.parentAgency">
             <template #search="{attributes, events}">
               <input

@@ -36,7 +36,7 @@
         <b-nav-item to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
         <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
         <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
-        <b-nav-item to="/Agencies" exact exact-active-class="active">Agencies</b-nav-item>
+        <b-nav-item to="/Agencies" exact exact-active-class="active">Teams:Agencies</b-nav-item>
         <b-nav-item v-if="canSeeTenantsTab" to="/tenants" exact exact-active-class="active">Tenants</b-nav-item>
     </b-nav>
 
