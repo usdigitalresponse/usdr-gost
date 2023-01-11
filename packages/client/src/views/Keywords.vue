@@ -1,22 +1,36 @@
 <template>
 <section class="container-fluid">
-  <b-row>
-    <b-col><h2>Keywords</h2></b-col>
-    <b-col></b-col>
-    <b-col class="d-flex justify-content-end">
-      <div>
-        <b-button variant="success" @click="openAddKeywordModal">Add</b-button>
-      </div>
-    </b-col>
-  </b-row>
-  <b-table sticky-header="600px" hover :items="keywords" :fields="fields">
+    <b-row>
+        <b-col><h3>Include results with:</h3></b-col>
+        <b-col class="d-flex justify-content-end">
+            <div>
+                <b-button variant="success" @click="openAddKeywordModal">Add</b-button>
+            </div>
+        </b-col>
+    </b-row>
+    <b-table sticky-header="600px" hover :items="includeKeywords" :fields="fields">
+        <template #cell(actions)="row">
+            <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
+            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+            </b-button>
+        </template>
+    </b-table>
+    <b-row>
+        <b-col><h3>Exclude results with:</h3></b-col>
+        <b-col class="d-flex justify-content-end">
+            <div>
+                <b-button variant="success" @click="openAddKeywordModal">Add</b-button>
+            </div>
+        </b-col>
+    </b-row>
+    <b-table sticky-header="600px" hover :items="excludeKeywords" :fields="fields">
     <template #cell(actions)="row">
-      <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
-        <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
-      </b-button>
+        <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
+            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+        </b-button>
     </template>
-  </b-table>
-  <AddKeywordModal :showModal.sync="showAddKeywordModal"/>
+    </b-table>
+    <AddKeywordModal :showModal.sync="showAddKeywordModal"/>
 </section>
 </template>
 
@@ -49,7 +63,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      keywords: 'keywords/keywords',
+      includeKeywords: 'keywords/includeKeywords',
+      excludeKeywords: 'keywords/excludeKeywords',
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
     }),

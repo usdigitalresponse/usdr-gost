@@ -10,7 +10,8 @@ export default {
   namespaced: true,
   state: initialState,
   getters: {
-    keywords: (state) => state.keywords,
+    includeKeywords: (state) => state.keywords.filter((keyword) => keyword.type === 'include'),
+    excludeKeywords: (state) => state.keywords.filter((keyword) => keyword.type === 'exclude'),
   },
   actions: {
     fetchKeywords({ commit }) {

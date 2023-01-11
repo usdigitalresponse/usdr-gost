@@ -10,6 +10,7 @@ router.post('/', requireUser, async (req, res) => {
         mode: '',
         notes: req.body.notes,
         agency_id: req.session.selectedAgency,
+        type: req.body.type,
     });
 
     res.json(result);

@@ -24,6 +24,16 @@
           ></b-form-input>
         </b-form-group>
         <b-form-group
+          label="Type"
+          label-for="type-select"
+        >
+            <b-form-select
+              id="type-select"
+              v-model="formData.type"
+              :options="options"
+            ></b-form-select>
+        </b-form-group>
+        <b-form-group
           :state="!$v.formData.notes.$invalid"
           label="Notes"
           label-for="notes-input"
@@ -55,7 +65,12 @@ export default {
       formData: {
         notes: null,
         searchTerm: null,
+        type: null,
       },
+      options: [
+        { value: 'include', text: 'Include' },
+        { value: 'exclude', text: 'Exclude' },
+      ],
     };
   },
   validations: {
