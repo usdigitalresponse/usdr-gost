@@ -238,10 +238,11 @@ describe('db', () => {
             const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
             expect(result.length).to.equal(0);
         });
-        it('returns zero grants if no grants match criteria and opened yesterday', async () => {
+        it('returns a grant whose modification date is one day ago', async () => {
             const newGrant = fixtures.grants.healthAide;
             newGrant.grant_id = '444816';
-            newGrant.open_date = '2022-06-21';
+            // Note the use of `Date` -- this ensures compatibility with our mocked time
+            newGrant.open_date = new Date('2022-06-21');
             await knex(TABLES.grants).insert(Object.values([newGrant]));
             const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
             expect(result.length).to.equal(1);
