@@ -1,9 +1,17 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
+
+const multer = require('multer');
+
+const multerUpload = multer({ storage: multer.memoryStorage() });
+const XLSX = require('xlsx');
+const { ensureAsyncContext } = require('../arpa_reporter/lib/ensure-async-context');
+
 const { requireAdminUser, isAuthorized, isUserAuthorized } = require('../lib/access-helpers');
 const email = require('../lib/email');
 const db = require('../db');
+const UserImporter = require('../lib/userImporter');
 
 router.post('/', requireAdminUser, async (req, res, next) => {
     const { user } = req.session;
@@ -67,5 +75,22 @@ router.delete('/:userId', requireAdminUser, async (req, res) => {
         res.status(400).send('No such user');
     }
 });
+
+router.post(
+    '/import',
+    requireAdminUser,
+    ensureAsyncContext(multerUpload.single('spreadsheet')),
+    async (req, res) => {
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+        const rowsList = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+        const domain = process.env.WEBSITE_DOMAIN || req.headers.origin;
+        const ret = await (new UserImporter()).import(
+            req.session.user,
+            rowsList,
+            domain,
+        );
+        res.status(200).json({ ret, error: null });
+    },
+);
 
 module.exports = router;
