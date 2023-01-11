@@ -40,11 +40,11 @@
                   <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
                     {{ code.name }}</b-form-select-option>
                 </b-form-select-option-group>
-                <b-form-select-option-group label="Result">
+                <b-form-select-option-group label="Applied">
                   <b-form-select-option v-for="code in interestedCodes.result" :key="code.id" :value="code.id">
                     {{ code.name }}</b-form-select-option>
                 </b-form-select-option-group>
-                <b-form-select-option-group label="Rejections">
+                <b-form-select-option-group label="Not Applying">
                   <b-form-select-option v-for="code in interestedCodes.rejections" :key="code.id" :value="code.id">
                     {{ code.name }}</b-form-select-option>
                 </b-form-select-option-group>
