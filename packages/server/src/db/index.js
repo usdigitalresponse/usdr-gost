@@ -805,13 +805,14 @@ function setAgencyParent(id, agen_parent) {
         .update({ parent: agen_parent });
 }
 
-async function setAgencyEmailSubscriptionPreference(agency_id, preferences) {
+async function setUserEmailSubscriptionPreference(userId, agencyId, preferences) {
     const updatedPreferences = { ...emailConstants.defaultSubscriptionPreference, ...preferences };
 
     const insertValues = [];
     for (const [notification_type, status] of Object.entries(updatedPreferences)) {
         insertValues.push({
-            agency_id,
+            user_id: userId,
+            agency_id: agencyId,
             updated_at: knex.fn.now(),
             notification_type,
             status,
@@ -820,13 +821,13 @@ async function setAgencyEmailSubscriptionPreference(agency_id, preferences) {
 
     await knex('email_subscriptions')
         .insert(insertValues)
-        .onConflict(['agency_id', 'notification_type'])
-        .merge(['agency_id', 'status', 'updated_at']);
+        .onConflict(['user_id', 'agency_id', 'notification_type'])
+        .merge(['user_id', 'agency_id', 'status', 'updated_at']);
 }
 
-async function getAgencyEmailSubscriptionPreference(id) {
+async function getUserEmailSubscriptionPreference(userId, agencyId) {
     const result = await knex('email_subscriptions')
-        .where({ agency_id: id });
+        .where({ user_id: userId, agency_id: agencyId });
 
     if (result.length === 0) {
         return emailConstants.defaultSubscriptionPreference;
@@ -970,13 +971,13 @@ module.exports = {
     getKeywords,
     getAgencyKeywords,
     getGrantsInterested,
-    getAgencyEmailSubscriptionPreference,
+    getUserEmailSubscriptionPreference,
     setAgencyThresholds,
     setAgencyName,
     setAgencyAbbr,
     setAgencyCode,
     setAgencyParent,
-    setAgencyEmailSubscriptionPreference,
+    setUserEmailSubscriptionPreference,
     setTenantDisplayName,
     createKeyword,
     deleteKeyword,
