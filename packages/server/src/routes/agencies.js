@@ -12,7 +12,6 @@ const {
     setAgencyParent,
     setAgencyCode,
     deleteAgency,
-    setAgencyEmailSubscriptionPreference,
 } = require('../db');
 
 router.get('/', requireUser, async (req, res) => {
@@ -52,28 +51,6 @@ router.delete('/del/:agency', requireAdminUser, async (req, res) => {
     } = req.body;
     const result = await deleteAgency(agency, parent, name, abbreviation, warningThreshold, dangerThreshold);
     res.json(result);
-});
-
-router.put('/email_subscription/:agency', requireAdminUser, async (req, res) => {
-    const { agency } = req.params;
-    const { user } = req.session;
-
-    const allowed = await isUserAuthorized(user, agency);
-
-    if (!allowed) {
-        res.sendStatus(403);
-        return;
-    }
-
-    const { preferences } = req.body;
-
-    try {
-        await setAgencyEmailSubscriptionPreference(agency, preferences);
-        res.status(200).json({ message: 'Successfully updated preferences.' });
-    } catch (e) {
-        console.error(`Unable to update agency email preferences for agency: ${agency} preferences: ${preferences}`);
-        res.status(500).json({ message: 'Something went wrong while updating preferences. Please try again or reach out to support.' });
-    }
 });
 
 router.put('/name/:agency', requireAdminUser, async (req, res) => {

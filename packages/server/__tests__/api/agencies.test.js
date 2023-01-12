@@ -1,6 +1,5 @@
 const { expect } = require('chai');
 const { getSessionCookie, makeTestServer } = require('./utils');
-const emailConstants = require('../../src/lib/email/constants');
 
 describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
     const agencies = {
@@ -88,48 +87,6 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
             });
             it('is forbidden for agencies outside this user\'s hierarchy', async () => {
                 const response = await fetchApi(`/agencies/${agencies.staff.offLimits}`, agencies.staff.offLimits, { ...fetchOptions.staff, method: 'put', body });
-                expect(response.statusText).to.equal('Forbidden');
-            });
-        });
-    });
-
-    context('PUT /organizations/:organizationId/agencies/email_subscription/:id (modify an agency\'s email subscription preferences)', () => {
-        const body = JSON.stringify(
-            {
-                preferences: {
-                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
-                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
-                    [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.unsubscribed,
-                },
-            },
-        );
-
-        context('by a user with admin role', () => {
-            it('updates this user\'s own agency', async () => {
-                const response = await fetchApi(`/agencies/email_subscription/${agencies.admin.own}`, agencies.admin.own, { ...fetchOptions.admin, method: 'put', body });
-                expect(response.statusText).to.equal('OK');
-            });
-            it('updates a subagency of this user\'s own agency', async () => {
-                const response = await fetchApi(`/agencies/email_subscription/${agencies.admin.ownSub}`, agencies.admin.ownSub, { ...fetchOptions.admin, method: 'put', body });
-                expect(response.statusText).to.equal('OK');
-            });
-            it('is forbidden for agencies outside this user\'s hierarchy', async () => {
-                const response = await fetchApi(`/agencies/email_subscription/${agencies.admin.offLimits}`, agencies.admin.offLimits, { ...fetchOptions.admin, method: 'put', body });
-                expect(response.statusText).to.equal('Forbidden');
-            });
-        });
-
-        context('by a user with staff role', () => {
-            it('is forbidden for this user\'s own agency', async () => {
-                const response = await fetchApi(`/agencies/email_subscription/${agencies.staff.own}`, agencies.staff.own, { ...fetchOptions.staff, method: 'put', body });
-                expect(response.statusText).to.equal('Forbidden');
-            });
-            it('is forbidden for a subagency of this user\'s own agency', async () => {
-                const response = await fetchApi(`/agencies/email_subscription/${agencies.staff.ownSub}`, agencies.staff.ownSub, { ...fetchOptions.staff, method: 'put', body });
-                expect(response.statusText).to.equal('Forbidden');
-            });
-            it('is forbidden for agencies outside this user\'s hierarchy', async () => {
-                const response = await fetchApi(`/agencies/email_subscription/${agencies.staff.offLimits}`, agencies.staff.offLimits, { ...fetchOptions.staff, method: 'put', body });
                 expect(response.statusText).to.equal('Forbidden');
             });
         });
