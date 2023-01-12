@@ -12,7 +12,7 @@ const emailSubscriptionStatus = Object.freeze({
 const defaultSubscriptionPreference = Object.freeze(
     Object.assign(
         ...Object.values(notificationType).map(
-            (k) => ({ [k]: emailSubscriptionStatus.unsubscribed }),
+            (k) => ({ [k]: emailSubscriptionStatus.subscribed }),
         ),
     ),
 );
