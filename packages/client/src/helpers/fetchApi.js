@@ -76,7 +76,6 @@ export function put(url, body) {
   };
   return fetch(addOrganizationId(apiURL(url)), options)
     .then((r) => {
-      console.log(r);
       if (r.ok) {
         return r.json();
       }

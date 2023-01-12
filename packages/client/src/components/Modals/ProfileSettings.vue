@@ -28,7 +28,7 @@
         v-model="selected"
         :options="options"
         :aria-describedby="ariaDescribedby"
-        @change="onAgencySubscriptionChangeSubmit"
+        @change="onUserSubscriptionChangeSubmit"
         switches
         stacked
       ></b-form-checkbox-group>
@@ -93,7 +93,7 @@ export default {
     resetModal() {
       this.$emit('update:showModal', false);
     },
-    onAgencySubscriptionChangeSubmit(data) {
+    onUserSubscriptionChangeSubmit(data) {
       const updatedPreferences = {};
       data.forEach((notificationType) => { updatedPreferences[notificationType] = 'SUBSCRIBED'; });
       this.updateEmailSubscriptionPreferences({
