@@ -7,7 +7,10 @@
       <b-col></b-col>
       <b-col class="d-flex justify-content-end">
         <div>
-          <b-button variant="success" @click="openAddUserModal">Add</b-button>
+          <b-button variant="success" @click="openUploadUsersModal" class="mr-1">Bulk Import</b-button>
+        </div>
+        <div>
+          <b-button variant="success" @click="openAddUserModal" class="mr-1">Add</b-button>
         </div>
       </b-col>
     </b-row>
@@ -22,16 +25,19 @@
       </template>
     </b-table>
     <AddUserModal :showModal.sync="showAddUserModal" />
+    <ImportUsersModal :showUploadModal.sync="showUploadUsersModal" :importStatus="'Nothing imported yet.'"/>
   </section>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import AddUserModal from '@/components/Modals/AddUser.vue';
+import ImportUsersModal from '@/components/Modals/ImportUsers.vue';
 
 export default {
   components: {
     AddUserModal,
+    ImportUsersModal,
   },
   data() {
     return {
@@ -61,6 +67,7 @@ export default {
         { key: 'actions', label: 'Actions' },
       ],
       showAddUserModal: false,
+      showUploadUsersModal: false,
     };
   },
   mounted() {
@@ -97,6 +104,9 @@ export default {
     },
     openAddUserModal() {
       this.showAddUserModal = true;
+    },
+    openUploadUsersModal() {
+      this.showUploadUsersModal = true;
     },
   },
 };

@@ -49,7 +49,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      keywords: 'grants/keywords',
+      keywords: 'keywords/keywords',
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
     }),
@@ -61,8 +61,8 @@ export default {
   },
   methods: {
     ...mapActions({
-      fetchKeywords: 'grants/fetchKeywords',
-      deleteKeyword: 'grants/deleteKeyword',
+      fetchKeywords: 'keywords/fetchKeywords',
+      deleteKeyword: 'keywords/deleteKeyword',
     }),
     setup() {
       this.fetchKeywords();
