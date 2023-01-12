@@ -263,7 +263,7 @@ describe('db', () => {
             expect(result).to.have.all.keys(...Object.values(emailConstants.notificationType));
             const resultSet = new Set(Object.values(result));
             expect(resultSet.size).to.equal(1);
-            expect(resultSet.has(emailConstants.emailSubscriptionStatus.unsubscribed)).to.equal(true);
+            expect(resultSet.has(emailConstants.emailSubscriptionStatus.subscribed)).to.equal(true);
         });
         it('gets user preferences if custom email subscriptions exist', async () => {
             const preferences = [
@@ -299,23 +299,23 @@ describe('db', () => {
             expect(result).to.have.all.keys(...Object.values(emailConstants.notificationType));
             const resultSet = new Set(Object.values(result));
             expect(resultSet.size).to.equal(1);
-            expect(resultSet.has(emailConstants.emailSubscriptionStatus.unsubscribed)).to.equal(true);
+            expect(resultSet.has(emailConstants.emailSubscriptionStatus.subscribed)).to.equal(true);
         });
         it('sets custom email subscription preferences', async () => {
             await db.setUserEmailSubscriptionPreference(
                 fixtures.users.adminUser.id,
                 fixtures.agencies.accountancy.id,
                 {
-                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.unsubscribed,
                 },
             );
             const result = await db.getUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.agencies.accountancy.id);
             expect(result).to.have.all.keys(...Object.values(emailConstants.notificationType));
-            expect(result[emailConstants.notificationType.grantAssignment]).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
+            expect(result[emailConstants.notificationType.grantAssignment]).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
             const resultSet = new Set(Object.values(result));
             expect(resultSet.size).to.equal(2);
-            expect(resultSet.has(emailConstants.emailSubscriptionStatus.unsubscribed)).to.equal(true);
             expect(resultSet.has(emailConstants.emailSubscriptionStatus.subscribed)).to.equal(true);
+            expect(resultSet.has(emailConstants.emailSubscriptionStatus.unsubscribed)).to.equal(true);
         });
         it('raises error if unknown notification type is supplied', async () => {
             let expectedError = '';
