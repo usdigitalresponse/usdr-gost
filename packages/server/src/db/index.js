@@ -147,6 +147,7 @@ async function getUser(id) {
         }
         user.agency.subagencies = subagencies;
     }
+    user.emailPreferences = await getUserEmailSubscriptionPreference(user.id, user.agency_id);
     return user;
 }
 

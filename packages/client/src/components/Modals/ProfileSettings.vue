@@ -22,7 +22,7 @@
         </v-select>
       </b-form>
       <hr />
-      <h6>Email Notifications (Coming soon): </h6>
+      <h6>Email Notifications: </h6>
       <b-form-group label="" v-slot="{ ariaDescribedby }">
       <b-form-checkbox-group
         v-model="selected"
@@ -46,15 +46,8 @@ export default {
     showModal: Boolean,
   },
   data() {
-    const sample = {
-      GRANT_ASSIGNMENT: Math.floor(Math.random() * 100) / 2 === 0 ? 'UNSUBSCRIBED' : 'SUBSCRIBED',
-      GRANT_DIGEST: Math.floor(Math.random() * 100) / 2 === 0 ? 'SUBSCRIBED' : 'UNSUBSCRIBED',
-    };
-    console.log(sample);
-    const emailPreferences = this.formData?.selectedAgency?.preferences || sample;
-    const subscribed = Object.keys(emailPreferences).filter((p) => emailPreferences[p] === 'SUBSCRIBED');
     return {
-      selected: subscribed,
+      selected: [],
       options: [
         { text: 'Grant Assignments', value: 'GRANT_ASSIGNMENT' },
         { text: 'New Grants Digest', value: 'GRANT_DIGEST' },
@@ -90,11 +83,12 @@ export default {
   },
   mounted() {
     this.formData.selectedAgency = this.settingsSelectedAgency;
+    this.resetSubscriptionForm(this.formData.selectedAgency);
   },
   methods: {
     ...mapActions({
       changeSelectedAgency: 'users/changeSelectedAgency',
-      updateAgencyEmailSubscriptionPreferences: 'agencies/updateAgencyEmailSubscriptionPreferences',
+      updateEmailSubscriptionPreferences: 'users/updateEmailSubscriptionPreferences',
     }),
     resetModal() {
       this.$emit('update:showModal', false);
@@ -102,14 +96,31 @@ export default {
     onAgencySubscriptionChangeSubmit(data) {
       const updatedPreferences = {};
       data.forEach((notificationType) => { updatedPreferences[notificationType] = 'SUBSCRIBED'; });
-      this.updateAgencyEmailSubscriptionPreferences({
-        agencyId: this.formData.selectedAgency.id,
+      this.updateEmailSubscriptionPreferences({
+        userId: this.loggedInUser.id,
         preferences: updatedPreferences,
       });
+    },
+    resetSubscriptionForm(agency) {
+      let disableEmailPreference;
+      if (agency.id === this.loggedInUser.agency.id) {
+        disableEmailPreference = false;
+        const { emailPreferences } = this.loggedInUser;
+        this.selected = Object.keys(emailPreferences).filter((p) => emailPreferences[p] === 'SUBSCRIBED');
+      } else {
+        disableEmailPreference = true;
+        this.selected = [];
+      }
+      const newOptions = [];
+      this.options.forEach((val) => {
+        newOptions.push({ ...val, disabled: disableEmailPreference });
+      });
+      this.options = newOptions;
     },
     onAgencyChangeSubmit(agency) {
       this.changeSelectedAgency(agency.id);
       this.formData.selectedAgency = agency;
+      this.resetSubscriptionForm(agency);
     },
   },
 };
