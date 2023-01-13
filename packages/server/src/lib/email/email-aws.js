@@ -58,7 +58,9 @@ function send(message) {
             },
         },
     };
-    transport.sendEmail(params).promise();
+    transport.sendEmail(params).promise()
+        .then((data) => console.log('Successfully sent email with SES:', data))
+        .catch((err) => console.error(err, err.stack));
 }
 
 module.exports = { send };
