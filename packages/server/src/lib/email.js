@@ -5,6 +5,7 @@ const path = require('path');
 const mustache = require('mustache');
 const emailService = require('./email/service-email');
 const db = require('../db');
+const { notificationType } = require('./email/constants');
 
 const expiryMinutes = 30;
 
@@ -164,7 +165,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     // TODO: add plain text version of the email
     const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
     const emailSubject = `Grant Assigned to ${assignee_agency.name}`;
-    const assginees = await db.getUsersByAgency(assignee_agency.id);
+    const assginees = await db.getSubscribersForNotification(assignee_agency.id, notificationType.grantAssignment);
 
     assginees.forEach((assignee) => module.exports.deliverEmail(
         {
@@ -198,7 +199,7 @@ async function sendGrantDigestForAgency(agency) {
         return undefined;
     }
 
-    const recipients = await db.getUsersByAgency(agency.id);
+    const recipients = await db.getSubscribersForNotification(agency.id, notificationType.grantDigest);
     if (recipients.length === 0) {
         console.log(`${agency.name} has no users for grants digest on ${moment().format('YYYY-MM-DD')}`);
         return undefined;

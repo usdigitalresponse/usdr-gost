@@ -363,5 +363,47 @@ describe('db', () => {
 
             expect(expectedError instanceof Error).to.equal(true);
         });
+        it('gets subscribed users for an agency', async () => {
+            await db.setUserEmailSubscriptionPreference(
+                fixtures.users.adminUser.id,
+                fixtures.agencies.accountancy.id,
+                {
+                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                },
+            );
+            await db.setUserEmailSubscriptionPreference(
+                fixtures.users.staffUser.id,
+                fixtures.agencies.accountancy.id,
+                {
+                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                    [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                },
+            );
+            const assignmentResult = await db.getSubscribersForNotification(
+                fixtures.agencies.accountancy.id,
+                emailConstants.notificationType.grantAssignment,
+            );
+            const assignmentSubscribers = assignmentResult.map((r) => r.email);
+            const digestResult = await db.getSubscribersForNotification(
+                fixtures.agencies.accountancy.id,
+                emailConstants.notificationType.grantDigest,
+            );
+            const digestSubscribers = digestResult.map((r) => r.email);
+            const interestResult = await db.getSubscribersForNotification(
+                fixtures.agencies.accountancy.id,
+                emailConstants.notificationType.grantInterest,
+            );
+            expect(assignmentResult.length).to.equal(2);
+            expect(assignmentSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
+            expect(assignmentSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
+
+            expect(digestResult.length).to.equal(1);
+            expect(digestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
+
+            expect(interestResult.length).to.equal(0);
+        });
     });
 });
