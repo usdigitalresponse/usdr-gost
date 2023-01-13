@@ -1,14 +1,18 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
-
 const multer = require('multer');
 
 const multerUpload = multer({ storage: multer.memoryStorage() });
 const XLSX = require('xlsx');
 const { ensureAsyncContext } = require('../arpa_reporter/lib/ensure-async-context');
-
-const { requireAdminUser, isAuthorized, isUserAuthorized } = require('../lib/access-helpers');
+const {
+    requireAdminUser,
+    requireUser,
+    isAuthorized,
+    isUserAuthorized,
+    isUSDRSuperAdmin,
+} = require('../lib/access-helpers');
 const email = require('../lib/email');
 const db = require('../db');
 const UserImporter = require('../lib/userImporter');
@@ -50,6 +54,35 @@ router.post('/', requireAdminUser, async (req, res, next) => {
         } else {
             next(e);
         }
+    }
+});
+
+router.put('/:userId/email_subscription', requireUser, async (req, res) => {
+    const agencyId = parseInt(req.params.organizationId, 10);
+    const userId = parseInt(req.params.userId, 10);
+    const { user } = req.session;
+
+    if (
+        user.role_name === 'admin'
+        && parseInt(user.agency.id, 10) !== agencyId
+        && !isUSDRSuperAdmin(user)
+    ) {
+        /*
+            Non-USDR admin-users are not allowed to update other users' subscriptions.
+            Even if the agency is a sub-agency of the admin user's agency.
+        */
+        res.sendStatus(403);
+        return;
+    }
+
+    const { preferences } = req.body;
+
+    try {
+        await db.setUserEmailSubscriptionPreference(userId, agencyId, preferences);
+        res.status(200).json({ message: 'Successfully updated preferences.' });
+    } catch (e) {
+        console.error(`Unable to update agency email preferences for user: ${userId} agency: ${agencyId} preferences: ${preferences} error: ${e}`);
+        res.status(500).json({ message: 'Something went wrong while updating preferences. Please try again or reach out to support.' });
     }
 });
 
