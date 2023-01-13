@@ -53,6 +53,7 @@ jobs:
             type=raw,enable=${{ github.ref == 'refs/heads/main' }},priority=300,value=stable
           labels: |
             org.opencontainers.image.title=usdr-gost-api
+            org.opencontainers.image.version={{date 'YYYYMMDD.HHmm'}}
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
@@ -62,5 +63,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           platforms: linux/amd64,linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            GIT_REF=${{ github.ref }}
+            TIMESTAMP=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
       - if: ${{ github.event_name == 'pull_request' }}
         run: echo "Builds triggered by pull requests are not published."
