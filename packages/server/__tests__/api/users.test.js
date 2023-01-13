@@ -2,16 +2,24 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 const { getSessionCookie, makeTestServer } = require('./utils');
 const email = require('../../src/lib/email');
+const emailConstants = require('../../src/lib/email/constants');
 
 describe('`/api/users` endpoint', () => {
     const agencies = {
         own: 0,
+        staffOwn: 400,
         ownSub: 401,
         offLimits: 384,
     };
 
     const fetchOptions = {
         admin: {
+            headers: {
+                'Content-Type': 'application/json',
+                cookie: undefined,
+            },
+        },
+        nonUSDRAdmin: {
             headers: {
                 'Content-Type': 'application/json',
                 cookie: undefined,
@@ -30,6 +38,7 @@ describe('`/api/users` endpoint', () => {
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
+        fetchOptions.nonUSDRAdmin.headers.cookie = await getSessionCookie('joecomeau01@gmail.com');
         fetchOptions.staff.headers.cookie = await getSessionCookie('mindy+testsub@usdigitalresponse.org');
 
         testServer = await makeTestServer();
@@ -179,6 +188,92 @@ describe('`/api/users` endpoint', () => {
                     ...fetchOptions.staff,
                     method: 'delete',
                 });
+                expect(response.statusText).to.equal('Forbidden');
+            });
+        });
+    });
+
+    context('PUT /users/:userId/email_subscription (modify a user\'s email subscription preferences)', () => {
+        const body = JSON.stringify(
+            {
+                preferences: {
+                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                },
+            },
+        );
+
+        context('by a user with admin role', () => {
+            it('updates this user\'s own agency', async () => {
+                const response = await fetchApi(
+                    `/users/2/email_subscription`,
+                    agencies.own,
+                    { ...fetchOptions.admin, method: 'put', body },
+                );
+                expect(response.statusText).to.equal('OK');
+            });
+            context('when it is a USDR super admin', () => {
+                it('updates for subagency of this user\'s own agency', async () => {
+                    const response = await fetchApi(
+                        `/users/2/email_subscription`,
+                        agencies.own,
+                        { ...fetchOptions.admin, method: 'put', body },
+                    );
+                    expect(response.statusText).to.equal('OK');
+                });
+                it('updates for agencies outside this user\'s hierarchy', async () => {
+                    const response = await fetchApi(
+                        `/users/2/email_subscription`,
+                        agencies.own,
+                        { ...fetchOptions.admin, method: 'put', body },
+                    );
+                    expect(response.statusText).to.equal('OK');
+                });
+            });
+            context('when it is a non-USDR admin', () => {
+                it('is forbidden for a subagency of this user\'s own agency', async () => {
+                    const response = await fetchApi(
+                        `/users/3/email_subscription`,
+                        agencies.ownSub,
+                        { ...fetchOptions.nonUSDRAdmin, method: 'put', body },
+                    );
+                    expect(response.statusText).to.equal('Forbidden');
+                });
+                it('is forbidden for agencies outside this user\'s hierarchy', async () => {
+                    const response = await fetchApi(
+                        `/users/3/email_subscription`,
+                        agencies.offLimits,
+                        { ...fetchOptions.nonUSDRAdmin, method: 'put', body },
+                    );
+                    expect(response.statusText).to.equal('Forbidden');
+                });
+            });
+        });
+
+        context('by a user with staff role', () => {
+            it('updates this user\'s own agency', async () => {
+                const response = await fetchApi(
+                    `/users/14/email_subscription`,
+                    agencies.staffOwn,
+                    { ...fetchOptions.staff, method: 'put', body },
+                );
+                expect(response.statusText).to.equal('OK');
+            });
+            it('is forbidden for a subagency of this user\'s own agency', async () => {
+                const response = await fetchApi(
+                    `/users/14/email_subscription`,
+                    agencies.ownSub,
+                    { ...fetchOptions.staff, method: 'put', body },
+                );
+                expect(response.statusText).to.equal('Forbidden');
+            });
+            it('is forbidden for agencies outside this user\'s hierarchy', async () => {
+                const response = await fetchApi(
+                    `/users/14/email_subscription`,
+                    agencies.offLimits,
+                    { ...fetchOptions.staff, method: 'put', body },
+                );
                 expect(response.statusText).to.equal('Forbidden');
             });
         });

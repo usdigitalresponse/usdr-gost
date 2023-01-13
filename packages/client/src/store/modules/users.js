@@ -65,6 +65,12 @@ export default {
       await fetchApi.deleteRequest(`/api/organizations/:organizationId/users/${userId}`);
       await dispatch('fetchUsers');
     },
+    async updateEmailSubscriptionPreferences({ dispatch }, { userId, preferences }) {
+      await fetchApi.put(`/api/organizations/:organizationId/users/${userId}/email_subscription`, {
+        preferences,
+      });
+      dispatch('fetchUsers');
+    },
   },
   mutations: {
     SET_LOGGED_IN_USER(state, user) {
