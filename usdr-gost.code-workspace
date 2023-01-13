@@ -13,5 +13,17 @@
 			"path": "packages/server"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"window.zoomLevel": 0,
+		"diffEditor.ignoreTrimWhitespace": false,
+		"editor.columnSelection": false,
+		"editor.find.cursorMoveOnType": true,
+		"eslint.debug":true,
+		"javascript.format.enable": false,
+		"editor.formatOnSaveMode": "modifications",
+		"eslint.alwaysShowStatus": true,
+		"editor.codeActionsOnSave": {
+			"source.fixAll.eslint": true
+		},
+	}
 }
