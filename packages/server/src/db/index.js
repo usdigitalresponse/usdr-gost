@@ -87,17 +87,17 @@ async function getSubscribersForNotification(agencyId, notificationType) {
         .select(
             'users.id',
             'users.email',
+            'email_subscriptions.status',
         )
-        .join('email_subscriptions', function () {
+        .leftJoin('email_subscriptions', function () {
             this
                 .on('users.id', '=', 'email_subscriptions.user_id')
-                .andOn('users.agency_id', '=', 'email_subscriptions.agency_id');
+                .andOn('users.agency_id', '=', 'email_subscriptions.agency_id')
+                .andOn('email_subscriptions.notification_type', '=', knex.raw('?', [notificationType]));
         })
-        .where('users.agency_id', agencyId)
-        .andWhere('email_subscriptions.notification_type', notificationType)
-        .andWhere('email_subscriptions.status', emailConstants.emailSubscriptionStatus.subscribed);
+        .where('users.agency_id', agencyId);
 
-    return subscribers;
+    return subscribers.filter((s) => s.status !== emailConstants.emailSubscriptionStatus.unsubscribed);
 }
 
 async function getUsersEmailAndName(ids) {
