@@ -20,6 +20,7 @@ try {
 const moment = require('moment');
 const knex = require('./connection');
 const { TABLES } = require('./constants');
+const emailConstants = require('../lib/email/constants');
 const helpers = require('./helpers');
 
 async function getUsers(tenantId) {
@@ -146,6 +147,7 @@ async function getUser(id) {
         }
         user.agency.subagencies = subagencies;
     }
+    user.emailPreferences = await getUserEmailSubscriptionPreference(user.id, user.agency_id);
     return user;
 }
 
@@ -804,6 +806,38 @@ function setAgencyParent(id, agen_parent) {
         .update({ parent: agen_parent });
 }
 
+async function setUserEmailSubscriptionPreference(userId, agencyId, preferences) {
+    const updatedPreferences = { ...emailConstants.defaultSubscriptionPreference, ...preferences };
+
+    const insertValues = [];
+    for (const [notification_type, status] of Object.entries(updatedPreferences)) {
+        insertValues.push({
+            user_id: userId,
+            agency_id: agencyId,
+            updated_at: knex.fn.now(),
+            notification_type,
+            status,
+        });
+    }
+
+    await knex('email_subscriptions')
+        .insert(insertValues)
+        .onConflict(['user_id', 'agency_id', 'notification_type'])
+        .merge(['user_id', 'agency_id', 'status', 'updated_at']);
+}
+
+async function getUserEmailSubscriptionPreference(userId, agencyId) {
+    const result = await knex('email_subscriptions')
+        .where({ user_id: userId, agency_id: agencyId });
+
+    if (result.length === 0) {
+        return emailConstants.defaultSubscriptionPreference;
+    }
+
+    const preferences = Object.assign(...result.map((r) => ({ [r.notification_type]: r.status })));
+    return { ...emailConstants.defaultSubscriptionPreference, ...preferences };
+}
+
 function setTenantDisplayName(id, display_name) {
     return knex(TABLES.tenants)
         .where({
@@ -938,11 +972,13 @@ module.exports = {
     getKeywords,
     getAgencyKeywords,
     getGrantsInterested,
+    getUserEmailSubscriptionPreference,
     setAgencyThresholds,
     setAgencyName,
     setAgencyAbbr,
     setAgencyCode,
     setAgencyParent,
+    setUserEmailSubscriptionPreference,
     setTenantDisplayName,
     createKeyword,
     deleteKeyword,
