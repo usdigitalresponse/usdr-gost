@@ -82,6 +82,24 @@ async function getUsersByAgency(agencyId) {
     return users;
 }
 
+async function getSubscribersForNotification(agencyId, notificationType) {
+    const subscribers = await knex('users')
+        .select(
+            'users.id',
+            'users.email',
+            'email_subscriptions.status',
+        )
+        .leftJoin('email_subscriptions', function () {
+            this
+                .on('users.id', '=', 'email_subscriptions.user_id')
+                .andOn('users.agency_id', '=', 'email_subscriptions.agency_id')
+                .andOn('email_subscriptions.notification_type', '=', knex.raw('?', [notificationType]));
+        })
+        .where('users.agency_id', agencyId);
+
+    return subscribers.filter((s) => s.status !== emailConstants.emailSubscriptionStatus.unsubscribed);
+}
+
 async function getUsersEmailAndName(ids) {
     return knex.select('id', 'name', 'email').from('users').whereIn('id', ids);
 }
@@ -949,6 +967,7 @@ module.exports = {
     createUser,
     deleteUser,
     getUsersByAgency,
+    getSubscribersForNotification,
     getUsersEmailAndName,
     getUser,
     getAgencyCriteriaForAgency,

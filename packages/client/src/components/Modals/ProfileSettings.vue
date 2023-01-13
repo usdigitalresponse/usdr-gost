@@ -94,7 +94,10 @@ export default {
       this.$emit('update:showModal', false);
     },
     onUserSubscriptionChangeSubmit(data) {
-      const updatedPreferences = {};
+      const updatedPreferences = {
+        GRANT_ASSIGNMENT: 'UNSUBSCRIBED',
+        GRANT_DIGEST: 'UNSUBSCRIBED',
+      };
       data.forEach((notificationType) => { updatedPreferences[notificationType] = 'SUBSCRIBED'; });
       this.updateEmailSubscriptionPreferences({
         userId: this.loggedInUser.id,
