@@ -85,7 +85,9 @@ describe('Email module', () => {
             let sendEmailPromiseSpy;
             let MockSDK;
             beforeEach(() => {
-                sendEmailPromiseSpy = sandbox.spy();
+                sendEmailPromiseSpy = sandbox.stub().resolves({
+                    MessageId: "EXAMPLE78603177f-7a5433e7-8edb-42ae-af10-f0181f34d6ee-000000",
+                });
                 MockSDK = {
                     SES: sandbox.stub().returns({
                         sendEmail: () => ({ promise: sendEmailPromiseSpy }),
@@ -94,6 +96,18 @@ describe('Email module', () => {
             });
             afterEach(() => {
                 sandbox.restore();
+            });
+
+            it('Handles a failed SES call', async () => {
+                sendEmailPromiseSpy = sandbox.stub().rejects(new Error("ahhh!"));
+
+                awsTransportPatched.__with__({ AWS: MockSDK })(() => {
+                    delete process.env.SES_REGION;
+                    awsTransportPatched.send(sandbox.spy());
+                });
+
+                expect(MockSDK.SES.callCount).to.equal(1);
+                expect(sendEmailPromiseSpy.callCount).to.equal(1);
             });
 
             it('Sets transport region when SES_REGION is set', async () => {
