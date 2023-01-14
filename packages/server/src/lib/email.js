@@ -120,7 +120,7 @@ function getGrantDetail(grant, emailNotificationType) {
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
             title: grant.title,
-            description: grant.description,
+            description: grant.description && grant.description.length > 400 ? `${grant.description.substring(0, 400)}...` : grant.description,
             status: grant.status,
             show_date_range: grant.open_date && grant.close_date,
             open_date: grant.open_date ? new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
@@ -194,7 +194,6 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
 async function sendGrantDigestForAgency(agency) {
     console.log(`${agency.name} is subscribed for notifications on ${moment().format('YYYY-MM-DD')}`);
     const newGrants = await db.getNewGrantsForAgency(agency);
-
     if (newGrants.length === 0) {
         console.log(`${agency.name} has no new grants on ${moment().format('YYYY-MM-DD')}`);
         return undefined;
@@ -217,7 +216,7 @@ async function sendGrantDigestForAgency(agency) {
 
     if (newGrants[0].total_grants > 3) {
         const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
-        additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: process.env.WEBSITE_DOMAIN });
+        additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
     }
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
