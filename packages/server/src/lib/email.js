@@ -160,7 +160,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const emailHTML = module.exports.addBaseBranding(grantAssignedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'Grants Assigned Notification',
-        notifications_url: process.env.WEBSITE_DOMAIN,
+        notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email
@@ -228,7 +228,7 @@ async function sendGrantDigestForAgency(agency) {
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'New Grants Digest',
-        notifications_url: process.env.WEBSITE_DOMAIN,
+        notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email

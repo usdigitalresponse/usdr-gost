@@ -82,6 +82,9 @@ export default {
     },
   },
   mounted() {
+    if (this.$route.query.manageSettings === 'true') {
+      this.$emit('update:showModal', true);
+    }
     this.formData.selectedAgency = this.settingsSelectedAgency;
     this.resetSubscriptionForm(this.formData.selectedAgency);
   },
