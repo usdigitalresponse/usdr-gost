@@ -43,7 +43,6 @@ function addBaseBranding(emailHTML, brandDetails) {
         // webview_url: 'http://localhost:8080',
         usdr_url: 'http://usdigitalresponse.org',
         usdr_logo_url: 'https://grants.usdigitalresponse.org/usdr_logo_transparent.png',
-        // Manually send an email to Mindy for now to change notification preferences.
         notifications_url,
     }, {
         email_body: emailHTML,
@@ -116,12 +115,12 @@ function sendWelcomeEmail(email, httpOrigin) {
     });
 }
 
-function getGrantDetail(grant) {
+function getGrantDetail(grant, emailNotificationType) {
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
             title: grant.title,
-            description: grant.description,
+            description: grant.description && grant.description.length > 400 ? `${grant.description.substring(0, 400)}...` : grant.description,
             status: grant.status,
             show_date_range: grant.open_date && grant.close_date,
             open_date: grant.open_date ? new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
@@ -131,15 +130,17 @@ function getGrantDetail(grant) {
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
             link_url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
+            grants_url: `${process.env.WEBSITE_DOMAIN}/#/${emailNotificationType === notificationType.grantDigest ? 'grants' : 'my-grants'}`,
+            view_grant_label: emailNotificationType === notificationType.grantDigest ? 'View New Grants' : 'View My Grants',
         },
     );
     return grantDetail;
 }
 
-async function buildGrantDetail(grantId) {
+async function buildGrantDetail(grantId, emailNotificationType) {
     // Add try catch here.
     const grant = await db.getGrant({ grantId });
-    const grantDetail = module.exports.getGrantDetail(grant);
+    const grantDetail = module.exports.getGrantDetail(grant, emailNotificationType);
     return grantDetail;
 }
 
@@ -159,7 +160,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const emailHTML = module.exports.addBaseBranding(grantAssignedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'Grants Assigned Notification',
-        notifications_url: 'mailto:grants-helpdesk@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant assigned notification email.',
+        notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email
@@ -185,7 +186,7 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
         2b. For each user part of the agency
             i. Send email
     */
-    const grantDetail = await buildGrantDetail(grantId);
+    const grantDetail = await buildGrantDetail(grantId, notificationType.grantAssignment);
     const agencies = await db.getAgenciesByIds(agencyIds);
     agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
 }
@@ -193,7 +194,6 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
 async function sendGrantDigestForAgency(agency) {
     console.log(`${agency.name} is subscribed for notifications on ${moment().format('YYYY-MM-DD')}`);
     const newGrants = await db.getNewGrantsForAgency(agency);
-
     if (newGrants.length === 0) {
         console.log(`${agency.name} has no new grants on ${moment().format('YYYY-MM-DD')}`);
         return undefined;
@@ -206,7 +206,7 @@ async function sendGrantDigestForAgency(agency) {
     }
 
     const grantDetails = [];
-    newGrants.forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant)));
+    newGrants.forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
 
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
@@ -216,7 +216,7 @@ async function sendGrantDigestForAgency(agency) {
 
     if (newGrants[0].total_grants > 3) {
         const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
-        additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: process.env.WEBSITE_DOMAIN });
+        additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
     }
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
@@ -228,7 +228,7 @@ async function sendGrantDigestForAgency(agency) {
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'New Grants Digest',
-        notifications_url: 'mailto:grants-helpdesk@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant digest notification email.',
+        notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email

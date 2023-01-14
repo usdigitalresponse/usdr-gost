@@ -4,8 +4,17 @@
 // redirect URL is returned. In the future, this function could also transform
 // the URL if needed.
 function validatePostLoginRedirectPath(url) {
+    const safeUrls = [
+        '#/grants?manageSettings=true',
+    ];
+
     if (!url) {
         return null;
+    }
+
+    // Ensures we have a allowlist of redirect URLs that are always safe.
+    if (safeUrls.includes(url)) {
+        return url;
     }
 
     // Non-relative URLs could create an open redirect usable for phishing attacks.
