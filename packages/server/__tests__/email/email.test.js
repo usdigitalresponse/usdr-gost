@@ -86,7 +86,7 @@ describe('Email module', () => {
             let MockSDK;
             beforeEach(() => {
                 sendEmailPromiseSpy = sandbox.stub().resolves({
-                    MessageId: "EXAMPLE78603177f-7a5433e7-8edb-42ae-af10-f0181f34d6ee-000000",
+                    MessageId: 'EXAMPLE78603177f-7a5433e7-8edb-42ae-af10-f0181f34d6ee-000000',
                 });
                 MockSDK = {
                     SES: sandbox.stub().returns({
@@ -99,7 +99,7 @@ describe('Email module', () => {
             });
 
             it('Handles a failed SES call', async () => {
-                sendEmailPromiseSpy = sandbox.stub().rejects(new Error("ahhh!"));
+                sendEmailPromiseSpy = sandbox.stub().rejects(new Error('ahhh!'));
 
                 awsTransportPatched.__with__({ AWS: MockSDK })(() => {
                     delete process.env.SES_REGION;
