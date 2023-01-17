@@ -30,6 +30,7 @@ jobs:
       contents: read
       packages: write
     steps:
+      - run: echo ${{ github.workflow_ref }}
       - uses: actions/checkout@v3
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
