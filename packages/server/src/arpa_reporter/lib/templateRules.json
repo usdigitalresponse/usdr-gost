@@ -1,7 +1,7 @@
 {
   "logic": {
     "version": {
-      "version": "v:20221228",
+      "version": "v:20230113",
       "key": "version",
       "index": 0,
       "required": false,
@@ -5561,7 +5561,7 @@
     "Is_project_designed_to_meet_100_mbps__c": {
       "key": "Is_project_designed_to_meet_100_mbps__c",
       "index": 33,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
@@ -5687,7 +5687,7 @@
     "Technology_Type_Planned__c": {
       "key": "Technology_Type_Planned__c",
       "index": 39,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
@@ -5757,7 +5757,7 @@
     "Total_Miles_of_Fiber_Deployed_c": {
       "key": "Total_Miles_of_Fiber_Deployed_c",
       "index": 43,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5787,7 +5787,7 @@
     "Planned_Funded_Locations_Served__c": {
       "key": "Planned_Funded_Locations_Served__c",
       "index": 45,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5817,7 +5817,7 @@
     "Planned_Funded_Locations_25_3_Below__c": {
       "key": "Planned_Funded_Locations_25_3_Below__c",
       "index": 47,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5832,7 +5832,7 @@
     "Planned_Funded_Locations_Between_25_100__c": {
       "key": "Planned_Funded_Locations_Between_25_100__c",
       "index": 48,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5869,7 +5869,7 @@
     "Planned_Funded_Locations_Minimum_100_100__c": {
       "key": "Planned_Funded_Locations_Minimum_100_100__c",
       "index": 51,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5899,7 +5899,7 @@
     "Planned_Funded_Locations_Minimum_100_20__c": {
       "key": "Planned_Funded_Locations_Minimum_100_20__c",
       "index": 53,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5929,7 +5929,7 @@
     "Planned_Funded_Locations_Residential__c": {
       "key": "Planned_Funded_Locations_Residential__c",
       "index": 55,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5959,7 +5959,7 @@
     "Planned_Funded_Locations_Total_Housing__c": {
       "key": "Planned_Funded_Locations_Total_Housing__c",
       "index": 57,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5989,7 +5989,7 @@
     "Planned_Funded_Locations_Business__c": {
       "key": "Planned_Funded_Locations_Business__c",
       "index": 59,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -6019,7 +6019,7 @@
     "Planned_Funded_Locations_Community__c": {
       "key": "Planned_Funded_Locations_Community__c",
       "index": 61,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
