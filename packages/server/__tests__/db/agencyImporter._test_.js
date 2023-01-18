@@ -34,8 +34,8 @@ describe('agencyImporter class test', () => {
         it('verifies that appropriate number of errors is returned', async () => {
             const ret = await doImport('testAgencyUploadErrors');
             expect(ret.status.agencies.added).to.equal(1);
-            expect(ret.status.agencies.errored).to.equal(6);
-            expect(ret.status.errors.length).to.equal(12);
+            expect(ret.status.agencies.errored).to.equal(7);
+            expect(ret.status.errors.length).to.equal(14);
         });
     });
 });
