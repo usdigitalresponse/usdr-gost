@@ -7,7 +7,7 @@
         <DownloadTemplateBtn />
 
         <router-link to="/new_upload" class="btn btn-primary ml-2">
-          Submit Spreadsheet
+          Submit Workbook
         </router-link>
       </div>
     </div>

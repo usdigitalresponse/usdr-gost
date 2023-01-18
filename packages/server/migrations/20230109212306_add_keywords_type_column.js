@@ -2,8 +2,9 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.up = async function(knex) {
-    await knex.schema.table('keywords', (table) => { table.string('type')});
+
+exports.up = async function (knex) {
+    await knex.schema.table('keywords', (table) => { table.string('type'); });
     try {
         await knex.transaction(async (trx) => {
             await trx('keywords').update('type', 'include');
@@ -17,6 +18,6 @@ exports.up = async function(knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = async function(knex) {
+exports.down = async function (knex) {
     await knex.schema.table('keywords', (table) => { table.dropColumn('type'); });
 };
