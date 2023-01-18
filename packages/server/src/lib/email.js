@@ -182,22 +182,11 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
     agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
 }
 
-async function sendGrantDigestForAgency(agency) {
-    console.log(`${agency.name} is subscribed for notifications on ${moment().format('YYYY-MM-DD')}`);
-    const newGrants = await db.getNewGrantsForAgency(agency);
-    if (newGrants.length === 0) {
-        console.log(`${agency.name} has no new grants on ${moment().format('YYYY-MM-DD')}`);
-        return undefined;
-    }
-
-    const recipients = await db.getSubscribersForNotification(agency.id, notificationType.grantDigest);
-    if (recipients.length === 0) {
-        console.log(`${agency.name} has no users for grants digest on ${moment().format('YYYY-MM-DD')}`);
-        return undefined;
-    }
+async function sendGrantDigestForAgency(agency, openDate) {
+    console.log(`${agency.name} is subscribed for notifications on ${openDate}`);
 
     const grantDetails = [];
-    newGrants.forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
+    agency.matched_grants.slice(2).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
 
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
@@ -205,14 +194,14 @@ async function sendGrantDigestForAgency(agency) {
 
     let additionalBody = grantDetails.join(contentSpacerStr);
 
-    if (newGrants[0].total_grants > 3) {
+    if (agency.matched_grants.length > 3) {
         const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
         additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
     }
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
         body_title: 'New grants have been posted',
-        body_detail: `There are ${newGrants[0].total_grants} new grants matching your agency's keywords and settings.`,
+        body_detail: `There are ${agency.matched_grants.length} new grants matching your agency's keywords and settings.`,
         additional_body: additionalBody,
     });
 
@@ -225,10 +214,10 @@ async function sendGrantDigestForAgency(agency) {
     // TODO: add plain text version of the email
     const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
 
-    recipients.forEach(
+    agency.recipients.forEach(
         (recipient) => module.exports.deliverEmail(
             {
-                toAddress: recipient.email,
+                toAddress: recipient.trim(),
                 emailHTML,
                 emailPlain,
                 subject: `New Grants published for ${agency.name}`,
@@ -240,14 +229,20 @@ async function sendGrantDigestForAgency(agency) {
 }
 
 async function buildAndSendGrantDigest() {
-    console.log(`Building and sending Grants Digest email for all agencies on ${moment().format('YYYY-MM-DD')}`);
+    const openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
+    console.log(`Building and sending Grants Digest email for all agencies on ${openDate}`);
     /*
     1. get all agencies with notificaiton turned on (temporarily get all agencies with a custom keyword)
     2. for each agency
         call sendGrantDigestForAgency
     */
-    const agencies = await db.getAgenciesSubscribedToDigest();
-    agencies.forEach((agency) => module.exports.sendGrantDigestForAgency(agency));
+    const agencies = await db.getAgenciesSubscribedToDigest(openDate);
+
+    /* eslint-disable no-await-in-loop */
+    for (const agency in agencies) {
+        await module.exports.sendGrantDigestForAgency(agency, openDate);
+    }
+    /* eslint-enable no-await-in-loop */
 }
 
 module.exports = {
