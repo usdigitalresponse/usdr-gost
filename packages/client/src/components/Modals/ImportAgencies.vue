@@ -9,7 +9,7 @@
       ok-only="true"
     >
       <div>
-        <ul> <!-- -->
+        <ul>
           <li>Download the bulk import Excel template file by clicking <a href="./agencyImportTemplate.xlsx">here.</a></li>
           <li>Add new agencies to the Excel file and save it. Make sure that parent agency rows are above all their children agency rows.</li>
           <li>Select your newly edited bulk import file using the <i>Choose File</i> button below, and click <i>Upload</i>.</li>
