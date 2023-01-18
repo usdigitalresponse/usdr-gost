@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      agencies: 'agencies/agencies',
+      fetchAgencies: 'agencies/fetchAgencies',
     }),
     setStatus(theStatus) {
       const statusObj = theStatus.ret.status;
@@ -64,7 +64,7 @@ export default {
     },
     resetModal() {
       this.formData = {};
-      this.agencies();
+      this.fetchAgencies();
       this.$emit('update:showUploadModal', false);
     },
     async handleSubmit() {
