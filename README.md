@@ -197,42 +197,7 @@ Install the eslint plugin https://marketplace.visualstudio.com/items?itemName=db
 
 After that you should be able to see eslint prompts in js files
 
-For linting on auto save:
-
-- Go to VSCode settings
-  - Shift + Command + P
-  - Search for settings
-  - Select "Open Settings (JSON)"
-- Paste the following snippet
-
-```
-"editor.formatOnSaveMode": "modifications",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-}
-```
-
-Note: Before Pasting check if there are any conflicting settings regarding esling or formatOnSave
-
-Sharing my complete VSCode Setting
-
-```
-{
-  "terminal.integrated.shell.osx": "/bin/zsh",
-  "azureFunctions.showProjectWarning": false,
-  "window.zoomLevel": 0,
-  "diffEditor.ignoreTrimWhitespace": false,
-  "azureFunctions.showCoreToolsWarning": false,
-  "editor.columnSelection": false,
-  "editor.find.cursorMoveOnType": true,
-  "editor.formatOnSaveMode": "modifications",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  }
-}
-```
+To enable linting on save, a settings section has been included in the `usdr-gost.code-workspace` workspace which sets the appropriate linting options.
 
 ### IntelliJ
 

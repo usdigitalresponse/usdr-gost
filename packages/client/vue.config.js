@@ -3,6 +3,9 @@
 process.env.VUE_APP_IS_GOST = true;
 
 module.exports = {
+  configureWebpack: {
+    devtool: 'source-map',
+  },
   pages: {
     main: {
       entry: 'src/main.js',

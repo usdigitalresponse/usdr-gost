@@ -10,6 +10,7 @@ const fixtures = require('../db/seeds/fixtures');
 const knex = require('../../src/db/connection');
 const db = require('../../src/db');
 const awsTransport = require('../../src/lib/email/email-aws');
+const emailConstants = require('../../src/lib/email/constants');
 
 const {
     TEST_EMAIL_RECIPIENT,
@@ -257,6 +258,20 @@ describe('Email sender', () => {
         it('sendGrantAssignedNotficationForAgency delivers email for all users within agency', async () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(email, 'deliverEmail', sendFake);
+            await db.setUserEmailSubscriptionPreference(
+                fixtures.users.adminUser.id,
+                fixtures.agencies.accountancy.id,
+                {
+                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
+                },
+            );
+            await db.setUserEmailSubscriptionPreference(
+                fixtures.users.staffUser.id,
+                fixtures.agencies.accountancy.id,
+                {
+                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
+                },
+            );
 
             await email.sendGrantAssignedNotficationForAgency(fixtures.agencies.accountancy, '<p>sample html</p>', fixtures.users.adminUser.id);
 
@@ -311,8 +326,22 @@ describe('Email sender', () => {
             newGrant.grant_id = '444816';
             newGrant.open_date = '2022-06-21';
             await knex('grants').insert(Object.values([newGrant]));
+            await db.setUserEmailSubscriptionPreference(
+                fixtures.users.adminUser.id,
+                fixtures.agencies.accountancy.id,
+                {
+                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
+                },
+            );
+            await db.setUserEmailSubscriptionPreference(
+                fixtures.users.staffUser.id,
+                fixtures.agencies.accountancy.id,
+                {
+                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
+                },
+            );
 
-            const agencies = await db.getAgency(0);
+            const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
             await email.sendGrantDigestForAgency(agencies[0]);
 
             expect(sendFake.calledTwice).to.equal(true);
