@@ -6,8 +6,8 @@ class AgencyImporter {
             name: row.name,
             abbreviation: row.abbreviation,
             parent: this.agencies[row.parent_name].id,
-            warning_threshold: Number.parseInt(row.warning_threshold),
-            danger_threshold: Number.parseInt(row.danger_threshold),
+            warning_threshold: Number.parseInt(row.warning_threshold, 10),
+            danger_threshold: Number.parseInt(row.danger_threshold, 10),
             main_agency_id: this.main_agency_id,
             tenant_id: adminUser.tenant_id,
             code: row.code,
@@ -38,10 +38,8 @@ class AgencyImporter {
         const warn = Number.parseInt(row.warning_threshold, 10);
         if (Number.isNaN(warn)) {
             ret.push(`${rowNumStr}warning_threshold: should be integer, not ${row.warning_threshold}`);
-        } else {
-            if (warn < 1) {
-                ret.push(`${rowNumStr}warning_threshold: should be greater than zero, not ${row.warning_threshold}`);
-            }
+        } else if (warn < 1) {
+            ret.push(`${rowNumStr}warning_threshold: should be greater than zero, not ${row.warning_threshold}`);
         }
         if (!row.danger_threshold) {
             ret.push(`${rowNumStr}danger_threshold: Missing danger_threshold`);
@@ -49,10 +47,8 @@ class AgencyImporter {
         const danger = Number.parseInt(row.danger_threshold, 10);
         if (Number.isNaN(danger)) {
             ret.push(`${rowNumStr}danger_threshold: should be integer, not ${row.danger_threshold}`);
-        } else {
-            if (danger < 1) {
-                ret.push(`${rowNumStr}danger_threshold: should be greater than zero, not ${row.danger_threshold}`);
-            }
+        } else if (danger < 1) {
+            ret.push(`${rowNumStr}danger_threshold: should be greater than zero, not ${row.danger_threshold}`);
         }
         return ret;
     }
@@ -87,9 +83,10 @@ class AgencyImporter {
                     retVal.status.agencies.errored += 1;
                     retVal.status.errors.push(...theErrors);
                 } else {
-                    // eslint-disable-next-line no-await-in-loop
                     const agency = this.agencyFromRow(rowsList[rowIndex], user);
-                    await db.createAgency(agency, user.id);
+                    // eslint-disable-next-line no-await-in-loop
+                    await db.createAgency(agency, user.id); 
+                    // eslint-disable-next-line no-await-in-loop
                     await this.getAgencies(user);
                     retVal.status.agencies.added += 1;
                 }

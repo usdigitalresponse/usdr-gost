@@ -21,8 +21,8 @@ describe('agencyImporter class test', () => {
         const workbook = XLSX.readFile(path.join(__dirname, `${fileName}.xlsx`));
         const rowsList = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
         const agencyImporter = new AgencyImporter();
-        return await agencyImporter.import(fixtures.users.adminUser, rowsList);
-    };
+        return agencyImporter.import(fixtures.users.adminUser, rowsList);
+    }
 
     context('unit tests for AgencyImporter class', () => {
         it('verifies that correct number of agencies are added', async () => {
@@ -30,7 +30,6 @@ describe('agencyImporter class test', () => {
             expect(ret.status.agencies.added).to.equal(8);
             expect(ret.status.agencies.errored).to.equal(0);
             expect(ret.status.errors.length).to.equal(0);
-
         });
         it('verifies that appropriate number of errors is returned', async () => {
             const ret = await doImport('testAgencyUploadErrors');

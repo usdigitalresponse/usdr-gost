@@ -269,7 +269,7 @@ module.exports.seed = async (knex) => {
     await knex(TABLES.tenants).insert(Object.values(tenants));
     await knex(TABLES.roles).insert(Object.values(roles));
     await knex(TABLES.agencies).insert(Object.values(agencies));
-    await knex(TABLES.tenants).update({ main_agency_id: agencies.accountancy.id }).where("id", 0);
+    await knex(TABLES.tenants).update({ main_agency_id: agencies.accountancy.id }).where('id', 0);
     await knex(TABLES.users).insert(Object.values(users));
     await knex(TABLES.keywords).insert(Object.values(keywords));
     await knex(TABLES.interested_codes).insert(Object.values(interestedCodes));
