@@ -12,5 +12,6 @@ module.exports = {
         eligibility_codes: 'eligibility_codes',
         agency_eligibility_codes: 'agency_eligibility_codes',
         keywords: 'keywords',
+        email_subscriptions: 'email_subscriptions',
     },
 };

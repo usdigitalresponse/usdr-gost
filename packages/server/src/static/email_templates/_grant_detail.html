@@ -51,17 +51,19 @@
                                                 style="Margin:0;padding-top:10px;padding-bottom:15px;padding-left:20px;padding-right:20px">
                                                 <p
                                                     style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:24px;color:#000000;font-size:16px">
-                                                    <span class="product-description"><strong>Status:
-                                                        </strong>{{status}}<br>
-                                                        {{#show_date_range}}<strong>Valid from:
-                                                        </strong>{{open_date}} - {{close_date}}<br>{{/show_date_range}}
-                                                        <strong>Award Range:
-                                                        </strong>{{award_floor}} – {{award_ceiling}}<br>
-                                                        {{#estimated_funding}}<strong>Estimated
-                                                            Total Program Funding:
-                                                        </strong>{{estimated_funding}}<br>{{/estimated_funding}}
-                                                        {{#cost_sharing}}<strong>Cost Sharing:
-                                                        </strong>{{cost_sharing}}{{/cost_sharing}}
+                                                    <span class="product-description">
+                                                        <strong>Status: </strong>{{status}}<br>
+                                                        {{#show_date_range}}
+                                                            <strong>Valid from: </strong>{{open_date}} - {{close_date}}<br>
+                                                        {{/show_date_range}}
+                                                        <strong>Award Range: </strong>{{award_floor}} – {{award_ceiling}}<br>
+                                                        {{#estimated_funding}}
+                                                            <strong>Estimated Total Program Funding:</strong>{{estimated_funding}}<br>
+                                                        {{/estimated_funding}}
+                                                        {{#cost_sharing}}
+                                                            <strong>Cost Sharing:</strong>{{cost_sharing}}<br>
+                                                        {{/cost_sharing}}
+                                                        <strong><a href="{{link_url}}">View in Grants.gov</a></strong>
                                                     </span>
                                                 </p>
                                             </td>
@@ -78,9 +80,8 @@
   <![endif]-->
                                                 <!--[if !mso]><!-- --><span class="msohide es-button-border"
                                                     style="border-style:solid;border-color:#75B6C9;background:#007bff;border-width:1px;display:inline-block;border-radius:28px;width:auto;mso-hide:all"><a
-                                                        href="{{link_url}}" class="es-button" target="_blank"
-                                                        style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;color:#FFFFFF;font-size:16px;border-style:solid;border-color:#007bff;border-width:15px 25px 15px 25px;display:inline-block;background:#007bff;border-radius:28px;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-weight:normal;font-style:normal;line-height:19px;width:auto;text-align:center">View
-                                                        Grant</a></span>
+                                                        href="{{grants_url}}" class="es-button" target="_blank"
+                                                        style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;color:#FFFFFF;font-size:16px;border-style:solid;border-color:#007bff;border-width:15px 25px 15px 25px;display:inline-block;background:#007bff;border-radius:28px;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-weight:normal;font-style:normal;line-height:19px;width:auto;text-align:center">{{view_grant_label}}</a></span>
                                                 <!--<![endif]-->
                                             </td>
                                         </tr>

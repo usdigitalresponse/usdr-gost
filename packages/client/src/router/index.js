@@ -26,7 +26,7 @@ const routes = [
   {
     path: '/',
     name: 'layout',
-    redirect: '/dashboard',
+    redirect: '/my-grants',
     component: Layout,
     meta: {
       requiresAuth: true,
@@ -116,7 +116,7 @@ const routes = [
   },
   {
     path: '*',
-    redirect: '/dashboard',
+    redirect: '/my-grants',
   },
 ];
 
