@@ -312,7 +312,7 @@ async function getNewGrantsById(asOf) {
         .where({ open_date });
 
     const grantsById = rows.reduce((obj, item) => {
-        obj[item.id] = item;
+        obj[item.grant_id] = item;
         return obj;
     }, {});
 
@@ -666,7 +666,22 @@ async function getAgenciesSubscribedToDigest(asOf) {
 
     const query = knex.raw(
         `
-        WITH agency_data AS (
+        WITH enabled_codes AS (
+            SELECT
+                a.id AS agency_id,
+                ec.code,
+                CASE WHEN aec.enabled IS NULL THEN
+                    TRUE
+                ELSE
+                    aec.enabled
+                END as enabled
+            FROM
+                eligibility_codes ec
+            CROSS JOIN agencies a
+            LEFT JOIN agency_eligibility_codes aec ON ec.code = aec.code
+                AND a.id = aec.agency_id
+        ),
+        agency_data AS (
             SELECT
                 a.id,
                 a.name,
@@ -678,27 +693,28 @@ async function getAgenciesSubscribedToDigest(asOf) {
                     ' | ') AS emails
             FROM
                 agencies a
-                JOIN agency_eligibility_codes aec ON aec.agency_id = a.id
-                    AND aec.enabled = TRUE
-                JOIN keywords k ON k.agency_id = a.id
-                JOIN users u ON u.agency_id = a.id
-            GROUP BY
-                a.id
+            JOIN enabled_codes aec ON aec.agency_id = a.id
+                AND aec.enabled = TRUE
+            JOIN keywords k ON k.agency_id = a.id
+            JOIN users u ON u.agency_id = a.id
+        GROUP BY
+            a.id
         )
         SELECT
             ad.id,
             ad.name,
-            ad.emails as user_emails,
+            ad.emails AS user_emails,
             string_agg(DISTINCT g.grant_id, '|') AS matched_grant_ids
         FROM
             grants g
             JOIN agency_data ad ON g.eligibility_codes ~ ad.codes
                 AND g.description ~* ad.term
-            WHERE g.open_date = :open_date
-            GROUP BY
-                ad.id,
-                ad.name,
-                ad.emails;
+        WHERE
+            g.open_date = :open_date
+        GROUP BY
+            ad.id,
+            ad.name,
+            ad.emails;
         `,
         { open_date },
     );
@@ -706,7 +722,7 @@ async function getAgenciesSubscribedToDigest(asOf) {
     const result = await query;
     const newGrantsById = await module.exports.getNewGrantsById(open_date);
 
-    result.forEach((r) => {
+    result.rows.forEach((r) => {
         r.recipients = r.user_emails.split(' | ');
         r.matched_grants = r.matched_grant_ids.split('|').reduce((arr, grantId) => {
             arr.push(newGrantsById[grantId]);
@@ -714,7 +730,7 @@ async function getAgenciesSubscribedToDigest(asOf) {
         }, []);
     });
 
-    return result;
+    return result.rows;
 }
 
 async function getTenantAgencies(tenantId) {

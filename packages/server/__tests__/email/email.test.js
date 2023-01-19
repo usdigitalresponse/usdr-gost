@@ -307,6 +307,7 @@ describe('Email sender', () => {
             sinon.replace(email, 'sendGrantDigestForAgency', sendFake);
 
             await email.buildAndSendGrantDigest();
+            console.log(sendFake.getCalls());
 
             expect(sendFake.calledTwice).to.equal(true);
         });
@@ -315,6 +316,10 @@ describe('Email sender', () => {
             sinon.replace(email, 'deliverEmail', sendFake);
 
             const agencies = await db.getAgency(0);
+            const agency = agencies[0];
+            agency.matched_grants = [];
+            agency.recipients = ['foo@example.com'];
+
             await email.sendGrantDigestForAgency(agencies[0]);
 
             expect(sendFake.called).to.equal(false);
@@ -342,7 +347,9 @@ describe('Email sender', () => {
             );
 
             const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
-            await email.sendGrantDigestForAgency(agencies[0]);
+            const agency = agencies[0];
+
+            await email.sendGrantDigestForAgency(agency);
 
             expect(sendFake.calledTwice).to.equal(true);
         });

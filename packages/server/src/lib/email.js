@@ -184,6 +184,15 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
 
 async function sendGrantDigestForAgency(agency, openDate) {
     console.log(`${agency.name} is subscribed for notifications on ${openDate}`);
+    if (agency.matched_grants.length === 0) {
+        console.error(`There were no grants available for ${agency.name}`);
+        return;
+    }
+
+    if (agency.recipients.length === 0) {
+        console.error(`There were no email recipients available for ${agency.name}`);
+        return;
+    }
 
     const grantDetails = [];
     agency.matched_grants.slice(2).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
@@ -224,8 +233,6 @@ async function sendGrantDigestForAgency(agency, openDate) {
             },
         ),
     );
-
-    return undefined;
 }
 
 async function buildAndSendGrantDigest() {
