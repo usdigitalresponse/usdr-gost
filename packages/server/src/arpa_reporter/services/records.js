@@ -1,5 +1,5 @@
 const XLSX = require('xlsx')
-const { merge } = require('lodash')
+const { merge, clone } = require('lodash')
 
 const { bufferForUpload } = require('./persist-upload')
 const { getPreviousReportingPeriods } = require('../db/reporting-periods')
@@ -57,7 +57,11 @@ function readVersionRecord (workbook) {
  * @param {object} upload The upload to read
  * @returns {Promise<object[]>}
  */
-async function loadRecordsForUpload (upload) {
+async function loadRecordsForUpload (uploadOriginal) {
+  // Make sure we don't include this parsed data in the upload references in these records,
+  // otherwise we'll save redundant copies to the db
+  let upload = clone(uploadOriginal)
+  delete upload.parsed_data
   log(`loadRecordsForUpload(${upload.id})`)
 
   const rules = getRules()
@@ -163,7 +167,7 @@ async function loadRecordsForUpload (upload) {
 async function recordsForUpload (upload) {
   log(`recordsForUpload(${upload.id})`)
 
-  const req = useRequest()
+  const req = useRequest() || {} // fallback to {} if there is no req (happens during scripts)
   if (!req.recordsForUpload) {
     req.recordsForUpload = {}
   }
@@ -171,6 +175,12 @@ async function recordsForUpload (upload) {
     log(`recordsForUpload(${upload.id}): reading from cache`)
     return req.recordsForUpload[upload.id]
   }
+
+  if (upload.parsed_data) {
+    log(`recordsForUpload(${upload.id}): Upload has cached data available to read`)
+    // TODO: When should we use the cached data vs a realtime read?
+  }
+
   log(`recordsForUpload(${upload.id}): reading from disk`)
   const recordPromise = loadRecordsForUpload(upload)
 
@@ -223,6 +233,7 @@ async function mostRecentProjectRecords (periodId) {
 module.exports = {
   recordsForReportingPeriod,
   recordsForUpload,
+  loadRecordsForUpload,
   mostRecentProjectRecords,
   DATA_SHEET_TYPES,
   TYPE_TO_SHEET_NAME,

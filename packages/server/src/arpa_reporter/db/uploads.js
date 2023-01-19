@@ -97,6 +97,12 @@ async function createUpload (upload, trns = knex) {
   return inserted
 }
 
+async function cacheRecords(upload, records, trns = knex) {
+  return trns('uploads')
+    .where('id', upload.id)
+    .update({ parsed_data: JSON.stringify(records) })
+}
+
 async function setAgencyId (uploadId, agencyId, trns = knex) {
   return trns('uploads')
     .where('id', uploadId)
@@ -157,6 +163,7 @@ module.exports = {
   getUpload,
   uploadsInPeriod,
   uploadsInSeries,
+  cacheRecords,
   setAgencyId,
   setEcCode,
   markValidated,
