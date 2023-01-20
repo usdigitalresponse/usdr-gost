@@ -417,7 +417,6 @@
     js-tokens "^4.0.0"
 
 "@babel/parser@^7.1.6", "@babel/parser@^7.16.4", "@babel/parser@^7.18.4", "@babel/parser@^7.20.7", "@babel/parser@^7.7.0":
-"@babel/parser@^7.1.6", "@babel/parser@^7.16.4", "@babel/parser@^7.18.4", "@babel/parser@^7.20.7", "@babel/parser@^7.7.0":
   version "7.20.7"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.20.7.tgz#66fe23b3c8569220817d5feb8b9dcdc95bb4f71b"
   integrity sha512-T3Z9oHybU+0vZlY9CiDSJQTD5ZapcW18ZctFMi0MOAl/4BjFF4ul7NVSARLdbGO5vDqy9eQiGTV0LtKfvCYvcg==
@@ -5891,6 +5890,11 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
     which "^2.0.1"
+
+cryo@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/cryo/-/cryo-0.0.6.tgz#16833295d2ee16ff39711db840617b7ae4af0ba4"
+  integrity sha512-vSbO1hJvP9oOGXcKHiAj3U37rtErI8jIZ8gOp8EfiQgPncAv6nc4JArGWzqrxlwA5xe6Sph5OUAg//7yqTOyIg==
 
 crypto-random-string@^2.0.0:
   version "2.0.0"
