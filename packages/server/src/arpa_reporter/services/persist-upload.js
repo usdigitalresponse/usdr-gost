@@ -3,11 +3,13 @@
 const path = require('path')
 const { mkdir, writeFile, readFile } = require('fs/promises')
 
-const xlsx = require('xlsx')
+const Cryo = require('cryo')
+const XLSX = require('xlsx')
 
 const { getReportingPeriod } = require('../db/reporting-periods')
 const { createUpload } = require('../db/uploads')
-const { UPLOAD_DIR } = require('../environment')
+const { TEMP_DIR, UPLOAD_DIR } = require('../environment')
+const { log } = require('../lib/log')
 const ValidationError = require('../lib/validation-error')
 
 // WARNING: changes to this function must be made with care, because:
@@ -19,10 +21,15 @@ const uploadFSName = (upload) => {
   return path.join(UPLOAD_DIR, filename)
 }
 
+const jsonFSName = (upload) => {
+  const filename = `${upload.id}.json`
+  return path.join(TEMP_DIR, filename)
+}
+
 async function persistUpload ({ filename, user, buffer }) {
   // let's make sure we can actually read the supplied buffer (it's a valid spreadsheet)
   try {
-    await xlsx.read(buffer, { type: 'buffer' })
+    await XLSX.read(buffer, { type: 'buffer' })
   } catch (e) {
     throw new ValidationError(`Cannot parse XLSX from data in ${filename}: ${e}`)
   }
@@ -54,13 +61,63 @@ async function persistUpload ({ filename, user, buffer }) {
   return upload
 }
 
+async function persistJson (upload, workbook) {
+  // persist the parsed JSON from an upload to the filesystem
+  try {
+    await mkdir(TEMP_DIR, { recursive: true })
+    await writeFile(
+      jsonFSName(upload),
+      Cryo.stringify(workbook),
+      { flag: 'wx' }
+    )
+  } catch (e) {
+    throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`)
+  }
+}
+
 async function bufferForUpload (upload) {
   return readFile(uploadFSName(upload))
 }
 
+async function jsonForUpload (upload) {
+  return Cryo.parse(await readFile(jsonFSName(upload), {encoding: 'utf-8'}))
+}
+
+/**
+ * As of xlsx@0.18.5, the XLSX.read operation is very inefficient.
+ * This function abstracts XLSX.read, and incorporates a local disk cache to
+ * avoid running the parse operation more than once per upload.
+ *
+ * @param {*} upload DB upload content
+ * @param {XLSX.ParsingOptions} options The options object that will be passed to XLSX.read
+ * @return {XLSX.Workbook}s The uploaded workbook, as parsed by XLSX.read.
+ */
+async function workbookForUpload (upload, options) {
+  log(`workbookForUpload(${upload.id})`)
+
+  let workbook
+  try {
+    // attempt to read pre-parsed JSON, if it exists
+    log(`attempting cache lookup for parsed workbook`)
+    workbook = await jsonForUpload(upload)
+  } catch (e) {
+    // fall back to reading the originally-uploaded .xlsm file and parsing it
+    log(`cache lookup failed, parsing originally uploaded .xlsm file`)
+    const buffer = await bufferForUpload(upload)
+
+    // NOTE: This is the slow line!
+    log(`XLSX.read(${upload.id})`)
+    workbook = XLSX.read(buffer, options)
+
+    persistJson(upload, workbook)
+  }
+
+  return workbook
+}
+
 module.exports = {
   persistUpload,
-  bufferForUpload,
+  workbookForUpload,
   uploadFSName
 }
 
