@@ -1,7 +1,7 @@
 /* eslint camelcase: 0 */
 
 const path = require('path')
-const { mkdir, writeFile, readFile } = require('fs/promises')
+const fs = require('fs/promises')
 
 const Cryo = require('cryo')
 const XLSX = require('xlsx')
@@ -47,8 +47,8 @@ async function persistUpload ({ filename, user, buffer }) {
 
   // persist the original upload to the filesystem
   try {
-    await mkdir(UPLOAD_DIR, { recursive: true })
-    await writeFile(
+    await fs.mkdir(UPLOAD_DIR, { recursive: true })
+    await fs.writeFile(
       uploadFSName(upload),
       buffer,
       { flag: 'wx' }
@@ -64,8 +64,8 @@ async function persistUpload ({ filename, user, buffer }) {
 async function persistJson (upload, workbook) {
   // persist the parsed JSON from an upload to the filesystem
   try {
-    await mkdir(TEMP_DIR, { recursive: true })
-    await writeFile(
+    await fs.mkdir(TEMP_DIR, { recursive: true })
+    await fs.writeFile(
       jsonFSName(upload),
       Cryo.stringify(workbook),
       { flag: 'wx' }
@@ -76,11 +76,11 @@ async function persistJson (upload, workbook) {
 }
 
 async function bufferForUpload (upload) {
-  return readFile(uploadFSName(upload))
+  return fs.readFile(uploadFSName(upload))
 }
 
 async function jsonForUpload (upload) {
-  return Cryo.parse(await readFile(jsonFSName(upload), {encoding: 'utf-8'}))
+  return Cryo.parse(await fs.readFile(jsonFSName(upload), {encoding: 'utf-8'}))
 }
 
 /**
@@ -118,7 +118,13 @@ async function workbookForUpload (upload, options) {
 module.exports = {
   persistUpload,
   workbookForUpload,
-  uploadFSName
+  uploadFSName,
+
+  // exported for test purposes only!
+  _uploadFSName: uploadFSName,
+  _jsonFSName: jsonFSName,
+  _persistJson: persistJson,
+  _jsonForUpload: jsonForUpload,
 }
 
 // NOTE: This file was copied from src/server/services/persist-upload.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
