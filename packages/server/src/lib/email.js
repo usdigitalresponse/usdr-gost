@@ -15,15 +15,6 @@ async function deliverEmail({
     emailPlain,
     subject,
 }) {
-    // Ensures new grants-related emails are only sent in non-production environments.
-    const formattedSubject = subject.toLowerCase();
-    if (formattedSubject.includes('grant assigned') || formattedSubject.includes('new grants')) {
-        if (process.env.WEBSITE_DOMAIN === 'https://grants.usdigitalresponse.org' || !toAddress.endsWith('@usdigitalresponse.org')) {
-            console.log(`Attempted to send an email to ${toAddress} with subject ${subject}.`);
-            return undefined;
-        }
-    }
-
     return emailService.getTransport().send({
         toAddress,
         subject,
@@ -121,7 +112,7 @@ function getGrantDetail(grant, emailNotificationType) {
         grantDetailTemplate.toString(), {
             title: grant.title,
             description: grant.description && grant.description.length > 400 ? `${grant.description.substring(0, 400)}...` : grant.description,
-            status: grant.status,
+            status: grant.opportunity_status,
             show_date_range: grant.open_date && grant.close_date,
             open_date: grant.open_date ? new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
             close_date: grant.close_date ? new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
