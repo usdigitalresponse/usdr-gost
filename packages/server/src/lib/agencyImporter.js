@@ -85,7 +85,7 @@ class AgencyImporter {
                 } else {
                     const agency = this.agencyFromRow(rowsList[rowIndex], user);
                     // eslint-disable-next-line no-await-in-loop
-                    await db.createAgency(agency, user.id); 
+                    await db.createAgency(agency, user.id);
                     // eslint-disable-next-line no-await-in-loop
                     await this.getAgencies(user);
                     retVal.status.agencies.added += 1;
