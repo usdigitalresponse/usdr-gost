@@ -41,6 +41,7 @@
     "cron": "^1.8.2",
     "csv-stringify": "^6.0.5",
     "date-fns": "^2.23.0",
+    "deep-diff": "^1.0.2",
     "docx": "^7.3.0",
     "dotenv": "^16.0.0",
     "email-validator": "^2.0.4",

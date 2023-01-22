@@ -100,7 +100,13 @@ async function createUpload (upload, trns = knex) {
 async function cacheRecords(upload, records, trns = knex) {
   return trns('uploads')
     .where('id', upload.id)
-    .update({ parsed_data: JSON.stringify(records) })
+    .update({
+      parsed_data_cached_at: trns.fn.now(),
+      parsed_data: JSON.stringify(records,
+        // This resursively filters out any fields named 'parsed_data' in the records, which is
+        // important for ensuring we don't recursively/redundantly write this data to the db.
+        (k, v) => (k === 'parsed_data') ? undefined : v)
+    })
 }
 
 async function setAgencyId (uploadId, agencyId, trns = knex) {

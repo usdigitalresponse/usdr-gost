@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const { loadRecordsForUpload } = require('../arpa_reporter/services/records')
 const _ = require("lodash");
+const { diff } = require('deep-diff');
 
 const inquirer = require("inquirer");
 
@@ -32,8 +33,6 @@ async function main() {
     ])
 
     console.log("Parsing and caching upload with id:", uploadId);
-
-
     const upload = await getUpload(uploadId)
     const records = await loadRecordsForUpload(upload)
 
@@ -42,66 +41,13 @@ async function main() {
     // Now that the data has been written, check that it matches what we parsed from excel
     const updatedUpload = await getUpload(uploadId)
 
-    if (_.isEqual(records, updatedUpload.parsed_data)) {
+    const differences = diff(records, updatedUpload.parsed_data)
+    if (differences.length === 0) {
         console.log("Cached data is equivalent to parsed data")
     } else {
-        diff = compare(records, updatedUpload.parsed_data)
         console.log("ERROR: Cached and parsed data are not equivalent")
-        console.log(diff)
+        console.log(differences)
     }
-
-}
-
-// This method is copied verbatim from https://stackoverflow.com/a/41431685/21046021
-// and allows us to see every json path that differs between two objects
-var compare = function (a, b) {
-    var result = {
-        different: [],
-        missing_from_first: [],
-        missing_from_second: []
-    };
-
-    _.reduce(a, function (result, value, key) {
-        if (b.hasOwnProperty(key)) {
-            if (_.isEqual(value, b[key])) {
-                return result;
-            } else {
-                if (typeof (a[key]) != typeof ({}) || typeof (b[key]) != typeof ({})) {
-                    //dead end.
-                    result.different.push(key);
-                    return result;
-                } else {
-                    var deeper = compare(a[key], b[key]);
-                    result.different = result.different.concat(_.map(deeper.different, (sub_path) => {
-                        return key + "." + sub_path;
-                    }));
-
-                    result.missing_from_second = result.missing_from_second.concat(_.map(deeper.missing_from_second, (sub_path) => {
-                        return key + "." + sub_path;
-                    }));
-
-                    result.missing_from_first = result.missing_from_first.concat(_.map(deeper.missing_from_first, (sub_path) => {
-                        return key + "." + sub_path;
-                    }));
-                    return result;
-                }
-            }
-        } else {
-            result.missing_from_second.push(key);
-            return result;
-        }
-    }, result);
-
-    _.reduce(b, function (result, value, key) {
-        if (a.hasOwnProperty(key)) {
-            return result;
-        } else {
-            result.missing_from_first.push(key);
-            return result;
-        }
-    }, result);
-
-    return result;
 }
 
 if (require.main === module) {
