@@ -2,6 +2,7 @@ src/static/forms/generated
 
 # ARPA Reporter uploads
 data
+data_staging
 
 # ARPA Reporter uploads dir used by mocha tests
 __tests__/arpa_reporter/server/mocha_uploads
