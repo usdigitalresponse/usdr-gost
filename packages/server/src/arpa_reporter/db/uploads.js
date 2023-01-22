@@ -46,7 +46,10 @@ function getUpload (id, trns = knex) {
 }
 
 function usedForTreasuryExport (periodId, trns = knex) {
-  const tenantId = useTenantId()
+  return usedforTreasuryExportWithTenantId(useTenantId(), periodId, trns)
+}
+
+function usedforTreasuryExportWithTenantId(tenantId, periodId, trns = knex) {
   requiredArgument(periodId, 'periodId must be specified in validForReportingPeriod')
 
   return baseQuery(trns)
@@ -174,7 +177,8 @@ module.exports = {
   setEcCode,
   markValidated,
   markNotValidated,
-  usedForTreasuryExport
+  usedForTreasuryExport,
+  usedforTreasuryExportWithTenantId
 }
 
 // NOTE: This file was copied from src/server/db/uploads.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

@@ -32,6 +32,7 @@ module.exports = {
   getReportingPeriodID,
   getPreviousReportingPeriods,
   getAllReportingPeriods,
+  getAllReportingPeriodsForTenantId,
   createReportingPeriod,
   updateReportingPeriod
 }
@@ -46,7 +47,10 @@ function baseQuery (trns) {
 }
 
 async function getAllReportingPeriods (trns = knex) {
-  const tenantId = useTenantId()
+  return getAllReportingPeriodsForTenantId(useTenantId())
+}
+
+async function getAllReportingPeriodsForTenantId(tenantId, trns = knex) {
   return baseQuery(trns).where('reporting_periods.tenant_id', tenantId).orderBy('end_date', 'desc')
 }
 

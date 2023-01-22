@@ -177,8 +177,10 @@ async function recordsForUpload (upload) {
   }
 
   if (upload.parsed_data) {
+    // TODO: When should we use this data vs skipping it?
+    // How to check if the cache should be invalidated?
     log(`recordsForUpload(${upload.id}): Upload has cached data available to read`)
-    // TODO: When should we use the cached data vs a realtime read?
+    return upload.parsed_data
   }
 
   log(`recordsForUpload(${upload.id}): reading from disk`)
