@@ -186,10 +186,12 @@ async function recordsForUpload (upload) {
 
 async function recordsForReportingPeriod (periodId) {
   log(`recordsForReportingPeriod(${periodId})`)
+  const start = performance.now()
   requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod')
 
   const uploads = await usedForTreasuryExport(periodId)
   const groupedRecords = await asyncBatch(uploads, recordsForUpload, 2);
+  console.log(`recordsForReportingPeriod(${periodId}) ${performance.now() - start}ms`)
   return groupedRecords.flat()
 }
 

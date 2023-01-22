@@ -12,6 +12,8 @@ const { TEMP_DIR, UPLOAD_DIR } = require('../environment')
 const { log } = require('../lib/log')
 const ValidationError = require('../lib/validation-error')
 
+let XLSX_READ_TIME = 0
+
 // WARNING: changes to this function must be made with care, because:
 //  1. there may be existing data on disk with filenames set according to this function,
 //     which could become inaccessible
@@ -76,11 +78,17 @@ async function persistJson (upload, workbook) {
 }
 
 async function bufferForUpload (upload) {
-  return fs.readFile(uploadFSName(upload))
+  const start = performance.now()
+  const buffer = await fs.readFile(uploadFSName(upload))
+  console.log(`bufferForUpload: ${performance.now() - start}ms`)
+  return buffer
 }
 
 async function jsonForUpload (upload) {
-  return Cryo.parse(await fs.readFile(jsonFSName(upload), {encoding: 'utf-8'}))
+  const start = performance.now();
+  const json = Cryo.parse(await fs.readFile(jsonFSName(upload), {encoding: 'utf-8'}))
+  console.log(`jsonForUpload: ${performance.now() - start}ms`)
+  return json
 }
 
 /**
@@ -93,6 +101,7 @@ async function jsonForUpload (upload) {
  * @return {XLSX.Workbook}s The uploaded workbook, as parsed by XLSX.read.
  */
 async function workbookForUpload (upload, options) {
+  const start = performance.now()
   log(`workbookForUpload(${upload.id})`)
 
   let workbook
@@ -105,12 +114,19 @@ async function workbookForUpload (upload, options) {
     log(`cache lookup failed, parsing originally uploaded .xlsm file`)
     const buffer = await bufferForUpload(upload)
 
+    const start = performance.now()
     // NOTE: This is the slow line!
     log(`XLSX.read(${upload.id})`)
     workbook = XLSX.read(buffer, options)
+    const duration = performance.now() - start
+    XLSX_READ_TIME += duration
+    console.log(`XLSX.read: ${duration}ms`)
+    console.log(`cumulative XLSX.read: ${XLSX_READ_TIME}ms`)
 
-    persistJson(upload, workbook)
+    // persistJson(upload, workbook)
   }
+
+  console.log(`workbookForUpload: ${performance.now() - start}ms`)
 
   return workbook
 }

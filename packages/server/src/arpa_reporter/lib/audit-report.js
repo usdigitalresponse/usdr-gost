@@ -30,6 +30,7 @@ async function generate (requestHost) {
 
   const domain = ARPA_REPORTER_BASE_URL ?? requestHost
 
+  const start = performance.now()
   // generate sheets
   const [
     obligations,
@@ -38,6 +39,7 @@ async function generate (requestHost) {
     createObligationSheet(periodId, domain),
     createProjectSummaries(periodId, domain)
   ])
+  console.log(`generate audit report sheets ${performance.now() - start}ms`)
 
   // compose workbook
   const sheet1 = XLSX.utils.json_to_sheet(obligations, { dateNF: 'MM/DD/YYYY' })
