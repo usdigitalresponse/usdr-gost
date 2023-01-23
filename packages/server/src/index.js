@@ -56,7 +56,7 @@ hasOutstandingMigrations().then((hasMigrations) => {
     if (!hasMigrations) {
         return;
     }
-    console.error('There are outstanding db migrations. Run \'yarn db:migrate\' before trying again');
+    console.error('There are outstanding db migrations. Run \'docker compose exec app yarn db:migrate\' before trying again');
     if (process.env.NODE_ENV === 'development') {
         process.exit(1);
     }
