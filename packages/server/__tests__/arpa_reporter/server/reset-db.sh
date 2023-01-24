@@ -5,6 +5,7 @@ set -o errexit
 set -o nounset
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+echo "DIR IS $DIR";
 
 dbconn=${POSTGRES_URL#*//}  # from postgres://user:pass@host/dbname -> user:pass@host/dbname
 userpass=${dbconn%@*}       # 'user:pass'
@@ -45,6 +46,6 @@ else
 fi
 
 yarn knex migrate:latest
-yarn knex --knexfile $DIR/knexfile.js seed:run
+yarn knex --knexfile "$DIR"/knexfile.js seed:run
 
 # NOTE: This file was copied from tests/server/reset-db.sh (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

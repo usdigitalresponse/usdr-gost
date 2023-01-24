@@ -3,7 +3,6 @@ const { isRunningInGOST } = require('../helpers/is_gost')
 
 const setupAgencies = async knex => {
   const isGost = await isRunningInGOST(knex)
-
   return knex('agencies').insert([
     { id: 1, name: 'Generic Government', code: 'GOV', tenant_id: 0 },
     { id: 2, name: 'Office of Management and Budget', code: 'OMB', tenant_id: 0 },
@@ -14,7 +13,11 @@ const setupAgencies = async knex => {
     row => isGost ? ({ ...row, main_agency_id: row.id }) : row
   )).then(() => {
     return 'Agency data added OK'
-  })
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    console.debug('Dummy data added');
+  });
 }
 
 module.exports = {

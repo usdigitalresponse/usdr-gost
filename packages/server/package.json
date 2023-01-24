@@ -99,5 +99,15 @@
     "standard": "^16.0.3",
     "supertest": "^6.2.3",
     "typescript": "^4.7.2"
+  },
+  "mocha": {
+    "spec": "__tests__/**/*.{spec,test}.js",
+    "require": [
+      "__tests__/arpa_reporter/server/mocha_init.js",
+      "__tests__/api/fixtures.js"
+    ],
+    "timeout": 10000,
+    "bail" : true,
+    "exit" : true
   }
 }

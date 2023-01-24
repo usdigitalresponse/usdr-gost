@@ -1,0 +1,7 @@
+{
+    "mochaExplorer.debuggerConfig": "Mocha Attach",
+    "mochaExplorer.env": {
+        "NODE_ENV": "test", 
+        "SUPPRESS_EMAIL": "true"
+    }
+}

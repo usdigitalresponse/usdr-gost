@@ -121,3 +121,4 @@ packages/server/data
 
 # Locally-persisted postgres development data
 docker/postgres/persistence
+.env*

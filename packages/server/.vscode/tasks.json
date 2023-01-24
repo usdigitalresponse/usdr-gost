@@ -1,0 +1,10 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Mocha Setup",
+      "type": "shell",
+      "command": "${workspaceFolder}/__tests__/arpa_reporter/server/mocha_setup.sh"
+    }
+  ]
+}
