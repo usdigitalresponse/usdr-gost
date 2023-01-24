@@ -13,70 +13,74 @@
 </template>
 
 <script>
-import StandardForm from '../components/StandardForm'
+import StandardForm from '../components/StandardForm';
 
-import { post } from '../store/index'
+import { post } from '../store/index';
 
 export default {
   name: 'ReportingPeriod',
   data: () => ({ formKey: Date.now() }),
   computed: {
-    reportingPeriodId: function () {
-      return this.$route.params.id
+    reportingPeriodId() {
+      return this.$route.params.id;
     },
-    isNew: function () {
-      return this.reportingPeriodId === 'new'
+    isNew() {
+      return this.reportingPeriodId === 'new';
     },
-    reportingPeriod: function () {
-      if (this.isNew) return {}
+    reportingPeriod() {
+      if (this.isNew) return {};
       const fromStore = this.$store.state.reportingPeriods
-        .find(p => p.id === Number(this.reportingPeriodId))
-      return fromStore || null
+        .find((p) => p.id === Number(this.reportingPeriodId));
+      return fromStore || null;
     },
-    cols: function () {
+    cols() {
       return [
         { field: 'id', label: 'ID', readonly: true },
         { field: 'name', label: 'Period Name', required: true },
-        { field: 'start_date', label: 'Reporting Period Start Date', required: true, inputType: 'date' },
-        { field: 'end_date', label: 'Reporting Period End Date', required: true, inputType: 'date' },
-        { field: 'template_filename', label: 'Upload Template Name', readonly: true }
-      ]
-    }
+        {
+          field: 'start_date', label: 'Reporting Period Start Date', required: true, inputType: 'date',
+        },
+        {
+          field: 'end_date', label: 'Reporting Period End Date', required: true, inputType: 'date',
+        },
+        { field: 'template_filename', label: 'Upload Template Name', readonly: true },
+      ];
+    },
   },
   methods: {
-    onSave: async function (updatedPeriod) {
+    async onSave(updatedPeriod) {
       try {
-        const result = await post('/api/reporting_periods', { reportingPeriod: updatedPeriod })
-        if (result.error) throw new Error(result.error)
+        const result = await post('/api/reporting_periods', { reportingPeriod: updatedPeriod });
+        if (result.error) throw new Error(result.error);
 
         const text = this.isNew
           ? `Period ${updatedPeriod.name} successfully created`
-          : `Period ${updatedPeriod.name} successfully updated`
+          : `Period ${updatedPeriod.name} successfully updated`;
 
         this.$store.commit('addAlert', {
           text,
-          level: 'ok'
-        })
+          level: 'ok',
+        });
 
-        this.$store.dispatch('updateReportingPeriods')
+        this.$store.dispatch('updateReportingPeriods');
         if (this.isNew) {
-          return this.$router.push(`/reporting_periods/${result.reportingPeriod.id}`)
+          return this.$router.push(`/reporting_periods/${result.reportingPeriod.id}`);
         }
       } catch (e) {
         this.$store.commit('addAlert', {
           text: `Error saving reporting period: ${e.message}`,
-          level: 'err'
-        })
+          level: 'err',
+        });
       }
     },
-    onReset () {
-      this.formKey = Date.now()
-    }
+    onReset() {
+      this.formKey = Date.now();
+    },
   },
   components: {
-    StandardForm
-  }
-}
+    StandardForm,
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/ReportingPeriod.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import moment from 'moment'
+import moment from 'moment';
 
 export default {
   name: 'StandardForm',
@@ -66,62 +66,61 @@ export default {
         label: 'Bob', value: 'Robert'
       ]
     } */
-    disabled: Boolean
+    disabled: Boolean,
   },
-  data: function () {
+  data() {
     return {
       wasValidated: false,
-      errors: Object.fromEntries(this.cols.map(col => [col.field, []])),
-      record: Object.fromEntries(this.cols.map(col => {
-        let initValue = this.initialRecord[col.field]
+      errors: Object.fromEntries(this.cols.map((col) => [col.field, []])),
+      record: Object.fromEntries(this.cols.map((col) => {
+        let initValue = this.initialRecord[col.field];
 
-        if (col.inputType === 'date') initValue = this.dateValue(initValue)
+        if (col.inputType === 'date') initValue = this.dateValue(initValue);
 
-        return [col.field, initValue]
-      }))
-    }
+        return [col.field, initValue];
+      })),
+    };
   },
   methods: {
-    dateValue: function (val) {
-      const date = moment(val)
+    dateValue(val) {
+      const date = moment(val);
       if (date.isValid()) {
-        return date.format('YYYY-MM-DD')
-      } else {
-        return null
+        return date.format('YYYY-MM-DD');
       }
+      return null;
     },
-    classesForField: function (field) {
-      const col = this.cols.find(col => col.field === field)
-      if (col.readonly) return {}
-      if (!this.wasValidated) return {}
+    classesForField(field) {
+      const col = this.cols.find((col) => col.field === field);
+      if (col.readonly) return {};
+      if (!this.wasValidated) return {};
 
       return {
         'is-valid': this.errors[field].length === 0,
-        'is-invalid': this.errors[field].length > 0
-      }
+        'is-invalid': this.errors[field].length > 0,
+      };
     },
-    validateAndSave: function () {
-      this.cols.forEach(col => {
-        const field = col.field
-        const val = this.record[field]
+    validateAndSave() {
+      this.cols.forEach((col) => {
+        const { field } = col;
+        const val = this.record[field];
 
         // clear errors; we will re-set them if they still exist
-        this.errors[field] = []
+        this.errors[field] = [];
 
         // check required fields
         if (col.required && (val === undefined || val === null || val === '')) {
-          this.errors[field].push(`${col.label} is a required field`)
+          this.errors[field].push(`${col.label} is a required field`);
         }
-      })
+      });
 
-      this.wasValidated = true
-      const hasErrors = Object.values(this.errors).some(errList => errList.length > 0)
+      this.wasValidated = true;
+      const hasErrors = Object.values(this.errors).some((errList) => errList.length > 0);
       if (!hasErrors) {
-        this.$emit('save', this.record)
+        this.$emit('save', this.record);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/components/StandardForm.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->
