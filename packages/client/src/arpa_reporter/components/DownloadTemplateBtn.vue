@@ -5,35 +5,35 @@
 </template>
 
 <script>
-import DownloadButton from './DownloadButton.vue'
 import { apiURL } from '@/helpers/fetchApi';
+import DownloadButton from './DownloadButton.vue';
 
 export default {
   name: 'DownloadTemplateBtn',
   props: {
-    block: Boolean
+    block: Boolean,
   },
   components: {
-    DownloadButton
+    DownloadButton,
   },
   computed: {
-    periodId: function () {
-      return this.$store.state.viewPeriodID
+    periodId() {
+      return this.$store.state.viewPeriodID;
     },
-    href: function () {
-      return apiURL(`/api/reporting_periods/${this.periodId}/template`)
+    href() {
+      return apiURL(`/api/reporting_periods/${this.periodId}/template`);
     },
-    isDisabled: function () {
-      return !this.$store.getters.viewPeriodIsCurrent
+    isDisabled() {
+      return !this.$store.getters.viewPeriodIsCurrent;
     },
-    classes: function () {
+    classes() {
       return {
         'btn-block': this.block,
-        'btn-secondary': true
-      }
-    }
-  }
-}
+        'btn-secondary': true,
+      };
+    },
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/components/DownloadTemplateBtn.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

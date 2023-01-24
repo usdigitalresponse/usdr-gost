@@ -60,169 +60,169 @@
 </template>
 
 <script>
-import moment from 'moment'
-import 'vue-good-table/dist/vue-good-table.css'
-import { VueGoodTable } from 'vue-good-table'
+import moment from 'moment';
+import 'vue-good-table/dist/vue-good-table.css';
+import { VueGoodTable } from 'vue-good-table';
 
-import DownloadFileButton from '../components/DownloadFileButton'
-import DownloadTemplateBtn from '../components/DownloadTemplateBtn'
+import DownloadFileButton from '../components/DownloadFileButton.vue';
+import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
 
-import { getJson } from '../store/index'
-import { shortUuid } from '../helpers/short-uuid'
+import { getJson } from '../store/index';
+import { shortUuid } from '../helpers/short-uuid';
 
 export default {
   name: 'Uploads',
-  data: function () {
+  data() {
     return {
       groupByAgency: false,
       onlyExported: false,
-      exportedUploads: []
-    }
+      exportedUploads: [],
+    };
   },
   computed: {
-    uploads: function () {
-      return this.$store.state.allUploads
+    uploads() {
+      return this.$store.state.allUploads;
     },
-    agencies: function () {
-      return this.$store.state.agencies
+    agencies() {
+      return this.$store.state.agencies;
     },
-    groupOptions: function () {
+    groupOptions() {
       return {
-        enabled: this.groupByAgency
-      }
+        enabled: this.groupByAgency,
+      };
     },
-    rows: function () {
-      const uploads = this.onlyExported ? this.exportedUploads : this.uploads
+    rows() {
+      const uploads = this.onlyExported ? this.exportedUploads : this.uploads;
 
-      if (!this.groupByAgency) return uploads
+      if (!this.groupByAgency) return uploads;
 
       const agencyObjects = {
         null: {
           mode: 'span',
           label: 'No agency set',
-          children: []
-        }
-      }
+          children: [],
+        },
+      };
 
       for (const agency of this.agencies) {
         agencyObjects[agency.code] = {
           mode: 'span',
           label: `${agency.code} (${agency.name})`,
-          children: []
-        }
+          children: [],
+        };
       }
 
       for (const upload of uploads) {
-        agencyObjects[upload.agency_code].children.push(upload)
+        agencyObjects[upload.agency_code].children.push(upload);
       }
 
-      return Object.values(agencyObjects)
+      return Object.values(agencyObjects);
     },
-    columns: function () {
+    columns() {
       const validatedCol = {
         label: 'Validated?',
         field: 'validated_at',
         formatFn: (date) => {
-          if (!date) return 'Not set'
-          return moment(date).local().format('MMM Do YYYY, h:mm:ss A')
+          if (!date) return 'Not set';
+          return moment(date).local().format('MMM Do YYYY, h:mm:ss A');
         },
-        tdClass: (row) => { if (!row.validated_at) return 'table-danger' },
+        tdClass: (row) => { if (!row.validated_at) return 'table-danger'; },
         filterOptions: {
           enabled: !this.onlyExported,
           placeholder: 'Any validation status',
           filterDropdownItems: [
-            { value: true, text: 'Show only validated' }
+            { value: true, text: 'Show only validated' },
           ],
-          filterFn: (validatedAt, isIncluded) => validatedAt
-        }
-      }
+          filterFn: (validatedAt, isIncluded) => validatedAt,
+        },
+      };
 
       return [
         {
           label: 'ID',
-          field: 'id'
+          field: 'id',
         },
         {
           label: 'Agency',
           field: 'agency_code',
-          tdClass: (row) => { if (!row.agency_code) return 'table-danger' },
+          tdClass: (row) => { if (!row.agency_code) return 'table-danger'; },
           filterOptions: {
             enabled: true,
             placeholder: 'Any agency',
-            filterDropdownItems: this.agencies.map(agency => ({ value: agency.code, text: agency.code }))
-          }
+            filterDropdownItems: this.agencies.map((agency) => ({ value: agency.code, text: agency.code })),
+          },
         },
         {
           label: 'EC Code',
           field: 'ec_code',
-          tdClass: (row) => { if (!row.ec_code) return 'table-danger' },
+          tdClass: (row) => { if (!row.ec_code) return 'table-danger'; },
           width: '120px',
           filterOptions: {
             enabled: true,
-            placeholder: 'Filter...'
-          }
+            placeholder: 'Filter...',
+          },
         },
         {
           label: 'Uploaded By',
           field: 'created_by',
           filterOptions: {
             enabled: true,
-            placeholder: 'Filter by email...'
-          }
+            placeholder: 'Filter by email...',
+          },
         },
         {
           label: 'Filename',
           field: 'filename',
           filterOptions: {
             enabled: true,
-            placeholder: 'Filter by filename...'
-          }
+            placeholder: 'Filter by filename...',
+          },
         },
-        validatedCol
-      ]
+        validatedCol,
+      ];
     },
-    periodId: function () {
-      return this.$store.state.viewPeriodID
-    }
+    periodId() {
+      return this.$store.state.viewPeriodID;
+    },
   },
   methods: {
-    resetFilters: function (evt) {
-      this.$refs.uploadsTable.reset()
-      this.$refs.uploadsTable.changeSort([])
+    resetFilters(evt) {
+      this.$refs.uploadsTable.reset();
+      this.$refs.uploadsTable.changeSort([]);
     },
     shortUuid,
-    loadExportedUploads: async function (evt) {
-      this.exportedUploads = []
-      if (!this.onlyExported) return
+    async loadExportedUploads(evt) {
+      this.exportedUploads = [];
+      if (!this.onlyExported) return;
 
-      const result = await getJson(`/api/reporting_periods/${this.periodId}/exported_uploads`)
+      const result = await getJson(`/api/reporting_periods/${this.periodId}/exported_uploads`);
       if (result.error) {
         this.$store.commit('addAlert', {
           text: `loadExportedUploads Error (${result.status}): ${result.error}`,
-          level: 'err'
-        })
+          level: 'err',
+        });
       } else {
-        this.exportedUploads = result.exportedUploads
+        this.exportedUploads = result.exportedUploads;
       }
-    }
+    },
   },
   watch: {
-    periodId: async function () {
-      this.$store.dispatch('updateUploads')
-      this.loadExportedUploads()
+    async periodId() {
+      this.$store.dispatch('updateUploads');
+      this.loadExportedUploads();
     },
-    onlyExported: function () { this.loadExportedUploads() }
+    onlyExported() { this.loadExportedUploads(); },
   },
-  mounted: async function () {
-    this.$store.dispatch('updateUploads')
-    this.$store.dispatch('updateAgencies')
+  async mounted() {
+    this.$store.dispatch('updateUploads');
+    this.$store.dispatch('updateAgencies');
   },
   components: {
     VueGoodTable,
     DownloadFileButton,
-    DownloadTemplateBtn
-  }
-}
+    DownloadTemplateBtn,
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/Uploads.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

@@ -5,17 +5,17 @@
 </template>
 
 <script>
-import '../../arpa_reporter/scss/index.scss'
-import 'bootstrap/dist/js/bootstrap.min.js'
+import '../../arpa_reporter/scss/index.scss';
+import 'bootstrap/dist/js/bootstrap';
 
-import Navigation from './components/Navigation.vue'
+import Navigation from './components/Navigation.vue';
 
 export default {
   name: 'App',
   components: {
-    Navigation
-  }
-}
+    Navigation,
+  },
+};
 </script>
 
 <style>
