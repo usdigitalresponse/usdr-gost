@@ -190,7 +190,7 @@ export default new Vuex.Store({
         commit('setAllUploads', result.uploads);
       }
     },
-    async updateAgencies({ commit, state }) {
+    async updateAgencies({ commit }) {
       const result = await getJson('/api/agencies');
       if (result.error) {
         commit('addAlert', { text: `updateAgencies Error: ${result.error} (${result.text})`, level: 'err' });
@@ -198,7 +198,7 @@ export default new Vuex.Store({
         commit('setAgencies', result.agencies);
       }
     },
-    async updateReportingPeriods({ commit, state }) {
+    async updateReportingPeriods({ commit }) {
       const result = await getJson('/api/reporting_periods');
       if (result.error) {
         commit(
@@ -209,7 +209,7 @@ export default new Vuex.Store({
         commit('setReportingPeriods', result.reportingPeriods);
       }
     },
-    async updateUsersRoles({ commit, state }) {
+    async updateUsersRoles({ commit }) {
       const result = await getJson('/api/users');
       if (result.error) {
         commit('addAlert', { text: `updateUsersRoles Error: ${result.error} (${result.text})`, level: 'err' });

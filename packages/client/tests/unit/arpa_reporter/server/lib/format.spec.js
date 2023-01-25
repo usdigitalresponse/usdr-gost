@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import { expect } from 'chai';
 
 import { ecCodes } from '../../../../../../server/src/arpa_reporter/lib/arpa-ec-codes';

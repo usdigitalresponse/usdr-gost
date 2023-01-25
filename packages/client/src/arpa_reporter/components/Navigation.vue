@@ -91,7 +91,7 @@
 <script>
 import moment from 'moment';
 import { titleize } from '@/helpers/form-helpers';
-import AlertBox from '@/arpa_reporter/components/AlertBox.vue';
+import AlertBox from './AlertBox.vue';
 
 export default {
   name: 'Navigation',

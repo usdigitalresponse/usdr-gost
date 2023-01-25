@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import StandardForm from '../components/StandardForm';
+import StandardForm from '../components/StandardForm.vue';
 import { post } from '../store/index';
 
 export default {
@@ -100,12 +100,14 @@ export default {
           return this.$router.push(`/users/${result.user.id}`);
         }
         this.loadUser();
+        return true;
       } catch (err) {
         this.user = user;
         this.$store.commit('addAlert', {
           text: `Error updating user ${user.email}: ${err.message}`,
           level: 'err',
         });
+        return false;
       }
     },
     onReset() {
