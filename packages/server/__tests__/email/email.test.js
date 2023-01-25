@@ -2,12 +2,12 @@
 
 const { expect } = require('chai');
 const rewire = require('rewire');
+const moment = require('moment');
 const sinon = require('sinon');
 require('dotenv').config();
 const emailService = require('../../src/lib/email/service-email');
 const email = require('../../src/lib/email');
 const fixtures = require('../db/seeds/fixtures');
-const knex = require('../../src/db/connection');
 const db = require('../../src/db');
 const awsTransport = require('../../src/lib/email/email-aws');
 const emailConstants = require('../../src/lib/email/constants');
@@ -291,12 +291,12 @@ describe('Email sender', () => {
 
             expect(sendFake.calledTwice).to.equal(true);
 
-            expect(sendFake.firstCall.args.length).to.equal(1);
+            expect(sendFake.firstCall.args.length).to.equal(3);
             expect(sendFake.firstCall.args[0].toAddress).to.equal(fixtures.users.adminUser.email);
             expect(sendFake.firstCall.args[0].emailHTML.includes('<table')).to.equal(true);
             expect(sendFake.firstCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
 
-            expect(sendFake.secondCall.args.length).to.equal(1);
+            expect(sendFake.secondCall.args.length).to.equal(3);
             expect(sendFake.secondCall.args[0].toAddress).to.equal(fixtures.users.staffUser.email);
             expect(sendFake.secondCall.args[0].emailHTML.includes('<table')).to.equal(true);
             expect(sendFake.secondCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
@@ -311,7 +311,7 @@ describe('Email sender', () => {
         });
         beforeEach(async () => {
             this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
-            this.clock = this.clockFn('2022-06-22');
+            this.clock = this.clockFn('2021-08-06');
         });
         afterEach(async () => {
             this.clock.restore();
@@ -321,9 +321,9 @@ describe('Email sender', () => {
             sinon.replace(email, 'sendGrantDigestForAgency', sendFake);
 
             await email.buildAndSendGrantDigest();
-            console.log(sendFake.getCalls());
 
-            expect(sendFake.calledTwice).to.equal(true);
+            /* only fixtures.agency.accountancy has eligibility-codes, keywords, and users that match an existing grant */
+            expect(sendFake.calledOnce).to.equal(true);
         });
         it('sendGrantDigestForAgency sends no email when there are no grants to send', async () => {
             const sendFake = sinon.fake.returns('foo');
@@ -334,36 +334,20 @@ describe('Email sender', () => {
             agency.matched_grants = [];
             agency.recipients = ['foo@example.com'];
 
-            await email.sendGrantDigestForAgency(agencies[0]);
+            await email.sendGrantDigestForAgency({ agency: agencies[0], openDate: moment().subtract(1, 'day').format('YYYY-MM-DD') });
 
             expect(sendFake.called).to.equal(false);
         });
         it('sendGrantDigestForAgency sends email to all users when there are grants', async () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(email, 'deliverEmail', sendFake);
-            const newGrant = fixtures.grants.healthAide;
-            newGrant.grant_id = '444816';
-            newGrant.open_date = '2022-06-21';
-            await knex('grants').insert(Object.values([newGrant]));
-            await db.setUserEmailSubscriptionPreference(
-                fixtures.users.adminUser.id,
-                fixtures.agencies.accountancy.id,
-                {
-                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
-                },
-            );
-            await db.setUserEmailSubscriptionPreference(
-                fixtures.users.staffUser.id,
-                fixtures.agencies.accountancy.id,
-                {
-                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
-                },
-            );
 
             const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
             const agency = agencies[0];
 
-            await email.sendGrantDigestForAgency(agency);
+            agency.matched_grants = [fixtures.grants.healthAide];
+            agency.recipients = [fixtures.users.adminUser.email, fixtures.users.staffUser.email];
+            await email.sendGrantDigestForAgency({ agency, openDate: moment().subtract(1, 'day').format('YYYY-MM-DD') });
 
             expect(sendFake.calledTwice).to.equal(true);
         });

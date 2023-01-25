@@ -1,5 +1,6 @@
 const { URL } = require('url');
 const moment = require('moment');
+const asyncBatch = require('async-batch').default;
 const fileSystem = require('fs');
 const path = require('path');
 const mustache = require('mustache');
@@ -159,7 +160,8 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const emailSubject = `Grant Assigned to ${assignee_agency.name}`;
     const assginees = await db.getSubscribersForNotification(assignee_agency.id, notificationType.grantAssignment);
 
-    assginees.forEach((assignee) => module.exports.deliverEmail(
+    const inputs = [];
+    assginees.forEach((assignee) => inputs.push(
         {
             toAddress: assignee.email,
             emailHTML,
@@ -167,6 +169,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
             subject: emailSubject,
         },
     ));
+    asyncBatch(inputs, module.exports.deliverEmail, 2);
 }
 
 async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
@@ -182,14 +185,16 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
     agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
 }
 
-async function sendGrantDigestForAgency(agency, openDate) {
+async function sendGrantDigestForAgency(data) {
+    const { agency, openDate } = data;
     console.log(`${agency.name} is subscribed for notifications on ${openDate}`);
-    if (agency.matched_grants.length === 0) {
+
+    if (!agency.matched_grants || agency.matched_grants?.length === 0) {
         console.error(`There were no grants available for ${agency.name}`);
         return;
     }
 
-    if (agency.recipients.length === 0) {
+    if (!agency.recipients || agency.recipients?.length === 0) {
         console.error(`There were no email recipients available for ${agency.name}`);
         return;
     }
@@ -223,8 +228,9 @@ async function sendGrantDigestForAgency(agency, openDate) {
     // TODO: add plain text version of the email
     const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
 
+    const inputs = [];
     agency.recipients.forEach(
-        (recipient) => module.exports.deliverEmail(
+        (recipient) => inputs.push(
             {
                 toAddress: recipient.trim(),
                 emailHTML,
@@ -233,6 +239,7 @@ async function sendGrantDigestForAgency(agency, openDate) {
             },
         ),
     );
+    asyncBatch(inputs, module.exports.deliverEmail, 2);
 }
 
 async function buildAndSendGrantDigest() {
@@ -244,12 +251,9 @@ async function buildAndSendGrantDigest() {
         call sendGrantDigestForAgency
     */
     const agencies = await db.getAgenciesSubscribedToDigest(openDate);
-
-    /* eslint-disable no-await-in-loop */
-    for (const agency in agencies) {
-        await module.exports.sendGrantDigestForAgency(agency, openDate);
-    }
-    /* eslint-enable no-await-in-loop */
+    const inputs = [];
+    agencies.forEach((agency) => inputs.push({ agency, openDate }));
+    await asyncBatch(inputs, module.exports.sendGrantDigestForAgency, 2);
 }
 
 module.exports = {
