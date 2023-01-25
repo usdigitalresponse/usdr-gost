@@ -5,6 +5,9 @@
     <b-col></b-col>
     <b-col class="d-flex justify-content-end" v-if="userRole === 'admin'">
       <div>
+        <b-button variant="success" @click="openUploadAgenciesModal" class="mr-1">Bulk Import</b-button>
+      </div>
+      <div>
         <b-button variant="success" @click="openAddAgencyModal">Add</b-button>
       </div>
     </b-col>
@@ -30,6 +33,7 @@
   />
   <AddAgencyModal
   :showDialog.sync="showAddAgencyModal"/>
+  <ImportAgenciesModal :showUploadModal.sync="showUploadAgenciesModal" :importStatus="'Nothing imported yet.'"/>
 </section>
 </template>
 
@@ -39,11 +43,13 @@ import { mapActions, mapGetters } from 'vuex';
 
 import EditAgencyModal from '@/components/Modals/EditAgency.vue';
 import AddAgencyModal from '@/components/Modals/AddAgency.vue';
+import ImportAgenciesModal from '@/components/Modals/ImportAgencies.vue';
 
 export default {
   components: {
     EditAgencyModal,
     AddAgencyModal,
+    ImportAgenciesModal,
   },
   data() {
     return {
@@ -77,6 +83,7 @@ export default {
       ],
       showAddAgencyModal: false,
       showEditAgencyModal: false,
+      showUploadAgenciesModal: false,
       editingAgency: null,
     };
   },
@@ -113,6 +120,9 @@ export default {
     },
     openAddAgencyModal() {
       this.showAddAgencyModal = true;
+    },
+    openUploadAgenciesModal() {
+      this.showUploadAgenciesModal = true;
     },
   },
 };

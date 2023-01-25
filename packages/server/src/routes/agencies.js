@@ -1,6 +1,11 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
+const multer = require('multer');
+
+const multerUpload = multer({ storage: multer.memoryStorage() });
+const XLSX = require('xlsx');
+const { ensureAsyncContext } = require('../arpa_reporter/lib/ensure-async-context');
 const {
     requireAdminUser,
     requireUser,
@@ -18,6 +23,7 @@ const {
     setAgencyCode,
     deleteAgency,
 } = require('../db');
+const AgencyImporter = require('../lib/agencyImporter');
 const email = require('../lib/email');
 
 router.get('/', requireUser, async (req, res) => {
@@ -148,5 +154,20 @@ router.post('/', requireAdminUser, async (req, res) => {
 
     res.json(result);
 });
+
+router.post(
+    '/import',
+    requireAdminUser,
+    ensureAsyncContext(multerUpload.single('spreadsheet')),
+    async (req, res) => {
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+        const rowsList = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+        const ret = await (new AgencyImporter()).import(
+            req.session.user,
+            rowsList,
+        );
+        res.status(200).json({ ret, error: null });
+    },
+);
 
 module.exports = router;
