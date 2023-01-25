@@ -49,6 +49,8 @@ class AgencyImporter {
             ret.push(`${rowNumStr}danger_threshold: should be integer, not ${row.danger_threshold}`);
         } else if (danger < 1) {
             ret.push(`${rowNumStr}danger_threshold: should be greater than zero, not ${row.danger_threshold}`);
+        } else if (danger >= warn) {
+            ret.push(`${rowNumStr}danger_threshold: should be less than warning_threshold, not ${row.danger_threshold}`);
         }
         return ret;
     }
