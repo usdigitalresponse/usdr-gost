@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import StandardForm from '../components/StandardForm';
+import StandardForm from '../components/StandardForm.vue';
 
 import { post } from '../store/index';
 
@@ -66,11 +66,13 @@ export default {
         if (this.isNew) {
           return this.$router.push(`/reporting_periods/${result.reportingPeriod.id}`);
         }
+        return true;
       } catch (e) {
         this.$store.commit('addAlert', {
           text: `Error saving reporting period: ${e.message}`,
           level: 'err',
         });
+        return false;
       }
     },
     onReset() {

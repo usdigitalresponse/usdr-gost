@@ -90,7 +90,7 @@ export default {
       return null;
     },
     classesForField(field) {
-      const col = this.cols.find((col) => col.field === field);
+      const col = this.cols.find((currCol) => currCol.field === field);
       if (col.readonly) return {};
       if (!this.wasValidated) return {};
 

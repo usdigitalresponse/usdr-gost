@@ -68,7 +68,7 @@ import DownloadFileButton from '../components/DownloadFileButton.vue';
 import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
 
 import { getJson } from '../store/index';
-import { shortUuid } from '../helpers/short-uuid';
+import shortUuid from '../helpers/short-uuid';
 
 export default {
   name: 'Uploads',
@@ -126,13 +126,14 @@ export default {
           if (!date) return 'Not set';
           return moment(date).local().format('MMM Do YYYY, h:mm:ss A');
         },
-        tdClass: (row) => { if (!row.validated_at) return 'table-danger'; },
+        tdClass: (row) => (row.validated_at ? '' : 'table-danger'),
         filterOptions: {
           enabled: !this.onlyExported,
           placeholder: 'Any validation status',
           filterDropdownItems: [
             { value: true, text: 'Show only validated' },
           ],
+          // eslint-disable-next-line no-unused-vars
           filterFn: (validatedAt, isIncluded) => validatedAt,
         },
       };
@@ -145,7 +146,7 @@ export default {
         {
           label: 'Agency',
           field: 'agency_code',
-          tdClass: (row) => { if (!row.agency_code) return 'table-danger'; },
+          tdClass: (row) => (row.agency_code ? '' : 'table-danger'),
           filterOptions: {
             enabled: true,
             placeholder: 'Any agency',
@@ -155,7 +156,7 @@ export default {
         {
           label: 'EC Code',
           field: 'ec_code',
-          tdClass: (row) => { if (!row.ec_code) return 'table-danger'; },
+          tdClass: (row) => (row.ec_code ? '' : 'table-danger'),
           width: '120px',
           filterOptions: {
             enabled: true,
@@ -186,12 +187,12 @@ export default {
     },
   },
   methods: {
-    resetFilters(evt) {
+    resetFilters() {
       this.$refs.uploadsTable.reset();
       this.$refs.uploadsTable.changeSort([]);
     },
     shortUuid,
-    async loadExportedUploads(evt) {
+    async loadExportedUploads() {
       this.exportedUploads = [];
       if (!this.onlyExported) return;
 

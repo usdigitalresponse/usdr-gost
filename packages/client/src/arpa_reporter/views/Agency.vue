@@ -7,13 +7,19 @@
     </div>
 
     <div v-else>
-      <StandardForm :initialRecord="agency" :cols="cols" @save="onSave" @reset="onReset" :key="formKey" />
+      <StandardForm
+        :initialRecord="agency"
+        :cols="cols"
+        @save="onSave"
+        @reset="onReset"
+        :key="formKey"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import StandardForm from '../components/StandardForm';
+import StandardForm from '../components/StandardForm.vue';
 
 import { post } from '../store/index';
 
@@ -33,7 +39,9 @@ export default {
     },
     agency() {
       if (this.isNew) return {};
-      const fromStore = this.$store.state.agencies.find((a) => a.id === Number(this.agencyId));
+      const fromStore = this.$store.state.agencies.find(
+        (a) => a.id === Number(this.agencyId),
+      );
       return fromStore || null;
     },
     cols() {
@@ -63,11 +71,13 @@ export default {
         if (this.isNew) {
           return this.$router.push(`/agencies/${result.agency.id}`);
         }
+        return true;
       } catch (e) {
         this.$store.commit('addAlert', {
           text: `Error saving agency: ${e.message}`,
           level: 'err',
         });
+        return false;
       }
     },
     onReset() {

@@ -158,10 +158,10 @@
 <script>
 import moment from 'moment';
 import { titleize } from '../helpers/form-helpers';
-import AlertBox from '../components/AlertBox';
-import DownloadFileButton from '../components/DownloadFileButton';
+import AlertBox from '../components/AlertBox.vue';
+import DownloadFileButton from '../components/DownloadFileButton.vue';
 import { getJson, post } from '../store/index';
-import { shortUuid } from '../helpers/short-uuid';
+import shortUuid from '../helpers/short-uuid';
 
 export default {
   name: 'Upload',
@@ -291,7 +291,7 @@ export default {
     },
   },
   watch: {
-    uploadId(to, from) {
+    uploadId() {
       this.onLoad();
     },
   },

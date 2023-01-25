@@ -54,7 +54,6 @@ export default {
       let errs = '';
       if (statusObj.errors.length > 0) {
         errs = '<ul>';
-        // eslint-disable-next-line no-restricted-syntax
         for (const err of statusObj.errors) {
           errs = errs.concat(`<li>${err}</li>`);
         }
