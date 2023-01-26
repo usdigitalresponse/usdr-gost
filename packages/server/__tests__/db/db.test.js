@@ -218,12 +218,17 @@ describe('db', () => {
     });
 
     context('getAgenciesSubscribedToDigest', () => {
-        it('returns agencies with keywords setup', async () => {
+        beforeEach(() => {
+            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            this.clock = this.clockFn('2021-08-06');
+        });
+        afterEach(() => {
+            this.clock.restore();
+        });
+        it('returns agencies with keywords and eligibility codes setup', async () => {
             const result = await db.getAgenciesSubscribedToDigest();
-            expect(result.length).to.equal(2);
-            // Ensures 'State Board of Sub Accountancy' is not part of the list since it does not have keywords.
+            expect(result.length).to.equal(1);
             expect(result[0].name).to.equal('State Board of Accountancy');
-            expect(result[1].name).to.equal('Administration: Fleet Services Division');
         });
     });
 
