@@ -23,7 +23,7 @@ const uploadFSName = (upload) => {
 
 const jsonFSName = (upload) => {
   const filename = `${upload.id}.json`
-  return path.join(TEMP_DIR, filename)
+  return path.join(TEMP_DIR, upload.id[0], filename)
 }
 
 async function persistUpload ({ filename, user, buffer }) {
@@ -47,12 +47,9 @@ async function persistUpload ({ filename, user, buffer }) {
 
   // persist the original upload to the filesystem
   try {
-    await fs.mkdir(UPLOAD_DIR, { recursive: true })
-    await fs.writeFile(
-      uploadFSName(upload),
-      buffer,
-      { flag: 'wx' }
-    )
+    const filename = uploadFSName(upload)
+    await fs.mkdir(path.dirname(filename), { recursive: true })
+    await fs.writeFile(filename, buffer, { flag: 'wx' })
   } catch (e) {
     throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`)
   }
@@ -64,12 +61,9 @@ async function persistUpload ({ filename, user, buffer }) {
 async function persistJson (upload, workbook) {
   // persist the parsed JSON from an upload to the filesystem
   try {
-    await fs.mkdir(TEMP_DIR, { recursive: true })
-    await fs.writeFile(
-      jsonFSName(upload),
-      Cryo.stringify(workbook),
-      { flag: 'wx' }
-    )
+    const filename = jsonFSName(upload)
+    await fs.mkdir(path.dirname(filename), { recursive: true })
+    await fs.writeFile(filename, Cryo.stringify(workbook), { flag: 'wx' })
   } catch (e) {
     throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`)
   }

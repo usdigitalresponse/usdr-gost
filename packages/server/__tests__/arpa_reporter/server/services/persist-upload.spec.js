@@ -30,7 +30,16 @@ describe('persist-upload', () => {
   describe('jsonFSName', () => {
     it('generates a filesystem name based on upload ID', () => {
       expect(_jsonFSName({ id: 'abcd', filename: 'upload01.xlsm' })).include(
-        'abcd.json',
+        '/abcd.json',
+      )
+    })
+
+    it('groups cache contents in subfolders by first character of upload ID', () => {
+      expect(_jsonFSName({ id: 'abcd', filename: 'upload01.xlsm' })).include(
+        '/a/abcd.json',
+      )
+      expect(_jsonFSName({ id: '01234', filename: 'upload02.xlsm' })).include(
+        '/0/01234.json',
       )
     })
   })
