@@ -1,10 +1,12 @@
 <template>
-  <a :href="`/api/uploads/${upload.id}/download`" class="btn-sm btn-primary ml-2">
+  <a :href="apiURL(`/api/uploads/${upload.id}/download`)" class="btn-sm btn-primary ml-2">
       Download file
   </a>
 </template>
 
 <script>
+import { apiURL } from '@/helpers/fetchApi';
+
 export default {
   name: 'DownloadFileButton',
   props: {

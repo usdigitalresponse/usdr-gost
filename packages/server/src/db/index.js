@@ -305,6 +305,20 @@ function deleteKeyword(id) {
         .del();
 }
 
+async function getNewGrantsById(asOf) {
+    const open_date = asOf || moment().subtract(1, 'day').format('YYYY-MM-DD');
+
+    const rows = await knex(TABLES.grants)
+        .where({ open_date });
+
+    const grantsById = rows.reduce((obj, item) => {
+        obj[item.grant_id] = item;
+        return obj;
+    }, {});
+
+    return grantsById;
+}
+
 async function getNewGrantsForAgency(agency) {
     const agencyCriteria = await getAgencyCriteriaForAgency(agency.id);
 
@@ -647,26 +661,69 @@ async function getAgenciesByIds(agencyIds) {
     return result;
 }
 
-async function getAgenciesSubscribedToDigest() {
-    const query = knex
-        .select(
-            'agencies.id',
-            'agencies.name',
-            'agencies.abbreviation',
-            'agencies.code',
-        )
-        .from('agencies')
-        .join('keywords', 'keywords.agency_id', '=', 'agencies.id')
-        .orderBy('agencies.id')
-        .groupBy(
-            'agencies.id',
-            'agencies.name',
-            'agencies.abbreviation',
-            'agencies.code',
-        );
-    const result = await query;
+async function getAgenciesSubscribedToDigest(asOf) {
+    const open_date = asOf || moment().subtract(1, 'day').format('YYYY-MM-DD');
 
-    return result;
+    const query = knex.raw(
+        `
+        WITH enabled_codes AS (
+            SELECT
+                a.id AS agency_id,
+                ec.code,
+                COALESCE(aec.enabled, TRUE) as enabled
+            FROM
+                eligibility_codes ec
+            CROSS JOIN agencies a
+            LEFT JOIN agency_eligibility_codes aec ON ec.code = aec.code
+                AND a.id = aec.agency_id
+        ),
+        agency_data AS (
+            SELECT
+                a.id,
+                a.name,
+                array_agg(DISTINCT aec.code) AS codes,
+                array_agg(DISTINCT k.search_term) AS term,
+                array_agg(DISTINCT u.email) AS emails
+            FROM
+                agencies a
+            JOIN enabled_codes aec ON aec.agency_id = a.id
+                AND aec.enabled = TRUE
+            JOIN keywords k ON k.agency_id = a.id
+            JOIN users u ON u.agency_id = a.id
+        GROUP BY
+            a.id
+        )
+        SELECT
+            ad.id,
+            ad.name,
+            ad.emails AS user_emails,
+            array_agg(DISTINCT g.grant_id) AS matched_grant_ids
+        FROM
+            grants g
+            JOIN agency_data ad ON g.eligibility_codes ~ array_to_string(ad.codes, '|')
+                AND g.description ~* array_to_string(ad.term, '|')
+        WHERE
+            g.open_date = :open_date
+        GROUP BY
+            ad.id,
+            ad.name,
+            ad.emails;
+        `,
+        { open_date },
+    );
+
+    const result = await query;
+    const newGrantsById = await module.exports.getNewGrantsById(open_date);
+
+    result.rows.forEach((r) => {
+        r.recipients = r.user_emails;
+        r.matched_grants = r.matched_grant_ids.reduce((arr, grantId) => {
+            arr.push(newGrantsById[grantId]);
+            return arr;
+        }, []);
+    });
+
+    return result.rows;
 }
 
 async function getTenantAgencies(tenantId) {
@@ -1002,6 +1059,7 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,
     getClosestGrants,
