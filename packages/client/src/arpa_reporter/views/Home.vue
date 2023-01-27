@@ -2,11 +2,11 @@
   <div>
     <div class="row mt-5 mb-5" v-if="viewingOpenPeriod">
       <div class="col" v-if="isAdmin">
-        <DownloadButton :href="downloadUrl()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
+        <DownloadButton :href="downloadTreasuryReportURL()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
       </div>
 
       <div class="col" v-if="isAdmin">
-        <DownloadButton href="/api/audit_report" class="btn btn-info btn-block">Download Audit Report</DownloadButton>
+        <DownloadButton :href="downloadAuditReportURL()" class="btn btn-info btn-block">Download Audit Report</DownloadButton>
       </div>
 
       <div class="col">
@@ -45,6 +45,7 @@
 <script>
 import DownloadButton from '../components/DownloadButton.vue'
 import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue'
+import { apiURL } from '@/helpers/fetchApi';
 
 export default {
   name: 'Home',
@@ -63,9 +64,12 @@ export default {
     }
   },
   methods: {
-    downloadUrl () {
+    downloadAuditReportURL: function () {
+      return apiURL('/api/audit_report')
+    },
+    downloadTreasuryReportURL () {
       const periodId = this.$store.getters.viewPeriod.id || 0
-      return `/api/exports?period_id=${periodId}`
+      return apiURL(`/api/exports?period_id=${periodId}`)
     },
     startUpload: function () {
       if (this.viewingOpenPeriod) {
