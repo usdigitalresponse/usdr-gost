@@ -14,7 +14,7 @@ export default {
   },
   computed: {
     href: function () {
-      return apiURL(`/api/uploads/${upload.id}/download`)
+      return apiURL(`/api/uploads/${this.upload.id}/download`)
     }
   }
 }
