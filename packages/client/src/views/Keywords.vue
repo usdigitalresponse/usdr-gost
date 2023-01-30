@@ -24,11 +24,11 @@
         </b-col>
     </b-row>
     <b-table sticky-header="600px" hover :items="excludeKeywords" :fields="fields">
-    <template #cell(actions)="row">
-        <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
+        <template #cell(actions)="row">
+            <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
             <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
-        </b-button>
-    </template>
+            </b-button>
+        </template>
     </b-table>
     <AddKeywordModal :showModal.sync="showAddKeywordModal"/>
 </section>

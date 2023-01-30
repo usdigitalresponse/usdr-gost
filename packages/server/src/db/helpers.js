@@ -1,3 +1,4 @@
+const { exclude } = require('inquirer/lib/objects/separator');
 const knex = require('./connection');
 
 function whereAgencyCriteriaMatch(qb, criteria) {
@@ -9,7 +10,14 @@ function whereAgencyCriteriaMatch(qb, criteria) {
     }
 
     if (criteria.keywords && criteria.keywords.length > 0) {
-        qb.where('description', '~*', criteria.keywords.join('|'));
+        const includeKeywords = criteria.keywords.filter((keyword) => keyword.type === 'include');
+        const excludeKeywords = criteria.keywords.filter((keyword) => keyword.type === 'exclude');
+        if (includeKeywords.length > 0) {
+            qb.where('description', '~*', includeKeywords.join('|'));
+        }
+        if (excludeKeywords.length > 0) {
+            qb.where('description', '!~*', excludeKeywords.join('|'));
+        }
     }
 }
 
