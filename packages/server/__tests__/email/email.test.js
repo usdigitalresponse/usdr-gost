@@ -2,12 +2,12 @@
 
 const { expect } = require('chai');
 const rewire = require('rewire');
+const moment = require('moment');
 const sinon = require('sinon');
 require('dotenv').config();
 const emailService = require('../../src/lib/email/service-email');
 const email = require('../../src/lib/email');
 const fixtures = require('../db/seeds/fixtures');
-const knex = require('../../src/db/connection');
 const db = require('../../src/db');
 const awsTransport = require('../../src/lib/email/email-aws');
 const emailConstants = require('../../src/lib/email/constants');
@@ -85,7 +85,9 @@ describe('Email module', () => {
             let sendEmailPromiseSpy;
             let MockSDK;
             beforeEach(() => {
-                sendEmailPromiseSpy = sandbox.spy();
+                sendEmailPromiseSpy = sandbox.stub().resolves({
+                    MessageId: 'EXAMPLE78603177f-7a5433e7-8edb-42ae-af10-f0181f34d6ee-000000',
+                });
                 MockSDK = {
                     SES: sandbox.stub().returns({
                         sendEmail: () => ({ promise: sendEmailPromiseSpy }),
@@ -94,6 +96,18 @@ describe('Email module', () => {
             });
             afterEach(() => {
                 sandbox.restore();
+            });
+
+            it('Handles a failed SES call', async () => {
+                sendEmailPromiseSpy = sandbox.stub().rejects(new Error('ahhh!'));
+
+                awsTransportPatched.__with__({ AWS: MockSDK })(() => {
+                    delete process.env.SES_REGION;
+                    awsTransportPatched.send(sandbox.spy());
+                });
+
+                expect(MockSDK.SES.callCount).to.equal(1);
+                expect(sendEmailPromiseSpy.callCount).to.equal(1);
             });
 
             it('Sets transport region when SES_REGION is set', async () => {
@@ -277,12 +291,12 @@ describe('Email sender', () => {
 
             expect(sendFake.calledTwice).to.equal(true);
 
-            expect(sendFake.firstCall.args.length).to.equal(1);
+            expect(sendFake.firstCall.args.length).to.equal(3);
             expect(sendFake.firstCall.args[0].toAddress).to.equal(fixtures.users.adminUser.email);
             expect(sendFake.firstCall.args[0].emailHTML.includes('<table')).to.equal(true);
             expect(sendFake.firstCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
 
-            expect(sendFake.secondCall.args.length).to.equal(1);
+            expect(sendFake.secondCall.args.length).to.equal(3);
             expect(sendFake.secondCall.args[0].toAddress).to.equal(fixtures.users.staffUser.email);
             expect(sendFake.secondCall.args[0].emailHTML.includes('<table')).to.equal(true);
             expect(sendFake.secondCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
@@ -297,7 +311,7 @@ describe('Email sender', () => {
         });
         beforeEach(async () => {
             this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
-            this.clock = this.clockFn('2022-06-22');
+            this.clock = this.clockFn('2021-08-06');
         });
         afterEach(async () => {
             this.clock.restore();
@@ -308,41 +322,32 @@ describe('Email sender', () => {
 
             await email.buildAndSendGrantDigest();
 
-            expect(sendFake.calledTwice).to.equal(true);
+            /* only fixtures.agency.accountancy has eligibility-codes, keywords, and users that match an existing grant */
+            expect(sendFake.calledOnce).to.equal(true);
         });
         it('sendGrantDigestForAgency sends no email when there are no grants to send', async () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(email, 'deliverEmail', sendFake);
 
             const agencies = await db.getAgency(0);
-            await email.sendGrantDigestForAgency(agencies[0]);
+            const agency = agencies[0];
+            agency.matched_grants = [];
+            agency.recipients = ['foo@example.com'];
+
+            await email.sendGrantDigestForAgency({ agency: agencies[0], openDate: moment().subtract(1, 'day').format('YYYY-MM-DD') });
 
             expect(sendFake.called).to.equal(false);
         });
         it('sendGrantDigestForAgency sends email to all users when there are grants', async () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(email, 'deliverEmail', sendFake);
-            const newGrant = fixtures.grants.healthAide;
-            newGrant.grant_id = '444816';
-            newGrant.open_date = '2022-06-21';
-            await knex('grants').insert(Object.values([newGrant]));
-            await db.setUserEmailSubscriptionPreference(
-                fixtures.users.adminUser.id,
-                fixtures.agencies.accountancy.id,
-                {
-                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
-                },
-            );
-            await db.setUserEmailSubscriptionPreference(
-                fixtures.users.staffUser.id,
-                fixtures.agencies.accountancy.id,
-                {
-                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
-                },
-            );
 
             const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
-            await email.sendGrantDigestForAgency(agencies[0]);
+            const agency = agencies[0];
+
+            agency.matched_grants = [fixtures.grants.healthAide];
+            agency.recipients = [fixtures.users.adminUser.email, fixtures.users.staffUser.email];
+            await email.sendGrantDigestForAgency({ agency, openDate: moment().subtract(1, 'day').format('YYYY-MM-DD') });
 
             expect(sendFake.calledTwice).to.equal(true);
         });

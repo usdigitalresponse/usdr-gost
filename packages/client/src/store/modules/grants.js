@@ -121,11 +121,11 @@ export default {
         .filter(([key, value]) => value || typeof value === 'number')
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join('&');
-      const navUrl = fetchApi.addOrganizationId(`/api/organizations/:organizationId/grants/exportCSV?${query}`);
+      const navUrl = fetchApi.apiURL(fetchApi.addOrganizationId(`/api/organizations/:organizationId/grants/exportCSV?${query}`));
       window.location = navUrl;
     },
     exportCSVRecentActivities() {
-      window.location = fetchApi.addOrganizationId('/api/organizations/:organizationId/grants/exportCSVRecentActivities');
+      window.location = fetchApi.apiURL(fetchApi.addOrganizationId('/api/organizations/:organizationId/grants/exportCSVRecentActivities'));
     },
   },
   mutations: {

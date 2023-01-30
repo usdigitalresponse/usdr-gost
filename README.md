@@ -75,15 +75,7 @@ Copy packages/client & packages/server `.env.example` to `.env`
 > cp packages/server/.env.example packages/server/.env
 ```
 
-
-Then export the environment variables
-
-```
-> cd packages/client && export $(cat .env)
-> cd packages/server && export $(cat .env)
-```
-
-**_Note:_** In order to login, the server must be able to send email. Set the relevant environment variables under `# Email Server:` in .env to credentials for a personal email account (e.g. for Gmail, see (4.1)[here](https://support.google.com/mail/answer/7126229)).
+**_Note:_** In order to login, the server must be able to send email. Set the relevant environment variables under `# Email Server:` in `server/.env` to credentials for a personal email account (e.g. for Gmail, see (4.1)[here](https://support.google.com/mail/answer/7126229)).
 
 4.1). Setup Gmail
 
@@ -104,10 +96,7 @@ If running into `Error: Invalid login: 535-5.7.8 Username and Password not accep
 
 5). Run DB Migrations & Seed
 
-In server workspace, run migrations:
-
-**_NOTE:_** In `server/seeds/dev/01_main.js`, update the adminList by replacing `CHANGEME@GMAIL.COM` with your email **_to be able to login to the system_**. *Use lower-case email address.*
-Then run seeds:
+In server workspace, run migrations and seeds:
 
 ```
 > cd packages/server
@@ -142,7 +131,7 @@ Now you should be able to serve the backend.
 
 ![](./docs/img/error-aws-ses.png)
 
-7). Visit `client_url/login` (e.g http://localhost:8080/#/login) and login w/ user set in Step 5.
+7). Visit `client_url/login` (e.g http://localhost:8080/#/login) and login w/ user `grant-admin@usdigitalresponse.org`.
 
 **NOTE:** if you only see a blank screen then ensure you've set up the `packages/client/.env`
 
@@ -189,15 +178,12 @@ NOTE: yarn complains about incompatibility of some node modules with our node ve
 
 ### VSCode
 
-Install Vue plugin: `jcbuisson.vue`, `Vue.volar`
+Open the repository using the workspace file `usdr-gost.code-workspace`. You will be prompted tp install recommended VSCode plugins located in `.vscode/extensions.json` for Vue and Eslint support.
 
-Install Vue Dev Tools: https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en
+To enable linting on save, a settings section has been included in the workspace which sets the appropriate linting options.
 
-Install the eslint plugin https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
-
-After that you should be able to see eslint prompts in js files
-
-To enable linting on save, a settings section has been included in the `usdr-gost.code-workspace` workspace which sets the appropriate linting options.
+### Chrome
+ install Vue Dev Tools: https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en
 
 ### IntelliJ
 
