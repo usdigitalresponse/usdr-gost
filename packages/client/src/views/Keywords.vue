@@ -49,11 +49,17 @@ export default {
       fields: [
         {
           key: 'search_term',
+          thStyle: { width: '20%' },
         },
         {
           key: 'notes',
+          thStyle: { width: '70%' },
         },
-        { key: 'actions', label: 'Actions' },
+        {
+          key: 'actions',
+          label: 'Actions',
+          thStyle: { width: '10%' },
+        },
       ],
       showAddKeywordModal: false,
     };
