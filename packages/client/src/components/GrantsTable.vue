@@ -353,8 +353,6 @@ export default {
         orderBy: this.orderBy,
         orderDesc: this.orderDesc,
         searchTerm: this.debouncedSearchInput,
-        // TODO: This fix shouldn't be merged until the problem with the automated test is figured out.
-        // https://usdigitalresponse.slack.com/archives/C0324KDQSCR/p1675100530445439
         interestedByAgency: this.showInterested || this.showResult || this.showRejected,
         interestedByMe: this.showMyInterested,
         aging: this.showAging,
