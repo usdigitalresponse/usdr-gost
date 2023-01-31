@@ -6,6 +6,7 @@
 
 <script>
 import DownloadButton from './DownloadButton.vue'
+import { apiURL } from '@/helpers/fetchApi';
 
 export default {
   name: 'DownloadTemplateBtn',
@@ -20,7 +21,7 @@ export default {
       return this.$store.state.viewPeriodID
     },
     href: function () {
-      return `/api/reporting_periods/${this.periodId}/template`
+      return apiURL(`/api/reporting_periods/${this.periodId}/template`)
     },
     isDisabled: function () {
       return !this.$store.getters.viewPeriodIsCurrent

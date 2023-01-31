@@ -31,11 +31,12 @@
     "serve": "lerna run serve --stream",
     "serve:server": "lerna run start --stream --scope server",
     "test": "lerna run test --stream",
+    "coverage": "nyc --reporter=lcov --reporter=text-summary yarn test",
     "lint": "lerna run lint",
     "pre-commit": "yarn lint",
     "psql": "psql opportunities pg",
     "test:client": "cd packages/client && yarn test",
-    "test:server": "cd packages/client && yarn test"
+    "test:server": "cd packages/server && yarn test"
   },
   "dependencies": {},
   "devDependencies": {

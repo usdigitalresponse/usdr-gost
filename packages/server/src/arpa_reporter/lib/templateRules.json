@@ -1,7 +1,7 @@
 {
   "logic": {
     "version": {
-      "version": "v:20220929",
+      "version": "v:20230113",
       "key": "version",
       "index": 0,
       "required": false,
@@ -309,7 +309,7 @@
     "Primary_Project_Demographics__c": {
       "key": "Primary_Project_Demographics__c",
       "index": 13,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
@@ -552,7 +552,7 @@
     "Structure_Objectives_of_Asst_Programs__c": {
       "key": "Structure_Objectives_of_Asst_Programs__c",
       "index": 19,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
@@ -578,7 +578,7 @@
     "Recipient_Approach_Description__c": {
       "key": "Recipient_Approach_Description__c",
       "index": 20,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
@@ -604,7 +604,7 @@
     "Spending_Allocated_Toward_Evidence_Based_Interventions": {
       "key": "Spending_Allocated_Toward_Evidence_Based_Interventions",
       "index": 21,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Currency",
       "maxLength": null,
       "listVals": [],
@@ -620,7 +620,7 @@
     "Whether_program_evaluation_is_being_conducted": {
       "key": "Whether_program_evaluation_is_being_conducted",
       "index": 22,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
@@ -639,7 +639,7 @@
     "Small_Businesses_Served__c": {
       "key": "Small_Businesses_Served__c",
       "index": 23,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -652,7 +652,7 @@
     "Number_Non_Profits_Served__c": {
       "key": "Number_Non_Profits_Served__c",
       "index": 24,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -1210,7 +1210,7 @@
     "Number_Workers_Enrolled_Sectoral__c": {
       "key": "Number_Workers_Enrolled_Sectoral__c",
       "index": 44,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -1223,7 +1223,7 @@
     "Number_Workers_Competing_Sectoral__c": {
       "key": "Number_Workers_Competing_Sectoral__c",
       "index": 45,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -1236,7 +1236,7 @@
     "Number_People_Summer_Youth__c": {
       "key": "Number_People_Summer_Youth__c",
       "index": 46,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -1822,7 +1822,7 @@
     "Primary_Project_Demographics__c": {
       "key": "Primary_Project_Demographics__c",
       "index": 13,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
@@ -2203,7 +2203,7 @@
     "Structure_Objectives_of_Asst_Programs__c": {
       "key": "Structure_Objectives_of_Asst_Programs__c",
       "index": 19,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
@@ -2252,7 +2252,7 @@
     "Recipient_Approach_Description__c": {
       "key": "Recipient_Approach_Description__c",
       "index": 20,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
@@ -2301,7 +2301,7 @@
     "Individuals_Served__c": {
       "key": "Individuals_Served__c",
       "index": 21,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -2321,7 +2321,7 @@
     "Spending_Allocated_Toward_Evidence_Based_Interventions": {
       "key": "Spending_Allocated_Toward_Evidence_Based_Interventions",
       "index": 22,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Currency",
       "maxLength": null,
       "listVals": [],
@@ -2357,7 +2357,7 @@
     "Whether_program_evaluation_is_being_conducted": {
       "key": "Whether_program_evaluation_is_being_conducted",
       "index": 23,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
@@ -2396,7 +2396,7 @@
     "Small_Businesses_Served__c": {
       "key": "Small_Businesses_Served__c",
       "index": 24,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -2413,7 +2413,7 @@
     "Number_Non_Profits_Served__c": {
       "key": "Number_Non_Profits_Served__c",
       "index": 25,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 10,
       "listVals": [],
@@ -2426,7 +2426,7 @@
     "School_ID_or_District_ID__c": {
       "key": "School_ID_or_District_ID__c",
       "index": 26,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 750,
       "listVals": [],
@@ -2446,7 +2446,7 @@
     "Industry_Experienced_8_Percent_Loss__c": {
       "key": "Industry_Experienced_8_Percent_Loss__c",
       "index": 27,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
@@ -3441,7 +3441,7 @@
     "Number_Workers_Enrolled_Sectoral__c": {
       "key": "Number_Workers_Enrolled_Sectoral__c",
       "index": 47,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -3454,7 +3454,7 @@
     "Number_Workers_Competing_Sectoral__c": {
       "key": "Number_Workers_Competing_Sectoral__c",
       "index": 48,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -3467,7 +3467,7 @@
     "Number_People_Summer_Youth__c": {
       "key": "Number_People_Summer_Youth__c",
       "index": 49,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -3480,7 +3480,7 @@
     "Number_Households_Eviction_Prevention__c": {
       "key": "Number_Households_Eviction_Prevention__c",
       "index": 50,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -3497,7 +3497,7 @@
     "Number_Affordable_Housing_Units__c": {
       "key": "Number_Affordable_Housing_Units__c",
       "index": 51,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -3514,7 +3514,7 @@
     "Number_Students_Tutoring_Programs__c": {
       "key": "Number_Students_Tutoring_Programs__c",
       "index": 52,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -3530,7 +3530,7 @@
     "Number_Children_Served_Childcare__c": {
       "key": "Number_Children_Served_Childcare__c",
       "index": 53,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -3546,7 +3546,7 @@
     "Number_Families_Served_Home_Visiting__c": {
       "key": "Number_Families_Served_Home_Visiting__c",
       "index": 54,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -3806,7 +3806,7 @@
     "Structure_Objectives_of_Asst_Programs__c": {
       "key": "Structure_Objectives_of_Asst_Programs__c",
       "index": 13,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
@@ -3823,7 +3823,7 @@
     "Recipient_Approach_Description__c": {
       "key": "Recipient_Approach_Description__c",
       "index": 14,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
@@ -3840,35 +3840,27 @@
     "Payroll_Public_Health_Safety__c": {
       "key": "Payroll_Public_Health_Safety__c",
       "index": 15,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
       "columnName": "P",
       "humanColName": "Number of government FTEs responding to COVID-19 supported under this authority",
       "ecCodes": [
-        "3.1",
-        "3.2",
-        "3.3",
-        "3.4",
-        "3.5"
+        "3.1"
       ]
     },
     "Number_of_FTEs_Rehired__c": {
       "key": "Number_of_FTEs_Rehired__c",
       "index": 16,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
       "columnName": "Q",
       "humanColName": "Number of FTEs rehired by governments under this authority",
       "ecCodes": [
-        "3.1",
-        "3.2",
-        "3.3",
-        "3.4",
-        "3.5"
+        "3.2"
       ]
     },
     "Does_Project_Include_Capital_Expenditure__c": {
@@ -4427,7 +4419,7 @@
     "Sectors_Critical_to_Health_Well_Being__c": {
       "key": "Sectors_Critical_to_Health_Well_Being__c",
       "index": 13,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Multi-Select",
       "maxLength": 1500,
       "listVals": [
@@ -4468,7 +4460,7 @@
     "Workers_Served__c": {
       "key": "Workers_Served__c",
       "index": 14,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 7,
       "listVals": [],
@@ -4482,7 +4474,7 @@
     "Premium_Pay_Narrative__c": {
       "key": "Premium_Pay_Narrative__c",
       "index": 15,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 3000,
       "listVals": [],
@@ -4496,7 +4488,7 @@
     "Number_of_Workers_K_12__c": {
       "key": "Number_of_Workers_K_12__c",
       "index": 16,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5569,7 +5561,7 @@
     "Is_project_designed_to_meet_100_mbps__c": {
       "key": "Is_project_designed_to_meet_100_mbps__c",
       "index": 33,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
@@ -5577,7 +5569,7 @@
         "No"
       ],
       "columnName": "AH",
-      "humanColName": "Confirm that the project is designed to, upon completion, reliably meet or exceed symmetrical 100 Mbps download and upload speeds.",
+      "humanColName": "Confirm that the project is designed to, upon completion, reliably meet or exceed symmetrical 100 Mbps download and upload speeds",
       "ecCodes": [
         "5.19",
         "5.20",
@@ -5765,7 +5757,7 @@
     "Total_Miles_of_Fiber_Deployed_c": {
       "key": "Total_Miles_of_Fiber_Deployed_c",
       "index": 43,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5795,7 +5787,7 @@
     "Planned_Funded_Locations_Served__c": {
       "key": "Planned_Funded_Locations_Served__c",
       "index": 45,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5825,7 +5817,7 @@
     "Planned_Funded_Locations_25_3_Below__c": {
       "key": "Planned_Funded_Locations_25_3_Below__c",
       "index": 47,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5840,7 +5832,7 @@
     "Planned_Funded_Locations_Between_25_100__c": {
       "key": "Planned_Funded_Locations_Between_25_100__c",
       "index": 48,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5877,7 +5869,7 @@
     "Planned_Funded_Locations_Minimum_100_100__c": {
       "key": "Planned_Funded_Locations_Minimum_100_100__c",
       "index": 51,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5907,7 +5899,7 @@
     "Planned_Funded_Locations_Minimum_100_20__c": {
       "key": "Planned_Funded_Locations_Minimum_100_20__c",
       "index": 53,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5937,7 +5929,7 @@
     "Planned_Funded_Locations_Residential__c": {
       "key": "Planned_Funded_Locations_Residential__c",
       "index": 55,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5967,7 +5959,7 @@
     "Planned_Funded_Locations_Total_Housing__c": {
       "key": "Planned_Funded_Locations_Total_Housing__c",
       "index": 57,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -5997,7 +5989,7 @@
     "Planned_Funded_Locations_Business__c": {
       "key": "Planned_Funded_Locations_Business__c",
       "index": 59,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -6027,7 +6019,7 @@
     "Planned_Funded_Locations_Community__c": {
       "key": "Planned_Funded_Locations_Community__c",
       "index": 61,
-      "required": "Conditional",
+      "required": true,
       "dataType": "Numeric",
       "maxLength": 10,
       "listVals": [],
@@ -6285,7 +6277,7 @@
     "Does_Project_Include_Capital_Expenditure__c": {
       "key": "Does_Project_Include_Capital_Expenditure__c",
       "index": 10,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
@@ -6294,10 +6286,7 @@
       ],
       "columnName": "K",
       "humanColName": "Does this project include a capital expenditure?",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Total_Cost_Capital_Expenditure__c": {
       "key": "Total_Cost_Capital_Expenditure__c",
@@ -6308,10 +6297,7 @@
       "listVals": [],
       "columnName": "L",
       "humanColName": "If yes, what is the total expected capital expenditure?",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Type_of_Capital_Expenditure__c": {
       "key": "Type_of_Capital_Expenditure__c",
@@ -6349,10 +6335,7 @@
       ],
       "columnName": "M",
       "humanColName": "Capital Expenditure Type",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Type_of_Capital_Expenditure_Other__c": {
       "key": "Type_of_Capital_Expenditure_Other__c",
@@ -6363,10 +6346,7 @@
       "listVals": [],
       "columnName": "N",
       "humanColName": "Other Capital Expenditure Explanation",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Capital_Expenditure_Justification__c": {
       "key": "Capital_Expenditure_Justification__c",
@@ -6377,10 +6357,7 @@
       "listVals": [],
       "columnName": "O",
       "humanColName": "Capital Expenditure Narrative",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Project_Description__c": {
       "key": "Project_Description__c",
@@ -6427,7 +6404,7 @@
     "Primary_Project_Demographics__c": {
       "key": "Primary_Project_Demographics__c",
       "index": 18,
-      "required": true,
+      "required": "Conditional",
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
@@ -6580,30 +6557,24 @@
     "Structure_Objectives_of_Asst_Programs__c": {
       "key": "Structure_Objectives_of_Asst_Programs__c",
       "index": 24,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
       "columnName": "Y",
       "humanColName": "Structure and objectives of assistance program",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Recipient_Approach_Description__c": {
       "key": "Recipient_Approach_Description__c",
       "index": 25,
-      "required": true,
+      "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
       "columnName": "Z",
       "humanColName": "Recipients approach",
-      "ecCodes": [
-        "7.1",
-        "7.2"
-      ]
+      "ecCodes": []
     },
     "Cancellation_Reason__c": {
       "key": "Cancellation_Reason__c",
@@ -6625,7 +6596,7 @@
       "key": "Unique_Entity_Identifier__c",
       "index": 2,
       "required": "RequiredOptional",
-      "dataType": "String",
+      "dataType": "String-Fixed",
       "maxLength": 12,
       "listVals": [],
       "columnName": "C",
@@ -6636,7 +6607,7 @@
       "key": "EIN__c",
       "index": 3,
       "required": "RequiredOptional",
-      "dataType": "String",
+      "dataType": "String-Fixed",
       "maxLength": 9,
       "listVals": [],
       "columnName": "D",
@@ -6817,9 +6788,20 @@
       "humanColName": "Zip4",
       "ecCodes": false
     },
+    "Country__c": {
+      "key": "Country__c",
+      "index": 14,
+      "required": false,
+      "dataType": "String",
+      "maxLength": 2,
+      "listVals": [],
+      "columnName": "O",
+      "humanColName": "Country Code",
+      "ecCodes": false
+    },
     "Registered_in_Sam_gov__c": {
       "key": "Registered_in_Sam_gov__c",
-      "index": 14,
+      "index": 15,
       "required": true,
       "dataType": "Pick List",
       "maxLength": null,
@@ -6827,26 +6809,12 @@
         "Yes",
         "No"
       ],
-      "columnName": "O",
+      "columnName": "P",
       "humanColName": "Recipient SAM.gov Registration?",
       "ecCodes": false
     },
     "Federal_Funds_80_or_More_of_Revenue__c": {
       "key": "Federal_Funds_80_or_More_of_Revenue__c",
-      "index": 15,
-      "required": "Conditional",
-      "dataType": "Pick List",
-      "maxLength": null,
-      "listVals": [
-        "Yes",
-        "No"
-      ],
-      "columnName": "P",
-      "humanColName": "In its preceding fiscal year, did recipient receive 80% or more of its annual gross revenue from federal funds?",
-      "ecCodes": false
-    },
-    "Derives_25_Million_or_More_from_Federal__c": {
-      "key": "Derives_25_Million_or_More_from_Federal__c",
       "index": 16,
       "required": "Conditional",
       "dataType": "Pick List",
@@ -6856,11 +6824,11 @@
         "No"
       ],
       "columnName": "Q",
-      "humanColName": "In the preceding fiscal year, did recipient receive $25 million or more of its annual gross revenue from federal funds?",
+      "humanColName": "In its preceding fiscal year, did recipient receive 80% or more of its annual gross revenue from federal funds?",
       "ecCodes": false
     },
-    "Total_Compensation_for_Officers_Public__c": {
-      "key": "Total_Compensation_for_Officers_Public__c",
+    "Derives_25_Million_or_More_from_Federal__c": {
+      "key": "Derives_25_Million_or_More_from_Federal__c",
       "index": 17,
       "required": "Conditional",
       "dataType": "Pick List",
@@ -6870,116 +6838,130 @@
         "No"
       ],
       "columnName": "R",
+      "humanColName": "In the preceding fiscal year, did recipient receive $25 million or more of its annual gross revenue from federal funds?",
+      "ecCodes": false
+    },
+    "Total_Compensation_for_Officers_Public__c": {
+      "key": "Total_Compensation_for_Officers_Public__c",
+      "index": 18,
+      "required": "Conditional",
+      "dataType": "Pick List",
+      "maxLength": null,
+      "listVals": [
+        "Yes",
+        "No"
+      ],
+      "columnName": "S",
       "humanColName": "Is the \"total compensation\" for the organization's five highest paid officers publicly listed or otherwise listed in SAM.gov?",
       "ecCodes": false
     },
     "Officer_Name__c": {
       "key": "Officer_Name__c",
-      "index": 18,
+      "index": 19,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 80,
       "listVals": [],
-      "columnName": "S",
+      "columnName": "T",
       "humanColName": "Executive Name (1)",
       "ecCodes": false
     },
     "Officer_Total_Comp__c": {
       "key": "Officer_Total_Comp__c",
-      "index": 19,
+      "index": 20,
       "required": "Conditional",
       "dataType": "Currency",
       "maxLength": null,
       "listVals": [],
-      "columnName": "T",
+      "columnName": "U",
       "humanColName": "Total Compensation Executive (1)",
       "ecCodes": false
     },
     "Officer_2_Name__c": {
       "key": "Officer_2_Name__c",
-      "index": 20,
+      "index": 21,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 80,
       "listVals": [],
-      "columnName": "U",
+      "columnName": "V",
       "humanColName": "Executive Name (2)",
       "ecCodes": false
     },
     "Officer_2_Total_Comp__c": {
       "key": "Officer_2_Total_Comp__c",
-      "index": 21,
+      "index": 22,
       "required": "Conditional",
       "dataType": "Currency",
       "maxLength": null,
       "listVals": [],
-      "columnName": "V",
+      "columnName": "W",
       "humanColName": "Total Compensation Executive (2)",
       "ecCodes": false
     },
     "Officer_3_Name__c": {
       "key": "Officer_3_Name__c",
-      "index": 22,
+      "index": 23,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 80,
       "listVals": [],
-      "columnName": "W",
+      "columnName": "X",
       "humanColName": "Executive Name (3)",
       "ecCodes": false
     },
     "Officer_3_Total_Comp__c": {
       "key": "Officer_3_Total_Comp__c",
-      "index": 23,
+      "index": 24,
       "required": "Conditional",
       "dataType": "Currency",
       "maxLength": null,
       "listVals": [],
-      "columnName": "X",
+      "columnName": "Y",
       "humanColName": "Total Compensation Executive (3)",
       "ecCodes": false
     },
     "Officer_4_Name__c": {
       "key": "Officer_4_Name__c",
-      "index": 24,
+      "index": 25,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 80,
       "listVals": [],
-      "columnName": "Y",
+      "columnName": "Z",
       "humanColName": "Executive Name (4)",
       "ecCodes": false
     },
     "Officer_4_Total_Comp__c": {
       "key": "Officer_4_Total_Comp__c",
-      "index": 25,
+      "index": 26,
       "required": "Conditional",
       "dataType": "Currency",
       "maxLength": null,
       "listVals": [],
-      "columnName": "Z",
+      "columnName": "AA",
       "humanColName": "Total Compensation Executive (4)",
       "ecCodes": false
     },
     "Officer_5_Name__c": {
       "key": "Officer_5_Name__c",
-      "index": 26,
+      "index": 27,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 80,
       "listVals": [],
-      "columnName": "AA",
+      "columnName": "AB",
       "humanColName": "Executive Name (5)",
       "ecCodes": false
     },
     "Officer_5_Total_Comp__c": {
       "key": "Officer_5_Total_Comp__c",
-      "index": 27,
+      "index": 28,
       "required": "Conditional",
       "dataType": "Currency",
       "maxLength": null,
       "listVals": [],
-      "columnName": "AB",
+      "columnName": "AC",
       "humanColName": "Total Compensation Executive (5)",
       "ecCodes": false
     }
@@ -6989,7 +6971,7 @@
       "key": "Recipient_UEI__c",
       "index": 2,
       "required": "RequiredOptional",
-      "dataType": "String",
+      "dataType": "String-Fixed",
       "maxLength": 12,
       "listVals": [],
       "columnName": "C",
@@ -7000,41 +6982,52 @@
       "key": "Recipient_EIN__c",
       "index": 3,
       "required": "RequiredOptional",
-      "dataType": "Numeric",
+      "dataType": "String-Fixed",
       "maxLength": 9,
       "listVals": [],
       "columnName": "D",
       "humanColName": "TIN",
       "ecCodes": false
     },
+    "Display_Only": {
+      "key": "Display_Only",
+      "index": 7,
+      "required": "Hidden",
+      "dataType": "Display Only",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "H",
+      "humanColName": "Helper Column - Hidden From User - Do Not Alter",
+      "ecCodes": false
+    },
     "Project_Identification_Number__c": {
       "key": "Project_Identification_Number__c",
-      "index": 4,
+      "index": 5,
       "required": true,
       "dataType": "Numeric",
       "maxLength": 20,
       "listVals": [],
-      "columnName": "E",
+      "columnName": "F",
       "humanColName": "Project ID",
       "ecCodes": false
     },
     "Award_No__c": {
       "key": "Award_No__c",
-      "index": 5,
+      "index": 6,
       "required": true,
       "dataType": "String",
       "maxLength": 20,
       "listVals": [],
-      "columnName": "F",
+      "columnName": "G",
       "humanColName": "SubAward Number (unique identifier)",
       "ecCodes": false
     },
     "Award_Type__c": {
       "key": "Award_Type__c",
-      "index": 6,
+      "index": 8,
       "required": true,
       "dataType": "Pick List",
-      "maxLength": 30,
+      "maxLength": null,
       "listVals": [
         "Contract: Purchase Order",
         "Contract: Delivery Order",
@@ -7050,35 +7043,35 @@
         "Loan - maturity past 12/31/26 with planned forgiveness",
         "Loan - maturity past 12/31/26 without planned forgiveness"
       ],
-      "columnName": "G",
+      "columnName": "I",
       "humanColName": "SubAward Type",
       "ecCodes": false
     },
     "Award_Amount__c": {
       "key": "Award_Amount__c",
-      "index": 7,
+      "index": 9,
       "required": true,
       "dataType": "Currency",
       "maxLength": null,
       "listVals": [],
-      "columnName": "H",
+      "columnName": "J",
       "humanColName": "SubAward Amount (Obligation)",
       "ecCodes": false
     },
     "Award_Date__c": {
       "key": "Award_Date__c",
-      "index": 8,
+      "index": 10,
       "required": true,
       "dataType": "Date",
       "maxLength": null,
       "listVals": [],
-      "columnName": "I",
+      "columnName": "K",
       "humanColName": "SubAward Award Date",
       "ecCodes": false
     },
     "Primary_Sector__c": {
       "key": "Primary_Sector__c",
-      "index": 9,
+      "index": 11,
       "required": true,
       "dataType": "Pick List",
       "maxLength": null,
@@ -7110,101 +7103,101 @@
         "Work requiring physical interaction with patients",
         "Other"
       ],
-      "columnName": "J",
+      "columnName": "L",
       "humanColName": "Primary Sector",
       "ecCodes": false
     },
     "If_Other__c": {
       "key": "If_Other__c",
-      "index": 10,
+      "index": 12,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 100,
       "listVals": [],
-      "columnName": "K",
+      "columnName": "M",
       "humanColName": "If Other",
       "ecCodes": false
     },
     "Purpose_of_Funds__c": {
       "key": "Purpose_of_Funds__c",
-      "index": 11,
+      "index": 13,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 3000,
       "listVals": [],
-      "columnName": "L",
+      "columnName": "N",
       "humanColName": "Purpose of funds",
       "ecCodes": false
     },
     "Period_of_Performance_Start__c": {
       "key": "Period_of_Performance_Start__c",
-      "index": 12,
+      "index": 14,
       "required": true,
       "dataType": "Date",
       "maxLength": null,
       "listVals": [],
-      "columnName": "M",
+      "columnName": "O",
       "humanColName": "Period of Performance Start Date ",
       "ecCodes": false
     },
     "Period_of_Performance_End__c": {
       "key": "Period_of_Performance_End__c",
-      "index": 13,
+      "index": 15,
       "required": true,
       "dataType": "Date",
       "maxLength": null,
       "listVals": [],
-      "columnName": "N",
+      "columnName": "P",
       "humanColName": "Period of Performance End Date ",
       "ecCodes": false
     },
     "Place_of_Performance_Address_1__c": {
       "key": "Place_of_Performance_Address_1__c",
-      "index": 14,
+      "index": 16,
       "required": true,
       "dataType": "String",
       "maxLength": 120,
       "listVals": [],
-      "columnName": "O",
+      "columnName": "Q",
       "humanColName": "Primary Place of Performance Address Line 1 ",
       "ecCodes": false
     },
     "Place_of_Performance_Address_2__c": {
       "key": "Place_of_Performance_Address_2__c",
-      "index": 15,
+      "index": 17,
       "required": false,
       "dataType": "String",
       "maxLength": 120,
       "listVals": [],
-      "columnName": "P",
+      "columnName": "R",
       "humanColName": "Primary Place of Performance Address Line 2",
       "ecCodes": false
     },
     "Place_of_Performance_Address_3__c": {
       "key": "Place_of_Performance_Address_3__c",
-      "index": 16,
+      "index": 18,
       "required": false,
       "dataType": "String",
       "maxLength": 120,
       "listVals": [],
-      "columnName": "Q",
+      "columnName": "S",
       "humanColName": "Primary Place of Performance Address Line 3",
       "ecCodes": false
     },
     "Place_of_Performance_City__c": {
       "key": "Place_of_Performance_City__c",
-      "index": 17,
+      "index": 19,
       "required": true,
       "dataType": "String",
       "maxLength": 40,
       "listVals": [],
-      "columnName": "R",
+      "columnName": "T",
       "humanColName": "Primary Place of Performance City Name ",
       "ecCodes": false
     },
     "State_Abbreviated__c": {
       "key": "State_Abbreviated__c",
-      "index": 18,
+      "index": 20,
       "required": true,
       "dataType": "Pick List",
       "maxLength": 2,
@@ -7269,62 +7262,62 @@
         "WI",
         "WY"
       ],
-      "columnName": "S",
+      "columnName": "U",
       "humanColName": "Primary Place of Performance State Code ",
       "ecCodes": false
     },
     "Place_of_Performance_Zip__c": {
       "key": "Place_of_Performance_Zip__c",
-      "index": 19,
+      "index": 21,
       "required": true,
       "dataType": "Numeric",
       "maxLength": 5,
       "listVals": [],
-      "columnName": "T",
+      "columnName": "V",
       "humanColName": "Primary Place of Performance Zip",
       "ecCodes": false
     },
     "Place_of_Performance_Zip_4__c": {
       "key": "Place_of_Performance_Zip_4__c",
-      "index": 20,
+      "index": 22,
       "required": false,
       "dataType": "Numeric",
       "maxLength": 4,
       "listVals": [],
-      "columnName": "U",
+      "columnName": "W",
       "humanColName": "Place of Performance Zip4",
       "ecCodes": false
     },
     "Description__c": {
       "key": "Description__c",
-      "index": 21,
+      "index": 23,
       "required": true,
       "dataType": "String",
       "maxLength": 750,
       "listVals": [],
-      "columnName": "V",
+      "columnName": "X",
       "humanColName": "SubAward Description",
       "ecCodes": false
     },
     "Subaward_Changed__c": {
       "key": "Subaward_Changed__c",
-      "index": 22,
+      "index": 24,
       "required": true,
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [],
-      "columnName": "W",
+      "columnName": "Y",
       "humanColName": "Did the Subaward Amount (Obligation) Change From Last Reporting Period?",
       "ecCodes": false
     },
     "Change_Reason__c": {
       "key": "Change_Reason__c",
-      "index": 23,
+      "index": 25,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
-      "columnName": "X",
+      "columnName": "Z",
       "humanColName": "Reason for the Subaward Amount (Obligation) Change",
       "ecCodes": false
     }
@@ -7341,36 +7334,47 @@
       "humanColName": "SubAward Number (unique identifier)",
       "ecCodes": false
     },
-    "Expenditure_Start__c": {
-      "key": "Expenditure_Start__c",
+    "Display_Only": {
+      "key": "Display_Only",
       "index": 3,
-      "required": true,
-      "dataType": "Date",
+      "required": "Informational",
+      "dataType": "Display Only",
       "maxLength": null,
       "listVals": [],
       "columnName": "D",
-      "humanColName": "Expenditure Start Date",
+      "humanColName": "Legal Name",
       "ecCodes": false
     },
-    "Expenditure_End__c": {
-      "key": "Expenditure_End__c",
+    "Expenditure_Start__c": {
+      "key": "Expenditure_Start__c",
       "index": 4,
       "required": true,
       "dataType": "Date",
       "maxLength": null,
       "listVals": [],
       "columnName": "E",
+      "humanColName": "Expenditure Start Date",
+      "ecCodes": false
+    },
+    "Expenditure_End__c": {
+      "key": "Expenditure_End__c",
+      "index": 5,
+      "required": true,
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "F",
       "humanColName": "Expenditure End Date",
       "ecCodes": false
     },
     "Expenditure_Amount__c": {
       "key": "Expenditure_Amount__c",
-      "index": 5,
+      "index": 6,
       "required": true,
       "dataType": "Currency",
       "maxLength": null,
       "listVals": [],
-      "columnName": "F",
+      "columnName": "G",
       "humanColName": "Total Expenditure Amount",
       "ecCodes": false
     }

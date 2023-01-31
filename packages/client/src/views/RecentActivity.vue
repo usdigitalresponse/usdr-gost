@@ -1,7 +1,15 @@
 <template>
   <section class="container">
     <b-card class="border-0">
+    <div class="d-flex">
       <h4 class="card-title gutter-title1 row">Recent Activity</h4>
+      <div class="justify-content-end left-margin">
+        <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
+        <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
+          Export to CSV
+        </b-button>
+      </div>
+    </div>
     <b-table
       hover
       :items="activityItems"
@@ -121,10 +129,10 @@ export default {
         grant_id: grantsInterested.grant_id,
         interested: (() => {
           let retVal = null;
-          if (grantsInterested.is_rejection != null) {
-            if (grantsInterested.is_rejection) {
+          if (grantsInterested.status_code != null) {
+            if (grantsInterested.status_code === 'Rejected') {
               retVal = 0;
-            } else {
+            } else if ((grantsInterested.status_code === 'Interested')) {
               retVal = 1;
             }
           } else if (grantsInterested.assigned_by != null) {
@@ -169,6 +177,7 @@ export default {
       fetchDashboard: 'dashboard/fetchDashboard',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
       fetchGrantDetails: 'grants/fetchGrantDetails',
+      exportCSVRecentActivities: 'grants/exportCSVRecentActivities',
     }),
     setup() {
       this.fetchDashboard();
@@ -182,6 +191,15 @@ export default {
         });
       }
     },
+    exportCSV() {
+      this.exportCSVRecentActivities();
+    },
   },
 };
 </script>
+
+<style scoped>
+.left-margin {
+  margin-left: auto;
+}
+</style>

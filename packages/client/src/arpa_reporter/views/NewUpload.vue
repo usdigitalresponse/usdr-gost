@@ -1,7 +1,7 @@
 
 <template>
   <div class="upload">
-    <h1>Submit Spreadsheet</h1>
+    <h1>Submit Workbook</h1>
 
     <div>
       <div v-if="error" class="mt-3 alert alert-danger" role="alert">
@@ -41,6 +41,8 @@
 </template>
 
 <script>
+import { postForm } from '../store'
+
 export default {
   name: 'NewUpload',
   data: function () {
@@ -77,7 +79,7 @@ export default {
       formData.append('spreadsheet', file)
 
       try {
-        const resp = await fetch('/api/uploads', { method: 'POST', body: formData })
+        const resp = await postForm('/api/uploads', formData);
         const result = (await resp.json()) || { error: (await resp.body) }
 
         if (resp.ok) {

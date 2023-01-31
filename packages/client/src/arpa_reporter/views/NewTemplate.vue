@@ -38,6 +38,8 @@
 </template>
 
 <script>
+import { postForm } from '../store'
+
 export default {
   name: 'NewTemplate',
   data: function () {
@@ -78,7 +80,7 @@ export default {
       formData.append('template', file)
 
       try {
-        const resp = await fetch(url, { method: 'POST', body: formData })
+        const resp = await postForm(url, formData)
         const result = (await resp.json()) || { error: (await resp.body) }
 
         if (resp.ok) {

@@ -8,25 +8,28 @@
 const AWS = require('aws-sdk');
 
 function createTransport() {
-    const environmentVariable = [
-        'AWS_ACCESS_KEY_ID',
-        'AWS_SECRET_ACCESS_KEY',
-        'SES_REGION',
+    const requiredEnvironmentVariables = [
         'NOTIFICATIONS_EMAIL',
     ];
-    for (let i = 0; i < environmentVariable.length; i += 1) {
-        const ev = process.env[environmentVariable[i]];
+    for (let i = 0; i < requiredEnvironmentVariables.length; i += 1) {
+        const ev = process.env[requiredEnvironmentVariables[i]];
         if (!ev) {
             return {
                 sendEmail: () => {
                     throw new Error(
-                        `Missing environment variable ${environmentVariable[i]}!`,
+                        `Missing environment variable ${requiredEnvironmentVariables[i]}!`,
                     );
                 },
             };
         }
     }
-    return new AWS.SES({ region: process.env.SES_REGION });
+
+    const sesOptions = {};
+    if (process.env.SES_REGION) {
+        sesOptions.region = process.env.SES_REGION;
+    }
+
+    return new AWS.SES(sesOptions);
 }
 
 function send(message) {
@@ -48,10 +51,16 @@ function send(message) {
                     Charset: 'UTF-8',
                     Data: message.body,
                 },
+                Text: {
+                    Charset: 'UTF-8',
+                    Data: message.text,
+                },
             },
         },
     };
-    transport.sendEmail(params).promise();
+    transport.sendEmail(params).promise()
+        .then((data) => console.log('Success sending SES email:', data))
+        .catch((err) => console.error('Error sending SES email:', err, err.stack));
 }
 
 module.exports = { send };

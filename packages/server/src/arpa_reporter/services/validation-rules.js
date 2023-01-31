@@ -1,13 +1,55 @@
 
 const srcRules = require('../lib/templateRules.json')
+const _ = require('lodash');
 
 const recordValueFormatters = {
   makeString: (val) => String(val),
-  trimWhitespace: (val) => val ? val.trim() : val,
-  removeCommas: (val) => val.replace(/,/g, ''),
-  removeSepDashes: (val) => val.replace(/^-/, '').replace(/;\s*-/g, ';'),
-  toLowerCase: (val) => val.toLowerCase()
+  trimWhitespace: (val) => _.isString(val) ? val.trim() : val,
+  removeCommas: (val) => _.isString(val) ? val.replace(/,/g, '') : val,
+  removeSepDashes: (val) => _.isString(val) ? val.replace(/^-/, '').replace(/;\s*-/g, ';'): val,
+  toLowerCase: (val) => _.isString(val) ? val.toLowerCase() : val
 }
+
+// These conditional functions should return true if the field is required.
+// This fn is used mark certain fields as required, as long as the status of the project
+// isn't 'Not started'
+function optionalIfNotStarted(projectRow) {
+  if (projectRow.Completion_Status__c === 'Not started') {
+    return false;
+  }
+  return true;
+}
+
+// This is the list of field ids that should be optional if the status is 'Not started'
+// For any other status, the field should be considered required.
+const optionalIfNotStartedFieldIds = new Set([
+  'Primary_Project_Demographics__c',
+  'Number_Students_Tutoring_Programs__c',
+  'Does_Project_Include_Capital_Expenditure__c',
+  'Structure_Objectives_of_Asst_Programs__c',
+  'Recipient_Approach_Description__c',
+  'Individuals_Served__c',
+  'Spending_Allocated_Toward_Evidence_Based_Interventions',
+  'Whether_program_evaluation_is_being_conducted',
+  'Small_Businesses_Served__c',
+  'Number_Non_Profits_Served__c',
+  'Number_Workers_Enrolled_Sectoral__c',
+  'Number_Workers_Competing_Sectoral__c',
+  'Number_People_Summer_Youth__c',
+  'School_ID_or_District_ID__c',
+  'Industry_Experienced_8_Percent_Loss__c',
+  'Number_Households_Eviction_Prevention__c',
+  'Number_Affordable_Housing_Units__c',
+  'Number_Children_Served_Childcare__c',
+  'Number_Families_Served_Home_Visiting__c',
+  'Payroll_Public_Health_Safety__c',
+  'Number_of_FTEs_Rehired__c',
+  'Sectors_Critical_to_Health_Well_Being__c',
+  'Workers_Served__c',
+  'Premium_Pay_Narrative__c',
+  'Number_of_Workers_K_12__c',
+  'Technology_Type_Planned__c',
+])
 
 /*
 Structured data recording all the immediate corrections we want to apply to dropdowns.
@@ -87,6 +129,9 @@ function generateRules () {
             rule.persistentFormatters.push(val => valuesToCoerce.includes(val) ? correctValue : val)
           }
         }
+      }
+      if (optionalIfNotStartedFieldIds.has(rule.key)) {
+        rule.isRequiredFn = optionalIfNotStarted;
       }
     }
   }

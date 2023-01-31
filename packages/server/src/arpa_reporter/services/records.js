@@ -8,6 +8,7 @@ const { log } = require('../lib/log')
 const { requiredArgument } = require('../lib/preconditions')
 const { getRules } = require('./validation-rules')
 const { useRequest } = require('../use-request')
+const asyncBatch = require('async-batch').default;
 
 const CERTIFICATION_SHEET = 'Certification'
 const COVER_SHEET = 'Cover'
@@ -93,18 +94,25 @@ async function loadRecordsForUpload (upload) {
     }
 
     const rulesForCurrentType = rules[type]
-    // header is based on the columns we have in the rules
-    const header = Object.values(rulesForCurrentType)
-      .sort((a, b) => a.index - b.index)
-      .map(rule => rule.key)
 
     // entire sheet
     const sheetRange = XLSX.utils.decode_range(sheet['!ref'])
 
+    // range C3:3
+    const headerRange = merge({}, sheetRange, {
+      s: { c: 2, r: 2 },
+      e: { r: 2 }
+    })
+
     // TODO: How can we safely get the row number in which data starts
     // across template versions?
-    // range B13:
+    // range C13:
     const contentRange = merge({}, sheetRange, { s: { c: 2, r: 12 } })
+
+    const [header] = XLSX.utils.sheet_to_json(sheet, {
+      header: 1, // ask for array-of-arrays
+      range: XLSX.utils.encode_range(headerRange)
+    })
 
     // actually read the rows
     const rows = XLSX.utils.sheet_to_json(sheet, {
@@ -115,9 +123,19 @@ async function loadRecordsForUpload (upload) {
 
     // each row in the input sheet becomes a unique record
     for (const row of rows) {
+      // Don't include any Display_Only data in the records
+      delete row.Display_Only
+      // If the row is empty, don't include it in the records
+      if (Object.keys(row).length === 0) {
+        continue
+      }
       const formattedRow = {}
       Object.keys(row).forEach(fieldId => {
         let value = row[fieldId]
+        if (!rulesForCurrentType[fieldId]) {
+          // No known rules for this type, so we can't format it.
+          return
+        }
         for (const formatter of rulesForCurrentType[fieldId].persistentFormatters) {
           try {
             value = formatter(value)
@@ -168,9 +186,7 @@ async function recordsForReportingPeriod (periodId) {
   requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod')
 
   const uploads = await usedForTreasuryExport(periodId)
-  const groupedRecords = await Promise.all(
-    uploads.map(upload => recordsForUpload(upload))
-  )
+  const groupedRecords = await asyncBatch(uploads, recordsForUpload, 2);
   return groupedRecords.flat()
 }
 
@@ -184,11 +200,9 @@ async function mostRecentProjectRecords (periodId) {
 
   const reportingPeriods = await getPreviousReportingPeriods(periodId)
 
-  const allRecords = await Promise.all(
-    reportingPeriods.map(reportingPeriod =>
-      recordsForReportingPeriod(reportingPeriod.id)
-    )
-  )
+  const inputs = [];
+  reportingPeriods.forEach((rp) => inputs.push(rp.id));
+  const allRecords = await asyncBatch(inputs, recordsForReportingPeriod, 2);
 
   const latestProjectRecords = allRecords
     .flat()

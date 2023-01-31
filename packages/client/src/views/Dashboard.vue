@@ -9,6 +9,7 @@
             <b-card>
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title1 row">Recent Activity</h4>
+                <span class="gutter-title1 row" v-if="activityItems.length === 0">Your agency has no recent activity.</span>
               </div>
               <b-table sticky-header='500px' hover :items='activityItems' :fields='activityFields'
                 :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none"
@@ -47,6 +48,7 @@
             <b-card>
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
+                <span class="gutter-title2 row" v-if="grantsAndIntAgens.length === 0">Your agency has no upcoming close dates.</span>
               </div>
               <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none"
@@ -341,10 +343,10 @@ export default {
         grant_id: grantsInterested.grant_id,
         interested: (() => {
           let retVal = null;
-          if (grantsInterested.is_rejection != null) {
-            if (grantsInterested.is_rejection) {
+          if (grantsInterested.status_code != null) {
+            if (grantsInterested.status_code === 'Rejected') {
               retVal = 0;
-            } else {
+            } else if (grantsInterested.status_code === 'Interested') {
               retVal = 1;
             }
           } else if (grantsInterested.assigned_by != null) {

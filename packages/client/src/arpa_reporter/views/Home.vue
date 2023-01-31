@@ -2,15 +2,15 @@
   <div>
     <div class="row mt-5 mb-5" v-if="viewingOpenPeriod">
       <div class="col" v-if="isAdmin">
-        <DownloadButton :href="downloadUrl()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
+        <DownloadButton :href="downloadTreasuryReportURL()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
       </div>
 
       <div class="col" v-if="isAdmin">
-        <DownloadButton href="/api/audit_report" class="btn btn-info btn-block">Download Audit Report</DownloadButton>
+        <DownloadButton :href="downloadAuditReportURL()" class="btn btn-info btn-block">Download Audit Report</DownloadButton>
       </div>
 
       <div class="col">
-        <button @click.prevent="startUpload" class="btn btn-primary btn-block">Submit Spreadsheet</button>
+        <button @click.prevent="startUpload" class="btn btn-primary btn-block">Submit Workbook</button>
       </div>
 
       <div class="col">
@@ -32,12 +32,12 @@
     <p>
       You will need to fill out one template for every EC code that your agency uses.
       Once you've filled out a template, please return here to submit it.
-      To do that, click the "Submit Spreadsheet" button, above.
-      You can only submit spreadsheets for the currently-open reporting period.
+      To do that, click the "Submit Workbook" button, above.
+      You can only submit workbooks for the currently-open reporting period.
     </p>
 
     <p>
-      To view a list of all submitted spreadsheets, please click on the "Uploads" tab.
+      To view a list of all submitted workbooks, please click on the "Uploads" tab.
     </p>
   </div>
 </template>
@@ -45,6 +45,7 @@
 <script>
 import DownloadButton from '../components/DownloadButton.vue'
 import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue'
+import { apiURL } from '@/helpers/fetchApi';
 
 export default {
   name: 'Home',
@@ -63,9 +64,12 @@ export default {
     }
   },
   methods: {
-    downloadUrl () {
+    downloadAuditReportURL: function () {
+      return apiURL('/api/audit_report')
+    },
+    downloadTreasuryReportURL () {
       const periodId = this.$store.getters.viewPeriod.id || 0
-      return `/api/exports?period_id=${periodId}`
+      return apiURL(`/api/exports?period_id=${periodId}`)
     },
     startUpload: function () {
       if (this.viewingOpenPeriod) {
