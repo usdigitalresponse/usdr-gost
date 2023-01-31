@@ -351,8 +351,12 @@ export default {
     exportCSV() {
       this.navigateToExportCSV({
         orderBy: this.orderBy,
+        orderDesc: this.orderDesc,
         searchTerm: this.debouncedSearchInput,
-        interestedByMe: this.showInterested,
+        // TODO: This fix shouldn't be merged until the problem with the automated test is figured out.
+        // https://usdigitalresponse.slack.com/archives/C0324KDQSCR/p1675100530445439
+        interestedByAgency: this.showInterested || this.showResult || this.showRejected,
+        interestedByMe: this.showMyInterested,
         aging: this.showAging,
         assignedToAgency: this.showAssignedToAgency,
         positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),

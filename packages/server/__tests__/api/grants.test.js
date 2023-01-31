@@ -479,6 +479,52 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &amp;`;
             expect(await response.text()).to.contain(expectedCsv);
         });
 
+        it('produces same number of rows as grid', async () => {
+            let response = await fetchApi(`/grants/exportCSV`, agencies.own, fetchOptions.staff);
+            expect(response.statusText).to.equal('OK');
+            expect(response.headers.get('Content-Type')).to.include('text/csv');
+            expect(response.headers.get('Content-Disposition')).to.include('attachment');
+            const responseText = await response.text();
+            const exportedRows = responseText.split(/\r?\n/);
+            const rowsHash = {};
+            let skipFirst = true;
+            // eslint-disable-next-line no-restricted-syntax
+            for (const row of exportedRows) {
+                if (skipFirst) {
+                    skipFirst = false;
+                } else {
+                    const cells = row.split(',');
+                    if (cells[0]) {
+                        rowsHash[cells[0]] = row;
+                    }
+                }
+            }
+            let pageNumber = 1;
+            // eslint-disable-next-line no-constant-condition
+            while (true) {
+                // eslint-disable-next-line no-await-in-loop
+                response = await fetchApi(`/grants?currentPage=${pageNumber}&perPage=10&orderBy=open_date&orderDesc=true`, agencies.own, fetchOptions.staff);
+                expect(response.statusText).to.equal('OK');
+                // eslint-disable-next-line no-await-in-loop
+                const queryJson = await response.json();
+                if (queryJson.data.length === 0) {
+                    break;
+                }
+                for (let j = 0; j < queryJson.data.length; j += 1) {
+                    const opportunityNumber = queryJson.data[j].grant_number;
+                    if (rowsHash[opportunityNumber]) {
+                        delete rowsHash[opportunityNumber];
+                    }
+                }
+                pageNumber += 1;
+            }
+            const extraRowCount = Object.keys(rowsHash).length;
+            if (extraRowCount > 0) {
+                console.log(JSON.stringify(rowsHash, null, 2));
+                expect(extraRowCount).to.equal(0);
+            }
+        });
+
         it('limits number of output rows', async function testExport() {
             // First we insert 100 grants (in prod this limit it 10k but it is reduced in test
             // via NODE_ENV=test environment variable so this test isn't so slow)
