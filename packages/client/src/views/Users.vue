@@ -14,7 +14,7 @@
         </div>
       </b-col>
     </b-row>
-    <b-table sticky-header="600px" hover :items="formattedUsers" :fields="fields">
+    <b-table hover :items="formattedUsers" :fields="fields">
       <template #cell(actions)="row">
         <div v-if="row.item.email !== loggedInUser.email">
           <b-button v-if="userRole === 'admin'" variant="danger" class="mr-1" size="sm"
