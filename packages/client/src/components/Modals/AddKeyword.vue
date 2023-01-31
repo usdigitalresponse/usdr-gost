@@ -11,7 +11,7 @@
     >
       <form ref="form" @submit.stop.prevent="handleSubmit">
         <b-form-group
-          :state="!$v.formData.searchTerm.$invalid"
+          :state="!($v.formData.searchTerm.$invalid && $v.$dirty)"
           label="Search Term"
           label-for="searchTerm-input"
           invalid-feedback="Search term is invalid"
@@ -19,7 +19,8 @@
           <b-form-input
             id="searchTerm-input"
             v-model="formData.searchTerm"
-            :state="!$v.formData.searchTerm.$invalid"
+            :state="!($v.formData.searchTerm.$invalid && $v.$dirty)"
+            @change="$v.$touch()"
             required
           ></b-form-input>
         </b-form-group>
@@ -33,6 +34,7 @@
             id="notes-input"
             v-model="formData.notes"
             :state="!$v.formData.notes.$invalid"
+            @change="$v.$touch()"
             rows="3"
             max-rows="6"
           ></b-form-textarea>
@@ -86,6 +88,7 @@ export default {
     resetModal() {
       this.formData = {};
       this.$emit('update:showModal', false);
+      this.$v.$reset();
     },
     handleOk(bvModalEvt) {
       // Prevent modal from closing
