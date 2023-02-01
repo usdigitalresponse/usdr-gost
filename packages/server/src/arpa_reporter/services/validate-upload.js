@@ -117,19 +117,35 @@ async function validateReportingPeriod ({ upload, records, trns }) {
   const periodStart = moment(uploadPeriod.start_date)
   const sheetStart = moment(coverSheet['Reporting Period Start Date'])
   if (!periodStart.isSame(sheetStart)) {
-    errors.push(new ValidationError(
-      `Upload reporting period starts ${periodStart.format('L')} while record specifies ${sheetStart.format('L')}`,
-      { tab: 'cover', row: 2, col: 'E' }
-    ))
+    errors.push(
+      new ValidationError(
+        `The "${
+          uploadPeriod.name
+        }" upload reporting period starts ${periodStart.format(
+          "L"
+        )} while the cell in the uploaded workbook specifies ${sheetStart.format(
+          "L"
+        )}`,
+        { tab: "cover", row: 2, col: "E" }
+      )
+    );
   }
 
-  const periodEnd = moment(uploadPeriod.end_date)
-  const sheetEnd = moment(coverSheet['Reporting Period End Date'])
+  const periodEnd = moment(uploadPeriod.end_date);
+  const sheetEnd = moment(coverSheet["Reporting Period End Date"]);
   if (!periodEnd.isSame(sheetEnd)) {
-    errors.push(new ValidationError(
-      `Upload reporting period ends ${periodEnd.format('L')} while record specifies ${sheetEnd.format('L')}`,
-      { tab: 'cover', row: 2, col: 'F' }
-    ))
+    errors.push(
+      new ValidationError(
+        `The "${
+          uploadPeriod.name
+        }" upload reporting period ends ${periodEnd.format(
+          "L"
+        )} while the cell in the uploaded workbook specifies ${sheetEnd.format(
+          "L"
+        )}`,
+        { tab: "cover", row: 2, col: "F" }
+      )
+    );
   }
 
   return errors

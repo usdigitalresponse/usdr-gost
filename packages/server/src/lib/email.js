@@ -1,10 +1,12 @@
 const { URL } = require('url');
 const moment = require('moment');
+const asyncBatch = require('async-batch').default;
 const fileSystem = require('fs');
 const path = require('path');
 const mustache = require('mustache');
 const emailService = require('./email/service-email');
 const db = require('../db');
+const { notificationType } = require('./email/constants');
 
 const expiryMinutes = 30;
 
@@ -14,15 +16,6 @@ async function deliverEmail({
     emailPlain,
     subject,
 }) {
-    // Ensures new grants-related emails are only sent in non-production environments.
-    const formattedSubject = subject.toLowerCase();
-    if (formattedSubject.includes('grant assigned') || formattedSubject.includes('new grants')) {
-        if (process.env.WEBSITE_DOMAIN === 'https://grants.usdigitalresponse.org' || !toAddress.endsWith('@usdigitalresponse.org')) {
-            console.log(`Attempted to send an email to ${toAddress} with subject ${subject}.`);
-            return undefined;
-        }
-    }
-
     return emailService.getTransport().send({
         toAddress,
         subject,
@@ -42,7 +35,6 @@ function addBaseBranding(emailHTML, brandDetails) {
         // webview_url: 'http://localhost:8080',
         usdr_url: 'http://usdigitalresponse.org',
         usdr_logo_url: 'https://grants.usdigitalresponse.org/usdr_logo_transparent.png',
-        // Manually send an email to Mindy for now to change notification preferences.
         notifications_url,
     }, {
         email_body: emailHTML,
@@ -115,13 +107,13 @@ function sendWelcomeEmail(email, httpOrigin) {
     });
 }
 
-function getGrantDetail(grant) {
+function getGrantDetail(grant, emailNotificationType) {
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
             title: grant.title,
-            description: grant.description,
-            status: grant.status,
+            description: grant.description && grant.description.length > 400 ? `${grant.description.substring(0, 400)}...` : grant.description,
+            status: grant.opportunity_status,
             show_date_range: grant.open_date && grant.close_date,
             open_date: grant.open_date ? new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
             close_date: grant.close_date ? new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
@@ -130,15 +122,17 @@ function getGrantDetail(grant) {
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
             link_url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
+            grants_url: `${process.env.WEBSITE_DOMAIN}/#/${emailNotificationType === notificationType.grantDigest ? 'grants' : 'my-grants'}`,
+            view_grant_label: emailNotificationType === notificationType.grantDigest ? 'View New Grants' : 'View My Grants',
         },
     );
     return grantDetail;
 }
 
-async function buildGrantDetail(grantId) {
+async function buildGrantDetail(grantId, emailNotificationType) {
     // Add try catch here.
     const grant = await db.getGrant({ grantId });
-    const grantDetail = module.exports.getGrantDetail(grant);
+    const grantDetail = module.exports.getGrantDetail(grant, emailNotificationType);
     return grantDetail;
 }
 
@@ -158,15 +152,16 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const emailHTML = module.exports.addBaseBranding(grantAssignedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'Grants Assigned Notification',
-        notifications_url: 'mailto:grants-helpdesk@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant assigned notification email.',
+        notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email
     const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
     const emailSubject = `Grant Assigned to ${assignee_agency.name}`;
-    const assginees = await db.getUsersByAgency(assignee_agency.id);
+    const assginees = await db.getSubscribersForNotification(assignee_agency.id, notificationType.grantAssignment);
 
-    assginees.forEach((assignee) => module.exports.deliverEmail(
+    const inputs = [];
+    assginees.forEach((assignee) => inputs.push(
         {
             toAddress: assignee.email,
             emailHTML,
@@ -174,6 +169,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
             subject: emailSubject,
         },
     ));
+    asyncBatch(inputs, module.exports.deliverEmail, 2);
 }
 
 async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
@@ -184,28 +180,27 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
         2b. For each user part of the agency
             i. Send email
     */
-    const grantDetail = await buildGrantDetail(grantId);
+    const grantDetail = await buildGrantDetail(grantId, notificationType.grantAssignment);
     const agencies = await db.getAgenciesByIds(agencyIds);
     agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
 }
 
-async function sendGrantDigestForAgency(agency) {
-    console.log(`${agency.name} is subscribed for notifications on ${moment().format('YYYY-MM-DD')}`);
-    const newGrants = await db.getNewGrantsForAgency(agency);
+async function sendGrantDigestForAgency(data) {
+    const { agency, openDate } = data;
+    console.log(`${agency.name} is subscribed for notifications on ${openDate}`);
 
-    if (newGrants.length === 0) {
-        console.log(`${agency.name} has no new grants on ${moment().format('YYYY-MM-DD')}`);
-        return undefined;
+    if (!agency.matched_grants || agency.matched_grants?.length === 0) {
+        console.error(`There were no grants available for ${agency.name}`);
+        return;
     }
 
-    const recipients = await db.getUsersByAgency(agency.id);
-    if (recipients.length === 0) {
-        console.log(`${agency.name} has no users for grants digest on ${moment().format('YYYY-MM-DD')}`);
-        return undefined;
+    if (!agency.recipients || agency.recipients?.length === 0) {
+        console.error(`There were no email recipients available for ${agency.name}`);
+        return;
     }
 
     const grantDetails = [];
-    newGrants.forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant)));
+    agency.matched_grants.slice(2).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
 
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
@@ -213,49 +208,52 @@ async function sendGrantDigestForAgency(agency) {
 
     let additionalBody = grantDetails.join(contentSpacerStr);
 
-    if (newGrants[0].total_grants > 3) {
+    if (agency.matched_grants.length > 3) {
         const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
-        additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: process.env.WEBSITE_DOMAIN });
+        additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
     }
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
         body_title: 'New grants have been posted',
-        body_detail: `There are ${newGrants[0].total_grants} new grants matching your agency's keywords and settings.`,
+        body_detail: `There are ${agency.matched_grants.length} new grants matching your agency's keywords and settings.`,
         additional_body: additionalBody,
     });
 
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'New Grants Digest',
-        notifications_url: 'mailto:grants-helpdesk@usdigitalresponse.org?subject=Unsubscribe&body=Please unsubscribe me from the grant digest notification email.',
+        notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email
     const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
 
-    recipients.forEach(
-        (recipient) => module.exports.deliverEmail(
+    const inputs = [];
+    agency.recipients.forEach(
+        (recipient) => inputs.push(
             {
-                toAddress: recipient.email,
+                toAddress: recipient.trim(),
                 emailHTML,
                 emailPlain,
                 subject: `New Grants published for ${agency.name}`,
             },
         ),
     );
-
-    return undefined;
+    asyncBatch(inputs, module.exports.deliverEmail, 2);
 }
 
 async function buildAndSendGrantDigest() {
-    console.log(`Building and sending Grants Digest email for all agencies on ${moment().format('YYYY-MM-DD')}`);
+    const openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
+    console.log(`Building and sending Grants Digest email for all agencies on ${openDate}`);
     /*
     1. get all agencies with notificaiton turned on (temporarily get all agencies with a custom keyword)
     2. for each agency
         call sendGrantDigestForAgency
     */
-    const agencies = await db.getAgenciesSubscribedToDigest();
-    agencies.forEach((agency) => module.exports.sendGrantDigestForAgency(agency));
+    const agencies = await db.getAgenciesSubscribedToDigest(openDate);
+    const inputs = [];
+    agencies.forEach((agency) => inputs.push({ agency, openDate }));
+    await asyncBatch(inputs, module.exports.sendGrantDigestForAgency, 2);
 }
 
 module.exports = {

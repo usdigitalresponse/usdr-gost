@@ -36,6 +36,8 @@
 </template>
 
 <script>
+import { apiURL } from '@/helpers/fetchApi';
+
 export default {
   name: 'Uploader',
   props: {
@@ -71,7 +73,7 @@ export default {
       const formData = new FormData();
       formData.append('spreadsheet', file);
       try {
-        const url = `/api/organizations/:organizationId/${this.uploadRecordType}/import`;
+        const url = apiURL(`/api/organizations/:organizationId/${this.uploadRecordType}/import`);
         const options = {
           method: 'POST',
           credentials: 'include',

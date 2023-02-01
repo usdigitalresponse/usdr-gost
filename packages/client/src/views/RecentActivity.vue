@@ -27,6 +27,8 @@
         <b-icon v-if="list.item.interested === 0" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
         <b-icon v-if="list.item.interested === 1" icon="check-circle-fill" scale="1" variant="success"></b-icon>
         <b-icon v-if="list.item.interested === 2" icon="arrow-right-circle-fill" scale="1"></b-icon>
+        <b-icon v-if="list.item.interested === 3" icon="award" scale="1" class="color-yellow"></b-icon>
+        <b-icon v-if="list.item.interested === 4" icon="check-circle-fill" scale="1" class="color-green"></b-icon>
         </div>
       </template>
       <template #cell(agencyAndGrant)="agencies">
@@ -37,7 +39,9 @@
               <strong> interested </strong>
               </span> in
             </span>
-          <span v-if="agencies.item.interested === 2" > was<strong> assigned </strong> </span>{{ agencies.item.grant }}
+          <span v-if="agencies.item.interested === 2" > was<strong> assigned </strong> </span>
+          <span v-if="agencies.item.interested === 3" > was<strong><span class="color-yellow"> awarded </span></strong> </span>
+          <span v-if="agencies.item.interested === 4" ><strong><span class="color-green"> applied </span></strong>for </span>{{ agencies.item.grant }}
         </div>
       </template>
       <template #cell(date)="dates">
@@ -63,6 +67,9 @@
 }
 .color-green {
   color: green;
+}
+.color-yellow{
+  color: #aa8866;
 }
 .gutter-icon.row {
     margin-right: -8px;
@@ -134,6 +141,12 @@ export default {
               retVal = 0;
             } else if ((grantsInterested.status_code === 'Interested')) {
               retVal = 1;
+            } else if ((grantsInterested.status_code === 'Result')) {
+              if (grantsInterested.interested_name === 'Awarded') {
+                retVal = 3;
+              } else if (grantsInterested.interested_name === 'Applied') {
+                retVal = 4;
+              }
             }
           } else if (grantsInterested.assigned_by != null) {
             // 2 means its assigned not interested

@@ -14,7 +14,7 @@ on:
       - "yarn.lock"
 
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.workflow_ref }}
   cancel-in-progress: true
 
 jobs:

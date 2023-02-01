@@ -8,6 +8,7 @@ const { log } = require('../lib/log')
 const { requiredArgument } = require('../lib/preconditions')
 const { getRules } = require('./validation-rules')
 const { useRequest } = require('../use-request')
+const asyncBatch = require('async-batch').default;
 
 const CERTIFICATION_SHEET = 'Certification'
 const COVER_SHEET = 'Cover'
@@ -185,9 +186,7 @@ async function recordsForReportingPeriod (periodId) {
   requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod')
 
   const uploads = await usedForTreasuryExport(periodId)
-  const groupedRecords = await Promise.all(
-    uploads.map(upload => recordsForUpload(upload))
-  )
+  const groupedRecords = await asyncBatch(uploads, recordsForUpload, 2);
   return groupedRecords.flat()
 }
 
@@ -201,11 +200,9 @@ async function mostRecentProjectRecords (periodId) {
 
   const reportingPeriods = await getPreviousReportingPeriods(periodId)
 
-  const allRecords = await Promise.all(
-    reportingPeriods.map(reportingPeriod =>
-      recordsForReportingPeriod(reportingPeriod.id)
-    )
-  )
+  const inputs = [];
+  reportingPeriods.forEach((rp) => inputs.push(rp.id));
+  const allRecords = await asyncBatch(inputs, recordsForReportingPeriod, 2);
 
   const latestProjectRecords = allRecords
     .flat()

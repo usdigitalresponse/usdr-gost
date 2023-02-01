@@ -15,18 +15,23 @@ const server = app.listen(PORT, () => console.log(`App running on port ${PORT}!`
 
 if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
     const job = new CronJob(
-        // once per hour at :30
-        '30 * * * *',
+        /*
+            once at 6:30am UTC daily
+            This translates to (2:30am EDT ) or (1:30am EST)
+        */
+        '0 30 6 * * *',
         grantscraper.run,
     );
     job.start();
 }
 
-const generateGrantDigestCron = new CronJob(
-    // once per day at 12:00 UTC
-    '0 0 12 * * *', emailService.buildAndSendGrantDigest,
-);
-generateGrantDigestCron.start();
+if (process.env.ENABLE_GRANTS_DIGEST === 'true') {
+    const generateGrantDigestCron = new CronJob(
+        // once per day at 12:00 UTC
+        '0 0 12 * * *', emailService.buildAndSendGrantDigest,
+    );
+    generateGrantDigestCron.start();
+}
 
 const cleanGeneratedPdfCron = new CronJob(
     // once per day at 01:00
@@ -51,7 +56,7 @@ hasOutstandingMigrations().then((hasMigrations) => {
     if (!hasMigrations) {
         return;
     }
-    console.error('There are outstanding db migrations. Run \'yarn db:migrate\' before trying again');
+    console.error('There are outstanding db migrations. Run \'docker compose exec app yarn db:migrate\' before trying again');
     if (process.env.NODE_ENV === 'development') {
         process.exit(1);
     }
