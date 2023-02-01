@@ -75,10 +75,13 @@ const users = {
 
 const keywords = {
     accountancyCovid: {
-        mode: 'autoinsert ALL keywords matches', search_term: 'Covid', notes: '', agency_id: agencies.accountancy.id,
+        mode: 'autoinsert ALL keywords matches', search_term: 'Covid', notes: '', agency_id: agencies.accountancy.id, type: 'include',
+    },
+    accountancyClimate: {
+        mode: 'autoinsert ALL keywords matches', search_term: 'Climate', notes: '', agency_id: agencies.accountancy.id, type: 'exclude',
     },
     fleetServicesTransportation: {
-        mode: 'autoinsert ALL keywords matches', search_term: 'Transportation', notes: '', agency_id: agencies.fleetServices.id,
+        mode: 'autoinsert ALL keywords matches', search_term: 'Transportation', notes: '', agency_id: agencies.fleetServices.id, type: 'include',
     },
 };
 
