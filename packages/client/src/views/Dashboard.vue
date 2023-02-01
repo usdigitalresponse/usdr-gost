@@ -461,16 +461,23 @@ export default {
     },
     async formatUpcoming() {
       this.grantsAndIntAgens = [];
+      let outputIndex = 1;
       // https://stackoverflow.com/a/67219279
+      // eslint-disable-next-line no-unused-vars
       this.closestGrants.map(async (grant, idx) => {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
-        const updateGrant = {
-          ...grant,
-          interested_agencies: arr.map((agency) => agency.agency_abbreviation).join(', '),
-        };
-        // https://v2.vuejs.org/v2/guide/reactivity.html#For-Arrays
-        // https://stackoverflow.com/a/45336400
-        this.$set(this.grantsAndIntAgens, idx, updateGrant);
+        let agencyNotRejected = arr.filter((agency) => agency.interested_status_code !== 'Rejected');
+        agencyNotRejected = agencyNotRejected.filter((agency) => agency.agency_id === this.agency_id);
+        if (agencyNotRejected.length === 1) {
+          const updateGrant = {
+            ...grant,
+            interested_agencies: arr.map((agency) => agency.agency_abbreviation).join(', '),
+          };
+          // https://v2.vuejs.org/v2/guide/reactivity.html#For-Arrays
+          // https://stackoverflow.com/a/45336400
+          this.$set(this.grantsAndIntAgens, outputIndex, updateGrant);
+          outputIndex += 1;
+        }
       });
     },
     async onRowSelected(items) {
