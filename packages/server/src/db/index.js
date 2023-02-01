@@ -177,7 +177,7 @@ async function getAgencyCriteriaForAgency(agencyId) {
     return {
         eligibilityCodes: enabledECodes.map((c) => c.code),
         includeKeywords: keywords.reduce((filtered, c) => {
-            if (c.type === 'include') {
+            if (!c.type || c.type === 'include') {
                 filtered.push(c.search_term);
             }
             return filtered;
