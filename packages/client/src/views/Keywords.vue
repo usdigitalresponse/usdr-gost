@@ -53,7 +53,19 @@ export default {
         },
         {
           key: 'notes',
-          thStyle: { width: '70%' },
+          thStyle: { width: '50%' },
+        },
+        {
+          key: 'created_at',
+          thStyle: { width: '20%' },
+          formatter: (value) => {
+            const date = new Date(value);
+            const month = date.getMonth();
+            const day = date.getMonth();
+            const year = date.getFullYear();
+
+            return `${month}/${day}/${year}`;
+          },
         },
         {
           key: 'actions',
