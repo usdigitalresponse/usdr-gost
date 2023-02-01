@@ -15,6 +15,7 @@
             </b-button>
         </template>
     </b-table>
+    <hr>
     <b-row>
         <b-col><h3>Exclude results with:</h3></b-col>
         <b-col class="d-flex justify-content-end">
