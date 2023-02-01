@@ -72,6 +72,8 @@
 </template>
 
 <script>
+import { apiURL } from '@/helpers/fetchApi'
+
 const moment = require('moment')
 const _ = require('lodash')
 
@@ -111,7 +113,7 @@ export default {
       this.$refs.closeModal.click()
 
       try {
-        const resp = await fetch('/api/reporting_periods/close', { method: 'POST' })
+        const resp = await fetch(apiURL('/api/reporting_periods/close'), { method: 'POST' })
         const result = resp.headers.get('Content-Type').includes('json')
           ? await resp.json()
           : { error: await resp.text() }
