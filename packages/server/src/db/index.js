@@ -684,16 +684,23 @@ async function getAgenciesSubscribedToDigest(asOf) {
                 a.id,
                 a.name,
                 array_agg(DISTINCT aec.code) AS codes,
-                array_agg(DISTINCT k.search_term) AS term,
+                array_agg(DISTINCT ik.search_term) AS include_term,
+                array_agg(DISTINCT ek.search_term) AS exclude_term,
                 array_agg(DISTINCT u.email) AS emails
             FROM
                 agencies a
             JOIN enabled_codes aec ON aec.agency_id = a.id
                 AND aec.enabled = TRUE
-            JOIN keywords k ON k.agency_id = a.id
+            LEFT JOIN keywords ik ON ik.agency_id = a.id
+                AND (ik.type = 'include' OR ik.type is NULL)
+            LEFT JOIN keywords ek ON ek.agency_id = a.id
+                AND ek.type = 'exclude'
             JOIN users u ON u.agency_id = a.id
         GROUP BY
             a.id
+        HAVING
+            array_agg(DISTINCT ik.search_term) <> string_to_array('null', '|', 'null')
+            AND array_agg(DISTINCT ek.search_term) <> string_to_array('null', '|', 'null')
         )
         SELECT
             ad.id,
@@ -703,7 +710,8 @@ async function getAgenciesSubscribedToDigest(asOf) {
         FROM
             grants g
             JOIN agency_data ad ON g.eligibility_codes ~ array_to_string(ad.codes, '|')
-                AND g.description ~* array_to_string(ad.term, '|')
+                AND g.description ~* array_to_string(ad.include_term, '|')
+                AND g.description !~* array_to_string(ad.exclude_term, '|')
         WHERE
             g.open_date = :open_date
         GROUP BY
