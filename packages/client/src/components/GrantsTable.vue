@@ -351,8 +351,10 @@ export default {
     exportCSV() {
       this.navigateToExportCSV({
         orderBy: this.orderBy,
+        orderDesc: this.orderDesc,
         searchTerm: this.debouncedSearchInput,
-        interestedByMe: this.showInterested,
+        interestedByAgency: this.showInterested || this.showResult || this.showRejected,
+        interestedByMe: this.showMyInterested,
         aging: this.showAging,
         assignedToAgency: this.showAssignedToAgency,
         positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
