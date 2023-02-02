@@ -9,12 +9,6 @@ const emailConstants = require('../../src/lib/email/constants');
 describe('db', () => {
     before(async () => {
         await fixtures.seed(db.knex);
-        // await db.knex.migrate.rollback();
-        // await db.knex.raw('DROP DATABASE IF EXISTS usdr_grants_test');
-        // await db.knex.raw('CREATE DATABASE usdr_grants_test');
-        // await db.knex.migrate.forceFreeMigrationsLock();
-        // await db.knex.migrate.latest();
-        // await db.knex.seed.run();
     });
 
     after(async () => {

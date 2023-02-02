@@ -133,15 +133,6 @@ const grantsInterested = {
         updated_at: '2022-04-23 12:30:39.531-07',
         interested_code_id: 1,
     },
-    // entry4: {
-    //     agency_id: agencies.accountancy.id,
-    //     grant_id: '335255',
-    //     user_id: users.adminUser.id,
-    //     created_at: '2021-07-24 16:03:53.57025-07',
-    //     updated_at: '2021-08-06 12:35:42.562-07',
-    //     interested_code_id: 0,
-    // },
-
 };
 const grants = {
     earFellowship: {
