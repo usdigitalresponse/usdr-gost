@@ -4,6 +4,25 @@ const usdr = agencies.find((a) => a.abbreviation === 'USDR').id;
 const nevada = agencies.find((a) => a.abbreviation === 'NV').id;
 const asd = agencies.find((a) => a.abbreviation === 'ASD').id;
 
+function joinDateComponents(theDateTime, options, separator) {
+    function format(m) {
+        const f = new Intl.DateTimeFormat('en', m);
+        let part = f.format(theDateTime);
+        if (part.length === 1) {
+            part = `0${part}`;
+        }
+        return part;
+    }
+    return options.map(format).join(separator);
+}
+
+function oneWeekBack() {
+    const options = [{ year: 'numeric' }, { month: 'numeric' }, { day: 'numeric' }];
+    const theDate = new Date();
+    theDate.setDate(theDate.getDate() - 7);
+    return joinDateComponents(theDate, options, '-');
+}
+
 const grants = [
     {
         status: 'inbox',
@@ -48,6 +67,28 @@ const grants = [
         raw_body: 'raw body',
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
+    },
+    {
+        status: 'inbox',
+        grant_id: '666999',
+        grant_number: 'grant-number-666999',
+        agency_code: 'NSF',
+        award_ceiling: '6500',
+        cost_sharing: 'No',
+        title: 'Test Grant 666999',
+        cfda_list: '47.050',
+        open_date: '2021-09-04',
+        close_date: oneWeekBack(),
+        notes: 'auto-inserted by script',
+        search_terms: '[in title/desc]+',
+        reviewer_name: 'none',
+        opportunity_category: 'Discretionary',
+        description: '<p>Test Grant Description 666999</p>',
+        eligibility_codes: '25',
+        opportunity_status: 'posted',
+        raw_body: 'raw body',
+        created_at: '2021-08-11 11:30:38.89828-07',
+        updated_at: '2021-08-11 12:30:39.531-07',
     },
     {
         status: 'inbox',
@@ -684,6 +725,12 @@ const grantsInterested = [
     {
         grant_id: grants[1].grant_id,
         agency_id: nevada,
+    },
+    {
+        grant_id: grants[2].grant_id,
+        agency_id: usdr,
+        user_id: 1,
+        interested_code_id: 0,
     },
 ];
 

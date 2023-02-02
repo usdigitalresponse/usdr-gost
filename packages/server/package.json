@@ -30,7 +30,8 @@
     "coverage": "nyc yarn test",
     "lint": "eslint '**/*.js'",
     "pre-commit": "yarn lint",
-    "import-arpa-dump": "node src/scripts/import_arpa_reporter_dump.js"
+    "import-arpa-dump": "node src/scripts/import_arpa_reporter_dump.js",
+    "parse-output-templates": "node src/scripts/parseOutputTemplates.mjs"
   },
   "dependencies": {
     "adm-zip": "0.5.9",
