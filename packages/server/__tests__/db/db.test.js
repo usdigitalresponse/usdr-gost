@@ -147,22 +147,15 @@ describe('db', () => {
 
     context('getGrantsAssignedAgency', () => {
         it('gets grants assigned to agency', async () => {
-            const knexResult = await db.knex.raw('select * from grants_interested');
-            expect(knexResult.fields[0].name).to.equal('agency_id');
-            try {
-                const result = await db.getGrants({
-                    tenantId: fixtures.users.staffUser.tenant_id,
-                    filters: {
-                        assignedToAgency: fixtures.users.staffUser.agency_id.toString(),
-                    },
-                });
-                expect(result).to.have.property('data').with.lengthOf(1);
-                expect(result.data[0].grant_id)
-                    .to.equal(fixtures.assignedAgencyGrants.earFellowshipAccountAssign.grant_id);
-            } catch (e) {
-                // TODO: Why does knexResult show that the 'agency_id' field exists, but getGrants fails to find it?
-                console.log(`Unknown why test fails with: ${e.toString()}`);
-            }
+            const result = await db.getGrants({
+                tenantId: fixtures.users.staffUser.tenant_id,
+                filters: {
+                    assignedToAgency: fixtures.users.staffUser.agency_id.toString(),
+                },
+            });
+            expect(result).to.have.property('data').with.lengthOf(1);
+            expect(result.data[0].grant_id)
+                .to.equal(fixtures.assignedAgencyGrants.earFellowshipAccountAssign.grant_id);
         });
     });
 
