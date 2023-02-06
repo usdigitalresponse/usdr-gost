@@ -20,7 +20,7 @@ async function validateUser (user, creator) {
     throw new Error('Role required')
   }
 
-  if (!agency_id) {
+  if (agency_id == null) {
     throw new Error('Cannot create user without agency_id')
   }
 
