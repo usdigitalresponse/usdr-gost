@@ -128,7 +128,7 @@ export default {
         },
         tdClass: (row) => { if (!row.validated_at) return 'table-danger' },
         filterOptions: {
-          enabled: true,
+          enabled: !this.onlyExported,
           placeholder: 'Any validation status',
           filterDropdownItems: [
             { value: true, text: 'Show only validated' }
@@ -136,8 +136,6 @@ export default {
           filterFn: (validatedAt, isIncluded) => validatedAt
         }
       }
-
-      if (this.onlyExported) validatedCol.filterOptions = null
 
       return [
         {
