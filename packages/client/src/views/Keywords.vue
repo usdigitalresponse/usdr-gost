@@ -4,7 +4,7 @@
         <b-col><h3>Include results with:</h3></b-col>
         <b-col class="d-flex justify-content-end">
             <div>
-                <b-button variant="success" @click="openAddKeywordModal">Add</b-button>
+                <b-button variant="success" name="include-button" @click="openAddKeywordModal">Add</b-button>
             </div>
         </b-col>
     </b-row>
@@ -20,7 +20,7 @@
         <b-col><h3>Exclude results with:</h3></b-col>
         <b-col class="d-flex justify-content-end">
             <div>
-                <b-button variant="success" @click="openAddKeywordModal">Add</b-button>
+                <b-button variant="success" name="exclude-button" @click="openAddKeywordModal">Add</b-button>
             </div>
         </b-col>
     </b-row>
@@ -31,7 +31,7 @@
             </b-button>
         </template>
     </b-table>
-    <AddKeywordModal :showModal.sync="showAddKeywordModal"/>
+    <AddKeywordModal :keywordType="keywordType" :showModal.sync="showAddKeywordModal"/>
 </section>
 </template>
 
@@ -74,6 +74,7 @@ export default {
           thStyle: { width: '10%' },
         },
       ],
+      keywordType: 'include',
       showAddKeywordModal: false,
     };
   },
@@ -101,7 +102,9 @@ export default {
     setup() {
       this.fetchKeywords();
     },
-    openAddKeywordModal() {
+    openAddKeywordModal(event) {
+      const { name } = event.target;
+      this.keywordType = name.slice(0, name.indexOf('-'));
       this.showAddKeywordModal = true;
     },
   },

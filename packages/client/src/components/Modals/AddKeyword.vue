@@ -30,8 +30,10 @@
             <b-form-select
               id="type-select"
               v-model="formData.type"
-              :options="options"
-            ></b-form-select>
+            >
+                <b-form-select-option value="include">Include</b-form-select-option>
+                <b-form-select-option value="exclude">Exclude</b-form-select-option>
+            </b-form-select>
         </b-form-group>
         <b-form-group
           :state="!$v.formData.notes.$invalid"
@@ -58,6 +60,7 @@ import { required, maxLength } from 'vuelidate/lib/validators';
 
 export default {
   props: {
+    keywordType: String,
     showModal: Boolean,
   },
   data() {
@@ -65,12 +68,8 @@ export default {
       formData: {
         notes: null,
         searchTerm: null,
-        type: null,
+        type: this.keywordType,
       },
-      options: [
-        { value: 'include', text: 'Include' },
-        { value: 'exclude', text: 'Exclude' },
-      ],
     };
   },
   validations: {
@@ -99,7 +98,9 @@ export default {
       createKeyword: 'keywords/createKeyword',
     }),
     resetModal() {
-      this.formData = {};
+      this.formData = {
+        type: this.keywordType,
+      };
       this.$emit('update:showModal', false);
     },
     handleOk(bvModalEvt) {
