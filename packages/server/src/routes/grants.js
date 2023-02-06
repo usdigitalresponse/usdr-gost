@@ -99,10 +99,11 @@ router.get('/exportCSV', requireUser, async (req, res) => {
         tenantId: user.tenant_id,
         filters: {
             agencyCriteria,
+            interestedByAgency: req.query.interestedByAgency ? selectedAgency : null,
             interestedByUser: req.query.interestedByMe ? req.signedCookies.userId : null,
             assignedToAgency: req.query.assignedToAgency ? req.query.assignedToAgency : null,
             positiveInterest: req.query.positiveInterest ? true : null,
-            result: req.query.results ? true : null,
+            result: req.query.result ? true : null,
             rejected: req.query.rejected ? true : null,
             costSharing: req.query.costSharing || null,
             opportunityStatuses: parseCollectionQueryParam(req, 'opportunityStatuses'),

@@ -17,7 +17,16 @@ const ValidationError = require('../lib/validation-error')
 // They can optionally have a decimal point followed by 1 or 2 more digits (?: \.\d{ 1, 2 })
 const CURRENCY_REGEX_PATTERN = /^\d+(?: \.\d{ 1, 2 })?$/g
 
+// Copied from www.emailregex.com
+const EMAIL_REGEX_PATTERN = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
 const BETA_VALIDATION_MESSAGE = "[BETA] This is a new validation that is running in beta mode (as a warning instead of a blocking error). If you see anything incorrect about this validation, please report it at grants-helpdesk@usdigitalresponse.org"
+
+// This maps from field name to regular expression that must match on the field.
+// Note that this only covers cases where the name of the field is what we want to match on.
+const FIELD_NAME_TO_PATTERN = {
+  "POC_Email_Address__c" : {pattern: EMAIL_REGEX_PATTERN, explanation: "Email must be of the form \"user@email.com\""}
+};
 
 // This is a convenience wrapper that lets us use consistent behavior for new validation errors.
 // Specifically, all new validations should have a message explaining they are in beta and errors
@@ -327,6 +336,16 @@ async function validateRecord ({ upload, record, typeRules: rules }) {
         }
       }
 
+      if (rule.dataType === 'String') {
+        const patternError = validateFieldPattern(key, value);
+        if (patternError) {
+          errors.push(
+            new ValidationError(patternError.message,
+              { severity: 'err', col: rule.columnName })
+          );
+        }
+      }
+
       // make sure max length is not too long
       if (rule.maxLength) {
         if (rule.dataType === 'String' && String(record[key]).length > rule.maxLength) {
@@ -343,6 +362,21 @@ async function validateRecord ({ upload, record, typeRules: rules }) {
 
   // return all the found errors
   return errors
+}
+
+function validateFieldPattern(fieldName, value) {
+  let error = null;
+  const matchedFieldPatternInfo = FIELD_NAME_TO_PATTERN[fieldName];
+  if (matchedFieldPatternInfo) {
+    const pattern = matchedFieldPatternInfo["pattern"];
+    const explanation = matchedFieldPatternInfo["explanation"];
+    if (value && typeof value === 'string' && !value.match(pattern)) {
+      error = new Error(
+         `Value entered in cell is "${value}". ${explanation}`,
+       )
+    }
+  }
+  return error;
 }
 
 async function validateRules ({ upload, records, rules, trns }) {
@@ -616,7 +650,6 @@ async function validateUpload (upload, user, trns = null) {
 
 module.exports = {
   validateUpload,
-  ValidationError
 }
 
 // NOTE: This file was copied from src/server/services/validate-upload.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
