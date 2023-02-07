@@ -38,7 +38,7 @@
 <script>
 
 import { mapActions, mapGetters } from 'vuex';
-
+import moment from 'moment';
 import AddKeywordModal from '@/components/Modals/AddKeyword.vue';
 
 export default {
@@ -59,14 +59,7 @@ export default {
         {
           key: 'created_at',
           thStyle: { width: '20%' },
-          formatter: (value) => {
-            const date = new Date(value);
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            const year = date.getFullYear();
-
-            return `${month}/${day}/${year}`;
-          },
+          formatter: (value) => moment(value, 'YYYY-MM-DD').format('MM/DD/YYYY'),
         },
         {
           key: 'actions',
