@@ -47,7 +47,7 @@ describe('db', () => {
         it('gets total grant count matching agency criteria', async () => {
             const agencyCriteria = {
                 eligibilityCodes: ['11'],
-                keywords: ['Covid'],
+                includeKeywords: ['Covid'],
             };
             const result = await db.getTotalGrants({ agencyCriteria });
             expect(result).to.equal('1');
@@ -63,7 +63,7 @@ describe('db', () => {
 
         it('gets total grant count matching keywords only', async () => {
             const agencyCriteria = {
-                keywords: ['earth sciences'],
+                includeKeywords: ['earth sciences'],
             };
             const result = await db.getTotalGrants({ agencyCriteria });
             expect(result).to.equal('1');
@@ -115,8 +115,10 @@ describe('db', () => {
             expect(result).to.have.property('eligibilityCodes').with.lengthOf(2);
             expect(result.eligibilityCodes[0])
                 .to.equal(fixtures.agencyEligibilityCodes.accountancyNative.code);
-            expect(result).to.have.property('keywords').with.lengthOf(1);
-            expect(result.keywords[0]).to.equal(fixtures.keywords.accountancyCovid.search_term);
+            expect(result).to.have.property('includeKeywords').with.lengthOf(1);
+            expect(result).to.have.property('excludeKeywords').with.lengthOf(1);
+            expect(result.includeKeywords[0]).to.equal(fixtures.keywords.accountancyCovid.search_term);
+            expect(result.excludeKeywords[0]).to.equal(fixtures.keywords.accountancyClimate.search_term);
         });
     });
 
