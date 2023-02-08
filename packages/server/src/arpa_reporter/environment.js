@@ -11,7 +11,6 @@ const VERBOSE = Boolean(process.env.VERBOSE)
 const POSTGRES_URL = process.env.POSTGRES_URL
 
 const DATA_DIR = resolve(process.env.DATA_DIR)
-const TEMP_DIR = join(DATA_DIR, 'tmp')
 const UPLOAD_DIR = join(DATA_DIR, 'uploads')
 const PERIOD_TEMPLATES_DIR = join(UPLOAD_DIR, 'period_templates')
 
@@ -47,7 +46,6 @@ const LOGIN_WARNING_MESSAGE = process.env.LOGIN_WARNING_MESSAGE
 
 module.exports = {
   DATA_DIR,
-  TEMP_DIR,
   UPLOAD_DIR,
   PERIOD_TEMPLATES_DIR,
   SERVER_CODE_DIR,

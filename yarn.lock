@@ -5892,11 +5892,6 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-cryo@0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/cryo/-/cryo-0.0.6.tgz#16833295d2ee16ff39711db840617b7ae4af0ba4"
-  integrity sha512-vSbO1hJvP9oOGXcKHiAj3U37rtErI8jIZ8gOp8EfiQgPncAv6nc4JArGWzqrxlwA5xe6Sph5OUAg//7yqTOyIg==
-
 crypto-random-string@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-2.0.0.tgz#ef2a7a966ec11083388369baa02ebead229b30d5"
