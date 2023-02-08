@@ -176,7 +176,18 @@ async function getAgencyCriteriaForAgency(agencyId) {
 
     return {
         eligibilityCodes: enabledECodes.map((c) => c.code),
-        keywords: keywords.map((c) => c.search_term),
+        includeKeywords: keywords.reduce((filtered, c) => {
+            if (!c.type || c.type === 'include') {
+                filtered.push(c.search_term);
+            }
+            return filtered;
+        }, []),
+        excludeKeywords: keywords.reduce((filtered, c) => {
+            if (c.type === 'exclude') {
+                filtered.push(c.search_term);
+            }
+            return filtered;
+        }, []),
     };
 }
 
