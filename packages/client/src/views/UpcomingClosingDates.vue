@@ -141,6 +141,7 @@ export default {
     },
     upcomingItems() {
       this.formatUpcoming();
+      this.formatDate();
     },
     async selectedGrant() {
       if (!this.selectedGrant) {

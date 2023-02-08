@@ -1,5 +1,4 @@
 const agencies = require('./agencies');
-const interestedCodes = require('./interestedCodes');
 
 const usdr = agencies.find((a) => a.abbreviation === 'USDR').id;
 const nevada = agencies.find((a) => a.abbreviation === 'NV').id;
@@ -17,15 +16,11 @@ function joinDateComponents(theDateTime, options, separator) {
     return options.map(format).join(separator);
 }
 
-function daysBack(days) {
+function oneWeekBack() {
     const options = [{ year: 'numeric' }, { month: 'numeric' }, { day: 'numeric' }];
     const theDate = new Date();
-    theDate.setDate(theDate.getDate() - days);
+    theDate.setDate(theDate.getDate() - 7);
     return joinDateComponents(theDate, options, '-');
-}
-
-function interestedId(theName) {
-    return interestedCodes.filter((code) => code.name === theName)[0].id;
 }
 
 const grants = [
@@ -83,7 +78,7 @@ const grants = [
         title: 'Test Grant 666999',
         cfda_list: '47.050',
         open_date: '2021-09-04',
-        close_date: daysBack(3),
+        close_date: oneWeekBack(),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -127,7 +122,7 @@ const grants = [
         title: 'Community Health Aide Program:  County Planning &amp; Implementation',
         cfda_list: '93.382',
         open_date: '2021-08-05',
-        close_date: daysBack(4),
+        close_date: '2021-09-06',
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -735,13 +730,7 @@ const grantsInterested = [
         grant_id: grants[2].grant_id,
         agency_id: usdr,
         user_id: 1,
-        interested_code_id: interestedId('Will Apply'),
-    },
-    {
-        grant_id: grants[4].grant_id,
-        agency_id: usdr,
-        user_id: 1,
-        interested_code_id: interestedId('Will Support'),
+        interested_code_id: 0,
     },
 ];
 
