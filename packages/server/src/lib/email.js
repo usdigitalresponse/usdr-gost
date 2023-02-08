@@ -1,6 +1,5 @@
 const { URL } = require('url');
 const moment = require('moment');
-// eslint-disable-next-line import/no-unresolved
 const asyncBatch = require('async-batch').default;
 const fileSystem = require('fs');
 const path = require('path');
