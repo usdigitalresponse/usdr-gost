@@ -148,7 +148,8 @@ async function getProjectSummaryRow(data) {
     'Total Cumulative Obligations': record.content.Total_Obligations__c,
     'Total Cumulative Expenditures': record.content.Total_Expenditures__c,
     'Current Period Obligations': record.content.Current_Period_Obligations__c,
-    'Current Period Expenditures': record.content.Current_Period_Expenditures__c
+    'Current Period Expenditures': record.content.Current_Period_Expenditures__c,
+    'Completion Status': record.content.Completion_Status__c
   }
 }
 
