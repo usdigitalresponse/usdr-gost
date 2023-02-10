@@ -54,9 +54,9 @@ export default {
       let errs = '';
       if (statusObj.errors.length > 0) {
         errs = '<ul>';
-        for (const err of statusObj.errors) {
+        statusObj.errors.foreach((err) => {
           errs = errs.concat(`<li>${err}</li>`);
-        }
+        });
         errs = errs.concat('</ul>');
       }
       this.importStatus = `<ul><li>${added}</li><li>${notAdded}</li>${errs}</ul>`;
