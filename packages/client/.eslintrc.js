@@ -23,8 +23,6 @@ module.exports = {
     'func-names': 'off',
     'vue/multi-word-component-names': 'off',
     'vue/no-mutating-props': 'off',
-    // Allow for-of statements
-    'no-restricted-syntax': 0,
   },
   overrides: [
     {

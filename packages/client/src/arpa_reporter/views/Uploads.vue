@@ -104,17 +104,17 @@ export default {
         },
       };
 
-      for (const agency of this.agencies) {
+      this.agencies.foreach((agency) => {
         agencyObjects[agency.code] = {
           mode: 'span',
           label: `${agency.code} (${agency.name})`,
           children: [],
         };
-      }
+      });
 
-      for (const upload of uploads) {
+      uploads.foreach((upload) => {
         agencyObjects[upload.agency_code].children.push(upload);
-      }
+      });
 
       return Object.values(agencyObjects);
     },
