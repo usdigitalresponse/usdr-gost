@@ -20,7 +20,8 @@ services:
       - "yarn"
       - "debug:server"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     env_file:
       - ./packages/server/.env
 
@@ -58,6 +59,10 @@ services:
       - ./docker/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./docker/postgres/docker-entrypoint-preinitdb.d:/docker-entrypoint-preinitdb.d
       # - ./docker/postgres/persistence:/bitnami/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      start_period: 30s
 
 networks:
   app:
