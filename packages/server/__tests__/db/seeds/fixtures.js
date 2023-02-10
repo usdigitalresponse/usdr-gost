@@ -1,4 +1,5 @@
 const { TABLES } = require('../../../src/db/constants');
+const interestedCodes = require('../../../seeds/dev/ref/interestedCodes');
 
 const roles = {
     adminRole: { id: 1, name: 'admin', rules: {} },
@@ -82,15 +83,6 @@ const keywords = {
     },
     fleetServicesTransportation: {
         mode: 'autoinsert ALL keywords matches', search_term: 'Transportation', notes: '', agency_id: agencies.fleetServices.id, type: 'include',
-    },
-};
-
-const interestedCodes = {
-    notApplicable: {
-        id: 0, name: 'Not applicable to needs/goals', status_code: 'Rejected',
-    },
-    inadequateCapacity: {
-        id: 1, name: 'Inadequate program capacity', status_code: 'Rejected',
     },
 };
 
