@@ -49,11 +49,12 @@ router.post('/close/', requireAdminUser, async (req, res) => {
         return res.status(500).json({ error: err.message });
     }
 
-    res.json({
+    return res.json({
         status: 'OK',
     });
 });
 
+// eslint-disable-next-line no-unused-vars
 router.post('/', requireAdminUser, async (req, res, next) => {
     const updatedPeriod = req.body.reportingPeriod;
 
@@ -84,6 +85,7 @@ router.post(
     '/:id/template',
     requireAdminUser,
     ensureAsyncContext(multerUpload.single('template')),
+    // eslint-disable-next-line no-unused-vars
     async (req, res, next) => {
         if (!req.file) {
             res.status(400).json({ error: 'File missing' });
@@ -116,6 +118,7 @@ router.post(
     },
 );
 
+// eslint-disable-next-line no-unused-vars
 router.get('/:id/template', requireUser, async (req, res, next) => {
     const periodId = req.params.id;
 
@@ -134,6 +137,7 @@ router.get('/:id/template', requireUser, async (req, res, next) => {
     }
 });
 
+// eslint-disable-next-line no-unused-vars
 router.get('/:id/exported_uploads', requireUser, async (req, res, next) => {
     const periodId = req.params.id;
 
@@ -143,8 +147,10 @@ router.get('/:id/exported_uploads', requireUser, async (req, res, next) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+    return null;
 });
 
+// eslint-disable-next-line no-unused-vars
 router.post('/:id/revalidate', requireAdminUser, async (req, res, next) => {
     const periodId = req.params.id;
     const commit = req.query.commit || false;

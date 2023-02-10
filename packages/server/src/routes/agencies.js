@@ -45,7 +45,8 @@ router.get('/sendDigestEmail', requireUSDRSuperAdminUser, async (req, res) => {
     res.sendStatus(200);
 });
 
-router.put('/:agency', requireAdminUser, async (req, res) => {
+// eslint-disable-next-line no-unused-vars
+router.put('/:agency', requireAdminUser, async (req, res, next) => {
     // Currently, agencies are seeded into db; only thresholds are mutable.
     const { agency } = req.params;
     const { user } = req.session;

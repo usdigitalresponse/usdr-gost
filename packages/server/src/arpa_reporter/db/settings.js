@@ -23,7 +23,7 @@ async function getCurrentReportingPeriodID(trns = knex) {
 async function applicationSettings(trns = knex) {
     const tenantId = useTenantId();
 
-    return await trns('application_settings')
+    return trns('application_settings')
         .join(
             'reporting_periods',
             'application_settings.current_reporting_period_id',

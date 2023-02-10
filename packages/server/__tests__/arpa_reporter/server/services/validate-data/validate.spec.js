@@ -1,3 +1,6 @@
+const { expect } = require('chai');
+const requireSrc = require('../../utils');
+
 const {
     contractMatches,
     cumulativeAmountIsEqual,
@@ -24,7 +27,6 @@ const {
     whenGreaterThanZero,
     whenUS,
 } = requireSrc(__filename);
-const { expect } = require('chai');
 
 describe('validation helpers', () => {
     const validateContext = {

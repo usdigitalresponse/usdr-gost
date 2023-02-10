@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
 const ssf = require('ssf');
 const mustache = require('mustache');
 const _ = require('lodash');
-const { ValidationItem } = require('../../lib/validation-log');
+const { ValidationItem } = require('../../lib/validation-item');
 const { log } = require('../../lib/log');
 const { subrecipientKey } = require('./helpers');
 
@@ -200,6 +201,11 @@ function isUnitedStates(value) {
     return value === 'usa' || value === 'united states';
 }
 
+function dropdownIncludes(key) {
+    // TODO: re-write this
+    return (val) => true;
+}
+
 function isValidState(val, content) {
     log(`isValidState(${val})`);
     return (
@@ -235,11 +241,6 @@ function numberIsGreaterThanOrEqual(key) {
         const other = _.isNumber(content[key]) ? content[key] : 0.00;
         return _.isNumber(val) && _.isNumber(other) && val >= other;
     };
-}
-
-function dropdownIncludes(key) {
-    // TODO: re-write this
-    return (val) => true;
 }
 
 function whenBlank(key, validator) {

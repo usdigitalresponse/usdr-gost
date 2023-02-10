@@ -8,7 +8,6 @@ const { log } = require('../lib/log');
 const { requiredArgument } = require('../lib/preconditions');
 const { getRules } = require('./validation-rules');
 const { useRequest } = require('../use-request');
-const asyncBatch = require('async-batch').default;
 
 const CERTIFICATION_SHEET = 'Certification';
 const COVER_SHEET = 'Cover';
@@ -84,16 +83,16 @@ async function loadRecordsForUpload(upload) {
     ];
 
     // parse data sheets
-    for (const sheetName of Object.keys(DATA_SHEET_TYPES)) {
+    Object.keys(DATA_SHEET_TYPES).forEach((sheetName) => {
         const type = DATA_SHEET_TYPES[sheetName];
         const sheet = workbook.Sheets[sheetName];
         const sheetAttributes = workbook.Workbook.Sheets.find(
-            (sheet) => sheet.name === sheetName,
+            (sht) => sht.name === sheetName,
         );
 
         // ignore hidden sheets
         if (sheetAttributes.Hidden !== 0) {
-            continue;
+            return;
         }
 
         const rulesForCurrentType = rules[type];
@@ -125,12 +124,12 @@ async function loadRecordsForUpload(upload) {
         });
 
         // each row in the input sheet becomes a unique record
-        for (const row of rows) {
+        rows.forEach((row) => {
             // Don't include any Display_Only data in the records
             delete row.Display_Only;
             // If the row is empty, don't include it in the records
             if (Object.keys(row).length === 0) {
-                continue;
+                return;
             }
             const formattedRow = {};
             Object.keys(row).forEach((fieldId) => {
@@ -139,20 +138,21 @@ async function loadRecordsForUpload(upload) {
                     // No known rules for this type, so we can't format it.
                     return;
                 }
-                for (const formatter of rulesForCurrentType[fieldId].persistentFormatters) {
+                const { persistentFormatters } = rulesForCurrentType[fieldId];
+                persistentFormatters.forEach((formatter) => {
                     try {
                         value = formatter(value);
                     } catch (e) {
                         console.log(`Persistent formatter failed to format value ${value} with error:`, e);
                     }
-                }
+                });
                 formattedRow[fieldId] = value;
             });
             records.push({
                 type, subcategory, upload, content: formattedRow,
             });
-        }
-    }
+        });
+    });
 
     return records;
 }

@@ -1,5 +1,7 @@
-const settings = requireSrc(__filename);
 const assert = require('assert');
+const { requireSrc } = require('../utils');
+
+const settings = requireSrc(__filename);
 const { withTenantId } = require('../helpers/with-tenant-id');
 
 const TENANT_A = 0;

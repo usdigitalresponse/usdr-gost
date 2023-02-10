@@ -1,7 +1,12 @@
 const _ = require('lodash');
+
+const { format } = require('date-fns');
+const certification = require('./certification');
+const cover = require('./cover');
+
 const tabValidators = [
-    require('./certification'),
-    require('./cover'),
+    certification,
+    cover,
     // require('./subrecipients'),
     // require('./contracts'),
     // require('./grants'),
@@ -9,7 +14,7 @@ const tabValidators = [
     // require('./transfers'),
     // require('./direct')
 ];
-const { format } = require('date-fns');
+
 const { getSubrecipientsHash } = require('./helpers');
 
 const validateData = (records, fileParts, reportingPeriod, periodSummaries, firstReportingPeriodStartDate) => {

@@ -1,3 +1,5 @@
+require('dotenv').config();
+const conn = require('../../../../src/db/connection');
 const { isRunningInGOST } = require('../helpers/is_gost');
 
 const setupAgencies = async (knex) => {
@@ -28,10 +30,8 @@ module.exports = {
 
 // Run this file directly through node to set up dummy data for manual testing.
 if (require.main === module) {
-    require('dotenv').config();
-    const knex = require('../../../../src/db/connection');
-    setupAgencies(knex).then(() => {
-        knex.destroy();
+    setupAgencies(conn).then(() => {
+        conn.destroy();
     });
 }
 

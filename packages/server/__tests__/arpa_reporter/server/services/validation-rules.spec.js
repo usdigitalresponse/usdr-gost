@@ -49,7 +49,7 @@ describe('validation rules', () => {
         for (const formatterName in testMatrix) {
             describe(`${formatterName}`, () => {
                 const formatterFn = formatters[formatterName];
-                for (const [testInput, expected] of testMatrix[formatterName]) {
+                testMatrix[formatterName].forEach(([testInput, expected]) => {
                     let testDescription = `${typeof testInput} with value \`${testInput}\``;
                     if (_.isEqual(testInput, expected)) {
                         testDescription = `${testDescription} unmodified`;
@@ -61,7 +61,7 @@ describe('validation rules', () => {
                         const actual = formatterFn(testInput);
                         assert.deepEqual(actual, expected);
                     });
-                }
+                });
             });
         }
     });
