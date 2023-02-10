@@ -18,8 +18,43 @@ const ValidationError = require('../lib/validation-error')
 //     which could become inaccessible
 //  2. this function is duplicated in GOST's import_arpa_reporter_dump.js script
 const uploadFSName = (upload) => {
-  const filename = `${upload.id}${path.extname(upload.filename)}`
-  return path.join(UPLOAD_DIR, filename)
+    const filename = `${upload.id}${path.extname(upload.filename)}`;
+    return path.join(UPLOAD_DIR, filename);
+};
+
+async function persistUpload({ filename, user, buffer }) {
+    // let's make sure we can actually read the supplied buffer (it's a valid spreadsheet)
+    try {
+        await xlsx.read(buffer, { type: 'buffer' });
+    } catch (e) {
+        throw new ValidationError(`Cannot parse XLSX from data in ${filename}: ${e}`);
+    }
+
+    // get the current reporting period
+    const reportingPeriod = await getReportingPeriod();
+
+    // create an upload
+    const uploadRow = {
+        filename: path.basename(filename),
+        reporting_period_id: reportingPeriod.id,
+        user_id: user.id,
+    };
+    const upload = await createUpload(uploadRow);
+
+    // persist the original upload to the filesystem
+    try {
+        await mkdir(UPLOAD_DIR, { recursive: true });
+        await writeFile(
+            uploadFSName(upload),
+            buffer,
+            { flag: 'wx' },
+        );
+    } catch (e) {
+        throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
+    }
+
+    // return the upload we created
+    return upload;
 }
 
 const jsonFSName = (upload) => {

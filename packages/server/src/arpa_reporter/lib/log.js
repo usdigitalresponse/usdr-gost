@@ -1,4 +1,4 @@
-const { VERBOSE } = require('../environment')
+const { VERBOSE } = require('../environment');
 
 /**
  * An alias for console.dir.
@@ -7,9 +7,9 @@ const { VERBOSE } = require('../environment')
  *
  * @param {...*} messages
  */
-let dir = (...messages) => {}
+let dir = (...messages) => {};
 if (VERBOSE) {
-  dir = console.dir
+    dir = console.dir;
 }
 
 /**
@@ -19,14 +19,14 @@ if (VERBOSE) {
  *
  * @param {...*} messages
  */
-let log = (...messages) => {}
+let log = (...messages) => {};
 if (VERBOSE) {
-  log = console.log
+    log = console.log;
 }
 
 module.exports = {
-  dir,
-  log
-}
+    dir,
+    log,
+};
 
 // NOTE: This file was copied from src/server/lib/log.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
