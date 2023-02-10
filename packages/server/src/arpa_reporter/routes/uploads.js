@@ -31,6 +31,7 @@ router.post(
     // use preserveAsyncContext to work around issue:
     // https://github.com/expressjs/multer/issues/814
     ensureAsyncContext(multerUpload.single('spreadsheet')),
+    // eslint-disable-next-line no-unused-vars
     async (req, res, next) => {
         console.log('POST /api/uploads');
         if (req.file) {

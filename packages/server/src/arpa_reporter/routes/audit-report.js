@@ -25,7 +25,7 @@ router.get('/', requireUser, async (req, res) => {
         `attachment; filename="${report.filename}"`,
     );
     res.header('Content-Type', 'application/octet-stream');
-    res.send(Buffer.from(report.outputWorkBook, 'binary'));
+    return res.send(Buffer.from(report.outputWorkBook, 'binary'));
 });
 
 module.exports = router;

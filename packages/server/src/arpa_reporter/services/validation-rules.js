@@ -95,8 +95,9 @@ function generateRules() {
     // value formatters modify the value in the record before it's validated
     // we check any rule against the formatted value
     // for any values we format, we should format them the same way when we export
-    for (const ruleType of Object.keys(rules)) {
-        for (const rule of Object.values(rules[ruleType])) {
+
+    Object.keys(rules).forEach((ruleType) => {
+        Object.values(rules[ruleType]).forEach((rule) => {
             // validationFormatters are only applied when validating the records, so they
             // aren't used during exports.
             // persistentFormatters are always applied as soon as a value is read from a
@@ -117,7 +118,7 @@ function generateRules() {
             if (rule.listVals.length > 0) {
                 rule.validationFormatters.push(recordValueFormatters.toLowerCase);
 
-                for (let i = 0; i < rule.listVals.length; i++) {
+                for (let i = 0; i < rule.listVals.length; i += 1) {
                     const worksheetValue = rule.listVals[i];
                     const correction = dropdownCorrections[worksheetValue];
                     if (correction) {
@@ -132,8 +133,8 @@ function generateRules() {
             if (optionalIfNotStartedFieldIds.has(rule.key)) {
                 rule.isRequiredFn = optionalIfNotStarted;
             }
-        }
-    }
+        });
+    });
 
     return rules;
 }

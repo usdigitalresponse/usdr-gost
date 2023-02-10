@@ -26,16 +26,6 @@ const {
 } = require('./settings');
 const { useTenantId, useRequest } = require('../use-request');
 
-module.exports = {
-    getReportingPeriod,
-    closeReportingPeriod,
-    getReportingPeriodID,
-    getPreviousReportingPeriods,
-    getAllReportingPeriods,
-    createReportingPeriod,
-    updateReportingPeriod,
-};
-
 function baseQuery(trns) {
     return trns('reporting_periods')
         .select(
@@ -83,7 +73,7 @@ async function getReportingPeriodID(periodID) {
  *
  * @returns The matching reporting periods, sorted from oldest to newest by date
  */
-async function getPreviousReportingPeriods(period_id, trns = knex) {
+async function getPreviousReportingPeriods(period_id) {
     const currentReportingPeriod = await getReportingPeriod(period_id);
     const allReportingPeriods = await getAllReportingPeriods();
     const reportingPeriods = allReportingPeriods.filter(
@@ -177,6 +167,16 @@ function updateReportingPeriod(reportingPeriod, trns = knex) {
             // tenant_id is immutable
         });
 }
+
+module.exports = {
+    getReportingPeriod,
+    closeReportingPeriod,
+    getReportingPeriodID,
+    getPreviousReportingPeriods,
+    getAllReportingPeriods,
+    createReportingPeriod,
+    updateReportingPeriod,
+};
 
 /*                                 *  *  *                                    */
 

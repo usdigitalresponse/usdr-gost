@@ -26,9 +26,9 @@ const { COOKIE_SECRET } = process.env;
 const { NODE_ENV } = process.env;
 const IS_DEV = NODE_ENV === 'development';
 
-const LOGIN_EXPIRY_MINUTES = parseInt(process.env.LOGIN_EXPIRY_MINUTES) || 30;
+const LOGIN_EXPIRY_MINUTES = parseInt(process.env.LOGIN_EXPIRY_MINUTES, 10) || 30;
 
-const PORT = parseInt(process.env.PORT) || 3000;
+const PORT = parseInt(process.env.PORT, 10) || 3000;
 const { WEBSITE_DOMAIN } = process.env;
 const ARPA_REPORTER_BASE_URL = `${WEBSITE_DOMAIN}/arpa_reporter`;
 

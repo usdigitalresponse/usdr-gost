@@ -1,7 +1,8 @@
 /* eslint no-unused-expressions: "off" */
+const { expect } = require('chai');
+const requireSrc = require('../../utils');
 
 const { validateData } = requireSrc(__filename);
-const { expect } = require('chai');
 
 describe.skip('validateData', () => {
     const records = [

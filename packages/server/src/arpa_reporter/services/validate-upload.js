@@ -19,7 +19,7 @@ const ValidationError = require('../lib/validation-error');
 const CURRENCY_REGEX_PATTERN = /^\d+(?: \.\d{ 1, 2 })?$/g;
 
 // Copied from www.emailregex.com
-const EMAIL_REGEX_PATTERN = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const EMAIL_REGEX_PATTERN = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 const BETA_VALIDATION_MESSAGE = '[BETA] This is a new validation that is running in beta mode (as a warning instead of a blocking error). If you see anything incorrect about this validation, please report it at grants-helpdesk@usdigitalresponse.org';
 
@@ -61,6 +61,7 @@ async function validateAgencyId({ upload, records, trns }) {
     if (matchingAgency.id !== upload.agency_id) {
         await setAgencyId(upload.id, matchingAgency.id);
     }
+    return null;
 }
 
 async function validateEcCode({ upload, records }) {
@@ -93,6 +94,7 @@ async function validateEcCode({ upload, records }) {
         await setEcCode(upload.id, code);
         upload.ec_code = code;
     }
+    return null;
 }
 
 async function validateVersion({ records, rules }) {
@@ -119,6 +121,7 @@ async function validateVersion({ records, rules }) {
             },
         );
     }
+    return null;
 }
 
 async function validateReportingPeriod({ upload, records, trns }) {
@@ -164,7 +167,7 @@ async function validateReportingPeriod({ upload, records, trns }) {
 }
 
 async function validateSubrecipientRecord({
-    upload, record: recipient, typeRules: rules, recordErrors, trns,
+    upload, record: recipient, recordErrors, trns,
 }) {
     const errors = [];
 
@@ -222,8 +225,8 @@ async function validateSubrecipientRecord({
 
             // otherwise, generate warnings about diffs
         } else {
-            const recipientId = existing.uei || existing.tin;
-            const record = JSON.parse(existing.record);
+            // const recipientId = existing.uei || existing.tin;
+            // const record = JSON.parse(existing.record);
 
             /* Based on feedback from partners on 12/22/22, these warning are not helpful, and create
          such a high volume of warnings that it is drowning out other more valid warnings.
@@ -254,15 +257,30 @@ async function validateSubrecipientRecord({
     return errors;
 }
 
+function validateFieldPattern(fieldName, value) {
+    let error = null;
+    const matchedFieldPatternInfo = FIELD_NAME_TO_PATTERN[fieldName];
+    if (matchedFieldPatternInfo) {
+        const { pattern } = matchedFieldPatternInfo;
+        const { explanation } = matchedFieldPatternInfo;
+        if (value && typeof value === 'string' && !value.match(pattern)) {
+            error = new Error(
+                `Value entered in cell is "${value}". ${explanation}`,
+            );
+        }
+    }
+    return error;
+}
+
 async function validateRecord({ upload, record, typeRules: rules }) {
     // placeholder for rule errors we're going to find
     const errors = [];
 
     // check all the rules
-    for (const [key, rule] of Object.entries(rules)) {
-    // if the rule only applies on different EC codes, skip it
+    Object.entries(rules).forEach(([key, rule]) => {
+        // if the rule only applies on different EC codes, skip it
         if (rule.ecCodes && (!upload.ec_code || !rule.ecCodes.includes(upload.ec_code))) {
-            continue;
+            return;
         }
 
         // if the field is unset/missing/blank, is that okay?
@@ -289,13 +307,13 @@ async function validateRecord({ upload, record, typeRules: rules }) {
             // how do we format the value before checking it?
             let value = record[key];
             let formatFailures = 0;
-            for (const formatter of rule.validationFormatters) {
+            rule.validationFormatters.forEach((formatter) => {
                 try {
                     value = formatter(value);
                 } catch (e) {
                     formatFailures += 1;
                 }
-            }
+            });
             if (formatFailures) {
                 errors.push(new ValidationError(
                     `Failed to apply ${formatFailures} formatters while validating value`,
@@ -319,14 +337,14 @@ async function validateRecord({ upload, record, typeRules: rules }) {
                 // for multi select, all the values must be in the list of possible values
                 if (rule.dataType === 'Multi-Select') {
                     const entries = value.split(';').map((val) => val.trim());
-                    for (const entry of entries) {
+                    entries.forEach((entry) => {
                         if (!lcItems.includes(entry)) {
                             errors.push(new ValidationError(
                                 `Entry '${entry}' of ${key} is not one of ${lcItems.length} valid options`,
                                 { col: rule.columnName, severity: 'err' },
                             ));
                         }
-                    }
+                    });
                 }
             }
 
@@ -361,25 +379,10 @@ async function validateRecord({ upload, record, typeRules: rules }) {
                 // TODO: should we validate max length on currency? or numeric fields?
             }
         }
-    }
+    });
 
     // return all the found errors
     return errors;
-}
-
-function validateFieldPattern(fieldName, value) {
-    let error = null;
-    const matchedFieldPatternInfo = FIELD_NAME_TO_PATTERN[fieldName];
-    if (matchedFieldPatternInfo) {
-        const { pattern } = matchedFieldPatternInfo;
-        const { explanation } = matchedFieldPatternInfo;
-        if (value && typeof value === 'string' && !value.match(pattern)) {
-            error = new Error(
-                `Value entered in cell is "${value}". ${explanation}`,
-            );
-        }
-    }
-    return error;
 }
 
 async function validateRules({
@@ -388,12 +391,13 @@ async function validateRules({
     const errors = [];
 
     // go through every rule type we have
-    for (const [type, typeRules] of Object.entries(rules)) {
+    Object.entries(rules).forEach(async ([type, typeRules]) => {
     // find records of the given rule type
         const tRecords = records.filter((rec) => rec.type === type).map((r) => r.content);
 
         // for each of those records, generate a list of rule violations
-        for (const [recordIdx, record] of tRecords.entries()) {
+        const entries = tRecords.entries();
+        entries.forEach(async ([recordIdx, record]) => {
             let recordErrors;
             try {
                 recordErrors = await validateRecord({ upload, record, typeRules });
@@ -428,8 +432,8 @@ async function validateRules({
                 // save each rule violation in the overall list
                 errors.push(error);
             });
-        }
-    }
+        });
+    });
 
     return errors;
 }
@@ -452,7 +456,7 @@ function sortRecords(records, errors) {
 
     const awards = [];
     const expendituresGT50k = [];
-    for (const record of records) {
+    records.forEach((record) => {
         switch (record.type) {
             case 'ec1':
             case 'ec2':
@@ -460,6 +464,8 @@ function sortRecords(records, errors) {
             case 'ec4':
             case 'ec5':
             case 'ec7':
+                // We're relying on fall-through behavior and thus can't use blocks here
+                // eslint-disable-next-line no-case-declarations
                 const projectID = record.content.Project_Identification_Number__c;
                 if (projectID in projects) {
                     errors.push(betaValidationWarning(
@@ -468,7 +474,7 @@ function sortRecords(records, errors) {
                 }
                 projects[projectID] = record.content;
                 break;
-            case 'subrecipient':
+            case 'subrecipient': {
                 const subRecipId = subrecipientIdString(
                     record.content.Unique_Entity_Identifier__c,
                     record.content.EIN__c,
@@ -480,7 +486,8 @@ function sortRecords(records, errors) {
                 }
                 subrecipients[subRecipId] = record.content;
                 break;
-            case 'awards50k':
+            }
+            case 'awards50k': {
                 const awardNumber = record.content.Award_No__c;
                 if (awardNumber && awardNumber in awardsGT50k) {
                     errors.push(betaValidationWarning(
@@ -489,6 +496,7 @@ function sortRecords(records, errors) {
                 }
                 awardsGT50k[awardNumber] = record.content;
                 break;
+            }
             case 'awards':
                 awards.push(record.content);
                 break;
@@ -499,11 +507,11 @@ function sortRecords(records, errors) {
             case 'cover':
             case 'logic':
                 // Skip these sheets, they don't include records
-                continue;
+                return;
             default:
                 console.error(`Unexpected record type: ${record.type}`);
         }
-    }
+    });
 
     return {
         projects,
@@ -518,7 +526,8 @@ function validateSubawardRefs(awardsGT50k, projects, subrecipients, errors) {
     // Any subawards must reference valid projects and subrecipients.
     // Track the subrecipient ids that were referenced, since we'll need them later
     const usedSubrecipients = new Set();
-    for ([awardNumber, subaward] of Object.entries(awardsGT50k)) {
+
+    Object.entries(awardsGT50k).forEach(([awardNumber, subaward]) => {
         const projectRef = subaward.Project_Identification_Number__c;
         if (!(projectRef in projects)) {
             errors.push(betaValidationWarning(
@@ -535,32 +544,32 @@ function validateSubawardRefs(awardsGT50k, projects, subrecipients, errors) {
             ));
         }
         usedSubrecipients.add(subRecipRef);
-    }
+    });
     // Return this so that it can be used in the subrecipient validations
     return usedSubrecipients;
 }
 
 function validateSubrecipientRefs(subrecipients, usedSubrecipients, errors) {
     // Make sure that every subrecip included in this upload was referenced by at least one subaward
-    for (const subRecipId of Object.keys(subrecipients)) {
+    Object.keys(subrecipients).forEach((subRecipId) => {
         if (!(subRecipId && usedSubrecipients.has(subRecipId))) {
             errors.push(betaValidationWarning(
                 `Subrecipient with id ${subRecipId} has no related subawards and can be ommitted.`,
             ));
         }
-    }
+    });
 }
 
 function validateExpenditureRefs(expendituresGT50k, awardsGT50k, errors) {
     // Make sure each expenditure references a valid subward
-    for (const expenditure of expendituresGT50k) {
+    expendituresGT50k.forEach((expenditure) => {
         const awardRef = expenditure.Sub_Award_Lookup__c;
         if (!(awardRef in awardsGT50k)) {
             errors.push(betaValidationWarning(
                 `An expenditure referenced an unknown award number ${awardRef}`,
             ));
         }
-    }
+    });
 }
 
 async function validateReferences({ records }) {
@@ -619,7 +628,7 @@ async function validateUpload(upload, user, trns = null) {
     }
 
     // run validations, one by one
-    for (const validation of validations) {
+    validations.forEach(async (validation) => {
         try {
             errors.push(await validation({
                 upload, records, rules, trns,
@@ -627,15 +636,15 @@ async function validateUpload(upload, user, trns = null) {
         } catch (e) {
             errors.push(new ValidationError(`validation ${validation.name} failed: ${e}`));
         }
-    }
+    });
 
     // flat list without any nulls, including errors and warnings
     const flatErrors = errors.flat().filter((x) => x);
 
     // tab should be sheet name, not sheet type
-    for (const error of flatErrors) {
+    flatErrors.forEach((error) => {
         error.tab = TYPE_TO_SHEET_NAME[error.tab] || error.tab;
-    }
+    });
 
     // fatal errors determine if the upload fails validation
     const fatal = flatErrors.filter((x) => x.severity === 'err');

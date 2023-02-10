@@ -1,4 +1,5 @@
 require('dotenv').config();
+const moment = require('moment');
 
 // when making changes to this file, consider also updating the non-test seed:
 // seeds/04_reporting_periods.js
@@ -14,7 +15,6 @@ exports.seed = async function (knex) {
         },
     ];
 
-    const moment = require('moment');
     const mstr = (mdate) => mdate.format('YYYY-MM-DD');
 
     // generate array of reporting periods, starting from right after the first period

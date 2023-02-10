@@ -22,9 +22,11 @@
 
 */
 
-const { getAllReportingPeriods, getReportingPeriod } = requireSrc(__filename);
 const assert = require('assert');
 const _ = require('lodash');
+const { requireSrc } = require('../utils');
+
+const { getAllReportingPeriods, getReportingPeriod } = requireSrc(__filename);
 const { withTenantId } = require('../helpers/with-tenant-id');
 
 const TENANT_A = 0;
