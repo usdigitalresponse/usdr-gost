@@ -37,11 +37,13 @@
                   <div class="color-gray">{{ dates.item.date }}</div>
                 </template>
               </b-table>
-              <b-row align-v="center" >
-                <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
-                  <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
-                </b-navbar>
-              </b-row>
+              <div v-if="activityItems.length > 3">
+                <b-row align-v="center" >
+                  <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
+                    <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
+                  </b-navbar>
+                </b-row>
+              </div>
             </b-card>
           </b-col>
           <b-col>
@@ -63,11 +65,13 @@
                   <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
-              <b-row align-v="center">
-                <b-navbar toggleable="sm py-0" bg-transparent class="gutter-upcoming row">
-                  <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
-                </b-navbar>
-              </b-row>
+              <div v-if="grantsAndIntAgens.length > 2">
+                <b-row align-v="center">
+                  <b-navbar toggleable="sm py-0" bg-transparent class="gutter-upcoming row">
+                    <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
+                  </b-navbar>
+                </b-row>
+              </div>
             </b-card>
           </b-col>
           <b-col cols="1"></b-col>
