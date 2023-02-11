@@ -489,7 +489,7 @@ async function getClosestGrants({
     // updated to no longer limit result # & specify user association
     const timestamp = (timestampForTest || new Date()).toLocaleDateString('en-US');
     return knex(TABLES.grants_interested)
-        .select('grants.title', 'grants.close_date', 'grants.grant_id', 'interested_codes.status_code')
+        .select('grants.title', 'grants.close_date', 'grants.grant_id')
         .join('grants', 'grants.grant_id', 'grants_interested.grant_id')
         .join('interested_codes', 'grants_interested.interested_code_id', 'interested_codes.id')
         .whereIn('grants_interested.agency_id', agencies.map((a) => a.id))
