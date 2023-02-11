@@ -102,11 +102,8 @@ describe('db', () => {
                 currentPage: 1,
                 timestampForTest: searchTimestamp,
             });
-            // eslint-disable-next-line no-unused-vars
-            result.data.forEach((resultGrant, index) => console.log(resultGrant.grant_id));
-            //  expect(resultGrant.grant_id).to.not.equal('335255')
-            // expect(result.data.length).to.equal(2);
-            // expect(result.data[0].grant_id).to.equal('1');
+            expect(result.data.length).to.equal(2);
+            expect(result.data[0].grant_id).to.equal('1');
         });
     });
 
