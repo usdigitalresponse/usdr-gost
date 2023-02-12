@@ -1,5 +1,8 @@
 const { expect } = require('chai');
+const sinon = require('sinon');
 const { getSessionCookie, makeTestServer } = require('./utils');
+const emailService = require('../../src/lib/email/service-email');
+const email = require('../../src/lib/email');
 
 describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
     const agencies = {
@@ -22,6 +25,12 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
                 cookie: undefined,
             },
         },
+        nonUSDRAdmin: {
+            headers: {
+                'Content-Type': 'application/json',
+                cookie: undefined,
+            },
+        },
         staff: {
             headers: {
                 'Content-Type': 'application/json',
@@ -29,12 +38,23 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
             },
         },
     };
+    const sandbox = sinon.createSandbox();
+
+    beforeEach(() => {
+        sandbox.spy(emailService);
+    });
+
+    afterEach(() => {
+        sinon.restore();
+        sandbox.restore();
+    });
 
     let testServer;
     let fetchApi;
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
+        fetchOptions.nonUSDRAdmin.headers.cookie = await getSessionCookie('joecomeau01@gmail.com');
         fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
 
         testServer = await makeTestServer();
@@ -55,6 +75,23 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
         });
         it('is forbidden for an agency outside this user\'s tenant', async () => {
             const response = await fetchApi('/agencies', agencies.admin.offLimits, fetchOptions.admin);
+            expect(response.statusText).to.equal('Forbidden');
+        });
+    });
+
+    context('GET organizations/:organizationId/agencies/sendDigestEmail', () => {
+        it('kicks off the digest email for usdr admin users', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'sendGrantDigestForAgency', sendFake);
+            const response = await fetchApi('/agencies/sendDigestEmail', agencies.admin.own, fetchOptions.admin);
+            expect(response.statusText).to.equal('OK');
+            expect(sendFake.getCalls()[0].firstArg.id).to.equal(agencies.admin.own);
+            expect(sendFake.calledOnce).to.equal(true);
+        });
+        it('is forbidden for non-usdr admin users', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'sendGrantDigestForAgency', sendFake);
+            const response = await fetchApi('/agencies/sendDigestEmail', agencies.admin.own, fetchOptions.nonUSDRAdmin);
             expect(response.statusText).to.equal('Forbidden');
         });
     });

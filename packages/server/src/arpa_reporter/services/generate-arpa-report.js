@@ -886,6 +886,7 @@ async function generateSubRecipient (records, periodId) {
       record.State_Abbreviated__c,
       zip(record.Zip__c),
       zip4(record.Zip_4__c),
+      record.Country__c,
       capitalizeFirstLetter(record.Registered_in_Sam_gov__c),
       record.Federal_Funds_80_or_More_of_Revenue__c,
       record.Derives_25_Million_or_More_from_Federal__c,

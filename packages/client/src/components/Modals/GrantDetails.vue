@@ -28,10 +28,8 @@
         <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
       </div>
       <br />
-      <b-row>
-        <b-col>
-          <h4>Agency Status</h4>
-        </b-col>
+      <b-row style="padding: 16px;">
+        <h4>Agency Status</h4>
         <b-col class="text-right">
           <b-row v-if="!interested">
             <b-col cols="9">
@@ -50,9 +48,7 @@
                 </b-form-select-option-group>
               </b-form-select>
             </b-col>
-            <b-col cols="3" class="text-right">
-              <b-button variant="outline-success" @click="markGrantAsInterested">Submit</b-button>
-            </b-col>
+            <b-button variant="outline-success" @click="markGrantAsInterested">Submit</b-button>
           </b-row>
           <b-row v-if="interested && interested.interested_status_code !== 'Rejection'&& shouldShowSpocButton">
             <b-col>
@@ -72,21 +68,15 @@
           </b-row>
         </template>
       </b-table>
-      <b-row>
-        <b-col>
-          <h4>Assigned Agencies</h4>
-        </b-col>
-      </b-row>
       <br />
-      <b-row>
-        <b-col>
+      <b-row style="padding: 16px;">
+        <h4>Assigned Agencies</h4>
           <multiselect v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
-            :clear-on-select="false" placeholder="Select agencies" label="name" track-by="id">
+            :clear-on-select="false" placeholder="Select agencies" label="name" track-by="id"
+            style="width: 300px; margin: 0 16px;"
+          >
           </multiselect>
-        </b-col>
-        <b-col>
           <b-button variant="outline-success" @click="assignAgenciesToGrant">Assign</b-button>
-        </b-col>
       </b-row>
       <b-table :items="assignedAgencies" :fields="assignedAgenciesFields">
         <template #cell(actions)="row">

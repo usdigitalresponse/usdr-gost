@@ -75,10 +75,13 @@ const users = {
 
 const keywords = {
     accountancyCovid: {
-        mode: 'autoinsert ALL keywords matches', search_term: 'Covid', notes: '', agency_id: agencies.accountancy.id,
+        mode: 'autoinsert ALL keywords matches', search_term: 'Covid', notes: '', agency_id: agencies.accountancy.id, type: 'include',
+    },
+    accountancyClimate: {
+        mode: 'autoinsert ALL keywords matches', search_term: 'Climate', notes: '', agency_id: agencies.accountancy.id, type: 'exclude',
     },
     fleetServicesTransportation: {
-        mode: 'autoinsert ALL keywords matches', search_term: 'Transportation', notes: '', agency_id: agencies.fleetServices.id,
+        mode: 'autoinsert ALL keywords matches', search_term: 'Transportation', notes: '', agency_id: agencies.fleetServices.id, type: 'include',
     },
 };
 
@@ -133,15 +136,6 @@ const grantsInterested = {
         updated_at: '2022-04-23 12:30:39.531-07',
         interested_code_id: 1,
     },
-    // entry4: {
-    //     agency_id: agencies.accountancy.id,
-    //     grant_id: '335255',
-    //     user_id: users.adminUser.id,
-    //     created_at: '2021-07-24 16:03:53.57025-07',
-    //     updated_at: '2021-08-06 12:35:42.562-07',
-    //     interested_code_id: 0,
-    // },
-
 };
 const grants = {
     earFellowship: {
@@ -269,6 +263,7 @@ module.exports.seed = async (knex) => {
     await knex(TABLES.tenants).insert(Object.values(tenants));
     await knex(TABLES.roles).insert(Object.values(roles));
     await knex(TABLES.agencies).insert(Object.values(agencies));
+    await knex(TABLES.tenants).update({ main_agency_id: agencies.accountancy.id }).where('id', 0);
     await knex(TABLES.users).insert(Object.values(users));
     await knex(TABLES.keywords).insert(Object.values(keywords));
     await knex(TABLES.interested_codes).insert(Object.values(interestedCodes));

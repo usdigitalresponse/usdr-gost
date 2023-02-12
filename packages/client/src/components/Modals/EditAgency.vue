@@ -43,7 +43,7 @@
           label-for="code-input"
         >
           <template slot="label">Code</template>
-          <template slot="description">This should match the Agency Code field in ARPA Reporter spreadsheet uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across agencies.</template>
+          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across agencies.</template>
           <b-form-input
               id="code-input"
               type="text"
@@ -234,11 +234,19 @@ export default {
       if (this.formData.code) {
         this.updateAgencyCode({ agencyId: this.agency.id, ...this.formData });
       }
-      if (this.formData.parentAgency.id && (this.formData.parentAgency.id !== this.agency.id) && (this.formData.parentAgency.parent !== this.agency.id)) {
-        this.updateAgencyParent({ agencyId: this.agency.id, parentId: this.formData.parentAgency.id });
+      let ok = true;
+      if (this.formData.parentAgency.id) {
+        if ((this.formData.parentAgency.id !== this.agency.id) && (this.formData.parentAgency.parent !== this.agency.id)) {
+          this.updateAgencyParent({ agencyId: this.agency.id, parentId: this.formData.parentAgency.id });
+        } else {
+          await this.$bvModal.msgBoxOk('Agency cannot be its own parent.');
+          ok = false;
+        }
       }
-      this.resetModal();
-      this.$bvModal.hide();
+      if (ok) {
+        this.resetModal();
+        this.$bvModal.hide();
+      }
     },
   },
 };

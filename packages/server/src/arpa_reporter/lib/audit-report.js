@@ -1,10 +1,10 @@
 const moment = require('moment')
 const XLSX = require('xlsx')
+const asyncBatch = require('async-batch').default;
 
 const { getPreviousReportingPeriods, getReportingPeriod } = require('../db/reporting-periods')
 const { getCurrentReportingPeriodID } = require('../db/settings')
 const { recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records')
-const { log } = require('./log')
 const { usedForTreasuryExport } = require('../db/uploads')
 const { ARPA_REPORTER_BASE_URL } = require('../environment')
 
@@ -26,7 +26,7 @@ function getUploadLink (domain, id, filename) {
 
 async function generate (requestHost) {
   const periodId = await getCurrentReportingPeriodID()
-  log(`generate(${periodId})`)
+  console.log(`generate(${periodId})`)
 
   const domain = ARPA_REPORTER_BASE_URL ?? requestHost
 
@@ -55,87 +55,102 @@ async function generate (requestHost) {
 async function createObligationSheet (periodId, domain) {
   // select active reporting periods and sort by date
   const reportingPeriods = await getPreviousReportingPeriods(periodId)
+  const inputs = [];
+  reportingPeriods.forEach((r) => inputs.push({ period: r, domain }))
 
   // collect aggregate obligations and expenditures by upload
-  const rows = await Promise.all(
-    reportingPeriods.map(async period => {
-      const uploads = await usedForTreasuryExport(period.id)
-      const records = await recordsForReportingPeriod(period.id)
+  const rows = await asyncBatch(inputs, getAggregatePeriodRow, 2);
+  return rows.flat();
+}
 
-      return await Promise.all(uploads.map(async upload => {
-        const emptyRow = {
-          'Reporting Period': period.name,
-          'Period End Date': new Date(period.end_date),
-          'Upload': getUploadLink(domain, upload.id, upload.filename),
-          [COLUMN.EC_BUDGET]: 0,
-          [COLUMN.EC_TCO]: 0,
-          [COLUMN.EC_TCE]: 0,
-          [COLUMN.EC_CPO]: 0,
-          [COLUMN.EC_CPE]: 0,
-          [COLUMN.E50K_OBLIGATION]: 0,
-          [COLUMN.E50K_TEA]: 0,
-          [COLUMN.E_CPO]: 0,
-          [COLUMN.E_CPE]: 0
-        }
+async function getAggregatePeriodRow (data) {
+  const { period, domain } = data;
+  const uploads = await usedForTreasuryExport(period.id)
+  const records = await recordsForReportingPeriod(period.id)
 
-        const row = records
-          .filter(record => record.upload.id === upload.id)
-          .reduce((row, record) => {
-            switch (record.type) {
-              case 'ec1':
-              case 'ec2':
-              case 'ec3':
-              case 'ec4':
-              case 'ec5':
-              case 'ec7':
-                row[COLUMN.EC_BUDGET] += record.content.Adopted_Budget__c
-                row[COLUMN.EC_TCO] += record.content.Total_Obligations__c
-                row[COLUMN.EC_TCE] += record.content.Total_Expenditures__c
-                row[COLUMN.EC_CPO] += record.content.Current_Period_Obligations__c
-                row[COLUMN.EC_CPE] += record.content.Current_Period_Expenditures__c
-                break
-              case 'awards50k':
-                row[COLUMN.E50K_OBLIGATION] += record.content.Award_Amount__c
-                break
-              case 'expenditures50k':
-                row[COLUMN.E50K_TEA] += record.content.Expenditure_Amount__c
-                break
-              case 'awards':
-                row[COLUMN.E_CPO] += record.content.Quarterly_Obligation_Amt_Aggregates__c
-                row[COLUMN.E_CPE] += record.content.Quarterly_Expenditure_Amt_Aggregates__c
-                break
-            }
-            return row
-          }, emptyRow)
+  const inputs = [];
+  uploads.forEach((u) => inputs.push({ upload: u, period, domain, records }));
 
-        return row
-      }))
-    })
-  )
+  return await asyncBatch(inputs, getAggregatePerUpload, 2);
+}
 
-  return rows.flat()
+async function getAggregatePerUpload (data) {
+  const { upload, period, domain, records } = data;
+  const emptyRow = {
+    'Reporting Period': period.name,
+    'Period End Date': new Date(period.end_date),
+    'Upload': getUploadLink(domain, upload.id, upload.filename),
+    [COLUMN.EC_BUDGET]: 0,
+    [COLUMN.EC_TCO]: 0,
+    [COLUMN.EC_TCE]: 0,
+    [COLUMN.EC_CPO]: 0,
+    [COLUMN.EC_CPE]: 0,
+    [COLUMN.E50K_OBLIGATION]: 0,
+    [COLUMN.E50K_TEA]: 0,
+    [COLUMN.E_CPO]: 0,
+    [COLUMN.E_CPE]: 0
+  }
+
+  const row = records
+    .filter(record => record.upload.id === upload.id)
+    .reduce((row, record) => {
+      switch (record.type) {
+        case 'ec1':
+        case 'ec2':
+        case 'ec3':
+        case 'ec4':
+        case 'ec5':
+        case 'ec7':
+          row[COLUMN.EC_BUDGET] += record.content.Adopted_Budget__c
+          row[COLUMN.EC_TCO] += record.content.Total_Obligations__c
+          row[COLUMN.EC_TCE] += record.content.Total_Expenditures__c
+          row[COLUMN.EC_CPO] += record.content.Current_Period_Obligations__c
+          row[COLUMN.EC_CPE] += record.content.Current_Period_Expenditures__c
+          break
+        case 'awards50k':
+          row[COLUMN.E50K_OBLIGATION] += record.content.Award_Amount__c
+          break
+        case 'expenditures50k':
+          row[COLUMN.E50K_TEA] += record.content.Expenditure_Amount__c
+          break
+        case 'awards':
+          row[COLUMN.E_CPO] += record.content.Quarterly_Obligation_Amt_Aggregates__c
+          row[COLUMN.E_CPE] += record.content.Quarterly_Expenditure_Amt_Aggregates__c
+          break
+      }
+      return row
+    }, emptyRow);
+
+  return row;
 }
 
 async function createProjectSummaries (periodId, domain) {
   const records = await mostRecentProjectRecords(periodId)
 
-  const rows = records.map(async record => {
-    const reportingPeriod = await getReportingPeriod(record.upload.reporting_period_id)
+  const inputs = [];
+  records.forEach((r) => inputs.push({ record: r, domain }));
 
-    return {
-      'Project ID': record.content.Project_Identification_Number__c,
-      'Upload': getUploadLink(domain, record.upload.id, record.upload.filename),
-      'Last Reported': reportingPeriod.name,
-      // TODO: consider also mapping project IDs to export templates?
-      'Adopted Budget': record.content.Adopted_Budget__c,
-      'Total Cumulative Obligations': record.content.Total_Obligations__c,
-      'Total Cumulative Expenditures': record.content.Total_Expenditures__c,
-      'Current Period Obligations': record.content.Current_Period_Obligations__c,
-      'Current Period Expenditures': record.content.Current_Period_Expenditures__c
-    }
-  })
+  const rows = await asyncBatch(inputs, getProjectSummaryRow, 2)
 
-  return await Promise.all(rows)
+  return rows;
+}
+
+async function getProjectSummaryRow(data) {
+  const { record, domain, } = data;
+  const reportingPeriod = await getReportingPeriod(record.upload.reporting_period_id)
+
+  return {
+    'Project ID': record.content.Project_Identification_Number__c,
+    'Upload': getUploadLink(domain, record.upload.id, record.upload.filename),
+    'Last Reported': reportingPeriod.name,
+    // TODO: consider also mapping project IDs to export templates?
+    'Adopted Budget': record.content.Adopted_Budget__c,
+    'Total Cumulative Obligations': record.content.Total_Obligations__c,
+    'Total Cumulative Expenditures': record.content.Total_Expenditures__c,
+    'Current Period Obligations': record.content.Current_Period_Obligations__c,
+    'Current Period Expenditures': record.content.Current_Period_Expenditures__c,
+    'Completion Status': record.content.Completion_Status__c
+  }
 }
 
 module.exports = {

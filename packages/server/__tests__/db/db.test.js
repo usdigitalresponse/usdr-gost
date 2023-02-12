@@ -4,16 +4,11 @@ const knex = require('../../src/db/connection');
 const db = require('../../src/db');
 const { TABLES } = require('../../src/db/constants');
 const fixtures = require('./seeds/fixtures');
+const emailConstants = require('../../src/lib/email/constants');
 
 describe('db', () => {
     before(async () => {
         await fixtures.seed(db.knex);
-        // await db.knex.migrate.rollback();
-        // await db.knex.raw('DROP DATABASE IF EXISTS usdr_grants_test');
-        // await db.knex.raw('CREATE DATABASE usdr_grants_test');
-        // await db.knex.migrate.forceFreeMigrationsLock();
-        // await db.knex.migrate.latest();
-        // await db.knex.seed.run();
     });
 
     after(async () => {
@@ -52,7 +47,7 @@ describe('db', () => {
         it('gets total grant count matching agency criteria', async () => {
             const agencyCriteria = {
                 eligibilityCodes: ['11'],
-                keywords: ['Covid'],
+                includeKeywords: ['Covid'],
             };
             const result = await db.getTotalGrants({ agencyCriteria });
             expect(result).to.equal('1');
@@ -68,7 +63,7 @@ describe('db', () => {
 
         it('gets total grant count matching keywords only', async () => {
             const agencyCriteria = {
-                keywords: ['earth sciences'],
+                includeKeywords: ['earth sciences'],
             };
             const result = await db.getTotalGrants({ agencyCriteria });
             expect(result).to.equal('1');
@@ -120,8 +115,10 @@ describe('db', () => {
             expect(result).to.have.property('eligibilityCodes').with.lengthOf(2);
             expect(result.eligibilityCodes[0])
                 .to.equal(fixtures.agencyEligibilityCodes.accountancyNative.code);
-            expect(result).to.have.property('keywords').with.lengthOf(1);
-            expect(result.keywords[0]).to.equal(fixtures.keywords.accountancyCovid.search_term);
+            expect(result).to.have.property('includeKeywords').with.lengthOf(1);
+            expect(result).to.have.property('excludeKeywords').with.lengthOf(1);
+            expect(result.includeKeywords[0]).to.equal(fixtures.keywords.accountancyCovid.search_term);
+            expect(result.excludeKeywords[0]).to.equal(fixtures.keywords.accountancyClimate.search_term);
         });
     });
 
@@ -217,12 +214,17 @@ describe('db', () => {
     });
 
     context('getAgenciesSubscribedToDigest', () => {
-        it('returns agencies with keywords setup', async () => {
+        beforeEach(() => {
+            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            this.clock = this.clockFn('2021-08-06');
+        });
+        afterEach(() => {
+            this.clock.restore();
+        });
+        it('returns agencies with keywords and eligibility codes setup', async () => {
             const result = await db.getAgenciesSubscribedToDigest();
-            expect(result.length).to.equal(2);
-            // Ensures 'State Board of Sub Accountancy' is not part of the list since it does not have keywords.
+            expect(result.length).to.equal(1);
             expect(result[0].name).to.equal('State Board of Accountancy');
-            expect(result[1].name).to.equal('Administration: Fleet Services Division');
         });
     });
 
@@ -246,6 +248,184 @@ describe('db', () => {
             await knex(TABLES.grants).insert(Object.values([newGrant]));
             const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
             expect(result.length).to.equal(1);
+        });
+    });
+
+    context('userEmailSubscriptionPreferences', () => {
+        beforeEach(() => {
+            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            this.clock = this.clockFn('2022-06-22');
+        });
+        afterEach(() => {
+            this.clock.restore();
+        });
+        it('gets default email subscription preferences if none exist', async () => {
+            const result = await db.getUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.agencies.accountancy.id);
+            expect(result).to.have.all.keys(...Object.values(emailConstants.notificationType));
+            const resultSet = new Set(Object.values(result));
+            expect(resultSet.size).to.equal(1);
+            expect(resultSet.has(emailConstants.emailSubscriptionStatus.subscribed)).to.equal(true);
+        });
+        it('gets user preferences if custom email subscriptions exist', async () => {
+            const preferences = [
+                {
+                    user_id: fixtures.users.adminUser.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    notification_type: emailConstants.notificationType.grantAssignment,
+                    status: emailConstants.emailSubscriptionStatus.subscribed,
+                },
+                {
+                    user_id: fixtures.users.adminUser.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    notification_type: emailConstants.notificationType.grantDigest,
+                    status: emailConstants.emailSubscriptionStatus.subscribed,
+                },
+                {
+                    user_id: fixtures.users.adminUser.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    notification_type: emailConstants.notificationType.grantInterest,
+                    status: emailConstants.emailSubscriptionStatus.subscribed,
+                },
+            ];
+            await knex('email_subscriptions').insert(preferences);
+            const result = await db.getUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.agencies.accountancy.id);
+            expect(result).to.have.all.keys(...Object.values(emailConstants.notificationType));
+            const resultSet = new Set(Object.values(result));
+            expect(resultSet.size).to.equal(1);
+            expect(resultSet.has(emailConstants.emailSubscriptionStatus.subscribed)).to.equal(true);
+        });
+        it('sets default email subscription preferences if none exist', async () => {
+            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.agencies.accountancy.id, {});
+            const result = await db.getUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.agencies.accountancy.id);
+            expect(result).to.have.all.keys(...Object.values(emailConstants.notificationType));
+            const resultSet = new Set(Object.values(result));
+            expect(resultSet.size).to.equal(1);
+            expect(resultSet.has(emailConstants.emailSubscriptionStatus.subscribed)).to.equal(true);
+        });
+        it('sets custom email subscription preferences', async () => {
+            await db.setUserEmailSubscriptionPreference(
+                fixtures.users.adminUser.id,
+                fixtures.agencies.accountancy.id,
+                {
+                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                },
+            );
+            const result = await db.getUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.agencies.accountancy.id);
+            expect(result).to.have.all.keys(...Object.values(emailConstants.notificationType));
+            expect(result[emailConstants.notificationType.grantAssignment]).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            const resultSet = new Set(Object.values(result));
+            expect(resultSet.size).to.equal(2);
+            expect(resultSet.has(emailConstants.emailSubscriptionStatus.subscribed)).to.equal(true);
+            expect(resultSet.has(emailConstants.emailSubscriptionStatus.unsubscribed)).to.equal(true);
+        });
+        it('raises error if unknown notification type is supplied', async () => {
+            let expectedError = '';
+
+            const test = async () => {
+                try {
+                    await db.setUserEmailSubscriptionPreference(
+                        fixtures.users.adminUser.id,
+                        fixtures.agencies.accountancy.id,
+                        {
+                            UNKNOWN: emailConstants.emailSubscriptionStatus.subscribed,
+                        },
+                    );
+                } catch (e) {
+                    if (e instanceof Error) {
+                        expectedError = e;
+                    }
+                }
+            };
+
+            await test();
+
+            expect(expectedError instanceof Error).to.equal(true);
+        });
+        it('raises error if unknown subscription status is supplied', async () => {
+            let expectedError = '';
+
+            const test = async () => {
+                try {
+                    await db.setUserEmailSubscriptionPreference(
+                        fixtures.users.adminUser.id,
+                        fixtures.agencies.accountancy.id,
+                        {
+                            [emailConstants.notificationType.grantAssignment]: 'UNKNOWN',
+                        },
+                    );
+                } catch (e) {
+                    if (e instanceof Error) {
+                        expectedError = e;
+                    }
+                }
+            };
+
+            await test();
+
+            expect(expectedError instanceof Error).to.equal(true);
+        });
+        it('default subscribes all users to a notification if no rows exist', async () => {
+            await knex('email_subscriptions').del();
+            const assignmentResult = await db.getSubscribersForNotification(fixtures.agencies.accountancy.id, emailConstants.notificationType.grantAssignment);
+            const assignmentSubscribers = assignmentResult.map((r) => r.email);
+            const digestResult = await db.getSubscribersForNotification(fixtures.agencies.accountancy.id, emailConstants.notificationType.grantDigest);
+            const digestSubscribers = digestResult.map((r) => r.email);
+            const interestResult = await db.getSubscribersForNotification(fixtures.agencies.accountancy.id, emailConstants.notificationType.grantInterest);
+            const interestSubscribers = interestResult.map((r) => r.email);
+
+            expect(assignmentResult.length).to.equal(2);
+            expect(assignmentSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
+            expect(assignmentSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
+
+            expect(digestResult.length).to.equal(2);
+            expect(digestSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
+            expect(digestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
+
+            expect(interestResult.length).to.equal(2);
+            expect(interestSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
+            expect(interestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
+        });
+        it('gets subscribed users for an agency', async () => {
+            await db.setUserEmailSubscriptionPreference(
+                fixtures.users.adminUser.id,
+                fixtures.agencies.accountancy.id,
+                {
+                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                },
+            );
+            await db.setUserEmailSubscriptionPreference(
+                fixtures.users.staffUser.id,
+                fixtures.agencies.accountancy.id,
+                {
+                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                    [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                },
+            );
+            const assignmentResult = await db.getSubscribersForNotification(
+                fixtures.agencies.accountancy.id,
+                emailConstants.notificationType.grantAssignment,
+            );
+            const assignmentSubscribers = assignmentResult.map((r) => r.email);
+            const digestResult = await db.getSubscribersForNotification(
+                fixtures.agencies.accountancy.id,
+                emailConstants.notificationType.grantDigest,
+            );
+            const digestSubscribers = digestResult.map((r) => r.email);
+            const interestResult = await db.getSubscribersForNotification(
+                fixtures.agencies.accountancy.id,
+                emailConstants.notificationType.grantInterest,
+            );
+            expect(assignmentResult.length).to.equal(2);
+            expect(assignmentSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
+            expect(assignmentSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
+
+            expect(digestResult.length).to.equal(1);
+            expect(digestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
+
+            expect(interestResult.length).to.equal(0);
         });
     });
 });

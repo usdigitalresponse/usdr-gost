@@ -1,0 +1,28 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "serve",
+			"type": "npm",
+			"script": "serve",
+			"isBackground": true,
+			"problemMatcher": [{
+				"base": "$tsc-watch",
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "Starting development server",
+					"endsPattern": "Compiled successfully"
+				}
+			}],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "kill debugger",
+			"type": "shell",
+			"command": "lsof -t -i tcp:8080 | xargs kill -9"
+		}
+	]
+}

@@ -1,7 +1,7 @@
 
 <template>
   <div class="upload">
-    <h1>Submit Spreadsheet</h1>
+    <h1>Submit Workbook</h1>
 
     <div>
       <div v-if="error" class="mt-3 alert alert-danger" role="alert">
