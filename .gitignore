@@ -114,10 +114,5 @@ dist
 
 .DS_Store
 
-packages/server/src/static/forms/generated
-
-# ARPA Reporter uploads
-packages/server/data
-
 # Locally-persisted postgres development data
 docker/postgres/persistence

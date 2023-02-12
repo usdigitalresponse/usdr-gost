@@ -10,6 +10,7 @@ router.post('/', requireUser, async (req, res) => {
         mode: '',
         notes: req.body.notes,
         agency_id: req.session.selectedAgency,
+        type: req.body.type,
     });
 
     res.json(result);
@@ -37,7 +38,6 @@ router.delete('/:keywordId', requireUser, async (req, res) => {
 router.get('/', requireUser, async (req, res) => {
     const keywords = await db.getAgencyKeywords(req.session.selectedAgency);
     keywords.forEach((kw) => {
-        delete kw.created_at;
         delete kw.updated_at;
     });
     res.json(keywords);
