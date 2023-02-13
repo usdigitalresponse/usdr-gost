@@ -17,10 +17,10 @@ function joinDateComponents(theDateTime, options, separator) {
     return options.map(format).join(separator);
 }
 
-function daysBack(days) {
+function daysAhead(days) {
     const options = [{ year: 'numeric' }, { month: 'numeric' }, { day: 'numeric' }];
     const theDate = new Date();
-    theDate.setDate(theDate.getDate() - days);
+    theDate.setDate(theDate.getDate() + days);
     return joinDateComponents(theDate, options, '-');
 }
 
@@ -83,7 +83,7 @@ const grants = [
         title: 'Test Grant 666999',
         cfda_list: '47.050',
         open_date: '2021-09-04',
-        close_date: daysBack(3),
+        close_date: daysAhead(3),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -105,7 +105,7 @@ const grants = [
         title: 'Test Grant 0',
         cfda_list: '93.382',
         open_date: '2021-08-05',
-        close_date: daysBack(4),
+        close_date: daysAhead(4),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -127,7 +127,7 @@ const grants = [
         title: 'Community Health Aide Program:  County Planning &amp; Implementation',
         cfda_list: '93.382',
         open_date: '2021-08-05',
-        close_date: daysBack(5),
+        close_date: daysAhead(5),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -149,7 +149,7 @@ const grants = [
         title: 'Test Grant 666666',
         cfda_list: '47.050',
         open_date: '2021-08-11',
-        close_date: daysBack(6),
+        close_date: daysAhead(6),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -708,26 +708,6 @@ const assignedGrantsAgency = [
         grant_id: grants[1].grant_id,
         agency_id: nevada,
     },
-    {
-        grant_id: grants[2].grant_id,
-        agency_id: usdr,
-        created_at: daysBack(3),
-    },
-    {
-        grant_id: grants[3].grant_id,
-        agency_id: usdr,
-        created_at: daysBack(4),
-    },
-    {
-        grant_id: grants[4].grant_id,
-        agency_id: usdr,
-        created_at: daysBack(5),
-    },
-    {
-        grant_id: grants[5].grant_id,
-        agency_id: usdr,
-        created_at: daysBack(6),
-    },
 ];
 
 const grantsInterested = [
@@ -754,32 +734,32 @@ const grantsInterested = [
         grant_id: grants[2].grant_id,
         agency_id: usdr,
         user_id: 1,
-        created_at: daysBack(3),
-        updated_at: daysBack(3),
+        created_at: daysAhead(3),
+        updated_at: daysAhead(3),
         interested_code_id: interestedId('Will Apply'),
     },
     {
         grant_id: grants[3].grant_id,
         agency_id: usdr,
         user_id: 1,
-        created_at: daysBack(4),
-        updated_at: daysBack(4),
+        created_at: daysAhead(4),
+        updated_at: daysAhead(4),
         interested_code_id: interestedId('Will Support'),
     },
     {
         grant_id: grants[4].grant_id,
         agency_id: usdr,
         user_id: 1,
-        created_at: daysBack(5),
-        updated_at: daysBack(5),
+        created_at: daysAhead(5),
+        updated_at: daysAhead(5),
         interested_code_id: interestedId('Will Apply'),
     },
     {
         grant_id: grants[5].grant_id,
         agency_id: usdr,
         user_id: 1,
-        created_at: daysBack(6),
-        updated_at: daysBack(6),
+        created_at: daysAhead(6),
+        updated_at: daysAhead(6),
         interested_code_id: interestedId('Will Support'),
     },
 ];
