@@ -25,7 +25,7 @@ jobs:
   select_target_environment:
     uses: "./.github/workflows/select-target-environment.yml"
     with:
-      ref_name: "{{ github.ref_name }}"
+      ref_name: "${{ github.ref_name }}"
 
   deploy_terraform:
     name: Deploy terraform
