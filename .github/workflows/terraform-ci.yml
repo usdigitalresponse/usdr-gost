@@ -3,9 +3,9 @@ name: Terraform CI
 on:
   pull_request:
     paths:
-      - 'infrastructure/**'
+      - 'terraform/**'
       - '.github/workflows/terraform-ci.yml'
-      - '.github/workflows/terraform-cd.yml'
+      - '.github/workflows/deployment.yml'
 
 permissions:
   pull-requests: write
