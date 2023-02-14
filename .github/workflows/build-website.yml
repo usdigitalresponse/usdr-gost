@@ -41,13 +41,13 @@ jobs:
         working-directory: ${{ env.BUILD_DIR }}
         run: yarn build
       - name: Upload build artifact
-        if: ${{ github.event_name != 'pull_request' }}
+        # if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-artifact@v3
         with:
           name: website-${ github.sha }
           path: ${{ env.BUILD_DIR }}/dist
       - name: Deploy
-        if: ${{ github.event_name != 'pull_request' }}
+        # if: ${{ github.event_name != 'pull_request' }}
         uses: "./.github/workflows/deployment.yml"
         with:
           ref_name: ${ github.ref_name }
