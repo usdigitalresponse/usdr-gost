@@ -29,7 +29,7 @@ data "aws_ssm_parameter" "public_dns_zone_id" {
 
 module "website" {
   enabled                  = var.website_enabled
-  source                   = "modules/gost_website"
+  source                   = "./modules/gost_website"
   namespace                = var.namespace
   permissions_boundary_arn = data.aws_iam_policy.permissions_boundary.arn
 
@@ -77,7 +77,7 @@ resource "aws_ecs_cluster_capacity_providers" "default" {
 
 module "api" {
   enabled                  = var.api_enabled
-  source                   = "modules/gost_api"
+  source                   = "./modules/gost_api"
   namespace                = var.namespace
   permissions_boundary_arn = data.aws_iam_policy.permissions_boundary.arn
 
@@ -123,7 +123,7 @@ module "api" {
 
 module "postgres" {
   enabled                  = var.postgres_enabled
-  source                   = "modules/gost_postgres"
+  source                   = "./modules/gost_postgres"
   namespace                = var.namespace
   permissions_boundary_arn = data.aws_iam_policy.permissions_boundary.arn
 
