@@ -14,7 +14,8 @@ on:
         required: false
 
 concurrency:
-  group: ${{ github.workflow_ref }}
+  group: deploy@${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -38,6 +39,9 @@ jobs:
     needs:
       - checkout
       - select_target_environment
+    concurrency:
+      group: deploy-${{ needs.select_target_environment.outputs.selected }}
+      cancel-in-progress: false
     environment: ${{ needs.select_target_environment.outputs.selected }}
     env:
       TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache

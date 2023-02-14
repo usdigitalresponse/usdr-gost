@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  build_website_artifact:
+  build:
     name: Build website deployment artifact
     runs-on: ubuntu-latest
     permissions:
@@ -49,6 +49,8 @@ jobs:
 
   deploy:
     # if: ${{ github.event_name != 'pull_request' }}
+    needs:
+      - build
     uses: "./.github/workflows/deployment.yml"
     with:
       ref_name: ${{ github.ref_name }}

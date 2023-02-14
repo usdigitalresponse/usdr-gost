@@ -72,6 +72,8 @@ jobs:
 
   deploy:
     if: ${{ github.event_name != 'pull_request' }}
+    needs:
+      - build-and-push
     uses: "./.github/workflows/deployment.yml"
     with:
       ref_name: ${{ github.ref_name }}
