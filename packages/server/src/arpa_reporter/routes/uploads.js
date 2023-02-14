@@ -39,7 +39,8 @@ router.post(
       const upload = await persistUpload({
         user: req.session.user,
         filename: req.file.originalname,
-        buffer: req.file.buffer
+        buffer: req.file.buffer,
+        body: req.body
       })
 
       res.status(200).json({ upload, error: null })

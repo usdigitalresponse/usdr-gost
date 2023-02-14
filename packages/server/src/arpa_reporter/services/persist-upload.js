@@ -26,7 +26,7 @@ const jsonFSName = (upload) => {
   return path.join(TEMP_DIR, upload.id[0], filename)
 }
 
-async function persistUpload ({ filename, user, buffer }) {
+async function persistUpload ({ filename, user, buffer, body }) {
   // let's make sure we can actually read the supplied buffer (it's a valid spreadsheet)
   try {
     await XLSX.read(buffer, { type: 'buffer' })
