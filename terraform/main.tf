@@ -104,8 +104,9 @@ module "api" {
   log_retention = var.api_log_retention_in_days
 
   # Secrets
-  ssm_path_prefix               = var.ssm_path_prefix
-  datadog_api_key_parameter_arn = var.api_datadog_api_key_parameter_arn
+  ssm_path_prefix                      = var.ssm_path_prefix
+  datadog_api_key_parameter_arn        = var.api_datadog_api_key_parameter_arn
+  ssm_deployment_parameter_path_prefix = "${var.ssm_path_prefix}/deployment-config/api"
 
   # Postgres
   rds_db_connect_resources = module.postgres.rds_db_connect_resources_list

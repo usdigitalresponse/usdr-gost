@@ -40,13 +40,26 @@ variable "default_desired_task_count" {
 
 variable "ssm_path_prefix" {
   type        = string
-  description = "Base path for all managed SSM parameters."
+  description = "Base path for all managed SSM parameters used by the service."
   validation {
     condition     = startswith(var.ssm_path_prefix, "/")
     error_message = "Value must start with a forward slash."
   }
   validation {
     condition     = !endswith(var.ssm_path_prefix, "/")
+    error_message = "Value cannot end with a trailing slash."
+  }
+}
+
+variable "ssm_deployment_parameter_path_prefix" {
+  description = "Base path for all SSM parameters read during deployment."
+  type        = string
+  validation {
+    condition     = startswith(var.ssm_deployment_parameter_path_prefix, "/")
+    error_message = "Value must start with a forward slash."
+  }
+  validation {
+    condition     = !endswith(var.ssm_deployment_parameter_path_prefix, "/")
     error_message = "Value cannot end with a trailing slash."
   }
 }
