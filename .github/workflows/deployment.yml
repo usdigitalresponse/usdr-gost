@@ -96,7 +96,7 @@ jobs:
 
   deploy_website:
     name: Deploy website
-    if: inputs.website_artifact != ""
+    if: inputs.website_artifact != ''
     needs:
       - deploy_terraform
     runs-on: ubuntu-latest
