@@ -11,5 +11,5 @@ resource "aws_ssm_parameter" "deploy_service_name" {
   description = "Name of the ECS service to specify when forcing new deployments for the API."
   type        = "SecureString"
   key_id      = data.aws_kms_key.ssm.arn
-  value       = aws_ecs_service.default.name
+  value       = join("", aws_ecs_service.default.*.name)
 }
