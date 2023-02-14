@@ -77,7 +77,7 @@ export default {
 
       const formData = new FormData();
       formData.append('spreadsheet', file);
-      formData.append('notes', 'NOTE_CONTENT');
+      formData.append('notes', '<b>TEST & STRING!</b>');
 
       try {
         const resp = await postForm('/api/uploads', formData);
