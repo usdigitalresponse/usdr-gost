@@ -36,7 +36,6 @@ module "website" {
   dns_zone_id                          = data.aws_ssm_parameter.public_dns_zone_id.value
   domain_name                          = var.website_domain_name
   gost_api_domain                      = var.api_domain_name
-  github_deployment                    = local.github_deployment_settings
   ssm_deployment_parameter_path_prefix = "${var.ssm_path_prefix}/deployment-config/website"
 }
 

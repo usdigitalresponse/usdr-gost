@@ -82,15 +82,3 @@ variable "origin_config_filename" {
     error_message = "Filename must be a JavaScript file."
   }
 }
-
-variable "github_deployment" {
-  description = "Options for enabling Github Actions to deploy the Website."
-  default     = null
-  type = object({
-    organization = string
-    repository   = string
-    branches     = list(string)
-    all_branches = bool
-    environments = list(string)
-  })
-}

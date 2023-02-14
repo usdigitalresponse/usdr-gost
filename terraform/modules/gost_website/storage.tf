@@ -95,7 +95,6 @@ module "origin_bucket" {
   allow_encrypted_uploads_only = true
   source_policy_documents = [
     module.cloudfront_to_origin_bucket_access_policy.json,
-    module.github_to_origin_bucket_access_policy.json,
   ]
 }
 
