@@ -63,7 +63,7 @@ jobs:
           role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config="environments/${{ needs.select_deployment_environment.outputs.selected }}/config.tf"
+        run: terraform init -backend-config="${{ needs.select_target_environment.outputs.selected }}.s3.tfbackend"
         working-directory: terraform
       - name: Terraform Validate
         id: validate
@@ -72,7 +72,7 @@ jobs:
       - name: Terraform Apply
         if: steps.validate.outcome == 'success'
         id: apply
-        run: terraform apply -auto-approve -input=false -no-color -var-file="${{ needs.select_deployment_environment.outputs.selected }}.tfvars"
+        run: terraform apply -auto-approve -input=false -no-color -var-file="${{ needs.select_target_environment.outputs.selected }}.tfvars"
         working-directory: terraform
 
   deploy_api:
