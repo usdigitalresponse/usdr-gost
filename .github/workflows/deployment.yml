@@ -1,0 +1,119 @@
+name: Deploy GOST
+
+on:
+  workflow_call:
+    inputs:
+      ref_name:
+        type: string
+        required: true
+      website_artifact:
+        type: string
+        required: false
+      deploy_api:
+        type: boolean
+        required: false
+
+concurrency:
+  group: ${{ github.workflow_ref }}
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  checkout:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+  select_target_environment:
+    uses: "./.github/workflows/select-target-environment.yml"
+    with:
+      ref_name: "{{ github.ref_name }}"
+
+  deploy_terraform:
+    name: Deploy terraform
+    runs-on: ubuntu-latest
+    needs:
+      - checkout
+      - select_target_environment
+    environment: ${{ needs.select_target_environment.outputs.selected }}
+    env:
+      TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
+    steps:
+      - name: Get project TF version
+        id: get_version
+        run: echo "TF_VERSION=$(cat .terraform-version | tr -d '[:space:]')" | tee -a $GITHUB_OUTPUT
+        working-directory: terraform
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ steps.get_version.outputs.TF_VERSION }}
+      - name: Ensure Terraform plugin cache exists
+        run: mkdir -p $TF_PLUGIN_CACHE_DIR
+      - name: Save/Restore Terraform plugin cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config="environments/${{ needs.select_deployment_environment.outputs.selected }}/config.tf"
+        working-directory: terraform
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: terraform
+      - name: Terraform Apply
+        if: steps.validate.outcome == 'success'
+        id: apply
+        run: terraform apply -auto-approve -input=false -no-color -var-file="${{ needs.select_deployment_environment.outputs.selected }}.tfvars"
+        working-directory: terraform
+
+  deploy_api:
+    name: Deploy API
+    if: inputs.deploy_api
+    needs:
+      - deploy_terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get deployment parameters
+        uses: dkershner6/aws-ssm-getparameters-action@v1
+        with:
+          withDecryption: "true"
+          parameterPairs: |
+            /usdr/gost/deployment-config/api/cluster-name = ECS_CLUSTER_NAME,
+            /usdr/gost/deployment-config/api/service-name = ECS_SERVICE_NAME
+      - name: Update ECS service
+        run: aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --force-new-deployment
+
+  deploy_website:
+    name: Deploy website
+    if: inputs.website_artifact != ""
+    needs:
+      - deploy_terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get deployment parameters
+        uses: dkershner6/aws-ssm-getparameters-action@v1
+        with:
+          withDecryption: "true"
+          parameterPairs: |
+            /usdr/gost/deployment-config/website/s3-uri = S3_DEPLOYMENT_URI,
+            /usdr/gost/deployment-config/website/distribution-id = CLOUDFRONT_DISTRIBUTION_ID
+      - name: Download build
+        uses: actions/download-artifact@v3
+        with:
+          name: ${ inputs.website_artifact }
+          path: dist
+      - name: Upload artifact to S3
+        run: aws s3 sync ./dist ${{ env.S3_DEPLOYMENT_URI }} --sse --delete --no-progress
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --paths "/*" --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}
