@@ -22,12 +22,6 @@ permissions:
   id-token: write
 
 jobs:
-  checkout:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
-
   select_target_environment:
     uses: "./.github/workflows/select-target-environment.yml"
     with:
@@ -37,7 +31,6 @@ jobs:
     name: Deploy terraform
     runs-on: ubuntu-latest
     needs:
-      - checkout
       - select_target_environment
     concurrency:
       group: deploy-${{ needs.select_target_environment.outputs.selected }}
@@ -46,6 +39,7 @@ jobs:
     env:
       TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
     steps:
+      - uses: actions/checkout@v3
       - name: Get project TF version
         id: get_version
         run: echo "TF_VERSION=$(cat .terraform-version | tr -d '[:space:]')" | tee -a $GITHUB_OUTPUT
