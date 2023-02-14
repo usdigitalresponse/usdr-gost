@@ -46,9 +46,10 @@ jobs:
         with:
           name: website-${ github.sha }
           path: ${{ env.BUILD_DIR }}/dist
-      - name: Deploy
-        # if: ${{ github.event_name != 'pull_request' }}
-        uses: "./.github/workflows/deployment.yml"
-        with:
-          ref_name: ${ github.ref_name }
-          website_artifact: website-${ github.sha }
+
+  deploy:
+    # if: ${{ github.event_name != 'pull_request' }}
+    uses: "./.github/workflows/deployment.yml"
+    with:
+      ref_name: ${{ github.ref_name }}
+      website_artifact: website-${{ github.sha }}

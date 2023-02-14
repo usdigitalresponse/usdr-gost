@@ -69,9 +69,10 @@ jobs:
             GIT_COMMIT=${{ github.sha }}
             GIT_REF=${{ github.ref }}
             TIMESTAMP=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
-      - name: Deploy
-        if: ${{ github.event_name != 'pull_request' }}
-        uses: "./.github/workflows/deployment.yml"
-        with:
-          ref_name: ${ github.ref_name }
-          deploy_api: true
+
+  deploy:
+    if: ${{ github.event_name != 'pull_request' }}
+    uses: "./.github/workflows/deployment.yml"
+    with:
+      ref_name: ${{ github.ref_name }}
+      deploy_api: true
