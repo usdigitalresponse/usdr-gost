@@ -8,6 +8,8 @@ on:
       - main
     paths:
       - ".github/workflows/build-website.yml"
+      - ".github/workflows/select-target-environment.yml"
+      - ".github/workflows/deployment.yml"
       - "packages/client/**"
       - ".node-version"
       - ".nvmrc"
@@ -15,7 +17,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow_ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build_website_artifact:
@@ -44,61 +46,9 @@ jobs:
         with:
           name: website-${ github.sha }
           path: ${{ env.BUILD_DIR }}/dist
-
-  select_website_deployment_environment:
-    name: Select deployment environment
-    runs-on: ubuntu-latest
-    steps:
-      - uses: kanga333/variable-mapper@master
+      - name: Deploy
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: "./.github/workflows/deployment.yml"
         with:
-          key: "${{ github.ref_name }}"
-          map: |
-            {
-              "_staging": {
-                "selected": "website-staging"
-              },
-              "main": {
-                "selected": "website-production"
-              },
-              ".*": {
-                "selected": "website-sandbox"
-              }
-            }
-          export_to: log,env
-          mode: first_match
-    outputs:
-      selected: ${{ env.selected }}
-
-  deploy:
-    name: Deploy website
-    if: github.event_name != 'pull_request'
-    needs:
-      - build_website_artifact
-      - select_website_deployment_environment
-    environment: ${{ needs.select_website_deployment_environment.outputs.selected }}
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: us-west-2
-          role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
-      - name: Get deployment parameters
-        uses: dkershner6/aws-ssm-getparameters-action@v1
-        with:
-          withDecryption: "true"
-          parameterPairs: |
-            /usdr/gost/deployment-config/website/s3-uri = S3_DEPLOYMENT_URI,
-            /usdr/gost/deployment-config/website/distribution-id = CLOUDFRONT_DISTRIBUTION_ID
-      - name: Download build
-        uses: actions/download-artifact@v3
-        with:
-          name: website-${ github.sha }
-          path: dist
-      - name: Upload artifact to S3
-        run: aws s3 sync ./dist ${{ env.S3_DEPLOYMENT_URI }} --sse --delete --no-progress
-      - name: Invalidate CloudFront cache
-        run: aws cloudfront create-invalidation --paths "/*" --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}
+          ref_name: ${ github.ref_name }
+          website_artifact: website-${ github.sha }
