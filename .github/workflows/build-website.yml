@@ -53,6 +53,9 @@ jobs:
 
   deploy:
     # if: ${{ github.event_name != 'pull_request' }}
+    permissions:
+      contents: read
+      id-token: write
     needs:
       - build
     uses: "./.github/workflows/deployment.yml"
