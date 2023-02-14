@@ -33,7 +33,11 @@
         </div>
       </div>
 
-      <StandardForm :initialRecord="JSON.parse(recipient.record)" :cols="cols" @save="updateRecipient" @reset="loadRecipient" />
+      <StandardForm 
+        :fields="fields"
+        @submit="updateRecipient"
+        @reset="loadRecipient"
+      />
     </div>
   </div>
 </template>
@@ -60,18 +64,20 @@ export default {
     createdAtStr: function () {
       return this.recipient && moment(this.recipient.created_at).local().format('MMM Do YYYY, h:mm:ss A')
     },
-    cols: function () {
+    fields: function () {
+      const initialRecord = JSON.parse(recipient.record);
+        
       return Object.values(this.rules).map(rule => {
         const selectItems = [{ label: '', value: null }].concat(
-          rule.listVals.map(val => ({ label: val, value: val }))
+          rule.listVals.map(val => ({ text: val, value: val }))
         )
 
         return {
+          name: rule.key,
           label: rule.humanColName,
-          field: rule.key,
           readonly: rule.key === 'Unique_Entity_Identifier__c' || rule.key === 'EIN__c',
           required: rule.required === true,
-          selectItems: rule.listVals.length ? selectItems : null
+          options: rule.listVals.length ? selectItems : null
         }
       })
     }

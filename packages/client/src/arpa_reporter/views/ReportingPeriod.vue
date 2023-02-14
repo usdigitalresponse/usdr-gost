@@ -7,15 +7,20 @@
     </div>
 
     <div v-else>
-      <StandardForm :initialRecord="reportingPeriod" :cols="cols" @save="onSave" @reset="onReset" :key="formKey" />
+      <StandardForm 
+        :fields="fields" 
+        @submit="onSubmit"
+        @reset="onReset" 
+        :key="formKey" 
+      />
     </div>
   </div>
 </template>
 
 <script>
-import StandardForm from '../components/StandardForm'
-
-import { post } from '../store/index'
+import StandardForm from '../components/StandardForm';
+import { required } from 'vuelidate/lib/validators';
+import { post } from '../store/index';
 
 export default {
   name: 'ReportingPeriod',
@@ -33,18 +38,53 @@ export default {
         .find(p => p.id === Number(this.reportingPeriodId))
       return fromStore || null
     },
-    cols: function () {
+    fields: function () {
+      const now = new Date()
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
       return [
-        { field: 'id', label: 'ID', readonly: true },
-        { field: 'name', label: 'Period Name', required: true },
-        { field: 'start_date', label: 'Reporting Period Start Date', required: true, inputType: 'date' },
-        { field: 'end_date', label: 'Reporting Period End Date', required: true, inputType: 'date' },
-        { field: 'template_filename', label: 'Upload Template Name', readonly: true }
+        { 
+          type: 'text',
+          label: 'ID',
+          name: 'id',
+          validationRules: [],
+          initialValue: this.reportingPeriod.id,
+          readonly: true
+        },
+        { 
+          type: 'text',
+          label: 'Period Name',
+          name: 'name',
+          validationRules: {required},
+          initialValue: this.reportingPeriod.name
+        },
+        { 
+          type: 'date',
+          label: 'Reporting Period Start Date',
+          name: 'start_date',
+          validationRules: {required},
+          initialValue: this.reportingPeriod.start_date || today
+        },
+        { 
+          type: 'date',
+          label: 'Reporting Period End Date',
+          name: 'end_date',
+          validationRules: {required},
+          initialValue: this.reportingPeriod.end_date || today
+        },
+        { 
+          type: 'text',
+          label: 'Upload Template Name',
+          name: 'template_filename',
+          validationRules: [],
+          initialValue: this.reportingPeriod.template_filename,
+          readonly: true
+        }
       ]
     }
   },
   methods: {
-    onSave: async function (updatedPeriod) {
+    onSubmit: async function (updatedPeriod) {
       try {
         const result = await post('/api/reporting_periods', { reportingPeriod: updatedPeriod })
         if (result.error) throw new Error(result.error)

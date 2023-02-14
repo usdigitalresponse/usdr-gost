@@ -1,127 +1,207 @@
 <template>
   <div>
-    <div class="form-group row" v-for="col in cols" :key="col.field">
-      <label :for="col.field" class="col-sm-2 col-form-label">{{ col.label }}</label>
-
-      <div class="col-sm-10" >
-        <select
-          v-if="col.selectItems && col.selectItems.length > 0"
-          class="form-control"
-          :id="col.field"
-          v-model="record[col.field]"
-          :readonly="col.readonly"
-          :class="classesForField(col.field)"
-          :aria-describedby="`feedback-${col.field}`"
-          >
-          <option v-for="opt in col.selectItems" :key="opt.value" :value="opt.value">
-            {{ opt.label }}
-          </option>
-        </select>
-
-        <input
-          v-else
-          :type="col.inputType || 'text'"
-          class="form-control"
-          :id="col.field"
-          v-model="record[col.field]"
-          :readonly="col.readonly"
-          :class="classesForField(col.field)"
-          :aria-describedby="`feedback-${col.field}`"
-          />
-
-        <div :id="`feedback-${col.field}`" class="invalid-feedback">
-          <span v-for="error in errors[col.field]" :key="error">
-            {{ error }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-group row">
-      <div class="col-sm-2"></div>
-      <div class="col-sm-10">
-        <button class="btn btn-primary" v-on:click="validateAndSave()" :disabled="disabled">Save</button>
-        <button class="btn btn-secondary ml-2" v-on:click="$emit('reset')" :disabled="disabled">Reset</button>
-      </div>
-    </div>
+    <b-form @submit.prevent="onSubmit" @reset="onReset" enctype="enctype">
+      <b-form-group
+        v-for="(field, index) in fields"
+        :key="index"
+        :label="field.label"
+        :label-for="field.name"
+        :invalid-feedback="getFieldValidationMessage(field.name)"
+        :state="validateState(field.name)"
+        label-cols-sm="2"
+        content-cols-sm="4"
+      >
+        <component
+          :is="getComponentType(field.type)"
+          :name="field.name"
+          :v-validate="field.validation"
+          v-model="$v.formData[field.name].$model"
+          :state="validateState(field.name)"
+          v-bind="getFieldAttributes(field)"
+          @input="field.onChange ? field.onChange(field.name, $event.target.value) : null"
+          @change="field.validationRules ? $v.formData[field.name].$touch() : ''"
+        />
+      </b-form-group>
+      <b-button type="submit" variant="primary" :disabled="$v.formData.$invalid"
+        >Submit</b-button
+      >
+      <b-button type="reset" variant="danger" class="ml-2">Reset</b-button>
+    </b-form>
   </div>
 </template>
 
 <script>
-import moment from 'moment'
+import {
+  BForm,
+  BFormDatepicker,
+  BFormGroup,
+  BFormInput,
+  BFormSelect,
+  BFormTextarea,
+  BButton,
+  BAlert,
+  BFormFile,
+} from "bootstrap-vue";
+import { validationMixin } from "vuelidate";
 
 export default {
-  name: 'StandardForm',
-  props: {
-    initialRecord: Object,
-    cols: Array,
-    /* example: {
-      label: 'Person name',
-      field: 'person_name',
-      readonly: false,
-      required: true,
-      inputType: 'text',
-      selectItems: [
-        label: 'None', value: null,
-        label: 'Bob', value: 'Robert'
-      ]
-    } */
-    disabled: Boolean
+  name: "StandardForm",
+  mixins: [validationMixin],
+  components: {
+    BForm,
+    BFormGroup,
+    BFormInput,
+    BFormSelect,
+    BFormTextarea,
+    BFormFile,
+    BButton,
+    BAlert,
+    BFormDatepicker,
   },
-  data: function () {
+  props: {
+    /* example: {
+          type: 'select',
+          label: 'Reporting Period', 
+          name: 'reporting_period', 
+          options: [{"text": "A", "value":"a"}, {"text": "B", "value":"b"}, ], 
+          initialValue: this.$store.getters.viewPeriodID ?? '',
+          validationRules: {required}
+        },
+        {
+          type: 'text',
+          label: 'Expenditure Code',
+          name: 'expenditure_code', 
+          validationRules: {required}
+        },
+    */
+    fields: {
+      type: Array,
+      required: true,
+    },
+    enctype: {
+      type: String,
+      required: false,
+    },
+  },
+  data() {
+    const formData = {};
+
+    // Set initial values for each field
+    this.fields.forEach((f) => {
+      let initialValue = undefined;
+      if (f.initialValue !== undefined) {
+        initialValue = f.initialValue;
+      }
+      formData[f.name] = initialValue;
+    });
+
     return {
-      wasValidated: false,
-      errors: Object.fromEntries(this.cols.map(col => [col.field, []])),
-      record: Object.fromEntries(this.cols.map(col => {
-        let initValue = this.initialRecord[col.field]
-
-        if (col.inputType === 'date') initValue = this.dateValue(initValue)
-
-        return [col.field, initValue]
-      }))
-    }
+      formData : formData
+    };
   },
   methods: {
-    dateValue: function (val) {
-      const date = moment(val)
-      if (date.isValid()) {
-        return date.format('YYYY-MM-DD')
-      } else {
-        return null
+    getComponentType(type) {
+      switch (type) {
+        case "text":
+          return "b-form-input";
+        case "date":
+          return "b-form-datepicker";
+        case "file":
+          return "b-form-file";
+        case "email":
+          return "b-form-input";
+        case "select":
+          return "b-form-select";
+        case "textarea":
+          return "b-form-textarea";
+        default:
+          return "b-form-input";
       }
     },
-    classesForField: function (field) {
-      const col = this.cols.find(col => col.field === field)
-      if (col.readonly) return {}
-      if (!this.wasValidated) return {}
-
-      return {
-        'is-valid': this.errors[field].length === 0,
-        'is-invalid': this.errors[field].length > 0
-      }
-    },
-    validateAndSave: function () {
-      this.cols.forEach(col => {
-        const field = col.field
-        const val = this.record[field]
-
-        // clear errors; we will re-set them if they still exist
-        this.errors[field] = []
-
-        // check required fields
-        if (col.required && (val === undefined || val === null || val === '')) {
-          this.errors[field].push(`${col.label} is a required field`)
+    getFieldAttributes(field) {
+      let sharedAttributes = {
+        id: field.name,
+        name: field.name,
+        disabled: field.disabled || false,
+        placeholder: field.placeholder || "",
+        readonly: field.readonly,
+      };
+      let typeSpecificAttributes = {};
+      if (field.type === "select") {
+        typeSpecificAttributes.options = field.options || [];
+      } else if (field.type === "date") {
+        typeSpecificAttributes.placeholder = "Choose a date";
+        typeSpecificAttributes["calendar-width"] = "100%";
+        typeSpecificAttributes["date-format-options"] = {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        };
+        typeSpecificAttributes["today-button"] = true;
+        typeSpecificAttributes["reset-button"] = true;
+        typeSpecificAttributes["close-button"] = true;
+      } else if (field.type === "file") {
+        typeSpecificAttributes.type = "file";
+        typeSpecificAttributes.accept = field.accept || "";
+        if (field.onChange) {
+          typeSpecificAttributes["@" + field.onChange] = this.handleCustomChangeEvent;
         }
-      })
-
-      this.wasValidated = true
-      const hasErrors = Object.values(this.errors).some(errList => errList.length > 0)
-      if (!hasErrors) {
-        this.$emit('save', this.record)
+        // typeSpecificAttributes["@change"] = field.onChange;
+      } else if (field.type === "email") {
+        typeSpecificAttributes.type = "email";
+      } else if (field.type === "text") {
+        typeSpecificAttributes.type = "text";
       }
-    }
-  }
-}
-</script>
+      return Object.assign(sharedAttributes, typeSpecificAttributes, field.props || {});
+    },
+    validateState(fieldName) {
+      const { $dirty, $error } = this.$v.formData[fieldName];
+      return $dirty ? !$error : null;
+    },
+    getFieldValidationMessage(fieldName) {
+      const formLabel = this.fields.find((f) => f.name == fieldName).label;
 
-<!-- NOTE: This file was copied from src/components/StandardForm.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->
+      // Check whether the chosen validators are false, meaning invalid
+      if (!this.$v.formData[fieldName].required) {
+        return `${formLabel} must not be empty`;
+      } else if (!this.$v.formData[fieldName].email) {
+        return `${formLabel} must be a properly-formatted email address`;
+      }
+    },
+    onSubmit() {
+      this.$v.formData.$touch();
+      if (this.$v.$invalid) {
+        return;
+      }
+      if (!this.$v.$anyError) {
+        this.$emit("submit", this.formData);
+      }
+    },
+    onReset() {
+      this.fields.forEach((field) => {
+        this.formData[field.name] = field.initialValue || "";
+        this.$v.formData[field.name].$reset();
+      });
+      this.$v.formData.$touch();
+      this.$emit("reset");
+    },
+  },
+  created() {},
+  validations() {
+    const validationRules = {};
+
+    // Define validation rules for each field
+    this.fields.forEach((f) => {
+      if (f.validationRules && !f.readonly) {
+        validationRules[f.name] = f.validationRules;
+      } else {
+        validationRules[f.name] = [];
+      }
+    });
+
+    return {
+      formData: validationRules,
+    };
+  },
+};
+</script>

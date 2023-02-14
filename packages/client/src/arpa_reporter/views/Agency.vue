@@ -7,13 +7,19 @@
     </div>
 
     <div v-else>
-      <StandardForm :initialRecord="agency" :cols="cols" @save="onSave" @reset="onReset" :key="formKey" />
+      <StandardForm 
+        :fields="fields"
+        @submit="onSubmit"
+        @reset="onReset"
+        :key="formKey" 
+      />
     </div>
   </div>
 </template>
 
 <script>
 import StandardForm from '../components/StandardForm'
+import { required } from 'vuelidate/lib/validators';
 
 import { post } from '../store/index'
 
@@ -21,7 +27,7 @@ export default {
   name: 'Agency',
   data: function () {
     return {
-      formKey: Date.now()
+      formKey: Date.now(),
     }
   },
   computed: {
@@ -36,16 +42,35 @@ export default {
       const fromStore = this.$store.state.agencies.find(a => a.id === Number(this.agencyId))
       return fromStore || null
     },
-    cols: function () {
+    fields: function () {
       return [
-        { label: 'ID', field: 'id', readonly: true },
-        { label: 'Agency Code', field: 'code', required: true },
-        { label: 'Agency Name', field: 'name', required: true }
+        {   
+          type: 'text',
+          label: 'ID',
+          name: 'id',
+          readonly: true, 
+          initialValue: this.agency ? this.agency.id : '',
+          validationRules: [],
+        },
+        { 
+          type: 'text',
+          label: 'Agency Code',
+          name: 'code',
+          validationRules: {required},
+          initialValue: this.agency ? this.agency.code : '',
+        },
+        { 
+          type: 'text',
+          label: 'Agency Name',
+          name: 'name',
+          validationRules: {required},
+          initialValue: this.agency ? this.agency.name : '',
+        }
       ]
     }
   },
   methods: {
-    onSave: async function (updatedAgency) {
+    onSubmit: async function (updatedAgency) {
       try {
         const result = await post('/api/agencies', { agency: updatedAgency })
         if (result.error) throw new Error(result.error)

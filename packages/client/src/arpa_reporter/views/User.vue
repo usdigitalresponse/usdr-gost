@@ -16,13 +16,19 @@
         </div>
       </div>
 
-      <StandardForm :initialRecord="user" :cols="cols" @save="onSave" @reset="onReset" :key="formKey" />
+      <StandardForm
+        :initialRecord="user"
+        :fields="fields"
+        @submit="onSubmit"
+        @reset="onReset"
+        :key="formKey" />
     </div>
   </div>
 </template>
 
 <script>
 import StandardForm from '../components/StandardForm'
+import { required, email, helpers } from 'vuelidate/lib/validators';
 import { post } from '../store/index'
 
 export default {
@@ -40,24 +46,56 @@ export default {
     isNew: function () {
       return this.userId === 'new'
     },
-    cols: function () {
+    fields: function () {
       return [
-        { label: 'ID', field: 'id', readonly: true },
-        { label: 'Email', field: 'email', required: true },
-        { label: 'Name', field: 'name', required: true },
-        { label: 'Role', field: 'role', selectItems: this.roleItems, required: true },
-        { label: 'Agency', field: 'agency_id', selectItems: this.agencyItems }
+        { 
+          type: 'text',
+          label: 'ID', 
+          name: 'id', 
+          readonly: true,
+          initialValue: this.user.id
+        },
+        { 
+          type: 'email',
+          label: 'Email', 
+          name: 'email', 
+          validationRules: {required, email},
+          initialValue: this.user.email
+        },
+        { 
+          type: 'text',
+          label: 'Name',
+          name: 'name', 
+          validationRules: {required},
+          initialValue: this.user.name
+        },
+        {  
+          type: 'select',
+          label: 'Role', 
+          name: 'role', 
+          options: this.roleItems, 
+          validationRules: {required},
+          initialValue: this.user.role
+        },
+        {  
+          type: 'select',
+          label: 'Agency', 
+          name: 'agency_id', 
+          options: this.agencyItems, 
+          validationRules: {required},
+          initialValue: this.user.agency_id
+        },
       ]
     },
     roles: function () {
       return this.$store.getters.roles || []
     },
     roleItems: function () {
-      return this.roles.map(r => ({ label: r.name, value: r.name }))
+      return this.roles.map(r => ({ text: r.name, value: r.name }))
     },
     agencyItems: function () {
-      return [{ value: null, name: '' }].concat(
-        this.$store.state.agencies.map(a => ({ label: a.name, value: a.id }))
+      return [{ text: '', value: null}].concat(
+        this.$store.state.agencies.map(a => ({ text: a.name, value: a.id }))
       )
     }
   },
@@ -75,7 +113,7 @@ export default {
       // StandardForm deals in ARPA Reporter's former user object representation where "role" is a simple string field, but the API and store now deal in the GOST format where role is an object.
       this.user = { ...storeUser, role: storeUser.role.name }
     },
-    onSave: async function (user) {
+    onSubmit: async function (user) {
       this.user = null
 
       try {

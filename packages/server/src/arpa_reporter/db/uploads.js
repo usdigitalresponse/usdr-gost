@@ -40,7 +40,7 @@ function getUpload (id, trns = knex) {
     .leftJoin('users', 'uploads.user_id', 'users.id')
     .leftJoin('users AS vusers', 'uploads.validated_by', 'vusers.id')
     .leftJoin('agencies', 'uploads.agency_id', 'agencies.id')
-    .select('uploads.*', 'users.email AS created_by', 'agencies.code AS agency_code', 'vusers.email AS validated_by_email')
+    .select('uploads.*', 'users.email AS created_by', 'agencies.code AS agency_code', 'vusers.email AS validated_by_email', 'notes')
     .where('uploads.id', id)
     .then(r => r[0])
 }
