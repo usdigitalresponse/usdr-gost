@@ -351,5 +351,25 @@ describe('Email sender', () => {
 
             expect(sendFake.calledTwice).to.equal(true);
         });
+        it('builds all the grants if fewer than 3 available', async () => {
+            const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
+            const agency = agencies[0];
+            agency.matched_grants = [fixtures.grants.healthAide];
+            const body = await email.buildDigestBody({ agency });
+            expect(body).to.include(fixtures.grants.healthAide.description);
+        });
+        it('builds only first 3 grants if >3 available', async () => {
+            const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
+            const agency = agencies[0];
+            const ignoredGrant = { ...fixtures.grants.healthAide };
+            ignoredGrant.description = 'Added a brand new description';
+
+            agency.matched_grants = [fixtures.grants.healthAide, fixtures.grants.earFellowship, fixtures.grants.redefiningPossible, ignoredGrant];
+            const body = await email.buildDigestBody({ agency });
+            expect(body).to.include(fixtures.grants.healthAide.description);
+            expect(body).to.include(fixtures.grants.earFellowship.description);
+            expect(body).to.include(fixtures.grants.redefiningPossible.description);
+            expect(body).to.not.include(ignoredGrant.description);
+        });
     });
 });
