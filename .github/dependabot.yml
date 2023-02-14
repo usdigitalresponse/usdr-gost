@@ -8,3 +8,25 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+  - package-ecosystem: "terraform"
+    directory: "/terraform"
+    schedule:
+      interval: "daily"
+  # Dependabot can't inspect nested directories so we need to list all local modules individually.
+  # TODO: Consider switching to Rennovate.
+  - package-ecosystem: "terraform"
+    directory: "/terraform/modules/gost_api"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "terraform"
+    directory: "/terraform/modules/gost_website"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "terraform"
+    directory: "/terraform/modules/gost_postgres"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "terraform"
+    directory: "/terraform/modules/scheduled_ecs_task"
+    schedule:
+      interval: "daily"
