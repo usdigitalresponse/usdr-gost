@@ -8,11 +8,7 @@ terraform {
     }
   }
 
-  backend "s3" {
-    key            = "terraform.tfstate"
-    dynamodb_table = "terraform-lock"
-    encrypt        = "true"
-  }
+  backend "s3" {}
 }
 
 data "aws_iam_policy" "permissions_boundary" {
