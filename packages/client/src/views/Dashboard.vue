@@ -37,7 +37,7 @@
                   <div class="color-gray">{{ dates.item.date }}</div>
                 </template>
               </b-table>
-              <div v-if="totalUpcomingGrants > 4">
+              <div v-if="totalRecentActivities > 4">
                 <b-row align-v="center" >
                   <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
                     <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
@@ -325,6 +325,7 @@ export default {
       totalViewedGrants: 'dashboard/totalViewedGrants',
       totalInterestedGrants: 'dashboard/totalInterestedGrants',
       totalUpcomingGrants: 'grants/totalUpcomingGrants',
+      totalRecentActivities: 'grants/totalRecentActivities',
       grantsCreatedInTimeframe: 'dashboard/grantsCreatedInTimeframe',
       grantsCreatedInTimeframeMatchingCriteria: 'dashboard/grantsCreatedInTimeframeMatchingCriteria',
       grantsUpdatedInTimeframe: 'dashboard/grantsUpdatedInTimeframe',
@@ -405,10 +406,13 @@ export default {
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
       fetchGrantDetails: 'grants/fetchGrantDetails',
       fetchClosestGrants: 'grants/fetchClosestGrants',
+      fetchTotalRecentActivities: 'grants/fetchTotalRecentActivities',
     }),
     async setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
+      // +1 to see if there would be more recent activities displayed on grid containing all recent activities.
+      this.fetchTotalRecentActivities({ perPage: this.perPage + 1, currentPage: this.currentPage });
       this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
     formatMoney(value) {

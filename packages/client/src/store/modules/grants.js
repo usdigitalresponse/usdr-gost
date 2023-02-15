@@ -8,6 +8,7 @@ function initialState() {
     grantsInterested: [],
     closestGrants: [],
     totalUpcomingGrants: 0,
+    totalRecentActivities: 0,
     currentGrant: {},
   };
 }
@@ -21,6 +22,7 @@ export default {
     grantsInterested: (state) => state.grantsInterested,
     closestGrants: (state) => state.closestGrants,
     totalUpcomingGrants: (state) => state.totalUpcomingGrants,
+    totalRecentActivities: (state) => state.totalRecentActivities,
     currentGrant: (state) => state.currentGrant,
     eligibilityCodes: (state) => state.eligibilityCodes,
     interestedCodes: (state) => ({
@@ -49,6 +51,10 @@ export default {
     fetchGrantsInterested({ commit }, { perPage, currentPage }) {
       return fetchApi.get(`/api/organizations/:organizationId/grants/grantsInterested/${perPage}/${currentPage}`)
         .then((data) => commit('SET_GRANTS_INTERESTED', data));
+    },
+    fetchTotalRecentActivities({ commit }, { perPage, currentPage }) {
+      return fetchApi.get(`/api/organizations/:organizationId/grants/grantsInterested/${perPage}/${currentPage}`)
+        .then((data) => commit('SET_TOTAL_RECENT_ACTIVITIES', data.length));
     },
     fetchClosestGrants({ commit }, { perPage, currentPage }) {
       return fetchApi.get(`/api/organizations/:organizationId/grants/closestGrants/${perPage}/${currentPage}`)
@@ -151,6 +157,9 @@ export default {
     },
     SET_GRANTS_INTERESTED(state, grantsInterested) {
       state.grantsInterested = grantsInterested;
+    },
+    SET_TOTAL_RECENT_ACTIVITIES(state, totalRecentActivities) {
+      state.totalRecentActivities = totalRecentActivities;
     },
     SET_GRANT_CURRENT(state, currentGrant) {
       state.currentGrant = currentGrant;
