@@ -83,7 +83,7 @@ module "datadog_container_definition" {
     DD_APM_ENABLED = "true",
   }
   map_secrets = {
-    DD_API_KEY = local.datadog_api_key_parameter_arn,
+    DD_API_KEY = join("", data.aws_ssm_parameter.datadog_api_key.*.arn),
   }
 }
 
