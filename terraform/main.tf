@@ -128,7 +128,7 @@ module "postgres" {
   namespace                = var.namespace
   permissions_boundary_arn = local.permissions_boundary_arn
 
-  default_db_name           = "${var.namespace}-db"
+  default_db_name           = "gost"
   vpc_id                    = data.aws_ssm_parameter.vpc_id.value
   subnet_ids                = local.private_subnet_ids
   allowed_security_groups   = [module.api_to_postgres_security_group.id]
