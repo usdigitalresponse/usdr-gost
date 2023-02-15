@@ -11,9 +11,7 @@ terraform {
   backend "s3" {}
 }
 
-data "aws_iam_policy" "permissions_boundary" {
-  name = var.permissions_boundary_policy_name
-}
+data "aws_caller_identity" "current" {}
 
 data "aws_ssm_parameter" "vpc_id" {
   name = "${var.ssm_deployment_parameters_path_prefix}/network/vpc_id"
@@ -24,7 +22,8 @@ data "aws_ssm_parameter" "private_subnet_ids" {
 }
 
 locals {
-  private_subnet_ids = split(",", data.aws_ssm_parameter.private_subnet_ids.value)
+  private_subnet_ids       = split(",", data.aws_ssm_parameter.private_subnet_ids.value)
+  permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_policy_name}"
 }
 
 
@@ -36,7 +35,7 @@ module "website" {
   enabled                  = var.website_enabled
   source                   = "./modules/gost_website"
   namespace                = var.namespace
-  permissions_boundary_arn = data.aws_iam_policy.permissions_boundary.arn
+  permissions_boundary_arn = local.permissions_boundary_arn
 
   dns_zone_id     = data.aws_ssm_parameter.public_dns_zone_id.value
   domain_name     = var.website_domain_name
@@ -72,9 +71,9 @@ resource "aws_ecs_cluster" "default" {
 }
 
 resource "aws_ecs_cluster_capacity_providers" "default" {
-  for_each = aws_ecs_cluster.default.*
+  for_each = aws_ecs_cluster.default
 
-  cluster_name       = aws_ecs_cluster.default[each.key].name
+  cluster_name       = each.value.name
   capacity_providers = ["FARGATE"]
 }
 
@@ -82,7 +81,7 @@ module "api" {
   enabled                  = var.api_enabled
   source                   = "./modules/gost_api"
   namespace                = var.namespace
-  permissions_boundary_arn = data.aws_iam_policy.permissions_boundary.arn
+  permissions_boundary_arn = local.permissions_boundary_arn
 
   # Networking
   vpc_id             = data.aws_ssm_parameter.vpc_id.value
@@ -126,7 +125,7 @@ module "postgres" {
   enabled                  = var.postgres_enabled
   source                   = "./modules/gost_postgres"
   namespace                = var.namespace
-  permissions_boundary_arn = data.aws_iam_policy.permissions_boundary.arn
+  permissions_boundary_arn = local.permissions_boundary_arn
 
   default_db_name           = "${var.namespace}-db"
   vpc_id                    = data.aws_ssm_parameter.vpc_id.value
