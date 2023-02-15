@@ -82,6 +82,7 @@ module "api" {
   source                   = "./modules/gost_api"
   namespace                = var.namespace
   permissions_boundary_arn = local.permissions_boundary_arn
+  depends_on               = [aws_ecs_cluster.default]
 
   # Networking
   vpc_id             = data.aws_ssm_parameter.vpc_id.value
