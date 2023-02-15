@@ -1,3 +1,14 @@
 {
-  "exclude": "packages/client/dist/**"
+  "exclude": [
+    "packages/client/dist/**",
+    "packages/server/__tests__/**",
+    "packages/server/migrations/**",
+    "packages/server/seeds/**",
+    "arpa_reporter_misc/**",
+    "packages/server/src/arpa_reporter/data/**",
+    "packages/server/src/static/**",
+    "docs/**",
+    ".github/**",
+    ".vscode/**"
+  ]
 }

@@ -41,6 +41,7 @@
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
     "cron": "^1.8.2",
+    "cryo": "0.0.6",
     "csv-stringify": "^6.0.5",
     "date-fns": "^2.23.0",
     "docx": "^7.3.0",
