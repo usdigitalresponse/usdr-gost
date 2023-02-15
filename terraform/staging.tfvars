@@ -1,4 +1,4 @@
-namespace = "gost-staging"
+namespace = "usdr-gost-staging"
 
 // Common
 ssm_service_parameters_path_prefix    = "/usdr/gost/staging"
