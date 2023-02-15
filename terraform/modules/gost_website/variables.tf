@@ -20,19 +20,6 @@ variable "permissions_boundary_arn" {
   default     = null
 }
 
-variable "ssm_deployment_parameter_path_prefix" {
-  description = "Base path for all SSM parameters read during deployment."
-  type        = string
-  validation {
-    condition     = startswith(var.ssm_deployment_parameter_path_prefix, "/")
-    error_message = "Value must start with a forward slash."
-  }
-  validation {
-    condition     = !endswith(var.ssm_deployment_parameter_path_prefix, "/")
-    error_message = "Value cannot end with a trailing slash."
-  }
-}
-
 variable "dns_zone_id" {
   description = "Route53 Hosted Zone ID where DNS records for the website should be managed."
   type        = string

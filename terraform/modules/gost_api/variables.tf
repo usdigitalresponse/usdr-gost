@@ -51,19 +51,6 @@ variable "ssm_path_prefix" {
   }
 }
 
-variable "ssm_deployment_parameter_path_prefix" {
-  description = "Base path for all SSM parameters read during deployment."
-  type        = string
-  validation {
-    condition     = startswith(var.ssm_deployment_parameter_path_prefix, "/")
-    error_message = "Value must start with a forward slash."
-  }
-  validation {
-    condition     = !endswith(var.ssm_deployment_parameter_path_prefix, "/")
-    error_message = "Value cannot end with a trailing slash."
-  }
-}
-
 variable "rds_db_connect_resources" {
   description = "Resource ARNs for which rds-db:connect access should be allowed."
   type        = list(string)
@@ -121,25 +108,6 @@ variable "ecs_cluster_id" {
 variable "ecs_cluster_name" {
   description = "Name of the ECS cluster in which to create the API service."
   type        = string
-}
-
-variable "datadog_api_key" {
-  description = "Datadog API key to use. Overridden by datadog_api_key_parameter_arn."
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
-variable "datadog_api_key_parameter_arn" {
-  description = "ARN of an existing SSM parameter that holds a Datadog API key. Overrides datadog_api_key."
-  type        = string
-  default     = null
-}
-
-variable "datadog_api_key_parameter_kms_key_arn" {
-  description = "ARN of the KMS key used to encrypt/decrypt the SSM parameter. Key alias/aws/ssm will be used if null."
-  type        = string
-  default     = null
 }
 
 variable "docker_repository" {

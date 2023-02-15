@@ -11,3 +11,11 @@ output "base_url_alias" {
     EOF
   value       = var.enabled ? "https://${join("", aws_route53_record.alias.*.fqdn)}" : null
 }
+
+output "ecs_cluster_name" {
+  value = var.ecs_cluster_name
+}
+
+output "ecs_service_name" {
+  value = join("", aws_ecs_service.default.*.name)
+}

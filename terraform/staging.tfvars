@@ -1,7 +1,8 @@
 namespace = "gost-staging"
 
 // Common
-ssm_path_prefix = "/usdr/gost/staging"
+ssm_service_parameters_path_prefix    = "/usdr/gost/staging"
+ssm_deployment_parameters_path_prefix = "/usdr/gost/staging/deploy-config"
 
 // Website
 website_enabled     = true

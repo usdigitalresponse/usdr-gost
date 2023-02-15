@@ -1,7 +1,8 @@
 namespace = "gost-sandbox"
 
 // Common
-ssm_path_prefix = "/usdr/gost/sandbox"
+ssm_service_parameters_path_prefix    = "/usdr/gost/sandbox"
+ssm_deployment_parameters_path_prefix = "/usdr/gost/sandbox/deploy-config"
 
 // Website
 website_enabled     = true

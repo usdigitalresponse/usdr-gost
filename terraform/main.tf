@@ -16,23 +16,15 @@ data "aws_iam_policy" "permissions_boundary" {
 }
 
 data "aws_ssm_parameter" "vpc_id" {
-  name = "${var.ssm_path_prefix}/network/vpc_id"
+  name = "${var.ssm_deployment_parameters_path_prefix}/network/vpc_id"
 }
 
 data "aws_ssm_parameter" "private_subnet_ids" {
-  name = "${var.ssm_path_prefix}/network/private_subnet_ids"
+  name = "${var.ssm_deployment_parameters_path_prefix}/network/private_subnet_ids"
 }
 
 data "aws_ssm_parameter" "public_dns_zone_id" {
-  name = "${var.ssm_path_prefix}/dns/public_zone_id"
-}
-
-data "aws_ssm_parameter" "datadog_api_key" {
-  name = "/datadog/api-key"
-}
-
-data "aws_ssm_parameter" "ses_domain_identity_arn" {
-  name = "${var.ssm_path_prefix}/ses/domain_identity_arn"
+  name = "${var.ssm_deployment_parameters_path_prefix}/dns/public_zone_id"
 }
 
 module "website" {
@@ -41,10 +33,9 @@ module "website" {
   namespace                = var.namespace
   permissions_boundary_arn = data.aws_iam_policy.permissions_boundary.arn
 
-  dns_zone_id                          = data.aws_ssm_parameter.public_dns_zone_id.value
-  domain_name                          = var.website_domain_name
-  gost_api_domain                      = var.api_domain_name
-  ssm_deployment_parameter_path_prefix = "${var.ssm_path_prefix}/deployment-config/website"
+  dns_zone_id     = data.aws_ssm_parameter.public_dns_zone_id.value
+  domain_name     = var.website_domain_name
+  gost_api_domain = var.api_domain_name
 }
 
 module "api_to_postgres_security_group" {
@@ -112,9 +103,7 @@ module "api" {
   log_retention = var.api_log_retention_in_days
 
   # Secrets
-  ssm_path_prefix                      = var.ssm_path_prefix
-  datadog_api_key_parameter_arn        = data.aws_ssm_parameter.datadog_api_key.arn
-  ssm_deployment_parameter_path_prefix = "${var.ssm_path_prefix}/deployment-config/api"
+  ssm_path_prefix = var.ssm_service_parameters_path_prefix
 
   # Postgres
   rds_db_connect_resources = module.postgres.rds_db_connect_resources_list
@@ -141,4 +130,33 @@ module "postgres" {
   prevent_destroy           = var.postgres_prevent_destroy
   snapshot_before_destroy   = var.postgres_snapshot_before_destroy
   apply_changes_immediately = var.postgres_apply_changes_immediately
+}
+
+// Deployment parameters
+resource "aws_ssm_parameter" "deploy_api_cluster_name" {
+  name        = "${var.ssm_deployment_parameters_path_prefix}/api/cluster-name"
+  description = "Name of the ECS cluster to specify when forcing new deployments for the API."
+  type        = "String"
+  value       = module.api.ecs_cluster_name
+}
+
+resource "aws_ssm_parameter" "deploy_api_service_name" {
+  name        = "${var.ssm_deployment_parameters_path_prefix}/api/service-name"
+  description = "Name of the ECS service to specify when forcing new deployments for the API."
+  type        = "String"
+  value       = module.api.ecs_service_name
+}
+
+resource "aws_ssm_parameter" "deploy_website_s3_uri" {
+  name        = "${var.ssm_deployment_parameters_path_prefix}/website/s3-uri"
+  description = "Base URI for deploying website dist artifacts to the origin bucket."
+  type        = "String"
+  value       = module.website.s3_distribution_base_uri
+}
+
+resource "aws_ssm_parameter" "deploy_website_cloudfront_distribution_id" {
+  name        = "${var.ssm_deployment_parameters_path_prefix}/website/distribution-id"
+  description = "Base URI for deploying website dist artifacts to the origin bucket."
+  type        = "String"
+  value       = module.website.cloudfront_distribution_id
 }

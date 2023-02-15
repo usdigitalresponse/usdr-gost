@@ -9,15 +9,28 @@ variable "permissions_boundary_policy_name" {
   default     = "service-management-boundary"
 }
 
-variable "ssm_path_prefix" {
+variable "ssm_service_parameters_path_prefix" {
   type        = string
-  description = "Base path for all managed SSM parameters."
+  description = "Base path for all service-managed SSM parameters."
   validation {
-    condition     = startswith(var.ssm_path_prefix, "/")
+    condition     = startswith(var.ssm_service_parameters_path_prefix, "/")
     error_message = "Value must start with a forward slash."
   }
   validation {
-    condition     = !endswith(var.ssm_path_prefix, "/")
+    condition     = !endswith(var.ssm_service_parameters_path_prefix, "/")
+    error_message = "Value cannot end with a trailing slash."
+  }
+}
+
+variable "ssm_deployment_parameters_path_prefix" {
+  type        = string
+  description = "Base path for all SSM parameters used for deployment."
+  validation {
+    condition     = startswith(var.ssm_deployment_parameters_path_prefix, "/")
+    error_message = "Value must start with a forward slash."
+  }
+  validation {
+    condition     = !endswith(var.ssm_deployment_parameters_path_prefix, "/")
     error_message = "Value cannot end with a trailing slash."
   }
 }

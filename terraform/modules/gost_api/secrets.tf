@@ -35,26 +35,10 @@ resource "aws_ssm_parameter" "postgres_connection_string" {
   )
 }
 
-resource "aws_ssm_parameter" "datadog_api_key" {
-  count = var.enabled && var.datadog_api_key != "" ? 1 : 0
+data "aws_ssm_parameter" "datadog_api_key" {
+  count = var.enabled ? 1 : 0
 
-  name        = "/datadog/api_key"
-  description = "Datadog API key."
-  type        = "SecureString"
-  key_id      = local.datadog_api_key_kms_key_arn
-
-  value = var.datadog_api_key
-}
-
-locals {
-  datadog_api_key_parameter_arn = coalesce(
-    var.datadog_api_key_parameter_arn,
-    join("", aws_ssm_parameter.datadog_api_key.*.arn)
-  )
-  datadog_api_key_kms_key_arn = coalesce(
-    var.datadog_api_key_parameter_kms_key_arn,
-    data.aws_kms_key.ssm.arn
-  )
+  name = "${var.ssm_path_prefix}/datadog/api_key"
 }
 
 module "decrypt_secrets_policy" {
@@ -70,10 +54,9 @@ module "decrypt_secrets_policy" {
       actions = [
         "kms:Decrypt",
       ]
-      resources = distinct([
+      resources = [
         data.aws_kms_key.ssm.arn,
-        local.datadog_api_key_kms_key_arn,
-      ])
+      ]
     }
     GetSecretParameters = {
       effect = "Allow"
@@ -82,7 +65,7 @@ module "decrypt_secrets_policy" {
         "secretsmanager:GetSecretValue",
       ]
       resources = compact([
-        local.datadog_api_key_parameter_arn,
+        join("", data.aws_ssm_parameter.datadog_api_key.*.arn),
         join("", aws_ssm_parameter.postgres_connection_string.*.arn),
         join("", aws_ssm_parameter.cookie_secret.*.arn),
       ])
