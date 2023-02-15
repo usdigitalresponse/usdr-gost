@@ -1,5 +1,6 @@
 const { URL } = require('url');
 const moment = require('moment');
+// eslint-disable-next-line import/no-unresolved
 const asyncBatch = require('async-batch').default;
 const fileSystem = require('fs');
 const path = require('path');
@@ -185,22 +186,11 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
     agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
 }
 
-async function sendGrantDigestForAgency(data) {
-    const { agency, openDate } = data;
-    console.log(`${agency.name} is subscribed for notifications on ${openDate}`);
-
-    if (!agency.matched_grants || agency.matched_grants?.length === 0) {
-        console.error(`There were no grants available for ${agency.name}`);
-        return;
-    }
-
-    if (!agency.recipients || agency.recipients?.length === 0) {
-        console.error(`There were no email recipients available for ${agency.name}`);
-        return;
-    }
+async function buildDigestBody(data) {
+    const { agency } = data;
 
     const grantDetails = [];
-    agency.matched_grants.slice(2).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
+    agency.matched_grants.slice(0, 3).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
 
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
@@ -218,6 +208,25 @@ async function sendGrantDigestForAgency(data) {
         body_detail: `There are ${agency.matched_grants.length} new grants matching your agency's keywords and settings.`,
         additional_body: additionalBody,
     });
+
+    return formattedBody;
+}
+
+async function sendGrantDigestForAgency(data) {
+    const { agency, openDate } = data;
+    console.log(`${agency.name} is subscribed for notifications on ${openDate}`);
+
+    if (!agency.matched_grants || agency.matched_grants?.length === 0) {
+        console.error(`There were no grants available for ${agency.name}`);
+        return;
+    }
+
+    if (!agency.recipients || agency.recipients?.length === 0) {
+        console.error(`There were no email recipients available for ${agency.name}`);
+        return;
+    }
+
+    const formattedBody = await buildDigestBody({ agency });
 
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Grants Identification Tool',
@@ -267,4 +276,5 @@ module.exports = {
     sendGrantDigestForAgency,
     getGrantDetail,
     addBaseBranding,
+    buildDigestBody,
 };

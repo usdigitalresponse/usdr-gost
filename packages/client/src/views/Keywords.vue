@@ -1,29 +1,44 @@
 <template>
 <section class="container-fluid">
-  <b-row>
-    <b-col><h2>Keywords</h2></b-col>
-    <b-col></b-col>
-    <b-col class="d-flex justify-content-end">
-      <div>
-        <b-button variant="success" @click="openAddKeywordModal">Add</b-button>
-      </div>
-    </b-col>
-  </b-row>
-  <b-table sticky-header="600px" hover :items="keywords" :fields="fields">
-    <template #cell(actions)="row">
-      <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
-        <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
-      </b-button>
-    </template>
-  </b-table>
-  <AddKeywordModal :showModal.sync="showAddKeywordModal"/>
+    <b-row>
+        <b-col><h3>Include results with:</h3></b-col>
+        <b-col class="d-flex justify-content-end">
+            <div>
+                <b-button variant="success" name="include-button" @click="openAddKeywordModal">Add</b-button>
+            </div>
+        </b-col>
+    </b-row>
+    <b-table sticky-header="600px" hover :items="includeKeywords" :fields="fields">
+        <template #cell(actions)="row">
+            <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
+            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+            </b-button>
+        </template>
+    </b-table>
+    <hr>
+    <b-row>
+        <b-col><h3>Exclude results with:</h3></b-col>
+        <b-col class="d-flex justify-content-end">
+            <div>
+                <b-button variant="success" name="exclude-button" @click="openAddKeywordModal">Add</b-button>
+            </div>
+        </b-col>
+    </b-row>
+    <b-table sticky-header="600px" hover :items="excludeKeywords" :fields="fields">
+        <template #cell(actions)="row">
+            <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
+            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+            </b-button>
+        </template>
+    </b-table>
+    <AddKeywordModal :keywordType="keywordType" :showModal.sync="showAddKeywordModal"/>
 </section>
 </template>
 
 <script>
 
 import { mapActions, mapGetters } from 'vuex';
-
+import moment from 'moment';
 import AddKeywordModal from '@/components/Modals/AddKeyword.vue';
 
 export default {
@@ -35,12 +50,24 @@ export default {
       fields: [
         {
           key: 'search_term',
+          thStyle: { width: '20%' },
         },
         {
           key: 'notes',
+          thStyle: { width: '50%' },
         },
-        { key: 'actions', label: 'Actions' },
+        {
+          key: 'created_at',
+          thStyle: { width: '20%' },
+          formatter: (value) => moment(value, 'YYYY-MM-DD').format('MM/DD/YYYY'),
+        },
+        {
+          key: 'actions',
+          label: 'Actions',
+          thStyle: { width: '10%' },
+        },
       ],
+      keywordType: 'include',
       showAddKeywordModal: false,
     };
   },
@@ -49,7 +76,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      keywords: 'keywords/keywords',
+      includeKeywords: 'keywords/includeKeywords',
+      excludeKeywords: 'keywords/excludeKeywords',
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
     }),
@@ -67,7 +95,9 @@ export default {
     setup() {
       this.fetchKeywords();
     },
-    openAddKeywordModal() {
+    openAddKeywordModal(event) {
+      const { name } = event.target;
+      this.keywordType = name.slice(0, name.indexOf('-'));
       this.showAddKeywordModal = true;
     },
   },
