@@ -37,7 +37,7 @@
                   <div class="color-gray">{{ dates.item.date }}</div>
                 </template>
               </b-table>
-              <div v-if="totalUpcomingGrants > 3">
+              <div v-if="totalUpcomingGrants > 4">
                 <b-row align-v="center" >
                   <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
                     <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
