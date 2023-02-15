@@ -411,8 +411,8 @@ export default {
     async setup() {
       this.fetchDashboard();
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
-      // +1 to see if there would be more recent activities displayed on grid containing all recent activities.
-      this.fetchTotalRecentActivities({ perPage: this.perPage + 1, currentPage: this.currentPage });
+      // '10' to see if there would be more recent activities displayed on grid containing all recent activities.
+      this.fetchTotalRecentActivities({ perPage: 10, currentPage: this.currentPage });
       this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
     formatMoney(value) {
