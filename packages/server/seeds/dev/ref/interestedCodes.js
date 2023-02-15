@@ -36,12 +36,12 @@ module.exports = [
         id: 11, name: 'Will Support', status_code: 'Interested',
     },
     {
-        id: 12, name: 'Applied', status_code: 'Result',
+        id: 12, name: 'Pending', status_code: 'Result',
     },
     {
-        id: 13, name: 'Awarded', status_code: 'Result',
+        id: 13, name: 'Award', status_code: 'Result',
     },
     {
-        id: 14, name: 'Rejected', status_code: 'Result',
+        id: 14, name: 'Non-award', status_code: 'Result',
     },
 ];

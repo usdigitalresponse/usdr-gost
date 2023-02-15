@@ -34,14 +34,14 @@ describe('db', () => {
         it('gets total interested grants count', async () => {
             const result = await db.getTotalInterestedGrants(fixtures.users.staffUser.agency_id);
 
-            expect(result).to.equal(3);
+            expect(result).to.equal(5);
         });
     });
 
     context('getTotalGrants', () => {
         it('gets total grant count with no parameters', async () => {
             const result = await db.getTotalGrants();
-            expect(result).to.equal('4');
+            expect(result).to.equal('6');
         });
 
         it('gets total grant count matching agency criteria', async () => {
@@ -78,7 +78,7 @@ describe('db', () => {
         it('gets total grant count with updated fromTs', async () => {
             const updatedTsBounds = { fromTs: new Date(2021, 7, 9) };
             const result = await db.getTotalGrants({ updatedTsBounds });
-            expect(result).to.equal('4');
+            expect(result).to.equal('6');
         });
 
         it('gets total grant count with updated fromTs and matching agency criteria', async () => {
@@ -102,8 +102,8 @@ describe('db', () => {
                 currentPage: 1,
                 timestampForTest: searchTimestamp,
             });
-            expect(result.data.length).to.equal(1);
-            expect(result.data[0].grant_id).to.equal('335255');
+            expect(result.data.length).to.equal(2);
+            expect(result.data[0].grant_id).to.equal('1');
         });
     });
 

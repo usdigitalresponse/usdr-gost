@@ -16,6 +16,7 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 Vue.use(Vuelidate);
 Vue.component('v-select', vSelect);
+Vue.prototype.$environment = process.env.GOST_ENVIRONMENT || 'production';
 
 Vue.config.productionTip = false;
 
