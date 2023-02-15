@@ -177,11 +177,10 @@ variable "cors_allowed_origins" {
 variable "notifications_email_address" {
   description = "SES domain from which email notifications should be sent."
   type        = string
-}
-
-variable "notifications_email_domain_identity_arn" {
-  description = "ARN of the SES domain identity from which notification emails should be sent."
-  type        = string
+  validation {
+    condition     = length(split("@", var.notifications_email_address)) == 2
+    error_message = "Email address must contain exactly one @ sign."
+  }
 }
 
 variable "ses_sandbox_mode_email_recipients" {

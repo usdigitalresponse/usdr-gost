@@ -4,6 +4,10 @@ resource "aws_ses_email_identity" "sandbox_mode_recipients" {
   email = each.value
 }
 
+data "aws_ses_domain_identity" "notifications" {
+  domain = split("@", var.notifications_email_address)[1]
+}
+
 module "send_emails_policy" {
   source  = "cloudposse/iam-policy/aws"
   version = "0.4.0"
@@ -19,7 +23,7 @@ module "send_emails_policy" {
         "SES:SendRawEmail",
       ]
       resources = concat(
-        [var.notifications_email_domain_identity_arn],
+        [data.aws_ses_domain_identity.notifications.arn],
         values(aws_ses_email_identity.sandbox_mode_recipients)[*].arn,
       )
       conditions = [

@@ -69,18 +69,6 @@ variable "api_log_retention_in_days" {
   type = number
 }
 
-variable "api_datadog_api_key_parameter_arn" {
-  type = string
-}
-
-variable "api_notifications_email_from_address" {
-  type = string
-}
-
-variable "api_ses_domain_identity_arn" {
-  type = string
-}
-
 // Postgres
 variable "postgres_enabled" {
   default = true

@@ -27,6 +27,14 @@ data "aws_ssm_parameter" "public_dns_zone_id" {
   name = "${var.ssm_path_prefix}/dns/public_zone_id"
 }
 
+data "aws_ssm_parameter" "datadog_api_key" {
+  name = "/datadog/api-key"
+}
+
+data "aws_ssm_parameter" "ses_domain_identity_arn" {
+  name = "${var.ssm_path_prefix}/ses/domain_identity_arn"
+}
+
 module "website" {
   enabled                  = var.website_enabled
   source                   = "./modules/gost_website"
@@ -105,7 +113,7 @@ module "api" {
 
   # Secrets
   ssm_path_prefix                      = var.ssm_path_prefix
-  datadog_api_key_parameter_arn        = var.api_datadog_api_key_parameter_arn
+  datadog_api_key_parameter_arn        = data.aws_ssm_parameter.datadog_api_key.arn
   ssm_deployment_parameter_path_prefix = "${var.ssm_path_prefix}/deployment-config/api"
 
   # Postgres
@@ -117,8 +125,7 @@ module "api" {
   postgres_db_name         = module.postgres.default_db_name
 
   # Email
-  notifications_email_address             = var.api_notifications_email_from_address
-  notifications_email_domain_identity_arn = var.api_ses_domain_identity_arn
+  notifications_email_address = "notifications@${var.website_domain_name}"
 }
 
 module "postgres" {
