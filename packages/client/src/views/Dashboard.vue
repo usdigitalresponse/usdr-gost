@@ -37,7 +37,7 @@
                   <div class="color-gray">{{ dates.item.date }}</div>
                 </template>
               </b-table>
-              <div v-if="activityItems.length > 3">
+              <div v-if="totalUpcomingGrants > 3">
                 <b-row align-v="center" >
                   <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
                     <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
@@ -65,7 +65,7 @@
                   <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
-              <div v-if="grantsAndIntAgens.length > 2">
+              <div v-if="totalInterestedGrants > 3">
                 <b-row align-v="center">
                   <b-navbar toggleable="sm py-0" bg-transparent class="gutter-upcoming row">
                     <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
@@ -324,6 +324,7 @@ export default {
       totalGrantsMatchingAgencyCriteria: 'dashboard/totalGrantsMatchingAgencyCriteria',
       totalViewedGrants: 'dashboard/totalViewedGrants',
       totalInterestedGrants: 'dashboard/totalInterestedGrants',
+      totalUpcomingGrants: 'grants/totalUpcomingGrants',
       grantsCreatedInTimeframe: 'dashboard/grantsCreatedInTimeframe',
       grantsCreatedInTimeframeMatchingCriteria: 'dashboard/grantsCreatedInTimeframeMatchingCriteria',
       grantsUpdatedInTimeframe: 'dashboard/grantsUpdatedInTimeframe',
