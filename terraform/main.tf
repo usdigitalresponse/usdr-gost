@@ -23,6 +23,11 @@ data "aws_ssm_parameter" "private_subnet_ids" {
   name = "${var.ssm_deployment_parameters_path_prefix}/network/private_subnet_ids"
 }
 
+locals {
+  private_subnet_ids = split(",", data.aws_ssm_parameter.private_subnet_ids.value)
+}
+
+
 data "aws_ssm_parameter" "public_dns_zone_id" {
   name = "${var.ssm_deployment_parameters_path_prefix}/dns/public_zone_id"
 }
@@ -67,7 +72,7 @@ resource "aws_ecs_cluster" "default" {
 }
 
 resource "aws_ecs_cluster_capacity_providers" "default" {
-  for_each = aws_ecs_cluster.default
+  for_each = aws_ecs_cluster.default.*
 
   cluster_name       = aws_ecs_cluster.default[each.key].name
   capacity_providers = ["FARGATE"]
@@ -81,7 +86,7 @@ module "api" {
 
   # Networking
   vpc_id             = data.aws_ssm_parameter.vpc_id.value
-  subnet_ids         = data.aws_ssm_parameter.private_subnet_ids.value
+  subnet_ids         = local.private_subnet_ids
   security_group_ids = [module.api_to_postgres_security_group.id]
 
   # Cluster
@@ -125,7 +130,7 @@ module "postgres" {
 
   default_db_name           = "${var.namespace}-db"
   vpc_id                    = data.aws_ssm_parameter.vpc_id.value
-  subnet_ids                = data.aws_ssm_parameter.private_subnet_ids.value
+  subnet_ids                = local.private_subnet_ids
   allowed_security_groups   = [module.api_to_postgres_security_group.id]
   prevent_destroy           = var.postgres_prevent_destroy
   snapshot_before_destroy   = var.postgres_snapshot_before_destroy
