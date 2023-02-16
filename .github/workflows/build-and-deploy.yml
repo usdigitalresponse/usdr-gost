@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo ${{ needs.changes.outputs }}
-      - run: echo API ${{ needs.changes.outputs.api == 'true' }}
+      - run: echo API ${{ needs.changes.outputs.api == true }}
 
   build_api:
     name: Build and push GOST API Docker image
