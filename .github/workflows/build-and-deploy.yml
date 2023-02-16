@@ -1,0 +1,203 @@
+name: Build and deploy GOST
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - _staging
+      - main
+
+concurrency:
+  group: ${{ github.workflow_ref }}
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.api }}
+      frontend: ${{ steps.filter.outputs.website }}
+      terraform: ${{ steps.filter.outputs.terraform }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            api:
+              - '.github/workflows/build-and-deploy.yml'
+              - 'packages/server/**'
+              - 'docker/production-api.Dockerfile'
+              - '.nvmrc'
+              - 'yarn.lock'
+            website:
+              - '.github/workflows/build-and-deploy.yml'
+              - 'packages/client/**'
+              - '.node-version'
+              - '.nvmrc'
+              - 'yarn.lock'
+            terraform:
+              - 'terraform/**'
+
+  build_api:
+    name: Build and push GOST API Docker image
+    needs:
+      - changes
+    if: ${{ needs.changes.outputs.api == 'true' }}
+    uses: "./.github/workflows/build-api.yaml"
+    permissions:
+      contents: read
+      packages: write
+
+  build_website:
+    name: Build website deployment artifact
+    needs:
+      - changes
+    if: ${{ needs.changes.outputs.website == 'true' }}
+    uses: "./.github/workflows/build-website.yml"
+    permissions:
+      contents: read
+
+  select_target_environment:
+    runs-on: ubuntu-latest
+    outputs:
+      selected: ${{ env.selected }}
+    steps:
+      - uses: kanga333/variable-mapper@master
+        with:
+          key: "${{ github.ref_name }}"
+          map: |
+            {
+              "_staging": {
+                "selected": "staging"
+              },
+              "main": {
+                "selected": "production"
+              },
+              ".*": {
+                "selected": "sandbox"
+              }
+            }
+          export_to: log,env
+          mode: first_match
+
+  deploy_terraform:
+    name: Deploy terraform
+    runs-on: ubuntu-latest
+    needs:
+      - select_target_environment
+      - changes
+    if: ${{ github.event_name != 'pull_request' && needs.changes.outputs.terraform == 'true' }}
+    concurrency:
+      group: deploy_terraform-${{ needs.select_target_environment.outputs.selected }}
+      cancel-in-progress: false
+    environment: ${{ needs.select_target_environment.outputs.selected }}
+    env:
+      TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get project TF version
+        id: get_version
+        run: echo "TF_VERSION=$(cat .terraform-version | tr -d '[:space:]')" | tee -a $GITHUB_OUTPUT
+        working-directory: terraform
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ steps.get_version.outputs.TF_VERSION }}
+      - name: Ensure Terraform plugin cache exists
+        run: mkdir -p $TF_PLUGIN_CACHE_DIR
+      - name: Save/Restore Terraform plugin cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config="${{ needs.select_target_environment.outputs.selected }}.s3.tfbackend"
+        working-directory: terraform
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: terraform
+      - name: Terraform Apply
+        if: steps.validate.outcome == 'success'
+        id: apply
+        run: terraform apply -auto-approve -input=false -no-color -var-file="${{ needs.select_target_environment.outputs.selected }}.tfvars"
+        working-directory: terraform
+
+  deploy_website:
+    name: Deploy website
+    runs-on: ubuntu-latest
+    needs:
+      - build_website
+      - select_target_environment
+      - deploy_terraform
+    if: |
+      always() &&
+      github.event_name != 'pull_request' &&
+      needs.build_website.result == 'success' &&
+      (needs.deploy_terraform.result == 'success' || needs.deploy_terraform.result == 'skipped')
+    environment: ${{ needs.select_target_environment.outputs.selected }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
+      - name: Get deployment parameters
+        uses: dkershner6/aws-ssm-getparameters-action@v1
+        with:
+          withDecryption: "true"
+          parameterPairs: |
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/website/s3-uri = S3_DEPLOYMENT_URI,
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/website/distribution-id = CLOUDFRONT_DISTRIBUTION_ID
+      - name: Download build
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build_website.outputs.artifact }}
+          path: dist
+      - name: Upload artifact to S3
+        run: aws s3 sync ./dist ${{ env.S3_DEPLOYMENT_URI }} --sse --delete --no-progress
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --paths "/*" --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}
+
+  deploy_api:
+    name: Deploy API
+    runs-on: ubuntu-latest
+    needs:
+      - build_api
+      - select_target_environment
+      - deploy_terraform
+    if: |
+      always() &&
+      github.event_name != 'pull_request' &&
+      needs.build_api.result == 'success' &&
+      (needs.deploy_terraform.result == 'success' || needs.deploy_terraform.result == 'skipped')
+    environment: ${{ needs.select_target_environment.outputs.selected }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
+      - name: Get deployment parameters
+        uses: dkershner6/aws-ssm-getparameters-action@v1
+        with:
+          withDecryption: "true"
+          parameterPairs: |
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/cluster-name = ECS_CLUSTER_NAME,
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/service-name = ECS_SERVICE_NAME
+      - name: Update ECS service
+        run: aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --force-new-deployment

@@ -1,29 +1,17 @@
 name: Build Docker image for GOST API
 
 on:
-  pull_request: {}
-  push:
-    branches:
-      - _staging
-      - main
+  pull_request:
     paths:
       - ".github/workflows/build-api.yml"
-      - ".github/workflows/select-target-environment.yml"
-      - ".github/workflows/deployment.yml"
       - "packages/server/**"
       - "docker/production-api.Dockerfile"
       - "yarn.lock"
-  release:
-    types:
-      - published
-
-concurrency:
-  group: ${{ github.workflow_ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  workflow_call: {}
 
 permissions:
   contents: read
-  id-token: write
+  packages: write
 
 env:
   REGISTRY: ghcr.io
@@ -32,9 +20,6 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v3
       - name: Set up QEMU
@@ -55,16 +40,16 @@ jobs:
           tags: |
             type=sha,enable=true,priority=100,prefix=,suffix=,format=short
             type=raw,enable=true,priority=200,prefix=,suffix=,value={{date 'YYYYMMDD.HHmm'}}
-            type=raw,enable=${{ github.event_name == 'push' }},priority=300,value=latest
+            type=raw,enable=${{ github.event_name != 'pull_request' }},priority=300,value=latest
             type=raw,enable=${{ github.ref == 'refs/heads/main' }},priority=300,value=stable
           labels: |
-            org.opencontainers.image.title=usdr-gost-api
+            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
             org.opencontainers.image.version={{date 'YYYYMMDD.HHmm'}}
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ github.event_name != 'pull_request' && false }}
           file: docker/production-api.Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           platforms: linux/amd64,linux/arm64
@@ -73,12 +58,3 @@ jobs:
             GIT_COMMIT=${{ github.sha }}
             GIT_REF=${{ github.ref }}
             TIMESTAMP=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
-
-  deploy:
-    if: ${{ github.event_name != 'pull_request' }}
-    needs:
-      - build-and-push
-    uses: "./.github/workflows/deployment.yml"
-    with:
-      ref_name: ${{ github.ref_name }}
-      deploy_api: true

@@ -1,11 +1,7 @@
 name: Build GOST Website
 
 on:
-  pull_request: {}
-  push:
-    branches:
-      - _staging
-      - main
+  pull_request:
     paths:
       - ".github/workflows/build-website.yml"
       - ".github/workflows/select-target-environment.yml"
@@ -14,14 +10,18 @@ on:
       - ".node-version"
       - ".nvmrc"
       - "yarn.lock"
+  workflow_call:
+    outputs:
+      artifact:
+        description: "Identifier for the website build artifact"
+        value: ${{ jobs.build.outputs.artifact }}
 
 concurrency:
-  group: ${{ github.workflow_ref }}
+  group: build-website-${{ github.workflow_ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   build:
@@ -29,6 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      artifact: website-${{ github.sha }}
     env:
       BUILD_DIR: packages/client
     steps:
@@ -45,21 +47,8 @@ jobs:
         working-directory: ${{ env.BUILD_DIR }}
         run: yarn build
       - name: Upload build artifact
-        # if: ${{ github.event_name != 'pull_request' }}
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-artifact@v3
         with:
           name: website-${{ github.sha }}
           path: ${{ env.BUILD_DIR }}/dist
-
-  deploy:
-    # if: ${{ github.event_name != 'pull_request' }}
-    needs:
-      - build
-    uses: "./.github/workflows/deployment.yml"
-    with:
-      ref_name: ${{ github.ref_name }}
-      website_artifact: website-${{ github.sha }}
-    permissions:
-      contents: read
-      id-token: write
-    secrets: inherit
