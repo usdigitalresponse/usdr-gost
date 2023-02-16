@@ -1,5 +1,5 @@
 const assert = require('assert');
-const requireSrc = require('../utils');
+const { requireSrc } = require('../utils');
 
 const uploads = requireSrc(__filename);
 const { withTenantId } = require('../helpers/with-tenant-id');

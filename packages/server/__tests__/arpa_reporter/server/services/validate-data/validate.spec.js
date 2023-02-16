@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const requireSrc = require('../../utils');
+const { requireSrc } = require('../../utils');
 
 const {
     contractMatches,
