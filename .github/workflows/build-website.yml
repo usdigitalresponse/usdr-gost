@@ -4,8 +4,6 @@ on:
   pull_request:
     paths:
       - ".github/workflows/build-website.yml"
-      - ".github/workflows/select-target-environment.yml"
-      - ".github/workflows/deployment.yml"
       - "packages/client/**"
       - ".node-version"
       - ".nvmrc"
