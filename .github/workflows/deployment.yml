@@ -123,7 +123,7 @@ jobs:
       - name: Download build
         uses: actions/download-artifact@v3
         with:
-          name: ${ inputs.website_artifact }
+          name: ${{ inputs.website_artifact }}
           path: dist
       - name: Upload artifact to S3
         run: aws s3 sync ./dist ${{ env.S3_DEPLOYMENT_URI }} --sse --delete --no-progress
