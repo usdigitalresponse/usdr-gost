@@ -65,27 +65,7 @@ jobs:
       contents: read
 
   select_target_environment:
-    runs-on: ubuntu-latest
-    outputs:
-      selected: ${{ env.selected }}
-    steps:
-      - uses: kanga333/variable-mapper@master
-        with:
-          key: "${{ github.ref_name }}"
-          map: |
-            {
-              "_staging": {
-                "selected": "staging"
-              },
-              "main": {
-                "selected": "production"
-              },
-              ".*": {
-                "selected": "sandbox"
-              }
-            }
-          export_to: log,env
-          mode: first_match
+    uses: "./.github/workflows/select-target-environment.yml"
 
   deploy_terraform:
     name: Deploy terraform

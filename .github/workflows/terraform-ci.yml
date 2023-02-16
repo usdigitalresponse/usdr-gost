@@ -28,9 +28,7 @@ jobs:
         run: terraform fmt -check -diff -recursive ./infrastructure
 
   select_target_environment:
-    uses: "${{ github.repository }}/.github/workflows/select-target-environment.yml@${{ github.ref_name }}"
-    with:
-      ref_name: "{{ github.ref_name }}"
+    uses: "./.github/workflows/select-target-environment.yml"
 
   validate_plan_report:
     name: Validate and plan terraform
