@@ -50,7 +50,7 @@ jobs:
     needs:
       - changes
     if: needs.changes.outputs.api == 'true'
-    uses: "./.github/workflows/build-api.yaml"
+    uses: "./.github/workflows/build-api.yml"
     permissions:
       contents: read
       packages: write
