@@ -48,7 +48,7 @@ jobs:
         # if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-artifact@v3
         with:
-          name: website-${ github.sha }
+          name: website-${{ github.sha }}
           path: ${{ env.BUILD_DIR }}/dist
 
   deploy:
