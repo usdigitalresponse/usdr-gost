@@ -251,6 +251,49 @@ describe('db', () => {
         });
     });
 
+    context('createUser', () => {
+        it('sets default email unsubuscribe when new users are created', async () => {
+            const response = await db.createUser(
+                {
+                    email: 'foo@example.com',
+                    name: 'sample name',
+                    role_id: fixtures.roles.adminRole.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    tenant_id: fixtures.tenants.SBA.id,
+                    id: 99991,
+                },
+            );
+            const createdUser = await db.getUser(response.id);
+            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            await db.deleteUser(response.id);
+        });
+    });
+
+    context('deleteUser', () => {
+        it('deletes email subscriptions when users are deleted', async () => {
+            const response = await db.createUser(
+                {
+                    email: 'foo@example.com',
+                    name: 'sample name',
+                    role_id: fixtures.roles.adminRole.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    tenant_id: fixtures.tenants.SBA.id,
+                    id: 99991,
+                },
+            );
+            const createdUser = await db.getUser(response.id);
+            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            await db.deleteUser(response.id);
+
+            const existingSubscriptions = await knex('email_subscriptions').where('user_id', response.id);
+            expect(existingSubscriptions.length).to.equal(0);
+        });
+    });
+
     context('userEmailSubscriptionPreferences', () => {
         beforeEach(() => {
             this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
