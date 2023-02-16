@@ -65,6 +65,7 @@ jobs:
       contents: read
 
   select_target_environment:
+    name: Select target environment
     uses: "./.github/workflows/select-target-environment.yml"
 
   deploy_terraform:
@@ -75,7 +76,7 @@ jobs:
       - changes
     if: needs.changes.outputs.terraform == 'true'
     concurrency:
-      group: deploy_terraform-${{ needs.select_target_environment.outputs.selected }}
+      group: run_terraform-${{ needs.select_target_environment.outputs.selected }}
       cancel-in-progress: false
     environment: ${{ needs.select_target_environment.outputs.selected }}
     env:

@@ -39,6 +39,8 @@ jobs:
     environment: ${{ needs.select_target_environment.outputs.selected }}
     env:
       TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
+    concurrency:
+      group: run_terraform-${{ needs.select_target_environment.outputs.selected }}
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
