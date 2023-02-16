@@ -49,7 +49,7 @@ jobs:
     name: Build and push GOST API Docker image
     needs:
       - changes
-    if: ${{ needs.changes.outputs.api == 'true' }}
+    if: needs.changes.outputs.api == 'true'
     uses: "./.github/workflows/build-api.yaml"
     permissions:
       contents: read
@@ -59,7 +59,7 @@ jobs:
     name: Build website deployment artifact
     needs:
       - changes
-    if: ${{ needs.changes.outputs.website == 'true' }}
+    if: needs.changes.outputs.website == 'true'
     uses: "./.github/workflows/build-website.yml"
     permissions:
       contents: read
@@ -93,7 +93,7 @@ jobs:
     needs:
       - select_target_environment
       - changes
-    if: ${{ github.event_name != 'pull_request' && needs.changes.outputs.terraform == 'true' }}
+    if: github.event_name != 'pull_request' && needs.changes.outputs.terraform == 'true'
     concurrency:
       group: deploy_terraform-${{ needs.select_target_environment.outputs.selected }}
       cancel-in-progress: false
