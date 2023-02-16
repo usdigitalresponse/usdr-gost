@@ -20,8 +20,8 @@ jobs:
     name: Detect changes
     runs-on: ubuntu-latest
     outputs:
-      backend: ${{ steps.filter.outputs.api }}
-      frontend: ${{ steps.filter.outputs.website }}
+      api: ${{ steps.filter.outputs.api }}
+      website: ${{ steps.filter.outputs.website }}
       terraform: ${{ steps.filter.outputs.terraform }}
     steps:
       - uses: actions/checkout@v3
