@@ -145,8 +145,6 @@ jobs:
       - select_target_environment
       - deploy_terraform
     if: |
-      always() &&
-      github.event_name != 'pull_request' &&
       needs.build_website.result == 'success' &&
       (needs.deploy_terraform.result == 'success' || needs.deploy_terraform.result == 'skipped')
     environment: ${{ needs.select_target_environment.outputs.selected }}
@@ -181,8 +179,6 @@ jobs:
       - select_target_environment
       - deploy_terraform
     if: |
-      always() &&
-      github.event_name != 'pull_request' &&
       needs.build_api.result == 'success' &&
       (needs.deploy_terraform.result == 'success' || needs.deploy_terraform.result == 'skipped')
     environment: ${{ needs.select_target_environment.outputs.selected }}
