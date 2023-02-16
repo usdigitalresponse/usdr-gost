@@ -47,7 +47,7 @@ jobs:
         working-directory: ${{ env.BUILD_DIR }}
         run: yarn build
       - name: Upload build artifact
-        if: ${{ github.event_name != 'pull_request' }}
+        # if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-artifact@v3
         with:
           name: website-${{ github.sha }}
