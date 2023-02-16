@@ -5,7 +5,7 @@ on:
     paths:
       - 'terraform/**'
       - '.github/workflows/terraform-ci.yml'
-      - '.github/workflows/deployment.yml'
+      - '.github/workflows/build-and-deploy.yml'
 
 permissions:
   pull-requests: write
@@ -25,7 +25,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v2
       - name: Terraform fmt
         id: fmt
-        run: terraform fmt -check -diff -recursive ./infrastructure
+        run: terraform fmt -check -diff -recursive ./terraform
 
   select_target_environment:
     uses: "./.github/workflows/select-target-environment.yml"
@@ -67,7 +67,7 @@ jobs:
         run: mkdir -p $TF_PLUGIN_CACHE_DIR
       - name: Terraform Init
         id: init
-        run: terraform init
+        run: terraform init -backend-config="${{ needs.select_target_environment.outputs.selected }}.s3.tfbackend"
         working-directory: terraform
       - name: Terraform Validate
         id: validate
