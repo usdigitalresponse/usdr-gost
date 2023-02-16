@@ -12,6 +12,11 @@ const POSTGRES_URL = process.env.POSTGRES_URL
 
 const DATA_DIR = resolve(process.env.DATA_DIR)
 const UPLOAD_DIR = join(DATA_DIR, 'uploads')
+// FIXME: TEMP_DIR should probbaly be a sub-path of uploads.
+// see also: https://usdigitalresponse.slack.com/archives/C031R1Y49KL/p1675828761404989
+// After we move to AWS, consider uncommenting the following line:
+// const TEMP_DIR = join(DATA_DIR, 'tmp')
+const TEMP_DIR = join(UPLOAD_DIR, 'tmp')
 const PERIOD_TEMPLATES_DIR = join(UPLOAD_DIR, 'period_templates')
 
 // Note: in legacy standalone ARPA Report repo, this points to src/server; in GOST
@@ -46,6 +51,7 @@ const LOGIN_WARNING_MESSAGE = process.env.LOGIN_WARNING_MESSAGE
 
 module.exports = {
   DATA_DIR,
+  TEMP_DIR,
   UPLOAD_DIR,
   PERIOD_TEMPLATES_DIR,
   SERVER_CODE_DIR,
