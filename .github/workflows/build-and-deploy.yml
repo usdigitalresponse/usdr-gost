@@ -1,7 +1,6 @@
 name: Build and deploy GOST
 
 on:
-  pull_request: {}
   push:
     branches:
       - _staging
