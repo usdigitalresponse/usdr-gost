@@ -22,7 +22,7 @@ resource "aws_rds_cluster_parameter_group" "postgres13" {
 module "db" {
   create_cluster = var.enabled
   source         = "terraform-aws-modules/rds-aurora/aws"
-  version        = "7.6.1"
+  version        = "7.6.2"
 
   name                       = "${var.namespace}-postgres"
   cluster_use_name_prefix    = true
