@@ -1,6 +1,7 @@
 const XLSX = require('xlsx');
 const { merge } = require('lodash');
 
+const asyncBatch = require('async-batch').default;
 const { workbookForUpload } = require('./persist-upload');
 const { getPreviousReportingPeriods } = require('../db/reporting-periods');
 const { usedForTreasuryExport } = require('../db/uploads');

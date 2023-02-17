@@ -4,14 +4,14 @@ const path = require('path')
 const fs = require('fs/promises')
 const _ = require('lodash');
 
-const Cryo = require('cryo')
-const XLSX = require('xlsx')
+const Cryo = require('cryo');
+const XLSX = require('xlsx');
 
-const { getReportingPeriod } = require('../db/reporting-periods')
-const { createUpload } = require('../db/uploads')
-const { TEMP_DIR, UPLOAD_DIR } = require('../environment')
-const { log } = require('../lib/log')
-const ValidationError = require('../lib/validation-error')
+const { getReportingPeriod } = require('../db/reporting-periods');
+const { createUpload } = require('../db/uploads');
+const { TEMP_DIR, UPLOAD_DIR } = require('../environment');
+const { log } = require('../lib/log');
+const ValidationError = require('../lib/validation-error');
 
 // WARNING: changes to this function must be made with care, because:
 //  1. there may be existing data on disk with filenames set according to this function,
@@ -22,10 +22,15 @@ const uploadFSName = (upload) => {
     return path.join(UPLOAD_DIR, filename);
 };
 
+const jsonFSName = (upload) => {
+    const filename = `${upload.id}.json`;
+    return path.join(TEMP_DIR, upload.id[0], filename);
+};
+
 async function persistUpload({ filename, user, buffer }) {
     // let's make sure we can actually read the supplied buffer (it's a valid spreadsheet)
     try {
-        await xlsx.read(buffer, { type: 'buffer' });
+        await XLSX.read(buffer, { type: 'buffer' });
     } catch (e) {
         throw new ValidationError(`Cannot parse XLSX from data in ${filename}: ${e}`);
     }
@@ -43,12 +48,9 @@ async function persistUpload({ filename, user, buffer }) {
 
     // persist the original upload to the filesystem
     try {
-        await mkdir(UPLOAD_DIR, { recursive: true });
-        await writeFile(
-            uploadFSName(upload),
-            buffer,
-            { flag: 'wx' },
-        );
+        const uploadFilename = uploadFSName(upload);
+        await fs.mkdir(path.dirname(uploadFilename), { recursive: true });
+        await fs.writeFile(uploadFilename, buffer, { flag: 'wx' });
     } catch (e) {
         throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
     }
@@ -122,12 +124,12 @@ async function persistJson (upload, workbook) {
   }
 }
 
-async function bufferForUpload (upload) {
-  return fs.readFile(uploadFSName(upload))
+async function bufferForUpload(upload) {
+    return fs.readFile(uploadFSName(upload));
 }
 
-async function jsonForUpload (upload) {
-  return Cryo.parse(await fs.readFile(jsonFSName(upload), {encoding: 'utf-8'}))
+async function jsonForUpload(upload) {
+    return Cryo.parse(await fs.readFile(jsonFSName(upload), { encoding: 'utf-8' }));
 }
 
 /**
@@ -139,27 +141,27 @@ async function jsonForUpload (upload) {
  * @param {XLSX.ParsingOptions} options The options object that will be passed to XLSX.read
  * @return {XLSX.Workbook}s The uploaded workbook, as parsed by XLSX.read.
  */
-async function workbookForUpload (upload, options) {
-  log(`workbookForUpload(${upload.id})`)
+async function workbookForUpload(upload, options) {
+    log(`workbookForUpload(${upload.id})`);
 
-  let workbook
-  try {
+    let workbook;
+    try {
     // attempt to read pre-parsed JSON, if it exists
-    log(`attempting cache lookup for parsed workbook`)
-    workbook = await jsonForUpload(upload)
-  } catch (e) {
+        log(`attempting cache lookup for parsed workbook`);
+        workbook = await jsonForUpload(upload);
+    } catch (e) {
     // fall back to reading the originally-uploaded .xlsm file and parsing it
-    log(`cache lookup failed, parsing originally uploaded .xlsm file`)
-    const buffer = await bufferForUpload(upload)
+        log(`cache lookup failed, parsing originally uploaded .xlsm file`);
+        const buffer = await bufferForUpload(upload);
 
-    // NOTE: This is the slow line!
-    log(`XLSX.read(${upload.id})`)
-    workbook = XLSX.read(buffer, options)
+        // NOTE: This is the slow line!
+        log(`XLSX.read(${upload.id})`);
+        workbook = XLSX.read(buffer, options);
 
-    persistJson(upload, workbook)
-  }
+        persistJson(upload, workbook);
+    }
 
-  return workbook
+    return workbook;
 }
 
 module.exports = {

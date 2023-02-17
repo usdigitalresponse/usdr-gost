@@ -396,8 +396,7 @@ async function validateRules({
         const tRecords = records.filter((rec) => rec.type === type).map((r) => r.content);
 
         // for each of those records, generate a list of rule violations
-        const entries = tRecords.entries();
-        entries.forEach(async ([recordIdx, record]) => {
+        tRecords.forEach(async (record, recordIdx) => {
             let recordErrors;
             try {
                 recordErrors = await validateRecord({ upload, record, typeRules });

@@ -10,7 +10,7 @@ const {
 } = require('../../db/arpa_reporter_db_shims/agencies');
 
 router.get('/', requireUser, (req, res) => {
-    agencies().then((ags) => res.json({ ags }));
+    agencies().then((ags) => res.json({ agencies: ags }));
 });
 
 async function validateAgency(agency) {
