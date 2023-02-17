@@ -16,7 +16,7 @@
         </template>
     </b-table>
     <hr>
-    <b-row>
+    <b-row v-if="this.$negative_keywords_enabled">
         <b-col><h3>Exclude results with:</h3></b-col>
         <b-col class="d-flex justify-content-end">
             <div>
@@ -24,7 +24,7 @@
             </div>
         </b-col>
     </b-row>
-    <b-table sticky-header="600px" hover :items="excludeKeywords" :fields="fields">
+    <b-table v-if="this.$negative_keywords_enabled" sticky-header="600px" hover :items="excludeKeywords" :fields="fields">
         <template #cell(actions)="row">
             <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
             <b-icon icon="trash-fill" aria-hidden="true"></b-icon>

@@ -8,12 +8,13 @@
     "npm": "please-use-yarn"
   },
   "scripts": {
-    "start": "yarn run serve",
-    "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test": "vue-cli-service test:unit",
     "coverage": "nyc yarn test",
-    "lint": "vue-cli-service lint"
+    "env": "export $(cat .env)",
+    "lint": "vue-cli-service lint",
+    "serve": "vue-cli-service serve",
+    "start": "yarn run serve",
+    "test": "vue-cli-service test:unit"
   },
   "dependencies": {
     "bootstrap": "^4.6.1",

@@ -33,7 +33,7 @@
               v-model="formData.type"
             >
                 <b-form-select-option value="include">Include</b-form-select-option>
-                <b-form-select-option value="exclude">Exclude</b-form-select-option>
+                <b-form-select-option v-if="this.$negative_keywords_enabled" value="exclude">Exclude</b-form-select-option>
             </b-form-select>
         </b-form-group>
         <b-form-group

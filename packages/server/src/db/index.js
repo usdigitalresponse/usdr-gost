@@ -59,6 +59,7 @@ async function getUsers(tenantId) {
 }
 
 async function deleteUser(id) {
+    await knex('email_subscriptions').where('user_id', id).del();
     return knex('users')
         .where('id', id)
         .del();
@@ -69,6 +70,14 @@ async function createUser(user) {
         .insert(user)
         .into('users')
         .returning(['id', 'created_at']);
+
+    const emailUnsubscribePreference = Object.assign(
+        ...Object.values(emailConstants.notificationType).map(
+            (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
+        ),
+    );
+    module.exports.setUserEmailSubscriptionPreference(response[0].id, user.agency_id, emailUnsubscribePreference);
+
     return {
         ...user,
         id: response[0].id,
@@ -491,8 +500,10 @@ async function getClosestGrants({
     return knex(TABLES.grants_interested)
         .select('grants.title', 'grants.close_date', 'grants.grant_id')
         .join('grants', 'grants.grant_id', 'grants_interested.grant_id')
+        .join('interested_codes', 'grants_interested.interested_code_id', 'interested_codes.id')
         .whereIn('grants_interested.agency_id', agencies.map((a) => a.id))
         .andWhere('close_date', '>=', timestamp)
+        .andWhere('interested_codes.status_code', '!=', 'Rejected')
         .orderBy('close_date', 'asc')
         .paginate({ currentPage, perPage, isLengthAware: true });
 }
