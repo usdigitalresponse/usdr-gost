@@ -8,6 +8,7 @@
     "packages/server/src/arpa_reporter/data/**",
     "packages/server/src/static/**",
     "docs/**",
+    "terraform/**",
     ".github/**",
     ".vscode/**"
   ]
