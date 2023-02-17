@@ -29,6 +29,8 @@ jobs:
 
   select_target_environment:
     uses: "./.github/workflows/select-target-environment.yml"
+    with:
+      ref_name: "${{ github.target_ref }}"
 
   validate_plan_report:
     name: Validate and plan terraform

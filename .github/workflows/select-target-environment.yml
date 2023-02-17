@@ -2,6 +2,10 @@ name: Select target environment
 
 on:
   workflow_call:
+    inputs:
+      ref_name:
+        type: string
+        required: true
     outputs:
       selected:
         description: Name of the environment to target
@@ -13,7 +17,7 @@ jobs:
     steps:
       - uses: kanga333/variable-mapper@master
         with:
-          key: "${{ github.ref_name }}"
+          key: "${{ inputs.ref_name }}"
           map: |
             {
               "_staging": {
