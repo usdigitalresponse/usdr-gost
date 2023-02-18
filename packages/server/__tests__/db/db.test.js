@@ -237,6 +237,7 @@ describe('db', () => {
             expect(result.length).to.equal(1);
             expect(result[0].name).to.equal('State Board of Accountancy');
             expect(result[0].recipients.length).to.equal(1);
+            expect(result[0].recipients[0]).to.equal(fixtures.users.adminUser.email);
 
             await knex('email_subscriptions').del();
         });
