@@ -222,9 +222,14 @@ describe('db', () => {
             this.clock.restore();
         });
         it('returns agencies with keywords and eligibility codes setup', async () => {
+            /* ensure that admin user is subscribed to all notifications */
+            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
+
             const result = await db.getAgenciesSubscribedToDigest();
             expect(result.length).to.equal(1);
             expect(result[0].name).to.equal('State Board of Accountancy');
+
+            await knex('email_subscriptions').del();
         });
     });
 

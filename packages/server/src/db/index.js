@@ -714,6 +714,9 @@ async function getAgenciesSubscribedToDigest(asOf) {
                 AND aec.enabled = TRUE
             JOIN keywords k ON k.agency_id = a.id
             JOIN users u ON u.agency_id = a.id
+            JOIN email_subscriptions es ON es.user_id = u.id
+                AND es.notification_type = '${emailConstants.notificationType.grantDigest}'
+                AND es.status = '${emailConstants.emailSubscriptionStatus.subscribed}'
         GROUP BY
             a.id
         )
