@@ -1,0 +1,5 @@
+region         = "us-west-2"
+bucket         = "357150818708-us-west-2-terraform"
+key            = "usdr/gost/staging/us-west-2/terraform.tfstate"
+dynamodb_table = "terraform-lock"
+encrypt        = "true"
