@@ -77,7 +77,9 @@ export default {
 
       const formData = new FormData();
       formData.append('spreadsheet', file);
-      formData.append('notes', '<b>TEST & STRING!</b>');
+
+      // TODO: (#896) Actually include data when submitting
+      // formData.append('notes', '<b>TEST & STRING!</b>'); 
 
       try {
         const resp = await postForm('/api/uploads', formData);
