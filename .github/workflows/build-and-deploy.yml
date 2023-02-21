@@ -30,6 +30,7 @@ jobs:
           base: ${{ github.ref }}
           filters: |
             api:
+              - ".github/workflows/build-api.yml"
               - '.github/workflows/build-and-deploy.yml'
               - 'packages/server/**'
               - 'docker/production-api.Dockerfile'
