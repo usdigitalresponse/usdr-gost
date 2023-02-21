@@ -2,7 +2,10 @@
 #   1. The PR was opened by Dependabot
 #   2. The dependency's semantic versioning change is either minor or patch (not major)
 name: Dependabot auto-approve
-on: pull_request_target
+on:
+  pull_request_target: {}
+  pull_request: {}
+
 
 permissions:
   pull-requests: write
