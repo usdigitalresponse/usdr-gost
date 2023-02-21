@@ -37,6 +37,7 @@ jobs:
               - '.nvmrc'
               - 'yarn.lock'
             website:
+              - ".github/workflows/build-website.yml"
               - '.github/workflows/build-and-deploy.yml'
               - 'packages/client/**'
               - '.node-version'
