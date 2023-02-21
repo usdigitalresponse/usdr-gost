@@ -2,23 +2,13 @@
 #   1. The PR was opened by Dependabot
 #   2. The dependency's semantic versioning change is either minor or patch (not major)
 name: Dependabot auto-approve
-on:
-  pull_request_target: {}
-  pull_request: {}
-
+on: pull_request_target
 
 permissions:
   pull-requests: write
   contents: write
 
 jobs:
-  print_context:
-    runs-on: ubuntu-latest
-    steps:
-      - env:
-          EVENT_CONTEXT: ${{ toJSON(github.event) }}
-        run: |
-          echo $EVENT_CONTEXT
   dependabot:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
