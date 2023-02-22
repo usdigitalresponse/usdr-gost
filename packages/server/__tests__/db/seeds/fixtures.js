@@ -299,6 +299,7 @@ module.exports = {
     grantsInterested,
     grants,
     interestedCodes,
+    roles,
 };
 
 module.exports.seed = async (knex) => {

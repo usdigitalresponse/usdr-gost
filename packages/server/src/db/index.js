@@ -59,6 +59,7 @@ async function getUsers(tenantId) {
 }
 
 async function deleteUser(id) {
+    await knex('email_subscriptions').where('user_id', id).del();
     return knex('users')
         .where('id', id)
         .del();
@@ -69,6 +70,14 @@ async function createUser(user) {
         .insert(user)
         .into('users')
         .returning(['id', 'created_at']);
+
+    const emailUnsubscribePreference = Object.assign(
+        ...Object.values(emailConstants.notificationType).map(
+            (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
+        ),
+    );
+    module.exports.setUserEmailSubscriptionPreference(response[0].id, user.agency_id, emailUnsubscribePreference);
+
     return {
         ...user,
         id: response[0].id,
@@ -705,6 +714,9 @@ async function getAgenciesSubscribedToDigest(asOf) {
                 AND aec.enabled = TRUE
             JOIN keywords k ON k.agency_id = a.id
             JOIN users u ON u.agency_id = a.id
+            JOIN email_subscriptions es ON es.user_id = u.id
+                AND es.notification_type = '${emailConstants.notificationType.grantDigest}'
+                AND es.status = '${emailConstants.emailSubscriptionStatus.subscribed}'
         GROUP BY
             a.id
         )

@@ -1,0 +1,36 @@
+name: Select target environment
+
+on:
+  workflow_call:
+    inputs:
+      ref_name:
+        type: string
+        required: true
+    outputs:
+      selected:
+        description: Name of the environment to target
+        value: ${{ jobs.select.outputs.selected }}
+
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kanga333/variable-mapper@master
+        with:
+          key: "${{ inputs.ref_name }}"
+          map: |
+            {
+              "_staging": {
+                "selected": "staging"
+              },
+              "main": {
+                "selected": "production"
+              },
+              ".*": {
+                "selected": "sandbox"
+              }
+            }
+          export_to: log,env
+          mode: first_match
+    outputs:
+      selected: ${{ env.selected }}

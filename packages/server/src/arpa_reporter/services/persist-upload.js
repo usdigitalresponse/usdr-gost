@@ -111,6 +111,7 @@ async function workbookForUpload (upload, options) {
 
 module.exports = {
   persistUpload,
+  bufferForUpload,
   workbookForUpload,
   uploadFSName,
 

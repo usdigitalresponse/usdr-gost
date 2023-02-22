@@ -222,9 +222,24 @@ describe('db', () => {
             this.clock.restore();
         });
         it('returns agencies with keywords and eligibility codes setup', async () => {
+            /* ensure that admin user is subscribed to all notifications */
+            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
+
+            /* ensure that staff user is not subscribed to any notifications */
+            const emailUnsubscribePreference = Object.assign(
+                ...Object.values(emailConstants.notificationType).map(
+                    (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
+                ),
+            );
+            await db.setUserEmailSubscriptionPreference(fixtures.users.staffUser.id, fixtures.users.staffUser.agency_id, emailUnsubscribePreference);
+
             const result = await db.getAgenciesSubscribedToDigest();
             expect(result.length).to.equal(1);
             expect(result[0].name).to.equal('State Board of Accountancy');
+            expect(result[0].recipients.length).to.equal(1);
+            expect(result[0].recipients[0]).to.equal(fixtures.users.adminUser.email);
+
+            await knex('email_subscriptions').del();
         });
     });
 
@@ -248,6 +263,49 @@ describe('db', () => {
             await knex(TABLES.grants).insert(Object.values([newGrant]));
             const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
             expect(result.length).to.equal(1);
+        });
+    });
+
+    context('createUser', () => {
+        it('sets default email unsubuscribe when new users are created', async () => {
+            const response = await db.createUser(
+                {
+                    email: 'foo@example.com',
+                    name: 'sample name',
+                    role_id: fixtures.roles.adminRole.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    tenant_id: fixtures.tenants.SBA.id,
+                    id: 99991,
+                },
+            );
+            const createdUser = await db.getUser(response.id);
+            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            await db.deleteUser(response.id);
+        });
+    });
+
+    context('deleteUser', () => {
+        it('deletes email subscriptions when users are deleted', async () => {
+            const response = await db.createUser(
+                {
+                    email: 'foo@example.com',
+                    name: 'sample name',
+                    role_id: fixtures.roles.adminRole.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    tenant_id: fixtures.tenants.SBA.id,
+                    id: 99991,
+                },
+            );
+            const createdUser = await db.getUser(response.id);
+            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            await db.deleteUser(response.id);
+
+            const existingSubscriptions = await knex('email_subscriptions').where('user_id', response.id);
+            expect(existingSubscriptions.length).to.equal(0);
         });
     });
 
