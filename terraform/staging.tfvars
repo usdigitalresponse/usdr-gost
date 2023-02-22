@@ -13,7 +13,7 @@ cluster_container_insights_enabled = true
 
 // API / Backend
 api_enabled                    = true
-api_domain_name                = "api.staging2.grants.usdigitalresponse.org"
+api_domain_name                = "api.staging.grants.usdigitalresponse.org"
 api_container_image_tag        = "latest"
 api_default_desired_task_count = 1
 api_enable_grants_scraper      = true
