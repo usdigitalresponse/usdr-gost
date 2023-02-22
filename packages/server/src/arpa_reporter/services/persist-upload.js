@@ -2,7 +2,6 @@
 
 const path = require('path')
 const fs = require('fs/promises')
-const {normalizeAndEscape} = require('../../db/utils');
 
 const Cryo = require('cryo')
 const XLSX = require('xlsx')
@@ -37,14 +36,14 @@ async function persistUpload ({ filename, user, buffer, body }) {
 
   // get the current reporting period
   const reportingPeriod = await getReportingPeriod()
-  const cleanedNotes = normalizeAndEscape(body.notes);
+  const escapedNotes = _.escape(body.notes);
 
   // create an upload
   const uploadRow = {
     filename: path.basename(filename),
     reporting_period_id: reportingPeriod.id,
     user_id: user.id,
-    notes: cleanedNotes ?? null
+    notes: escapedNotes ?? null
   }
 
   const upload = await createUpload(uploadRow)
