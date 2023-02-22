@@ -6,7 +6,7 @@ ssm_deployment_parameters_path_prefix = "/gost/staging/deploy-config"
 
 // Website
 website_enabled     = true
-website_domain_name = "staging2.grants.usdigitalresponse.org"
+website_domain_name = "staging.grants.usdigitalresponse.org"
 
 // ECS Cluster
 cluster_container_insights_enabled = true
