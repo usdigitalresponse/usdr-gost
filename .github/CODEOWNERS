@@ -1,0 +1,5 @@
+# Require admin approval for GitHub settings and workflow modifications
+/.github/  @usdigitalresponse/grants-admins
+
+# Require admin approval for Terraform IAC modifications
+/terraform/ @usdigitalresponse/grants-admins

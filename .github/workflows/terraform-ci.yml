@@ -1,0 +1,150 @@
+name: Terraform CI
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/terraform-ci.yml'
+
+permissions:
+  pull-requests: write
+  contents: read
+  id-token: write
+
+concurrency:
+  group: ${{ github.workflow_ref }}
+
+jobs:
+  lint:
+    name: Lint terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check -diff -recursive ./terraform
+
+  select_target_environment:
+    uses: "./.github/workflows/select-target-environment.yml"
+    with:
+      ref_name: "${{ github.base_ref }}"
+
+  validate_plan_report:
+    name: Validate and plan terraform
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - select_target_environment
+    environment: ${{ needs.select_target_environment.outputs.selected }}
+    env:
+      TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
+    concurrency:
+      group: run_terraform-${{ needs.select_target_environment.outputs.selected }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Get project TF version
+        id: get_version
+        run: echo "TF_VERSION=$(cat .terraform-version | tr -d '[:space:]')" | tee -a $GITHUB_OUTPUT
+        working-directory: terraform
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ steps.get_version.outputs.TF_VERSION }}
+      - name: Ensure Terraform plugin cache exists
+        run: mkdir -p $TF_PLUGIN_CACHE_DIR
+      - name: Save/Restore Terraform plugin cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+      - name: Ensure Terraform plugin cache still exists
+        run: mkdir -p $TF_PLUGIN_CACHE_DIR
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config="${{ needs.select_target_environment.outputs.selected }}.s3.tfbackend"
+        working-directory: terraform
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: terraform
+      - name: Terraform Plan
+        if: steps.validate.outcome == 'success'
+        id: plan
+        run: terraform plan -input=false -no-color -out=tfplan -var-file="${{ needs.select_target_environment.outputs.selected }}.tfvars" && terraform show -no-color tfplan
+        working-directory: terraform
+      - name: Reformat Plan
+        if: steps.plan.outcome != 'cancelled' && steps.plan.outcome != 'skipped'
+        run: |
+          echo '${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}' \
+          | sed -E 's/^([[:space:]]+)([-+])/\2\1/g' > plan.txt
+      - name: Put Plan in Env Var
+        if: steps.plan.outcome != 'cancelled' && steps.plan.outcome != 'skipped'
+        run: |
+          PLAN=$(cat plan.txt)
+          echo "PLAN<<EOF" >> $GITHUB_ENV
+          echo "$PLAN" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('Report for project: \`terraform\`')
+            })
+
+            // 2. Prepare format of the comment
+            const output = `### Report for project: \`terraform\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
+
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`diff\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }

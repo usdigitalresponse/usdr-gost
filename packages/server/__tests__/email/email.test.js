@@ -11,6 +11,7 @@ const fixtures = require('../db/seeds/fixtures');
 const db = require('../../src/db');
 const awsTransport = require('../../src/lib/email/email-aws');
 const emailConstants = require('../../src/lib/email/constants');
+const knex = require('../../src/db/connection');
 
 const {
     TEST_EMAIL_RECIPIENT,
@@ -320,10 +321,14 @@ describe('Email sender', () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(email, 'sendGrantDigestForAgency', sendFake);
 
+            /* ensure that admin user is subscribed to all notifications */
+            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
+
             await email.buildAndSendGrantDigest();
 
             /* only fixtures.agency.accountancy has eligibility-codes, keywords, and users that match an existing grant */
             expect(sendFake.calledOnce).to.equal(true);
+            await knex('email_subscriptions').del();
         });
         it('sendGrantDigestForAgency sends no email when there are no grants to send', async () => {
             const sendFake = sinon.fake.returns('foo');

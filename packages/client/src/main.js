@@ -16,9 +16,9 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 Vue.use(Vuelidate);
 Vue.component('v-select', vSelect);
-Vue.prototype.$environment = process.env.GOST_ENVIRONMENT || 'production';
 
 Vue.config.productionTip = false;
+Vue.prototype.$negative_keywords_enabled = process.env.VUE_APP_NEGATIVE_KEYWORDS_ENABLED === 'true';
 
 fetchApi.get('/api/sessions')
   .then((data) => {
