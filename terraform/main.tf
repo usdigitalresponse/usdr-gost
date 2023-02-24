@@ -24,6 +24,7 @@ data "aws_ssm_parameter" "private_subnet_ids" {
 locals {
   private_subnet_ids       = split(",", data.aws_ssm_parameter.private_subnet_ids.value)
   permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_policy_name}"
+  api_domain_name          = coalesce(var.api_domain_name, "api.${var.website_domain_name}")
 }
 
 
@@ -39,7 +40,7 @@ module "website" {
 
   dns_zone_id     = data.aws_ssm_parameter.public_dns_zone_id.value
   domain_name     = var.website_domain_name
-  gost_api_domain = var.api_domain_name
+  gost_api_domain = local.api_domain_name
 }
 
 module "api_to_postgres_security_group" {
@@ -100,7 +101,7 @@ module "api" {
   enable_grants_scraper      = var.api_enable_grants_scraper
 
   # DNS
-  domain_name         = var.api_domain_name
+  domain_name         = local.api_domain_name
   dns_zone_id         = data.aws_ssm_parameter.public_dns_zone_id.value
   website_domain_name = var.website_domain_name
 
