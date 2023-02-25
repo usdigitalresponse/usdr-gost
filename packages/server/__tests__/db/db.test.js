@@ -18,16 +18,17 @@ describe('db', () => {
     context('getGrantsInterested', () => {
         it('gets the most recent interested grant', async () => {
             const rows = await db.getGrantsInterested({ agencyId: fixtures.users.staffUser.agency_id, perPage: 1, currentPage: 1 });
-            expect(rows[0]).to.have.property('grant_id').with.lengthOf(6);
-            expect(rows[0].grant_id).to.equal(fixtures.grantsInterested.entry2.grant_id);
+            const row = rows.data[0];
+            expect(row).to.have.property('grant_id').with.lengthOf(6);
+            expect(row.grant_id).to.equal(fixtures.grantsInterested.entry2.grant_id);
             // in the grants interested table the grant with the most recent created_at has the grant id of 335255
-            expect(rows[0]).to.have.property('grant_id').equal('335255');
+            expect(row).to.have.property('grant_id').equal('335255');
         });
         it('gets the two most recent interested grants', async () => {
             // testing pagination
             const rows = await db.getGrantsInterested({ agencyId: fixtures.users.staffUser.agency_id, perPage: 2, currentPage: 1 });
-            expect(rows).to.have.lengthOf(2);
-            expect(rows.map((r) => r.created_at.getTime())).to.have.all.members([1663117521515, 1659827033570]);
+            expect(rows.data).to.have.lengthOf(2);
+            expect(rows.data.map((r) => r.created_at.getTime())).to.have.all.members([1663117521515, 1659827033570]);
         });
     });
     context('getTotalInterestedGrants', () => {
@@ -316,9 +317,9 @@ describe('db', () => {
                 },
             );
             const createdUser = await db.getUser(response.id);
-            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
-            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
-            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
+            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
+            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
             await db.deleteUser(response.id);
 
             const existingSubscriptions = await knex('email_subscriptions').where('user_id', response.id);
@@ -448,15 +449,15 @@ describe('db', () => {
             const interestResult = await db.getSubscribersForNotification(fixtures.agencies.accountancy.id, emailConstants.notificationType.grantInterest);
             const interestSubscribers = interestResult.map((r) => r.email);
 
-            expect(assignmentResult.length).to.equal(2);
+            expect(assignmentResult.length).to.equal(3);
             expect(assignmentSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
             expect(assignmentSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
 
-            expect(digestResult.length).to.equal(2);
+            expect(digestResult.length).to.equal(3);
             expect(digestSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
             expect(digestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
 
-            expect(interestResult.length).to.equal(2);
+            expect(interestResult.length).to.equal(3);
             expect(interestSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
             expect(interestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
         });
@@ -493,14 +494,14 @@ describe('db', () => {
                 fixtures.agencies.accountancy.id,
                 emailConstants.notificationType.grantInterest,
             );
-            expect(assignmentResult.length).to.equal(2);
+            expect(assignmentResult.length).to.equal(3);
             expect(assignmentSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
             expect(assignmentSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
 
-            expect(digestResult.length).to.equal(1);
+            expect(digestResult.length).to.equal(2);
             expect(digestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
 
-            expect(interestResult.length).to.equal(0);
+            expect(interestResult.length).to.equal(1);
         });
     });
 });
