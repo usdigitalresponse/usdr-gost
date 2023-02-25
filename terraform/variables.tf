@@ -58,7 +58,8 @@ variable "api_enabled" {
 }
 
 variable "api_domain_name" {
-  type = string
+  type    = string
+  default = ""
 }
 
 variable "api_container_image_tag" {

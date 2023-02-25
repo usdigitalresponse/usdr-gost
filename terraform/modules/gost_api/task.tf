@@ -5,7 +5,7 @@ locals {
 
 module "api_container_definition" {
   source  = "cloudposse/ecs-container-definition/aws"
-  version = "0.58.1"
+  version = "0.58.2"
 
   container_name           = "api"
   container_image          = local.api_container_image
@@ -71,7 +71,7 @@ module "api_container_definition" {
 
 module "datadog_container_definition" {
   source  = "cloudposse/ecs-container-definition/aws"
-  version = "0.58.1"
+  version = "0.58.2"
 
   container_name           = "datadog"
   container_image          = "public.ecr.aws/datadog/agent:latest"

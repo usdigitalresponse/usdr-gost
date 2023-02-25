@@ -30,12 +30,14 @@ jobs:
           base: ${{ github.ref }}
           filters: |
             api:
+              - ".github/workflows/build-api.yml"
               - '.github/workflows/build-and-deploy.yml'
               - 'packages/server/**'
               - 'docker/production-api.Dockerfile'
               - '.nvmrc'
               - 'yarn.lock'
             website:
+              - ".github/workflows/build-website.yml"
               - '.github/workflows/build-and-deploy.yml'
               - 'packages/client/**'
               - '.node-version'
