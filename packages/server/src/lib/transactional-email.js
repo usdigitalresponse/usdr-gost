@@ -1,14 +1,10 @@
 // eslint-disable-next-line import/no-unresolved
 const fileSystem = require('fs');
-const path = require('path');
 const mustache = require('mustache');
 const knex = require('../db/connection');
 const { addBaseBranding, deliverEmail } = require('./email');
 
 async function sendTransactionalEmail(toAddress, bodyTitle, bodyHTML, bodyPlain, toolName, subject) {
-    console.log(__dirname);
-    console.log(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
-
     const fullPath = ''; // FIXME pwd + ../static/email_templates/_formatted_body.html
     const formattedBodyTemplate = fileSystem.readFileSync(fullPath);
 
