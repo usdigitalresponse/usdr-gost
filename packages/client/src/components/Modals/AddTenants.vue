@@ -143,7 +143,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      createTenant: 'keywords/createTenant',
+      createTenant: 'tenants/createTenant',
     }),
     resetModal() {
       this.formData = {};
