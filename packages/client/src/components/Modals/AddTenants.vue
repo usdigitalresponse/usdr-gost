@@ -11,7 +11,7 @@
       >
         <form ref="form" @submit.stop.prevent="handleSubmit">
           <b-form-group
-            :state="!($v.formData.tenantName.$invalid && $v.$dirty)"
+            :state="!$v.formData.tenantName.$invalid"
             label="Tenant Name"
             label-for="tenantName-input"
             invalid-feedback="Tenant name is invalid"
@@ -19,13 +19,12 @@
             <b-form-input
               id="tenantName-input"
               v-model="formData.tenantName"
-              :state="!($v.formData.tenantName.$invalid && $v.$dirty)"
-              @change="$v.$touch()"
+              :state="!$v.formData.tenantName.$invalid"
               required
             ></b-form-input>
           </b-form-group>
           <b-form-group
-            :state="!($v.formData.agencyName.$invalid && $v.$dirty)"
+            :state="!$v.formData.agencyName.$invalid"
             label="Agency Name"
             label-for="agencyName-input"
             invalid-feedback="Agency name is invalid"
@@ -33,8 +32,7 @@
             <b-form-input
               id="agencyName-input"
               v-model="formData.agencyName"
-              :state="!($v.formData.agencyName.$invalid && $v.$dirty)"
-              @change="$v.$touch()"
+              :state="!$v.formData.agencyName.$invalid"
               required
             ></b-form-input>
           </b-form-group>
@@ -48,11 +46,10 @@
               id="agencyAbbreviation-input"
               v-model="formData.agencyAbbreviation"
               :state="!$v.formData.agencyAbbreviation"
-              @change="$v.$touch()"
             ></b-form-input>
           </b-form-group>
           <b-form-group
-            :state="!($v.formData.agencyCode.$invalid && $v.$dirty)"
+            :state="!$v.formData.agencyCode.$invalid"
             label="Agency Code"
             label-for="agencyCode-input"
             invalid-feedback="Agency code is invalid"
@@ -60,19 +57,19 @@
             <b-form-input
               id="agencyCode-input"
               v-model="formData.agencyCode"
-              :state="!($v.formData.agencyCode.$invalid && $v.$dirty)"
-              @change="$v.$touch()"
+              :state="!$v.formData.agencyCode.$invalid"
               required
             ></b-form-input>
           </b-form-group>
           <b-form-group
-              :state="!($v.formData.adminUserEmail.$invalid && $v.$dirty)"
+              :state="!$v.formData.adminUserEmail.$invalid"
               label="Admin User Email"
               label-for="adminUserEmail-input"
               invalid-feedback="Please enter a valid admin user email address"
           >
             <b-form-input
                 id="adminUserEmail-input"
+                :state="!$v.formData.adminUserEmail.$invalid"
                 v-model="formData.adminUserEmail"
             ></b-form-input>
           </b-form-group>
@@ -86,7 +83,6 @@
               id="adminUserName-input"
               v-model="formData.adminUserName"
               :state="!$v.formData.adminUserName"
-              @change="$v.$touch()"
             ></b-form-input>
           </b-form-group>
         </form>
@@ -127,6 +123,9 @@ export default {
         email,
       },
       agencyCode: {
+        required,
+      },
+      adminUserName: {
         required,
       },
     },
