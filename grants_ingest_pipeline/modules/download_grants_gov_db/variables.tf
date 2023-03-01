@@ -1,3 +1,4 @@
+// Common
 variable "namespace" {
   type        = string
   description = "Prefix to use for resource names and identifiers."
@@ -37,6 +38,7 @@ variable "log_retention_in_days" {
   default     = 30
 }
 
+// Module-specific
 variable "eventbridge_scheduler_enabled" {
   description = "If false, uses CloudWatch Events to schedule Lambda execution. This should only be false in development."
   type        = bool
