@@ -74,7 +74,7 @@
             ></b-form-input>
           </b-form-group>
           <b-form-group
-            :state="!$v.formData.adminUserName"
+            :state="!$v.formData.adminUserName.$invalid"
             label="Admin User Name"
             label-for="adminUserName-input"
             invalid-feedback="Admin user name is invalid"
@@ -82,7 +82,7 @@
             <b-form-input
               id="adminUserName-input"
               v-model="formData.adminUserName"
-              :state="!$v.formData.adminUserName"
+              :state="!$v.formData.adminUserName.$invalid"
             ></b-form-input>
           </b-form-group>
         </form>
