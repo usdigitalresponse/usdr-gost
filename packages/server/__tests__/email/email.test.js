@@ -11,6 +11,7 @@ const fixtures = require('../db/seeds/fixtures');
 const db = require('../../src/db');
 const awsTransport = require('../../src/lib/email/email-aws');
 const emailConstants = require('../../src/lib/email/constants');
+const knex = require('../../src/db/connection');
 
 const {
     TEST_EMAIL_RECIPIENT,
@@ -320,10 +321,14 @@ describe('Email sender', () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(email, 'sendGrantDigestForAgency', sendFake);
 
+            /* ensure that admin user is subscribed to all notifications */
+            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
+
             await email.buildAndSendGrantDigest();
 
             /* only fixtures.agency.accountancy has eligibility-codes, keywords, and users that match an existing grant */
             expect(sendFake.calledOnce).to.equal(true);
+            await knex('email_subscriptions').del();
         });
         it('sendGrantDigestForAgency sends no email when there are no grants to send', async () => {
             const sendFake = sinon.fake.returns('foo');
@@ -350,6 +355,36 @@ describe('Email sender', () => {
             await email.sendGrantDigestForAgency({ agency, openDate: moment().subtract(1, 'day').format('YYYY-MM-DD') });
 
             expect(sendFake.calledTwice).to.equal(true);
+        });
+        it('builds all the grants if fewer than 3 available', async () => {
+            const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
+            const agency = agencies[0];
+            agency.matched_grants = [fixtures.grants.healthAide];
+            const body = await email.buildDigestBody({ agency });
+            expect(body).to.include(fixtures.grants.healthAide.description);
+        });
+        it('builds only first 3 grants if >3 available', async () => {
+            const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
+            const agency = agencies[0];
+            const ignoredGrant = { ...fixtures.grants.healthAide };
+            ignoredGrant.description = 'Added a brand new description';
+
+            const updateFn = (int) => {
+                const newGrant = { ...fixtures.grants.healthAide };
+                newGrant.description = `description-${int}`;
+                return newGrant;
+            };
+            const additionalGrants = [...Array(30).keys()].map(updateFn);
+            agency.matched_grants = [...additionalGrants, ...[fixtures.grants.healthAide, fixtures.grants.earFellowship, fixtures.grants.redefiningPossible]];
+            const body = await email.buildDigestBody({ agency });
+
+            /* the last 3 grants should not be included in the email */
+            expect(body).to.not.include(fixtures.grants.healthAide.description);
+            expect(body).to.not.include(fixtures.grants.earFellowship.description);
+            expect(body).to.not.include(fixtures.grants.redefiningPossible.description);
+
+            /* the first 30 grants should be included in the email */
+            additionalGrants.forEach((grant) => expect(body).to.include(grant.description));
         });
     });
 });

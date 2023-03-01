@@ -1,7 +1,7 @@
 const XLSX = require('xlsx')
 const { merge } = require('lodash')
 
-const { bufferForUpload } = require('./persist-upload')
+const { workbookForUpload } = require('./persist-upload')
 const { getPreviousReportingPeriods } = require('../db/reporting-periods')
 const { usedForTreasuryExport } = require('../db/uploads')
 const { log } = require('../lib/log')
@@ -62,8 +62,11 @@ async function loadRecordsForUpload (upload) {
 
   const rules = getRules()
 
-  const buffer = await bufferForUpload(upload)
-  const workbook = XLSX.read(buffer, {
+
+  // NOTE: workbookForUpload relies on a disk cache for optimization.
+  // If you change any of the below parsing parameters, you will need to
+  // clear the server's TEMP_DIR folder to ensure they take effect.
+  const workbook = await workbookForUpload(upload, {
     cellDates: true,
     type: 'buffer',
     sheets: [CERTIFICATION_SHEET, COVER_SHEET, LOGIC_SHEET, ...Object.keys(DATA_SHEET_TYPES)]

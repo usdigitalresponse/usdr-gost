@@ -1,4 +1,5 @@
 const { TABLES } = require('../../../src/db/constants');
+const interestedCodes = require('../../../seeds/dev/ref/interestedCodes');
 
 const roles = {
     adminRole: { id: 1, name: 'admin', rules: {} },
@@ -75,19 +76,13 @@ const users = {
 
 const keywords = {
     accountancyCovid: {
-        mode: 'autoinsert ALL keywords matches', search_term: 'Covid', notes: '', agency_id: agencies.accountancy.id,
+        mode: 'autoinsert ALL keywords matches', search_term: 'Covid', notes: '', agency_id: agencies.accountancy.id, type: 'include',
+    },
+    accountancyClimate: {
+        mode: 'autoinsert ALL keywords matches', search_term: 'Climate', notes: '', agency_id: agencies.accountancy.id, type: 'exclude',
     },
     fleetServicesTransportation: {
-        mode: 'autoinsert ALL keywords matches', search_term: 'Transportation', notes: '', agency_id: agencies.fleetServices.id,
-    },
-};
-
-const interestedCodes = {
-    notApplicable: {
-        id: 0, name: 'Not applicable to needs/goals', status_code: 'Rejected',
-    },
-    inadequateCapacity: {
-        id: 1, name: 'Inadequate program capacity', status_code: 'Rejected',
+        mode: 'autoinsert ALL keywords matches', search_term: 'Transportation', notes: '', agency_id: agencies.fleetServices.id, type: 'include',
     },
 };
 
@@ -132,6 +127,22 @@ const grantsInterested = {
         created_at: '2022-01-06 11:30:38.89828-07',
         updated_at: '2022-04-23 12:30:39.531-07',
         interested_code_id: 1,
+    },
+    entry4: {
+        agency_id: agencies.accountancy.id,
+        grant_id: '1',
+        user_id: users.adminUser.id,
+        created_at: '2022-01-06 11:30:38.89828-07',
+        updated_at: '2022-04-23 12:30:39.531-07',
+        interested_code_id: interestedCodes.filter((code) => code.status_code === 'Interested')[0].id,
+    },
+    entry5: {
+        agency_id: agencies.accountancy.id,
+        grant_id: '2',
+        user_id: users.adminUser.id,
+        created_at: '2022-01-06 11:30:38.89828-07',
+        updated_at: '2022-04-23 12:30:39.531-07',
+        interested_code_id: interestedCodes.filter((code) => code.status_code === 'Result')[0].id,
     },
 };
 const grants = {
@@ -223,6 +234,50 @@ const grants = {
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
     },
+    interestedGrant: {
+        status: 'inbox',
+        grant_id: '1',
+        grant_number: '1',
+        agency_code: 'HHS-IHS',
+        award_ceiling: '500000',
+        cost_sharing: 'No',
+        title: 'interestedGrant',
+        cfda_list: '93.382',
+        open_date: '2021-08-05',
+        close_date: '2021-11-04',
+        notes: 'auto-inserted by script',
+        search_terms: '[in title/desc]+',
+        reviewer_name: 'none',
+        opportunity_category: 'Discretionary',
+        description: '',
+        eligibility_codes: '',
+        opportunity_status: 'posted',
+        raw_body: 'raw body',
+        created_at: '2021-08-06 16:03:53.57025-07',
+        updated_at: '2021-08-11 12:35:42.562-07',
+    },
+    resultGrant: {
+        status: 'inbox',
+        grant_id: '2',
+        grant_number: '2',
+        agency_code: 'HHS-IHS',
+        award_ceiling: '500000',
+        cost_sharing: 'No',
+        title: 'resultGrant',
+        cfda_list: '93.382',
+        open_date: '2021-08-05',
+        close_date: '2021-11-05',
+        notes: 'auto-inserted by script',
+        search_terms: '[in title/desc]+',
+        reviewer_name: 'none',
+        opportunity_category: 'Discretionary',
+        description: '',
+        eligibility_codes: '',
+        opportunity_status: 'posted',
+        raw_body: 'raw body',
+        created_at: '2021-08-06 16:03:53.57025-07',
+        updated_at: '2021-08-11 12:35:42.562-07',
+    },
 };
 
 const assignedAgencyGrants = {
@@ -244,6 +299,7 @@ module.exports = {
     grantsInterested,
     grants,
     interestedCodes,
+    roles,
 };
 
 module.exports.seed = async (knex) => {

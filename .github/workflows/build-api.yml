@@ -1,23 +1,17 @@
 name: Build Docker image for GOST API
 
 on:
-  push:
-    branches:
-      - _staging
-      - main
+  pull_request:
     paths:
+      - ".github/workflows/build-api.yml"
       - "packages/server/**"
       - "docker/production-api.Dockerfile"
       - "yarn.lock"
-      - ".github/workflows/build-api.yaml"
-  pull_request: {}
-  release:
-    types:
-      - published
+  workflow_call: {}
 
-concurrency:
-  group: ${{ github.workflow_ref }}
-  cancel-in-progress: true
+permissions:
+  contents: read
+  packages: write
 
 env:
   REGISTRY: ghcr.io
@@ -26,9 +20,6 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v3
       - name: Set up QEMU
@@ -49,10 +40,10 @@ jobs:
           tags: |
             type=sha,enable=true,priority=100,prefix=,suffix=,format=short
             type=raw,enable=true,priority=200,prefix=,suffix=,value={{date 'YYYYMMDD.HHmm'}}
-            type=raw,enable=${{ github.event_name == 'push' }},priority=300,value=latest
+            type=raw,enable=${{ github.event_name != 'pull_request' }},priority=300,value=latest
             type=raw,enable=${{ github.ref == 'refs/heads/main' }},priority=300,value=stable
           labels: |
-            org.opencontainers.image.title=usdr-gost-api
+            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
             org.opencontainers.image.version={{date 'YYYYMMDD.HHmm'}}
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
@@ -67,5 +58,3 @@ jobs:
             GIT_COMMIT=${{ github.sha }}
             GIT_REF=${{ github.ref }}
             TIMESTAMP=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
-      - if: ${{ github.event_name == 'pull_request' }}
-        run: echo "Builds triggered by pull requests are not published."

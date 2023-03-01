@@ -142,37 +142,33 @@ Now you should be able to serve the backend.
 
 ## Yarn Workspaces
 
-Workspaces optimizes our repo by hoisting all of our separate node_modules/ to the root level meaning that a single yarn install command installs the NPM modules for all services
+We use [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/cli/workspaces) to manage a monorepo comprised of `client` and a `server` packages, contained within the `packages` folder. Workspaces let you run commands at the top level of the repo without having to `cd` into the respective repositories.
 
-https://classic.yarnpkg.com/en/docs/workspaces/
+Simply start the command with `yarn workspace client` or `yarn workspace server` before the command you wish to run. You can also specify `yarn workspaces run` to run a given command against all workspaces within the repository. Note that when running long-running/polling processes, it's necessary to use [concurrently](https://www.npmjs.com/package/concurrently) or similar.
 
-## Lerna
+Example usages:
 
-Lerna helps us manage our packages, publish them, and keeps track of the dependencies between them. For example, it is used to run linting, deploy, and test scripts for each package from the root of the project.
+`yarn workspace client serve` - Run the `serve` script within `./packages/client/packages.json`
 
-Example usages
+`yarn workspace server serve` - Run the `serve` script within `./packages/server/packages.json`
 
-`npx lerna bootstrap` - recursive yarn install
-
-`npx lerna run --scope server --stream start`
+`yarn workspaces run serve` - Run the `serve` script within both `./packages/client/packages.json` and `./packages/server/packages.json`
 
 ## Adding dependencies
 
 ### To add dependencies to one workspace
 
-`npx lerna add {modules} --scope="{workspace_name}"` - where workspace_name is the name in package.json. Run `yarn workspaces info` to see a list of packages
+`yarn workspace client add {modules}"` - where workspace_name is the name in package.json. Run `yarn workspaces info` to see a list of packages.
 
-    Example `npx lerna add uuid --scope="server" --dev`
+    Example `yarn worksspace client add uuid --dev`
 
-Or you can run yarn inside the workspace
+Or, you can always `cd` to the directory within `packages` and run the command there, as in:
 
-`yarn add {modules}`
+`cd packages/client && yarn add {modules}`
 
 ### Add dependencies to multiple packages
 
-`npx lerna add {modules}`
-
-NOTE: yarn complains about incompatibility of some node modules with our node version. When using yarn, pass `--ignore-engines` when doing `yarn add/remove`. I have not been able to pass this argument when running `npx lerna add..`. After running lerna do a `yarn run bootstrap` at the root of the project to get your dependency correctly installed.
+`yarn workspaces add {modules}`
 
 ## Linting
 
@@ -282,12 +278,6 @@ npx knex seed:run
 ```
 
 After that you should be able to access the site and login with the users set in the migration.
-
-
-## Debugging
-
-Sometimes `lerna` seems to hang w/ no output. [By adding `--stream` you can get more information about the error.](https://github.com/lerna/lerna/issues/2183#issuecomment-511976236)
-
 
 ## Code of Conduct
 

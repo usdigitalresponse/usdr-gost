@@ -25,6 +25,18 @@
           ></b-form-input>
         </b-form-group>
         <b-form-group
+          label="Type"
+          label-for="type-select"
+        >
+            <b-form-select
+              id="type-select"
+              v-model="formData.type"
+            >
+                <b-form-select-option value="include">Include</b-form-select-option>
+                <b-form-select-option v-if="this.$negative_keywords_enabled" value="exclude">Exclude</b-form-select-option>
+            </b-form-select>
+        </b-form-group>
+        <b-form-group
           :state="!$v.formData.notes.$invalid"
           label="Notes"
           label-for="notes-input"
@@ -50,6 +62,7 @@ import { required, maxLength } from 'vuelidate/lib/validators';
 
 export default {
   props: {
+    keywordType: String,
     showModal: Boolean,
   },
   data() {
@@ -57,6 +70,7 @@ export default {
       formData: {
         notes: null,
         searchTerm: null,
+        type: this.keywordType,
       },
     };
   },
@@ -86,7 +100,9 @@ export default {
       createKeyword: 'keywords/createKeyword',
     }),
     resetModal() {
-      this.formData = {};
+      this.formData = {
+        type: this.keywordType,
+      };
       this.$emit('update:showModal', false);
       this.$v.$reset();
     },
