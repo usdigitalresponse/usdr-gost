@@ -317,9 +317,9 @@ describe('db', () => {
                 },
             );
             const createdUser = await db.getUser(response.id);
-            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
-            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
-            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
+            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
             await db.deleteUser(response.id);
 
             const existingSubscriptions = await knex('email_subscriptions').where('user_id', response.id);
@@ -449,15 +449,15 @@ describe('db', () => {
             const interestResult = await db.getSubscribersForNotification(fixtures.agencies.accountancy.id, emailConstants.notificationType.grantInterest);
             const interestSubscribers = interestResult.map((r) => r.email);
 
-            expect(assignmentResult.length).to.equal(3);
+            expect(assignmentResult.length).to.equal(2);
             expect(assignmentSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
             expect(assignmentSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
 
-            expect(digestResult.length).to.equal(3);
+            expect(digestResult.length).to.equal(2);
             expect(digestSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
             expect(digestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
 
-            expect(interestResult.length).to.equal(3);
+            expect(interestResult.length).to.equal(2);
             expect(interestSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
             expect(interestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
         });
@@ -494,14 +494,14 @@ describe('db', () => {
                 fixtures.agencies.accountancy.id,
                 emailConstants.notificationType.grantInterest,
             );
-            expect(assignmentResult.length).to.equal(3);
+            expect(assignmentResult.length).to.equal(2);
             expect(assignmentSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
             expect(assignmentSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
 
-            expect(digestResult.length).to.equal(2);
+            expect(digestResult.length).to.equal(1);
             expect(digestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
 
-            expect(interestResult.length).to.equal(1);
+            expect(interestResult.length).to.equal(0);
         });
     });
 });
