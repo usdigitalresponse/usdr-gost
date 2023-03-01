@@ -16,7 +16,7 @@ variable "lambda_layer_arns" {
 }
 
 variable "lambda_artifact_bucket" {
-  description = "ID of the S3 bucket used to store Lambda source artifacts."
+  description = "Name of the S3 bucket used to store Lambda source artifacts."
   type        = string
 }
 
