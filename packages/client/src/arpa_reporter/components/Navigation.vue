@@ -89,77 +89,77 @@
 </template>
 
 <script>
-import AlertBox from './AlertBox'
-import { titleize } from '../helpers/form-helpers'
-import moment from 'moment'
+import moment from 'moment';
+import AlertBox from './AlertBox';
+import { titleize } from '../helpers/form-helpers';
 
 export default {
   name: 'Navigation',
   components: {
-    AlertBox
+    AlertBox,
   },
   computed: {
-    user: function () {
-      return this.$store.getters.user
+    user() {
+      return this.$store.getters.user;
     },
-    email: function () {
-      return this.user.email
+    email() {
+      return this.user.email;
     },
-    agencyName: function () {
-      return this.$store.getters.agencyName(this.user.agency_id)
+    agencyName() {
+      return this.$store.getters.agencyName(this.user.agency_id);
     },
-    role: function () {
-      return this.$store.getters.user.role.name
+    role() {
+      return this.$store.getters.user.role.name;
     },
-    loggedIn: function () {
-      return this.$store.state.user !== null
+    loggedIn() {
+      return this.$store.state.user !== null;
     },
-    viewablePeriods: function () {
-      return this.$store.getters.viewableReportingPeriods
+    viewablePeriods() {
+      return this.$store.getters.viewableReportingPeriods;
     },
-    viewPeriod: function () {
-      return this.$store.getters.viewPeriod
+    viewPeriod() {
+      return this.$store.getters.viewPeriod;
     },
-    applicationTitle: function () {
+    applicationTitle() {
       // NOTE(mbroussard): this getter will always default to "ARPA Reporter" in logged out view since we don't
       // have application_settings yet
-      return this.$store.getters.applicationTitle
+      return this.$store.getters.applicationTitle;
     },
-    alerts: function () {
-      return this.$store.state.alerts
-    }
+    alerts() {
+      return this.$store.state.alerts;
+    },
   },
   watch: {
   },
   methods: {
     titleize,
-    dismissAlert (alertId) {
-      this.$store.commit('dismissAlert', alertId)
+    dismissAlert(alertId) {
+      this.$store.commit('dismissAlert', alertId);
     },
-    logout (e) {
-      e.preventDefault()
+    logout(e) {
+      e.preventDefault();
       this.$store
         .dispatch('logout')
-        .then(() => this.$router.push({ path: '/login' }))
+        .then(() => this.$router.push({ path: '/login' }));
     },
-    navLinkClass (to) {
+    navLinkClass(to) {
       if (this.$route.path === to) {
-        return 'nav-link active'
+        return 'nav-link active';
       }
-      return 'nav-link'
+      return 'nav-link';
     },
-    dateFormat: function (d) {
+    dateFormat(d) {
       return moment(d)
         .utc()
-        .format('MM-DD-YYYY')
+        .format('MM-DD-YYYY');
     },
-    setViewPeriodID: function (newID) {
+    setViewPeriodID(newID) {
       return this.$store
         .dispatch('setViewPeriodID', newID)
-        .catch(e => (this.errorMessage = e.message))
-    }
-  }
-}
+        .catch((e) => (this.errorMessage = e.message));
+    },
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/components/Navigation.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

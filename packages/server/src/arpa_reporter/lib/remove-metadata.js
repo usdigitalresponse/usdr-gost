@@ -1,5 +1,5 @@
-const SHEETS_WITHOUT_METADATA = ['certification', 'cover']
-const NUM_METADATA_COLS = 1 // number of leftmost columns to ignore
+const SHEETS_WITHOUT_METADATA = ['certification', 'cover'];
+const NUM_METADATA_COLS = 1; // number of leftmost columns to ignore
 
 /**
  * The macro-powered ARPA reporting input template uses the first ten rows for
@@ -11,20 +11,18 @@ const NUM_METADATA_COLS = 1 // number of leftmost columns to ignore
  * @param {string} sheetName
  * @param {any[][]} sheet
  */
-function removeMetadata (sheetName, sheet) {
-  if (SHEETS_WITHOUT_METADATA.includes(sheetName.toLowerCase())) {
-    return sheet
-  }
+function removeMetadata(sheetName, sheet) {
+    if (SHEETS_WITHOUT_METADATA.includes(sheetName.toLowerCase())) {
+        return sheet;
+    }
 
-  const headerRowIndex = sheet.findIndex(row =>
-    ['label', 'column label'].includes(row[0]?.toLowerCase())
-  )
+    const headerRowIndex = sheet.findIndex((row) => ['label', 'column label'].includes(row[0]?.toLowerCase()));
 
-  return sheet.slice(headerRowIndex).map(row => row.slice(NUM_METADATA_COLS))
+    return sheet.slice(headerRowIndex).map((row) => row.slice(NUM_METADATA_COLS));
 }
 
 module.exports = {
-  removeMetadata
-}
+    removeMetadata,
+};
 
 // NOTE: This file was copied from src/server/lib/remove-metadata.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
