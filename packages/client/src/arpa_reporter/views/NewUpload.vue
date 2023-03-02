@@ -2,8 +2,8 @@
   <div class="upload">
     <h1>Submit Workbook</h1>
     <div>
-      <b-alert 
-        :show="error" 
+      <b-alert
+        :show="error"
         variant="Danger"
         class="mt-3"
       >
@@ -26,7 +26,7 @@ import {
 } from "bootstrap-vue";
 import { postForm } from '../store';
 import StandardForm from '../components/StandardForm';
-import { required } from 'vuelidate/lib/validators';
+import { required,  } from 'vuelidate/lib/validators';
 
 export default {
   name: 'NewUpload',
@@ -58,16 +58,16 @@ export default {
       return [
         {
           type: 'select',
-          label: 'Reporting Period', 
-          name: 'reporting_period', 
-          options: this.reportingPeriodSelectItems, 
+          label: 'Reporting Period',
+          name: 'reporting_period',
+          options: this.reportingPeriodSelectItems,
           initialValue: this.$store.getters.viewPeriodID ?? '',
           validationRules: {required}
         },
         {
           type: 'select',
-          label: 'Agency Code', 
-          name: 'agency_code', 
+          label: 'Agency Code',
+          name: 'agency_code',
           options: this.agencySelectItems,
           initialValue: this.$store.getters.user.agency.id,
           validationRules: {required}
@@ -75,12 +75,12 @@ export default {
         {
           type: 'text',
           label: 'Expenditure Code',
-          name: 'expenditure_code', 
+          name: 'expenditure_code',
           validationRules: {required}
         },
         {
           type: 'file',
-          label: 'Workbook File', 
+          label: 'Workbook File',
           name: 'spreadsheet',
           validationRules: {required},
           onChange: "changeFiles"
@@ -89,7 +89,6 @@ export default {
           type: 'textarea',
           label: 'Notes',
           name: 'notes',
-          validationRules: []
         },
       ];
     },
@@ -109,8 +108,7 @@ export default {
       this.uploading = true;
       const file = formData.spreadsheet;
 
-
-      // For now this is the same as formData, but making this explicit 
+      // For now this is the same as formData, but making this explicit
       // to ensure we know what we're passing.
       const uploadData = {
         reporting_period: formData.reporting_period,

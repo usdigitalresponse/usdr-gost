@@ -14,12 +14,9 @@
         <component
           :is="getComponentType(field.type)"
           :name="field.name"
-          :v-validate="field.validation"
-          v-model="$v.formData[field.name].$model"
           :state="validateState(field.name)"
+          v-model.lazy="$v.formData[field.name].$model"
           v-bind="getFieldAttributes(field)"
-          @input="field.onChange ? field.onChange(field.name, $event.target.value) : null"
-          @change="field.validationRules ? $v.formData[field.name].$touch() : ''"
         />
       </b-form-group>
       <b-button type="submit" variant="primary" :disabled="$v.formData.$invalid"
@@ -61,16 +58,16 @@ export default {
   props: {
     /* example: {
           type: 'select',
-          label: 'Reporting Period', 
-          name: 'reporting_period', 
-          options: [{"text": "A", "value":"a"}, {"text": "B", "value":"b"}, ], 
+          label: 'Reporting Period',
+          name: 'reporting_period',
+          options: [{"text": "A", "value":"a"}, {"text": "B", "value":"b"}, ],
           initialValue: this.$store.getters.viewPeriodID ?? '',
           validationRules: {required}
         },
         {
           type: 'text',
           label: 'Expenditure Code',
-          name: 'expenditure_code', 
+          name: 'expenditure_code',
           validationRules: {required}
         },
     */
@@ -88,15 +85,11 @@ export default {
 
     // Set initial values for each field
     this.fields.forEach((f) => {
-      let initialValue = undefined;
-      if (f.initialValue !== undefined) {
-        initialValue = f.initialValue;
-      }
-      formData[f.name] = initialValue;
+      formData[f.name] = f.initialValue;
     });
 
     return {
-      formData : formData
+      formData: formData,
     };
   },
   methods: {
@@ -144,7 +137,8 @@ export default {
         typeSpecificAttributes.type = "file";
         typeSpecificAttributes.accept = field.accept || "";
         if (field.onChange) {
-          typeSpecificAttributes["@" + field.onChange] = this.handleCustomChangeEvent;
+          typeSpecificAttributes["@" + field.onChange] =
+            this.handleCustomChangeEvent;
         }
         // typeSpecificAttributes["@change"] = field.onChange;
       } else if (field.type === "email") {
@@ -152,7 +146,11 @@ export default {
       } else if (field.type === "text") {
         typeSpecificAttributes.type = "text";
       }
-      return Object.assign(sharedAttributes, typeSpecificAttributes, field.props || {});
+      return Object.assign(
+        sharedAttributes,
+        typeSpecificAttributes,
+        field.props || {}
+      );
     },
     validateState(fieldName) {
       const { $dirty, $error } = this.$v.formData[fieldName];
@@ -195,7 +193,7 @@ export default {
       if (f.validationRules && !f.readonly) {
         validationRules[f.name] = f.validationRules;
       } else {
-        validationRules[f.name] = [];
+        validationRules[f.name] = {};
       }
     });
 
