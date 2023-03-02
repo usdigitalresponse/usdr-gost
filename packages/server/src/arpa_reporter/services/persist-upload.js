@@ -8,25 +8,44 @@ const Cryo = require('cryo');
 const XLSX = require('xlsx');
 
 const { getReportingPeriod } = require('../db/reporting-periods');
+const { user: getUser } = require('../../db/arpa_reporter_db_shims/users');
+
 const { createUpload } = require('../db/uploads');
 const { TEMP_DIR, UPLOAD_DIR } = require('../environment');
 const { log } = require('../lib/log');
 const ValidationError = require('../lib/validation-error');
 
-// WARNING: changes to this function must be made with care, because:
-//  1. there may be existing data on disk with filenames set according to this function,
-//     which could become inaccessible
-//  2. this function is duplicated in GOST's import_arpa_reporter_dump.js script
+/**
+ * Get the path to the upload file for the given upload
+ *
+ * WARNING: changes to this function must be made with care, because:
+ * 1. there may be existing data on disk with filenames set according to this function, which could become inaccessible
+ * 2. this function is duplicated in GOST's import_arpa_reporter_dump.js script
+ *
+ * @param {object} upload
+ * @returns {string}
+*/
 const uploadFSName = (upload) => {
     const filename = `${upload.id}${path.extname(upload.filename)}`;
     return path.join(UPLOAD_DIR, filename);
 };
 
+/**
+ * Get the path to the JSON file for the given upload
+ * @param {object} upload
+ * @returns {string}
+*/
 const jsonFSName = (upload) => {
     const filename = `${upload.id}.json`;
     return path.join(TEMP_DIR, upload.id[0], filename);
 };
 
+/**
+ * Attempt to parse the buffer as an XLSX file
+ * @param {Buffer} buffer
+ * @returns {Promise<void>}
+ * @throws {ValidationError}
+ */
 async function validateBuffer(buffer) {
     try {
         await XLSX.read(buffer, { type: 'buffer' });
@@ -35,16 +54,32 @@ async function validateBuffer(buffer) {
     }
 }
 
-function createUploadRow(filename, reportingPeriod, user, body) {
-    const escapedNotes = _.escape(body.notes);
+/**
+ * Create Upload row object
+ * @param {string} filename
+ * @param {object} reportingPeriod
+ * @param {string} userId
+ * @param {string} agencyId
+ * @param {string} notes
+ * @returns {object}
+ */
+function createUploadRow(filename, reportingPeriodId, userId, agencyId, notes) {
     return {
         filename: path.basename(filename),
-        reporting_period_id: reportingPeriod.id,
-        user_id: user.id,
-        notes: escapedNotes ?? null,
+        reporting_period_id: reportingPeriodId,
+        user_id: userId,
+        agency_id: agencyId,
+        notes: notes ?? null,
     };
 }
 
+/**
+ * Persist the upload to the filesystem
+ * @param {object} upload
+ * @param {Buffer} buffer
+ * @returns {Promise<void>}
+ * @throws {ValidationError}
+*/
 async function persistUploadToFS(upload, buffer) {
     try {
         const filename = uploadFSName(upload);
@@ -55,19 +90,91 @@ async function persistUploadToFS(upload, buffer) {
     }
 }
 
+/**
+ * Escape notes text
+ * @param {string} notes
+ * @returns {string|null}
+ */
+function getValidNotes(notes) {
+    return notes ? _.escape(notes) : null;
+}
+
+/**
+ * Validate the agency ID
+ * @param {string} agencyId
+ * @param {string} userId
+ * @returns {string|null}
+ * @throws {ValidationError}
+ */
+async function getValidAgencyId(agencyId, userId) {
+    // If agencyId is null, it's ok. We derive this later from the spreadsheet
+    // itself in validate-upload. We leave it as null here.
+    if (!agencyId) {
+        return null;
+    }
+    // Otherwise, we need to make sure the user is associated with the agency
+    const userRecord = await getUser(userId);
+    if (agencyId !== userRecord.agency_id) {
+        throw new ValidationError(`Authenticated user (agencyID ${userRecord.agency_id}) is not associated with the identified agency ${agencyId}`);
+    }
+    return agencyId;
+}
+
+/**
+ * Validate the reporting period ID
+ * @param {string} reportingPeriodId
+ * @returns {string}
+ * @throws {ValidationError}
+ */
+async function getValidReportingPeriodId(reportingPeriodId) {
+    // Get the current reporting period. Passing an undefined value
+    // defaults to the current period.
+    const reportingPeriod = await getReportingPeriod(reportingPeriodId);
+
+    if (!reportingPeriod) {
+        throw new ValidationError(`Supplied reporting period ID ${reportingPeriodId} does not correspond to any existing reporting period`);
+    }
+    return reportingPeriod.id;
+}
+
+/**
+ * Persist an upload to the filesystem
+ * @param {string} filename
+ * @param {object} user
+ * @param {Buffer} buffer
+ * @param {object} body
+ * @returns {object} upload
+ * @throws {ValidationError}
+*/
 async function persistUpload({
     filename, user, buffer, body,
 }) {
+    // Fetch reportingPeriodId, agencyId, and notes from the body
+    // and rename with 'supplied' prefix. These may be null.
+    const {
+        reportingPeriodId: suppliedReportingPeriodId,
+        agencyId: suppliedAgencyId,
+        notes: suppliedNotes,
+    } = body;
+
     // Make sure we can actually read the supplied buffer (it's a valid spreadsheet)
     await validateBuffer(buffer);
 
-    // Get the current reporting period
-    const reportingPeriod = await getReportingPeriod();
+    // Either use supplied reportingPeriodId,
+    // or fall back to the current reporting period ID if undefined
+    const validatedReportingPeriodId = await getValidReportingPeriodId(suppliedReportingPeriodId);
+
+    // Check if the user is affiliated with the given agency,
+    // or leave undefined (we'll derive it later from the spreadsheet)
+    const validatedAgencyId = await getValidAgencyId(suppliedAgencyId, user.id);
+
+    // Escape note text
+    const validatedNotes = getValidNotes(suppliedNotes);
 
     // Create the upload row
-    const uploadRow = createUploadRow(filename, reportingPeriod, user, body);
+    const uploadRow = createUploadRow(filename, validatedReportingPeriodId, user.id, validatedAgencyId, validatedNotes);
 
-    // Create the upload
+    // Insert the upload row into the database
     const upload = await createUpload(uploadRow);
 
     // Persist the upload to the filesystem
@@ -77,8 +184,14 @@ async function persistUpload({
     return upload;
 }
 
+/**
+ * Persist the workbook to the filesystem
+ * @param {object} upload
+ * @param {object} workbook
+ * @returns {Promise<void>}
+ * @throws {ValidationError}
+*/
 async function persistJson(upload, workbook) {
-    // persist the parsed JSON from an upload to the filesystem
     try {
         const filename = jsonFSName(upload);
         await fs.mkdir(path.dirname(filename), { recursive: true });
@@ -88,15 +201,27 @@ async function persistJson(upload, workbook) {
     }
 }
 
+/**
+ * Get the buffer for an upload
+ * @param {object} upload
+ * @returns {Promise<Buffer>}
+*/
 async function bufferForUpload(upload) {
     return fs.readFile(uploadFSName(upload));
 }
 
+/**
+ * Get JSON for an upload
+ * @param {object} upload
+ * @returns {Promise<object>}
+*/
 async function jsonForUpload(upload) {
     return Cryo.parse(await fs.readFile(jsonFSName(upload), { encoding: 'utf-8' }));
 }
 
 /**
+ * Get the workbook for an upload
+ *
  * As of xlsx@0.18.5, the XLSX.read operation is very inefficient.
  * This function abstracts XLSX.read, and incorporates a local disk cache to
  * avoid running the parse operation more than once per upload.

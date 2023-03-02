@@ -56,11 +56,21 @@ async function validateAgencyId({ upload, records, trns }) {
         );
     }
 
-    // always set agency id if possible; we omit passing the transaction in this
-    // case, so that the agency id gets set even if the upload fails to validate
-    if (matchingAgency.id !== upload.agency_id) {
-        await setAgencyId(upload.id, matchingAgency.id);
+  // grab agency id from the upload, if it exists
+  const uploadAgencyId = upload.agency_id;
+
+  if (uploadAgencyId == null) {
+    // if the upload doesn't have an agency id, set it to the agency id from the cover sheet
+    await setAgencyId(upload.id, matchingAgency.id);
+  } else {
+    // if the upload already has an agency id, it must match the agency id from the cover sheet
+    if (uploadAgencyId !== matchingAgency.id) {
+      return new ValidationError(
+        `Agency code ${matchingAgency.id} does not match agency id from upload ${uploadAgencyId}`,
+        { tab: 'cover', row: 2, col: 'A' }
+      );
     }
+  }
 }
 
 async function validateEcCode({ upload, records }) {
