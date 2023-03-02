@@ -13,20 +13,20 @@ export default {
   name: 'AlertBox',
   props: {
     text: String,
-    level: String
+    level: String,
   },
   computed: {
-    classes: function () {
-      const level = ['ok', 'warn', 'err'].indexOf(this.level) === -1 ? 'primary' : this.level
+    classes() {
+      const level = ['ok', 'warn', 'err'].indexOf(this.level) === -1 ? 'primary' : this.level;
       return {
         'alert-primary': level === 'primary',
         'alert-success': level === 'ok',
         'alert-warning': level === 'warn',
-        'alert-danger': level === 'err'
-      }
-    }
-  }
-}
+        'alert-danger': level === 'err',
+      };
+    },
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/components/AlertBox.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

@@ -43,45 +43,45 @@
 </template>
 
 <script>
-import DownloadButton from '../components/DownloadButton.vue'
-import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue'
+import DownloadButton from '../components/DownloadButton.vue';
+import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
 import { apiURL } from '@/helpers/fetchApi';
 
 export default {
   name: 'Home',
   computed: {
-    isAdmin: function () {
-      return this.role === 'admin'
+    isAdmin() {
+      return this.role === 'admin';
     },
-    role: function () {
-      return this.$store.getters.user.role.name
+    role() {
+      return this.$store.getters.user.role.name;
     },
-    viewingOpenPeriod () {
-      return this.$store.getters.viewPeriodIsCurrent
+    viewingOpenPeriod() {
+      return this.$store.getters.viewPeriodIsCurrent;
     },
-    isClosed: function () {
-      return !(this.$store.getters.viewPeriodIsCurrent)
-    }
+    isClosed() {
+      return !(this.$store.getters.viewPeriodIsCurrent);
+    },
   },
   methods: {
-    downloadAuditReportURL: function () {
-      return apiURL('/api/audit_report')
+    downloadAuditReportURL() {
+      return apiURL('/api/audit_report');
     },
-    downloadTreasuryReportURL () {
-      const periodId = this.$store.getters.viewPeriod.id || 0
-      return apiURL(`/api/exports?period_id=${periodId}`)
+    downloadTreasuryReportURL() {
+      const periodId = this.$store.getters.viewPeriod.id || 0;
+      return apiURL(`/api/exports?period_id=${periodId}`);
     },
-    startUpload: function () {
+    startUpload() {
       if (this.viewingOpenPeriod) {
-        this.$router.push({ path: '/new_upload' })
+        this.$router.push({ path: '/new_upload' });
       }
-    }
+    },
   },
   components: {
     DownloadButton,
-    DownloadTemplateBtn
-  }
-}
+    DownloadTemplateBtn,
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/Home.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

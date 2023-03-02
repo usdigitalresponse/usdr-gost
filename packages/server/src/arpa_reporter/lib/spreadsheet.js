@@ -11,31 +11,31 @@
 // not remove a trailing or leading double quote without a corresponding
 // one at the other end).
 // - Converts double spaces to single spaces.
-function cleanString (val) {
-  if (!val && val !== 0) {
-    return null
-  }
-  val = String(val).trim()
-  if (val) {
-    val = val.replace(/^"(.+)"$/, '$1')
-      .replace(/ {2}/g, ' ')
-      .trim()
-  }
-  return val
+function cleanString(val) {
+    if (!val && val !== 0) {
+        return null;
+    }
+    val = String(val).trim();
+    if (val) {
+        val = val.replace(/^"(.+)"$/, '$1')
+            .replace(/ {2}/g, ' ')
+            .trim();
+    }
+    return val;
 }
 
-function zeroPad (code) {
-  code = String(code)
-  if (code.length < 3) {
-    code = (`000${code}`).substr(-3)
-  }
-  return code
+function zeroPad(code) {
+    code = String(code);
+    if (code.length < 3) {
+        code = (`000${code}`).substr(-3);
+    }
+    return code;
 }
 
 module.exports = {
-  cleanString,
-  zeroPad
-}
+    cleanString,
+    zeroPad,
+};
 
 /*                                  *  *  *                                   */
 

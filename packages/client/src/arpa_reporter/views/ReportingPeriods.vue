@@ -72,72 +72,72 @@
 </template>
 
 <script>
-import { apiURL } from '@/helpers/fetchApi'
+import { apiURL } from '@/helpers/fetchApi';
 
-const moment = require('moment')
-const _ = require('lodash')
+const moment = require('moment');
+const _ = require('lodash');
 
 export default {
   name: 'ReportingPeriods',
-  data: function () {
+  data() {
     return {
-      certifying: false
-    }
+      certifying: false,
+    };
   },
   computed: {
-    user: function () {
-      return this.$store.state.user
+    user() {
+      return this.$store.state.user;
     },
-    reportingPeriods: function () {
-      return _.sortBy(this.$store.state.reportingPeriods, ['start_date'])
+    reportingPeriods() {
+      return _.sortBy(this.$store.state.reportingPeriods, ['start_date']);
     },
-    currentPeriod: function () {
-      return this.$store.getters.currentReportingPeriod
+    currentPeriod() {
+      return this.$store.getters.currentReportingPeriod;
     },
-    certifyLabel () {
-      return this.certifying ? 'Certifying Reporting Period...' : 'Certify Reporting Period'
-    }
+    certifyLabel() {
+      return this.certifying ? 'Certifying Reporting Period...' : 'Certify Reporting Period';
+    },
   },
   methods: {
-    isCurrentReportingPeriod: function (p) {
+    isCurrentReportingPeriod(p) {
       if (this.$store.getters.currentReportingPeriod) {
-        return p.id === this.$store.getters.currentReportingPeriod.id
+        return p.id === this.$store.getters.currentReportingPeriod.id;
       }
-      return false
+      return false;
     },
-    reportPeriodUrl: function (p) {
-      return `/reporting_periods/${p.id}`
+    reportPeriodUrl(p) {
+      return `/reporting_periods/${p.id}`;
     },
-    handleCertify: async function () {
-      this.certifying = true
-      this.$refs.closeModal.click()
+    async handleCertify() {
+      this.certifying = true;
+      this.$refs.closeModal.click();
 
       try {
-        const resp = await fetch(apiURL('/api/reporting_periods/close'), { method: 'POST' })
+        const resp = await fetch(apiURL('/api/reporting_periods/close'), { method: 'POST' });
         const result = resp.headers.get('Content-Type').includes('json')
           ? await resp.json()
-          : { error: await resp.text() }
+          : { error: await resp.text() };
 
         if (resp.ok) {
-          this.$store.dispatch('updateReportingPeriods')
-          this.$store.dispatch('updateApplicationSettings')
+          this.$store.dispatch('updateReportingPeriods');
+          this.$store.dispatch('updateApplicationSettings');
         } else {
-          throw new Error(result.error)
+          throw new Error(result.error);
         }
       } catch (e) {
         this.$store.commit('addAlert', {
           text: `Error certifying reporting period: ${e.message}`,
-          level: 'err'
-        })
+          level: 'err',
+        });
       }
 
-      this.certifying = false
+      this.certifying = false;
     },
-    formatDate (d) {
-      return moment(d).utc().format('MM/DD/YYYY')
-    }
-  }
-}
+    formatDate(d) {
+      return moment(d).utc().format('MM/DD/YYYY');
+    },
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/ReportingPeriods.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->
