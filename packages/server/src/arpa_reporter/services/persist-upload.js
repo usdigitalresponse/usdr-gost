@@ -1,7 +1,7 @@
 /* eslint camelcase: 0 */
 
-const path = require('path')
-const fs = require('fs/promises')
+const path = require('path');
+const fs = require('fs/promises');
 const _ = require('lodash');
 
 const Cryo = require('cryo');
@@ -27,101 +27,65 @@ const jsonFSName = (upload) => {
     return path.join(TEMP_DIR, upload.id[0], filename);
 };
 
-async function persistUpload({ filename, user, buffer }) {
-    // let's make sure we can actually read the supplied buffer (it's a valid spreadsheet)
+async function validateBuffer(buffer) {
     try {
         await XLSX.read(buffer, { type: 'buffer' });
     } catch (e) {
-        throw new ValidationError(`Cannot parse XLSX from data in ${filename}: ${e}`);
+        throw new ValidationError(`Cannot parse XLSX from supplied data: ${e}`);
     }
-
-    // get the current reporting period
-    const reportingPeriod = await getReportingPeriod();
-
-    // create an upload
-    const uploadRow = {
-        filename: path.basename(filename),
-        reporting_period_id: reportingPeriod.id,
-        user_id: user.id,
-    };
-    const upload = await createUpload(uploadRow);
-
-    // persist the original upload to the filesystem
-    try {
-        const uploadFilename = uploadFSName(upload);
-        await fs.mkdir(path.dirname(uploadFilename), { recursive: true });
-        await fs.writeFile(uploadFilename, buffer, { flag: 'wx' });
-    } catch (e) {
-        throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
-    }
-
-    // return the upload we created
-    return upload;
-}
-
-const jsonFSName = (upload) => {
-  const filename = `${upload.id}.json`
-  return path.join(TEMP_DIR, upload.id[0], filename)
-}
-
-
-async function validateBuffer(buffer) {
-  try {
-    await XLSX.read(buffer, { type: 'buffer' });
-  } catch (e) {
-    throw new ValidationError(`Cannot parse XLSX from supplied data: ${e}`);
-  }
 }
 
 function createUploadRow(filename, reportingPeriod, user, body) {
-  const escapedNotes = _.escape(body.notes);
-  return {
-    filename: path.basename(filename),
-    reporting_period_id: reportingPeriod.id,
-    user_id: user.id,
-    notes: escapedNotes ?? null,
-  };
+    const escapedNotes = _.escape(body.notes);
+    return {
+        filename: path.basename(filename),
+        reporting_period_id: reportingPeriod.id,
+        user_id: user.id,
+        notes: escapedNotes ?? null,
+    };
 }
 
 async function persistUploadToFS(upload, buffer) {
-  try {
-    const filename = uploadFSName(upload);
-    await fs.mkdir(path.dirname(filename), { recursive: true });
-    await fs.writeFile(filename, buffer, { flag: 'wx' });
-  } catch (e) {
-    throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
-  }
+    try {
+        const filename = uploadFSName(upload);
+        await fs.mkdir(path.dirname(filename), { recursive: true });
+        await fs.writeFile(filename, buffer, { flag: 'wx' });
+    } catch (e) {
+        throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
+    }
 }
 
-async function persistUpload ({ filename, user, buffer, body }) {
-  // Make sure we can actually read the supplied buffer (it's a valid spreadsheet)
-  await validateBuffer(buffer);
+async function persistUpload({
+    filename, user, buffer, body,
+}) {
+    // Make sure we can actually read the supplied buffer (it's a valid spreadsheet)
+    await validateBuffer(buffer);
 
-  // Get the current reporting period
-  const reportingPeriod = await getReportingPeriod();
+    // Get the current reporting period
+    const reportingPeriod = await getReportingPeriod();
 
-  // Create the upload row
-  const uploadRow = createUploadRow(filename, reportingPeriod, user, body);
+    // Create the upload row
+    const uploadRow = createUploadRow(filename, reportingPeriod, user, body);
 
-  // Create the upload
-  const upload = await createUpload(uploadRow);
+    // Create the upload
+    const upload = await createUpload(uploadRow);
 
-  // Persist the upload to the filesystem
-  await persistUploadToFS(upload, buffer);
+    // Persist the upload to the filesystem
+    await persistUploadToFS(upload, buffer);
 
-  // Return the upload we created
-  return upload;
+    // Return the upload we created
+    return upload;
 }
 
-async function persistJson (upload, workbook) {
-  // persist the parsed JSON from an upload to the filesystem
-  try {
-    const filename = jsonFSName(upload)
-    await fs.mkdir(path.dirname(filename), { recursive: true })
-    await fs.writeFile(filename, Cryo.stringify(workbook), { flag: 'wx' })
-  } catch (e) {
-    throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`)
-  }
+async function persistJson(upload, workbook) {
+    // persist the parsed JSON from an upload to the filesystem
+    try {
+        const filename = jsonFSName(upload);
+        await fs.mkdir(path.dirname(filename), { recursive: true });
+        await fs.writeFile(filename, Cryo.stringify(workbook), { flag: 'wx' });
+    } catch (e) {
+        throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
+    }
 }
 
 async function bufferForUpload(upload) {
@@ -165,10 +129,10 @@ async function workbookForUpload(upload, options) {
 }
 
 module.exports = {
-  persistUpload,
-  bufferForUpload,
-  workbookForUpload,
-  uploadFSName,
-}
+    persistUpload,
+    bufferForUpload,
+    workbookForUpload,
+    uploadFSName,
+};
 
 // NOTE: This file was copied from src/server/services/persist-upload.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
