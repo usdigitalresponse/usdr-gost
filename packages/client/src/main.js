@@ -2,7 +2,7 @@ import Vue from 'vue';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import vSelect from 'vue-select';
 import Vuelidate from 'vuelidate';
-
+import VueFormulate from '@braid/vue-formulate';
 import App from './App.vue';
 import router from './router';
 import store from './store';
@@ -15,6 +15,7 @@ Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
 Vue.use(Vuelidate);
+Vue.use(VueFormulate);
 Vue.component('v-select', vSelect);
 
 Vue.config.productionTip = false;
