@@ -5,6 +5,7 @@ import moto
 import moto.s3.responses
 import pytest
 
+
 os.environ['AWS_DEFAULT_REGION'] = moto.s3.responses.DEFAULT_REGION_NAME
 os.environ['AWS_ACCESS_KEY_ID'] = 'test'
 os.environ['AWS_SECRET_ACCESS_KEY'] = 'test'
