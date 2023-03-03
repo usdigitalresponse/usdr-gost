@@ -350,7 +350,6 @@ async function validateRecord({ upload, record, typeRules: rules }) {
             }
 
             if (rule.dataType === 'Numeric') {
-                console.log
               if (typeof(value) === 'string' && isNaN(parseFloat(value))) {
                 // If this value is a string that can't be interpretted as a number, then error.
                 // Note: This value might not be exactly what was entered in the workbook. The val
