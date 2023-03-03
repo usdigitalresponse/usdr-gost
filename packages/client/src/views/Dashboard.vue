@@ -37,11 +37,13 @@
                   <div class="color-gray">{{ dates.item.date }}</div>
                 </template>
               </b-table>
-              <b-row align-v="center" >
-                <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
-                  <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
-                </b-navbar>
-              </b-row>
+              <div v-if="totalInterestedGrants > 4">
+                <b-row align-v="center" >
+                  <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
+                    <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
+                  </b-navbar>
+                </b-row>
+              </div>
             </b-card>
           </b-col>
           <b-col>
@@ -63,11 +65,13 @@
                   <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
-              <b-row align-v="center">
-                <b-navbar toggleable="sm py-0" bg-transparent class="gutter-upcoming row">
-                  <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
-                </b-navbar>
-              </b-row>
+              <div v-if="totalUpcomingGrants > 3">
+                <b-row align-v="center">
+                  <b-navbar toggleable="sm py-0" bg-transparent class="gutter-upcoming row">
+                    <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
+                  </b-navbar>
+                </b-row>
+              </div>
             </b-card>
           </b-col>
           <b-col cols="1"></b-col>
@@ -319,7 +323,8 @@ export default {
       totalGrants: 'dashboard/totalGrants',
       totalGrantsMatchingAgencyCriteria: 'dashboard/totalGrantsMatchingAgencyCriteria',
       totalViewedGrants: 'dashboard/totalViewedGrants',
-      totalInterestedGrants: 'dashboard/totalInterestedGrants',
+      totalInterestedGrants: 'grants/totalInterestedGrants',
+      totalUpcomingGrants: 'grants/totalUpcomingGrants',
       grantsCreatedInTimeframe: 'dashboard/grantsCreatedInTimeframe',
       grantsCreatedInTimeframeMatchingCriteria: 'dashboard/grantsCreatedInTimeframeMatchingCriteria',
       grantsUpdatedInTimeframe: 'dashboard/grantsUpdatedInTimeframe',

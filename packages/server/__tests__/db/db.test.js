@@ -18,16 +18,17 @@ describe('db', () => {
     context('getGrantsInterested', () => {
         it('gets the most recent interested grant', async () => {
             const rows = await db.getGrantsInterested({ agencyId: fixtures.users.staffUser.agency_id, perPage: 1, currentPage: 1 });
-            expect(rows[0]).to.have.property('grant_id').with.lengthOf(6);
-            expect(rows[0].grant_id).to.equal(fixtures.grantsInterested.entry2.grant_id);
+            const row = rows.data[0];
+            expect(row).to.have.property('grant_id').with.lengthOf(6);
+            expect(row.grant_id).to.equal(fixtures.grantsInterested.entry2.grant_id);
             // in the grants interested table the grant with the most recent created_at has the grant id of 335255
-            expect(rows[0]).to.have.property('grant_id').equal('335255');
+            expect(row).to.have.property('grant_id').equal('335255');
         });
         it('gets the two most recent interested grants', async () => {
             // testing pagination
             const rows = await db.getGrantsInterested({ agencyId: fixtures.users.staffUser.agency_id, perPage: 2, currentPage: 1 });
-            expect(rows).to.have.lengthOf(2);
-            expect(rows.map((r) => r.created_at.getTime())).to.have.all.members([1663117521515, 1659827033570]);
+            expect(rows.data).to.have.lengthOf(2);
+            expect(rows.data.map((r) => r.created_at.getTime())).to.have.all.members([1663117521515, 1659827033570]);
         });
     });
     context('getTotalInterestedGrants', () => {
