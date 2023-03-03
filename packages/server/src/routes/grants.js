@@ -169,7 +169,9 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
     const { selectedAgency } = req.session;
     const perPage = MAX_CSV_EXPORT_ROWS;
     const currentPage = 1;
-    const data = await db.getGrantsInterested({ perPage, currentPage, agencyId: selectedAgency });
+    const paginated_data = await db.getGrantsInterested({ perPage, currentPage, agencyId: selectedAgency });
+    // eslint-disable-next-line prefer-destructuring
+    const data = paginated_data.data;
 
     // extract user_ids and filter out null values
     const users = {};

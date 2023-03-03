@@ -637,8 +637,7 @@ async function getGrantsInterested({ agencyId, perPage, currentPage }) {
                 .whereIn('agencies.id', agencies.map((subAgency) => subAgency.id));
         })
         .orderBy('created_at', 'DESC')
-        .offset((currentPage - 1) * perPage)
-        .limit(perPage);
+        .paginate({ currentPage, perPage, isLengthAware: true });
 }
 
 async function getTotalInterestedGrants(agencyId) {
