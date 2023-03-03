@@ -1,4 +1,3 @@
-
 <template>
   <div class="upload">
     <h1>Submit Workbook</h1>
@@ -41,72 +40,72 @@
 </template>
 
 <script>
-import { postForm } from '../store'
+import { postForm } from '../store';
 
 export default {
   name: 'NewUpload',
-  data: function () {
+  data() {
     return {
       error: null,
       files: null,
-      uploading: false
-    }
+      uploading: false,
+    };
   },
   computed: {
-    uploadButtonLabel: function () {
-      return this.uploading ? 'Uploading...' : 'Upload'
+    uploadButtonLabel() {
+      return this.uploading ? 'Uploading...' : 'Upload';
     },
-    uploadDisabled: function () {
-      return this.files === null || this.uploading
-    }
+    uploadDisabled() {
+      return this.files === null || this.uploading;
+    },
   },
   methods: {
-    changeFiles (evt) {
-      this.files = evt.target.files
+    changeFiles(evt) {
+      this.files = evt.target.files;
     },
-    onSubmit: async function () {
-      const file = this.files[0]
+    async onSubmit() {
+      const file = this.files[0];
 
       if (!file) {
-        this.$refs.files.focus()
-        return
+        this.$refs.files.focus();
+        return;
       }
 
-      this.error = null
-      this.uploading = true
+      this.error = null;
+      this.uploading = true;
 
       const formData = new FormData();
       formData.append('spreadsheet', file);
 
       // TODO: (#896) Actually include data when submitting
-      // formData.append('notes', '<b>TEST & STRING!</b>'); 
+      // formData.append('notes', '<b>TEST & STRING!</b>');
 
       try {
         const resp = await postForm('/api/uploads', formData);
-        const result = (await resp.json()) || { error: (await resp.body) }
+        const result = (await resp.json()) || { error: (await resp.body) };
 
         if (resp.ok) {
-          const upload = result.upload
-          if (!upload) throw new Error('Upload failed to return an upload ID')
+          const { upload } = result;
+          if (!upload) throw new Error('Upload failed to return an upload ID');
 
-          this.$store.commit('setRecentUploadId', upload.id)
-          this.$router.push({ path: `/uploads/${upload.id}` })
+          this.$store.commit('setRecentUploadId', upload.id);
+          this.$router.push({ path: `/uploads/${upload.id}` });
         } else {
-          const err = result.error || `${resp.statusText} (${resp.status})`
-          throw new Error(`Upload failed: ${err}`)
+          const err = result.error || `${resp.statusText} (${resp.status})`;
+          throw new Error(`Upload failed: ${err}`);
         }
       } catch (e) {
-        this.error = e.message
-        this.uploading = false
+        this.error = e.message;
+        this.uploading = false;
       }
     },
 
-    cancelUpload (e) {
-      e.preventDefault()
-      this.$router.push({ path: '/' })
-    }
-  }
-}
+    cancelUpload(e) {
+      e.preventDefault();
+      this.$router.push({ path: '/' });
+    },
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/NewUpload.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

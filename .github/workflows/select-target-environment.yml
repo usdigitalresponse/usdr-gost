@@ -24,7 +24,7 @@ jobs:
                 "selected": "staging"
               },
               "main": {
-                "selected": "production"
+                "selected": "prod"
               },
               ".*": {
                 "selected": "sandbox"

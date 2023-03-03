@@ -190,7 +190,7 @@ async function buildDigestBody(data) {
     const { agency } = data;
 
     const grantDetails = [];
-    agency.matched_grants.slice(0, 3).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
+    agency.matched_grants.slice(0, 30).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
 
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
@@ -198,7 +198,7 @@ async function buildDigestBody(data) {
 
     let additionalBody = grantDetails.join(contentSpacerStr);
 
-    if (agency.matched_grants.length > 3) {
+    if (agency.matched_grants.length > 30) {
         const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
         additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
     }
