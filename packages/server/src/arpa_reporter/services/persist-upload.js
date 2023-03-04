@@ -8,6 +8,7 @@ const Cryo = require('cryo');
 const XLSX = require('xlsx');
 
 const { getReportingPeriod } = require('../db/reporting-periods');
+const { getTenantAgencies } = require('../../db');
 const { user: getUser } = require('../../db/arpa_reporter_db_shims/users');
 
 const { createUpload } = require('../db/uploads');
@@ -114,8 +115,10 @@ async function getValidAgencyId(agencyId, userId) {
     }
     // Otherwise, we need to make sure the user is associated with the agency
     const userRecord = await getUser(userId);
-    if (agencyId !== userRecord.agency_id) {
-        throw new ValidationError(`Authenticated user (agencyID ${userRecord.agency_id}) is not associated with the identified agency ${agencyId}`);
+    const tenantAgencies = await getTenantAgencies(userRecord.tenant_id);
+    const agency = tenantAgencies.find((a) => a.id === Number(agencyId));
+    if (!agency) {
+        throw new ValidationError(`Supplied agency ID ${agencyId} does not correspond to an agency in the user's tenant ${userRecord.tenant_id}`);
     }
     return agencyId;
 }

@@ -79,7 +79,7 @@ export default {
 
       // TODO: (#896) Actually include data when submitting
       // formData.append('notes', '<b>TEST & STRING!</b>');
-      // formData.append('reportingPeriodId', '1');
+      // formData.append('reportingPeriodId', '64');
       // formData.append('agencyId', '0');
 
       try {

@@ -156,6 +156,10 @@ describe('getValidAgencyId', () => {
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
+        const getUserStub = sandbox.stub().returns({ tenant_id: 0 });
+        const getTenantAgenciesStub = sandbox.stub().returns([{ id: 1, name: 'Agency1' }, { id: 2, name: 'Agency2' }]);
+        persistUploadModule.__set__('getUser', getUserStub);
+        persistUploadModule.__set__('getTenantAgencies', getTenantAgenciesStub);
     });
 
     afterEach(() => {
@@ -168,27 +172,27 @@ describe('getValidAgencyId', () => {
         expect(validAgencyId).to.equal(null);
     });
 
-    it('should throw a ValidationError if agencyId is not equal to the user agency', async () => {
-        const agencyId = 1;
-        const userAgencyId = 2;
-        const getUserStub = sandbox.stub().returns({ agency_id: userAgencyId });
-        persistUploadModule.__set__('getUser', getUserStub);
+    it('should throw a ValidationError if agencyId is not associated with current tenant', async () => {
+        // In this case, the user is in tenant 0, which has agency list [Agency1, Agency2], and the agencyId is 3, which is not in the list
+        const userId = 1;
+        const agencyId = 3;
+
         try {
             // eslint-disable-next-line no-unused-vars
-            const validAgencyId = await getValidAgencyId(agencyId, userAgencyId);
+            const validAgencyId = await getValidAgencyId(agencyId, userId);
             throw new Error('Expected an error to be thrown');
         } catch (err) {
             expect(err).to.be.an.instanceof(ValidationError);
-            expect(err.message).to.equal('Authenticated user (agencyID 2) is not associated with the identified agency 1');
+            expect(err.message).to.equal('Supplied agency ID 3 does not correspond to an agency in the user\'s tenant 0');
         }
     });
 
-    it('should return the agencyId if it is equal to the user agency', async () => {
-        const agencyId = 1;
-        const userAgencyId = 1;
-        const getUserStub = sandbox.stub().returns({ agency_id: userAgencyId });
-        persistUploadModule.__set__('getUser', getUserStub);
-        const validAgencyId = await getValidAgencyId(agencyId, userAgencyId);
+    it('should return the agencyId if it corresponds to the tenant agency list', async () => {
+        // In this case, the user is in tenant 0, which has agency list [Agency1, Agency2], and the agencyId is 2, which is in the list
+        const userId = 1;
+        const agencyId = 2;
+
+        const validAgencyId = await getValidAgencyId(agencyId, userId);
         expect(validAgencyId).to.equal(agencyId);
     });
 });
