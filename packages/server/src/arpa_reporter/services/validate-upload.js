@@ -359,6 +359,18 @@ async function validateRecord({ upload, record, typeRules: rules }) {
                 }
             }
 
+            if (rule.dataType === 'Numeric') {
+              if (typeof(value) === 'string' && isNaN(parseFloat(value))) {
+                // If this value is a string that can't be interpretted as a number, then error.
+                // Note: This value might not be exactly what was entered in the workbook. The val
+                // has already been fed through formatters that may have changed the value.
+                  errors.push(
+                    new ValidationError(`Expected a number, but the value was '${value}'`,
+                        { severity: 'err', col: rule.columnName })
+                  )
+              }
+            }
+
             // make sure max length is not too long
             if (rule.maxLength) {
                 if (rule.dataType === 'String' && String(record[key]).length > rule.maxLength) {
