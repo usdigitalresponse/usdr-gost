@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import StandardForm from '../components/StandardForm';
+import StandardForm from '../components/StandardForm.vue';
 import { post } from '../store/index';
 
 export default {
@@ -107,6 +107,7 @@ export default {
           level: 'err',
         });
       }
+      return undefined;
     },
     onReset() {
       this.formKey = Date.now();

@@ -41,7 +41,7 @@
 <script>
 import moment from 'moment';
 
-import StandardForm from '../components/StandardForm';
+import StandardForm from '../components/StandardForm.vue';
 import { getJson, post } from '../store/index';
 
 export default {
@@ -98,7 +98,7 @@ export default {
       // this is due to the way we parse the record initially, where these are also omitted
       const filteredRecipient = Object.fromEntries(
         Object.entries(updatedRecipient)
-          .filter(([key, val]) => val !== null && val !== undefined),
+          .filter(([, val]) => val !== null && val !== undefined),
       );
 
       // invariant is also enforced serv-erside
@@ -136,7 +136,7 @@ export default {
     this.loadRecipient();
   },
   watch: {
-    recipientId(to, from) {
+    recipientId() {
       this.loadRecipient();
     },
   },

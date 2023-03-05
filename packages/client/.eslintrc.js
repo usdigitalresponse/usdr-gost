@@ -11,28 +11,6 @@ module.exports = {
   parserOptions: {
     parser: 'babel-eslint',
   },
-  ignorePatterns: [
-    'src/arpa_reporter/App.vue',
-    'src/arpa_reporter/components/DownloadFileButton.vue',
-    'src/arpa_reporter/components/DownloadTemplateBtn.vue',
-    'src/arpa_reporter/components/Navigation.vue',
-    'src/arpa_reporter/components/StandardForm.vue',
-    'src/arpa_reporter/helpers/short-uuid.js',
-    'src/arpa_reporter/store/index.js',
-    'src/arpa_reporter/views/Agency.vue',
-    'src/arpa_reporter/views/Home.vue',
-    'src/arpa_reporter/views/Login.vue',
-    'src/arpa_reporter/views/ReportingPeriod.vue',
-    'src/arpa_reporter/views/ReportingPeriods.vue',
-    'src/arpa_reporter/views/Subrecipient.vue',
-    'src/arpa_reporter/views/Subrecipients.vue',
-    'src/arpa_reporter/views/Upload.vue',
-    'src/arpa_reporter/views/Uploads.vue',
-    'src/arpa_reporter/views/User.vue',
-    'src/arpa_reporter/views/Users.vue',
-    'src/arpa_reporter/views/Validation.vue',
-    'tests/unit/arpa_reporter/server/lib/format.spec.js',
-  ],
   rules: {
     'max-len': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     // ['warn', {
@@ -42,6 +20,14 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'func-names': 'off',
+
+    // Modern browsers have much greater support for ES6+ features than they did
+    // when our version of eslint-config-airbnb was written.
+    // TODO: consider upgrading eslint-config-airbnb
+    'no-restricted-syntax': 'off',
+
+    'import/prefer-default-export': 'off',
+
     'vue/multi-word-component-names': 'off',
     'vue/no-mutating-props': 'off',
   },
@@ -53,6 +39,9 @@ module.exports = {
       ],
       env: {
         jest: true,
+      },
+      rules: {
+        'no-unused-expressions': 'off',
       },
     },
   ],

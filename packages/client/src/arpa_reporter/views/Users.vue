@@ -99,7 +99,7 @@ export default {
     },
   },
   methods: {
-    async loadUsers(evt) {
+    async loadUsers() {
       const result = await getJson('/api/users');
       if (result.error) {
         this.$store.commit('addAlert', {

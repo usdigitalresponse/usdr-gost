@@ -24,7 +24,7 @@
 
 <script>
 import _ from 'lodash-checkit';
-import { apiURL } from '@/helpers/fetchApi';
+import { apiURL } from '../../helpers/fetchApi';
 
 export default {
   name: 'Login',
@@ -38,8 +38,8 @@ export default {
     };
   },
   methods: {
-    login(e) {
-      e.preventDefault();
+    login(event) {
+      event.preventDefault();
       if (!this.email) {
         this.message = 'Email cannot be blank';
         this.messageClass = 'alert alert-danger';
@@ -51,12 +51,13 @@ export default {
         return;
       }
 
-      const redirectTo =
+      const redirectTo = (
         // If we got to the login page via a redirect, a post-login redirect URL will already be specified
         this.$route.query.redirect_to
         // If we went to the login page directly, we default to redirecting to the homepage.
         // This gets a full relative URL including any VueRouter base prefix, if configured (such as in GOST)
-        || this.$router.resolve('/').href;
+        || this.$router.resolve('/').href
+      );
 
       const body = JSON.stringify({
         email: this.email,
@@ -78,9 +79,9 @@ export default {
             ? 'alert alert-success'
             : 'alert alert-danger';
         })
-        .catch((e) => {
-          console.log('error:', e.message);
-          this.message = e.message;
+        .catch((error) => {
+          console.log('error:', error.message);
+          this.message = error.message;
           this.messageClass = 'alert alert-danger';
         });
     },

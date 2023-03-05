@@ -129,7 +129,7 @@ export default {
         {
           label: 'Agency',
           field: 'agency_code',
-          tdClass: (row) => { if (!row.agency_code) return 'table-danger'; },
+          tdClass: (row) => (!row.agency_code ? 'table-danger' : undefined),
           filterOptions: {
             enabled: true,
             placeholder: 'Any agency',
@@ -139,7 +139,7 @@ export default {
         {
           label: 'EC Code',
           field: 'ec_code',
-          tdClass: (row) => { if (!row.ec_code) return 'table-danger'; },
+          tdClass: (row) => (!row.ec_code ? 'table-danger' : undefined),
         },
         {
           label: 'Uploaded By',
@@ -161,7 +161,7 @@ export default {
             filterDropdownItems: [
               { value: true, text: 'Show only previously-valid' },
             ],
-            filterFn: (wasValid, isIncluded) => wasValid,
+            filterFn: (wasValid) => wasValid,
           },
         },
         {
@@ -175,7 +175,7 @@ export default {
             filterDropdownItems: [
               { value: true, text: 'Show only previously-valid' },
             ],
-            filterFn: (remainsValid, isIncluded) => remainsValid,
+            filterFn: (remainsValid) => remainsValid,
           },
         },
       ];
