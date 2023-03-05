@@ -43,9 +43,9 @@
 </template>
 
 <script>
+import { apiURL } from '@/helpers/fetchApi';
 import DownloadButton from '../components/DownloadButton.vue';
 import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
-import { apiURL } from '@/helpers/fetchApi';
 
 export default {
   name: 'Home',

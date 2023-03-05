@@ -90,7 +90,7 @@
 
 <script>
 import moment from 'moment';
-import AlertBox from './AlertBox';
+import AlertBox from './AlertBox.vue';
 import { titleize } from '../helpers/form-helpers';
 
 export default {
@@ -156,7 +156,7 @@ export default {
     setViewPeriodID(newID) {
       return this.$store
         .dispatch('setViewPeriodID', newID)
-        .catch((e) => (this.errorMessage = e.message));
+        .catch((e) => { this.errorMessage = e.message; });
     },
   },
 };

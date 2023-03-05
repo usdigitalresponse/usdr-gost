@@ -64,8 +64,8 @@ import moment from 'moment';
 import 'vue-good-table/dist/vue-good-table.css';
 import { VueGoodTable } from 'vue-good-table';
 
-import DownloadFileButton from '../components/DownloadFileButton';
-import DownloadTemplateBtn from '../components/DownloadTemplateBtn';
+import DownloadFileButton from '../components/DownloadFileButton.vue';
+import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
 
 import { getJson } from '../store/index';
 import { shortUuid } from '../helpers/short-uuid';
@@ -126,14 +126,14 @@ export default {
           if (!date) return 'Not set';
           return moment(date).local().format('MMM Do YYYY, h:mm:ss A');
         },
-        tdClass: (row) => { if (!row.validated_at) return 'table-danger'; },
+        tdClass: (row) => (!row.validated_at ? 'table-danger' : undefined),
         filterOptions: {
           enabled: !this.onlyExported,
           placeholder: 'Any validation status',
           filterDropdownItems: [
             { value: true, text: 'Show only validated' },
           ],
-          filterFn: (validatedAt, isIncluded) => validatedAt,
+          filterFn: (validatedAt) => validatedAt,
         },
       };
 
@@ -145,7 +145,7 @@ export default {
         {
           label: 'Agency',
           field: 'agency_code',
-          tdClass: (row) => { if (!row.agency_code) return 'table-danger'; },
+          tdClass: (row) => (!row.agency_code ? 'table-danger' : undefined),
           filterOptions: {
             enabled: true,
             placeholder: 'Any agency',
@@ -155,7 +155,7 @@ export default {
         {
           label: 'EC Code',
           field: 'ec_code',
-          tdClass: (row) => { if (!row.ec_code) return 'table-danger'; },
+          tdClass: (row) => (!row.ec_code ? 'table-danger' : undefined),
           width: '120px',
           filterOptions: {
             enabled: true,
@@ -186,12 +186,12 @@ export default {
     },
   },
   methods: {
-    resetFilters(evt) {
+    resetFilters() {
       this.$refs.uploadsTable.reset();
       this.$refs.uploadsTable.changeSort([]);
     },
     shortUuid,
-    async loadExportedUploads(evt) {
+    async loadExportedUploads() {
       this.exportedUploads = [];
       if (!this.onlyExported) return;
 
