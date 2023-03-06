@@ -48,6 +48,7 @@ export default {
           placeholder: 'Select one',
           options: this.reportingPeriodSelectItems(),
           validation: 'required',
+          disabled: true,
         },
         {
           type: 'select',
