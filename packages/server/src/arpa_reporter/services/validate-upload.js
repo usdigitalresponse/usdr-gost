@@ -37,6 +37,37 @@ function betaValidationWarning(message) {
     return new ValidationError(`${message} -- ${BETA_VALIDATION_MESSAGE}`, { severity: 'warn' });
 }
 
+/**
+ * Derive the agency id from the upload and the cover sheet
+ * @param {object} upload
+ * @param {object} coverSheetAgency
+ * @returns {Promise<void>|ValidationError}
+*/
+async function deriveValidAgencyId(upload, coverSheetAgency) {
+    // grab agency id from the upload, if it exists
+    const uploadAgencyId = upload.agency_id;
+
+    if (uploadAgencyId == null) {
+        // if the upload doesn't have an agency id, set it to the agency id from the cover sheet
+        await setAgencyId(upload.id, coverSheetAgency.id);
+    } else {
+        // if the upload already has an agency id, it must match the agency id from the cover sheet
+        if (uploadAgencyId !== coverSheetAgency.id) {
+            return new ValidationError(
+                `Agency code ${coverSheetAgency.id} does not match agency id from upload ${uploadAgencyId}`,
+                { tab: 'cover', row: 2, col: 'A' }
+            );
+        }
+    }
+}
+
+/**
+ * Validate the agencyId for the upload
+ * @param {object} upload - the upload to validate
+ * @param {object} records - the records for the upload
+ * @param {object} trns - the transaction to use for db queries
+ * @returns {Promise<void>|ValidationError}
+*/
 async function validateAgencyId({ upload, records, trns }) {
     // grab agency id from the cover sheet
     const coverSheet = records.find((doc) => doc.type === 'cover').content;
@@ -48,29 +79,14 @@ async function validateAgencyId({ upload, records, trns }) {
     }
 
     // must exist in the db
-    const matchingAgency = (await agencyByCode(agencyCode, trns))[0];
-    if (!matchingAgency) {
+    const coverSheetAgency = (await agencyByCode(agencyCode, trns))[0];
+    if (!coverSheetAgency) {
         return new ValidationError(
             `Agency code ${agencyCode} does not match any known agency`,
             { tab: 'cover', row: 2, col: 'A' },
         );
     }
-
-  // grab agency id from the upload, if it exists
-  const uploadAgencyId = upload.agency_id;
-
-  if (uploadAgencyId == null) {
-    // if the upload doesn't have an agency id, set it to the agency id from the cover sheet
-    await setAgencyId(upload.id, matchingAgency.id);
-  } else {
-    // if the upload already has an agency id, it must match the agency id from the cover sheet
-    if (uploadAgencyId !== matchingAgency.id) {
-      return new ValidationError(
-        `Agency code ${matchingAgency.id} does not match agency id from upload ${uploadAgencyId}`,
-        { tab: 'cover', row: 2, col: 'A' }
-      );
-    }
-  }
+    return deriveValidAgencyId(upload, coverSheetAgency);
 }
 
 async function validateEcCode({ upload, records }) {
