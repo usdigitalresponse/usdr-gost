@@ -26,7 +26,7 @@ Vue.use(VueFormulate, {
     outer: 'form-group',
     input: (context, classes) => {
       // set this to 'form-control' unless it's a file input
-      const inputClass = context.type === 'file' ? '' : 'form-control';
+      const inputClass = context.type === 'file' ? 'form-control-file' : 'form-control';
       return [classes, inputClass].join(' ');
     },
     inputHasErrors: 'is-invalid',
