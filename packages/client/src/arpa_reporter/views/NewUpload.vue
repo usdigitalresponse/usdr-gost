@@ -122,19 +122,9 @@ export default {
       return file;
     },
     async onSubmit(formData) {
-      // This is technically a FileList, allowing for multiple uploads if configured
-      // this way, but for now we have only a single file.
-      const file = formData.spreadsheet[0];
-      const uploadData = {
-        reportingPeriodId: formData.reportingPeriodId,
-        agencyId: formData.agencyId,
-        expenditure_code: formData.expenditure_code,
-        notes: formData.notes,
-      };
       const uploadFormData = new FormData();
-      uploadFormData.append('spreadsheet', file);
-      Object.keys(uploadData).forEach((key) => {
-        const value = uploadData[key];
+      uploadFormData.append('spreadsheet', data.spreadsheet[0]);
+      Object.entries(_.omit(data, ['spreadsheet'])).forEach(([key, value]) => {
         if (value) {
           uploadFormData.append(key, value);
         }
