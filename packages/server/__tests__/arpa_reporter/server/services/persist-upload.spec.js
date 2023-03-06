@@ -63,19 +63,21 @@ describe('persist-upload', () => {
 
     describe('createUploadRow', () => {
         const createUploadRow = persistUploadModule.__get__('createUploadRow');
-
-        it('should create an upload row with escaped notes', async () => {
-            const notes = '<script>alert("xss");</script>';
-            const userId = 1;
-            const reportingPeriodId = 2;
-            const agencyId = 2;
-            const uploadRow = await createUploadRow('filename.xlsx', reportingPeriodId, userId, agencyId, notes);
+        it('should create an upload row with expected properties', async () => {
+            const uploadData = {
+                filename: 'test.xlsx',
+                reportingPeriodId: 2,
+                userId: 1,
+                agencyId: 2,
+                notes: 'notes',
+            };
+            const uploadRow = await createUploadRow(uploadData);
             expect(uploadRow).to.deep.equal({
-                filename: 'filename.xlsx',
+                filename: 'test.xlsx',
                 reporting_period_id: 2,
                 user_id: 1,
                 agency_id: 2,
-                notes: '<script>alert("xss");</script>',
+                notes: 'notes',
             });
         });
     });

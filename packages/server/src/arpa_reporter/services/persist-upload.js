@@ -57,14 +57,14 @@ async function validateBuffer(buffer) {
 
 /**
  * Create Upload row object
- * @param {string} filename
- * @param {object} reportingPeriod
- * @param {string} userId
- * @param {string} agencyId
- * @param {string} notes
+ * @param {object} uploadData
  * @returns {object}
- */
-function createUploadRow(filename, reportingPeriodId, userId, agencyId, notes) {
+*/
+function createUploadRow(uploadData) {
+    const {
+        filename, reportingPeriodId, userId, agencyId, notes,
+    } = uploadData;
+
     return {
         filename: path.basename(filename),
         reporting_period_id: reportingPeriodId,
@@ -175,7 +175,14 @@ async function persistUpload({
     const validatedNotes = getValidNotes(suppliedNotes);
 
     // Create the upload row
-    const uploadRow = createUploadRow(filename, validatedReportingPeriodId, user.id, validatedAgencyId, validatedNotes);
+    const uploadData = {
+        filename,
+        reportingPeriodId: validatedReportingPeriodId,
+        userId: user.id,
+        agencyId: validatedAgencyId,
+        notes: validatedNotes,
+    };
+    const uploadRow = createUploadRow(uploadData);
 
     // Insert the upload row into the database
     const upload = await createUpload(uploadRow);
