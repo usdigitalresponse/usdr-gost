@@ -27,7 +27,7 @@ Vue.use(VueFormulate, {
     input: (context, classes) => {
       // set this to 'form-control' unless it's a file input
       const inputClass = context.type === 'file' ? 'form-control-file' : 'form-control';
-      return [classes, inputClass].join(' ');
+      return [inputClass];
     },
     inputHasErrors: 'is-invalid',
     help: 'form-text text-muted',
