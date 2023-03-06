@@ -1,6 +1,6 @@
 <template>
-  <div>
-
+  <div class="upload">
+    <h1>Submit Workbook</h1>
     <FormulateForm
       name="new-upload"
       :form-errors="formErrors"
@@ -18,12 +18,13 @@
 <script>
 import Vue from 'vue';
 import VueFormulate from '@braid/vue-formulate';
+import _ from 'lodash';
 import { postForm } from '../store';
 
 Vue.use(VueFormulate, {
   classes: {
-    prefix: 'formulate-',
     outer: 'form-group',
+    // eslint-disable-next-line no-unused-vars
     input: (context, classes) => {
       // set this to 'form-control' unless it's a file input
       const inputClass = context.type === 'file' ? 'form-control-file' : 'form-control';
@@ -38,12 +39,7 @@ export default {
   data() {
     return {
       formErrors: [],
-      initialValues: () => ({
-        reportingPeriodId: this.$store.getters.viewPeriodID ?? '',
-        agencyId: this.$store.getters.user.agency.id,
-      }),
-
-      values: {},
+      values: this.initialValues(),
       schema: [
         {
           type: 'select',
@@ -101,10 +97,13 @@ export default {
       ],
     };
   },
-  created() {
-    this.values = this.initialValues();
-  },
   methods: {
+    initialValues() {
+      return {
+        reportingPeriodId: this.$store.getters.viewPeriodID ?? '',
+        agencyId: this.$store.getters.user.agency.id,
+      };
+    },
     reportingPeriodSelectItems() {
       // create an object from this.$store.getters.viewableReportingPeriods where every key is period.id and every value is period.name
       return Object.fromEntries(this.$store.getters.viewableReportingPeriods.map((period) => [period.id, period.name]));
@@ -121,7 +120,7 @@ export default {
          we just return the file object. */
       return file;
     },
-    async onSubmit(formData) {
+    async onSubmit(data) {
       const uploadFormData = new FormData();
       uploadFormData.append('spreadsheet', data.spreadsheet[0]);
       Object.entries(_.omit(data, ['spreadsheet'])).forEach(([key, value]) => {
