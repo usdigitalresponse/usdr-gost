@@ -96,7 +96,7 @@ async function persistUploadToFS(upload, buffer) {
  * @param {string} notes
  * @returns {string|null}
  */
-function getValidNotes(notes) {
+function ensureValidNotes(notes) {
     return notes ? _.escape(notes) : null;
 }
 
@@ -107,7 +107,7 @@ function getValidNotes(notes) {
  * @returns {string|null}
  * @throws {ValidationError}
  */
-async function getValidAgencyId(agencyId, userId) {
+async function ensureValidAgencyId(agencyId, userId) {
     // If agencyId is null, it's ok. We derive this later from the spreadsheet
     // itself in validate-upload. We leave it as null here.
     if (!agencyId) {
@@ -118,7 +118,7 @@ async function getValidAgencyId(agencyId, userId) {
     const tenantAgencies = await getTenantAgencies(userRecord.tenant_id);
     const agency = tenantAgencies.find((a) => a.id === Number(agencyId));
     if (!agency) {
-        throw new ValidationError(`Supplied agency ID ${agencyId} does not correspond to an agency in the user's tenant ${userRecord.tenant_id}`);
+        throw new ValidationError(`Supplied agency ID ${agencyId} does not correspond to an agency in the user's tenant ${userRecord.tenant_id}. Please report this issue to USDR.`);
     }
     return agencyId;
 }
@@ -129,13 +129,13 @@ async function getValidAgencyId(agencyId, userId) {
  * @returns {string}
  * @throws {ValidationError}
  */
-async function getValidReportingPeriodId(reportingPeriodId) {
+async function ensureValidReportingPeriodId(reportingPeriodId) {
     // Get the current reporting period. Passing an undefined value
     // defaults to the current period.
     const reportingPeriod = await getReportingPeriod(reportingPeriodId);
 
     if (!reportingPeriod) {
-        throw new ValidationError(`Supplied reporting period ID ${reportingPeriodId} does not correspond to any existing reporting period`);
+        throw new ValidationError(`Supplied reporting period ID ${reportingPeriodId} does not correspond to any existing reporting period. Please report this issue to USDR.`);
     }
     return reportingPeriod.id;
 }
@@ -165,14 +165,14 @@ async function persistUpload({
 
     // Either use supplied reportingPeriodId,
     // or fall back to the current reporting period ID if undefined
-    const validatedReportingPeriodId = await getValidReportingPeriodId(suppliedReportingPeriodId);
+    const validatedReportingPeriodId = await ensureValidReportingPeriodId(suppliedReportingPeriodId);
 
     // Check if the user is affiliated with the given agency,
     // or leave undefined (we'll derive it later from the spreadsheet)
-    const validatedAgencyId = await getValidAgencyId(suppliedAgencyId, user.id);
+    const validatedAgencyId = await ensureValidAgencyId(suppliedAgencyId, user.id);
 
     // Escape note text
-    const validatedNotes = getValidNotes(suppliedNotes);
+    const validatedNotes = ensureValidNotes(suppliedNotes);
 
     // Create the upload row
     const uploadData = {

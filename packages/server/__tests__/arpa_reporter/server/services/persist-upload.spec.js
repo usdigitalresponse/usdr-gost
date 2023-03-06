@@ -93,13 +93,7 @@ describe('persist-upload', () => {
         beforeEach(() => {
             fsMock = sinon.mock(fs);
         });
-        beforeEach(() => {
-            fsMock = sinon.mock(fs);
-        });
 
-        afterEach(() => {
-            fsMock.restore();
-        });
         afterEach(() => {
             fsMock.restore();
         });
@@ -136,24 +130,24 @@ describe('persist-upload', () => {
     });
 });
 
-describe('getValidNotes', () => {
-    const getValidNotes = persistUploadModule.__get__('getValidNotes');
+describe('ensureValidNotes', () => {
+    const ensureValidNotes = persistUploadModule.__get__('ensureValidNotes');
 
     it('should return null if notes is undefined', () => {
         const notes = undefined;
-        const validNotes = getValidNotes(notes);
+        const validNotes = ensureValidNotes(notes);
         expect(validNotes).to.equal(null);
     });
 
     it('should escape html tags', () => {
         const notes = '<script>alert("xss");</script>';
-        const validNotes = getValidNotes(notes);
+        const validNotes = ensureValidNotes(notes);
         expect(validNotes).to.equal('&lt;script&gt;alert(&quot;xss&quot;);&lt;/script&gt;');
     });
 });
 
-describe('getValidAgencyId', () => {
-    const getValidAgencyId = persistUploadModule.__get__('getValidAgencyId');
+describe('ensureValidAgencyId', () => {
+    const ensureValidAgencyId = persistUploadModule.__get__('ensureValidAgencyId');
     let sandbox;
 
     beforeEach(() => {
@@ -170,7 +164,7 @@ describe('getValidAgencyId', () => {
 
     it('should return null if agencyId is undefined', async () => {
         const agencyId = undefined;
-        const validAgencyId = await getValidAgencyId(agencyId);
+        const validAgencyId = await ensureValidAgencyId(agencyId);
         expect(validAgencyId).to.equal(null);
     });
 
@@ -181,11 +175,11 @@ describe('getValidAgencyId', () => {
 
         try {
             // eslint-disable-next-line no-unused-vars
-            const validAgencyId = await getValidAgencyId(agencyId, userId);
+            const validAgencyId = await ensureValidAgencyId(agencyId, userId);
             throw new Error('Expected an error to be thrown');
         } catch (err) {
             expect(err).to.be.an.instanceof(ValidationError);
-            expect(err.message).to.equal('Supplied agency ID 3 does not correspond to an agency in the user\'s tenant 0');
+            expect(err.message).to.equal('Supplied agency ID 3 does not correspond to an agency in the user\'s tenant 0. Please report this issue to USDR.');
         }
     });
 
@@ -194,13 +188,13 @@ describe('getValidAgencyId', () => {
         const userId = 1;
         const agencyId = 2;
 
-        const validAgencyId = await getValidAgencyId(agencyId, userId);
+        const validAgencyId = await ensureValidAgencyId(agencyId, userId);
         expect(validAgencyId).to.equal(agencyId);
     });
 });
 
-describe('getValidReportingPeriodId', () => {
-    const getValidReportingPeriodId = persistUploadModule.__get__('getValidReportingPeriodId');
+describe('ensureValidReportingPeriodId', () => {
+    const ensureValidReportingPeriodId = persistUploadModule.__get__('ensureValidReportingPeriodId');
     const getReportingPeriod = sinon.stub();
     persistUploadModule.__set__('getReportingPeriod', getReportingPeriod);
     let sandbox;
@@ -216,9 +210,8 @@ describe('getValidReportingPeriodId', () => {
 
     it('should fall back to the current reporting period if reportingPeriodId is undefined', async () => {
         const reportingPeriodId = undefined;
-        const getReportingPeriodStub = sandbox.stub().returns({ id: 1 });
-        persistUploadModule.__set__('getReportingPeriod', getReportingPeriodStub);
-        const validReportingPeriodId = await getValidReportingPeriodId(reportingPeriodId);
+        getReportingPeriod.resolves({ id: 1 });
+        const validReportingPeriodId = await ensureValidReportingPeriodId(reportingPeriodId);
         expect(validReportingPeriodId).to.equal(1);
     });
 
@@ -227,7 +220,7 @@ describe('getValidReportingPeriodId', () => {
         getReportingPeriod.resolves(reportingPeriod);
         persistUploadModule.__set__('getReportingPeriod', getReportingPeriod);
 
-        const result = await getValidReportingPeriodId(reportingPeriod.id);
+        const result = await ensureValidReportingPeriodId(reportingPeriod.id);
 
         expect(getReportingPeriod.calledOnceWith(reportingPeriod.id)).to.be.true;
         expect(result).to.equal(reportingPeriod.id);
@@ -239,12 +232,28 @@ describe('getValidReportingPeriodId', () => {
         persistUploadModule.__set__('getReportingPeriod', getReportingPeriod);
 
         try {
-            await getValidReportingPeriodId(reportingPeriodId);
+            await ensureValidReportingPeriodId(reportingPeriodId);
             // The test should fail if the function does not throw an error
             expect.fail('Expected function to throw an error');
         } catch (error) {
             expect(error).to.be.an.instanceOf(ValidationError);
-            expect(error.message).to.equal(`Supplied reporting period ID ${reportingPeriodId} does not correspond to any existing reporting period`);
+            expect(error.message).to.equal(`Supplied reporting period ID ${reportingPeriodId} does not correspond to any existing reporting period. Please report this issue to USDR.`);
+            expect(getReportingPeriod.calledOnceWith(reportingPeriodId)).to.be.true;
+        }
+    });
+
+    it('should throw a ValidationError when the reporting period exists but is undefined (in this case, associated with a different tenant)', async () => {
+        const reportingPeriodId = 123;
+        getReportingPeriod.resolves(undefined);
+        persistUploadModule.__set__('getReportingPeriod', getReportingPeriod);
+
+        try {
+            await ensureValidReportingPeriodId(reportingPeriodId);
+            // The test should fail if the function does not throw an error
+            expect.fail('Expected function to throw an error');
+        } catch (error) {
+            expect(error).to.be.an.instanceOf(ValidationError);
+            expect(error.message).to.equal(`Supplied reporting period ID ${reportingPeriodId} does not correspond to any existing reporting period. Please report this issue to USDR.`);
             expect(getReportingPeriod.calledOnceWith(reportingPeriodId)).to.be.true;
         }
     });
