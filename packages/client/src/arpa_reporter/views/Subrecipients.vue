@@ -71,10 +71,7 @@ export default {
   },
   computed: {
     rows() {
-      return this.recipients.map((r) => {
-        r.json = JSON.parse(r.record);
-        return r;
-      });
+      return this.recipients.map((r) => ({ ...r, json: JSON.parse(r.record) }));
     },
     columns() {
       return [
@@ -122,11 +119,11 @@ export default {
     },
   },
   methods: {
-    resetFilters(evt) {
+    resetFilters() {
       this.$refs.recipientsTable.reset();
       this.$refs.recipientsTable.changeSort([]);
     },
-    async loadRecipients(evt) {
+    async loadRecipients() {
       this.loading = true;
 
       const result = await getJson('/api/subrecipients');

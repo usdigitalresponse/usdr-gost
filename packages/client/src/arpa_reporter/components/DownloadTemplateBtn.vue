@@ -5,8 +5,8 @@
 </template>
 
 <script>
-import DownloadButton from './DownloadButton.vue';
 import { apiURL } from '@/helpers/fetchApi';
+import DownloadButton from './DownloadButton.vue';
 
 export default {
   name: 'DownloadTemplateBtn',
