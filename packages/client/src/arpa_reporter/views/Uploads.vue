@@ -183,8 +183,8 @@ export default {
           field: 'notes',
           filterOptions: {
             enabled: true,
-            placeholder: 'Filter by notes...'
-          }
+            placeholder: 'Filter by notes...',
+          },
         },
         validatedCol,
       ];

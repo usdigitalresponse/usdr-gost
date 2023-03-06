@@ -75,7 +75,6 @@
             {{ upload.notes || 'Not set' }}
           </li>
 
-
           <li class="list-group-item" :class="validatedLiClass">
             <span class="font-weight-bold">Validation: </span>
 
