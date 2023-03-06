@@ -37,30 +37,56 @@ function betaValidationWarning(message) {
     return new ValidationError(`${message} -- ${BETA_VALIDATION_MESSAGE}`, { severity: 'warn' });
 }
 
-async function validateAgencyId({ upload, records, trns }) {
+/**
+ * Derive the agency id from the upload and the cover sheet
+ * @param {object} recordFromUploadsTable - the record from the uploads table
+ * @param {object} coverSheetAgency - the agency from the cover sheet
+ * @returns {Promise<void>|ValidationError}
+*/
+async function setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency) {
+    // grab agency id from the upload, if it exists
+    const uploadRecordAgencyId = recordFromUploadsTable.agency_id;
+
+    if (uploadRecordAgencyId == null) {
+        // if the upload doesn't have an agency id, set it to the agency id from the cover sheet
+        await setAgencyId(recordFromUploadsTable.id, coverSheetAgency.id);
+    } else {
+        // if the upload already has an agency id, it must match the agency id from the cover sheet
+        if (uploadRecordAgencyId !== coverSheetAgency.id) {
+            return new ValidationError(
+                `The agency on the spreadsheet, "${coverSheetAgency.code}", does not match the agency provided in the form, "${recordFromUploadsTable.agency_code}"`,
+                { tab: 'cover', row: 2, col: 'A' }
+            );
+        }
+    }
+}
+
+/**
+ * Validate the agencyId for the upload
+ * @param {object} upload - the record from the uploads table
+ * @param {object} records - the rows from the workbook
+ * @param {object} trns - the transaction to use for db queries
+ * @returns {Promise<void>|ValidationError}
+*/
+async function validateAgencyId({ upload: recordFromUploadsTable, records: workbookRows, trns }) {
     // grab agency id from the cover sheet
-    const coverSheet = records.find((doc) => doc.type === 'cover').content;
-    const agencyCode = coverSheet['Agency Code'];
+    const coverSheet = workbookRows.find((doc) => doc.type === 'cover').content;
+    const coverAgencyCode = coverSheet['Agency Code'];
 
     // must be set
-    if (!agencyCode) {
+    if (!coverAgencyCode) {
         return new ValidationError('Agency code must be set', { tab: 'cover', row: 1, col: 'A' });
     }
 
     // must exist in the db
-    const matchingAgency = (await agencyByCode(agencyCode, trns))[0];
-    if (!matchingAgency) {
+    const coverSheetAgency = (await agencyByCode(coverAgencyCode, trns))[0];
+    if (!coverSheetAgency) {
         return new ValidationError(
-            `Agency code ${agencyCode} does not match any known agency`,
+            `Agency code ${coverAgencyCode} does not match any known agency`,
             { tab: 'cover', row: 2, col: 'A' },
         );
     }
-
-    // always set agency id if possible; we omit passing the transaction in this
-    // case, so that the agency id gets set even if the upload fails to validate
-    if (matchingAgency.id !== upload.agency_id) {
-        await setAgencyId(upload.id, matchingAgency.id);
-    }
+    return setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
 }
 
 async function validateEcCode({ upload, records }) {

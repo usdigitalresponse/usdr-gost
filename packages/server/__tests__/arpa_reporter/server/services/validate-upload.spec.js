@@ -4,10 +4,15 @@ const rewire = require('rewire');
 const { getRules } = require('../../../../src/arpa_reporter/services/validation-rules');
 const { EXPENDITURE_CATEGORIES } = require('../../../../src/arpa_reporter/lib/format');
 const ALL_RULES = getRules()
+const ValidationError = require('../../../../src/arpa_reporter/lib/validation-error');
+const sinon = require('sinon');
+const { expect } = require('chai');
+
+const validateUploadModule = rewire('../../../../src/arpa_reporter/services/validate-upload');
 
 describe('validate upload', () => {
     describe('validate field pattern', () => {
-        const validateFieldPattern = rewire('../../../../src/arpa_reporter/services/validate-upload').__get__(
+        const validateFieldPattern = validateUploadModule.__get__(
             'validateFieldPattern',
         );
         const EMAIL_KEY = 'POC_Email_Address__c';
@@ -32,8 +37,64 @@ describe('validation rules', () => {
     });
 });
 
+
+describe('setOrValidateAgencyBasedOnCoverSheet', () => {
+    const setOrValidateAgencyBasedOnCoverSheet = validateUploadModule.__get__('setOrValidateAgencyBasedOnCoverSheet');
+    let recordFromUploadsTable, coverSheetAgency;
+
+    beforeEach(() => {
+        // Create a stub for the setAgencyId function
+        setAgencyIdStub = sinon.stub().resolves();
+        validateUploadModule.__set__('setAgencyId', setAgencyIdStub);
+    });
+
+    afterEach(() => {
+        // Restore the original setAgencyId function after each test
+        sinon.restore();
+    });
+
+    it('should set the agency ID from cover sheet when upload record has no agency ID', async () => {
+        const recordFromUploadsTable = { id: 1, agency_id: null, agency_code: null };
+        const coverSheetAgency = { id: 123, code: 'DEF' };
+    
+        await setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
+    
+        // Expect setAgencyIdStub to be called with the correct arguments
+        expect(setAgencyIdStub.calledOnceWithExactly(recordFromUploadsTable.id, coverSheetAgency.id)).to.be.true;
+      });
+    
+      it('should return a validation error when the upload record agency ID does not match cover sheet agency ID', async () => {
+        const recordFromUploadsTable = { id: 1, agency_id: 456, agency_code: 'AGENCY1' };
+        const coverSheetAgency = { id: 123, code: 'AGENCY2' };
+    
+        const result = await setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
+    
+        // Expect setAgencyId to not be called
+        expect(setAgencyIdStub.called).to.be.false;
+    
+        // Expect the function to return a ValidationError with the correct message and metadata
+        expect(result).to.be.an.instanceOf(ValidationError);
+        expect(result.message).to.equal(`The agency on the spreadsheet, "${coverSheetAgency.code}", does not match the agency provided in the form, "${recordFromUploadsTable.agency_code}"`);
+      });
+
+    it('should not modify agencyId if uploadRecordAgencyId matches coverSheetAgency.id', async () => {
+        const recordFromUploadsTable = { id: 1, agency_id: 456, agency_code: 'AGENCY1' };
+        const coverSheetAgency = { 
+            id: recordFromUploadsTable.agency_id, 
+            code: recordFromUploadsTable.agency_code 
+        };
+
+        recordFromUploadsTable.agency_id = coverSheetAgency.id;
+
+        await setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
+
+        // Expect setAgencyId to not be called
+        expect(setAgencyIdStub.called).to.be.false;
+    });
+});
+
 describe('validate record', () => {
-    const validateRecord = rewire('../../../../src/arpa_reporter/services/validate-upload').__get__(
+    const validateRecord = validateUploadModule.__get__(
         'validateRecord',
     );
     const VALID_EC2_PROJECT = {
