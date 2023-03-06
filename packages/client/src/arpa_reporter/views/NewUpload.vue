@@ -82,7 +82,7 @@ export default {
         },
         {
           component: 'div',
-          class: 'row',
+          class: 'd-flex',
           children: [
             {
               name: 'submit',
