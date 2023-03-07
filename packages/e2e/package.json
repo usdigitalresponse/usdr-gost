@@ -13,6 +13,8 @@
     "lint": "eslint '**/*.js'"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.4.4",
+    "commitlint": "^17.4.4",
     "cypress": "12.7.0",
     "eslint": "^8.35.0"
   }
