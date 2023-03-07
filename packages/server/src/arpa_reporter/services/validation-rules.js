@@ -58,6 +58,10 @@ const CONDITIONAL_REQS_CONFIGS = [
         fieldIDs: optionalIfNotStartedFieldIds,
         func: optionalIfNotStarted
     },
+    {
+        fieldIDs: ['Cancellation_Reason__c'],
+        func: (record) => record.Completion_Status__c === 'Cancelled',
+    },
 ];
 
 /* The CONFIGS format above is convenient for when we want to write the conditional rules, but bad
