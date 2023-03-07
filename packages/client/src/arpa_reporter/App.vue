@@ -6,6 +6,7 @@
 
 <script>
 import '../../arpa_reporter/scss/index.scss';
+import 'bootstrap/dist/js/bootstrap.min';
 
 import Navigation from './components/Navigation.vue';
 
