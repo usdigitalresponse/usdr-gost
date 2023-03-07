@@ -38,7 +38,7 @@
         </multiselect>
       </b-col>
     </b-row>
-    <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields" selectable striped
+    <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields.filter( field => !field.hideGrantItem)" selectable striped
       :sort-by.sync="orderBy" :sort-desc.sync="orderDesc" :no-local-sorting="true"
       select-mode="single" :busy="loading" @row-selected="onRowSelected">
       <template #cell(award_floor)="row">
@@ -80,6 +80,7 @@ export default {
     showResult: Boolean,
     showAging: Boolean,
     showAssignedToAgency: String,
+    hideGrantItems: Boolean,
   },
   data() {
     return {
@@ -92,6 +93,7 @@ export default {
           label: 'Opportunity Number',
           variant: 'dark',
           stickyColumn: true, // was in the grant id col but not sure if necessary
+          hideGrantItem: this.hideGrantItems,
         },
         {
           key: 'title',
@@ -107,9 +109,11 @@ export default {
         {
           // opportunity_status
           key: 'status',
+          hideGrantItem: this.hideGrantItems,
         },
         {
           key: 'opportunity_category',
+          hideGrantItem: this.hideGrantItems,
         },
         {
           key: 'cost_sharing',
