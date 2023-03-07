@@ -21,7 +21,7 @@ function optionalIfNotStarted(projectRow) {
 
 // This is the list of field ids that should be optional if the status is 'Not started'
 // For any other status, the field should be considered required.
-const optionalIfNotStartedFieldIds = new Set([
+const optionalIfNotStartedFieldIds = [
     'Primary_Project_Demographics__c',
     'Number_Students_Tutoring_Programs__c',
     'Does_Project_Include_Capital_Expenditure__c',
@@ -48,7 +48,35 @@ const optionalIfNotStartedFieldIds = new Set([
     'Premium_Pay_Narrative__c',
     'Number_of_Workers_K_12__c',
     'Technology_Type_Planned__c',
-]);
+];
+
+/* This is a list of all of the configured rules for "conditionally required" fields. Each entry
+   in this list should include a list of field ids that are subject to the conditional requirement,
+   and a function that takes in a record object and returns true if it is required. */
+const CONDITIONAL_REQS_CONFIGS = [
+    {
+        fieldIDs: optionalIfNotStartedFieldIds,
+        func: optionalIfNotStarted
+    },
+];
+
+/* The CONFIGS format above is convenient for when we want to write the conditional rules, but bad
+   when we want to lookup the rules for a particular field id. This function converts the configs
+   into a more efficient lookup map */
+function convertConfigsToLookupMap() {
+    const reqFnByFieldId = {}
+    for (const { fieldIDs, func } of CONDITIONAL_REQS_CONFIGS) {
+        for (const fieldID of fieldIDs) {
+            if (fieldID in reqFnByFieldId) {
+                throw new Error(`Field id ${fieldID} has overriding conditional requirements.`);
+            }
+            reqFnByFieldId[fieldID] = func;
+        }
+    }
+    return reqFnByFieldId;
+}
+
+const CONDITIONAL_REQUIREMENTS_BY_FIELD_ID = convertConfigsToLookupMap();
 
 /*
 Structured data recording all the immediate corrections we want to apply to dropdowns.
@@ -129,8 +157,8 @@ function generateRules() {
                     }
                 }
             }
-            if (optionalIfNotStartedFieldIds.has(rule.key)) {
-                rule.isRequiredFn = optionalIfNotStarted;
+            if (rule.key in CONDITIONAL_REQUIREMENTS_BY_FIELD_ID) {
+                rule.isRequiredFn = CONDITIONAL_REQUIREMENTS_BY_FIELD_ID[rule.key];
             }
         }
     }
