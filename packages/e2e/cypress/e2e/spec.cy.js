@@ -1,4 +1,4 @@
 it('loads page', () => {
-    cy.visit('/')
-    cy.contains('Hi there')
-  })
+    cy.visit('/');
+    cy.contains('Hi there');
+});
