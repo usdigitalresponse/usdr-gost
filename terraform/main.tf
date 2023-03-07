@@ -99,6 +99,7 @@ module "api" {
   api_container_environment  = var.api_container_environment
   default_desired_task_count = var.api_default_desired_task_count
   enable_grants_scraper      = var.api_enable_grants_scraper
+  enable_grants_digest       = var.api_enable_grants_digest
 
   # DNS
   domain_name         = local.api_domain_name
