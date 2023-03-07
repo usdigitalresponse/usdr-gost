@@ -16,6 +16,7 @@ api_enabled                    = true
 api_container_image_tag        = "stable"
 api_default_desired_task_count = 3
 api_enable_grants_scraper      = true
+api_enable_grants_digest       = true
 api_log_retention_in_days      = 30
 
 // Postgres

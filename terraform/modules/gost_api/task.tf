@@ -29,6 +29,7 @@ module "api_container_definition" {
     {
       ENABLE_GRANTS_SCRAPER     = "false"
       GRANTS_SCRAPER_DATE_RANGE = 7
+      ENABLE_GRANTS_DIGEST      = var.enable_grants_digest ? "true" : "false"
       GRANTS_SCRAPER_DELAY      = 1000
       NODE_OPTIONS              = "--max_old_space_size=1024"
       API_DOMAIN                = "https://${var.domain_name}"
