@@ -1,15 +1,16 @@
 const _ = require('lodash');
 const assert = require('assert');
 const rewire = require('rewire');
-const { getRules } = require('../../../../src/arpa_reporter/services/validation-rules');
-const { EXPENDITURE_CATEGORIES } = require('../../../../src/arpa_reporter/lib/format');
-
-const ALL_RULES = getRules();
-const ValidationError = require('../../../../src/arpa_reporter/lib/validation-error');
 const sinon = require('sinon');
 const { expect } = require('chai');
 
+const { getRules } = require('../../../../src/arpa_reporter/services/validation-rules');
+const { EXPENDITURE_CATEGORIES } = require('../../../../src/arpa_reporter/lib/format');
+const ValidationError = require('../../../../src/arpa_reporter/lib/validation-error');
+
 const validateUploadModule = rewire('../../../../src/arpa_reporter/services/validate-upload');
+
+const ALL_RULES = getRules();
 
 describe('validate upload', () => {
     describe('validate field pattern', () => {
@@ -40,8 +41,7 @@ describe('validation rules', () => {
 
 describe('setOrValidateAgencyBasedOnCoverSheet', () => {
     const setOrValidateAgencyBasedOnCoverSheet = validateUploadModule.__get__('setOrValidateAgencyBasedOnCoverSheet');
-    let recordFromUploadsTable; let
-        coverSheetAgency;
+    let setAgencyIdStub;
 
     beforeEach(() => {
         // Create a stub for the setAgencyId function
@@ -126,7 +126,7 @@ describe('validate record', () => {
         typeRules: ALL_RULES.ec2,
     }).then(
         (generatedErrors) => {
-            assert(generatedErrors.length == 0,
+            assert(generatedErrors.length === 0,
                 `Unexpected error when validating record: ${generatedErrors}`);
         },
         (thrownException) => { fail('Unexpected error while validating record', thrownException); },
@@ -141,8 +141,8 @@ describe('validate record', () => {
             typeRules: ALL_RULES.ec2,
         }).then(
             (generatedErrors) => {
-                assert(generatedErrors.length == 1);
-                assert(generatedErrors[0].severity == 'err');
+                assert(generatedErrors.length === 1);
+                assert(generatedErrors[0].severity === 'err');
                 assert.equal(generatedErrors[0].message, 'Value is required for Project_Identification_Number__c');
             },
             (thrownException) => { fail('Unexpected error while validating record', thrownException); },
@@ -158,8 +158,8 @@ describe('validate record', () => {
             typeRules: ALL_RULES.ec2,
         }).then(
             (generatedErrors) => {
-                assert(generatedErrors.length == 1);
-                assert(generatedErrors[0].severity == 'err');
+                assert(generatedErrors.length === 1);
+                assert(generatedErrors[0].severity === 'err');
                 assert.equal(generatedErrors[0].message, `Expected a number, but the value was 'N/A'`);
             },
             (thrownException) => { fail('Unexpected error while validating record', thrownException); },

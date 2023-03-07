@@ -4,6 +4,13 @@ const fs = require('fs/promises');
 
 const env = require('../../../src/arpa_reporter/environment');
 
+function exists(fpath) {
+    return fs.access(fpath).then(
+        () => true,
+        () => false,
+    );
+}
+
 describe('environment settings', () => {
     it('SERVER_CODE_DIR point to the right place', async () => {
         const testPaths = [
@@ -13,6 +20,7 @@ describe('environment settings', () => {
 
         for (const relative of testPaths) {
             const absolute = path.join(env.SERVER_CODE_DIR, relative);
+            // eslint-disable-next-line no-await-in-loop
             const pathExists = await exists(absolute);
             assert.ok(pathExists, `expected ${absolute} to exist, is SERVER_CODE_DIR wrong?`);
         }
@@ -26,17 +34,11 @@ describe('environment settings', () => {
 
         for (const relative of testPaths) {
             const absolute = path.join(env.SERVER_DATA_DIR, relative);
+            // eslint-disable-next-line no-await-in-loop
             const pathExists = await exists(absolute);
             assert.ok(pathExists, `expected ${absolute} to exist, is SERVER_DATA_DIR wrong?`);
         }
     });
 });
-
-function exists(fpath) {
-    return fs.access(fpath).then(
-        () => true,
-        () => false,
-    );
-}
 
 // NOTE: This file was copied from tests/server/environment.spec.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
