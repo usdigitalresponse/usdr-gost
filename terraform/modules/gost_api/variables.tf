@@ -162,3 +162,9 @@ variable "enable_grants_scraper" {
   type        = bool
   default     = false
 }
+
+variable "enable_grants_digest" {
+  description = "When true, sets the ENABLE_GRANTS_DIGEST environment variable to true in the API container."
+  type        = bool
+  default     = false
+}
