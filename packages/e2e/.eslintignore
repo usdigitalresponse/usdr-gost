@@ -2,4 +2,3 @@ node_modules/*
 cypress/results/*
 cypress/screenshots/*
 cypress/videos/*
-cypress/fixtures/*
