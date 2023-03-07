@@ -1,0 +1,10 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "End-to-end testing",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "cypress": "12.7.0"
+  }
+}
