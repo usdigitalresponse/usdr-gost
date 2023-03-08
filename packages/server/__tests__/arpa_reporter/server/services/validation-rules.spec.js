@@ -69,8 +69,8 @@ describe('validation rules', () => {
         const configs = validationRulesModule.__get__('CONDITIONAL_REQS_CONFIGS');
         const funcLookup = validationRulesModule.__get__('CONDITIONAL_REQUIREMENTS_BY_FIELD_ID');
         it('has valid configurations', () => {
-            const seenFieldIds = new Set()
-            assert(configs.length > 0)
+            const seenFieldIds = new Set();
+            assert(configs.length > 0);
             for (const config of configs) {
                 assert(config.fieldIDs && config.fieldIDs.length > 0,
                     'Conditional requirement config is missing fieldIDs');
@@ -86,24 +86,24 @@ describe('validation rules', () => {
         });
 
         it('relaxes some requirements for projects that have not started', () => {
-            const optionalIfNotStartedFn = funcLookup['Primary_Project_Demographics__c'];
+            const optionalIfNotStartedFn = funcLookup.Primary_Project_Demographics__c;
             assert(optionalIfNotStartedFn, 'Missing optionalIfNotStarted function');
             const testProject = {
-                Completion_Status__c: 'Completed'
+                Completion_Status__c: 'Completed',
             };
             assert.equal(optionalIfNotStartedFn(testProject), true,
                 'A completed project must include this field');
 
             testProject.Completion_Status__c = 'Not started';
             assert.equal(optionalIfNotStartedFn(testProject), false,
-                'A not-started project can omit it')
-            });
+                'A not-started project can omit it');
+        });
 
         it('requires a reason for canceled projects', () => {
-            const cancellationReasonFunc = funcLookup['Cancellation_Reason__c'];
+            const cancellationReasonFunc = funcLookup.Cancellation_Reason__c;
             assert(cancellationReasonFunc, 'Missing requirement function for Cancellation_Reason__c');
             const testProject = {
-                Completion_Status__c: 'Not started'
+                Completion_Status__c: 'Not started',
             };
             assert.equal(cancellationReasonFunc(testProject), false,
                 'A non-cancelled project does not need a cancellation reason');
@@ -113,5 +113,4 @@ describe('validation rules', () => {
                 'A cancelled project must include a cancellation reason');
         });
     });
-
 });
