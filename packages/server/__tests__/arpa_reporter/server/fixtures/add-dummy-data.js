@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 const { isRunningInGOST } = require('../helpers/is_gost');
 
 const setupAgencies = async (knex) => {
