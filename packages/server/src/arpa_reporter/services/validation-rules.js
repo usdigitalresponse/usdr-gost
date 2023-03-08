@@ -69,12 +69,9 @@ const CONDITIONAL_REQS_CONFIGS = [
    into a more efficient lookup map */
 function convertConfigsToLookupMap() {
     const reqFnByFieldId = {}
-    for (const { fieldIDs, func } of CONDITIONAL_REQS_CONFIGS) {
-        for (const fieldID of fieldIDs) {
-            if (fieldID in reqFnByFieldId) {
-                throw new Error(`Field id ${fieldID} has overriding conditional requirements.`);
-            }
-            reqFnByFieldId[fieldID] = func;
+    for (const config of CONDITIONAL_REQS_CONFIGS) {
+        for (const fieldID of config.fieldIDs) {
+            reqFnByFieldId[fieldID] = config.func;
         }
     }
     return reqFnByFieldId;

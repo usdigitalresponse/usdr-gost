@@ -3,10 +3,9 @@ const assert = require('assert');
 const rewire = require('rewire');
 
 describe('validation rules', () => {
+    const validationRulesModule = rewire('../../../../src/arpa_reporter/services/validation-rules');
     describe('record value formatters', () => {
-        const formatters = rewire('../../../../src/arpa_reporter/services/validation-rules').__get__(
-            'recordValueFormatters',
-        );
+        const formatters = validationRulesModule.__get__('recordValueFormatters');
 
         const testMatrix = {
             // 'fnKey': [[input, expected], ...]
@@ -65,4 +64,54 @@ describe('validation rules', () => {
             });
         }
     });
+
+    describe('conditional requirement configs', () => {
+        const configs = validationRulesModule.__get__('CONDITIONAL_REQS_CONFIGS');
+        const funcLookup = validationRulesModule.__get__('CONDITIONAL_REQUIREMENTS_BY_FIELD_ID');
+        it('has valid configurations', () => {
+            const seenFieldIds = new Set()
+            assert(configs.length > 0)
+            for (const config of configs) {
+                assert(config.fieldIDs && config.fieldIDs.length > 0,
+                    'Conditional requirement config is missing fieldIDs');
+                assert(config.func,
+                    'Conditional requirement config is missing func');
+                for (const fieldID of config.fieldIDs) {
+                    if (seenFieldIds.has(fieldID)) {
+                        throw new Error(`Field id ${fieldID} has overriding conditional requirements.`);
+                    }
+                    seenFieldIds.add(fieldID);
+                }
+            }
+        });
+
+        it('relaxes some requirements for projects that have not started', () => {
+            const optionalIfNotStartedFn = funcLookup['Primary_Project_Demographics__c'];
+            assert(optionalIfNotStartedFn, 'Missing optionalIfNotStarted function');
+            const testProject = {
+                Completion_Status__c: 'Completed'
+            };
+            assert.equal(optionalIfNotStartedFn(testProject), true,
+                'A completed project must include this field');
+
+            testProject.Completion_Status__c = 'Not started';
+            assert.equal(optionalIfNotStartedFn(testProject), false,
+                'A not-started project can omit it')
+            });
+
+        it('requires a reason for canceled projects', () => {
+            const cancellationReasonFunc = funcLookup['Cancellation_Reason__c'];
+            assert(cancellationReasonFunc, 'Missing requirement function for Cancellation_Reason__c');
+            const testProject = {
+                Completion_Status__c: 'Not started'
+            };
+            assert.equal(cancellationReasonFunc(testProject), false,
+                'A non-cancelled project does not need a cancellation reason');
+
+            testProject.Completion_Status__c = 'Cancelled';
+            assert.equal(cancellationReasonFunc(testProject), true,
+                'A cancelled project must include a cancellation reason');
+        });
+    });
+
 });
