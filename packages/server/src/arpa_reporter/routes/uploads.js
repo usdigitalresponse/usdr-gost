@@ -31,7 +31,7 @@ router.post(
     // use preserveAsyncContext to work around issue:
     // https://github.com/expressjs/multer/issues/814
     ensureAsyncContext(multerUpload.single('spreadsheet')),
-    async (req, res, next) => {
+    async (req, res) => {
         console.log('POST /api/uploads');
         if (req.file) {
             console.log('Filename:', req.file.originalname, 'size:', req.file.size);

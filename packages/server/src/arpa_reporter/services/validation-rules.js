@@ -146,7 +146,7 @@ function generateRules() {
             if (rule.listVals.length > 0) {
                 rule.validationFormatters.push(recordValueFormatters.toLowerCase);
 
-                for (let i = 0; i < rule.listVals.length; i++) {
+                for (let i = 0; i < rule.listVals.length; i += 1) {
                     const worksheetValue = rule.listVals[i];
                     const correction = dropdownCorrections[worksheetValue];
                     if (correction) {
