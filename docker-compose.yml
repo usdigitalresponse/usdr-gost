@@ -63,26 +63,6 @@ services:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 10s
       start_period: 30s
-  e2e:
-    image: cypress
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
-      target: e2e
-    container_name: cypress
-    env_file:
-      - ./packages/e2e/.env
-    networks:
-      - app
-    depends_on:
-      - app
-      - frontend
-      - postgres
-    command: npx cypress open
-    volumes:
-      - ./packages/e2e/cypress:/app/cypress
-      - ./packages/e2e/cypress.config.js:/app/cypress.config.js
-      - /tmp/.X11-unix:/tmp/.X11-unix
 
 networks:
   app:
