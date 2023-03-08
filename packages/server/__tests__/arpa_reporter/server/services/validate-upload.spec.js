@@ -129,7 +129,7 @@ describe('validate record', () => {
             assert(generatedErrors.length === 0,
                 `Unexpected error when validating record: ${generatedErrors}`);
         },
-        (thrownException) => { fail('Unexpected error while validating record', thrownException); },
+        (thrownException) => { assert.fail(`Unexpected error while validating record: ${thrownException}`); },
     ));
 
     it('throws an error when a required field is missing', () => {
@@ -145,7 +145,7 @@ describe('validate record', () => {
                 assert(generatedErrors[0].severity === 'err');
                 assert.equal(generatedErrors[0].message, 'Value is required for Project_Identification_Number__c');
             },
-            (thrownException) => { fail('Unexpected error while validating record', thrownException); },
+            (thrownException) => { assert.fail(`Unexpected error while validating record: ${thrownException}`); },
         );
     });
 
@@ -162,7 +162,7 @@ describe('validate record', () => {
                 assert(generatedErrors[0].severity === 'err');
                 assert.equal(generatedErrors[0].message, `Expected a number, but the value was 'N/A'`);
             },
-            (thrownException) => { fail('Unexpected error while validating record', thrownException); },
+            (thrownException) => { assert.fail(`Unexpected error while validating record: ${thrownException}`); },
         );
     });
 });
