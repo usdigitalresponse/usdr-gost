@@ -19,7 +19,7 @@ module.exports = {
     },
   },
   devServer: {
-    allowedHosts: process.env.VUE_ALLOWED_HOSTS || 'auto',
+    allowedHosts: 'all',
     client: {
       progress: false,
     },
