@@ -70,6 +70,11 @@
             {{ displayTs(upload.created_at) }} ({{ fromNow(upload.created_at) }}) by {{ upload.created_by }}
           </li>
 
+          <li class="list-group-item" :class="{ 'list-group-item-warning': !upload.notes }">
+            <span class="font-weight-bold">Notes: </span>
+            {{ upload.notes || 'Not set' }}
+          </li>
+
           <li class="list-group-item" :class="validatedLiClass">
             <span class="font-weight-bold">Validation: </span>
 

@@ -36,19 +36,6 @@ module.exports = {
         'src/arpa_reporter/services/validate-data/validate.js',
         'src/arpa_reporter/services/validate-upload.js',
         'src/arpa_reporter/services/validation-rules.js',
-        '__tests__/arpa_reporter/server/services/validation-rules.spec.js',
-        '__tests__/arpa_reporter/server/db/reporting-periods.spec.js',
-        '__tests__/arpa_reporter/server/db/settings.spec.js',
-        '__tests__/arpa_reporter/server/db/uploads.spec.js',
-        '__tests__/arpa_reporter/server/environment.spec.js',
-        '__tests__/arpa_reporter/server/fixtures/add-dummy-data.js',
-        '__tests__/arpa_reporter/server/mocha_init.js',
-        '__tests__/arpa_reporter/server/seeds/01_roles.js',
-        '__tests__/arpa_reporter/server/seeds/07_reporting_periods.js',
-        '__tests__/arpa_reporter/server/services/validate-data/index.spec.js',
-        '__tests__/arpa_reporter/server/services/validate-data/validate.spec.js',
-        '__tests__/arpa_reporter/server/services/validate-upload.spec.js',
-        '__tests__/arpa_reporter/server/services/validation-rules.spec.js',
     ],
     rules: {
         'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
@@ -65,10 +52,6 @@ module.exports = {
         semi: ['error', 'always'],
         'no-restricted-syntax': [
             'error',
-            {
-                selector: 'ForOfStatement',
-                message: 'iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations.',
-            },
             {
                 selector: 'LabeledStatement',
                 message: 'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
@@ -90,6 +73,9 @@ module.exports = {
             files: ['*.test.js', '*.spec.js'],
             rules: {
                 'no-underscore-dangle': 'off',
+            },
+            globals: {
+                requireSrc: 'readonly',
             },
         },
     ],
