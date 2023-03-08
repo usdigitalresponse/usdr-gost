@@ -178,6 +178,14 @@ export default {
             placeholder: 'Filter by filename...',
           },
         },
+        {
+          label: 'Notes',
+          field: 'notes',
+          filterOptions: {
+            enabled: true,
+            placeholder: 'Filter by notes...',
+          },
+        },
         validatedCol,
       ];
     },

@@ -4,7 +4,7 @@
 		{
 			"label": "serve",
 			"type": "npm",
-			"script": "serve",
+			"script": "yarn serve",
 			"isBackground": true,
 			"problemMatcher": [{
 				"base": "$tsc-watch",

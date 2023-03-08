@@ -5,6 +5,18 @@ $theme-colors: (
   "secondary": #607d8b,
 );
 
-@import "bootstrap/scss/bootstrap";
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+
+@import 'bootstrap/scss/bootstrap.scss';
+@import 'bootstrap-vue/src/index.scss';
+@import 'vue-select/src/scss/vue-select.scss';
+// @import '@braid/vue-formulate/themes/snow/snow.scss';
+
 
 /* NOTE: This file was copied from scss/index.scss (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z */

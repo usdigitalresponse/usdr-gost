@@ -121,7 +121,7 @@ module "api" {
   postgres_db_name         = module.postgres.default_db_name
 
   # Email
-  notifications_email_address = "notifications@${var.website_domain_name}"
+  notifications_email_address = "grants-notifications@${var.website_domain_name}"
 }
 
 module "postgres" {
