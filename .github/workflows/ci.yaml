@@ -10,7 +10,7 @@ on:
 
 jobs:
   test-e2e-integration:
-    runs-on: ubunto-latest
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: "postgres:13"
