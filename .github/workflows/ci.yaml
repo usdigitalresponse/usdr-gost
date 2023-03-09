@@ -37,8 +37,21 @@ jobs:
       - name: Install dependencies
         run: yarn setup
       - name: Run migrations
+        env:
+          POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
+          # This is intentional to set POSTGRES_URL=POSTGRES_TEST_URL; ARPA Reporter test runner gates
+          # dev vs. CI differences based on whether these are the same.
+          POSTGRES_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
         run: yarn db:migrate
       - name: Start Applications
+        env:
+          POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
+          # This is intentional to set POSTGRES_URL=POSTGRES_TEST_URL; ARPA Reporter test runner gates
+          # dev vs. CI differences based on whether these are the same.
+          POSTGRES_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
+          AWS_ACCESS_KEY_ID: "Fake AWS Key"
+          AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
+          NOTIFICATIONS_EMAIL: grants-identification@usdigitalresponse.org
         run: yarn serve
       - name: Run e2e tests
         uses: cypress-io/github-action@v5
