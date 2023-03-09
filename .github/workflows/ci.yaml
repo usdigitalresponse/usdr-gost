@@ -36,13 +36,15 @@ jobs:
           cache: yarn
       - name: Install dependencies
         run: yarn setup
+      - name: Run migrations
+        run: yarn db:migrate
+      - name: Start Applications
+        run: yarn serve
       - name: Run e2e tests
         uses: cypress-io/github-action@v5
         with:
           publish-summary: true
-          start: |
-            yarn db:migrate
-            yarn serve
+          working-directory: packages/e2e
 
   test-server-client:
     runs-on: ubuntu-latest
