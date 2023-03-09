@@ -40,9 +40,10 @@ jobs:
         uses: cypress-io/github-action@v5
         with:
           publish-summary: true
-          start: |
-            yarn db:migrate --cwd ../..
-            yarn serve --cwd ../..
+          start: &
+            cd ../..
+            yarn db:migrate
+            yarn serve
           # quote the url to be safe against YML parsing surprises
           wait-on: 'http://localhost:8080, http://localhost:3000'
 
