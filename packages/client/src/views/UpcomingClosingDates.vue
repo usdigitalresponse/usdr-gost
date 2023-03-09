@@ -213,9 +213,9 @@ export default {
         }
       }
       //                      format date in MM/DD/YY
-      const year = value.slice(2, 4);
-      const month = value.slice(5, 7);
-      const day = value.slice(8, 10);
+      const year = value?.slice(2, 4);
+      const month = value?.slice(5, 7);
+      const day = value?.slice(8, 10);
       const finalDate = [month, day, year].join('/');
       return (`${finalDate}`);
     },
