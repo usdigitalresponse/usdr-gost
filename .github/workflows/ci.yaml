@@ -41,10 +41,8 @@ jobs:
         with:
           publish-summary: true
           start: |
-            cd ../..
             yarn db:migrate
             yarn serve
-            cd ./pacakges/e2e
 
   test-server-client:
     runs-on: ubuntu-latest
