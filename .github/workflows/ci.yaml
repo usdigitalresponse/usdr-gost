@@ -61,5 +61,5 @@ jobs:
             ${{github.workspace}}/coverage/lcov.info:lcov
       - name: Run e2e tests
         uses: cypress-io/github-action@v5
-        wait-on: 'http://localhost:3000, http://localhost:8080'
+        run: yarn cypress:run
         working-directory: packages/e2e
