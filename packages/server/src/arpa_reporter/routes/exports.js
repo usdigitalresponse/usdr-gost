@@ -1,32 +1,33 @@
-const express = require('express')
-const router = express.Router()
-const _ = require('lodash')
+const express = require('express');
 
-const { requireUser } = require('../../lib/access-helpers')
-const arpa = require('../services/generate-arpa-report')
-const { getReportingPeriodID, getReportingPeriod } = require('../db/reporting-periods')
+const router = express.Router();
+const _ = require('lodash');
 
-router.get('/', requireUser, async function (req, res) {
-  const periodId = await getReportingPeriodID(req.query.period_id)
-  const period = await getReportingPeriod(periodId)
-  if (!period) {
-    return res.status(404).json({ error: 'invalid reporting period' })
-  }
+const { requireUser } = require('../../lib/access-helpers');
+const arpa = require('../services/generate-arpa-report');
+const { getReportingPeriodID, getReportingPeriod } = require('../db/reporting-periods');
 
-  const report = await arpa.generateReport(periodId)
+router.get('/', requireUser, async (req, res) => {
+    const periodId = await getReportingPeriodID(req.query.period_id);
+    const period = await getReportingPeriod(periodId);
+    if (!period) {
+        return res.status(404).json({ error: 'invalid reporting period' });
+    }
 
-  if (_.isError(report)) {
-    return res.status(500).send(report.message)
-  }
+    const report = await arpa.generateReport(periodId);
 
-  res.header(
-    'Content-Disposition',
-    `attachment; filename="${report.filename}"`
-  )
-  res.header('Content-Type', 'application/octet-stream')
-  res.send(Buffer.from(report.content, 'binary'))
-})
+    if (_.isError(report)) {
+        return res.status(500).send(report.message);
+    }
 
-module.exports = router
+    res.header(
+        'Content-Disposition',
+        `attachment; filename="${report.filename}"`,
+    );
+    res.header('Content-Type', 'application/octet-stream');
+    res.send(Buffer.from(report.content, 'binary'));
+});
+
+module.exports = router;
 
 // NOTE: This file was copied from src/server/routes/exports.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

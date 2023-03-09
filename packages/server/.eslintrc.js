@@ -12,11 +12,30 @@ module.exports = {
         'eslint-config-airbnb-base',
     ],
     ignorePatterns: [
-        // NOTE(mbroussard): this is temporary, just to make committing on ARPA integration dev branch a bit
-        // less annoying.
-        'src/arpa_reporter/**/*',
-        'seeds/arpa_reporter_dev/*',
-        '__tests__/arpa_reporter/**/*',
+        'src/arpa_reporter/configure.js',
+        'src/arpa_reporter/db/reporting-periods.js',
+        'src/arpa_reporter/db/settings.js',
+        'src/arpa_reporter/environment.js',
+        'src/arpa_reporter/lib/audit-report.js',
+        'src/arpa_reporter/lib/format.js',
+        'src/arpa_reporter/lib/log.js',
+        'src/arpa_reporter/lib/validation-log.js',
+        'src/arpa_reporter/routes/agencies.js',
+        'src/arpa_reporter/routes/audit-report.js',
+        'src/arpa_reporter/routes/exports.js',
+        'src/arpa_reporter/routes/reporting-periods.js',
+        'src/arpa_reporter/routes/uploads.js',
+        'src/arpa_reporter/routes/users.js',
+        'src/arpa_reporter/services/fix-cell-formats.js',
+        'src/arpa_reporter/services/generate-arpa-report.js',
+        'src/arpa_reporter/services/get-template.js',
+        'src/arpa_reporter/services/records.js',
+        'src/arpa_reporter/services/revalidate-uploads.js',
+        'src/arpa_reporter/services/validate-data/helpers.js',
+        'src/arpa_reporter/services/validate-data/index.js',
+        'src/arpa_reporter/services/validate-data/validate.js',
+        'src/arpa_reporter/services/validate-upload.js',
+        'src/arpa_reporter/services/validation-rules.js',
     ],
     rules: {
         'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
@@ -33,10 +52,6 @@ module.exports = {
         semi: ['error', 'always'],
         'no-restricted-syntax': [
             'error',
-            {
-                selector: 'ForOfStatement',
-                message: 'iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations.',
-            },
             {
                 selector: 'LabeledStatement',
                 message: 'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
@@ -58,6 +73,9 @@ module.exports = {
             files: ['*.test.js', '*.spec.js'],
             rules: {
                 'no-underscore-dangle': 'off',
+            },
+            globals: {
+                requireSrc: 'readonly',
             },
         },
     ],

@@ -38,14 +38,14 @@
 export default {
   name: 'Agencies',
   computed: {
-    agencies: function () {
-      return this.$store.state.agencies
-    }
+    agencies() {
+      return this.$store.state.agencies;
+    },
   },
-  mounted: async function () {
-    this.$store.dispatch('updateAgencies')
-  }
-}
+  async mounted() {
+    this.$store.dispatch('updateAgencies');
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/Agencies.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

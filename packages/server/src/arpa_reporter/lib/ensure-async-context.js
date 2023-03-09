@@ -1,4 +1,4 @@
-const { AsyncResource } = require('node:async_hooks')
+const { AsyncResource } = require('node:async_hooks');
 
 /**
  * Ensure that an express middleware respects async local storage context.
@@ -27,12 +27,12 @@ const { AsyncResource } = require('node:async_hooks')
  *   },
  * );
  */
-function ensureAsyncContext (middleware) {
-  return (req, res, next) => middleware(req, res, AsyncResource.bind(next))
+function ensureAsyncContext(middleware) {
+    return (req, res, next) => middleware(req, res, AsyncResource.bind(next));
 }
 
 module.exports = {
-  ensureAsyncContext
-}
+    ensureAsyncContext,
+};
 
 // NOTE: This file was copied from src/server/lib/ensure-async-context.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

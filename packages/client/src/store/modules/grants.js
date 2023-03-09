@@ -8,6 +8,7 @@ function initialState() {
     grantsInterested: [],
     closestGrants: [],
     totalUpcomingGrants: 0,
+    totalInterestedGrants: 0,
     currentGrant: {},
   };
 }
@@ -21,6 +22,7 @@ export default {
     grantsInterested: (state) => state.grantsInterested,
     closestGrants: (state) => state.closestGrants,
     totalUpcomingGrants: (state) => state.totalUpcomingGrants,
+    totalInterestedGrants: (state) => state.totalInterestedGrants,
     currentGrant: (state) => state.currentGrant,
     eligibilityCodes: (state) => state.eligibilityCodes,
     interestedCodes: (state) => ({
@@ -150,7 +152,8 @@ export default {
       state.interestedCodes = interestedCodes;
     },
     SET_GRANTS_INTERESTED(state, grantsInterested) {
-      state.grantsInterested = grantsInterested;
+      state.grantsInterested = grantsInterested.data;
+      state.totalInterestedGrants = grantsInterested.pagination.total;
     },
     SET_GRANT_CURRENT(state, currentGrant) {
       state.currentGrant = currentGrant;

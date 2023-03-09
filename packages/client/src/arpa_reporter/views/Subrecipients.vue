@@ -55,100 +55,97 @@
 </template>
 
 <script>
-import moment from 'moment'
-import 'vue-good-table/dist/vue-good-table.css'
-import { VueGoodTable } from 'vue-good-table'
+import moment from 'moment';
+import 'vue-good-table/dist/vue-good-table.css';
+import { VueGoodTable } from 'vue-good-table';
 
-import { getJson } from '../store/index'
+import { getJson } from '../store/index';
 
 export default {
   name: 'Subrecipients',
-  data: function () {
+  data() {
     return {
       loading: false,
-      recipients: []
-    }
+      recipients: [],
+    };
   },
   computed: {
-    rows: function () {
-      return this.recipients.map(r => {
-        r.json = JSON.parse(r.record)
-        return r
-      })
+    rows() {
+      return this.recipients.map((r) => ({ ...r, json: JSON.parse(r.record) }));
     },
-    columns: function () {
+    columns() {
       return [
         {
           label: 'UEI',
           field: 'uei',
           filterOptions: {
             enabled: true,
-            placeholder: 'Filter by UEI...'
-          }
+            placeholder: 'Filter by UEI...',
+          },
         },
         {
           label: 'TIN / EIN',
           field: 'tin',
           filterOptions: {
             enabled: true,
-            placeholder: 'Filter by IRS ID...'
-          }
+            placeholder: 'Filter by IRS ID...',
+          },
         },
         {
           label: 'Details',
           field: 'record',
           filterOptions: {
             enabled: true,
-            placeholder: 'Search...'
-          }
+            placeholder: 'Search...',
+          },
         },
         {
           label: 'Created',
           field: 'created_at',
           formatFn: (date) => {
-            if (!date) return 'Not set'
-            return moment(date).local().format('MMM Do YYYY, h:mm:ss A')
-          }
+            if (!date) return 'Not set';
+            return moment(date).local().format('MMM Do YYYY, h:mm:ss A');
+          },
         },
         {
           label: 'Upload ID',
-          field: 'upload_id'
+          field: 'upload_id',
         },
         {
           label: 'Edit',
-          field: 'edit'
-        }
-      ]
-    }
+          field: 'edit',
+        },
+      ];
+    },
   },
   methods: {
-    resetFilters: function (evt) {
-      this.$refs.recipientsTable.reset()
-      this.$refs.recipientsTable.changeSort([])
+    resetFilters() {
+      this.$refs.recipientsTable.reset();
+      this.$refs.recipientsTable.changeSort([]);
     },
-    loadRecipients: async function (evt) {
-      this.loading = true
+    async loadRecipients() {
+      this.loading = true;
 
-      const result = await getJson('/api/subrecipients')
+      const result = await getJson('/api/subrecipients');
       if (result.error) {
         this.$store.commit('addAlert', {
           text: `loadRecipients Error (${result.status}): ${result.error}`,
-          level: 'err'
-        })
+          level: 'err',
+        });
       } else {
-        this.recipients = result.recipients
+        this.recipients = result.recipients;
       }
 
-      this.loading = false
-    }
+      this.loading = false;
+    },
   },
-  mounted: async function () {
-    this.loadRecipients()
+  async mounted() {
+    this.loadRecipients();
   },
   components: {
-    VueGoodTable
-  }
-}
+    VueGoodTable,
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/Subrecipients.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

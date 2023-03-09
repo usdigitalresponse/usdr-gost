@@ -22,107 +22,109 @@
 </template>
 
 <script>
-import StandardForm from '../components/StandardForm'
-import { post } from '../store/index'
+import StandardForm from '../components/StandardForm.vue';
+import { post } from '../store/index';
 
 export default {
   name: 'User',
-  data: function () {
+  data() {
     return {
       user: null,
-      formKey: Date.now()
-    }
+      formKey: Date.now(),
+    };
   },
   computed: {
-    userId: function () {
-      return this.$route.params.id
+    userId() {
+      return this.$route.params.id;
     },
-    isNew: function () {
-      return this.userId === 'new'
+    isNew() {
+      return this.userId === 'new';
     },
-    cols: function () {
+    cols() {
       return [
         { label: 'ID', field: 'id', readonly: true },
         { label: 'Email', field: 'email', required: true },
         { label: 'Name', field: 'name', required: true },
-        { label: 'Role', field: 'role', selectItems: this.roleItems, required: true },
-        { label: 'Agency', field: 'agency_id', selectItems: this.agencyItems }
-      ]
+        {
+          label: 'Role', field: 'role', selectItems: this.roleItems, required: true,
+        },
+        { label: 'Agency', field: 'agency_id', selectItems: this.agencyItems },
+      ];
     },
-    roles: function () {
-      return this.$store.getters.roles || []
+    roles() {
+      return this.$store.getters.roles || [];
     },
-    roleItems: function () {
-      return this.roles.map(r => ({ label: r.name, value: r.name }))
+    roleItems() {
+      return this.roles.map((r) => ({ label: r.name, value: r.name }));
     },
-    agencyItems: function () {
+    agencyItems() {
       return [{ value: null, name: '' }].concat(
-        this.$store.state.agencies.map(a => ({ label: a.name, value: a.id }))
-      )
-    }
+        this.$store.state.agencies.map((a) => ({ label: a.name, value: a.id })),
+      );
+    },
   },
   methods: {
-    loadUser: async function () {
+    async loadUser() {
       if (this.isNew) {
-        this.user = {}
-        return
+        this.user = {};
+        return;
       }
 
-      this.user = null
-      await this.$store.dispatch('updateUsersRoles')
+      this.user = null;
+      await this.$store.dispatch('updateUsersRoles');
 
-      const storeUser = this.$store.state.users.find(u => u.id === Number(this.userId))
+      const storeUser = this.$store.state.users.find((u) => u.id === Number(this.userId));
       // StandardForm deals in ARPA Reporter's former user object representation where "role" is a simple string field, but the API and store now deal in the GOST format where role is an object.
-      this.user = { ...storeUser, role: storeUser.role.name }
+      this.user = { ...storeUser, role: storeUser.role.name };
     },
-    onSave: async function (user) {
-      this.user = null
+    async onSave(user) {
+      this.user = null;
 
       try {
         // StandardForm deals in ARPA Reporter's former user object representation where "role" is a simple string field, but the API now deals in the GOST format where role is an object.
-        const gostUser = { ...user, role: this.roles.find(r => r.name === user.role) }
+        const gostUser = { ...user, role: this.roles.find((r) => r.name === user.role) };
 
-        const result = await post('/api/users', { user: gostUser })
-        if (result.error) throw new Error(result.error)
+        const result = await post('/api/users', { user: gostUser });
+        if (result.error) throw new Error(result.error);
 
         const text = this.isNew
           ? `User ${result.user.id} successfully created`
-          : `User ${result.user.email} successfully updated`
+          : `User ${result.user.email} successfully updated`;
 
         this.$store.commit('addAlert', {
           text,
-          level: 'ok'
-        })
+          level: 'ok',
+        });
 
         if (this.isNew) {
-          return this.$router.push(`/users/${result.user.id}`)
-        } else {
-          this.loadUser()
+          return this.$router.push(`/users/${result.user.id}`);
         }
+        this.loadUser();
       } catch (err) {
-        this.user = user
+        this.user = user;
         this.$store.commit('addAlert', {
           text: `Error updating user ${user.email}: ${err.message}`,
-          level: 'err'
-        })
+          level: 'err',
+        });
       }
+      return undefined;
     },
-    onReset () {
-      this.formKey = Date.now()
-    }
+    onReset() {
+      this.formKey = Date.now();
+    },
   },
   watch: {
-    userId: function () {
-      this.loadUser()
-    }
+    userId() {
+      this.loadUser();
+    },
   },
-  mounted: async function () {
-    this.loadUser()
+  async mounted() {
+    this.loadUser();
   },
   components: {
-    StandardForm
-  }
-}
+    StandardForm,
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/User.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->
