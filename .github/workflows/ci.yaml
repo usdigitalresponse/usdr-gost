@@ -64,4 +64,6 @@ jobs:
         uses: cypress-io/github-action@v5
         with:
           publish-summary: true
-          working-directory: packages/e2e
+          start: yarn serve --cwd ../..
+          # quote the url to be safe against YML parsing surprises
+          wait-on: 'http://localhost:8080, http://localhost:3000'
