@@ -60,6 +60,4 @@ jobs:
           coverageLocations: |
             ${{github.workspace}}/coverage/lcov.info:lcov
       - name: Run e2e tests
-        uses: cypress-io/github-action@v5
         run: yarn cypress:run
-        working-directory: packages/e2e
