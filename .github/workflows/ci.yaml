@@ -51,6 +51,7 @@ jobs:
           # The .env file needs to be present; the example file is good enough.
           cp packages/server/.env.example packages/server/.env
           cp packages/client/.env.example packages/client/.env
+          cp packages/e2e/.env.example packages/e2e/.env
           export CI=true; yarn coverage
       - name: Publish coverage report to CodeClimate
         uses: paambaati/codeclimate-action@v3.2.0
@@ -60,6 +61,7 @@ jobs:
           coverageLocations: |
             ${{github.workspace}}/coverage/lcov.info:lcov
       - name: Run e2e tests
-        run: |
-          cp packages/e2e/.env.example packages/e2e/.env
-          yarn cypress:run
+        uses: cypress-io/github-action@v5
+        with:
+          publish-summary: true
+          working-directory: packages/e2e
