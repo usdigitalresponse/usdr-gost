@@ -45,8 +45,6 @@ jobs:
             yarn db:migrate
             yarn serve
             cd ./pacakges/e2e
-          # quote the url to be safe against YML parsing surprises
-          wait-on: 'http://localhost:8080, http://localhost:3000'
 
   test-server-client:
     runs-on: ubuntu-latest
