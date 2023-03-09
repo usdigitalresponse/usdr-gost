@@ -9,6 +9,43 @@ on:
       - "docs/**"
 
 jobs:
+  test-e2e-integration:
+    runs-on: ubunto-latest
+    services:
+      postgres:
+        image: "postgres:13"
+        env:
+          POSTGRES_DB: usdr_grants_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.14.0
+          cache: yarn
+      - name: Install dependencies
+        run: yarn setup
+      - name: Run e2e tests
+        uses: cypress-io/github-action@v5
+        with:
+          publish-summary: true
+          start: |
+            yarn db:migrate --cwd ../..
+            yarn serve --cwd ../..
+          # quote the url to be safe against YML parsing surprises
+          wait-on: 'http://localhost:8080, http://localhost:3000'
+
   test-server-client:
     runs-on: ubuntu-latest
     services:
@@ -60,10 +97,3 @@ jobs:
         with:
           coverageLocations: |
             ${{github.workspace}}/coverage/lcov.info:lcov
-      - name: Run e2e tests
-        uses: cypress-io/github-action@v5
-        with:
-          publish-summary: true
-          start: yarn serve --cwd ../..
-          # quote the url to be safe against YML parsing surprises
-          wait-on: 'http://localhost:8080, http://localhost:3000'
