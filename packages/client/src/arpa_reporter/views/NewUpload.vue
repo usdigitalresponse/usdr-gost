@@ -58,12 +58,6 @@ export default {
           validation: 'required',
         },
         {
-          type: 'text',
-          label: 'Expenditure Code',
-          name: 'expenditure_code',
-          validation: 'required',
-        },
-        {
           type: 'file',
           label: 'Workbook File',
           name: 'spreadsheet',
