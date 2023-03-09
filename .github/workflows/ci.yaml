@@ -52,7 +52,7 @@ jobs:
           AWS_ACCESS_KEY_ID: "Fake AWS Key"
           AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
           NOTIFICATIONS_EMAIL: grants-identification@usdigitalresponse.org
-        run: yarn serve
+        run: yarn debug:server
       - name: Run e2e tests
         uses: cypress-io/github-action@v5
         with:
