@@ -40,7 +40,7 @@ jobs:
         uses: cypress-io/github-action@v5
         with:
           publish-summary: true
-          start: &
+          start: |
             cd ../..
             yarn db:migrate
             yarn serve
