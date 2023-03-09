@@ -70,6 +70,11 @@
             {{ displayTs(upload.created_at) }} ({{ fromNow(upload.created_at) }}) by {{ upload.created_by }}
           </li>
 
+          <li class="list-group-item" :class="{ 'list-group-item-warning': !upload.notes }">
+            <span class="font-weight-bold">Notes: </span>
+            {{ upload.notes || 'Not set' }}
+          </li>
+
           <li class="list-group-item" :class="validatedLiClass">
             <span class="font-weight-bold">Validation: </span>
 
@@ -156,149 +161,149 @@
 </template>
 
 <script>
-import moment from 'moment'
-import { titleize } from '../helpers/form-helpers'
-import AlertBox from '../components/AlertBox'
-import DownloadFileButton from '../components/DownloadFileButton'
-import { getJson, post } from '../store/index'
-import { shortUuid } from '../helpers/short-uuid'
+import moment from 'moment';
+import { titleize } from '../helpers/form-helpers';
+import AlertBox from '../components/AlertBox.vue';
+import DownloadFileButton from '../components/DownloadFileButton.vue';
+import { getJson, post } from '../store/index';
+import { shortUuid } from '../helpers/short-uuid';
 
 export default {
   name: 'Upload',
   components: {
     AlertBox,
-    DownloadFileButton
+    DownloadFileButton,
   },
-  data: function () {
+  data() {
     return {
       upload: null,
       errors: [],
       series: [],
       seriesExported: null,
       alert: null,
-      validating: false
-    }
+      validating: false,
+    };
   },
   computed: {
-    uploadId: function () {
-      return this.$route.params.id
+    uploadId() {
+      return this.$route.params.id;
     },
-    shortUploadId: function () {
-      return shortUuid(this.uploadId)
+    shortUploadId() {
+      return shortUuid(this.uploadId);
     },
-    isRecentlyUploaded: function () {
-      return this.uploadId === this.$store.state.recentUploadId
+    isRecentlyUploaded() {
+      return this.uploadId === this.$store.state.recentUploadId;
     },
-    validatedLiClass: function () {
-      if (!this.upload) return {}
+    validatedLiClass() {
+      if (!this.upload) return {};
 
       return {
         'list-group-item-success': this.upload.validated_at,
-        'list-group-item-warning': !this.upload.validated_at
-      }
+        'list-group-item-warning': !this.upload.validated_at,
+      };
     },
-    reportingPeriodName: function () {
-      const reportingPeriod = this.$store.state.reportingPeriods.find(per => per.id === this.upload.reporting_period_id)
-      return reportingPeriod ? reportingPeriod.name : `ID: ${this.upload.reporting_period_id}`
-    }
+    reportingPeriodName() {
+      const reportingPeriod = this.$store.state.reportingPeriods.find((per) => per.id === this.upload.reporting_period_id);
+      return reportingPeriod ? reportingPeriod.name : `ID: ${this.upload.reporting_period_id}`;
+    },
   },
   methods: {
     titleize,
-    clearAlert: function () {
-      this.alert = null
+    clearAlert() {
+      this.alert = null;
     },
-    displayTs: function (ts) {
-      return moment(ts).format('LTS ll')
+    displayTs(ts) {
+      return moment(ts).format('LTS ll');
     },
-    fromNow: function (ts) {
-      return moment(ts).fromNow()
+    fromNow(ts) {
+      return moment(ts).fromNow();
     },
-    preview: function (o) {
-      const s = JSON.stringify(o, null, '  ')
-      const maxLength = 120
+    preview(o) {
+      const s = JSON.stringify(o, null, '  ');
+      const maxLength = 120;
       if (s.length < maxLength) {
-        return s
+        return s;
       }
-      return `${s.slice(0, maxLength)}...`
+      return `${s.slice(0, maxLength)}...`;
     },
-    validateUpload: async function () {
-      this.validating = true
+    async validateUpload() {
+      this.validating = true;
 
       try {
-        const result = await post(`/api/uploads/${this.uploadId}/validate`)
-        await this.loadUpload()
+        const result = await post(`/api/uploads/${this.uploadId}/validate`);
+        await this.loadUpload();
 
         if (result.errors?.length) {
-          this.errors = result.errors
+          this.errors = result.errors;
         } else {
           this.alert = {
             text: 'Upload successfully validated!',
-            level: 'ok'
-          }
+            level: 'ok',
+          };
         }
       } catch (error) {
         // we got an error from the backend, but the backend didn't send reasons
         this.alert = {
           text: `validateUpload Error: ${error.message}`,
-          level: 'err'
-        }
+          level: 'err',
+        };
       }
 
-      this.validating = false
+      this.validating = false;
     },
-    loadUpload: async function () {
-      this.upload = null
-      this.errors = []
+    async loadUpload() {
+      this.upload = null;
+      this.errors = [];
 
-      const result = await getJson(`/api/uploads/${this.uploadId}`)
+      const result = await getJson(`/api/uploads/${this.uploadId}`);
       if (result.error) {
         this.$store.commit('addAlert', {
           text: `loadUpload Error (${result.status}): ${result.error}`,
-          level: 'err'
-        })
+          level: 'err',
+        });
       } else {
-        this.upload = result.upload
+        this.upload = result.upload;
       }
 
       // each time we refresh the upload, also refresh the series
-      this.loadSeries()
+      this.loadSeries();
     },
-    loadSeries: async function () {
-      this.series = []
-      this.seriesExported = null
+    async loadSeries() {
+      this.series = [];
+      this.seriesExported = null;
 
-      const result = await getJson(`/api/uploads/${this.uploadId}/series`)
+      const result = await getJson(`/api/uploads/${this.uploadId}/series`);
       if (result.error) {
         this.$store.commit('addAlert', {
           text: `loadSeries Error (${result.status}): ${result.error}`,
-          level: 'err'
-        })
+          level: 'err',
+        });
       } else {
-        this.series = result.series
-        this.seriesExported = result.seriesExported
+        this.series = result.series;
+        this.seriesExported = result.seriesExported;
       }
     },
-    initialValidation: async function () {
-      if (!this.isRecentlyUploaded) return
+    async initialValidation() {
+      if (!this.isRecentlyUploaded) return;
 
-      this.$store.commit('setRecentUploadId', null)
-      this.validateUpload()
+      this.$store.commit('setRecentUploadId', null);
+      this.validateUpload();
     },
-    onLoad: async function () {
-      this.clearAlert()
-      await this.loadUpload()
-      this.initialValidation()
-    }
+    async onLoad() {
+      this.clearAlert();
+      await this.loadUpload();
+      this.initialValidation();
+    },
   },
   watch: {
-    uploadId: function (to, from) {
-      this.onLoad()
-    }
+    uploadId() {
+      this.onLoad();
+    },
   },
-  mounted: async function () {
-    this.onLoad()
-  }
-}
+  async mounted() {
+    this.onLoad();
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/Upload.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

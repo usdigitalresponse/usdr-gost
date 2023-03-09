@@ -42,84 +42,84 @@
 </template>
 
 <script>
-import moment from 'moment'
-import 'vue-good-table/dist/vue-good-table.css'
-import { VueGoodTable } from 'vue-good-table'
+import moment from 'moment';
+import 'vue-good-table/dist/vue-good-table.css';
+import { VueGoodTable } from 'vue-good-table';
 
-import { getJson } from '../store/index'
+import { getJson } from '../store/index';
 
 export default {
   name: 'Users',
-  data: function () {
+  data() {
     return {
-      users: []
-    }
+      users: [],
+    };
   },
   computed: {
-    columns: function () {
+    columns() {
       return [
         {
           label: 'Email',
-          field: 'email'
+          field: 'email',
         },
         {
           label: 'Name',
-          field: 'name'
+          field: 'name',
         },
         {
           label: 'Role',
-          field: 'role'
+          field: 'role',
         },
         {
           label: 'Agency',
-          field: 'agency_id'
+          field: 'agency_id',
         },
         {
           label: 'Created',
           field: 'created_at',
           formatFn: (date) => {
-            if (!date) return 'Not set'
-            return moment(date).local().format('MMM Do YYYY, h:mm:ss A')
-          }
+            if (!date) return 'Not set';
+            return moment(date).local().format('MMM Do YYYY, h:mm:ss A');
+          },
         },
         {
           label: 'Edit',
-          field: 'edit'
-        }
-      ]
+          field: 'edit',
+        },
+      ];
     },
     // This is just a shim to populate the agency_name/agency_code fields which ARPA Reporter previously
     // included on user objects, but GOST does not.
-    usersWithAgency: function () {
-      return this.users.map(user => {
-        const agencyId = user.agency_id
-        const agency = this.$store.state.agencies.find(a => a.id === agencyId) || { name: 'Loading...', code: '???' }
-        return { ...user, agency_name: agency.name, agency_code: agency.code }
-      })
-    }
+    usersWithAgency() {
+      return this.users.map((user) => {
+        const agencyId = user.agency_id;
+        const agency = this.$store.state.agencies.find((a) => a.id === agencyId) || { name: 'Loading...', code: '???' };
+        return { ...user, agency_name: agency.name, agency_code: agency.code };
+      });
+    },
   },
   methods: {
-    loadUsers: async function (evt) {
-      const result = await getJson('/api/users')
+    async loadUsers() {
+      const result = await getJson('/api/users');
       if (result.error) {
         this.$store.commit('addAlert', {
           text: `loadUsers Error (${result.status}): ${result.error}`,
-          level: 'err'
-        })
+          level: 'err',
+        });
       } else {
-        this.users = result.users
+        this.users = result.users;
       }
 
-      this.loading = false
-    }
+      this.loading = false;
+    },
   },
-  mounted: async function () {
-    this.loadUsers()
+  async mounted() {
+    this.loadUsers();
   },
   components: {
-    VueGoodTable
-  }
-}
+    VueGoodTable,
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/Users.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->
