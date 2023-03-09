@@ -13,6 +13,6 @@ module.exports = defineConfig({
             // eslint-disable-next-line global-require, import/extensions
             return require('./cypress/plugins/index.js')(on, config);
         },
-        baseUrl: 'http://frontend:8080',
+        baseUrl: 'http://localhost:8080',
     },
 });
