@@ -10,7 +10,8 @@
     "npm": "please-use-yarn"
   },
   "scripts": {
-    "lint": "eslint '**/*.js'"
+    "lint": "eslint '**/*.js'",
+    "test": "echo 'This package does not have any tests'"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",
