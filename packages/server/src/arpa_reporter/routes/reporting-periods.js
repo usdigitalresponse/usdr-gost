@@ -46,7 +46,8 @@ router.post('/close/', requireAdminUser, async (req, res) => {
         trns.commit();
     } catch (err) {
         if (!trns.isCompleted()) trns.rollback();
-        return res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message });
+        return;
     }
 
     res.json({
@@ -54,7 +55,7 @@ router.post('/close/', requireAdminUser, async (req, res) => {
     });
 });
 
-router.post('/', requireAdminUser, async (req, res, next) => {
+router.post('/', requireAdminUser, async (req, res) => {
     const updatedPeriod = req.body.reportingPeriod;
 
     try {
@@ -84,7 +85,7 @@ router.post(
     '/:id/template',
     requireAdminUser,
     ensureAsyncContext(multerUpload.single('template')),
-    async (req, res, next) => {
+    async (req, res) => {
         if (!req.file) {
             res.status(400).json({ error: 'File missing' });
             return;
@@ -116,7 +117,7 @@ router.post(
     },
 );
 
-router.get('/:id/template', requireUser, async (req, res, next) => {
+router.get('/:id/template', requireUser, async (req, res) => {
     const periodId = req.params.id;
 
     try {
@@ -134,18 +135,18 @@ router.get('/:id/template', requireUser, async (req, res, next) => {
     }
 });
 
-router.get('/:id/exported_uploads', requireUser, async (req, res, next) => {
+router.get('/:id/exported_uploads', requireUser, async (req, res) => {
     const periodId = req.params.id;
 
     try {
         const exportedUploads = await usedForTreasuryExport(periodId);
-        return res.json({ exportedUploads });
+        res.json({ exportedUploads });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-router.post('/:id/revalidate', requireAdminUser, async (req, res, next) => {
+router.post('/:id/revalidate', requireAdminUser, async (req, res) => {
     const periodId = req.params.id;
     const commit = req.query.commit || false;
 

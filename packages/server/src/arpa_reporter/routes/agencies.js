@@ -3,14 +3,14 @@ const { requireAdminUser, requireUser } = require('../../lib/access-helpers');
 
 const router = express.Router();
 const {
-    agencies,
+    agencies: getAgencies,
     createAgency,
     updateAgency,
     agencyById,
 } = require('../../db/arpa_reporter_db_shims/agencies');
 
 router.get('/', requireUser, (req, res) => {
-    agencies().then((agencies) => res.json({ agencies }));
+    getAgencies().then((agencies) => res.json({ agencies }));
 });
 
 async function validateAgency(agency) {
@@ -22,7 +22,7 @@ async function validateAgency(agency) {
     }
 }
 
-router.post('/', requireAdminUser, async (req, res, next) => {
+router.post('/', requireAdminUser, async (req, res) => {
     const agencyInfo = req.body.agency;
 
     try {

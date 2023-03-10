@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 const _ = require('lodash');
 
 class ValidationItem {

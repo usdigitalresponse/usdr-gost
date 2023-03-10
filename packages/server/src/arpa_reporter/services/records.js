@@ -1,5 +1,6 @@
 const XLSX = require('xlsx');
 const { merge } = require('lodash');
+const asyncBatch = require('async-batch').default;
 
 const { workbookForUpload } = require('./persist-upload');
 const { getPreviousReportingPeriods } = require('../db/reporting-periods');
@@ -8,7 +9,6 @@ const { log } = require('../lib/log');
 const { requiredArgument } = require('../lib/preconditions');
 const { getRules } = require('./validation-rules');
 const { useRequest } = require('../use-request');
-const asyncBatch = require('async-batch').default;
 
 const CERTIFICATION_SHEET = 'Certification';
 const COVER_SHEET = 'Cover';
@@ -88,11 +88,12 @@ async function loadRecordsForUpload(upload) {
         const type = DATA_SHEET_TYPES[sheetName];
         const sheet = workbook.Sheets[sheetName];
         const sheetAttributes = workbook.Workbook.Sheets.find(
-            (sheet) => sheet.name === sheetName,
+            ({ name }) => name === sheetName,
         );
 
         // ignore hidden sheets
         if (sheetAttributes.Hidden !== 0) {
+            // eslint-disable-next-line no-continue
             continue;
         }
 
@@ -130,6 +131,7 @@ async function loadRecordsForUpload(upload) {
             delete row.Display_Only;
             // If the row is empty, don't include it in the records
             if (Object.keys(row).length === 0) {
+                // eslint-disable-next-line no-continue
                 continue;
             }
             const formattedRow = {};

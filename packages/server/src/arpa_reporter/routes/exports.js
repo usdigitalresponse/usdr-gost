@@ -11,13 +11,15 @@ router.get('/', requireUser, async (req, res) => {
     const periodId = await getReportingPeriodID(req.query.period_id);
     const period = await getReportingPeriod(periodId);
     if (!period) {
-        return res.status(404).json({ error: 'invalid reporting period' });
+        res.status(404).json({ error: 'invalid reporting period' });
+        return;
     }
 
     const report = await arpa.generateReport(periodId);
 
     if (_.isError(report)) {
-        return res.status(500).send(report.message);
+        res.status(500).send(report.message);
+        return;
     }
 
     res.header(

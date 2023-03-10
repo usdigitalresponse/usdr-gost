@@ -51,7 +51,7 @@ function multiselect(value) {
         .replace(/^-/, '') // remove preceding hyphen
         .replace(/,/g, '') // remove all commas
         .split(/;[- ]*/) // match any delimiter format
-        .filter((value) => value !== '') // remove empty values (e.g. trailing or double delimiter)
+        .filter((v) => v !== '') // remove empty values (e.g. trailing or double delimiter)
         .join(';');
 }
 

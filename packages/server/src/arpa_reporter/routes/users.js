@@ -35,7 +35,7 @@ async function validateUser(user, creator) {
     return null;
 }
 
-router.get('/', requireUser, async (req, res, next) => {
+router.get('/', requireUser, async (req, res) => {
     const allUsers = await listUsers();
     const curUser = allUsers.find((u) => u.id === Number(req.session.user.id));
 
@@ -70,7 +70,7 @@ router.post('/', requireAdminUser, async (req, res, next) => {
             const updatedUser = await createUser(user);
             res.json({ user: updatedUser });
 
-            void sendWelcomeEmail(updatedUser.email, `${req.headers.origin}/arpa_reporter`);
+            sendWelcomeEmail(updatedUser.email, `${req.headers.origin}/arpa_reporter`);
         }
     } catch (e) {
         console.dir(e);
