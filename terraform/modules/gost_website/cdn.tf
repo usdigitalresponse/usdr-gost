@@ -25,7 +25,7 @@ resource "aws_cloudfront_function" "arpa_reporter_uri_rewriter" {
 
 module "cdn" {
   source              = "terraform-aws-modules/cloudfront/aws"
-  version             = "3.2.0"
+  version             = "3.2.1"
   create_distribution = var.enabled
 
   depends_on = [
