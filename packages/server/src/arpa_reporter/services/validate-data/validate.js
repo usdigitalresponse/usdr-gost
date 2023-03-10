@@ -200,14 +200,21 @@ function isUnitedStates(value) {
     return value === 'usa' || value === 'united states';
 }
 
-function isValidState(val, content) {
+// TODO: re-write this
+// eslint-disable-next-line no-unused-vars
+function dropdownIncludes(key) {
+    // eslint-disable-next-line no-unused-vars
+    return (val) => true;
+}
+
+function isValidState(val) {
     log(`isValidState(${val})`);
     return (
         dropdownIncludes('state code')(val)
     );
 }
 
-function isValidZip(val, content) {
+function isValidZip(val) {
     return /^\d{5}(-\d{4})?$/.test(`${val}`);
 }
 
@@ -235,11 +242,6 @@ function numberIsGreaterThanOrEqual(key) {
         const other = _.isNumber(content[key]) ? content[key] : 0.00;
         return _.isNumber(val) && _.isNumber(other) && val >= other;
     };
-}
-
-function dropdownIncludes(key) {
-    // TODO: re-write this
-    return (val) => true;
 }
 
 function whenBlank(key, validator) {

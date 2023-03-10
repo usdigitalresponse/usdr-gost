@@ -10,13 +10,6 @@ const { requiredArgument } = require('../lib/preconditions');
 // cache treasury templates in memory after first load
 const treasuryTemplates = new Map();
 
-module.exports = {
-    getTemplate,
-    templateForPeriod,
-    periodTemplatePath,
-    savePeriodTemplate,
-};
-
 // WARNING: changes to this function must be made with care, because:
 //  1. there may be existing data on disk with filenames set according to this function,
 //     which could become inaccessible
@@ -46,15 +39,6 @@ async function savePeriodTemplate(periodId, fileName, buffer) {
     await updateReportingPeriod(reportingPeriod);
 }
 
-async function getTemplate(templateName) {
-    if (treasuryTemplates.has(templateName)) {
-        return treasuryTemplates.get(templateName);
-    }
-    const template = await loadTemplate(templateName);
-    treasuryTemplates.set(templateName, template);
-    return template;
-}
-
 async function loadTemplate(templateName) {
     const templatePath = path.join(
         SERVER_DATA_DIR,
@@ -71,6 +55,15 @@ async function loadTemplate(templateName) {
     return xlsx.utils.sheet_to_json(worksheet, { header: 1, blankrows: false });
 }
 
+async function getTemplate(templateName) {
+    if (treasuryTemplates.has(templateName)) {
+        return treasuryTemplates.get(templateName);
+    }
+    const template = await loadTemplate(templateName);
+    treasuryTemplates.set(templateName, template);
+    return template;
+}
+
 async function templateForPeriod(periodId) {
     requiredArgument(periodId, 'must specify periodId in templateForPeriod');
 
@@ -85,5 +78,12 @@ async function templateForPeriod(periodId) {
     const data = await readFile(path.join(SERVER_DATA_DIR, filename));
     return { filename, data };
 }
+
+module.exports = {
+    getTemplate,
+    templateForPeriod,
+    periodTemplatePath,
+    savePeriodTemplate,
+};
 
 // NOTE: This file was copied from src/server/services/get-template.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
