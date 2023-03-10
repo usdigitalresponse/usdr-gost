@@ -56,7 +56,7 @@ const optionalIfNotStartedFieldIds = [
 const CONDITIONAL_REQS_CONFIGS = [
     {
         fieldIDs: optionalIfNotStartedFieldIds,
-        func: optionalIfNotStarted
+        func: optionalIfNotStarted,
     },
     {
         fieldIDs: ['Cancellation_Reason__c'],
@@ -68,7 +68,7 @@ const CONDITIONAL_REQS_CONFIGS = [
    when we want to lookup the rules for a particular field id. This function converts the configs
    into a more efficient lookup map */
 function convertConfigsToLookupMap() {
-    const reqFnByFieldId = {}
+    const reqFnByFieldId = {};
     for (const config of CONDITIONAL_REQS_CONFIGS) {
         for (const fieldID of config.fieldIDs) {
             reqFnByFieldId[fieldID] = config.func;
