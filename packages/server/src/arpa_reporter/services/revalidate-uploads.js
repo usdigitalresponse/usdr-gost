@@ -6,7 +6,7 @@ async function revalidateUploads(period, user, trns) {
 
     const updates = Promise.all(
         uploads.map(async (upload) => {
-            const errors = await validateUpload(upload);
+            const errors = await validateUpload(upload, user, trns);
             return { upload, errors };
         }),
     );
