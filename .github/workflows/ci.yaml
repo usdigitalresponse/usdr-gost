@@ -105,7 +105,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
           NOTIFICATIONS_EMAIL: grants-identification@usdigitalresponse.org
           DATA_DIR: './data'
-        run: yarn serve & npx cypress run
+        run: yarn serve &
       - name: Run e2e tests
         uses: cypress-io/github-action@v5
         with:
