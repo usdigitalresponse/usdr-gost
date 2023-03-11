@@ -2,6 +2,7 @@ import datetime
 import os
 
 import boto3
+import botocore.client
 import requests
 
 from common.logging import setup_logger
@@ -12,7 +13,14 @@ logger = setup_logger(__name__)
 GRANTS_GOV_BASE_URL = os.environ['GRANTS_GOV_BASE_URL']
 GRANTS_SOURCE_DATA_BUCKET_NAME = os.environ['GRANTS_SOURCE_DATA_BUCKET_NAME']
 
-grants_source_data_bucket = boto3.resource('s3').Bucket(GRANTS_SOURCE_DATA_BUCKET_NAME)
+boto_options = {}
+if hostname := os.getenv("LOCALSTACK_HOSTNAME"):
+    boto_options['endpoint_url'] = f'http://{hostname}:{os.environ["EDGE_PORT"]}'
+    boto_options['config'] = botocore.client.Config(s3={'addressing_style': 'path'})
+
+grants_source_data_bucket = boto3.resource('s3', **boto_options).Bucket(
+    GRANTS_SOURCE_DATA_BUCKET_NAME
+)
 
 
 def handle(event: dict, context: object):
