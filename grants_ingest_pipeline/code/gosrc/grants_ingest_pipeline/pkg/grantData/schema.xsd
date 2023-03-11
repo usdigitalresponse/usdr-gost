@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Release 15.2 New Schema -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:OpportunityDetail="http://apply.grants.gov/system/OpportunityDetail-V1.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	targetNamespace="http://apply.grants.gov/system/OpportunityDetail-V1.0" 
+	elementFormDefault="qualified" attributeFormDefault="qualified" version="1.0">
+   <xs:element name="OpportunitySynopsisDetail_1_0">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="OpportunityID" type="OpportunityDetail:Number20DigitsType" minOccurs="1" maxOccurs="1" />
+            <xs:element name="OpportunityTitle" type="OpportunityDetail:StringWithoutNewLine255Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="OpportunityNumber" type="OpportunityDetail:FundingOpportunityNumberType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="OpportunityCategory" type="OpportunityDetail:OpportunityCategoryTypes" minOccurs="0" maxOccurs="1" />
+            <xs:element name="OpportunityCategoryExplanation" type="OpportunityDetail:CategoryExplanationType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="FundingInstrumentType" type="OpportunityDetail:FundingInstrumentTypes" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="CategoryOfFundingActivity" type="OpportunityDetail:FundingActivityCategoryTypes" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="CategoryExplanation" type="OpportunityDetail:String2500Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="CFDANumbers" type="OpportunityDetail:CFDANumberType" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="EligibleApplicants" type="OpportunityDetail:EligibleApplicantTypes" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="AdditionalInformationOnEligibility" type="OpportunityDetail:String4000Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AgencyCode" type="OpportunityDetail:StringMin1Max255Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AgencyName" type="OpportunityDetail:StringMin1Max255Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="PostDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="CloseDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="CloseDateExplanation" type="OpportunityDetail:String4000Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="LastUpdatedDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="1" maxOccurs="1" />
+            <xs:element name="AwardCeiling" type="OpportunityDetail:AwardCeilingType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AwardFloor" type="OpportunityDetail:AwardFloorType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="EstimatedTotalProgramFunding" type="OpportunityDetail:EstimatedTotalProgramFundingType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="ExpectedNumberOfAwards" type="OpportunityDetail:ExpectedNumberOfAwardsType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="Description" type="OpportunityDetail:DescriptionType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="Version" type="OpportunityDetail:String20Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="CostSharingOrMatchingRequirement" type="OpportunityDetail:CostSharingOrMatchingRequirementType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="ArchiveDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AdditionalInformationURL" type="OpportunityDetail:String250Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AdditionalInformationText" type="OpportunityDetail:String250Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="GrantorContactEmail" type="OpportunityDetail:String130Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="GrantorContactEmailDescription" type="OpportunityDetail:String102Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="GrantorContactText" type="OpportunityDetail:String2500Type" minOccurs="0" maxOccurs="1" />
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="OpportunityForecastDetail_1_0">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="OpportunityID" type="OpportunityDetail:Number20DigitsType" minOccurs="1" maxOccurs="1" />
+            <xs:element name="OpportunityTitle" type="OpportunityDetail:StringWithoutNewLine255Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="OpportunityNumber" type="OpportunityDetail:FundingOpportunityNumberType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="OpportunityCategory" type="OpportunityDetail:OpportunityCategoryTypes" minOccurs="0" maxOccurs="1" />
+            <xs:element name="OpportunityCategoryExplanation" type="OpportunityDetail:CategoryExplanationType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="FundingInstrumentType" type="OpportunityDetail:FundingInstrumentTypes" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="CategoryOfFundingActivity" type="OpportunityDetail:FundingActivityCategoryTypes" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="CategoryExplanation" type="OpportunityDetail:String2500Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="CFDANumbers" type="OpportunityDetail:CFDANumberType" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="EligibleApplicants" type="OpportunityDetail:EligibleApplicantTypes" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="AdditionalInformationOnEligibility" type="OpportunityDetail:String4000Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AgencyCode" type="OpportunityDetail:StringMin1Max255Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AgencyName" type="OpportunityDetail:StringMin1Max255Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="PostDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="LastUpdatedDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="EstimatedSynopsisPostDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="FiscalYear" type="OpportunityDetail:FiscalYearType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="EstimatedSynopsisCloseDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="EstimatedSynopsisCloseDateExplanation" type="OpportunityDetail:String4000Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="EstimatedAwardDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="EstimatedProjectStartDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AwardCeiling" type="OpportunityDetail:AwardCeilingType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AwardFloor" type="OpportunityDetail:AwardFloorType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="EstimatedTotalProgramFunding" type="OpportunityDetail:EstimatedTotalProgramFundingType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="ExpectedNumberOfAwards" type="OpportunityDetail:ExpectedNumberOfAwardsType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="Description" type="OpportunityDetail:DescriptionType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="Version" type="OpportunityDetail:String20Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="CostSharingOrMatchingRequirement" type="OpportunityDetail:CostSharingOrMatchingRequirementType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="ArchiveDate" type="OpportunityDetail:MMDDYYYYType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AdditionalInformationURL" type="OpportunityDetail:String250Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="AdditionalInformationText" type="OpportunityDetail:String250Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="GrantorContactEmail" type="OpportunityDetail:String130Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="GrantorContactEmailDescription" type="OpportunityDetail:String102Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="GrantorContactName" type="OpportunityDetail:String2500Type" minOccurs="0" maxOccurs="1" />
+            <xs:element name="GrantorContactPhoneNumber" type="OpportunityDetail:String100Type" minOccurs="0" maxOccurs="1" />
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="Grants">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="OpportunityDetail:OpportunitySynopsisDetail_1_0" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element ref="OpportunityDetail:OpportunityForecastDetail_1_0" minOccurs="0" maxOccurs="unbounded" />
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <!-- ================ -->
+   <!-- TYPE AND ELEMENT DEFINITIONS -->
+   <!-- ================ -->
+   <xs:simpleType name="String20Type">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="20" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="String130Type">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="130" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="String102Type">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="102" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="GrantorContactDescriptionType">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="300" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="FundingOpportunityNumberType">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="40" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="MMDDYYYYType">
+      <xs:restriction base="xs:string">
+         <xs:pattern value="(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])\d\d\d\d" />
+         <xs:whiteSpace value="collapse" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="String4000Type">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="4000" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="String250Type">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="250" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="String2500Type">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="2500" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="String100Type">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="100" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="StringMin1Max255Type">
+      <xs:restriction base="xs:string">
+         <xs:minLength value="1" />
+         <xs:maxLength value="255" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="Number20DigitsType">
+      <xs:restriction base="xs:string">
+         <xs:pattern value="[0-9]{1,20}" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="StringWithoutNewLine255Type">
+      <xs:restriction base="xs:string">
+         <xs:pattern value="[^\s].{0,254}" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="OpportunityCategoryTypes">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="20" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="CFDANumberType">
+      <xs:restriction base="xs:string">
+         <xs:pattern value="[0-9]{2}[\.][0-9]{3}" />
+         <xs:whiteSpace value="collapse" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="CategoryExplanationType">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="255" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="EstimatedTotalProgramFundingType">
+      <xs:restriction base="xs:string">
+         <!-- - Valid characters: Numbers - maxlength of 15 -->
+         <xs:pattern value="[0-9]*" />
+         <xs:maxLength value="15" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="DescriptionType">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="18000" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="CostSharingOrMatchingRequirementType">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="3" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="FiscalYearType">
+      <xs:restriction base="xs:string">
+         <!-- - Valid characters: Numbers - maxlength of 4 -->
+         <xs:pattern value="[0-9]*" />
+         <xs:maxLength value="4" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="FundingInstrumentTypes">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="2" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="FundingActivityCategoryTypes">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="3" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="AwardCeilingType">
+      <xs:restriction base="xs:string">
+         <!-- - Valid characters: Numbers - maxlength of 15 -->
+         <xs:pattern value="none|[0-9]{1,15}" />
+         <!-- <xs:maxLength value="15" /> -->
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="AwardFloorType">
+      <xs:restriction base="xs:string">
+         <!-- - Valid characters: Numbers - maxlength of 15 -->
+         <xs:pattern value="[0-9]{1,15}" />
+         <!-- <xs:maxLength value="15" /> -->
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="EligibleApplicantTypes">
+      <xs:restriction base="xs:string">
+         <xs:maxLength value="2" />
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="ExpectedNumberOfAwardsType">
+      <xs:restriction base="xs:string">
+         <!-- - Valid characters: Numbers - maxlength of 15 -->
+         <xs:pattern value="[0-9]*" />
+         <xs:maxLength value="15" />
+      </xs:restriction>
+   </xs:simpleType>
+</xs:schema>

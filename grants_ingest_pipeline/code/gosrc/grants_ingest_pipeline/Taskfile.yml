@@ -1,0 +1,119 @@
+# https://taskfile.dev
+
+version: '3'
+
+output: prefixed
+
+tasks:
+  default:
+    silent: true
+    interactive: true
+    cmds:
+      - cmd: task --list
+      - cmd: printf "\nRun \"task --help\" for more information.\n"
+
+  test:
+    desc: "Runs unit tests and updates the HTML coverage report"
+    run: once
+    prefix: "test output"
+    cmds:
+      - go test -race -covermode=atomic -coverprofile=cover.out {{ .CLI_ARGS }} ./...
+      - task: coverage-report-html
+    sources:
+      - ./**/*.go
+      - ./Taskfile.yml
+      - ./go.mod
+      - ./go.sum
+
+  coverage-report-html:
+    desc: "Writes an HTML coverage report to ./cover.html"
+    cmds:
+      - go tool cover -html=cover.out -o cover.html
+    sources:
+      - ./cover.out
+    generates:
+      - ./cover.html
+
+  lint:
+    interactive: true
+    desc: "Runs the staticcheck linter utility"
+    vars:
+      FORMAT: '{{ default "stylish" .FORMAT }}'
+    cmds:
+      - "staticcheck -f {{ .FORMAT }} ./..."
+    ignore_error: true
+    sources:
+      - ./**/*.go
+
+  build:
+    desc: 'Alias for "build-{{ OS }}" (varies according to host OS)'
+    cmds:
+      - task: build-{{ default OS .TARGET }}
+
+  build-target:
+    run: when_changed
+    label: "build-{{ .BUILD_GOOS }}"
+    prefix: "output build-{{ .BUILD_GOOS }}"
+    vars:
+      BUILD_ARTIFACT: ./bin/{{ .BUILD_GOOS }}/
+    env:
+      GOOS: "{{ default OS .BUILD_GOOS }}"
+      GOPATH:
+        sh: go env GOPATH
+    cmds:
+      - go build -gcflags="-trimpath=$GOPATH" -asmflags="-trimpath=$GOPATH" -trimpath -v -o {{ .BUILD_ARTIFACT }} ./cmd/...
+      - cmd: echo {{ .BUILD_ARTIFACT }}
+        silent: true
+    sources:
+      - ./**/*.go
+      - ./Taskfile.yml
+      - ./go.mod
+      - ./go.sum
+    generates:
+      - "./bin/{{ .BUILD_GOOS }}/split_grants_gov_xml_db{{ .BUILD_EXT }}"
+
+  build-linux:
+    desc: "Compiles executables for Linux"
+    cmds:
+      - task: build-target
+        vars:
+          BUILD_GOOS: "linux"
+    generates:
+      - "./bin/linux/split_grants_gov_xml_db"
+
+  build-darwin:
+    desc: "Compiles a executables for Mac OS"
+    cmds:
+      - task: build-target
+        vars:
+          BUILD_GOOS: "darwin"
+    generates:
+      - "./bin/darwin/split_grants_gov_xml_db"
+
+  build-windows:
+    desc: "Compiles executables for Windows"
+    cmds:
+      - task: build-target
+        vars:
+          BUILD_GOOS: "windows"
+          BUILD_EXT: ".exe"
+    generates:
+      - "./bin/windows/split_grants_gov_xml_db.exe"
+
+  build-all:
+    desc: "Compiles executables for Darwin (Mac OS), Linux, and Windows"
+    deps:
+      - build-darwin
+      - build-linux
+      - build-windows
+
+  clean:
+    desc: "Removes OS-specific build directories and their contents in ./bin/"
+    silent: true
+    cmds:
+      - find ./bin -mindepth 1 -type d -exec rm -rf {} + -print
+
+  go-generate:
+    desc: 'Runs go:generate directives for the entire project'
+    cmds:
+      - go generate ./...
