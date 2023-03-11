@@ -4,11 +4,11 @@ locals {
   // Since EventBridge Scheduler is not yet supported by localstack, we conditionally set the below
   // lambda_trigger local value if var.eventbridge_scheduler_enabled is false.
   eventbridge_scheduler_trigger = {
-    principal = "scheduler.amazonaws.com"
+    principal  = "scheduler.amazonaws.com"
     source_arn = join("", aws_scheduler_schedule.default.*.arn)
   }
   cloudwatch_events_trigger = {
-    principal = "events.amazonaws.com"
+    principal  = "events.amazonaws.com"
     source_arn = join("", aws_cloudwatch_event_rule.schedule.*.arn)
   }
   lambda_trigger = var.eventbridge_scheduler_enabled ? local.eventbridge_scheduler_trigger : local.cloudwatch_events_trigger

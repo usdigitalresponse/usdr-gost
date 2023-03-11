@@ -183,8 +183,8 @@ module "split_grants_gov_db" {
   lambda_artifact_bucket   = module.lambda_artifacts_bucket.bucket_id
   log_retention_in_days    = var.lambda_default_log_retention_in_days
   log_level                = var.lambda_default_log_level
-  lambda_code_path         = ""
+  lambda_code_path         = "${path.module}/code/gosrc/grants_ingest_pipeline"
 
-  grants_source_data_bucket_name = module.grants_source_data_bucket.bucket_id
+  grants_source_data_bucket_name   = module.grants_source_data_bucket.bucket_id
   grants_prepared_data_bucket_name = module.grants_prepared_data_bucket.bucket_id
 }
