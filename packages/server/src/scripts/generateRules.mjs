@@ -1,9 +1,13 @@
 #!/usr/bin/env node
+/* eslint-disable import/extensions */
 
 import { readFile, writeFile } from 'fs/promises';
 import path from 'path';
 
 import 'dotenv/config';
+
+// This is a dev-only script, so we can make an exception for the import
+// eslint-disable-next-line import/no-extraneous-dependencies
 import chalk from 'chalk';
 import XLSX from 'xlsx';
 import lodash from 'lodash';
@@ -57,9 +61,6 @@ const dropdownNamesToFieldIds = {
     'Broadband Type': ['Technology_Type_Actual__c', 'Technology_Type_Planned__c'],
 };
 
-// Allow lookup from field id
-const fieldIdToDropdownName = invertDropdownToFieldMap();
-
 function invertDropdownToFieldMap() {
     const inverted = [];
     Object.keys(dropdownNamesToFieldIds).forEach((dropDownName) => {
@@ -70,11 +71,12 @@ function invertDropdownToFieldMap() {
     return inverted;
 }
 
-const COLNAMES = makeColNames();
+// Allow lookup from field id
+const fieldIdToDropdownName = invertDropdownToFieldMap();
 
 function makeColNames() {
     const upcaseLetters = [];
-    for (let i = 65; i <= 90; i++) {
+    for (let i = 65; i <= 90; i += 1) {
         upcaseLetters.push(String.fromCharCode(i));
     }
 
@@ -83,19 +85,7 @@ function makeColNames() {
     return [...upcaseLetters, ...secondSet, ...thirdSet];
 }
 
-function parseListVal(lvStr) {
-    if (!lvStr || lvStr === 'N/A') return [];
-
-    let lines = lvStr.split('\n');
-
-    // remove whitespace on each pick list option
-    lines = lines.map((line) => line.trim());
-
-    // un-quote each entry
-    lines = lines.map((line) => line.replace(/^"/, '').replace(/"$/, ''));
-
-    return lines;
-}
+const COLNAMES = makeColNames();
 
 function parseRequired(rqStr) {
     if (rqStr === 'Required') return true;
@@ -105,13 +95,13 @@ function parseRequired(rqStr) {
 
 // for the given type and column, return all the EC codes where that column is shown/used
 function filterEcCodes(logic, type, columnName) {
-    const logicCodes = logic.filter((log) => log.type === type);
-    if (logicCodes.length === 0) return false;
+    const rulesForType = logic.filter((rule) => rule.type === type);
+    if (rulesForType.length === 0) return false;
 
     const ecCodes = [];
-    for (const logic of logicCodes) {
-        if (logic.columnNames[columnName]) {
-            ecCodes.push(logic.ecCode);
+    for (const rule of rulesForType) {
+        if (rule.columnNames[columnName]) {
+            ecCodes.push(rule.ecCode);
         }
     }
 
@@ -167,9 +157,11 @@ async function extractRules(workbook, logic, dropdowns) {
         const sheetRules = {};
         for (const [colIdx, key] of colKeys.entries()) {
             // ignore the first two columns
+            // eslint-disable-next-line no-continue
             if (colIdx < 2) continue;
 
             // ignore if key is blank
+            // eslint-disable-next-line no-continue
             if (!key) continue;
 
             // construct rule
@@ -295,7 +287,7 @@ function validateDropdownCorrections(extractedDropdowns) {
     Object.keys(dropdownCorrections).forEach((valToCorrect) => {
         for (const dropdownName in extractedDropdowns) {
             for (const dropdownValue of extractedDropdowns[dropdownName]) {
-                if (valToCorrect == dropdownValue) {
+                if (valToCorrect === dropdownValue) {
                     return;
                 }
             }
