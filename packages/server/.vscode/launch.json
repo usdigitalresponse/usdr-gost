@@ -9,6 +9,15 @@
             "request": "attach",
             "name": "Docker: Attach to Node",
             "remoteRoot": "/app/packages/server"
+        },
+        {
+            "name": "Generate Rules",
+            "program": "${workspaceFolder}/src/scripts/generateRules.mjs",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
         }
     ]
 }
