@@ -56,6 +56,8 @@ jobs:
         run: yarn serve &
       - name: Run e2e tests
         uses: cypress-io/github-action@v5
+        env:
+          CYPRESS_BASE_URL: 'http://localhost:8080'
         with:
           publish-summary: true
           working-directory: packages/e2e
