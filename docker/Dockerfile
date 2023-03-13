@@ -16,7 +16,7 @@ RUN ["yarn", "install"]
 WORKDIR /app
 CMD ["yarn", "start:server"]
 
-FROM cypress/base:16 as e2e
+FROM cypress/base:16.14.0 as e2e
 WORKDIR /app
 
 # dependencies will be installed only if the package files change
