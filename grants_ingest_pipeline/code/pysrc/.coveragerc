@@ -1,0 +1,8 @@
+[run]
+branch : True
+omit : */virtualenv/*
+       */venv/*
+       tests/*
+
+[report]
+exclude_lines = def __repr__
