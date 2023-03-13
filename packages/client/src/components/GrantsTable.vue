@@ -84,7 +84,7 @@ export default {
   },
   data() {
     return {
-      perPage: 10,
+      perPage: 50,
       currentPage: 1,
       loading: false,
       fields: [
