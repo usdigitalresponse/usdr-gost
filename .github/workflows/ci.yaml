@@ -9,58 +9,6 @@ on:
       - "docs/**"
 
 jobs:
-  cypress-run:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: "postgres:13"
-        env:
-          POSTGRES_DB: usdr_grants_test
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-        ports:
-          - 5432:5432
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16.14.0
-          cache: yarn
-      - name: Install dependencies
-        run: yarn setup
-      - name: Run migrations
-        env:
-          POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
-          # This is intentional to set POSTGRES_URL=POSTGRES_TEST_URL; ARPA Reporter test runner gates
-          # dev vs. CI differences based on whether these are the same.
-          POSTGRES_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
-        run: yarn db:migrate
-      - name: Cypress run
-        env:
-          POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
-          # This is intentional to set POSTGRES_URL=POSTGRES_TEST_URL; ARPA Reporter test runner gates
-          # dev vs. CI differences based on whether these are the same.
-          POSTGRES_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
-          AWS_ACCESS_KEY_ID: "Fake AWS Key"
-          AWS_SECRET_ACCESS_KEY: "Fake AWS Secret"
-          NOTIFICATIONS_EMAIL: grants-identification@usdigitalresponse.org
-          DATA_DIR: './data'
-        uses: cypress-io/github-action@v5
-        with:
-          start: yarn serve
-          # quote the url to be safe against YML parsing surprises
-          wait-on: 'http://localhost:8080'
-          publish-summary: true
-          working-directory: packages/e2e
-
   test-e2e-integration:
     runs-on: ubuntu-latest
     services:
