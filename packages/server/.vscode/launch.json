@@ -11,13 +11,21 @@
             "remoteRoot": "/app/packages/server"
         },
         {
-            "name": "Generate Rules",
-            "program": "${workspaceFolder}/src/scripts/generateRules.mjs",
+            "type": "node",
             "request": "launch",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "type": "node"
-        }
+            "name": "Generate Rules",
+            "runtimeExecutable": "yarn",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": ["generate-rules"],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Parse Output Templates",
+            "runtimeExecutable": "yarn",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": ["parse-output-templates"],
+        },
+        
     ]
 }
