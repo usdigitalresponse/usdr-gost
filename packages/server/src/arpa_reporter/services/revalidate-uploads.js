@@ -4,14 +4,12 @@ const { uploadsInPeriod } = require('../db/uploads');
 async function revalidateUploads(period, user, trns) {
     const uploads = await uploadsInPeriod(period.id, trns);
 
-    const updates = [];
-    for (const upload of uploads) {
-        const errors = await validateUpload(upload, user, trns);
-        updates.push({
-            upload,
-            errors,
-        });
-    }
+    const updates = Promise.all(
+        uploads.map(async (upload) => {
+            const errors = await validateUpload(upload, user, trns);
+            return { upload, errors };
+        }),
+    );
 
     return updates;
 }

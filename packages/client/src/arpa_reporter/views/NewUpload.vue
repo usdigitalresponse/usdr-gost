@@ -58,12 +58,6 @@ export default {
           validation: 'required',
         },
         {
-          type: 'text',
-          label: 'Expenditure Code',
-          name: 'expenditure_code',
-          validation: 'required',
-        },
-        {
           type: 'file',
           label: 'Workbook File',
           name: 'spreadsheet',
@@ -110,7 +104,7 @@ export default {
       return Object.fromEntries(this.$store.getters.viewableReportingPeriods.map((period) => [period.id, period.name]));
     },
     agencySelectItems() {
-      return Object.fromEntries(this.$store.state.agencies.map((agency) => [agency.id, agency.name]));
+      return Object.fromEntries(this.$store.state.agencies.map((agency) => [agency.id, agency.code]));
     },
     // eslint-disable-next-line no-unused-vars
     async uploadFile(file, progress, error, options) {

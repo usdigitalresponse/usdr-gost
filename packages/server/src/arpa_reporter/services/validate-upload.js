@@ -19,7 +19,7 @@ const ValidationError = require('../lib/validation-error');
 const CURRENCY_REGEX_PATTERN = /^\d+(?: \.\d{ 1, 2 })?$/g;
 
 // Copied from www.emailregex.com
-const EMAIL_REGEX_PATTERN = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const EMAIL_REGEX_PATTERN = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 const BETA_VALIDATION_MESSAGE = '[BETA] This is a new validation that is running in beta mode (as a warning instead of a blocking error). If you see anything incorrect about this validation, please report it at grants-helpdesk@usdigitalresponse.org';
 
@@ -37,6 +37,21 @@ function betaValidationWarning(message) {
     return new ValidationError(`${message} -- ${BETA_VALIDATION_MESSAGE}`, { severity: 'warn' });
 }
 
+function validateFieldPattern(fieldName, value) {
+    let error = null;
+    const matchedFieldPatternInfo = FIELD_NAME_TO_PATTERN[fieldName];
+    if (matchedFieldPatternInfo) {
+        const { pattern } = matchedFieldPatternInfo;
+        const { explanation } = matchedFieldPatternInfo;
+        if (value && typeof value === 'string' && !value.match(pattern)) {
+            error = new Error(
+                `Value entered in cell is "${value}". ${explanation}`,
+            );
+        }
+    }
+    return error;
+}
+
 /**
  * Derive the agency id from the upload and the cover sheet
  * @param {object} recordFromUploadsTable - the record from the uploads table
@@ -50,15 +65,14 @@ async function setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, cove
     if (uploadRecordAgencyId == null) {
         // if the upload doesn't have an agency id, set it to the agency id from the cover sheet
         await setAgencyId(recordFromUploadsTable.id, coverSheetAgency.id);
-    } else {
+    } else if (uploadRecordAgencyId !== coverSheetAgency.id) {
         // if the upload already has an agency id, it must match the agency id from the cover sheet
-        if (uploadRecordAgencyId !== coverSheetAgency.id) {
-            return new ValidationError(
-                `The agency on the spreadsheet, "${coverSheetAgency.code}", does not match the agency provided in the form, "${recordFromUploadsTable.agency_code}"`,
-                { tab: 'cover', row: 2, col: 'A' }
-            );
-        }
+        return new ValidationError(
+            `The agency on the spreadsheet, "${coverSheetAgency.code}", does not match the agency provided in the form, "${recordFromUploadsTable.agency_code}"`,
+            { tab: 'cover', row: 2, col: 'A' },
+        );
     }
+    return undefined;
 }
 
 /**
@@ -119,6 +133,8 @@ async function validateEcCode({ upload, records }) {
         await setEcCode(upload.id, code);
         upload.ec_code = code;
     }
+
+    return undefined;
 }
 
 async function validateVersion({ records, rules }) {
@@ -145,6 +161,8 @@ async function validateVersion({ records, rules }) {
             },
         );
     }
+
+    return undefined;
 }
 
 async function validateReportingPeriod({ upload, records, trns }) {
@@ -190,7 +208,7 @@ async function validateReportingPeriod({ upload, records, trns }) {
 }
 
 async function validateSubrecipientRecord({
-    upload, record: recipient, typeRules: rules, recordErrors, trns,
+    upload, record: recipient, recordErrors, trns,
 }) {
     const errors = [];
 
@@ -248,8 +266,8 @@ async function validateSubrecipientRecord({
 
             // otherwise, generate warnings about diffs
         } else {
-            const recipientId = existing.uei || existing.tin;
-            const record = JSON.parse(existing.record);
+            // const recipientId = existing.uei || existing.tin;
+            // const record = JSON.parse(existing.record);
 
             /* Based on feedback from partners on 12/22/22, these warning are not helpful, and create
          such a high volume of warnings that it is drowning out other more valid warnings.
@@ -288,6 +306,7 @@ async function validateRecord({ upload, record, typeRules: rules }) {
     for (const [key, rule] of Object.entries(rules)) {
     // if the rule only applies on different EC codes, skip it
         if (rule.ecCodes && (!upload.ec_code || !rule.ecCodes.includes(upload.ec_code))) {
+            // eslint-disable-next-line no-continue
             continue;
         }
 
@@ -376,15 +395,15 @@ async function validateRecord({ upload, record, typeRules: rules }) {
             }
 
             if (rule.dataType === 'Numeric') {
-              if (typeof(value) === 'string' && isNaN(parseFloat(value))) {
+                if (typeof (value) === 'string' && Number.isNaN(parseFloat(value))) {
                 // If this value is a string that can't be interpretted as a number, then error.
                 // Note: This value might not be exactly what was entered in the workbook. The val
                 // has already been fed through formatters that may have changed the value.
-                  errors.push(
-                    new ValidationError(`Expected a number, but the value was '${value}'`,
-                        { severity: 'err', col: rule.columnName })
-                  )
-              }
+                    errors.push(
+                        new ValidationError(`Expected a number, but the value was '${value}'`,
+                            { severity: 'err', col: rule.columnName }),
+                    );
+                }
             }
 
             // make sure max length is not too long
@@ -405,21 +424,6 @@ async function validateRecord({ upload, record, typeRules: rules }) {
     return errors;
 }
 
-function validateFieldPattern(fieldName, value) {
-    let error = null;
-    const matchedFieldPatternInfo = FIELD_NAME_TO_PATTERN[fieldName];
-    if (matchedFieldPatternInfo) {
-        const { pattern } = matchedFieldPatternInfo;
-        const { explanation } = matchedFieldPatternInfo;
-        if (value && typeof value === 'string' && !value.match(pattern)) {
-            error = new Error(
-                `Value entered in cell is "${value}". ${explanation}`,
-            );
-        }
-    }
-    return error;
-}
-
 async function validateRules({
     upload, records, rules, trns,
 }) {
@@ -434,6 +438,8 @@ async function validateRules({
         for (const [recordIdx, record] of tRecords.entries()) {
             let recordErrors;
             try {
+                // TODO: Consider refactoring this to take better advantage of async parallelization
+                // eslint-disable-next-line no-await-in-loop
                 recordErrors = await validateRecord({ upload, record, typeRules });
             } catch (e) {
                 recordErrors = [(
@@ -446,6 +452,8 @@ async function validateRules({
                 if (type === 'subrecipient') {
                     recordErrors = [
                         ...recordErrors,
+                        // TODO: Consider refactoring this to take better advantage of async parallelization
+                        // eslint-disable-next-line no-await-in-loop
                         ...(await validateSubrecipientRecord({
                             upload, record, typeRules, recordErrors, trns,
                         })),
@@ -497,7 +505,7 @@ function sortRecords(records, errors) {
             case 'ec3':
             case 'ec4':
             case 'ec5':
-            case 'ec7':
+            case 'ec7': {
                 const projectID = record.content.Project_Identification_Number__c;
                 if (projectID in projects) {
                     errors.push(betaValidationWarning(
@@ -506,7 +514,8 @@ function sortRecords(records, errors) {
                 }
                 projects[projectID] = record.content;
                 break;
-            case 'subrecipient':
+            }
+            case 'subrecipient': {
                 const subRecipId = subrecipientIdString(
                     record.content.Unique_Entity_Identifier__c,
                     record.content.EIN__c,
@@ -518,7 +527,8 @@ function sortRecords(records, errors) {
                 }
                 subrecipients[subRecipId] = record.content;
                 break;
-            case 'awards50k':
+            }
+            case 'awards50k': {
                 const awardNumber = record.content.Award_No__c;
                 if (awardNumber && awardNumber in awardsGT50k) {
                     errors.push(betaValidationWarning(
@@ -527,6 +537,7 @@ function sortRecords(records, errors) {
                 }
                 awardsGT50k[awardNumber] = record.content;
                 break;
+            }
             case 'awards':
                 awards.push(record.content);
                 break;
@@ -537,6 +548,7 @@ function sortRecords(records, errors) {
             case 'cover':
             case 'logic':
                 // Skip these sheets, they don't include records
+                // eslint-disable-next-line no-continue
                 continue;
             default:
                 console.error(`Unexpected record type: ${record.type}`);
@@ -556,7 +568,7 @@ function validateSubawardRefs(awardsGT50k, projects, subrecipients, errors) {
     // Any subawards must reference valid projects and subrecipients.
     // Track the subrecipient ids that were referenced, since we'll need them later
     const usedSubrecipients = new Set();
-    for ([awardNumber, subaward] of Object.entries(awardsGT50k)) {
+    for (const [awardNumber, subaward] of Object.entries(awardsGT50k)) {
         const projectRef = subaward.Project_Identification_Number__c;
         if (!(projectRef in projects)) {
             errors.push(betaValidationWarning(
@@ -659,6 +671,8 @@ async function validateUpload(upload, user, trns = null) {
     // run validations, one by one
     for (const validation of validations) {
         try {
+            // TODO: Consider refactoring this to take better advantage of async parallelization
+            // eslint-disable-next-line no-await-in-loop
             errors.push(await validation({
                 upload, records, rules, trns,
             }));

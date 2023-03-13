@@ -30,9 +30,7 @@ const PAYMENTS_TO_INDIVIDUALS = 'Payments to Individuals';
  * @returns {string} The detailed EC code in format "#.##".
  */
 function getDetailedEcCode(record) {
-    const { subcategory } = record;
-
-    const match = EC_CODE_REGEX.exec(subcategory);
+    const match = EC_CODE_REGEX.exec(record.subcategory);
     return match?.[1];
 }
 
@@ -941,7 +939,7 @@ async function generateReport(periodId) {
         { name: 'subRecipientBulkUpload', func: generateSubRecipient },
     ];
 
-    const zip = new AdmZip();
+    const admZip = new AdmZip();
 
     // compute the CSV data for each file, and write it into the zip container
     const csvPromises = csvObjects.map(async ({ name, func }) => {
@@ -971,7 +969,7 @@ async function generateReport(periodId) {
         const csvString = XLSX.utils.sheet_to_csv(sheet, { RS: '\r\n' });
         const buffer = Buffer.from(BOM + csvString, 'utf8');
 
-        zip.addFile(`${name}.csv`, buffer);
+        admZip.addFile(`${name}.csv`, buffer);
     });
 
     const reportNamePromise = generateReportName(periodId);
@@ -984,7 +982,7 @@ async function generateReport(periodId) {
     // return the correct format
     return {
         filename: `${reportName}.zip`,
-        content: zip.toBuffer(),
+        content: admZip.toBuffer(),
     };
 }
 

@@ -1,4 +1,9 @@
 const _ = require('lodash');
+const { format } = require('date-fns');
+
+const { getSubrecipientsHash } = require('./helpers');
+
+/* eslint-disable global-require */
 const tabValidators = [
     require('./certification'),
     require('./cover'),
@@ -9,8 +14,7 @@ const tabValidators = [
     // require('./transfers'),
     // require('./direct')
 ];
-const { format } = require('date-fns');
-const { getSubrecipientsHash } = require('./helpers');
+/* eslint-enable global-require */
 
 const validateData = (records, fileParts, reportingPeriod, periodSummaries, firstReportingPeriodStartDate) => {
     const groupedRecords = _.groupBy(records, 'type');

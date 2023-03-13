@@ -6,10 +6,7 @@
   dates or dollar amounts, and attempts to make them appear in Excel
   correctly formatted.
 */
-
-module.exports = {
-    fixCellFormats,
-};
+/* eslint-disable no-use-before-define */
 
 function fixCellFormats(sheet, titleRow = 1, numberFormat = '0.00') {
     const { columns, dateColumns, amountColumns } = getColumns(sheet, titleRow);
@@ -104,6 +101,7 @@ function isAmountColumn(columnName) {
     if (/Expenditure/.exec(columnName)) {
         return true;
     }
+    return false;
 }
 
 /*  toRC() converts an A1-style cellref to {R:0,C:0} or null if the
@@ -124,7 +122,7 @@ function toDecimal(colRef) {
     }
 
     let rv = 0;
-    for (let i = 0; i < colRef.length; i++) {
+    for (let i = 0; i < colRef.length; i += 1) {
         rv = rv * 26 + colRef.charCodeAt(i) - 64;
     }
     return rv - 1;
@@ -140,6 +138,10 @@ function toDecimal(colRef) {
 //   let jsDate = new Date(0, 0, Math.floor(excelDate - 1));
 //   return `${jsDate.getMonth() + 1}/${jsDate.getDate()}/${jsDate.getFullYear()}`;
 // }
+
+module.exports = {
+    fixCellFormats,
+};
 
 /*                                  *  *  *                                   */
 
