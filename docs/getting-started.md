@@ -28,7 +28,7 @@ See [here](./development.md) for more information about setting up local develop
 
 ## Common Tasks
 
-See [here](./common-tasks.md) for some common development tasks you made need to do as part of your work.
+See [here](./common-tasks) for some common development tasks you made need to do as part of your work.
 
 ## Testing
 
