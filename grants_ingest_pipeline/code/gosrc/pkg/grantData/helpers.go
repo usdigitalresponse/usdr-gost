@@ -12,7 +12,3 @@ func (v MMDDYYYYType) Time() (time.Time, error) {
 
 type OpportunitySynopsisDetail_1_0 OpportunitySynopsisDetail10
 type OpportunityForecastDetail_1_0 OpportunityForecastDetail10
-
-// type Grant struct {
-// 	OpportunitySynopsisDetail10 `xml:"Grants"`
-// }

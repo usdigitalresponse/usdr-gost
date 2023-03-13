@@ -12,8 +12,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-kit/log/level"
 	"github.com/hashicorp/go-multierror"
-	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/grants_ingest_pipeline/internal/log"
-	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/grants_ingest_pipeline/pkg/grantData"
+	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/internal/log"
+	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/pkg/grantData"
 )
 
 const (

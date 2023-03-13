@@ -25,7 +25,7 @@ import (
 	"github.com/johannesboyne/gofakes3/backend/s3mem"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/grants_ingest_pipeline/pkg/grantData"
+	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/pkg/grantData"
 )
 
 func TestOpportunityS3ObjectKey(t *testing.T) {

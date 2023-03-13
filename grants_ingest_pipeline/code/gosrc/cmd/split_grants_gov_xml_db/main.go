@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/grants_ingest_pipeline/internal/log"
+	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/internal/log"
 )
 
 type Environment struct {
@@ -39,5 +39,5 @@ func main() {
 		}
 		log.Debug(logger, "Starting Lambda")
 		return handleS3EventWithConfig(cfg, ctx, s3Event)
-	}))
+	}, nil))
 }
