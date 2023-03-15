@@ -207,18 +207,52 @@ async function validateReportingPeriod({ upload, records, trns }) {
     return errors;
 }
 
+/**
+ * Check whether UEI is required for the recipient
+ * @param {object} recipient - the recipient record
+ * @returns {boolean} - true if UEI is required, false otherwise
+ */
+function isUEIRequired(recipient) {
+    // As of Q1, 2023 we require a UEI for all entities of type subrecipient and/or contractor
+    return (recipient.Entity_Type_2__c.includes('Contractor') || recipient.Entity_Type_2__c.includes('Subrecipient'));
+}
+
+/**
+ * Validate the recipient's identifier
+ * @param {object} recipient - the recipient record
+ * @returns {Array<ValidationError>} - an array of validation errors if found
+*/
+function validateIdentifier(recipient) {
+    const errors = [];
+    // As of Q1, 2023 we require a UEI for all entities of type subrecipient and/or contractor
+    // See https://github.com/usdigitalresponse/usdr-gost/issues/1027
+
+    // This is a multi-select field, so we need to check for substring matches
+    if (isUEIRequired(recipient)) {
+        if (!recipient.Unique_Entity_Identifier__c) {
+            errors.push(new ValidationError(
+                'UEI is required for all subrecipients and contractors',
+                { col: 'C', severity: 'err' },
+            ));
+        }
+    } else if (recipient.Entity_Type_2__c.includes('Beneficiary')) {
+        if (!recipient.EIN__c && !recipient.Unique_Entity_Identifier__c) {
+        // If this entity is not a subrecipient or contractor, then it must have a TIN OR a UEI (same as the old logic)
+            errors.push(new ValidationError(
+                'At least one of UEI or TIN/EIN must be set for benficiaries, but both are missing',
+                { col: 'C, D', severity: 'err' },
+            ));
+        }
+    }
+    return errors;
+}
+
 async function validateSubrecipientRecord({
     upload, record: recipient, recordErrors, trns,
 }) {
     const errors = [];
 
-    // we should include at a primary identifier for all recipients
-    if (!recipient.EIN__c && !recipient.Unique_Entity_Identifier__c) {
-        errors.push(new ValidationError(
-            'At least one of UEI or TIN/EIN must be set, but both are missing',
-            { col: 'C, D', severity: 'err' },
-        ));
-    }
+    errors.concat(validateIdentifier(recipient));
 
     // does the row already exist?
     let byUei = null;
@@ -249,27 +283,29 @@ async function validateSubrecipientRecord({
     || existing.updated_at
     ) isOwnedByThisUpload = false;
 
-    // the record has already been validated before this method was invoked. how
-    // did the validation go?
-    const isRecordValid = recordErrors.length === 0;
+    // the record has already been validated before this method was invoked, or we found an error above. how did the validation go?
+    const isRecordValid = recordErrors.length === 0 && errors.length === 0;
 
     // validate that existing record and given recipient match
     //
     // TODO: what if the same upload specifies the same recipient multiple times,
     // but different?
     if (existing) {
-    // if we own it, we can just update it
+        // if we own it, we can just update it
         if (isOwnedByThisUpload) {
             if (isRecordValid) {
                 await updateRecipient(existing.id, { record: recipient }, trns);
             }
 
-            // otherwise, generate warnings about diffs
-        } else {
-            // const recipientId = existing.uei || existing.tin;
-            // const record = JSON.parse(existing.record);
+        // if there is no UEI on the existing record, then we need to update it to match treasury requirements
+        } else if (isUEIRequired(recipient) && !byUei) {
+            await updateRecipient(existing.id, { record: recipient }, trns);
+        }
 
-            /* Based on feedback from partners on 12/22/22, these warning are not helpful, and create
+        // const recipientId = existing.uei || existing.tin;
+        // const record = JSON.parse(existing.record);
+
+        /* Based on feedback from partners on 12/22/22, these warning are not helpful, and create
          such a high volume of warnings that it is drowning out other more valid warnings.
       // make sure that each key in the record matches the recipient
       for (const [key, rule] of Object.entries(rules)) {
@@ -282,8 +318,6 @@ async function validateSubrecipientRecord({
         }
       }
       */
-        }
-
         // if it's new, and it's passed validation, then insert it
     } else if (isRecordValid) {
         const dbRow = {
