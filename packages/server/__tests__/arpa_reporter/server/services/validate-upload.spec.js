@@ -318,3 +318,60 @@ describe('recipientBelongsToUpload', () => {
         expect(result).to.be.true;
     });
 });
+
+describe('updateOrCreateRecipient', () => {
+    const updateOrCreateRecipient = validateUploadModule.__get__('updateOrCreateRecipient');
+    let createRecipientStub;
+    let updateRecipientStub;
+
+    beforeEach(() => {
+        createRecipientStub = sinon.stub().resolves();
+        updateRecipientStub = sinon.stub();
+        validateUploadModule.__set__('createRecipient', createRecipientStub);
+        validateUploadModule.__set__('updateRecipient', updateRecipientStub);
+    });
+
+    afterEach(() => {
+        sinon.restore();
+    });
+
+    it('should call createRecipient when existingRecipient is falsy', async () => {
+        const trns = {};
+        const upload = { id: 1 };
+        const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
+
+        await updateOrCreateRecipient(null, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
+
+        sinon.assert.calledWith(createRecipientStub, {
+            uei: 'UEI1',
+            tin: 'EIN1',
+            record: newRecipient,
+            upload_id: 1,
+        }, trns);
+        sinon.assert.notCalled(updateRecipientStub);
+    });
+
+    it('should call updateRecipient when existingRecipient belongs to current upload', async () => {
+        const trns = {};
+        const upload = { id: 1 };
+        const existingRecipient = { id: 1, upload_id: 1, updated_at: null };
+        const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
+
+        await updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
+
+        sinon.assert.calledWith(updateRecipientStub, 1, { record: newRecipient }, trns);
+        sinon.assert.notCalled(createRecipientStub);
+    });
+
+    it('should not call createRecipient or updateRecipient when existingRecipient belongs to a different upload', async () => {
+        const trns = {};
+        const upload = { id: 1 };
+        const existingRecipient = { id: 1, upload_id: 2, updated_at: null };
+        const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
+
+        await updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
+
+        sinon.assert.notCalled(createRecipientStub);
+        sinon.assert.notCalled(updateRecipientStub);
+    });
+});
