@@ -840,6 +840,7 @@ async function generateSubaward(records) {
                     tin(record.content.Recipient_EIN__c),
                     record.content.Project_Identification_Number__c,
                     record.content.Award_No__c,
+                    record.content.Entity_Type_2__c,
                     record.content.Award_Type__c,
                     currency(record.content.Award_Amount__c),
                     record.content.Award_Date__c,
