@@ -167,63 +167,86 @@ describe('validate record', () => {
     });
 });
 
-describe('validateIdentifier function', () => {
+describe('validateIdentifier', () => {
     const validateIdentifier = validateUploadModule.__get__('validateIdentifier');
-
-    it('should return an error if recipient is a subrecipient or contractor and UEI is missing', async () => {
-        const recipient = { Entity_Type_2__c: 'Subrecipient' };
-        const errors = validateIdentifier(recipient);
-        expect(errors).to.eql([
+    it('should return an error if recipient is a new subrecipient or contractor and has no UEI', () => {
+        const recipient = {
+            Entity_Type__c: 'Subrecipient',
+            Unique_Entity_Identifier__c: null,
+            EIN__c: '123456789',
+        };
+        const recipientExists = false;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, [
             new ValidationError(
-                'UEI is required for all subrecipients and contractors',
+                'UEI is required for all new subrecipients and contractors',
                 { col: 'C', severity: 'err' },
             ),
         ]);
     });
 
-    it('should return an error if recipient is a beneficiary and both EIN and UEI are missing', async () => {
-        const recipient = { Entity_Type_2__c: 'Beneficiary' };
-        const errors = validateIdentifier(recipient);
-        expect(errors).to.eql([
+    it('should return an error if entity type is semicolon-separated list that includes Subrecipient, and it has an UEI', () => {
+        const recipient = {
+            Entity_Type__c: 'Subrecipient;Benificiary',
+            Unique_Entity_Identifier__c: null,
+            EIN__c: '123456789',
+        };
+        const recipientExists = false;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, [
             new ValidationError(
-                'At least one of UEI or TIN/EIN must be set for benficiaries, but both are missing',
+                'UEI is required for all new subrecipients and contractors',
+                { col: 'C', severity: 'err' },
+            ),
+        ]);
+    });
+
+    it('should not return an error if recipient is a new subrecipient or contractor and has a UEI', () => {
+        const recipient = {
+            Entity_Type__c: 'Subrecipient',
+            Unique_Entity_Identifier__c: '0123456789ABCDEF',
+            EIN__c: null,
+        };
+        const recipientExists = false;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, []);
+    });
+
+    it('should not return an error if recipient is not a new subrecipient or contractor and has a UEI', () => {
+        const recipient = {
+            Entity_Type__c: 'Beneficiary',
+            Unique_Entity_Identifier__c: '0123456789ABCDEF',
+            EIN__c: null,
+        };
+        const recipientExists = true;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, []);
+    });
+
+    it('should not return an error if recipient is not a new subrecipient or contractor and has a TIN', () => {
+        const recipient = {
+            Entity_Type__c: 'Beneficiary',
+            Unique_Entity_Identifier__c: null,
+            EIN__c: '123456789',
+        };
+        const recipientExists = true;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, []);
+    });
+
+    it('should return an error if recipient is not a new subrecipient or contractor and has neither UEI nor TIN', () => {
+        const recipient = {
+            Entity_Type__c: 'Beneficiary',
+            Unique_Entity_Identifier__c: null,
+            EIN__c: null,
+        };
+        const recipientExists = true;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, [
+            new ValidationError(
+                'At least one of UEI or TIN/EIN must be set, but both are missing',
                 { col: 'C, D', severity: 'err' },
             ),
         ]);
-    });
-
-    it('should not return an error if recipient is a beneficiary and EIN is present', async () => {
-        const recipient = { Entity_Type_2__c: 'Beneficiary', EIN__c: '123456789' };
-        const errors = validateIdentifier(recipient);
-        expect(errors).to.eql([]);
-    });
-
-    it('should not return an error if recipient is a beneficiary and UEI is present', async () => {
-        const recipient = { Entity_Type_2__c: 'Beneficiary', Unique_Entity_Identifier__c: '123456789' };
-        const errors = validateIdentifier(recipient);
-        expect(errors).to.eql([]);
-    });
-
-    it('should not return an error if recipient is a subrecipient or contractor and UEI is present', async () => {
-        const recipient = { Entity_Type_2__c: 'Subrecipient', Unique_Entity_Identifier__c: '123456789' };
-        const errors = validateIdentifier(recipient);
-        expect(errors).to.eql([]);
-    });
-
-    it('should return an error if at least one of Contractor and Subrecipient have been selected and no UEI is provided', async () => {
-        const recipient = { Entity_Type_2__c: 'Beneficiary;Contractor' };
-        const errors = validateIdentifier(recipient);
-        expect(errors).to.eql([
-            new ValidationError(
-                'UEI is required for all subrecipients and contractors',
-                { col: 'C', severity: 'err' },
-            ),
-        ]);
-    });
-
-    it('should not return an error if at least one of Contractor and Subrecipient have been selected and a UEI is provided', async () => {
-        const recipient = { Entity_Type_2__c: 'Beneficiary;Contractor', Unique_Entity_Identifier__c: '123456789' };
-        const errors = validateIdentifier(recipient);
-        expect(errors).to.eql([]);
     });
 });
