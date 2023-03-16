@@ -9,6 +9,23 @@
             "request": "attach",
             "name": "Docker: Attach to Node",
             "remoteRoot": "/app/packages/server"
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Generate Rules",
+            "runtimeExecutable": "yarn",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": ["generate-rules"],
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Parse Output Templates",
+            "runtimeExecutable": "yarn",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": ["parse-output-templates"],
+        },
+        
     ]
 }

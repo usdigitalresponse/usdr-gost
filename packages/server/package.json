@@ -18,6 +18,7 @@
     "db:seed": "yarn db:migrate && knex seed:run",
     "debug": "nodemon --inspect=0.0.0.0:9229 src",
     "env": "export $(cat .env)",
+    "generate-rules": "node src/scripts/generateRules.mjs",
     "import-arpa-dump": "node src/scripts/import_arpa_reporter_dump.js",
     "lint": "eslint '**/*.js'",
     "migrate:make": "knex migrate:make",
