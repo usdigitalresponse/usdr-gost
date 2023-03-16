@@ -208,13 +208,22 @@ async function validateReportingPeriod({ upload, records, trns }) {
 }
 
 /**
- * Check whether UEI is required for the recipient
+ * Return an already existing record in the db, defined via UEI or TIN
  * @param {object} recipient - the recipient record
- * @returns {boolean} - true if UEI is required, false otherwise
+ * @param {object} trns - the transaction to use for db queries
+ * @returns {Promise<object>} - the existing recipient record
  */
-function isUEIRequired(recipient) {
-    // As of Q1, 2023 we require a UEI for all entities of type subrecipient and/or contractor
-    return (recipient.Entity_Type_2__c.includes('Contractor') || recipient.Entity_Type_2__c.includes('Subrecipient'));
+async function findRecipientInDatabase({ recipient, trns }) {
+    // There are two types of identifiers, UEI and TIN.
+    // A given recipient may have either or both of these identifiers.
+    const byUei = recipient.Unique_Entity_Identifier__c
+        ? await findRecipient(recipient.Unique_Entity_Identifier__c, null, trns)
+        : null;
+    const byTin = recipient.EIN__c
+        ? await findRecipient(null, recipient.EIN__c, trns)
+        : null;
+
+    return byUei || byTin;
 }
 
 /**
@@ -222,113 +231,81 @@ function isUEIRequired(recipient) {
  * @param {object} recipient - the recipient record
  * @returns {Array<ValidationError>} - an array of validation errors if found
 */
-function validateIdentifier(recipient) {
+function validateIdentifier(recipient, recipientExists) {
     const errors = [];
-    // As of Q1, 2023 we require a UEI for all entities of type subrecipient and/or contractor
+
+    // As of Q1, 2023 we require a UEI for all entities of type subrecipient and/or contractor.
+    // For beneficiaries or older records, we require a UEI OR a TIN/EIN
     // See https://github.com/usdigitalresponse/usdr-gost/issues/1027
+    const hasUEI = Boolean(recipient.Unique_Entity_Identifier__c);
+    const hasTIN = Boolean(recipient.EIN__c);
+    const entityType = recipient.Entity_Type__c;
+    const isContractorOrSubrecipient = (entityType.includes('Contractor') || entityType.includes('Subrecipient'));
 
-    // This is a multi-select field, so we need to check for substring matches
-    if (isUEIRequired(recipient)) {
-        if (!recipient.Unique_Entity_Identifier__c) {
-            errors.push(new ValidationError(
-                'UEI is required for all subrecipients and contractors',
-                { col: 'C', severity: 'err' },
-            ));
-        }
-    } else if (recipient.Entity_Type_2__c.includes('Beneficiary')) {
-        if (!recipient.EIN__c && !recipient.Unique_Entity_Identifier__c) {
-        // If this entity is not a subrecipient or contractor, then it must have a TIN OR a UEI (same as the old logic)
-            errors.push(new ValidationError(
-                'At least one of UEI or TIN/EIN must be set for benficiaries, but both are missing',
-                { col: 'C, D', severity: 'err' },
-            ));
-        }
-    }
-    return errors;
-}
-
-async function validateSubrecipientRecord({
-    upload, record: recipient, recordErrors, trns,
-}) {
-    const errors = [];
-
-    errors.concat(validateIdentifier(recipient));
-
-    // does the row already exist?
-    let byUei = null;
-    if (recipient.Unique_Entity_Identifier__c) {
-        byUei = await findRecipient(recipient.Unique_Entity_Identifier__c, null, trns);
-    }
-
-    let byTin = null;
-    if (recipient.EIN__c) {
-        byTin = await findRecipient(null, recipient.EIN__c, trns);
-    }
-
-    // did we find two different subrecipients?
-    if (byUei && byTin && byUei.id !== byTin.id) {
+    if (isContractorOrSubrecipient && !recipientExists && !hasUEI) {
         errors.push(new ValidationError(
-            'We already have a sub-recipient with given UEI, and a different one with given TIN/EIN',
-            { col: 'C, D', severity: 'warn' },
+            'UEI is required for all new subrecipients and contractors',
+            { col: 'C', severity: 'err' },
+        ));
+    } else if (!isContractorOrSubrecipient && !hasUEI && !hasTIN) {
+        // If this entity is not new, or is not a subrecipient or contractor, then it must have a TIN OR a UEI (same as the old logic)
+        errors.push(new ValidationError(
+            'At least one of UEI or TIN/EIN must be set, but both are missing',
+            { col: 'C, D', severity: 'err' },
         ));
     }
 
-    const existing = byUei || byTin;
+    return errors;
+}
 
-    // if the current upload owns the recipient, we can actually update it
-    let isOwnedByThisUpload = true;
-    if (
-        !existing
-    || existing.upload_id !== upload.id
-    || existing.updated_at
-    ) isOwnedByThisUpload = false;
+/**
+ * Check if the recipient belongs to the given upload
+ * @param {object} existingRecipient - the existing recipient record
+ * @param {object} upload - the upload record
+ * @returns {boolean} - true if the recipient belongs to the upload
+ */
+function recipientBelongsToUpload(existingRecipient, upload) {
+    return existingRecipient && existingRecipient.upload_id === upload.id && !existingRecipient.updated_at;
+}
 
-    // the record has already been validated before this method was invoked, or we found an error above. how did the validation go?
-    const isRecordValid = recordErrors.length === 0 && errors.length === 0;
-
-    // validate that existing record and given recipient match
-    //
+/**
+ * Update or create a recipient record
+ * @param {object} recipientInfo - the information about the recipient
+ * @param {object} trns - the transaction to use for db queries
+ * @param {object} upload - the upload record
+ * @returns
+ */
+async function updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload) {
     // TODO: what if the same upload specifies the same recipient multiple times,
     // but different?
-    if (existing) {
-        // if we own it, we can just update it
-        if (isOwnedByThisUpload) {
-            if (isRecordValid) {
-                await updateRecipient(existing.id, { record: recipient }, trns);
-            }
 
-        // if there is no UEI on the existing record, then we need to update it to match treasury requirements
-        } else if (isUEIRequired(recipient) && !byUei) {
-            await updateRecipient(existing.id, { record: recipient }, trns);
+    // If the current upload owns the recipient, we can actually update it
+    if (existingRecipient) {
+        if (recipientBelongsToUpload(existingRecipient, upload)) {
+            await updateRecipient(existingRecipient.id, { record: newRecipient }, trns);
         }
-
-        // const recipientId = existing.uei || existing.tin;
-        // const record = JSON.parse(existing.record);
-
-        /* Based on feedback from partners on 12/22/22, these warning are not helpful, and create
-         such a high volume of warnings that it is drowning out other more valid warnings.
-      // make sure that each key in the record matches the recipient
-      for (const [key, rule] of Object.entries(rules)) {
-        if ((record[key] || recipient[key]) && record[key] !== recipient[key]) {
-          errors.push(new ValidationError(
-            `Subrecipient ${recipientId} exists with '${rule.humanColName}' as '${record[key]}', \
-            but upload specifies '${recipient[key]}'`,
-            { col: rule.columnName, severity: 'warn' }
-          ))
-        }
-      }
-      */
-        // if it's new, and it's passed validation, then insert it
-    } else if (isRecordValid) {
-        const dbRow = {
-            uei: recipient.Unique_Entity_Identifier__c,
-            tin: recipient.EIN__c,
-            record: recipient,
+    } else {
+        await createRecipient({
+            uei: newRecipient.Unique_Entity_Identifier__c,
+            tin: newRecipient.EIN__c,
+            record: newRecipient,
             upload_id: upload.id,
-        };
-        await createRecipient(dbRow, trns);
+        }, trns);
     }
+}
 
+async function validateSubrecipientRecord({
+    upload, record: newRecipient, recordErrors, trns,
+}) {
+    const errors = [];
+    const existingRecipient = await findRecipientInDatabase(newRecipient);
+    errors.concat(validateIdentifier(newRecipient, !existingRecipient));
+
+    // Either: the record has already been validated before this method was invoked, or
+    // we found an error above. If it's not valid, don't update or create it
+    if (recordErrors.length === 0 && errors.length === 0) {
+        updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload);
+    }
     return errors;
 }
 
