@@ -239,7 +239,7 @@ function validateIdentifier(recipient, recipientExists) {
     // See https://github.com/usdigitalresponse/usdr-gost/issues/1027
     const hasUEI = Boolean(recipient.Unique_Entity_Identifier__c);
     const hasTIN = Boolean(recipient.EIN__c);
-    const entityType = recipient.Entity_Type__c;
+    const entityType = recipient.Entity_Type_2__c;
     const isContractorOrSubrecipient = (entityType.includes('Contractor') || entityType.includes('Subrecipient'));
 
     if (isContractorOrSubrecipient && !recipientExists && !hasUEI) {
@@ -294,17 +294,30 @@ async function updateOrCreateRecipient(existingRecipient, newRecipient, trns, up
     }
 }
 
+/**
+ * Validates a subrecipient record by checking the unique entity identifier (UEI) or taxpayer identification number (TIN/EIN).
+ * If the record passes validation, updates the existing recipient in the database or creates a new one.
+ *
+ * @async
+ * @function
+ * @param {object} options - The options object.
+ * @param {object} upload - The upload object.
+ * @param {object} record - The new recipient object to be validated.
+ * @param {array} recordErrors - The array of errors detected for the record so far.
+ * @param {object} trns - The transaction to be used for database queries.
+ * @returns {Promise<array>} - The array of errors detected during the validation process.
+ */
 async function validateSubrecipientRecord({
-    upload, record: newRecipient, recordErrors, trns,
+    upload, record: recipient, recordErrors, trns,
 }) {
     const errors = [];
-    const existingRecipient = await findRecipientInDatabase(newRecipient);
-    errors.concat(validateIdentifier(newRecipient, !existingRecipient));
+    const existingRecipient = await findRecipientInDatabase({ recipient, trns });
+    errors.concat(validateIdentifier(recipient, !existingRecipient));
 
     // Either: the record has already been validated before this method was invoked, or
     // we found an error above. If it's not valid, don't update or create it
     if (recordErrors.length === 0 && errors.length === 0) {
-        updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload);
+        updateOrCreateRecipient(existingRecipient, recipient, trns, upload);
     }
     return errors;
 }

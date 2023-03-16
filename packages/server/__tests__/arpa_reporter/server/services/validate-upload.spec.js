@@ -205,7 +205,7 @@ describe('validateIdentifier', () => {
     const validateIdentifier = validateUploadModule.__get__('validateIdentifier');
     it('should return an error if recipient is a new subrecipient or contractor and has no UEI', () => {
         const recipient = {
-            Entity_Type__c: 'Subrecipient',
+            Entity_Type_2__c: 'Subrecipient',
             Unique_Entity_Identifier__c: null,
             EIN__c: '123456789',
         };
@@ -221,7 +221,7 @@ describe('validateIdentifier', () => {
 
     it('should return an error if entity type is semicolon-separated list that includes Subrecipient, and it has an UEI', () => {
         const recipient = {
-            Entity_Type__c: 'Subrecipient;Benificiary',
+            Entity_Type_2__c: 'Subrecipient;Benificiary',
             Unique_Entity_Identifier__c: null,
             EIN__c: '123456789',
         };
@@ -237,7 +237,7 @@ describe('validateIdentifier', () => {
 
     it('should not return an error if recipient is a new subrecipient or contractor and has a UEI', () => {
         const recipient = {
-            Entity_Type__c: 'Subrecipient',
+            Entity_Type_2__c: 'Subrecipient',
             Unique_Entity_Identifier__c: '0123456789ABCDEF',
             EIN__c: null,
         };
@@ -248,7 +248,7 @@ describe('validateIdentifier', () => {
 
     it('should not return an error if recipient is not a new subrecipient or contractor and has a UEI', () => {
         const recipient = {
-            Entity_Type__c: 'Beneficiary',
+            Entity_Type_2__c: 'Beneficiary',
             Unique_Entity_Identifier__c: '0123456789ABCDEF',
             EIN__c: null,
         };
@@ -259,7 +259,7 @@ describe('validateIdentifier', () => {
 
     it('should not return an error if recipient is not a new subrecipient or contractor and has a TIN', () => {
         const recipient = {
-            Entity_Type__c: 'Beneficiary',
+            Entity_Type_2__c: 'Beneficiary',
             Unique_Entity_Identifier__c: null,
             EIN__c: '123456789',
         };
@@ -270,7 +270,7 @@ describe('validateIdentifier', () => {
 
     it('should return an error if recipient is not a new subrecipient or contractor and has neither UEI nor TIN', () => {
         const recipient = {
-            Entity_Type__c: 'Beneficiary',
+            Entity_Type_2__c: 'Beneficiary',
             Unique_Entity_Identifier__c: null,
             EIN__c: null,
         };
