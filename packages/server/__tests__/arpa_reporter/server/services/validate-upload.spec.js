@@ -284,3 +284,37 @@ describe('validateIdentifier', () => {
         ]);
     });
 });
+
+describe('recipientBelongsToUpload', () => {
+    const recipientBelongsToUpload = validateUploadModule.__get__('recipientBelongsToUpload');
+    const upload = { id: '123' };
+
+    it('returns false if existing recipient is not provided', () => {
+        const result = recipientBelongsToUpload(null, upload);
+        expect(result).to.be.false;
+    });
+
+    it('returns false if existing recipient upload_id does not match the upload id', () => {
+        const existingRecipient = { upload_id: '456' };
+        const result = recipientBelongsToUpload(existingRecipient, upload);
+        expect(result).to.be.false;
+    });
+
+    it('returns false if existing recipient updated_at is defined', () => {
+        const existingRecipient = { upload_id: '123', updated_at: new Date() };
+        const result = recipientBelongsToUpload(existingRecipient, upload);
+        expect(result).to.be.false;
+    });
+
+    it('returns true if existing recipient upload_id matches the upload id and updated_at is undefined', () => {
+        const existingRecipient = { upload_id: '123' };
+        const result = recipientBelongsToUpload(existingRecipient, upload);
+        expect(result).to.be.true;
+    });
+
+    it('returns true if existing recipient upload_id matches the upload id and updated_at is null', () => {
+        const existingRecipient = { upload_id: '123', updated_at: null };
+        const result = recipientBelongsToUpload(existingRecipient, upload);
+        expect(result).to.be.true;
+    });
+});
