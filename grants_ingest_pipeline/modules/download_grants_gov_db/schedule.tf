@@ -47,9 +47,9 @@ resource "aws_scheduler_schedule" "default" {
   name_prefix                  = "${var.namespace}-DownloadGrantsGovDB"
   description                  = "Invokes a Lambda function daily to download the Grants.gov DB extract"
   group_name                   = var.scheduler_group_name
-  state                        = "DISABLED"
-  schedule_expression          = "cron(0 5 * * ? *)"
-  schedule_expression_timezone = "America/New_York"
+  state                        = "ENABLED"
+  schedule_expression          = "cron(15 11 * * ? *)"
+  schedule_expression_timezone = "America/Chicago"
 
   flexible_time_window {
     mode                      = "FLEXIBLE"

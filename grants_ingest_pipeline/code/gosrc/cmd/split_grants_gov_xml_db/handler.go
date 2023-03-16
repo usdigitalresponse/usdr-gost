@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 
+	ddlambda "github.com/DataDog/datadog-lambda-go"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -14,6 +15,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/internal/log"
 	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/pkg/grantData"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
 const (
@@ -53,10 +55,11 @@ func handleS3EventWithConfig(cfg aws.Config, ctx context.Context, s3Event events
 	opportunities := make(chan opportunity)
 
 	// Create a pool of workers to consume and upload values received from the opportunities channel
+	processingSpan, processingCtx := tracer.StartSpanFromContext(ctx, "processing")
 	wg := multierror.Group{}
 	for i := 0; i < env.MaxConcurrentUploads; i++ {
 		wg.Go(func() error {
-			return processOpportunities(ctx, s3svc, opportunities)
+			return processOpportunities(processingCtx, s3svc, opportunities)
 		})
 	}
 
@@ -65,35 +68,47 @@ func handleS3EventWithConfig(cfg aws.Config, ctx context.Context, s3Event events
 	// first encountered error, we instead accumulate them into a single "multi-error".
 	// Only one source record is consumed at a time; in normal cases, the invocation event
 	// will only provide a single source record.
+	sourcingSpan, sourcingCtx := tracer.StartSpanFromContext(ctx, "handle.records")
 	sourcingErrs := &multierror.Error{}
 	for i, record := range s3Event.Records {
-		sourceBucket := record.S3.Bucket.Name
-		sourceKey := record.S3.Object.Key
-		logger := log.With(logger, "event_name", record.EventName, "record_index", i,
-			"source_bucket", sourceBucket, "source_object_key", sourceKey)
-		log.Info(logger, "Splitting Grants.gov DB extract XML object from S3")
+		recordSpan, recordCtx := tracer.StartSpanFromContext(sourcingCtx, "handle.record")
+		sourcingErr := func(i int, record events.S3EventRecord) error {
+			sourceBucket := record.S3.Bucket.Name
+			sourceKey := record.S3.Object.Key
+			logger := log.With(logger, "event_name", record.EventName, "record_index", i,
+				"source_bucket", sourceBucket, "source_object_key", sourceKey)
+			log.Info(logger, "Splitting Grants.gov DB extract XML object from S3")
 
-		r, err := NewChunkedS3Reader(ctx, s3svc, sourceBucket, sourceKey, env.DownloadChunkLimit*MB)
-		if err != nil {
-			sourcingErrs = multierror.Append(sourcingErrs, err)
-			log.Error(logger, "Error creating reader for source S3 object", err)
-			continue
-		}
-		if err := readOpportunities(ctx, r, opportunities); err != nil {
-			sourcingErrs = multierror.Append(sourcingErrs, err)
-			log.Error(logger, "Error reading source opportunities from S3", err)
-			continue
-		}
+			r, err := NewChunkedS3Reader(recordCtx, s3svc,
+				sourceBucket, sourceKey, env.DownloadChunkLimit*MB)
+			if err != nil {
+				sourcingErrs = multierror.Append(sourcingErrs, err)
+				log.Error(logger, "Error creating reader for source S3 object", err)
+				return err
+			}
+			if err := readOpportunities(recordCtx, r, opportunities); err != nil {
+				sourcingErrs = multierror.Append(sourcingErrs, err)
+				log.Error(logger, "Error reading source opportunities from S3", err)
+				return err
+			}
 
-		log.Info(logger, "Finished splitting Grants.gov DB extract XML")
+			log.Info(logger, "Finished splitting Grants.gov DB extract XML")
+			return nil
+		}(i, record)
+		if sourcingErr != nil {
+			sourcingErrs = multierror.Append(sourcingErrs, sourcingErr)
+		}
+		recordSpan.Finish(tracer.WithError(sourcingErr))
 	}
 
 	// All source records have been consumed; close the channel so that workers shut down
 	// after the channel is emptied.
 	close(opportunities)
+	sourcingSpan.Finish()
 
 	// Wait for workers to finish processing and collect any errors they encountered
 	processingErrs := wg.Wait()
+	processingSpan.Finish()
 
 	// Combine any sourcing and processing errors to return as a single "mega-multi-error"
 	errs := multierror.Append(sourcingErrs, processingErrs)
@@ -121,11 +136,14 @@ func handleS3EventWithConfig(cfg aws.Config, ctx context.Context, s3Event events
 // readOpportunities stops and returns an error when the context is canceled
 // or an error is encountered while reading.
 func readOpportunities(ctx context.Context, r io.Reader, ch chan<- opportunity) error {
+	span, ctx := tracer.StartSpanFromContext(ctx, "read.xml")
+
 	d := xml.NewDecoder(r)
 	for {
 		// Check for context cancelation between reads
 		if err := ctx.Err(); err != nil {
 			log.Warn(logger, "Context canceled before reading was complete", "reason", err)
+			span.Finish(tracer.WithError(err))
 			return err
 		}
 
@@ -136,6 +154,7 @@ func readOpportunities(ctx context.Context, r io.Reader, ch chan<- opportunity) 
 				break
 			}
 			level.Error(logger).Log("msg", "Error reading XML token", "error", err)
+			span.Finish(tracer.WithError(err))
 			return err
 		}
 
@@ -145,12 +164,14 @@ func readOpportunities(ctx context.Context, r io.Reader, ch chan<- opportunity) 
 			var opportunity opportunity
 			if err := d.DecodeElement(&opportunity, &se); err != nil {
 				level.Error(logger).Log("msg", "Error decoding XML token", "error", err)
+				span.Finish(tracer.WithError(err))
 				return err
 			}
 			ch <- opportunity
 		}
 	}
 	log.Info(logger, "Finished reading opportunities from source")
+	span.Finish()
 	return nil
 }
 
@@ -160,9 +181,12 @@ func readOpportunities(ctx context.Context, r io.Reader, ch chan<- opportunity) 
 // grantOpportunity as well as the reason for the context cancelation, if any.
 // Returns nil if all opportunities were processed successfully until the channel was closed.
 func processOpportunities(ctx context.Context, svc *s3.Client, ch <-chan opportunity) (errs error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "processing.worker")
+
 	whenCanceled := func() error {
 		err := ctx.Err()
 		log.Debug(logger, "Done processing opportunities because context canceled", "reason", err)
+		span.Finish(tracer.WithError(err))
 		errs = multierror.Append(errs, err)
 		return errs
 	}
@@ -175,16 +199,20 @@ func processOpportunities(ctx context.Context, svc *s3.Client, ch <-chan opportu
 			return whenCanceled()
 
 		default:
-
 			select {
 			case opportunity, ok := <-ch:
 				if !ok {
 					log.Debug(logger, "Done processing opportunities because channel is closed")
+					span.Finish()
 					return
 				}
-				if err := processOpportunity(ctx, svc, opportunity); err != nil {
+
+				workSpan, ctx := tracer.StartSpanFromContext(ctx, "processing.worker.work")
+				err := processOpportunity(ctx, svc, opportunity)
+				if err != nil {
 					errs = multierror.Append(errs, err)
 				}
+				workSpan.Finish(tracer.WithError(err))
 
 			case <-ctx.Done():
 				return whenCanceled()
@@ -221,12 +249,13 @@ func processOpportunity(ctx context.Context, svc *s3.Client, opp opportunity) er
 	logger = log.With(logger, "remote_last_modified", remoteLastModified)
 	if remoteLastModified != nil {
 		if remoteLastModified.After(lastModified) {
-			log.Info(logger, "Skipping opportunity upload because the extant record is up-to-date")
+			log.Debug(logger, "Skipping opportunity upload because the extant record is up-to-date")
+			ddlambda.Metric("grant_opportunity.ignored", 1)
 			return nil
 		}
-		log.Info(logger, "Uploading updated opportunity to replace outdated remote record")
+		log.Debug(logger, "Uploading updated opportunity to replace outdated remote record")
 	} else {
-		log.Info(logger, "Uploading new opportunity")
+		log.Debug(logger, "Uploading new opportunity")
 	}
 
 	b, err := xml.Marshal(grantData.OpportunitySynopsisDetail_1_0(opp))
@@ -241,5 +270,6 @@ func processOpportunity(ctx context.Context, svc *s3.Client, opp opportunity) er
 	}
 
 	log.Info(logger, "Successfully uploaded opportunity")
+	ddlambda.Metric("grant_opportunity.prepared", 1)
 	return nil
 }

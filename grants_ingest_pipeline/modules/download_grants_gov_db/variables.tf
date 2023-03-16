@@ -38,6 +38,18 @@ variable "log_retention_in_days" {
   default     = 30
 }
 
+variable "additional_lambda_execution_policy_documents" {
+  description = "JSON policy document(s) containing permissions to configure for the Lambda function, in addition to any defined by this module."
+  type        = list(string)
+  default     = []
+}
+
+variable "additional_environment_variables" {
+  description = "Environment variables to configure for the Lambda function, in addition to any defined by this module."
+  type        = map(string)
+  default     = {}
+}
+
 // Module-specific
 variable "eventbridge_scheduler_enabled" {
   description = "If false, uses CloudWatch Events to schedule Lambda execution. This should only be false in development."

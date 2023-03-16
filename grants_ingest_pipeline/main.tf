@@ -24,12 +24,11 @@ locals {
     "lambda",
     data.aws_region.current.name,
     { aws = "464622532012", aws-us-gov = "002406178527" }[data.aws_partition.current.id],
+    "layer",
   ])
   datadog_python_library_layer_arn = "${local.datadog_layer_arn_prefix}:Python39:68"
   datadog_nodejs_library_layer_arn = "${local.datadog_layer_arn_prefix}:Node18-x:68"
   datadog_extension_layer_arn      = "${local.datadog_layer_arn_prefix}:Datadog-Extension:38"
-  datadog_python_layers            = var.datadog_enabled ? [local.datadog_python_library_layer_arn, local.datadog_extension_layer_arn] : []
-  datadog_nodejs_layers            = var.datadog_enabled ? [local.datadog_nodejs_library_layer_arn, local.datadog_extension_layer_arn] : []
 }
 
 module "this" {
@@ -160,15 +159,63 @@ resource "aws_scheduler_schedule_group" "default" {
   name = var.namespace
 }
 
+data "aws_ssm_parameter" "datadog_api_key_secret_arn" {
+  count = var.datadog_enabled ? 1 : 0
+
+  name = "${var.ssm_deployment_parameters_path_prefix}/datadog/api_key_secret_arn"
+}
+
+data "aws_iam_policy_document" "read_datadog_api_key_secret" {
+  count = var.datadog_enabled ? 1 : 0
+
+  statement {
+    sid       = "GetDatadogAPIKeySecretValue"
+    effect    = "Allow"
+    actions   = ["secretsmanager:GetSecretValue"]
+    resources = data.aws_ssm_parameter.datadog_api_key_secret_arn.*.value
+  }
+}
+
+// Lambda defaults
+locals {
+  lambda_environment_variables = merge(
+    !var.datadog_enabled ? {} : {
+      DD_API_KEY_SECRET_ARN        = join("", data.aws_ssm_parameter.datadog_api_key_secret_arn.*.value)
+      DD_APM_ENABLED               = "true"
+      DD_CAPTURE_LAMBDA_PAYLOAD    = "true"
+      DD_ENV                       = var.datadog_tags.DD_ENV
+      DD_SERVERLESS_APPSEC_ENABLED = "true"
+      DD_SERVICE                   = var.datadog_tags.DD_SERVICE
+      DD_SITE                      = "datadoghq.com"
+      DD_TRACE_ENABLED             = "true"
+      DD_TRACE_SAMPLE_RATE         = "1.000"
+      DD_VERSION                   = coalesce(var.datadog_tags.DD_VERSION, "dev")
+    },
+    {
+      TZ = "UTC"
+    }
+  )
+  lambda_execution_policies = compact([
+    join("", data.aws_iam_policy_document.read_datadog_api_key_secret.*.json)
+  ])
+  lambda_layer_arns = compact([
+    var.datadog_enabled ? local.datadog_extension_layer_arn : ""
+  ])
+}
+
+// Modules providing Lambda functions
 module "download_grants_gov_db" {
   source = "./modules/download_grants_gov_db"
 
-  namespace                = var.namespace
-  permissions_boundary_arn = local.permissions_boundary_arn
-  lambda_artifact_bucket   = module.lambda_artifacts_bucket.bucket_id
-  log_retention_in_days    = var.lambda_default_log_retention_in_days
-  log_level                = var.lambda_default_log_level
-  lambda_code_path         = "${path.module}/code/pysrc"
+  namespace                                    = var.namespace
+  permissions_boundary_arn                     = local.permissions_boundary_arn
+  lambda_artifact_bucket                       = module.lambda_artifacts_bucket.bucket_id
+  log_retention_in_days                        = var.lambda_default_log_retention_in_days
+  log_level                                    = var.lambda_default_log_level
+  lambda_code_path                             = "${path.module}/code"
+  additional_environment_variables             = local.lambda_environment_variables
+  additional_lambda_execution_policy_documents = local.lambda_execution_policies
+  lambda_layer_arns                            = local.lambda_layer_arns
 
   scheduler_group_name           = join("", aws_scheduler_schedule_group.default.*.name)
   grants_source_data_bucket_name = module.grants_source_data_bucket.bucket_id
@@ -178,12 +225,15 @@ module "download_grants_gov_db" {
 module "split_grants_gov_db" {
   source = "./modules/split_grants_gov_xml_db"
 
-  namespace                = var.namespace
-  permissions_boundary_arn = local.permissions_boundary_arn
-  lambda_artifact_bucket   = module.lambda_artifacts_bucket.bucket_id
-  log_retention_in_days    = var.lambda_default_log_retention_in_days
-  log_level                = var.lambda_default_log_level
-  lambda_code_path         = "${path.module}/code/gosrc"
+  namespace                                    = var.namespace
+  permissions_boundary_arn                     = local.permissions_boundary_arn
+  lambda_artifact_bucket                       = module.lambda_artifacts_bucket.bucket_id
+  log_retention_in_days                        = var.lambda_default_log_retention_in_days
+  log_level                                    = var.lambda_default_log_level
+  lambda_code_path                             = "${path.module}/code"
+  additional_environment_variables             = local.lambda_environment_variables
+  additional_lambda_execution_policy_documents = local.lambda_execution_policies
+  lambda_layer_arns                            = local.lambda_layer_arns
 
   grants_source_data_bucket_name   = module.grants_source_data_bucket.bucket_id
   grants_prepared_data_bucket_name = module.grants_prepared_data_bucket.bucket_id

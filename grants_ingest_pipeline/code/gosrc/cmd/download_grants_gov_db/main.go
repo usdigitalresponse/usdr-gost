@@ -4,12 +4,15 @@ import (
 	"context"
 	"fmt"
 	goLog "log"
+	"net/http"
 
 	ddlambda "github.com/DataDog/datadog-lambda-go"
 	goenv "github.com/Netflix/go-env"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/internal/log"
+	awstrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/aws/aws-sdk-go-v2/aws"
+	httptrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 )
 
 type Environment struct {
@@ -29,13 +32,14 @@ func main() {
 	}
 	env.Extras = es
 	log.ConfigureLogger(&logger, env.LogLevel)
-
+	log.Debug(logger, "Starting Lambda")
 	lambda.Start(ddlambda.WrapFunction(func(ctx context.Context, event ScheduledEvent) error {
 		cfg, err := config.LoadDefaultConfig(ctx)
 		if err != nil {
 			return fmt.Errorf("could not create AWS SDK config: %w", err)
 		}
-		log.Debug(logger, "Starting Lambda")
+		awstrace.AppendMiddleware(&cfg)
+		httptrace.WrapClient(http.DefaultClient)
 		return handleWithConfig(cfg, ctx, event)
 	}, nil))
 }

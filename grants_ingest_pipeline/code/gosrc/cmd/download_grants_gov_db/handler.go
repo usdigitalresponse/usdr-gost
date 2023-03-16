@@ -42,8 +42,12 @@ func handleWithConfig(cfg aws.Config, ctx context.Context, event ScheduledEvent)
 	)
 
 	log.Debug(logger, "Starting remote file download")
-	sourceClient := &http.Client{}
-	resp, err := sourceClient.Get(event.grantsURL())
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, event.grantsURL(), nil)
+	if err != nil {
+		log.Error(logger, "Error configuring download request for source archive", err)
+		return err
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Error(logger, "Error initiating download request for source archive", err)
 		return err

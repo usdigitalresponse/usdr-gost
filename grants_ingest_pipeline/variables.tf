@@ -20,10 +20,37 @@ variable "tags" {
   default = {}
 }
 
+variable "ssm_deployment_parameters_path_prefix" {
+  type        = string
+  description = "Base path for all SSM parameters used for deployment."
+  validation {
+    condition     = startswith(var.ssm_deployment_parameters_path_prefix, "/")
+    error_message = "Value must start with a forward slash."
+  }
+  validation {
+    condition     = !endswith(var.ssm_deployment_parameters_path_prefix, "/")
+    error_message = "Value cannot end with a trailing slash."
+  }
+}
+
 variable "datadog_enabled" {
   description = "Whether to enable datadog instrumentation in the current environment."
   type        = bool
   default     = false
+}
+
+variable "datadog_tags" {
+  description = "Datadog reserved tags to configure in Lambda function environments (when var.datadog_enabled is true)."
+  type = object({
+    DD_ENV     = string
+    DD_SERVICE = string
+    DD_VERSION = optional(string)
+  })
+  default = {
+    DD_ENV     = ""
+    DD_SERVICE = "grants-ingest-pipeline"
+    DD_VERSION = ""
+  }
 }
 
 variable "lambda_default_log_retention_in_days" {
