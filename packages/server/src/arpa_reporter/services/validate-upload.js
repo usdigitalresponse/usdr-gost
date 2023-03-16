@@ -2,10 +2,9 @@ const moment = require('moment');
 
 const { getReportingPeriod } = require('../db/reporting-periods');
 const {
-    setAgencyId, setEcCode, markValidated, markNotValidated,
+    setEcCode, markValidated, markNotValidated,
 } = require('../db/uploads');
 const knex = require('../../db/connection');
-const { agencyByCode } = require('../../db/arpa_reporter_db_shims/agencies');
 const { createRecipient, findRecipient, updateRecipient } = require('../db/arpa-subrecipients');
 
 const { recordsForUpload, TYPE_TO_SHEET_NAME } = require('./records');
@@ -50,57 +49,6 @@ function validateFieldPattern(fieldName, value) {
         }
     }
     return error;
-}
-
-/**
- * Derive the agency id from the upload and the cover sheet
- * @param {object} recordFromUploadsTable - the record from the uploads table
- * @param {object} coverSheetAgency - the agency from the cover sheet
- * @returns {Promise<void>|ValidationError}
-*/
-async function setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency) {
-    // grab agency id from the upload, if it exists
-    const uploadRecordAgencyId = recordFromUploadsTable.agency_id;
-
-    if (uploadRecordAgencyId == null) {
-        // if the upload doesn't have an agency id, set it to the agency id from the cover sheet
-        await setAgencyId(recordFromUploadsTable.id, coverSheetAgency.id);
-    } else if (uploadRecordAgencyId !== coverSheetAgency.id) {
-        // if the upload already has an agency id, it must match the agency id from the cover sheet
-        return new ValidationError(
-            `The agency on the spreadsheet, "${coverSheetAgency.code}", does not match the agency provided in the form, "${recordFromUploadsTable.agency_code}"`,
-            { tab: 'cover', row: 2, col: 'A' },
-        );
-    }
-    return undefined;
-}
-
-/**
- * Validate the agencyId for the upload
- * @param {object} upload - the record from the uploads table
- * @param {object} records - the rows from the workbook
- * @param {object} trns - the transaction to use for db queries
- * @returns {Promise<void>|ValidationError}
-*/
-async function validateAgencyId({ upload: recordFromUploadsTable, records: workbookRows, trns }) {
-    // grab agency id from the cover sheet
-    const coverSheet = workbookRows.find((doc) => doc.type === 'cover').content;
-    const coverAgencyCode = coverSheet['Agency Code'];
-
-    // must be set
-    if (!coverAgencyCode) {
-        return new ValidationError('Agency code must be set', { tab: 'cover', row: 1, col: 'A' });
-    }
-
-    // must exist in the db
-    const coverSheetAgency = (await agencyByCode(coverAgencyCode, trns))[0];
-    if (!coverSheetAgency) {
-        return new ValidationError(
-            `Agency code ${coverAgencyCode} does not match any known agency`,
-            { tab: 'cover', row: 2, col: 'A' },
-        );
-    }
-    return setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
 }
 
 async function validateEcCode({ upload, records }) {
@@ -679,7 +627,6 @@ async function validateUpload(upload, user, trns = null) {
     // list of all of our validations
     const validations = [
         validateVersion,
-        validateAgencyId,
         validateEcCode,
         validateReportingPeriod,
         validateRules,
