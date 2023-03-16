@@ -265,7 +265,7 @@ function validateIdentifier(recipient, recipientExists) {
  * @returns {boolean} - true if the recipient belongs to the upload
  */
 function recipientBelongsToUpload(existingRecipient, upload) {
-    return existingRecipient && existingRecipient.upload_id === upload.id && !existingRecipient.updated_at;
+    return Boolean(existingRecipient) && existingRecipient.upload_id === upload.id && !existingRecipient.updated_at;
 }
 
 /**
