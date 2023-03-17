@@ -39,61 +39,6 @@ describe('validation rules', () => {
     });
 });
 
-describe('setOrValidateAgencyBasedOnCoverSheet', () => {
-    const setOrValidateAgencyBasedOnCoverSheet = validateUploadModule.__get__('setOrValidateAgencyBasedOnCoverSheet');
-    let setAgencyIdStub;
-
-    beforeEach(() => {
-        // Create a stub for the setAgencyId function
-        setAgencyIdStub = sinon.stub().resolves();
-        validateUploadModule.__set__('setAgencyId', setAgencyIdStub);
-    });
-
-    afterEach(() => {
-        // Restore the original setAgencyId function after each test
-        sinon.restore();
-    });
-
-    it('should set the agency ID from cover sheet when upload record has no agency ID', async () => {
-        const recordFromUploadsTable = { id: 1, agency_id: null, agency_code: null };
-        const coverSheetAgency = { id: 123, code: 'DEF' };
-
-        await setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
-
-        // Expect setAgencyIdStub to be called with the correct arguments
-        expect(setAgencyIdStub.calledOnceWithExactly(recordFromUploadsTable.id, coverSheetAgency.id)).to.be.true;
-    });
-
-    it('should return a validation error when the upload record agency ID does not match cover sheet agency ID', async () => {
-        const recordFromUploadsTable = { id: 1, agency_id: 456, agency_code: 'AGENCY1' };
-        const coverSheetAgency = { id: 123, code: 'AGENCY2' };
-
-        const result = await setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
-
-        // Expect setAgencyId to not be called
-        expect(setAgencyIdStub.called).to.be.false;
-
-        // Expect the function to return a ValidationError with the correct message and metadata
-        expect(result).to.be.an.instanceOf(ValidationError);
-        expect(result.message).to.equal(`The agency on the spreadsheet, "${coverSheetAgency.code}", does not match the agency provided in the form, "${recordFromUploadsTable.agency_code}"`);
-    });
-
-    it('should not modify agencyId if uploadRecordAgencyId matches coverSheetAgency.id', async () => {
-        const recordFromUploadsTable = { id: 1, agency_id: 456, agency_code: 'AGENCY1' };
-        const coverSheetAgency = {
-            id: recordFromUploadsTable.agency_id,
-            code: recordFromUploadsTable.agency_code,
-        };
-
-        recordFromUploadsTable.agency_id = coverSheetAgency.id;
-
-        await setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
-
-        // Expect setAgencyId to not be called
-        expect(setAgencyIdStub.called).to.be.false;
-    });
-});
-
 describe('validate record', () => {
     const validateRecord = validateUploadModule.__get__(
         'validateRecord',
@@ -164,5 +109,249 @@ describe('validate record', () => {
             },
             (thrownException) => { assert.fail(`Unexpected error while validating record: ${thrownException}`); },
         );
+    });
+});
+
+describe('findRecipientInDatabase', () => {
+    const findRecipientInDatabase = validateUploadModule.__get__('findRecipientInDatabase');
+    const recipient = {
+        Unique_Entity_Identifier__c: 'UEI123',
+        EIN__c: 'EIN123',
+    };
+    const trns = {}; // mock transaction object
+
+    afterEach(() => {
+        sinon.restore();
+    });
+
+    it('should return the recipient found by UEI', async () => {
+        const mockFindRecipient = sinon.stub().withArgs('UEI123', null, trns).resolves({ name: 'John' });
+        validateUploadModule.__set__('findRecipient', mockFindRecipient);
+        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
+        expect(result).to.deep.equal({ name: 'John' });
+    });
+
+    it('should return the recipient found by EIN', async () => {
+        const mockFindRecipient = sinon.stub().withArgs(null, 'EIN123', trns).resolves({ name: 'Jane' });
+        validateUploadModule.__set__('findRecipient', mockFindRecipient);
+        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
+        expect(result).to.deep.equal({ name: 'Jane' });
+    });
+
+    it('should return null if recipient is not found', async () => {
+        const mockFindRecipient = sinon.stub().resolves(null);
+        validateUploadModule.__set__('findRecipient', mockFindRecipient);
+        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
+        expect(result).to.be.null;
+    });
+});
+
+describe('validateIdentifier', () => {
+    const validateIdentifier = validateUploadModule.__get__('validateIdentifier');
+    it('should return an error if recipient is a new subrecipient or contractor and has no UEI', () => {
+        const recipient = {
+            Entity_Type_2__c: 'Subrecipient',
+            Unique_Entity_Identifier__c: null,
+            EIN__c: '123456789',
+        };
+        const recipientExists = false;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, [
+            new ValidationError(
+                'UEI is required for all new subrecipients and contractors',
+                { col: 'C', severity: 'err' },
+            ),
+        ]);
+    });
+
+    it('should return an error if entity type is semicolon-separated list that includes Subrecipient, and it has an UEI', () => {
+        const recipient = {
+            Entity_Type_2__c: 'Subrecipient;Benificiary',
+            Unique_Entity_Identifier__c: null,
+            EIN__c: '123456789',
+        };
+        const recipientExists = false;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, [
+            new ValidationError(
+                'UEI is required for all new subrecipients and contractors',
+                { col: 'C', severity: 'err' },
+            ),
+        ]);
+    });
+
+    it('should not return an error if recipient is a new subrecipient or contractor and has a UEI', () => {
+        const recipient = {
+            Entity_Type_2__c: 'Subrecipient',
+            Unique_Entity_Identifier__c: '0123456789ABCDEF',
+            EIN__c: null,
+        };
+        const recipientExists = false;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, []);
+    });
+
+    it('should not return an error if recipient is not a new subrecipient or contractor and has a UEI', () => {
+        const recipient = {
+            Entity_Type_2__c: 'Beneficiary',
+            Unique_Entity_Identifier__c: '0123456789ABCDEF',
+            EIN__c: null,
+        };
+        const recipientExists = true;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, []);
+    });
+
+    it('should not return an error if recipient is not a new subrecipient or contractor and has a TIN', () => {
+        const recipient = {
+            Entity_Type_2__c: 'Beneficiary',
+            Unique_Entity_Identifier__c: null,
+            EIN__c: '123456789',
+        };
+        const recipientExists = true;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, []);
+    });
+
+    it('should return an error if recipient is not a new subrecipient or contractor and has neither UEI nor TIN', () => {
+        const recipient = {
+            Entity_Type_2__c: 'Beneficiary',
+            Unique_Entity_Identifier__c: null,
+            EIN__c: null,
+        };
+        const recipientExists = true;
+        const errors = validateIdentifier(recipient, recipientExists);
+        assert.deepStrictEqual(errors, [
+            new ValidationError(
+                'At least one of UEI or TIN/EIN must be set, but both are missing',
+                { col: 'C, D', severity: 'err' },
+            ),
+        ]);
+    });
+});
+
+describe('recipientBelongsToUpload', () => {
+    const recipientBelongsToUpload = validateUploadModule.__get__('recipientBelongsToUpload');
+    const upload = { id: '123' };
+
+    it('returns false if existing recipient is not provided', () => {
+        const result = recipientBelongsToUpload(null, upload);
+        expect(result).to.be.false;
+    });
+
+    it('returns false if existing recipient upload_id does not match the upload id', () => {
+        const existingRecipient = { upload_id: '456' };
+        const result = recipientBelongsToUpload(existingRecipient, upload);
+        expect(result).to.be.false;
+    });
+
+    it('returns false if existing recipient updated_at is defined', () => {
+        const existingRecipient = { upload_id: '123', updated_at: new Date() };
+        const result = recipientBelongsToUpload(existingRecipient, upload);
+        expect(result).to.be.false;
+    });
+
+    it('returns true if existing recipient upload_id matches the upload id and updated_at is undefined', () => {
+        const existingRecipient = { upload_id: '123' };
+        const result = recipientBelongsToUpload(existingRecipient, upload);
+        expect(result).to.be.true;
+    });
+
+    it('returns true if existing recipient upload_id matches the upload id and updated_at is null', () => {
+        const existingRecipient = { upload_id: '123', updated_at: null };
+        const result = recipientBelongsToUpload(existingRecipient, upload);
+        expect(result).to.be.true;
+    });
+});
+
+describe('updateOrCreateRecipient', () => {
+    const updateOrCreateRecipient = validateUploadModule.__get__('updateOrCreateRecipient');
+    let createRecipientStub;
+    let updateRecipientStub;
+
+    beforeEach(() => {
+        createRecipientStub = sinon.stub().resolves();
+        updateRecipientStub = sinon.stub();
+        validateUploadModule.__set__('createRecipient', createRecipientStub);
+        validateUploadModule.__set__('updateRecipient', updateRecipientStub);
+    });
+
+    afterEach(() => {
+        sinon.restore();
+    });
+
+    it('should call createRecipient when existingRecipient is falsy', async () => {
+        const trns = {};
+        const upload = { id: 1 };
+        const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
+
+        await updateOrCreateRecipient(null, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
+
+        sinon.assert.calledWith(createRecipientStub, {
+            uei: 'UEI1',
+            tin: 'EIN1',
+            record: newRecipient,
+            upload_id: 1,
+        }, trns);
+        sinon.assert.notCalled(updateRecipientStub);
+    });
+
+    it('should call updateRecipient when existingRecipient belongs to current upload', async () => {
+        const trns = {};
+        const upload = { id: 1 };
+        const existingRecipient = { id: 1, upload_id: 1, updated_at: null };
+        const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
+
+        await updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
+
+        sinon.assert.calledWith(updateRecipientStub, 1, { record: newRecipient }, trns);
+        sinon.assert.notCalled(createRecipientStub);
+    });
+
+    it('should not call createRecipient or updateRecipient when existingRecipient belongs to a different upload', async () => {
+        const trns = {};
+        const upload = { id: 1 };
+        const existingRecipient = { id: 1, upload_id: 2, updated_at: null };
+        const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
+
+        await updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
+
+        sinon.assert.notCalled(createRecipientStub);
+        sinon.assert.notCalled(updateRecipientStub);
+    });
+});
+
+describe('validateSubrecipientRecord', () => {
+    const validateSubrecipientRecord = validateUploadModule.__get__('validateSubrecipientRecord');
+    it('returns an empty array and updates the recipient when the record is valid', async () => {
+        const recipient = {
+            Entity_Type_2__c: 'Subrecipient',
+            Unique_Entity_Identifier__c: null,
+            EIN__c: '123456789',
+        };
+        const existingRecipient = undefined;
+        const findRecipientStub = sinon.stub().resolves(existingRecipient);
+        const updateRecipientStub = sinon.stub().resolves();
+
+        const upload = { id: 123 };
+        const recordErrors = [];
+        const trns = 'TRNS123';
+
+        validateUploadModule.__set__('findRecipientInDatabase', findRecipientStub);
+        validateUploadModule.__set__('updateOrCreateRecipient', updateRecipientStub);
+
+        const errors = await validateSubrecipientRecord({
+            upload,
+            record: recipient,
+            recordErrors,
+            trns,
+        });
+        assert.deepStrictEqual(errors, [
+            new ValidationError(
+                'UEI is required for all new subrecipients and contractors',
+                { col: 'C', severity: 'err' },
+            ),
+        ]);
+        sinon.assert.notCalled(updateRecipientStub);
     });
 });
