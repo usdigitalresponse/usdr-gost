@@ -320,3 +320,38 @@ describe('updateOrCreateRecipient', () => {
         sinon.assert.notCalled(updateRecipientStub);
     });
 });
+
+describe('validateSubrecipientRecord', () => {
+    const validateSubrecipientRecord = validateUploadModule.__get__('validateSubrecipientRecord');
+    it('returns an empty array and updates the recipient when the record is valid', async () => {
+        const recipient = {
+            Entity_Type_2__c: 'Subrecipient',
+            Unique_Entity_Identifier__c: null,
+            EIN__c: '123456789',
+        };
+        const existingRecipient = undefined;
+        const findRecipientStub = sinon.stub().resolves(existingRecipient);
+        const updateRecipientStub = sinon.stub().resolves();
+
+        const upload = { id: 123 };
+        const recordErrors = [];
+        const trns = 'TRNS123';
+
+        validateUploadModule.__set__('findRecipientInDatabase', findRecipientStub);
+        validateUploadModule.__set__('updateOrCreateRecipient', updateRecipientStub);
+
+        const errors = await validateSubrecipientRecord({
+            upload,
+            record: recipient,
+            recordErrors,
+            trns,
+        });
+        assert.deepStrictEqual(errors, [
+            new ValidationError(
+                'UEI is required for all new subrecipients and contractors',
+                { col: 'C', severity: 'err' },
+            ),
+        ]);
+        sinon.assert.notCalled(updateRecipientStub);
+    });
+});

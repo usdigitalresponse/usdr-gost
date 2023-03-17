@@ -215,7 +215,7 @@ async function validateSubrecipientRecord({
 }) {
     const errors = [];
     const existingRecipient = await findRecipientInDatabase({ recipient, trns });
-    errors.concat(validateIdentifier(recipient, !existingRecipient));
+    errors.push(...validateIdentifier(recipient, existingRecipient));
 
     // Either: the record has already been validated before this method was invoked, or
     // we found an error above. If it's not valid, don't update or create it
