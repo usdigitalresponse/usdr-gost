@@ -1,6 +1,3 @@
-const moment = require('moment');
-
-const { getReportingPeriod } = require('../db/reporting-periods');
 const {
     setEcCode, markValidated, markNotValidated,
 } = require('../db/uploads');
@@ -111,48 +108,6 @@ async function validateVersion({ records, rules }) {
     }
 
     return undefined;
-}
-
-async function validateReportingPeriod({ upload, records, trns }) {
-    const uploadPeriod = await getReportingPeriod(upload.reporting_period_id, trns);
-    const coverSheet = records.find((record) => record.type === 'cover').content;
-    const errors = [];
-
-    const periodStart = moment(uploadPeriod.start_date);
-    const sheetStart = moment(coverSheet['Reporting Period Start Date']);
-    if (!periodStart.isSame(sheetStart)) {
-        errors.push(
-            new ValidationError(
-                `The "${
-                    uploadPeriod.name
-                }" upload reporting period starts ${periodStart.format(
-                    'L',
-                )} while the cell in the uploaded workbook specifies ${sheetStart.format(
-                    'L',
-                )}`,
-                { tab: 'cover', row: 2, col: 'E' },
-            ),
-        );
-    }
-
-    const periodEnd = moment(uploadPeriod.end_date);
-    const sheetEnd = moment(coverSheet['Reporting Period End Date']);
-    if (!periodEnd.isSame(sheetEnd)) {
-        errors.push(
-            new ValidationError(
-                `The "${
-                    uploadPeriod.name
-                }" upload reporting period ends ${periodEnd.format(
-                    'L',
-                )} while the cell in the uploaded workbook specifies ${sheetEnd.format(
-                    'L',
-                )}`,
-                { tab: 'cover', row: 2, col: 'F' },
-            ),
-        );
-    }
-
-    return errors;
 }
 
 /**
@@ -628,7 +583,6 @@ async function validateUpload(upload, user, trns = null) {
     const validations = [
         validateVersion,
         validateEcCode,
-        validateReportingPeriod,
         validateRules,
         validateReferences,
     ];
