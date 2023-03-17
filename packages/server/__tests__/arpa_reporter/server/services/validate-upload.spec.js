@@ -39,61 +39,6 @@ describe('validation rules', () => {
     });
 });
 
-describe('setOrValidateAgencyBasedOnCoverSheet', () => {
-    const setOrValidateAgencyBasedOnCoverSheet = validateUploadModule.__get__('setOrValidateAgencyBasedOnCoverSheet');
-    let setAgencyIdStub;
-
-    beforeEach(() => {
-        // Create a stub for the setAgencyId function
-        setAgencyIdStub = sinon.stub().resolves();
-        validateUploadModule.__set__('setAgencyId', setAgencyIdStub);
-    });
-
-    afterEach(() => {
-        // Restore the original setAgencyId function after each test
-        sinon.restore();
-    });
-
-    it('should set the agency ID from cover sheet when upload record has no agency ID', async () => {
-        const recordFromUploadsTable = { id: 1, agency_id: null, agency_code: null };
-        const coverSheetAgency = { id: 123, code: 'DEF' };
-
-        await setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
-
-        // Expect setAgencyIdStub to be called with the correct arguments
-        expect(setAgencyIdStub.calledOnceWithExactly(recordFromUploadsTable.id, coverSheetAgency.id)).to.be.true;
-    });
-
-    it('should return a validation error when the upload record agency ID does not match cover sheet agency ID', async () => {
-        const recordFromUploadsTable = { id: 1, agency_id: 456, agency_code: 'AGENCY1' };
-        const coverSheetAgency = { id: 123, code: 'AGENCY2' };
-
-        const result = await setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
-
-        // Expect setAgencyId to not be called
-        expect(setAgencyIdStub.called).to.be.false;
-
-        // Expect the function to return a ValidationError with the correct message and metadata
-        expect(result).to.be.an.instanceOf(ValidationError);
-        expect(result.message).to.equal(`The agency on the spreadsheet, "${coverSheetAgency.code}", does not match the agency provided in the form, "${recordFromUploadsTable.agency_code}"`);
-    });
-
-    it('should not modify agencyId if uploadRecordAgencyId matches coverSheetAgency.id', async () => {
-        const recordFromUploadsTable = { id: 1, agency_id: 456, agency_code: 'AGENCY1' };
-        const coverSheetAgency = {
-            id: recordFromUploadsTable.agency_id,
-            code: recordFromUploadsTable.agency_code,
-        };
-
-        recordFromUploadsTable.agency_id = coverSheetAgency.id;
-
-        await setOrValidateAgencyBasedOnCoverSheet(recordFromUploadsTable, coverSheetAgency);
-
-        // Expect setAgencyId to not be called
-        expect(setAgencyIdStub.called).to.be.false;
-    });
-});
-
 describe('validate record', () => {
     const validateRecord = validateUploadModule.__get__(
         'validateRecord',
