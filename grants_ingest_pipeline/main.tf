@@ -188,7 +188,7 @@ locals {
       DD_SERVICE                   = var.datadog_tags.DD_SERVICE
       DD_SITE                      = "datadoghq.com"
       DD_TRACE_ENABLED             = "true"
-      DD_TRACE_SAMPLE_RATE         = "1.000"
+      # DD_TRACE_SAMPLE_RATE         = "1.000"
       DD_VERSION                   = coalesce(var.datadog_tags.DD_VERSION, "dev")
     },
     {

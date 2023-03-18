@@ -27,10 +27,13 @@ data "aws_iam_policy_document" "scheduler_execution-trust" {
 
 data "aws_iam_policy_document" "allow_invoke_lambda" {
   statement {
-    sid       = "AllowInvokeLambda"
-    effect    = "Allow"
-    actions   = ["lambda:Invoke"]
-    resources = [module.lambda_function.lambda_function_arn]
+    sid     = "AllowInvokeLambda"
+    effect  = "Allow"
+    actions = ["lambda:InvokeFunction"]
+    resources = [
+      module.lambda_function.lambda_function_arn,
+      "${module.lambda_function.lambda_function_arn}:*",
+    ]
   }
 }
 

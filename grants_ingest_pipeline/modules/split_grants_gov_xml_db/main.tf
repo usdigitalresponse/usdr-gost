@@ -70,12 +70,6 @@ module "lambda_function" {
   publish = true
   layers  = var.lambda_layer_arns
 
-  # source_path = [{
-  #   path     = "${var.lambda_code_path}/gosrc"
-  #   commands = ["task build-split_grants_gov_xml_db"],
-  # }]
-  # create_package            = true
-  # local_existing_package    = "${var.lambda_code_path}/gosrc/build/split_grants_gov_xml_db.zip"
   source_path = [{
     path = "${var.lambda_code_path}/gosrc"
     commands = [
@@ -90,6 +84,7 @@ module "lambda_function" {
 
   timeout = 300 # 5 minutes, in seconds
   environment_variables = merge(var.additional_environment_variables, {
+    DD_TRACE_RATE_LIMIT              = "1000"
     DOWNLOAD_CHUNK_LIMIT             = "20"
     GRANTS_PREPARED_DATA_BUCKET_NAME = data.aws_s3_bucket.prepared_data.id
     GRANTS_SOURCE_DATA_BUCKET_NAME   = data.aws_s3_bucket.source_data.id
