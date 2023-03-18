@@ -343,7 +343,8 @@ func TestLambdaInvocationWithMissingSourceObject(t *testing.T) {
 	})
 	require.Error(t, err)
 	if errs, ok := err.(*multierror.Error); ok {
-		assert.Equal(t, errs.Len(), 1, "Invocation accumulated an unexpected number of errors")
+		assert.Equalf(t, 1, errs.Len(),
+			"Invocation accumulated an unexpected number of errors: %s", errs)
 	} else {
 		require.Fail(t, "Invocation error could not be interpreted as *multierror.Error")
 	}

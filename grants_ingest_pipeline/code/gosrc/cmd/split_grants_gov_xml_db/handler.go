@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/xml"
@@ -79,15 +80,17 @@ func handleS3EventWithConfig(cfg aws.Config, ctx context.Context, s3Event events
 				"source_bucket", sourceBucket, "source_object_key", sourceKey)
 			log.Info(logger, "Splitting Grants.gov DB extract XML object from S3")
 
-			r, err := NewChunkedS3Reader(recordCtx, s3svc,
-				sourceBucket, sourceKey, env.DownloadChunkLimit*MB)
+			resp, err := s3svc.GetObject(recordCtx, &s3.GetObjectInput{
+				Bucket: aws.String(sourceBucket),
+				Key:    aws.String(sourceKey),
+			})
 			if err != nil {
-				sourcingErrs = multierror.Append(sourcingErrs, err)
-				log.Error(logger, "Error creating reader for source S3 object", err)
+				log.Error(logger, "Error getting source S3 object", err)
 				return err
 			}
-			if err := readOpportunities(recordCtx, r, opportunities); err != nil {
-				sourcingErrs = multierror.Append(sourcingErrs, err)
+
+			buffer := bufio.NewReaderSize(resp.Body, int(env.DownloadChunkLimit*MB))
+			if err := readOpportunities(recordCtx, buffer, opportunities); err != nil {
 				log.Error(logger, "Error reading source opportunities from S3", err)
 				return err
 			}
@@ -247,14 +250,17 @@ func processOpportunity(ctx context.Context, svc *s3.Client, opp opportunity) er
 		return err
 	}
 	logger = log.With(logger, "remote_last_modified", remoteLastModified)
+
+	isNew := false
 	if remoteLastModified != nil {
 		if remoteLastModified.After(lastModified) {
 			log.Debug(logger, "Skipping opportunity upload because the extant record is up-to-date")
-			ddlambda.Metric("grant_opportunity.ignored", 1)
+			sendMetric("skipped", 1)
 			return nil
 		}
 		log.Debug(logger, "Uploading updated opportunity to replace outdated remote record")
 	} else {
+		isNew = true
 		log.Debug(logger, "Uploading new opportunity")
 	}
 
@@ -270,6 +276,18 @@ func processOpportunity(ctx context.Context, svc *s3.Client, opp opportunity) er
 	}
 
 	log.Info(logger, "Successfully uploaded opportunity")
-	ddlambda.Metric("grant_opportunity.prepared", 1)
+	if isNew {
+		sendMetric("created", 1)
+	} else {
+		sendMetric("updated", 1)
+	}
 	return nil
+}
+
+func sendMetric(name string, value float64, tags ...string) {
+	ddlambda.Metric(
+		fmt.Sprintf("grants_ingest.opportunity_source_record.%s", name),
+		value,
+		append(tags, "source:grants.gov")...,
+	)
 }
