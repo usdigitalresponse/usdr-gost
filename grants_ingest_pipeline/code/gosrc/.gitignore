@@ -1,4 +1,8 @@
+# Builds and artifacts
 bin/
 build/
+# Coverage info
+cover.out
 cover.html
+# Taskfile metadata
 .task/
