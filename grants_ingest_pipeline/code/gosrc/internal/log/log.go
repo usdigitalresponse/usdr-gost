@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/go-kit/log"
@@ -38,6 +39,12 @@ func Warn(l Logger, msg interface{}, kv ...interface{}) {
 
 func Error(l Logger, msg interface{}, err error, kv ...interface{}) {
 	logWithMessage(level.Error(log.With(l, "error", err)), msg, kv...)
+}
+
+// Errorf is like Error() but returns a new error from msg that wraps err
+func Errorf(l Logger, msg interface{}, err error, kv ...interface{}) error {
+	logWithMessage(level.Error(log.With(l, "error", err)), msg, kv...)
+	return fmt.Errorf("%s: %w", msg, err)
 }
 
 func logWithMessage(l Logger, msg interface{}, kv ...interface{}) {
