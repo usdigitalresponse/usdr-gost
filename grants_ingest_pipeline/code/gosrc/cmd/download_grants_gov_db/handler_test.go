@@ -107,46 +107,61 @@ func TestHandleWithConfig(t *testing.T) {
 		require.Fail(t, "Test HTTP server handler should be overridden in each test case")
 	}))
 	t.Cleanup(server.Close)
-	env.GrantsGovBaseURL = server.URL
+
+	type mockResponse struct {
+		contentType string
+		statusCode  int
+		body        []byte
+	}
 
 	for _, tt := range []struct {
 		name              string
-		respStatus        int
-		respBody          []byte
+		downloadURL       string
+		resp              mockResponse
 		expectErr         error
 		destinationBucket string
 	}{
 		{
 			"Fails when download results in 404",
-			404,
-			[]byte(""),
-			fmt.Errorf("unexpected http response: %d %s", 404, http.StatusText(404)),
+			server.URL,
+			mockResponse{"text/html", 404, []byte{}},
+			fmt.Errorf("Error downloading source archive"),
+			env.DestinationBucket,
+		},
+		{
+			"Fails when invalid source URL is configured",
+			"badscheme://invalid",
+			mockResponse{},
+			fmt.Errorf("Error initiating download request for source archive"),
 			env.DestinationBucket,
 		},
 		{
 			"Failed upload",
-			200,
-			[]byte("this is a fake zip file"),
+			server.URL,
+			mockResponse{"application/zip", 200, []byte("this is a fake zip file")},
 			fmt.Errorf("The specified bucket does not exist"),
 			"bucket-that-does-not-exist",
 		},
 		{
 			"Successful upload",
-			200,
-			[]byte("this is a fake zip file"),
+			server.URL,
+			mockResponse{"application/zip", 200, []byte("this is a fake zip file")},
 			nil,
 			env.DestinationBucket,
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
+			setupLambdaEnvForTesting(t)
+			env.GrantsGovBaseURL = tt.downloadURL
 			env.DestinationBucket = tt.destinationBucket
 			server.Config.Handler = http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
 				u, parseErr := url.Parse(testEvent.grantsURL())
 				assert.NoError(t, parseErr)
 				assert.Equal(t, u.Path, req.URL.Path)
 
-				resp.WriteHeader(tt.respStatus)
-				resp.Write(tt.respBody)
+				resp.Header().Add("Content-Type", tt.resp.contentType)
+				resp.WriteHeader(tt.resp.statusCode)
+				resp.Write(tt.resp.body)
 			})
 
 			err := handleWithConfig(cfg, context.TODO(), testEvent)
@@ -162,8 +177,46 @@ func TestHandleWithConfig(t *testing.T) {
 				assert.NoError(t, err)
 				uploadedBytes, err := ioutil.ReadAll(resp.Body)
 				assert.NoError(t, err)
-				assert.Equal(t, tt.respBody, uploadedBytes)
+				assert.Equal(t, tt.resp.body, uploadedBytes)
 			}
 		})
 	}
+}
+
+func TestValidateDownloadResponse(t *testing.T) {
+	t.Run("Response is valid", func(t *testing.T) {
+		assert.NoError(t, validateDownloadResponse(&http.Response{
+			StatusCode: 200,
+			Header:     http.Header{"Content-Type": []string{"application/zip"}},
+		}))
+	})
+
+	t.Run("Unexpected status code", func(t *testing.T) {
+		for statusCode := 201; statusCode <= 500; statusCode++ {
+			t.Run(fmt.Sprintf("%d", statusCode), func(t *testing.T) {
+				assert.EqualError(t, validateDownloadResponse(&http.Response{
+					StatusCode: statusCode,
+					Status:     http.StatusText(statusCode),
+					Header:     http.Header{"Content-Type": []string{"application/zip"}},
+				}), fmt.Sprintf("unexpected http response status: %s", http.StatusText(statusCode)))
+			})
+		}
+	})
+
+	t.Run("Unexpected Content-Type header", func(t *testing.T) {
+		for _, contentType := range []string{
+			"application/json",
+			"application/xml",
+			"text/html",
+			"text/plain",
+			"text/xml",
+		} {
+			t.Run(fmt.Sprintf("%q", contentType), func(t *testing.T) {
+				assert.EqualError(t, validateDownloadResponse(&http.Response{
+					StatusCode: 200,
+					Header:     http.Header{"Content-Type": {contentType}},
+				}), fmt.Sprintf("unexpected http response Content-Type header: %s", contentType))
+			})
+		}
+	})
 }

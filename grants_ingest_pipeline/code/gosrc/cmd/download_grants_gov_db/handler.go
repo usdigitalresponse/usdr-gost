@@ -34,7 +34,7 @@ func handleWithConfig(cfg aws.Config, ctx context.Context, event ScheduledEvent)
 	uploader := manager.NewUploader(s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.UsePathStyle = env.UsePathStyleS3Opt
 	}))
-	logger = log.With(logger,
+	logger := log.With(logger,
 		"db_date", event.Timestamp.Format("2006-01-02"),
 		"source", event.grantsURL(),
 		"destination_bucket", env.DestinationBucket,
@@ -44,34 +44,38 @@ func handleWithConfig(cfg aws.Config, ctx context.Context, event ScheduledEvent)
 	log.Debug(logger, "Starting remote file download")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, event.grantsURL(), nil)
 	if err != nil {
-		log.Error(logger, "Error configuring download request for source archive", err)
-		return err
+		return log.Errorf(logger, "Error configuring download request for source archive", err)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Error(logger, "Error initiating download request for source archive", err)
-		return err
+		return log.Errorf(logger, "Error initiating download request for source archive", err)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		err := fmt.Errorf("unexpected http response: %s", resp.Status)
-		log.Error(logger, "Error downloading source archive", err)
-		return err
+	if err := validateDownloadResponse(resp); err != nil {
+		return log.Errorf(logger, "Error downloading source archive", err)
 	}
 	logger = log.With(logger, "source_size_bytes", resp.ContentLength)
 
 	log.Debug(logger, "Streaming remote file to S3")
-	_, err = uploader.Upload(ctx, &s3.PutObjectInput{
+	if _, err := uploader.Upload(ctx, &s3.PutObjectInput{
 		Bucket:               aws.String(env.DestinationBucket),
 		Key:                  aws.String(event.destinationS3Key()),
 		Body:                 resp.Body,
 		ServerSideEncryption: types.ServerSideEncryptionAes256,
-	})
-	if err != nil {
-		log.Error(logger, "Error uploading source archive to S3", err)
-		return err
+	}); err != nil {
+		return log.Errorf(logger, "Error uploading source archive to S3", err)
 	}
-	log.Debug(logger, "Finished transfering source file to S3")
 
+	log.Info(logger, "Finished transfering source file to S3")
+	return nil
+}
+
+func validateDownloadResponse(r *http.Response) error {
+	if r.StatusCode != 200 {
+		return fmt.Errorf("unexpected http response status: %s", r.Status)
+	}
+	if contentType := r.Header.Get("Content-Type"); contentType != "application/zip" {
+		return fmt.Errorf("unexpected http response Content-Type header: %s", contentType)
+	}
 	return nil
 }
