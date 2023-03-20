@@ -193,7 +193,8 @@ locals {
     },
     {
       TZ = "UTC"
-    }
+    },
+    var.additional_lambda_environment_variables,
   )
   lambda_execution_policies = compact([
     join("", data.aws_iam_policy_document.read_datadog_api_key_secret.*.json)

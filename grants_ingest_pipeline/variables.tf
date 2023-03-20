@@ -39,6 +39,12 @@ variable "datadog_enabled" {
   default     = false
 }
 
+variable "additional_lambda_environment_variables" {
+  description = "Map of additional/override environment variables to apply to all Lambda functions."
+  type = map(string)
+  default = {}
+}
+
 variable "datadog_tags" {
   description = "Datadog reserved tags to configure in Lambda function environments (when var.datadog_enabled is true)."
   type = object({
