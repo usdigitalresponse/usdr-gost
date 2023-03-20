@@ -10,6 +10,7 @@ on:
 
 jobs:
   test-e2e-integration:
+    name: "Cypress Integration Tests"
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -63,6 +64,7 @@ jobs:
           working-directory: packages/e2e
 
   test-server-client:
+    name: "Server and Client Unit Tests"
     runs-on: ubuntu-latest
     services:
       postgres:

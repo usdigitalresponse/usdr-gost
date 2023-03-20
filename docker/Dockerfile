@@ -27,9 +27,11 @@ COPY ./yarn.lock .
 # to small "started / finished" and avoid 1000s of lines of progress messages
 # https://github.com/cypress-io/cypress/issues/1243
 ENV CI=1
+ENV CYPRESS_BASE_URL=http://frontend:8080
 RUN ["yarn", "install", "--frozen-lockfile"]
 
 # verify that Cypress has been installed correctly.
 # running this command separately from "cypress run" will also cache its result
 # to avoid verifying again when running the tests
 RUN ["npx", "cypress", "verify"]
+CMD ["npx", "cypress", "run"]
