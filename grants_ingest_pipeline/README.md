@@ -68,6 +68,7 @@ To begin, make sure the following tools are available in your development worksp
 - [LocalStack](https://docs.localstack.cloud/getting-started/installation)
 - [tflocal](https://github.com/localstack/terraform-local)
 - [awslocal](https://github.com/localstack/awscli-local) *Optional, but recommended.*
+- [tfenv](https://github.com/tfutils/tfenv) *Optional, but recommended.*
 
 **Note:** This document assumes usage of [Docker-Compose method](https://docs.localstack.cloud/getting-started/installation/#docker-compose).
 However, you can choose whatever LocalStack installation option best suits your environment.
