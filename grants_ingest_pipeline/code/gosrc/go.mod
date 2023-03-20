@@ -1,6 +1,6 @@
 module github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc
 
-go 1.18
+go 1.20
 
 require (
 	github.com/DataDog/datadog-lambda-go v1.9.0
