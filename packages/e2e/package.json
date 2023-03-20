@@ -1,0 +1,22 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "End-to-end testing",
+  "main": "index.js",
+  "license": "MIT",
+  "engines": {
+    "node": "16.14.0",
+    "yarn": ">=1.22.4",
+    "npm": "please-use-yarn"
+  },
+  "scripts": {
+    "lint": "eslint '**/*.js'",
+    "test": "echo 'This package does not have any tests'"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.4.4",
+    "commitlint": "^17.4.4",
+    "cypress": "12.7.0",
+    "eslint": "^8.35.0"
+  }
+}
