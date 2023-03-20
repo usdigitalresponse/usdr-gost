@@ -9,7 +9,7 @@ import (
 	ddlambda "github.com/DataDog/datadog-lambda-go"
 	goenv "github.com/Netflix/go-env"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/internal/awsHelpers"
 	"github.com/usdigitalresponse/usdr-gost/grants_ingest_pipeline/code/gosrc/internal/log"
 	awstrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/aws/aws-sdk-go-v2/aws"
 	httptrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
@@ -34,7 +34,7 @@ func main() {
 	log.ConfigureLogger(&logger, env.LogLevel)
 	log.Debug(logger, "Starting Lambda")
 	lambda.Start(ddlambda.WrapFunction(func(ctx context.Context, event ScheduledEvent) error {
-		cfg, err := config.LoadDefaultConfig(ctx)
+		cfg, err := awsHelpers.GetConfig(ctx)
 		if err != nil {
 			return fmt.Errorf("could not create AWS SDK config: %w", err)
 		}
