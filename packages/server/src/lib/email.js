@@ -263,6 +263,8 @@ async function buildAndSendGrantDigest() {
     const inputs = [];
     agencies.forEach((agency) => inputs.push({ agency, openDate }));
     await asyncBatch(inputs, module.exports.sendGrantDigestForAgency, 2);
+
+    console.log(`Successfully built and sent grants digest emails for ${openDate}`);
 }
 
 module.exports = {
