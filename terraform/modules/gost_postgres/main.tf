@@ -2,9 +2,9 @@ data "aws_region" "current" {}
 data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
-data "aws_rds_engine_version" "postgres13_6" {
+data "aws_rds_engine_version" "postgres13_8" {
   engine  = "aurora-postgresql"
-  version = "13.6"
+  version = "13.8"
 }
 
 resource "aws_db_parameter_group" "postgres13" {
@@ -26,8 +26,8 @@ module "db" {
 
   name                       = "${var.namespace}-postgres"
   cluster_use_name_prefix    = true
-  engine                     = data.aws_rds_engine_version.postgres13_6.engine
-  engine_version             = data.aws_rds_engine_version.postgres13_6.version
+  engine                     = data.aws_rds_engine_version.postgres13_8.engine
+  engine_version             = data.aws_rds_engine_version.postgres13_8.version
   auto_minor_version_upgrade = true
   engine_mode                = "provisioned"
   storage_encrypted          = true
