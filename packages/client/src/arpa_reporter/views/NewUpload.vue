@@ -119,7 +119,7 @@ export default {
       const uploadFormData = new FormData();
       uploadFormData.append('spreadsheet', data.spreadsheet[0]);
       Object.entries(_.omit(data, ['spreadsheet'])).forEach(([key, value]) => {
-        if (value) {
+        if (value !== undefined && value !== null) {
           uploadFormData.append(key, value);
         }
       });
