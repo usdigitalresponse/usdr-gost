@@ -37,7 +37,7 @@ router.get('/', requireUser, async (req, res) => {
     return res.json({ reportingPeriods: periods });
 });
 
-router.post('/close/', requireAdminUser, async (req, res) => {
+router.post('/close', requireAdminUser, async (req, res) => {
     const period = await getReportingPeriod();
 
     const trns = await knex.transaction();
