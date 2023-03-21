@@ -2362,13 +2362,13 @@
     ]
   },
   "subawardBulkUpload.xlsx": {
-    "version": "2022.12.13",
+    "version": "2023.02.21",
     "templateName": "Subaward Reporting",
     "fields": [
       {
         "fieldId": "Recipient_UEI__c",
         "fieldName": "Subrecipient UEI",
-        "required": "Optional"
+        "required": "Required"
       },
       {
         "fieldId": "Recipient_EIN__c",
@@ -2383,6 +2383,11 @@
       {
         "fieldId": "Award_No__c",
         "fieldName": "SubAward No.",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Entity_Type_2__c",
+        "fieldName": "SubAward/Direct Payment Entity Type",
         "required": "Required"
       },
       {

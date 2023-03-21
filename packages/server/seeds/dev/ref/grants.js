@@ -1,4 +1,5 @@
 const agencies = require('./agencies');
+const interestedCodes = require('./interestedCodes');
 
 const usdr = agencies.find((a) => a.abbreviation === 'USDR').id;
 const nevada = agencies.find((a) => a.abbreviation === 'NV').id;
@@ -16,11 +17,15 @@ function joinDateComponents(theDateTime, options, separator) {
     return options.map(format).join(separator);
 }
 
-function oneWeekBack() {
+function daysAhead(days) {
     const options = [{ year: 'numeric' }, { month: 'numeric' }, { day: 'numeric' }];
     const theDate = new Date();
-    theDate.setDate(theDate.getDate() - 7);
+    theDate.setDate(theDate.getDate() + days);
     return joinDateComponents(theDate, options, '-');
+}
+
+function interestedId(codeName) {
+    return interestedCodes.filter((code) => code.name === codeName)[0].id;
 }
 
 const grants = [
@@ -53,7 +58,7 @@ const grants = [
         agency_code: 'HHS-IHS',
         award_ceiling: '500000',
         cost_sharing: 'No',
-        title: 'Community Health Aide Program:  Tribal Planning &amp; Implementation',
+        title: 'Community Health Aide Program:  Tribal Planning & Implementation',
         cfda_list: '93.382',
         open_date: '2021-08-05',
         close_date: '2021-09-06',
@@ -78,7 +83,7 @@ const grants = [
         title: 'Test Grant 666999',
         cfda_list: '47.050',
         open_date: '2021-09-04',
-        close_date: oneWeekBack(),
+        close_date: daysAhead(2),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -97,10 +102,10 @@ const grants = [
         agency_code: 'HHS-IHS',
         award_ceiling: '500000',
         cost_sharing: 'No',
-        title: '',
+        title: 'Test Grant 0',
         cfda_list: '93.382',
         open_date: '2021-08-05',
-        close_date: '2021-09-06',
+        close_date: daysAhead(3),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -119,10 +124,10 @@ const grants = [
         agency_code: 'HHS-IHS',
         award_ceiling: '500000',
         cost_sharing: 'No',
-        title: 'Community Health Aide Program:  County Planning &amp; Implementation',
+        title: 'Community Health Aide Program:  County Planning & Implementation',
         cfda_list: '93.382',
         open_date: '2021-08-05',
-        close_date: '2021-09-06',
+        close_date: daysAhead(4),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -134,7 +139,6 @@ const grants = [
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
     },
-    // 'open_date' has to be in chronological order in this file to (one hopes) correctly test grant grid sorting.
     {
         status: 'inbox',
         grant_id: '666666',
@@ -145,7 +149,7 @@ const grants = [
         title: 'Test Grant 666666',
         cfda_list: '47.050',
         open_date: '2021-08-11',
-        close_date: '2021-11-03',
+        close_date: daysAhead(6),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -167,7 +171,7 @@ const grants = [
         title: 'Test Grant 666656',
         cfda_list: '47.050',
         open_date: '2021-08-12',
-        close_date: '2021-11-02',
+        close_date: daysAhead(5),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -211,7 +215,7 @@ const grants = [
         title: 'Test Grant 666636',
         cfda_list: '47.050',
         open_date: '2021-08-14',
-        close_date: '2021-10-31',
+        close_date: daysAhead(6),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
@@ -730,7 +734,33 @@ const grantsInterested = [
         grant_id: grants[2].grant_id,
         agency_id: usdr,
         user_id: 1,
-        interested_code_id: 0,
+        created_at: daysAhead(2),
+        updated_at: daysAhead(2),
+        interested_code_id: interestedId('Will Apply'),
+    },
+    {
+        grant_id: grants[4].grant_id,
+        agency_id: usdr,
+        user_id: 1,
+        created_at: daysAhead(4),
+        updated_at: daysAhead(4),
+        interested_code_id: interestedId('Will Apply'),
+    },
+    {
+        grant_id: grants[5].grant_id,
+        agency_id: usdr,
+        user_id: 1,
+        created_at: daysAhead(5),
+        updated_at: daysAhead(5),
+        interested_code_id: interestedId('Will Support'),
+    },
+    {
+        grant_id: grants[6].grant_id,
+        agency_id: usdr,
+        user_id: 1,
+        created_at: daysAhead(6),
+        updated_at: daysAhead(6),
+        interested_code_id: interestedId('Will Support'),
     },
 ];
 

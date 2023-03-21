@@ -369,12 +369,22 @@ describe('Email sender', () => {
             const ignoredGrant = { ...fixtures.grants.healthAide };
             ignoredGrant.description = 'Added a brand new description';
 
-            agency.matched_grants = [fixtures.grants.healthAide, fixtures.grants.earFellowship, fixtures.grants.redefiningPossible, ignoredGrant];
+            const updateFn = (int) => {
+                const newGrant = { ...fixtures.grants.healthAide };
+                newGrant.description = `description-${int}`;
+                return newGrant;
+            };
+            const additionalGrants = [...Array(30).keys()].map(updateFn);
+            agency.matched_grants = [...additionalGrants, ...[fixtures.grants.healthAide, fixtures.grants.earFellowship, fixtures.grants.redefiningPossible]];
             const body = await email.buildDigestBody({ agency });
-            expect(body).to.include(fixtures.grants.healthAide.description);
-            expect(body).to.include(fixtures.grants.earFellowship.description);
-            expect(body).to.include(fixtures.grants.redefiningPossible.description);
-            expect(body).to.not.include(ignoredGrant.description);
+
+            /* the last 3 grants should not be included in the email */
+            expect(body).to.not.include(fixtures.grants.healthAide.description);
+            expect(body).to.not.include(fixtures.grants.earFellowship.description);
+            expect(body).to.not.include(fixtures.grants.redefiningPossible.description);
+
+            /* the first 30 grants should be included in the email */
+            additionalGrants.forEach((grant) => expect(body).to.include(grant.description));
         });
     });
 });

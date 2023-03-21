@@ -11,13 +11,6 @@ module.exports = {
     extends: [
         'eslint-config-airbnb-base',
     ],
-    ignorePatterns: [
-        // NOTE(mbroussard): this is temporary, just to make committing on ARPA integration dev branch a bit
-        // less annoying.
-        'src/arpa_reporter/**/*',
-        'seeds/arpa_reporter_dev/*',
-        '__tests__/arpa_reporter/**/*',
-    ],
     rules: {
         'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
@@ -33,10 +26,6 @@ module.exports = {
         semi: ['error', 'always'],
         'no-restricted-syntax': [
             'error',
-            {
-                selector: 'ForOfStatement',
-                message: 'iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations.',
-            },
             {
                 selector: 'LabeledStatement',
                 message: 'Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand.',
@@ -58,6 +47,9 @@ module.exports = {
             files: ['*.test.js', '*.spec.js'],
             rules: {
                 'no-underscore-dangle': 'off',
+            },
+            globals: {
+                requireSrc: 'readonly',
             },
         },
     ],

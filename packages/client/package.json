@@ -12,11 +12,12 @@
     "coverage": "nyc yarn test",
     "env": "export $(cat .env)",
     "lint": "vue-cli-service lint",
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service --inspect ../../node_modules/@vue/cli-service/bin/vue-cli-service.js serve",
     "start": "yarn run serve",
     "test": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@braid/vue-formulate": "^2.5.3",
     "bootstrap": "^4.6.1",
     "bootstrap-vue": "^2.19.0",
     "core-js": "^3.21.1",

@@ -24,42 +24,42 @@ export default {
     href: String,
     customClass: String,
     classes: Object,
-    disabled: Boolean
+    disabled: Boolean,
   },
-  mounted () {
+  mounted() {
     // Browsers don't report feedback when a link with the download attribute
     // has been resolved.  Instead of doing something heavy-handed to work
     // around this, we just assume that loading has resolved once the window
     // regains focus.
     // see also:
     // https://stackoverflow.com/questions/1106377/detect-when-a-browser-receives-a-file-download
-    window.addEventListener('focus', this.clearLoadingState)
+    window.addEventListener('focus', this.clearLoadingState);
   },
-  destroyed () {
-    window.removeEventListener('focus', this.clearLoadingState)
+  destroyed() {
+    window.removeEventListener('focus', this.clearLoadingState);
   },
-  data () {
+  data() {
     return {
-      isLoading: false
-    }
+      isLoading: false,
+    };
   },
   computed: {
-    computedClasses () {
+    computedClasses() {
       return {
         ...this.classes,
-        disabled: this.disabled || this.isLoading
-      }
-    }
+        disabled: this.disabled || this.isLoading,
+      };
+    },
   },
   methods: {
-    clearLoadingState () {
-      this.isLoading = false
+    clearLoadingState() {
+      this.isLoading = false;
     },
-    setLoadingState () {
-      this.isLoading = true
-    }
-  }
-}
+    setLoadingState() {
+      this.isLoading = true;
+    },
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/components/DownloadButton.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

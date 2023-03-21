@@ -3,6 +3,11 @@
   <b-row>
     <b-col><h2>Tenants</h2></b-col>
     <b-col></b-col>
+    <b-col class="d-flex justify-content-end">
+      <div>
+        <b-button variant="success" @click="openAddTenantModal">Add</b-button>
+      </div>
+    </b-col>
   </b-row>
   <b-table sticky-header="600px" hover :items="formattedTenants" :fields="fields">
       <template #cell(display_name)="row">
@@ -17,6 +22,7 @@
   <EditTenantModal
      :tenant.sync="editingTenant"
   />
+  <AddTenantModal :showModal.sync="showAddTenantModal"/>
 </section>
 </template>
 
@@ -25,10 +31,12 @@
 import { mapActions, mapGetters } from 'vuex';
 
 import EditTenantModal from '@/components/Modals/EditTenant.vue';
+import AddTenantModal from '@/components/Modals/AddTenants.vue';
 
 export default {
   components: {
     EditTenantModal,
+    AddTenantModal,
   },
   data() {
     return {
@@ -41,6 +49,7 @@ export default {
         { key: 'actions', label: 'Actions' },
       ],
       showEditTenantModal: false,
+      showAddTenantModal: false,
       editingTenant: null,
     };
   },
@@ -63,6 +72,9 @@ export default {
     selectedAgency() {
       this.setup();
     },
+    showModal() {
+      this.$bvModal.show('add-tenant-modal');
+    },
   },
   methods: {
     ...mapActions({
@@ -74,6 +86,9 @@ export default {
     openEditTenantModal(tenant) {
       this.editingTenant = tenant;
       this.showEditTenantModal = true;
+    },
+    openAddTenantModal() {
+      this.showAddTenantModal = true;
     },
   },
 };

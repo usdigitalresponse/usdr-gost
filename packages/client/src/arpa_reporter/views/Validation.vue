@@ -76,175 +76,176 @@
 </template>
 
 <script>
-import 'vue-good-table/dist/vue-good-table.css'
-import { VueGoodTable } from 'vue-good-table'
+import 'vue-good-table/dist/vue-good-table.css';
+import { VueGoodTable } from 'vue-good-table';
 
-import { post } from '../store/index'
+import { post } from '../store/index';
 
 export default {
   name: 'Validation',
-  data: function () {
+  data() {
     return {
       commit: false,
       revalidating: false,
-      updates: null
-    }
+      updates: null,
+    };
   },
   computed: {
-    revalidateBtnClass: function () {
+    revalidateBtnClass() {
       return {
         'btn-primary': !this.commit,
-        'btn-danger': this.commit
-      }
+        'btn-danger': this.commit,
+      };
     },
-    disableRevalidateBtn: function () {
+    disableRevalidateBtn() {
       return (
-        this.uploads.length === 0 ||
-        this.revalidating
-      )
+        this.uploads.length === 0
+        || this.revalidating
+      );
     },
-    uploads: function () {
-      return this.$store.state.allUploads
+    uploads() {
+      return this.$store.state.allUploads;
     },
-    agencies: function () {
-      return this.$store.state.agencies
+    agencies() {
+      return this.$store.state.agencies;
     },
-    validUploads: function () {
-      return this.uploads.filter(upl => upl.validated_at)
+    validUploads() {
+      return this.uploads.filter((upl) => upl.validated_at);
     },
-    validAfterRevalidation: function () {
-      if (!this.updates) return []
-      return this.updates.filter(update => update.errors.length === 0).map(update => update.upload)
+    validAfterRevalidation() {
+      if (!this.updates) return [];
+      return this.updates.filter((update) => update.errors.length === 0).map((update) => update.upload);
     },
-    revalidationDiff: function () {
-      return this.validAfterRevalidation.length - this.validUploads.length
+    revalidationDiff() {
+      return this.validAfterRevalidation.length - this.validUploads.length;
     },
-    updateCols: function () {
+    updateCols() {
       return [
         {
           label: '#',
           field: 'id',
-          type: 'number'
+          type: 'number',
         },
         {
           label: 'Agency',
           field: 'agency_code',
-          tdClass: (row) => { if (!row.agency_code) return 'table-danger' },
+          tdClass: (row) => (!row.agency_code ? 'table-danger' : undefined),
           filterOptions: {
             enabled: true,
             placeholder: 'Any agency',
-            filterDropdownItems: this.agencies.map(agency => ({ value: agency.code, text: agency.code }))
-          }
+            filterDropdownItems: this.agencies.map((agency) => ({ value: agency.code, text: agency.code })),
+          },
         },
         {
           label: 'EC Code',
           field: 'ec_code',
-          tdClass: (row) => { if (!row.ec_code) return 'table-danger' }
+          tdClass: (row) => (!row.ec_code ? 'table-danger' : undefined),
         },
         {
           label: 'Uploaded By',
           field: 'created_by',
           filterOptions: {
             enabled: true,
-            placeholder: 'Filter by email...'
-          }
+            placeholder: 'Filter by email...',
+          },
         },
         {
           label: 'Was valid?',
           field: 'was_valid',
           type: 'boolean',
-          tdClass: (row) => row.was_valid ? 'table-success' : 'table-danger',
-          formatFn: (wasValid) => wasValid ? 'true' : 'false',
+          tdClass: (row) => (row.was_valid ? 'table-success' : 'table-danger'),
+          formatFn: (wasValid) => (wasValid ? 'true' : 'false'),
           filterOptions: {
             enabled: true,
             placeholder: 'Any status',
             filterDropdownItems: [
-              { value: true, text: 'Show only previously-valid' }
+              { value: true, text: 'Show only previously-valid' },
             ],
-            filterFn: (wasValid, isIncluded) => wasValid
-          }
+            filterFn: (wasValid) => wasValid,
+          },
         },
         {
           label: this.commit ? 'Became valid?' : 'Becomes valid?',
           field: 'became_valid',
           type: 'boolean',
-          tdClass: (row) => row.became_valid ? 'table-success' : 'table-danger',
+          tdClass: (row) => (row.became_valid ? 'table-success' : 'table-danger'),
           filterOptions: {
             enabled: true,
             placeholder: 'Any status',
             filterDropdownItems: [
-              { value: true, text: 'Show only previously-valid' }
+              { value: true, text: 'Show only previously-valid' },
             ],
-            filterFn: (remainsValid, isIncluded) => remainsValid
-          }
-        }
-      ]
+            filterFn: (remainsValid) => remainsValid,
+          },
+        },
+      ];
     },
-    updateRows: function () {
-      if (!this.updates) return []
+    updateRows() {
+      if (!this.updates) return [];
 
       return this.updates
-        .filter(update => (
-          (update.upload.validated_at && update.errors.length > 0) ||
-          (update.errors.length === 0 && !update.upload.validated_at)
+        .filter((update) => (
+          (update.upload.validated_at && update.errors.length > 0)
+          || (update.errors.length === 0 && !update.upload.validated_at)
         ))
-        .map(update => ({
+        .map((update) => ({
           id: update.upload.id,
           agency_code: update.upload.agency_code,
           ec_code: update.upload.ec_code,
           created_by: update.upload.created_by,
           was_valid: update.upload.validated_at,
           became_valid: update.errors.length === 0,
-          errors: update.errors
-        }))
+          errors: update.errors,
+        }));
     },
-    periodId: function () {
-      return this.$store.state.viewPeriodID
+    periodId() {
+      return this.$store.state.viewPeriodID;
     },
-    periodName: function () {
-      return this.$store.getters.viewPeriod.name
-    }
+    periodName() {
+      return this.$store.getters.viewPeriod.name;
+    },
   },
   methods: {
-    revalidate: async function () {
-      this.revalidating = true
-      this.updates = null
+    async revalidate() {
+      this.revalidating = true;
+      this.updates = null;
 
       try {
         const result = await post(
-          `/api/reporting_periods/${this.periodId}/revalidate?commit=${this.commit}`)
+          `/api/reporting_periods/${this.periodId}/revalidate?commit=${this.commit}`,
+        );
 
         if (result.errors) {
           this.$store.commit('addAlert', {
             text: 'Error re-validating uploads',
-            level: 'err'
-          })
+            level: 'err',
+          });
         } else {
-          this.updates = result.updates
+          this.updates = result.updates;
         }
       } catch (error) {
         // we got an error from the backend, but the backend didn't send reasons
         this.$store.commit('addAlert', {
           text: `revalidate Error: ${error.message}`,
-          level: 'err'
-        })
+          level: 'err',
+        });
       }
 
-      this.revalidating = false
-    }
+      this.revalidating = false;
+    },
   },
   watch: {
-    periodId: async function () {
-      this.$store.dispatch('updateUploads')
-    }
+    async periodId() {
+      this.$store.dispatch('updateUploads');
+    },
   },
-  mounted: async function () {
-    this.$store.dispatch('updateUploads')
+  async mounted() {
+    this.$store.dispatch('updateUploads');
   },
   components: {
-    VueGoodTable
-  }
-}
+    VueGoodTable,
+  },
+};
 </script>
 
 <!-- NOTE: This file was copied from src/views/Validation.vue (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z -->

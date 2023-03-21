@@ -15,6 +15,9 @@
     "npm": "please-use-yarn"
   },
   "scripts": {
+    "cypress:run": "docker compose -f docker-compose.yml -f ./packages/e2e/docker-compose.yml run --rm e2e npx cypress run",
+    "cypress:up": "docker compose -f docker-compose.yml -f ./packages/e2e/docker-compose.yml up -d e2e",
+    "cypress:down": "docker compose -f docker-compose.yml -f ./packages/e2e/docker-compose.yml rm -s -v -f e2e",
     "build": "yarn workspace client run build",
     "coverage": "nyc --reporter=lcov --reporter=text-summary yarn workspaces run test",
     "create_tenant": "yarn workspace server create_tenant",

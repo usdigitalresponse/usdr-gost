@@ -1,283 +1,27 @@
-[![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg?style=flat)](./CODE_OF_CONDUCT.md)
-
 # USDR: Grants One Stop Tool (GOST)
 
-GOST is a platform that hosts tools to enable state and local government officials to more easily apply for and report on their federal grants. Feel free to make a contribution, or if you'd like to volunteer with us in a more in-depth manner you can sign up at [usdigitalresponse.org/volunteer](https://www.usdigitalresponse.org/volunteer).
+[![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg?style=flat)](./CODE_OF_CONDUCT.md)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
+[![Build Status](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/ci.yaml/badge.svg)](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/ci.yaml)
 
-This application is currently hosted at grants.usdigitalresponse.org. Changes made to the main branch will be reflected immediately on this site.
+## About
 
-# Project structure
+GOST is a platform that hosts tools to enable state and local government officials to more easily apply for and report on their federal grants. Feel free to make a contribution (see more [here](CONTRIBUTING.md)). Alternatively, if you'd like to volunteer with us in a more in-depth manner, you can sign up at [usdigitalresponse.org/volunteer](https://www.usdigitalresponse.org/volunteer).
 
-```
-├── packages                                    # Yarn workspace
-│   ├── client                                  # Vue App
-│   └── server                                  # Node server
-│       ├── migrations                          # db migrations
-│       └── seeds                               # db seeds
-│       └── knexfile                            # knex configuration
-```
+This application is currently hosted at grants.usdigitalresponse.org.
 
-Each folder inside packages/ is considered a workspace. To see a list of all worskpaces, run the following
+## Project Overview
 
-`yarn workspaces info`
+This project consists of both a server application, built with node.js and [Express](https://expressjs.com/), and a client application, built with [Vue.js](https://vuejs.org/).
 
-# Setup
+There are two main parts to the application:
 
-These steps are for an install on a Mac. The Windows instructions are [here](https://github.com/usdigitalresponse/usdr-gost/wiki/Setting-up-a-development-environment-on-Windows-(native)).
+- The ID Tool (found at the main landing page of the site)
+- The ARPA Reporter Tool (found at `/arpa_reporter`)
 
-Instructions for using Docker to manage development environments can be found
-[here](docker/README.md).
+## Getting started
 
-1). Ensure using the correct version of NODE Version
-
-First, check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. If you are using [Nodenv](https://github.com/nodenv/nodenv) or [NVM](https://nvm.sh/), it should pick up on the correct version.
-
-To setup your workspace run the following commands at the root of the project
-
-1.1). Setup nvm
-
-Follow the install directions at https://github.com/nvm-sh/nvm#install--update-script
-
-***Make sure to use new terminals after completing install***
-
-
-```
-> nvm install v16.14.0
-> nvm use v16.14.0
-```
-
-2). Install dependencies
-
-The scripts will install yarn and download npm dependencies for all yarn workspaces.
-
-```
-> cd usdr-gost/
-> npm i yarn@^1.22.4 -g
-> yarn run setup
-```
-
-3). Create database(s)
-
-Install postgres DB. I personally used https://postgresapp.com/
-
-```
-psql -h localhost -p 5432
-CREATE DATABASE usdr_grants;
-CREATE DATABASE usdr_grants_test;
-```
-
-4). Setup ENVs
-
-Copy packages/client & packages/server `.env.example` to `.env`
-
-```
-> cp packages/client/.env.example packages/client/.env
-> cp packages/server/.env.example packages/server/.env
-```
-
-**_Note:_** In order to login, the server must be able to send email. Set the relevant environment variables under `# Email Server:` in `server/.env` to credentials for a personal email account (e.g. for Gmail, see (4.1)[here](https://support.google.com/mail/answer/7126229)).
-
-4.1). Setup Gmail
-
-Visit: https://myaccount.google.com/apppasswords and set up an "App Password" (see screenshot below). *Note: Select "Mac" even if you're not using a Mac.*
-
-In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
-
-![](./docs/img/gmail-app-password.png)
-
-**NOTE:** In order to enable App Password MUST turn on 2FA for gmail.
-
-If running into `Error: Invalid login: 535-5.7.8 Username and Password not accepted.` then ["Allow Less Secure Apps"](https://myaccount.google.com/lesssecureapps) - [source](https://stackoverflow.com/a/59194512)
-
-**NOTE:** Much more reliable and preferable to go the App Password route vs Less Secure Apps.
-
-![](./docs/img/error-gmail.png)
-
-
-5). Run DB Migrations & Seed
-
-In server workspace, run migrations and seeds:
-
-```
-> cd packages/server
-> export $(cat .env) #delete all comment lines in .env file
-> yarn db:migrate
-> yarn db:seed
-```
-
-6). Run Client (Terminal 1)
-
-Now you should be able to serve the frontend.
-
-**_*Ensure you are using the correct node version and are in the project root directory*_**
-
-```
-> yarn start:client
-```
-
-6.1). Run Server (Terminal 2)
-
-Now you should be able to serve the backend.
-
-**NOTE:** update `WEBSITE_DOMAIN` in `.env` to your client endpoint from Step 6 else When you get the login email link, change the redirected path from `localhost:8000/api/sessions/...` to your client_url e.g `localhost:8080/api/sessions/`
-
-**_*Ensure you are using the correct node version and are in the project root directory*_**
-
-```
-> yarn start:server
-```
-
-**NOTE:** if error references AWS (see screenshot below) then run `> unset AWS_ACCESS_KEY_ID`. The application will try to use AWS Simple Email Service (SES) if `AWS_ACCESS_KEY_ID` is found as an env var.
-
-![](./docs/img/error-aws-ses.png)
-
-7). Visit `client_url/login` (e.g http://localhost:8080/#/login) and login w/ user `grant-admin@usdigitalresponse.org`.
-
-**NOTE:** if you only see a blank screen then ensure you've set up the `packages/client/.env`
-
-**NOTE:** if you get `Error: Invalid login: 534-5.7.9 Application-specific password required.` then you'll need to set an App Password (https://myaccount.google.com/apppasswords) (See Step 4)
-
-
-# Additional Info:
-
-## Yarn Workspaces
-
-We use [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/cli/workspaces) to manage a monorepo comprised of `client` and a `server` packages, contained within the `packages` folder. Workspaces let you run commands at the top level of the repo without having to `cd` into the respective repositories.
-
-Simply start the command with `yarn workspace client` or `yarn workspace server` before the command you wish to run. You can also specify `yarn workspaces run` to run a given command against all workspaces within the repository. Note that when running long-running/polling processes, it's necessary to use [concurrently](https://www.npmjs.com/package/concurrently) or similar.
-
-Example usages:
-
-`yarn workspace client serve` - Run the `serve` script within `./packages/client/packages.json`
-
-`yarn workspace server serve` - Run the `serve` script within `./packages/server/packages.json`
-
-`yarn workspaces run serve` - Run the `serve` script within both `./packages/client/packages.json` and `./packages/server/packages.json`
-
-## Adding dependencies
-
-### To add dependencies to one workspace
-
-`yarn workspace client add {modules}"` - where workspace_name is the name in package.json. Run `yarn workspaces info` to see a list of packages.
-
-    Example `yarn worksspace client add uuid --dev`
-
-Or, you can always `cd` to the directory within `packages` and run the command there, as in:
-
-`cd packages/client && yarn add {modules}`
-
-### Add dependencies to multiple packages
-
-`yarn workspaces add {modules}`
-
-## Linting
-
-### VSCode
-
-Open the repository using the workspace file `usdr-gost.code-workspace`. You will be prompted tp install recommended VSCode plugins located in `.vscode/extensions.json` for Vue and Eslint support.
-
-To enable linting on save, a settings section has been included in the workspace which sets the appropriate linting options.
-
-### Chrome
- install Vue Dev Tools: https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd?hl=en
-
-### IntelliJ
-
-After installing depedencies, IntelliJ should start using eslint automatically:
-
-> By default, IntelliJ IDEA marks the detected errors and warnings based on the severity levels from the ESLint configuration
-> https://www.jetbrains.com/help/idea/eslint.html#ws_js_linters_eslint_install
-
-# Testing
-
-## Server
-
-```
-> cd packages/server
-> yarn test && yarn test:apis
-  ...
-
-OR
-
-> yarn test:db
-  ...
-> yarn test:apis
-  ...
-> yarn test:email
-  ...
-```
-
-## Client
-
-```
-> yarn test
-...
-> yarn test:e2e
-```
-
-
-# Deployment
-
-## Render
-
-1. Create web service
-
-![create-web-service](docs/img/create-web-service.png)
-
-2. Create database
-
-![create-database](docs/img/create-database.png)
-
-3. Update web service environment variables
-
-![update-web-env-vars](docs/img/update-web-env-vars.png)
-
-**NOTE:** Don't set `NODE_ENV=production` else NPM dev deps will not be installed and prod deployments will fail [(source)](https://github.com/vuejs/vue-cli/issues/5107#issuecomment-586701382)
-
-![prod-env-error](docs/img/prod-env-error.png)
-
-```
-POSTGRES_URL=<POSTGRE_CONNECTION_STRING> # Render Internal connection string ie postgres://cares_opportunity_user:<pass>@<domain>/cares_opportunity_1e53
-
-COOKIE_SECRET=<RANDOM_ALPHANUMERIC_SECRET>
-
-WEBSITE_DOMAIN=<WEB_SERVICE_URL> # Render web service url ie. https://cares-grant-opportunities-qi8i.onrender.com
-
-NODE_ENV=development or production or test
-
-NOTIFICATIONS_EMAIL="grants-identification@usdigitalresponse.org"
-SES_REGION="us-east-1"
-AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID>
-AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY>
-
-ENABLE_GRANTS_SCRAPER=true
-GRANTS_SCRAPER_DATE_RANGE=7 # date range of grants that will be scraped
-GRANTS_SCRAPER_DELAY=1000 # delay in milliseconds for scraper
-
-NODE_OPTIONS=--max_old_space_size=1024 # increase node max memory, had problems with node not using all of renders server memory. This will depend on the plan
-```
-
-## DB Migrations
-
-1. Get the postgres external connection string from render. Set it as an environment variable
-
-`export POSTGRES_URL="postgres://user:{pass}@{domain}/{db}?ssl=true"`
-
-NOTE: must add `?ssl=true`
-
-2. Change directory to packages/server
-
-3. Update seeds/dev files accordingly
-   - seeds/dev/ref/agencies.js - list of agencies to be created. You can update this with the state provided agency. Note: We add a special USDR agency for our accounts in the system
-   - seeds/dev/index.js - Update the admin list variable accordingly
-4. Run the following commands
-
-```
-npx knex migrate:latest
-npx knex seed:run
-```
-
-After that you should be able to access the site and login with the users set in the migration.
+Read more about how to get started developing [here](./docs/getting-started.md).
 
 ## Code of Conduct
 
@@ -285,9 +29,7 @@ This repository falls under [U.S. Digital Response’s Code of Conduct](./CODE_O
 
 ## Contributing
 
-This project wouldn’t exist without the hard work of many people. Thanks to the following for all their contributions! Please see [`CONTRIBUTING.md`](./CONTRIBUTING.md) to find out how you can help.
-
-**Lead Maintainer:** [Rafael Pol (@Rapol)](https://github.com/Rapol)
+This project wouldn’t exist without the hard work of many people. Please see [`CONTRIBUTING.md`](./CONTRIBUTING.md) to find out how you can help.
 
 ## License & Copyright
 
@@ -295,6 +37,6 @@ Copyright (C) 2020-2021 U.S. Digital Response (USDR)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this software except in compliance with the License. You may obtain a copy of the License at:
 
-[`LICENSE`](./LICENSE) in this repository or http://www.apache.org/licenses/LICENSE-2.0
+[`LICENSE`](./LICENSE) in this repository or <http://www.apache.org/licenses/LICENSE-2.0>
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.

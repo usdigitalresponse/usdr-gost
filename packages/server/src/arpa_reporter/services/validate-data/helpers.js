@@ -1,11 +1,11 @@
-const _ = require('lodash')
+const _ = require('lodash');
 
-const subrecipientKey = subrecipient => {
-  // keep duns number first or tests fail
-  // console.log(`subrecipientKey()`)
-  // console.dir(subrecipient)
-  return subrecipient['duns number'] || subrecipient['identification number']
-}
+const subrecipientKey = (subrecipient) => (
+    // keep duns number first or tests fail
+    // console.log(`subrecipientKey()`)
+    // console.dir(subrecipient)
+    subrecipient['duns number'] || subrecipient['identification number']
+);
 
 /* getSubrecipientsHash() returns a KV table where k is the subrecipient id
   and v is the subrecipient record:
@@ -30,15 +30,11 @@ const subrecipientKey = subrecipient => {
     ...
   }
   */
-const getSubrecipientsHash = subrecipientRecords => {
-  return _.keyBy(subrecipientRecords, ({ content }) => {
-    return subrecipientKey(content)
-  })
-}
+const getSubrecipientsHash = (subrecipientRecords) => _.keyBy(subrecipientRecords, ({ content }) => subrecipientKey(content));
 
 module.exports = {
-  subrecipientKey,
-  getSubrecipientsHash
-}
+    subrecipientKey,
+    getSubrecipientsHash,
+};
 
 // NOTE: This file was copied from src/server/services/validate-data/helpers.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
