@@ -113,17 +113,11 @@ export default {
       this.$refs.closeModal.click();
 
       try {
-        const resp = await post('/api/reporting_periods/close', {});
-        const result = resp.headers.get('Content-Type').includes('json')
-          ? await resp.json()
-          : { error: await resp.text() };
+        const result = await post('/api/reporting_periods/close', {});
+        if (result.error) throw new Error(result.error);
 
-        if (resp.ok) {
-          this.$store.dispatch('updateReportingPeriods');
-          this.$store.dispatch('updateApplicationSettings');
-        } else {
-          throw new Error(result.error);
-        }
+        this.$store.dispatch('updateReportingPeriods');
+        this.$store.dispatch('updateApplicationSettings');
       } catch (e) {
         this.$store.commit('addAlert', {
           text: `Error certifying reporting period: ${e.message}`,
