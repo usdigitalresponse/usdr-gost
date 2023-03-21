@@ -38,6 +38,10 @@ router.get('/', requireUser, async (req, res) => {
 });
 
 router.post('/close', requireAdminUser, async (req, res) => {
+    const { user } = req.session;
+
+    console.log(`Received request to close the current reporting period for User ${user.id}'s tenant.`);
+
     const period = await getReportingPeriod();
 
     const trns = await knex.transaction();
