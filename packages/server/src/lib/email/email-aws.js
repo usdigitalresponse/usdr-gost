@@ -29,6 +29,10 @@ function createTransport() {
         sesOptions.region = process.env.SES_REGION;
     }
 
+    if (process.env.LOCALSTACK_HOSTNAME) {
+        sesOptions.endpoint = `http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT}`;
+    }
+
     return new AWS.SES(sesOptions);
 }
 

@@ -12,6 +12,15 @@ jobs:
   test-e2e-integration:
     name: "Cypress Integration Tests"
     runs-on: ubuntu-latest
+    env:
+      AWS_SDK_LOAD_CONFIG: true
+      AWS_REGION: us-west-2
+      AWS_DEFAULT_REGION: us-west-2
+      AWS_ACCESS_KEY_ID: testing
+      AWS_SECRET_ACCESS_KEY: testing
+      LOCALSTACK_HOSTNAME: localhost
+      EDGE_PORT: 4566
+      NOTIFICATIONS_EMAIL: grants-identification@usdigitalresponse.org
     services:
       postgres:
         image: "postgres:13"
@@ -27,7 +36,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - uses: actions/checkout@v2
       - name: Install Node.js
@@ -44,6 +52,18 @@ jobs:
           # dev vs. CI differences based on whether these are the same.
           POSTGRES_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
         run: yarn db:migrate
+      - name: Run Volume environment
+        run: echo "LOCALSTACK_VOLUME_DIR=$(mktemp -d)" >> $GITHUB_ENV
+      - name: Start LocalStack
+        run: |
+          pip install localstack awscli-local[ver1] # install LocalStack cli and awslocal
+          docker pull localstack/localstack         # Make sure to pull the latest version of the image
+          localstack start -d                       # Start LocalStack in the background
+          
+          echo "Waiting for LocalStack startup..."  # Wait 30 seconds for the LocalStack container
+          localstack wait -t 30                     # to become ready before timing out 
+          echo "Startup complete"
+          awslocal ses verify-email-identity --email-address grants-identification@usdigitalresponse.org
       - name: Start Applications
         env:
           POSTGRES_TEST_URL: "postgresql://postgres:password@localhost:${{ job.services.postgres.ports[5432] }}/usdr_grants_test"
