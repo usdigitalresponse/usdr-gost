@@ -11,11 +11,13 @@ module.exports = {
       entry: 'src/main.js',
       template: 'public/index.html',
       filename: 'index.html',
+      title: 'Grants',
     },
     arpaReporter: {
       entry: 'src/arpa_reporter/main.js',
       template: 'public/arpa_reporter/index.html',
       filename: 'arpa_reporter/index.html',
+      title: 'ARPA Reporter',
     },
   },
   devServer: {
