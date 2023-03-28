@@ -1,6 +1,7 @@
 const fs = require("fs");
 
 it('loads page', () => {
+    cy.task('log', 'First spec is running');
     cy.visit('/', { timeout: 30000 });
 
     cy.on('uncaught:exception', (err, runnable) => {
@@ -25,6 +26,7 @@ it('loads page', () => {
     cy.get('#email').type('asridhar@usdigitalresponse.org');
     cy.get('button[type="Submit"]').click();
     cy.contains(`Email sent to asridhar@usdigitalresponse.org. Check your inbox`);
+    cy.task('log', 'Attempting to access directories');
 
     // Add ability to look at process.env.LOCALSTACK_VOLUME_DIR
     fs.open(`${process.env.LOCALSTACK_VOLUME_DIR}/tmp/state/ses`);
@@ -32,12 +34,12 @@ it('loads page', () => {
     const list = (err, files) => {
         // handling error
         if (err) {
-            return console.log(`${err} Unable to scan directory`);
+            return cy.task('log', `${err} Unable to scan directory`);
         }
         // listing all files using forEach
         files.forEach((file) => {
             // Do whatever you want to do with the file
-            console.log(file);
+            cy.task('log', `${file}`);
         });
     };
     fs.readdir(`${process.env.LOCALSTACK_VOLUME_DIR}/tmp`, list);
