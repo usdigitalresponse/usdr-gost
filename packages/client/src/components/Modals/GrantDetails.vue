@@ -73,7 +73,7 @@
         <h4>Assigned Agencies</h4>
           <multiselect v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
             :clear-on-select="false" placeholder="Select agencies" label="name" track-by="id"
-            style="width: 300px; margin: 0 16px;"
+            style="width: 300px; margin: 0 16px;" :show-labels="false"
           >
           </multiselect>
           <b-button variant="outline-success" @click="assignAgenciesToGrant">Assign</b-button>
