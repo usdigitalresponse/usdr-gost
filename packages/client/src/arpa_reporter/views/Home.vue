@@ -8,14 +8,16 @@
         <DownloadButton :href="downloadTreasuryReportURL()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
       </div>
 
-      <div class="col" v-if="this.$route.query.sync_audit_download">
+      <div class="col" v-if="this.$route.query.sync_audit_download && isAdmin">
         <DownloadButton :href="downloadAuditReportURL()" class="btn btn-info btn-block">Download Audit Report</DownloadButton>
       </div>
 
-      <button class="col btn btn-info btn-block" @click="sendAuditReport" :disabled="sending">
-        <span v-if="sending">Sending...</span>
-        <span v-else>Send Audit Report by Email</span>
-      </button>
+      <div class="col" v-if="isAdmin">
+        <button class="btn btn-info btn-block" @click="sendAuditReport" :disabled="sending">
+          <span v-if="sending">Sending...</span>
+          <span v-else>Send Audit Report by Email</span>
+        </button>
+      </div>
 
       <div class="col">
         <button @click.prevent="startUpload" class="btn btn-primary btn-block">Submit Workbook</button>
