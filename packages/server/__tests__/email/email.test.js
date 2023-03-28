@@ -303,6 +303,19 @@ describe('Email sender', () => {
             expect(sendFake.secondCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
         });
     });
+    context('audit report email', () => {
+        it('sendAuditReportEmail delivers an email with the signedURL', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'deliverEmail', sendFake);
+
+            await email.sendAuditReportEmail('foo@example.com', 'https://example.usdigitalresponse.org');
+            expect(sendFake.calledOnce).to.equal(true);
+            expect(sendFake.firstCall.firstArg.subject).to.equal('Your audit report is ready for download');
+            expect(sendFake.firstCall.firstArg.emailPlain).to.equal('Your audit report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org. This link will remain active for 7 days.');
+            expect(sendFake.firstCall.firstArg.toAddress).to.equal('foo@example.com');
+            expect(sendFake.firstCall.firstArg.emailHTML).contains('https://example.usdigitalresponse.org');
+        });
+    });
     context('grant digest email', () => {
         before(async () => {
             await fixtures.seed(db.knex);
