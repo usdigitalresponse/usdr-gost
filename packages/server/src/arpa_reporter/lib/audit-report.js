@@ -7,7 +7,7 @@ const { getCurrentReportingPeriodID } = require('../db/settings');
 const { recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records');
 const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
-const { sendAuditReportEmail } = require('../../lib/email');
+const email = require('../../lib/email');
 
 const COLUMN = {
     EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -161,12 +161,12 @@ async function generate(requestHost) {
 
 async function generateAndSendEmail(requestHost, recipientEmail) {
     // Generate the report
-    const report = await generate(requestHost);
+    const report = await module.exports.generate(requestHost);
     console.log(report);
     // upload to S3 and generate Signed URL here
     const signedUrl = 'https://google.com';
     // Send email once signed URL is created
-    await sendAuditReportEmail(recipientEmail, signedUrl);
+    await email.sendAuditReportEmail(recipientEmail, signedUrl);
 }
 
 module.exports = {
