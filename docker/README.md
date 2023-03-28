@@ -10,7 +10,8 @@ With Docker and Docker Compose installed on your workstation, complete the follo
 steps to prepare your environment:
 
 1. If you have not already done so, copy the file at `packages/server/.env.example`
-  to `packages/server/.env`.
+  to `packages/server/.env`, and copy the file at `packages/client/.env.example`
+  to `packages/client/.env`
 2. Set the following environment variables in `packages/server/.env` accordingly:
   - `POSTGRES_URL=postgresql://postgres:password123@postgres:5432/usdr_grants`
   - `POSTGRES_TEST_URL=postgresql://postgres:password123@postgres:5432/usdr_grants_test`
