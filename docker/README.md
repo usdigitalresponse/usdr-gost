@@ -19,7 +19,8 @@ steps to prepare your environment:
   - `POSTGRES_TEST_URL=postgresql://postgres:password123@postgres:5432/usdr_grants_test`
   - You may also have to set the `WEBSITE_DOMAIN` hostname if you are not developing on `localhost`
   ([more info](#cookbook-non-localhost)).
-3. Run `docker compose up -d` to start the services.
+4. Run `docker compose up -d` to start the services.
+5. Install application dependencies via yarn: `docker compose exec app yarn`.
 
 
 **Note:** Some systems may have Docker Compose installed as an integrated plugin for Docker,
