@@ -1,4 +1,18 @@
 services:
+  aws:
+    container_name: cypress-aws
+    hostname: aws
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      - DEBUG=${DEBUG-}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
   e2e:
     image: cypress
     build:
@@ -14,6 +28,7 @@ services:
       - app
       - frontend
       - postgres
+      - aws
     command: npx cypress open
     volumes:
       - ./packages/e2e/cypress:/app/cypress
