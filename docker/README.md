@@ -1,7 +1,9 @@
 # Using Docker for Development
 
 You can use Docker to run the database, API server, and Vue frontend during development,
-which should help ensure consistent development environments and avoid workstation clutter.
+which should help ensure consistent development environments and avoid workstation
+clutter. The easiest way to install Docker is their [Desktop Applications](https://www.docker.com/products/docker-desktop/),
+which can be installed via their GUI installers or your systems package manager.
 
 
 ## Setup
