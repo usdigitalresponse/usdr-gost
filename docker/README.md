@@ -35,6 +35,12 @@ that you invoke it by running `docker-compose <subcommand>`.
 Refer to this section for common scenarios and their solutions when using Docker
 for development.
 
+### Install or update dependencies
+
+After your intitial setup or for any update to the `package.json` file that
+tracks application dependencies, you'll need to run yarn. Thisq
+can be executed via `exec`. For example, to install dependencies after initial
+setup: `docker compose exec app yarn`.
 
 ### Seed and apply migrations to the database
 
