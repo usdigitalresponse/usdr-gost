@@ -29,6 +29,7 @@ it('loads page', () => {
     cy.task('log', 'Attempting to access directories');
 
     // Add ability to look at process.env.LOCALSTACK_VOLUME_DIR
+    /*
     fs.open(`${process.env.LOCALSTACK_VOLUME_DIR}/tmp/state/ses`);
 
     const list = (err, files) => {
@@ -45,4 +46,5 @@ it('loads page', () => {
     fs.readdir(`${process.env.LOCALSTACK_VOLUME_DIR}/tmp`, list);
     fs.readdir(`${process.env.LOCALSTACK_VOLUME_DIR}/state`, list);
     fs.readdir(`${process.env.LOCALSTACK_VOLUME_DIR}/state/ses`, list);
+    */
 });
