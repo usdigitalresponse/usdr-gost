@@ -1,6 +1,6 @@
 module "efs_data_volume" {
   source  = "cloudposse/efs/aws"
-  version = "0.32.7"
+  version = "0.33.0"
   context = module.this.context
 
   name                       = "${var.namespace}-data_volume"
