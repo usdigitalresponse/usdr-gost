@@ -7,6 +7,7 @@ const { getCurrentReportingPeriodID } = require('../db/settings');
 const { recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records');
 const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
+const { sendAuditReportEmail } = require('../../lib/email');
 
 const COLUMN = {
     EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -158,8 +159,19 @@ async function generate(requestHost) {
     };
 }
 
+async function generateAndSendEmail(requestHost, recipientEmail) {
+    // Generate the report
+    const report = await generate(requestHost);
+    console.log(report);
+    // upload to S3 and generate Signed URL here
+    const signedUrl = 'https://google.com';
+    // Send email once signed URL is created
+    await sendAuditReportEmail(recipientEmail, signedUrl);
+}
+
 module.exports = {
     generate,
+    generateAndSendEmail,
 };
 
 // NOTE: This file was copied from src/server/lib/audit-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
