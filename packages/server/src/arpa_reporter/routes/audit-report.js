@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 
 const { requireUser } = require('../../lib/access-helpers');
-const { generate, generateAndSendEmail } = require('../lib/audit-report');
+const audit_report = require('../lib/audit-report');
 const { useUser } = require('../use-request');
 
 router.get('/', requireUser, async (req, res) => {
@@ -17,7 +17,7 @@ router.get('/', requireUser, async (req, res) => {
         console.log('Generating Async audit report');
         try {
             const user = useUser();
-            generateAndSendEmail(req.headers.host, user.email);
+            audit_report.generateAndSendEmail(req.headers.host, user.email);
             res.json({ success: true });
             return;
         } catch (error) {
@@ -29,7 +29,7 @@ router.get('/', requireUser, async (req, res) => {
 
     let report;
     try {
-        report = await generate(req.headers.host);
+        report = await audit_report.generate(req.headers.host);
         console.log('Successfully generated report');
     } catch (error) {
     // In addition to sending the error message in the 500 response, log the full error stacktrace
