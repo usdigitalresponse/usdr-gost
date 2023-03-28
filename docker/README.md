@@ -42,6 +42,9 @@ tracks application dependencies, you'll need to run yarn. Thisq
 can be executed via `exec`. For example, to install dependencies after initial
 setup: `docker compose exec app yarn`.
 
+For more on how dependencies are managed in the application see the documentation
+on how we use [Workspaces](../docs/workspaces.md).
+
 ### Seed and apply migrations to the database
 
 - To apply database migrations, run: `docker compose exec app yarn db:migrate`
