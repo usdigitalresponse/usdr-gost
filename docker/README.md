@@ -19,7 +19,7 @@ steps to prepare your environment:
   - `POSTGRES_TEST_URL=postgresql://postgres:password123@postgres:5432/usdr_grants_test`
   - You may also have to set the `WEBSITE_DOMAIN` hostname if you are not developing on `localhost`
   ([more info](#cookbook-non-localhost)).
-4. Run `docker compose up -d` to start the services.
+4. Run `docker compose up -d` to start the services in the background (the `-d` flag).
 5. Install application dependencies via yarn: `docker compose exec app yarn`.
 
 
@@ -49,6 +49,41 @@ on how we use [Workspaces](../docs/workspaces.md).
 
 - To apply database migrations, run: `docker compose exec app yarn db:migrate`
 - To seed the database, run: `docker compose exec app yarn db:seed`
+
+### Working with logs
+
+You may want to retrieve logs from all of the services (eg app, db, frontend)
+and that can be accomplished with:
+
+```
+$ docker compose logs
+```
+
+You can also target specific services to just see logs, for example, just the
+backend app, and add `-f` to tail the logs:
+
+```
+$ docker compose logs -f app
+```
+
+You can see all the services available in [docker-compose.yml](../docker-compose.yml).
+
+### Recreating the environment
+
+A common trouble-shooting technique if you've changed configuration, are encountering
+an unknown error, or so on, is to just destroy and re-create the environment:
+
+```
+$ docker compose down
+```
+
+```
+$ docker compose up -d
+```
+
+Note: The `-d` flag here instructs Docker compose to run the services in the
+background, and is recommended. Otherwise, if you exit your shell session it will
+stop the running services.
 
 
 ### Run tests
