@@ -1,8 +1,8 @@
 <template>
     <div>
       <b-alert style="display: flex;  text-align: center;" variant="success" show v-model="showBanner" dismissible>
-          <b-icon icon="envelope-fill" font-scale="1.5" style="width: 50px;" ></b-icon>
-          <div style="padding-right: 10px;">
+          <b-icon icon="envelope-fill" font-scale="1.5" style="width: 50px; color: #0FA958;"></b-icon>
+          <div style="padding-right: 10px; color: #212529;">
           <b>The Grant ID Tool now has email notifications!</b>
           Fine tune which email you will recieve in <u v-on:click="showProfileSettings()">Settings</u> or turn on all notifications here:
         </div >
