@@ -41,7 +41,7 @@
     </b-nav>
 
     <div style="margin-top: 10px">
-      <section class="container-fluid">
+      <section class="container-fluid" style="display: flex; justify-content: center;">
         <AlertBox v-for="(alert, alertId) in alerts" :key="alertId" v-bind="alert" v-on:dismiss="dismissAlert(alertId)" />
         <EmailSettingsBanner
         :showBanner.sync="showOptInEmailBanner"
