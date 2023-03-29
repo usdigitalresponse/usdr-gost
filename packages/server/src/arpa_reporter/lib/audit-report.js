@@ -1,6 +1,7 @@
 const moment = require('moment');
 const XLSX = require('xlsx');
 const asyncBatch = require('async-batch').default;
+const AWS = require('aws-sdk');
 
 const { getPreviousReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
@@ -8,6 +9,9 @@ const { recordsForReportingPeriod, mostRecentProjectRecords } = require('../serv
 const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
+
+const SEVEN_DAYS_IN_SECONDS = 604800;
+const AUDIT_REPORT_BUCKET = 'arpa-audit-reports';
 
 const COLUMN = {
     EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -164,9 +168,28 @@ async function generateAndSendEmail(requestHost, recipientEmail) {
     const report = await module.exports.generate(requestHost);
     console.log(report);
     // upload to S3 and generate Signed URL here
-    const signedUrl = 'https://google.com';
-    // Send email once signed URL is created
-    await email.sendAuditReportEmail(recipientEmail, signedUrl);
+    const s3 = new AWS.S3();
+    const handleUpload = (err, data) => {
+        if (err) {
+            console.log(`Failed to upload audit report ${err}`);
+            throw err;
+        }
+        console.log(data);
+        const signingParams = {
+            Bucket: AUDIT_REPORT_BUCKET,
+            Key: report.filename,
+            Expires: SEVEN_DAYS_IN_SECONDS,
+        };
+        const signedUrl = s3.getSignedUrl('getObject', signingParams);
+        // Send email once signed URL is created
+        email.sendAuditReportEmail(recipientEmail, signedUrl);
+    };
+    const uploadParams = {
+        Bucket: AUDIT_REPORT_BUCKET,
+        Key: report.filename,
+        Body: report.outputWorkBook,
+    };
+    s3.upload(uploadParams, handleUpload);
 }
 
 module.exports = {
