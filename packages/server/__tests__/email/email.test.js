@@ -311,7 +311,7 @@ describe('Email sender', () => {
             await email.sendAuditReportEmail('foo@example.com', 'https://example.usdigitalresponse.org');
             expect(sendFake.calledOnce).to.equal(true);
             expect(sendFake.firstCall.firstArg.subject).to.equal('Your audit report is ready for download');
-            expect(sendFake.firstCall.firstArg.emailPlain).to.equal('Your audit report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org. This link will remain active for 7 days.');
+            expect(sendFake.firstCall.firstArg.emailPlain).to.equal('Your audit report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org This link will remain active for 7 days.');
             expect(sendFake.firstCall.firstArg.toAddress).to.equal('foo@example.com');
             expect(sendFake.firstCall.firstArg.emailHTML).contains('https://example.usdigitalresponse.org');
         });
