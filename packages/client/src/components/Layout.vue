@@ -45,6 +45,7 @@
         <AlertBox v-for="(alert, alertId) in alerts" :key="alertId" v-bind="alert" v-on:dismiss="dismissAlert(alertId)" />
         <EmailSettingsBanner
         :showBanner.sync="showOptInEmailBanner"
+        :showProfileSettings="settingsClicked"
         />
       </section>
 
