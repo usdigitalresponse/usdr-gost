@@ -272,7 +272,7 @@ async function sendAuditReportEmail(recipient, signedUrl) {
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
         body_title: 'Your audit report is ready for download',
-        body_detail: `<p><a href=${signedUrl}><b>Click here</b></a> to download your file Or, paste this link into your browser: ${signedUrl}.<br><br>This link will remain active for 7 days.</p>`,
+        body_detail: `<p><a href=${signedUrl}><b>Click here</b></a> to download your file<br>Or, paste this link into your browser:<br><b>${signedUrl}</b><br><br>This link will remain active for 7 days.</p>`,
     });
 
     const emailHTML = module.exports.addBaseBranding(
@@ -286,7 +286,7 @@ async function sendAuditReportEmail(recipient, signedUrl) {
     return module.exports.deliverEmail({
         toAddress: recipient,
         emailHTML,
-        emailPlain: `Your audit report is ready for download. Paste this link into your browser to download it: ${signedUrl}. This link will remain active for 7 days.`,
+        emailPlain: `Your audit report is ready for download. Paste this link into your browser to download it: ${signedUrl} This link will remain active for 7 days.`,
         subject: 'Your audit report is ready for download',
     });
 }
