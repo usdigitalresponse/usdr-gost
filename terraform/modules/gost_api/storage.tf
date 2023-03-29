@@ -23,3 +23,37 @@ module "efs_data_volume" {
     }
   }
 }
+
+module "arpa_audit_reports_bucket" {
+  source  = "cloudposse/s3-bucket/aws"
+  version = "3.0.0"
+  context = module.s3_label.context
+  name    = "arpa_audit_reports"
+
+  acl                          = "private"
+  versioning_enabled           = true
+  sse_algorithm                = "AES256"
+  allow_ssl_requests_only      = true
+  allow_encrypted_uploads_only = true
+  source_policy_documents      = []
+
+  lifecycle_configuration_rules = [
+    {
+      enabled                                = true
+      id                                     = "rule-1"
+      filter_and                             = null
+      abort_incomplete_multipart_upload_days = 1
+      transition                             = [{ days = null }]
+      expiration                             = { days = null }
+      noncurrent_version_transition = [
+        {
+          days          = 30
+          storage_class = "GLACIER"
+        },
+      ]
+      noncurrent_version_expiration = {
+        days = 2557 # 7 years (includes 2 leap days)
+      }
+    }
+  ]
+}
