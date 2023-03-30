@@ -3619,9 +3619,9 @@ aws-sdk-mock@5.8.0:
     traverse "^0.6.6"
 
 aws-sdk@^2.1231.0, aws-sdk@^2.963.0:
-  version "2.1345.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1345.0.tgz#0b34784fe8d15858a8f9a6903217621364133868"
-  integrity sha512-qQGQgHH/cDFvr3bMGVIqcU38IlRQv1jGt4JBxOXtnf9NZ1AO/CRTKfZs9TmbkID3YbfYHJjYAlQKmmRL6/MZdg==
+  version "2.1346.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1346.0.tgz#b259748135daec9252ee9f65f0387b32e9b94c9d"
+  integrity sha512-sLN7DUQ4KGkVCRN9uU5amz+k5qj5HFdwq0itH7WLtFGG63/vG/HnrqHj1G0PyMij0Zz6CGlRBACstWRm0niYhQ==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -14140,9 +14140,9 @@ webpack-virtual-modules@^0.4.2:
   integrity sha512-8bWq0Iluiv9lVf9YaqWQ9+liNgXSHICm+rg544yRgGYaR8yXZTVBaHZkINZSB2yZSWo4b0F6MIxqJezVfOEAlg==
 
 webpack@^5.54.0, webpack@^5.74.0:
-  version "5.76.3"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.76.3.tgz#dffdc72c8950e5b032fddad9c4452e7787d2f489"
-  integrity sha512-18Qv7uGPU8b2vqGeEEObnfICyw2g39CHlDEK4I7NK13LOur1d0HGmGNKGT58Eluwddpn3oEejwvBPoP4M7/KSA==
+  version "5.77.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.77.0.tgz#dea3ad16d7ea6b84aa55fa42f4eac9f30e7eb9b4"
+  integrity sha512-sbGNjBr5Ya5ss91yzjeJTLKyfiwo5C628AFjEa6WSXcZa4E+F57om3Cc8xLb1Jh0b243AWuSYRf3dn7HVeFQ9Q==
   dependencies:
     "@types/eslint-scope" "^3.7.3"
     "@types/estree" "^0.0.51"
