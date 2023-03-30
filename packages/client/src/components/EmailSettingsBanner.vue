@@ -49,7 +49,6 @@ export default {
       const updatedPreferences = {
         GRANT_ASSIGNMENT: 'UNSUBSCRIBED',
         GRANT_DIGEST: 'UNSUBSCRIBED',
-        GRANT_INTEREST: 'UNSUBSCRIBED',
       };
       if (isOptIn) {
         Object.keys(updatedPreferences).forEach((notificationType) => { updatedPreferences[notificationType] = 'SUBSCRIBED'; });
@@ -61,6 +60,8 @@ export default {
     },
     setToggleIfAllIsSubscribedTo() {
       // Set default toggle to true only if all email preferences are already subscribed to.
+      const userEmailPreferences = this.loggedInUser.emailPreferences;
+      delete userEmailPreferences.GRANT_INTEREST; // ignore grant interest since it's not a setting in User Preferences UI yet.
       const isAllSubscribedTo = Object.values(this.loggedInUser.emailPreferences).every((optInValue) => optInValue === 'SUBSCRIBED');
       if (isAllSubscribedTo) {
         this.checked = true;
