@@ -13,8 +13,9 @@ describe('audit report generation', () => {
         const generateFake = sinon.fake.returns('bar');
         sinon.replace(audit_report, 'generate', generateFake);
 
-        const uploadFake = sinon.fake.returns(null);
-        const s3Fake = sinon.fake.returns({ upload: uploadFake });
+        const uploadFake = sinon.fake.returns('just s3');
+        uploadFake.upload = sinon.fake.returns('upload');
+        const s3Fake = sinon.fake.returns(uploadFake);
         sinon.replace(audit_report, 'getS3Client', s3Fake);
 
         const tenantId = 0;
@@ -23,6 +24,12 @@ describe('audit report generation', () => {
         expect(generateFake.calledOnce).to.equal(true);
         expect(generateFake.firstCall.firstArg).to.equal('usdigitalresponse.org');
 
-        expect(s3Fake.upload.calledOnce.firstCall.firstArg).to.equal({});
+        expect(uploadFake.upload.calledOnce).to.equal(true);
+
+        const params = Object.keys(uploadFake.upload.firstCall.firstArg);
+        expect(params).to.contain('Bucket');
+        expect(params).to.contain('Key');
+        expect(params).to.contain('Body');
+        expect(uploadFake.upload.firstCall.firstArg.Bucket).to.equal('arpa-audit-reports');
     });
 });
