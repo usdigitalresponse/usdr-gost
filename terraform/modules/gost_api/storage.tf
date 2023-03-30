@@ -41,19 +41,9 @@ module "arpa_audit_reports_bucket" {
     {
       enabled                                = true
       id                                     = "rule-1"
-      filter_and                             = null
       abort_incomplete_multipart_upload_days = 1
-      transition                             = [{ days = null }]
-      expiration                             = { days = null }
-      noncurrent_version_transition = [
-        {
-          days          = 30
-          storage_class = "GLACIER"
-        },
-      ]
-      noncurrent_version_expiration = {
-        days = 7
-      }
+      expiration                             = { days = 14 }
+      noncurrent_version_expiration          = { days = 7 }
     }
   ]
 }
