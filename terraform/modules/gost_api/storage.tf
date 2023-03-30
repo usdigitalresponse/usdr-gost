@@ -24,6 +24,20 @@ module "efs_data_volume" {
   }
 }
 
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
+module "s3_label" {
+  source  = "cloudposse/label/null"
+  version = "0.25.0"
+
+  context = module.this.context
+  attributes = [
+    data.aws_caller_identity.current.account_id,
+    data.aws_region.current.name,
+  ]
+}
+
 module "arpa_audit_reports_bucket" {
   source  = "cloudposse/s3-bucket/aws"
   version = "3.0.0"
@@ -52,7 +66,7 @@ module "arpa_audit_reports_bucket" {
         },
       ]
       noncurrent_version_expiration = {
-        days = 2557 # 7 years (includes 2 leap days)
+        days = 7
       }
     }
   ]
