@@ -165,10 +165,21 @@ async function generate(requestHost) {
 }
 
 function getS3Client() {
+    /*
+        TODO: Move this client generation to a separate module that handles creating all AWS clients.
+        Captured in ticket here: https://github.com/usdigitalresponse/usdr-gost/issues/1161
+    */
+
     let s3;
-    // http://arpa-audit-reports.s3.localhost.localstack.cloud:4566/
     if (process.env.LOCALSTACK_HOSTNAME) {
-        console.log('ATTEMPTING TO USE  LOCALSTACK!!!');
+        /*
+            1. Make sure the local environment has awslocal installed.
+            2. Use the commands to create a bucket to test with.
+                - awslocal s3api create-bucket --bucket arpa-audit-reports --region us-west-2 --create-bucket-configuration '{"LocationConstraint": "us-west-2"}'
+            3. Access bucket resource metadata through the following URL.
+                - http://arpa-audit-reports.s3.localhost.localstack.cloud:4566/
+        */
+        console.log('------------ USING LOCALSTACK ------------');
         const endpoint = new AWS.Endpoint('http://localstack:4566');
         s3 = new AWS.S3({
             region: 'us-west-2',
