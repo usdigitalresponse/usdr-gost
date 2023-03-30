@@ -158,43 +158,62 @@ async function generate(requestHost) {
     XLSX.utils.book_append_sheet(workbook, sheet2, 'Project Summaries');
 
     return {
+        periodId,
         filename: `audit report ${moment().format('yy-MM-DD')}.xlsx`,
         outputWorkBook: XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' }),
     };
 }
 
+function getS3Client() {
+    let s3;
+    // http://arpa-audit-reports.s3.localhost.localstack.cloud:4566/
+    if (process.env.LOCALSTACK_HOSTNAME) {
+        console.log('ATTEMPTING TO USE  LOCALSTACK!!!');
+        const endpoint = new AWS.Endpoint('http://localstack:4566');
+        s3 = new AWS.S3({
+            region: 'us-west-2',
+            endpoint,
+            port: 4566,
+            s3ForcePathStyle: true,
+        });
+    } else {
+        s3 = new AWS.S3();
+    }
+    return s3;
+}
+
+async function presignAndSendEmail(Key, recipientEmail) {
+    const s3 = module.exports.getS3Client();
+    // Generate presigned url to get the object
+    const signingParams = { Bucket: AUDIT_REPORT_BUCKET, Key, Expires: SEVEN_DAYS_IN_SECONDS };
+    const signedUrl = s3.getSignedUrl('getObject', signingParams);
+    // Send email once signed URL is created
+    email.sendAuditReportEmail(recipientEmail, signedUrl);
+}
+
 async function generateAndSendEmail(requestHost, recipientEmail) {
     // Generate the report
     const report = await module.exports.generate(requestHost);
-    console.log(report);
-    // upload to S3 and generate Signed URL here
-    const s3 = new AWS.S3();
+    // Upload to S3 and generate Signed URL here
+    const reportKey = `${report.periodId}/${report.filename}`;
     const handleUpload = (err, data) => {
         if (err) {
             console.log(`Failed to upload audit report ${err}`);
-            throw err;
+            return;
         }
         console.log(data);
-        const signingParams = {
-            Bucket: AUDIT_REPORT_BUCKET,
-            Key: report.filename,
-            Expires: SEVEN_DAYS_IN_SECONDS,
-        };
-        const signedUrl = s3.getSignedUrl('getObject', signingParams);
-        // Send email once signed URL is created
-        email.sendAuditReportEmail(recipientEmail, signedUrl);
+        module.exports.presignAndSendEmail(reportKey, recipientEmail);
     };
-    const uploadParams = {
-        Bucket: AUDIT_REPORT_BUCKET,
-        Key: report.filename,
-        Body: report.outputWorkBook,
-    };
+    const s3 = module.exports.getS3Client();
+    const uploadParams = { Bucket: AUDIT_REPORT_BUCKET, Key: reportKey, Body: report.outputWorkBook };
     s3.upload(uploadParams, handleUpload);
 }
 
 module.exports = {
     generate,
     generateAndSendEmail,
+    getS3Client,
+    presignAndSendEmail,
 };
 
 // NOTE: This file was copied from src/server/lib/audit-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
