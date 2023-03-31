@@ -1,6 +1,7 @@
 const moment = require('moment');
 const XLSX = require('xlsx');
 const asyncBatch = require('async-batch').default;
+const AWS = require('aws-sdk');
 
 const { getPreviousReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
@@ -8,6 +9,9 @@ const { recordsForReportingPeriod, mostRecentProjectRecords } = require('../serv
 const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
+
+const SEVEN_DAYS_IN_SECONDS = 604800;
+const AUDIT_REPORT_BUCKET = 'arpa-audit-reports';
 
 const COLUMN = {
     EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -154,24 +158,73 @@ async function generate(requestHost) {
     XLSX.utils.book_append_sheet(workbook, sheet2, 'Project Summaries');
 
     return {
+        periodId,
         filename: `audit report ${moment().format('yy-MM-DD')}.xlsx`,
         outputWorkBook: XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' }),
     };
 }
 
+function getS3Client() {
+    /*
+        TODO: Move this client generation to a separate module that handles creating all AWS clients.
+        Captured in ticket here: https://github.com/usdigitalresponse/usdr-gost/issues/1161
+    */
+
+    let s3;
+    if (process.env.LOCALSTACK_HOSTNAME) {
+        /*
+            1. Make sure the local environment has awslocal installed.
+            2. Use the commands to create a bucket to test with.
+                - awslocal s3api create-bucket --bucket arpa-audit-reports --region us-west-2 --create-bucket-configuration '{"LocationConstraint": "us-west-2"}'
+            3. Access bucket resource metadata through the following URL.
+                - awslocal s3api list-buckets
+                - awslocal s3api list-objects --bucket arpa-audit-reports
+        */
+        console.log('------------ USING LOCALSTACK ------------');
+        const endpoint = new AWS.Endpoint(`http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT || 4566}`);
+        s3 = new AWS.S3({
+            region: process.env.AWS_DEFAULT_REGION || 'us-west-2',
+            endpoint,
+            s3ForcePathStyle: true,
+        });
+    } else {
+        s3 = new AWS.S3();
+    }
+    return s3;
+}
+
+async function presignAndSendEmail(Key, recipientEmail) {
+    const s3 = module.exports.getS3Client();
+    // Generate presigned url to get the object
+    const signingParams = { Bucket: AUDIT_REPORT_BUCKET, Key, Expires: SEVEN_DAYS_IN_SECONDS };
+    const signedUrl = s3.getSignedUrl('getObject', signingParams);
+    // Send email once signed URL is created
+    email.sendAuditReportEmail(recipientEmail, signedUrl);
+}
+
 async function generateAndSendEmail(requestHost, recipientEmail) {
     // Generate the report
     const report = await module.exports.generate(requestHost);
-    console.log(report);
-    // upload to S3 and generate Signed URL here
-    const signedUrl = 'https://google.com';
-    // Send email once signed URL is created
-    await email.sendAuditReportEmail(recipientEmail, signedUrl);
+    // Upload to S3 and generate Signed URL here
+    const reportKey = `${report.periodId}/${report.filename}`;
+    const handleUpload = (err, data) => {
+        if (err) {
+            console.log(`Failed to upload audit report ${err}`);
+            return;
+        }
+        console.log(data);
+        module.exports.presignAndSendEmail(reportKey, recipientEmail);
+    };
+    const s3 = module.exports.getS3Client();
+    const uploadParams = { Bucket: AUDIT_REPORT_BUCKET, Key: reportKey, Body: report.outputWorkBook };
+    s3.upload(uploadParams, handleUpload);
 }
 
 module.exports = {
     generate,
     generateAndSendEmail,
+    getS3Client,
+    presignAndSendEmail,
 };
 
 // NOTE: This file was copied from src/server/lib/audit-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

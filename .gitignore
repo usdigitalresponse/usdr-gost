@@ -116,3 +116,9 @@ dist
 
 # Locally-persisted postgres development data
 docker/postgres/persistence
+
+# Localstack generated local volume
+volume/
+
+# Terraform
+terraform/.terraform/
