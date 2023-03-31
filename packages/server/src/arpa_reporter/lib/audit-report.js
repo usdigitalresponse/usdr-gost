@@ -196,7 +196,7 @@ async function presignAndSendEmail(Key, recipientEmail) {
     const s3 = module.exports.getS3Client();
     // Generate presigned url to get the object
     const signingParams = { Bucket: process.env.AUDIT_REPORT_BUCKET, Key, Expires: SEVEN_DAYS_IN_SECONDS };
-    const signedUrl = s3.getSignedUrl('getObject', signingParams);
+    const signedUrl = await s3.getSignedUrl('getObject', signingParams);
     // Send email once signed URL is created
     email.sendAuditReportEmail(recipientEmail, signedUrl);
 }
