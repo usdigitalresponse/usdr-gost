@@ -215,7 +215,12 @@ async function generateAndSendEmail(requestHost, recipientEmail) {
         module.exports.presignAndSendEmail(reportKey, recipientEmail);
     };
     const s3 = module.exports.getS3Client();
-    const uploadParams = { Bucket: process.env.AUDIT_REPORT_BUCKET, Key: reportKey, Body: report.outputWorkBook };
+    const uploadParams = {
+        Bucket: process.env.AUDIT_REPORT_BUCKET,
+        Key: reportKey,
+        Body: report.outputWorkBook,
+        ServerSideEncryption: 'AES256',
+    };
     s3.upload(uploadParams, handleUpload);
 }
 
