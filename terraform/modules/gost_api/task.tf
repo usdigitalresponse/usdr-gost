@@ -37,6 +37,7 @@ module "api_container_definition" {
       WEBSITE_DOMAIN            = "https://${var.website_domain_name}"
       NOTIFICATIONS_EMAIL       = var.notifications_email_address
       DATA_DIR                  = "/var/data"
+      AUDIT_REPORT_BUCKET       = module.arpa_audit_reports_bucket.bucket_id
     },
     var.api_container_environment,
   )

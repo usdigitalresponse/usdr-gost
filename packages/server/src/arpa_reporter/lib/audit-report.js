@@ -11,7 +11,6 @@ const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
 
 const SEVEN_DAYS_IN_SECONDS = 604800;
-const AUDIT_REPORT_BUCKET = 'arpa-audit-reports';
 
 const COLUMN = {
     EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -196,7 +195,7 @@ function getS3Client() {
 async function presignAndSendEmail(Key, recipientEmail) {
     const s3 = module.exports.getS3Client();
     // Generate presigned url to get the object
-    const signingParams = { Bucket: AUDIT_REPORT_BUCKET, Key, Expires: SEVEN_DAYS_IN_SECONDS };
+    const signingParams = { Bucket: process.env.AUDIT_REPORT_BUCKET, Key, Expires: SEVEN_DAYS_IN_SECONDS };
     const signedUrl = s3.getSignedUrl('getObject', signingParams);
     // Send email once signed URL is created
     email.sendAuditReportEmail(recipientEmail, signedUrl);
@@ -216,7 +215,7 @@ async function generateAndSendEmail(requestHost, recipientEmail) {
         module.exports.presignAndSendEmail(reportKey, recipientEmail);
     };
     const s3 = module.exports.getS3Client();
-    const uploadParams = { Bucket: AUDIT_REPORT_BUCKET, Key: reportKey, Body: report.outputWorkBook };
+    const uploadParams = { Bucket: process.env.AUDIT_REPORT_BUCKET, Key: reportKey, Body: report.outputWorkBook };
     s3.upload(uploadParams, handleUpload);
 }
 

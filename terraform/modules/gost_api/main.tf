@@ -6,9 +6,9 @@ module "this" {
   source  = "cloudposse/label/null"
   version = "0.25.0"
 
-  enabled = var.enabled
-  name    = var.namespace
-  tags    = var.tags
+  enabled   = var.enabled
+  namespace = var.namespace
+  tags      = var.tags
 }
 
 module "s3_label" {
@@ -19,5 +19,6 @@ module "s3_label" {
   attributes = [
     data.aws_caller_identity.current.account_id,
     data.aws_region.current.name,
+    "api",
   ]
 }
