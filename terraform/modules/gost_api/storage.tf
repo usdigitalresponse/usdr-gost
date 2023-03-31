@@ -39,6 +39,7 @@ module "arpa_audit_reports_bucket" {
 
   lifecycle_configuration_rules = [
     {
+      enabled                                = true
       id                                     = "rule-1"
       filter_and                             = null
       abort_incomplete_multipart_upload_days = 1
