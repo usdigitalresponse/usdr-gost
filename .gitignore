@@ -119,3 +119,6 @@ docker/postgres/persistence
 
 # Localstack generated local volume
 volume/
+
+# Terraform
+terraform/.terraform/
