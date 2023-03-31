@@ -187,9 +187,9 @@ resource "aws_iam_role" "task" {
 
 resource "aws_iam_role_policy" "task" {
   for_each = !var.enabled ? {} : {
-    connect-to-postgres = module.connect_to_postgres_policy.json
-    ecs-exec            = module.ecs_exec_policy.json
-    send-emails         = module.send_emails_policy.json
+    connect-to-postgres   = module.connect_to_postgres_policy.json
+    ecs-exec              = module.ecs_exec_policy.json
+    send-emails           = module.send_emails_policy.json
     rw-arpa-audit-reports = module.access_arpa_reports_bucket_policy.json
   }
 
