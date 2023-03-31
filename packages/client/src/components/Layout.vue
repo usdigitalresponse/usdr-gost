@@ -41,8 +41,12 @@
     </b-nav>
 
     <div style="margin-top: 10px">
-      <section class="container-fluid">
+      <section class="container-fluid" style="display: flex; justify-content: center;">
         <AlertBox v-for="(alert, alertId) in alerts" :key="alertId" v-bind="alert" v-on:dismiss="dismissAlert(alertId)" />
+        <EmailSettingsBanner
+        :showBanner.sync="showOptInEmailBanner"
+        :showProfileSettings="settingsClicked"
+        />
       </section>
 
       <router-view />
@@ -55,6 +59,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
+import EmailSettingsBanner from '@/components/EmailSettingsBanner.vue';
 import AlertBox from '../arpa_reporter/components/AlertBox.vue';
 
 export default {
@@ -62,10 +67,12 @@ export default {
   components: {
     AlertBox,
     ProfileSettingsModal,
+    EmailSettingsBanner,
   },
   data() {
     return {
       showProfileSettingModal: false,
+      showOptInEmailBanner: true,
     };
   },
   computed: {
