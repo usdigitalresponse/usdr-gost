@@ -73,7 +73,9 @@ describe('audit report generation', () => {
         expect(params).to.contain('Bucket');
         expect(params).to.contain('Key');
         expect(params).to.contain('Body');
+        expect(params).to.contain('ServerSideEncryption');
         expect(uploadFake.upload.firstCall.firstArg.Bucket).to.equal('arpa-audit-reports');
+        expect(uploadFake.upload.firstCall.firstArg.ServerSideEncryption).to.equal('AES256');
 
         console.log('Asserting presigned and email function');
         expect(presignedFake.calledOnce).to.equal(true);
@@ -109,7 +111,9 @@ describe('audit report generation', () => {
         expect(params).to.contain('Bucket');
         expect(params).to.contain('Key');
         expect(params).to.contain('Body');
+        expect(params).to.contain('ServerSideEncryption');
         expect(uploadFake.upload.firstCall.firstArg.Bucket).to.equal('arpa-audit-reports');
+        expect(uploadFake.upload.firstCall.firstArg.ServerSideEncryption).to.equal('AES256');
 
         console.log('Asserting presigned and email function');
         expect(presignedFake.notCalled).to.equal(true);
