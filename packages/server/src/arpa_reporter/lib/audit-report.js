@@ -181,9 +181,9 @@ function getS3Client() {
                 - awslocal s3api list-objects --bucket arpa-audit-reports
         */
         console.log('------------ USING LOCALSTACK ------------');
-        const endpoint = new AWS.Endpoint(`http://localstack:${process.env.EDGE_PORT}`);
+        const endpoint = new AWS.Endpoint(`http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT || 4566}`);
         s3 = new AWS.S3({
-            region: process.env.AWS_DEFAULT_REGION,
+            region: process.env.AWS_DEFAULT_REGION || 'us-west-2',
             endpoint,
             s3ForcePathStyle: true,
         });
