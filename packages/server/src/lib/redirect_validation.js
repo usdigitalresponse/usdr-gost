@@ -3,17 +3,29 @@
 // should be discarded (and redirect to default page); if argument is valid, the
 // redirect URL is returned. In the future, this function could also transform
 // the URL if needed.
-function validatePostLoginRedirectPath(url) {
+
+function matchesSafeUrl(url) {
     const safeUrls = [
-        '#/grants?manageSettings=true',
+        /^#\/grants\?manageSettings=true$/,
+        /^\/api\/audit_report\/\d+\/.*\.xlsx$/,
     ];
 
+    for (const regex of safeUrls) {
+        if (url.match(regex)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function validatePostLoginRedirectPath(url) {
     if (!url) {
         return null;
     }
 
     // Ensures we have a allowlist of redirect URLs that are always safe.
-    if (safeUrls.includes(url)) {
+    if (matchesSafeUrl(url)) {
         return url;
     }
 

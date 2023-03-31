@@ -76,8 +76,17 @@ export default {
     },
   },
   data() {
+    let alert;
+    if (this.$route.query.alert_text) {
+      /* ok, warn, err */
+      alert = {
+        text: this.$route.query.alert_text,
+        level: this.$route.query.alert_level,
+      };
+    }
+
     return {
-      alert: null,
+      alert,
       sending: false,
     };
   },
