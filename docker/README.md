@@ -38,7 +38,7 @@ for development.
 ### Install or update dependencies
 
 After your intitial setup or for any update to the `package.json` file that
-tracks application dependencies, you'll need to run yarn. Thisq
+tracks application dependencies, you'll need to run yarn. This
 can be executed via `exec`. For example, to install dependencies after initial
 setup: `docker compose exec app yarn`.
 
