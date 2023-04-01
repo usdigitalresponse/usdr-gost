@@ -27,7 +27,7 @@ router.get('/:periodId/:filename', async (req, res) => {
         await s3.headObject(baseParams).promise();
     } catch (error) {
         console.log(error);
-        res.redirect(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=The audit report you requested does not exist. Please try again by clicking the 'Send Audit Report By Email'.&alert_level=err`);
+        res.redirect(encodeURI(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=The audit report you requested has expired. Please try again by clicking the 'Send Audit Report By Email'.&alert_level=err`));
         return;
     }
 

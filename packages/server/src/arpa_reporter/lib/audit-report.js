@@ -1,4 +1,5 @@
 const moment = require('moment');
+const { v4 } = require('uuid');
 const XLSX = require('xlsx');
 const asyncBatch = require('async-batch').default;
 const aws = require('./aws-client');
@@ -157,7 +158,7 @@ async function generate(requestHost) {
 
     return {
         periodId,
-        filename: `audit-report-${moment().format('yy-MM-DD')}.xlsx`,
+        filename: `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`,
         outputWorkBook: XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' }),
     };
 }
