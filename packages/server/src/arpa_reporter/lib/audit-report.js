@@ -163,8 +163,8 @@ async function generate(requestHost) {
     };
 }
 
-async function sendEmailWithLink(periodId, filename, recipientEmail) {
-    const url = `${process.env.WEBSITE_DOMAIN}/api/audit_report/${periodId}/${filename}`;
+async function sendEmailWithLink(fileKey, recipientEmail) {
+    const url = `${process.env.WEBSITE_DOMAIN}/api/audit_report/${fileKey}`;
     email.sendAuditReportEmail(recipientEmail, url);
 }
 
@@ -180,7 +180,7 @@ async function generateAndSendEmail(requestHost, recipientEmail) {
             return;
         }
         console.log(data);
-        module.exports.sendEmailWithLink(report.periodId, report.filename, recipientEmail);
+        module.exports.sendEmailWithLink(reportKey, recipientEmail);
     };
     const s3 = aws.getS3Client();
     const uploadParams = {

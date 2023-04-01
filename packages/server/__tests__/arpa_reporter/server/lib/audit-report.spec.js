@@ -3,6 +3,7 @@ const sinon = require('sinon');
 const email = require('../../../../src/lib/email');
 
 const audit_report = require('../../../../src/arpa_reporter/lib/audit-report');
+const aws = require('../../../../src/arpa_reporter/lib/aws-client');
 const { withTenantId } = require('../helpers/with-tenant-id');
 
 function handleUploadFake(type) {
@@ -23,33 +24,22 @@ describe('audit report generation', () => {
     afterEach(() => {
         sandbox.restore();
     });
-    it('presignAndSendEmail creates a presigned url and sends email to recipient', async () => {
+    it('sendEmailWithLink creates a presigned url and sends email to recipient', async () => {
         const sendFake = sandbox.fake.returns('foo');
         sandbox.replace(email, 'sendAuditReportEmail', sendFake);
 
-        const signedUrlFake = sandbox.fake.returns('just s3');
-        signedUrlFake.getSignedUrl = sandbox.fake.returns('http://example.usdigitalresponse.org');
-        const s3Fake = sandbox.fake.returns(signedUrlFake);
-        sandbox.replace(audit_report, 'getS3Client', s3Fake);
-
-        await audit_report.presignAndSendEmail('99/example.xlsx', 'foo@example.com');
-
-        expect(signedUrlFake.getSignedUrl.calledOnce).to.equal(true);
-        expect(signedUrlFake.getSignedUrl.firstCall.firstArg).to.equal('getObject');
-        expect(signedUrlFake.getSignedUrl.firstCall.lastArg.Bucket).to.equal('arpa-audit-reports');
-        expect(signedUrlFake.getSignedUrl.firstCall.lastArg.Key).to.equal('99/example.xlsx');
-        expect(signedUrlFake.getSignedUrl.firstCall.lastArg.Expires).to.equal(604800);
+        await audit_report.sendEmailWithLink('1/99/example.xlsx', 'foo@example.com');
 
         expect(sendFake.calledOnce).to.equal(true);
         expect(sendFake.firstCall.firstArg).to.equal('foo@example.com');
-        expect(sendFake.firstCall.lastArg).to.equal('http://example.usdigitalresponse.org');
+        expect(sendFake.firstCall.lastArg).to.equal('http://localhost:8080/api/audit_report/1/99/example.xlsx');
     });
     it('generateAndSendEmail generates a report, uploads to s3, and sends an email', async () => {
         const sendFake = sandbox.fake.returns('foo');
         sandbox.replace(email, 'sendAuditReportEmail', sendFake);
 
-        const presignedFake = sandbox.fake.returns('foo2');
-        sandbox.replace(audit_report, 'presignAndSendEmail', presignedFake);
+        const sendEmailFake = sandbox.fake.returns('foo2');
+        sandbox.replace(audit_report, 'sendEmailWithLink', sendEmailFake);
 
         const generateFake = sandbox.fake.returns({ periodId: 99, filename: 'example.xlsx', outputWorkBook: 'sample-text' });
         sandbox.replace(audit_report, 'generate', generateFake);
@@ -57,7 +47,7 @@ describe('audit report generation', () => {
         const uploadFake = sandbox.fake.returns('just s3');
         uploadFake.upload = sandbox.fake(handleUploadFake('success'));
         const s3Fake = sandbox.fake.returns(uploadFake);
-        sandbox.replace(audit_report, 'getS3Client', s3Fake);
+        sandbox.replace(aws, 'getS3Client', s3Fake);
 
         const tenantId = 0;
         await withTenantId(tenantId, () => audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com'));
@@ -78,16 +68,16 @@ describe('audit report generation', () => {
         expect(uploadFake.upload.firstCall.firstArg.ServerSideEncryption).to.equal('AES256');
 
         console.log('Asserting presigned and email function');
-        expect(presignedFake.calledOnce).to.equal(true);
-        expect(presignedFake.firstCall.firstArg).to.equal('99/example.xlsx');
-        expect(presignedFake.firstCall.lastArg).to.equal('foo@example.com');
+        expect(sendEmailFake.calledOnce).to.equal(true);
+        expect(sendEmailFake.firstCall.firstArg).to.equal('0/99/example.xlsx');
+        expect(sendEmailFake.firstCall.lastArg).to.equal('foo@example.com');
     });
     it('generateAndSendEmail does not send an email if upload fails', async () => {
         const sendFake = sandbox.fake.returns('foo');
         sandbox.replace(email, 'sendAuditReportEmail', sendFake);
 
-        const presignedFake = sandbox.fake.returns('foo2');
-        sandbox.replace(audit_report, 'presignAndSendEmail', presignedFake);
+        const sendEmailFake = sandbox.fake.returns('foo2');
+        sandbox.replace(audit_report, 'sendEmailWithLink', sendEmailFake);
 
         const generateFake = sandbox.fake.returns({ periodId: 99, filename: 'example.xlsx', outputWorkBook: 'sample-text' });
         sandbox.replace(audit_report, 'generate', generateFake);
@@ -95,7 +85,7 @@ describe('audit report generation', () => {
         const uploadFake = sandbox.fake.returns('just s3');
         uploadFake.upload = sandbox.fake(handleUploadFake('error'));
         const s3Fake = sandbox.fake.returns(uploadFake);
-        sandbox.replace(audit_report, 'getS3Client', s3Fake);
+        sandbox.replace(aws, 'getS3Client', s3Fake);
 
         const tenantId = 0;
         await withTenantId(tenantId, () => audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com'));
@@ -116,6 +106,6 @@ describe('audit report generation', () => {
         expect(uploadFake.upload.firstCall.firstArg.ServerSideEncryption).to.equal('AES256');
 
         console.log('Asserting presigned and email function');
-        expect(presignedFake.notCalled).to.equal(true);
+        expect(sendEmailFake.notCalled).to.equal(true);
     });
 });
