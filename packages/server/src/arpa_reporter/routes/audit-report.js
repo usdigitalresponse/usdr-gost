@@ -10,25 +10,34 @@ const { useUser } = require('../use-request');
 const aws = require('../lib/aws-client');
 
 router.get('/:periodId/:filename', async (req, res) => {
+    let user;
     try {
-        await getAdminAuthInfo(req);
+        const info = await getAdminAuthInfo(req);
+        user = info.user;
     } catch (error) {
         res.redirect(encodeURI(`${process.env.WEBSITE_DOMAIN}/arpa_reporter/login?redirect_to=/api/audit_report/${req.params.periodId}/${req.params.filename}&message=Please login to visit the link.`));
         return;
     }
-    const Key = `${req.params.periodId}/${req.params.filename}`;
 
     const s3 = aws.getS3Client();
-    // Generate presigned url to get the object
+    const Key = `${user.tenant_id}/${req.params.periodId}/${req.params.filename}`;
     const baseParams = { Bucket: process.env.AUDIT_REPORT_BUCKET, Key };
-    const metaData = await s3.headObject(baseParams).promise();
 
-    if (!metaData) {
+    try {
+        await s3.headObject(baseParams).promise();
+    } catch (error) {
+        console.log(error);
         res.redirect(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=The audit report you requested does not exist. Please try again by clicking the 'Send Audit Report By Email'.&alert_level=err`);
         return;
     }
 
-    const signedUrl = await s3.getSignedUrl('getObject', { ...baseParams, Expires: 60 });
+    let signedUrl;
+    try {
+        signedUrl = await s3.getSignedUrl('getObject', { ...baseParams, Expires: 60 });
+    } catch (error) {
+        console.log(error);
+        res.redirect(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=Something went wrong. Please reach out to grants-helpdesk@usdigitalresponse.org.&alert_level=err`);
+    }
     res.redirect(signedUrl);
 });
 

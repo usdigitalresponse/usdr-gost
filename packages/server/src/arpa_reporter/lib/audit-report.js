@@ -9,6 +9,7 @@ const { recordsForReportingPeriod, mostRecentProjectRecords } = require('../serv
 const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
+const { useTenantId } = require('../use-request');
 
 const COLUMN = {
     EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -156,7 +157,7 @@ async function generate(requestHost) {
 
     return {
         periodId,
-        filename: `audit report ${moment().format('yy-MM-DD')}.xlsx`,
+        filename: `audit-report-${moment().format('yy-MM-DD')}.xlsx`,
         outputWorkBook: XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' }),
     };
 }
@@ -167,10 +168,11 @@ async function sendEmailWithLink(periodId, filename, recipientEmail) {
 }
 
 async function generateAndSendEmail(requestHost, recipientEmail) {
+    const tenantId = useTenantId();
     // Generate the report
     const report = await module.exports.generate(requestHost);
     // Upload to S3 and send email link
-    const reportKey = `${report.periodId}/${report.filename}`;
+    const reportKey = `${tenantId}/${report.periodId}/${report.filename}`;
     const handleUpload = (err, data) => {
         if (err) {
             console.log(`Failed to upload audit report ${err}`);
