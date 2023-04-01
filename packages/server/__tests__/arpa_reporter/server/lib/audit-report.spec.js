@@ -32,7 +32,7 @@ describe('audit report generation', () => {
 
         expect(sendFake.calledOnce).to.equal(true);
         expect(sendFake.firstCall.firstArg).to.equal('foo@example.com');
-        expect(sendFake.firstCall.lastArg).to.equal('http://localhost:8080/api/audit_report/1/99/example.xlsx');
+        expect(sendFake.firstCall.lastArg).to.equal(`${process.env.WEBSITE_DOMAIN}/api/audit_report/1/99/example.xlsx`);
     });
     it('generateAndSendEmail generates a report, uploads to s3, and sends an email', async () => {
         const sendFake = sandbox.fake.returns('foo');
