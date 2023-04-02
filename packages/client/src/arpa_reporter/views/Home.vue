@@ -77,7 +77,7 @@ export default {
   },
   data() {
     let alert;
-    if (this.$route.query.alert_text) {
+    if (this.$route?.query?.alert_text) {
       /* ok, warn, err */
       alert = {
         text: this.$route.query.alert_text,
