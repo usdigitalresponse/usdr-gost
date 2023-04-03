@@ -164,7 +164,7 @@ async function generate(requestHost) {
 }
 
 async function sendEmailWithLink(fileKey, recipientEmail) {
-    const url = `${process.env.WEBSITE_DOMAIN}/api/audit_report/${fileKey}`;
+    const url = `${process.env.API_DOMAIN}/api/audit_report/${fileKey}`;
     email.sendAuditReportEmail(recipientEmail, url);
 }
 
