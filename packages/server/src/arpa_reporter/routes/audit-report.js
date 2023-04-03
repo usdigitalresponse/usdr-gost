@@ -9,11 +9,14 @@ const audit_report = require('../lib/audit-report');
 const { useUser } = require('../use-request');
 const aws = require('../lib/aws-client');
 
-router.get('/:periodId/:filename', async (req, res) => {
+router.get('/:tenantId/:periodId/:filename', async (req, res) => {
     let user;
     try {
         const info = await getAdminAuthInfo(req);
         user = info.user;
+        if (user.tenant_id !== Number(req.params.tenantId)) {
+            throw new Error('Unauthorized');
+        }
     } catch (error) {
         res.redirect(encodeURI(`${process.env.WEBSITE_DOMAIN}/arpa_reporter/login?redirect_to=/api/audit_report/${req.params.periodId}/${req.params.filename}&message=Please login to visit the link.`));
         return;

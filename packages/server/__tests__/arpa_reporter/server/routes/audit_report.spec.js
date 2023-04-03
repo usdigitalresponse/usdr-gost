@@ -59,7 +59,7 @@ describe('/api/audit_report', () => {
     });
     it('Signed URL - redirects for unauthorized users', async () => {
         const response = await server
-            .get('/api/audit_report/99/example.xlsx');
+            .get('/api/audit_report/0/99/example.xlsx');
 
         expect(response.status).to.equal(302);
         expect(response.headers.location).to.equal('http://localhost:8080/arpa_reporter/login?redirect_to=/api/audit_report/99/example.xlsx&message=Please%20login%20to%20visit%20the%20link.');
@@ -73,11 +73,26 @@ describe('/api/audit_report', () => {
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
         const response = await server
-            .get('/api/audit_report/99/example.xlsx')
+            .get('/api/audit_report/0/99/example.xlsx')
             .set('Cookie', tenantACookie);
 
         expect(response.status).to.equal(302);
         expect(response.headers.location).to.equal(`http://localhost:8080/arpa_reporter?alert_text=The%20audit%20report%20you%20requested%20has%20expired.%20Please%20try%20again%20by%20clicking%20the%20'Send%20Audit%20Report%20By%20Email'.&alert_level=err`);
+    });
+    it('Signed URL - redirects to login page when user is accessing wrong tenant', async () => {
+        const s3InstanceFake = sandbox.fake.returns('just s3');
+        const headObject = sandbox.fake.returns('h object');
+        headObjectFake.promise = sandbox.fake.returns('promise');
+        s3InstanceFake.headObject = sandbox.fake(headObjectFake('error', headObject));
+        const s3Fake = sandbox.fake.returns(s3InstanceFake);
+        sandbox.replace(aws, 'getS3Client', s3Fake);
+
+        const response = await server
+            .get('/api/audit_report/1/99/example.xlsx')
+            .set('Cookie', tenantACookie);
+
+        expect(response.status).to.equal(302);
+        expect(response.headers.location).to.equal(`http://localhost:8080/arpa_reporter/login?redirect_to=/api/audit_report/99/example.xlsx&message=Please%20login%20to%20visit%20the%20link.`);
     });
     it('Signed URL - returns redirect with message when there is an issue generating URL', async () => {
         const s3InstanceFake = sandbox.fake.returns('just s3');
@@ -90,7 +105,7 @@ describe('/api/audit_report', () => {
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
         const response = await server
-            .get('/api/audit_report/99/example.xlsx')
+            .get('/api/audit_report/0/99/example.xlsx')
             .set('Cookie', tenantACookie);
 
         expect(response.status).to.equal(302);
@@ -107,7 +122,7 @@ describe('/api/audit_report', () => {
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
         const response = await server
-            .get('/api/audit_report/99/example.xlsx')
+            .get('/api/audit_report/0/99/example.xlsx')
             .set('Cookie', tenantACookie);
 
         expect(response.status).to.equal(302);
