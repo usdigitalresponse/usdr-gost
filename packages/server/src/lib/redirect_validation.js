@@ -7,7 +7,7 @@
 function matchesSafeUrl(url) {
     const safeUrls = [
         /^#\/grants\?manageSettings=true$/,
-        /^\/api\/audit_report\/\d+\/.*\.xlsx$/,
+        /^\/api\/audit_report\/\d+\/\d+\/.*\.xlsx$/,
     ];
 
     for (const regex of safeUrls) {

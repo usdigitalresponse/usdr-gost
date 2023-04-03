@@ -18,7 +18,7 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
             throw new Error('Unauthorized');
         }
     } catch (error) {
-        res.redirect(encodeURI(`${process.env.WEBSITE_DOMAIN}/arpa_reporter/login?redirect_to=/api/audit_report/${req.params.periodId}/${req.params.filename}&message=Please login to visit the link.`));
+        res.redirect(encodeURI(`${process.env.WEBSITE_DOMAIN}/arpa_reporter/login?redirect_to=/api/audit_report/${req.params.tenantId}/${req.params.periodId}/${req.params.filename}&message=Please login to visit the link.`));
         return;
     }
 
