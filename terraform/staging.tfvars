@@ -7,28 +7,28 @@ ssm_deployment_parameters_path_prefix = "/gost/staging/deploy-config"
 // Website
 website_enabled     = true
 website_domain_name = "staging.grants.usdr.dev"
-website_managed_waf_rules = [
-  {
-    name              = "AWSManagedRulesAnonymousIpList"
-    priority          = 5
+website_managed_waf_rules = {
+  "AnonymousIpList" = {
+    managed_rule      = "AWSManagedRulesAnonymousIpList",
+    priority          = 5,
     metric_visibility = false
   },
-  {
-    name              = "AWSManagedRulesAmazonIpReputationList"
-    priority          = 10
+  "AmazonIpReputationList" = {
+    managed_rule      = "AWSManagedRulesAmazonIpReputationList",
+    priority          = 10,
     metric_visibility = false
   },
-  {
-    name              = "AWSManagedRulesCommonRuleSet"
-    priority          = 20
+  "CommonRuleSet" = {
+    managed_rule      = "AWSManagedRulesCommonRuleSet",
+    priority          = 20,
     metric_visibility = true
   },
-  {
-    name              = "AWSManagedRulesKnownBadInputsRuleSet"
-    priority          = 30
+  "KnownBadInputsRuleSet" = {
+    managed_rule      = "AWSManagedRulesKnownBadInputsRuleSet",
+    priority          = 30,
     metric_visibility = true
   }
-]
+}
 
 // ECS Cluster
 cluster_container_insights_enabled = true

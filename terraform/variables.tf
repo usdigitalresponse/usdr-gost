@@ -46,9 +46,9 @@ variable "website_domain_name" {
 }
 
 variable "website_managed_waf_rules" {
-  description = "List of parameters for managed WAF rules"
-  type = list(object({
-    name              = string
+  description = "Map of rules and associated parameters for managed WAF ACL"
+  type = map(object({
+    managed_rule      = string
     priority          = number
     metric_visibility = bool
   }))
