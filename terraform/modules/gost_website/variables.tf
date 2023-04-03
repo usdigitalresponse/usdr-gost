@@ -41,6 +41,15 @@ variable "logs_bucket_versioning" {
   default     = true
 }
 
+variable "managed_waf_rules" {
+  description = "List of parameters for managed WAF rules"
+  type        = list(object({
+    name              = string
+    priority          = string
+    metric_visibility = bool
+  }))
+}
+
 variable "origin_bucket_dist_path" {
   description = "Path to the directory where website build files should be stored in the S3 origin bucket."
   default     = "/dist"
