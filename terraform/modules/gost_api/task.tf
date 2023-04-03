@@ -37,6 +37,7 @@ module "api_container_definition" {
       WEBSITE_DOMAIN            = "https://${var.website_domain_name}"
       NOTIFICATIONS_EMAIL       = var.notifications_email_address
       DATA_DIR                  = "/var/data"
+      AUDIT_REPORT_BUCKET       = module.arpa_audit_reports_bucket.bucket_id
     },
     var.api_container_environment,
   )
@@ -187,9 +188,10 @@ resource "aws_iam_role" "task" {
 
 resource "aws_iam_role_policy" "task" {
   for_each = !var.enabled ? {} : {
-    connect-to-postgres = module.connect_to_postgres_policy.json
-    ecs-exec            = module.ecs_exec_policy.json
-    send-emails         = module.send_emails_policy.json
+    connect-to-postgres   = module.connect_to_postgres_policy.json
+    ecs-exec              = module.ecs_exec_policy.json
+    send-emails           = module.send_emails_policy.json
+    rw-arpa-audit-reports = module.access_arpa_reports_bucket_policy.json
   }
 
   name   = each.key

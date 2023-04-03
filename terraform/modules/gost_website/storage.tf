@@ -105,7 +105,7 @@ module "logs_bucket" {
   name    = "logs"
 
   acl                          = "private"
-  versioning_enabled           = false
+  versioning_enabled           = var.logs_bucket_versioning
   sse_algorithm                = "AES256"
   allow_ssl_requests_only      = true
   allow_encrypted_uploads_only = true

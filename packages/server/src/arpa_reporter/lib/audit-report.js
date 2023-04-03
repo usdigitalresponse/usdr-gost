@@ -1,12 +1,16 @@
 const moment = require('moment');
+const { v4 } = require('uuid');
 const XLSX = require('xlsx');
 const asyncBatch = require('async-batch').default;
+const aws = require('./aws-client');
 
 const { getPreviousReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
 const { recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records');
 const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
+const email = require('../../lib/email');
+const { useTenantId } = require('../use-request');
 
 const COLUMN = {
     EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -153,13 +157,45 @@ async function generate(requestHost) {
     XLSX.utils.book_append_sheet(workbook, sheet2, 'Project Summaries');
 
     return {
-        filename: `audit report ${moment().format('yy-MM-DD')}.xlsx`,
+        periodId,
+        filename: `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`,
         outputWorkBook: XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' }),
     };
 }
 
+async function sendEmailWithLink(fileKey, recipientEmail) {
+    const url = `${process.env.WEBSITE_DOMAIN}/api/audit_report/${fileKey}`;
+    email.sendAuditReportEmail(recipientEmail, url);
+}
+
+async function generateAndSendEmail(requestHost, recipientEmail) {
+    const tenantId = useTenantId();
+    // Generate the report
+    const report = await module.exports.generate(requestHost);
+    // Upload to S3 and send email link
+    const reportKey = `${tenantId}/${report.periodId}/${report.filename}`;
+    const handleUpload = (err, data) => {
+        if (err) {
+            console.log(`Failed to upload audit report ${err}`);
+            return;
+        }
+        console.log(data);
+        module.exports.sendEmailWithLink(reportKey, recipientEmail);
+    };
+    const s3 = aws.getS3Client();
+    const uploadParams = {
+        Bucket: process.env.AUDIT_REPORT_BUCKET,
+        Key: reportKey,
+        Body: report.outputWorkBook,
+        ServerSideEncryption: 'AES256',
+    };
+    s3.upload(uploadParams, handleUpload);
+}
+
 module.exports = {
     generate,
+    generateAndSendEmail,
+    sendEmailWithLink,
 };
 
 // NOTE: This file was copied from src/server/lib/audit-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
