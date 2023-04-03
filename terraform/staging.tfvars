@@ -5,8 +5,8 @@ ssm_service_parameters_path_prefix    = "/gost/staging"
 ssm_deployment_parameters_path_prefix = "/gost/staging/deploy-config"
 
 // Website
-website_enabled           = true
-website_domain_name       = "staging.grants.usdr.dev"
+website_enabled     = true
+website_domain_name = "staging.grants.usdr.dev"
 website_managed_waf_rules = [
   {
     name              = "AWSManagedRulesAnonymousIpList"

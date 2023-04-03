@@ -43,7 +43,7 @@ variable "logs_bucket_versioning" {
 
 variable "managed_waf_rules" {
   description = "List of parameters for managed WAF rules"
-  type        = list(object({
+  type = list(object({
     name              = string
     priority          = string
     metric_visibility = bool

@@ -1,8 +1,8 @@
 locals {
   expanded_rules = flatten([
     for r in var.managed_waf_rules : {
-      name      = r.name,
-      priority  = r.priority,
+      name     = r.name,
+      priority = r.priority,
       statement = {
         name        = r.name
         vendor_name = "AWS"
