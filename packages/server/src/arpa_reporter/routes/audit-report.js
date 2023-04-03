@@ -36,7 +36,7 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
 
     let signedUrl;
     try {
-        signedUrl = await s3.getSignedUrl('getObject', { ...baseParams, Expires: 60 });
+        signedUrl = await s3.getSignedUrlPromise('getObject', { ...baseParams, Expires: 60 });
     } catch (error) {
         console.log(error);
         res.redirect(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=Something went wrong. Please reach out to grants-helpdesk@usdigitalresponse.org.&alert_level=err`);
