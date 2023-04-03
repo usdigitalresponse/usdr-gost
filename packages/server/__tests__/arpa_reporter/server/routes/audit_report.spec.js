@@ -100,7 +100,7 @@ describe('/api/audit_report', () => {
         objReturnFake.promise = sandbox.fake.returns('promise return');
         const headObject = sandbox.fake.returns(objReturnFake);
         s3InstanceFake.headObject = sandbox.fake(headObjectFake('success', headObject));
-        s3InstanceFake.getSignedUrl = sandbox.fake(signedUrlFake('error'));
+        s3InstanceFake.getSignedUrlPromise = sandbox.fake(signedUrlFake('error'));
         const s3Fake = sandbox.fake.returns(s3InstanceFake);
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
@@ -117,7 +117,7 @@ describe('/api/audit_report', () => {
         objReturnFake.promise = sandbox.fake.returns('promise return');
         const headObject = sandbox.fake.returns(objReturnFake);
         s3InstanceFake.headObject = sandbox.fake(headObjectFake('success', headObject));
-        s3InstanceFake.getSignedUrl = sandbox.fake(signedUrlFake('success'));
+        s3InstanceFake.getSignedUrlPromise = sandbox.fake(signedUrlFake('success'));
         const s3Fake = sandbox.fake.returns(s3InstanceFake);
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
