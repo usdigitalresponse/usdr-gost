@@ -2,14 +2,14 @@ locals {
   expanded_rules = flatten([
     for r in var.managed_waf_rules : {
       name     = r.key,
-      priority = r.priority,
+      priority = r.value.priority,
       statement = {
-        name        = r.managed_rule
+        name        = r.value.managed_rule
         vendor_name = "AWS"
       },
       visibility_config = {
-        cloudwatch_metrics_enabled = r.metric_visibility,
-        sampled_requests_enabled   = r.metric_visibility,
+        cloudwatch_metrics_enabled = r.value.metric_visibility,
+        sampled_requests_enabled   = r.value.metric_visibility,
         metric_name                = "${r.key}-metric"
       }
     }
