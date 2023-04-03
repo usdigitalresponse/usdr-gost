@@ -37,6 +37,7 @@ router.get('/:periodId/:filename', async (req, res) => {
     } catch (error) {
         console.log(error);
         res.redirect(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=Something went wrong. Please reach out to grants-helpdesk@usdigitalresponse.org.&alert_level=err`);
+        return;
     }
     res.redirect(signedUrl);
 });
