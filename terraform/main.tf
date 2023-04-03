@@ -38,9 +38,10 @@ module "website" {
   namespace                = var.namespace
   permissions_boundary_arn = local.permissions_boundary_arn
 
-  dns_zone_id     = data.aws_ssm_parameter.public_dns_zone_id.value
-  domain_name     = var.website_domain_name
-  gost_api_domain = local.api_domain_name
+  dns_zone_id       = data.aws_ssm_parameter.public_dns_zone_id.value
+  domain_name       = var.website_domain_name
+  gost_api_domain   = local.api_domain_name
+  managed_waf_rules = var.website_managed_waf_rules
 }
 
 module "api_to_postgres_security_group" {

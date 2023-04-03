@@ -38,6 +38,7 @@ module "cdn" {
   enabled             = true
   aliases             = [var.domain_name]
   default_root_object = "index.html"
+  web_acl_id          = module.waf.id
 
   // Optimized for North America
   // See https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html
