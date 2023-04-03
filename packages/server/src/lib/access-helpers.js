@@ -32,35 +32,40 @@ async function isAuthorized(userId, agencyId) {
     return isUserAuthorized(user, agencyId);
 }
 
-async function requireAdminUser(req, res, next) {
+async function getAdminAuthInfo(req) {
     if (!req.signedCookies.userId) {
-        res.sendStatus(403);
-        return;
+        throw new Error('Unauthorized');
     }
 
     const user = await getUser(req.signedCookies.userId);
     if (!user) {
-        res.sendStatus(403);
-        return;
+        throw new Error('Unauthorized');
     }
 
     if (user.role_name !== 'admin') {
-        res.sendStatus(403);
-        return;
+        throw new Error('Unauthorized');
     }
-    const paramAgencyId = req.params.organizationId;
 
-    const requestAgency = Number(paramAgencyId);
-
+    let selectedAgency = user.agency_id;
+    const requestAgency = Number(req.params.organizationId);
     if (!Number.isNaN(requestAgency)) {
         const authorized = await isUserAuthorized(user, requestAgency);
         if (!authorized) {
-            res.sendStatus(403);
-            return;
+            throw new Error('Unauthorized');
         }
-        req.session = { ...req.session, user, selectedAgency: requestAgency };
-    } else {
-        req.session = { ...req.session, user, selectedAgency: user.agency_id };
+        selectedAgency = requestAgency;
+    }
+
+    return { user, selectedAgency };
+}
+
+async function requireAdminUser(req, res, next) {
+    try {
+        const { user, selectedAgency } = await getAdminAuthInfo(req);
+        req.session = { ...req.session, user, selectedAgency };
+    } catch (err) {
+        res.sendStatus(403);
+        return;
     }
 
     next();
@@ -106,5 +111,5 @@ async function requireUSDRSuperAdminUser(req, res, next) {
 }
 
 module.exports = {
-    requireAdminUser, requireUser, isAuthorized, isUserAuthorized, isUSDRSuperAdmin, requireUSDRSuperAdminUser,
+    requireAdminUser, requireUser, isAuthorized, isUserAuthorized, isUSDRSuperAdmin, requireUSDRSuperAdminUser, getAdminAuthInfo,
 };
