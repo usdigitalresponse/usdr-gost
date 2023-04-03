@@ -45,6 +45,15 @@ variable "website_domain_name" {
   type = string
 }
 
+variable "website_managed_waf_rules" {
+  description = "List of parameters for managed WAF rules"
+  type = list(object({
+    name              = string
+    priority          = string
+    metric_visibility = bool
+  }))
+}
+
 // ECS cluster
 variable "cluster_container_insights_enabled" {
   type    = bool
