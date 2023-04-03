@@ -49,7 +49,7 @@ variable "website_managed_waf_rules" {
   description = "List of parameters for managed WAF rules"
   type = list(object({
     name              = string
-    priority          = string
+    priority          = number
     metric_visibility = bool
   }))
 }
