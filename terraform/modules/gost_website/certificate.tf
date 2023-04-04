@@ -1,8 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-  alias  = "cloudfront_certificate"
-}
-
 module "cloudfront_ssl_certificate" {
   source  = "cloudposse/acm-request-certificate/aws"
   version = "0.17.0"
@@ -10,7 +5,7 @@ module "cloudfront_ssl_certificate" {
 
   # CloudFront SSL certificates must be managed in us-east-1
   providers = {
-    aws = aws.cloudfront_certificate
+    aws = aws.us-east-1
   }
 
   domain_name                       = var.domain_name

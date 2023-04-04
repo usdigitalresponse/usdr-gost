@@ -25,7 +25,7 @@ module "waf" {
 
   # WAFv2 must be managed in us-east-1 if globally scoped
   providers = {
-    aws = aws.cloudfront_certificate
+    aws = aws.us-east-1
   }
 
   context = module.this.context
