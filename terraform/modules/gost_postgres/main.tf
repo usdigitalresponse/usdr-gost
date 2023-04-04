@@ -19,13 +19,13 @@ resource "aws_rds_cluster_parameter_group" "postgres13" {
   description = "RDS Aurora cluster parameter group for ${var.namespace}."
 
   parameter {
-    name="log_statement"
-    value="all"
+    name  = "log_statement"
+    value = "all"
   }
 
   parameter {
-    name="log_min_duration_statement"
-    value="1"
+    name  = "log_min_duration_statement"
+    value = "1"
   }
 }
 
