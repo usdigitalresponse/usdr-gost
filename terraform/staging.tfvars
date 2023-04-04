@@ -1,4 +1,5 @@
 namespace = "gost-staging"
+env       = "staging"
 
 // Common
 ssm_service_parameters_path_prefix    = "/gost/staging"

@@ -11,6 +11,19 @@ terraform {
   backend "s3" {}
 }
 
+provider "aws" {
+  default_tags {
+    tags = {
+      env        = var.env
+      management = "terraform"
+      owner      = "grants"
+      repo       = "usdr-gost"
+      service    = "gost"
+      usage      = "workload"
+    }
+  }
+}
+
 data "aws_caller_identity" "current" {}
 
 data "aws_ssm_parameter" "vpc_id" {
