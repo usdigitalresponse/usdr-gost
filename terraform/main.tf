@@ -114,6 +114,7 @@ module "api" {
   default_desired_task_count = var.api_default_desired_task_count
   enable_grants_scraper      = var.api_enable_grants_scraper
   enable_grants_digest       = var.api_enable_grants_digest
+  unified_service_tags       = { service = "gost", env = var.env, version = var.version_identifier }
 
   # DNS
   domain_name         = local.api_domain_name
