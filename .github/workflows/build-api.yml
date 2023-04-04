@@ -45,6 +45,8 @@ jobs:
           labels: |
             org.opencontainers.image.title=${{ env.IMAGE_NAME }}
             org.opencontainers.image.version={{date 'YYYYMMDD.HHmm'}}
+            com.datadoghq.tags.service=gost
+            com.datadoghq.tags.version=${{ github.sha }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:

@@ -1,6 +1,11 @@
 locals {
   api_container_image = "${var.docker_repository}:${var.docker_tag}"
   api_container_port  = 3000
+
+  datadog_env_vars = {
+    for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]) :
+    "DD_${upper(k)}" => var.unified_service_tags[k]
+  }
 }
 
 module "api_container_definition" {
@@ -39,6 +44,7 @@ module "api_container_definition" {
       DATA_DIR                  = "/var/data"
       AUDIT_REPORT_BUCKET       = module.arpa_audit_reports_bucket.bucket_id
     },
+    local.datadog_env_vars,
     var.api_container_environment,
   )
 
@@ -79,11 +85,15 @@ module "datadog_container_definition" {
   container_image          = "public.ecr.aws/datadog/agent:latest"
   essential                = false
   readonly_root_filesystem = "false"
+  stop_timeout             = 60
 
-  map_environment = {
-    ECS_FARGATE    = "true",
-    DD_APM_ENABLED = "true",
-  }
+  map_environment = merge(
+    {
+      ECS_FARGATE    = "true",
+      DD_APM_ENABLED = "true",
+    },
+    local.datadog_env_vars,
+  )
   map_secrets = {
     DD_API_KEY = join("", data.aws_ssm_parameter.datadog_api_key.*.arn),
   }

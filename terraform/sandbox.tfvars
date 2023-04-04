@@ -1,4 +1,5 @@
 namespace = "gost-sandbox"
+env       = "sandbox"
 
 // Common
 ssm_service_parameters_path_prefix    = "/gost/sandbox"
