@@ -23,5 +23,10 @@ module "waf" {
 
   managed_rule_group_statement_rules = local.expanded_rules
 
+  # WAFv2 must be managed in us-east-1 if globally scoped
+  providers = {
+    aws = aws.cloudfront_certificate
+  }
+
   context = module.this.context
 }
