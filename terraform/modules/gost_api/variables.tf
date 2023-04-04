@@ -168,3 +168,12 @@ variable "enable_grants_digest" {
   type        = bool
   default     = false
 }
+
+variable "unified_service_tags" {
+  description = "Datadog unified service tags to apply to runtime environments."
+  type = object({
+    env     = string
+    service = string
+    version = optional(string)
+  })
+}

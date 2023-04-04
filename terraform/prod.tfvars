@@ -1,4 +1,5 @@
 namespace = "gost-prod"
+env       = "production"
 
 // Common
 ssm_service_parameters_path_prefix    = "/gost/prod"
