@@ -3,7 +3,7 @@ locals {
   api_container_port  = 3000
 
   datadog_env_vars = {
-    for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]...) :
+    for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]) :
     "DD_${upper(k)}" => var.unified_service_tags[k]
   }
 }
