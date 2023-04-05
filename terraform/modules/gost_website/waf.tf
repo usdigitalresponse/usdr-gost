@@ -17,9 +17,10 @@ locals {
 }
 
 module "waf" {
-  source  = "cloudposse/waf/aws"
-  version = "0.2.0"
-  scope   = "CLOUDFRONT"
+  source         = "cloudposse/waf/aws"
+  version        = "0.2.0"
+  scope          = "CLOUDFRONT"
+  default_action = "allow"
 
   managed_rule_group_statement_rules = local.expanded_rules
 
