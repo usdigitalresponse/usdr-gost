@@ -5,7 +5,7 @@ const rewire = require('rewire');
 const moment = require('moment');
 const sinon = require('sinon');
 require('dotenv').config();
-const emailService = require('../../src/lib/email/service-email');
+const emailService = require('../../src/lib/gost-aws');
 const email = require('../../src/lib/email');
 const fixtures = require('../db/seeds/fixtures');
 const db = require('../../src/db');
