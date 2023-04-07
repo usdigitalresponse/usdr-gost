@@ -19,22 +19,22 @@
     <b-row class="mt-3 mb-3" align-h="start" style="position: relative; z-index: 999">
       <b-col v-if="!showInterested && !showRejected && !showResult && !showAssignedToAgency" cols="3">
         <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions" :multiple="true"
-          :close-on-select="false" :clear-on-select="false" placeholder="Review Status">
+          :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false">
         </multiselect>
       </b-col>
       <b-col cols="3">
         <multiselect v-model="opportunityStatusFilters" :options="opportunityStatusOptions" :multiple="true"
-                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Status">
+                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Status" :show-labels="false">
         </multiselect>
       </b-col>
       <b-col cols="3">
         <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true"
-                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category">
+                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false">
         </multiselect>
       </b-col>
       <b-col cols="2">
         <multiselect v-model="costSharingFilter" :options="costSharingOptions" :multiple="false"
-                     :close-on-select="true" :clear-on-select="false" placeholder="Cost Sharing">
+                     :close-on-select="true" :clear-on-select="false" placeholder="Cost Sharing" :show-labels="false">
         </multiselect>
       </b-col>
     </b-row>

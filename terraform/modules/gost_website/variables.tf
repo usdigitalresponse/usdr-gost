@@ -35,6 +35,21 @@ variable "gost_api_domain" {
   type        = string
 }
 
+variable "logs_bucket_versioning" {
+  description = "Enable versioning for the logs S3 bucket"
+  type        = bool
+  default     = true
+}
+
+variable "managed_waf_rules" {
+  description = "Map of rules and associated parameters for managed WAF ACL"
+  type = map(object({
+    managed_rule      = string
+    priority          = number
+    metric_visibility = bool
+  }))
+}
+
 variable "origin_bucket_dist_path" {
   description = "Path to the directory where website build files should be stored in the S3 origin bucket."
   default     = "/dist"

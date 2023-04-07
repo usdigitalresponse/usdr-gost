@@ -32,8 +32,9 @@
     "test:arpa": "NODE_ENV=test __tests__/run_arpa_reporter_tests.sh",
     "test:db": "NODE_ENV=test mocha --timeout 10000 __tests__/db/*.test.js",
     "test:email": "NODE_ENV=test mocha __tests__/email/*.test.js",
+    "test:lib": "NODE_ENV=test mocha __tests__/lib/*.test.js",
     "test:userimport": "NODE_ENV=test SUPPRESS_EMAIL=true mocha --exit --bail --require __tests__/api/fixtures.js __tests__/db/userImporter._test_.js",
-    "test": "yarn test:apis && yarn test:arpa && yarn test:db && yarn test:userimport && yarn test:agencyimport && yarn test:email"
+    "test": "yarn test:apis && yarn test:arpa && yarn test:db && yarn test:userimport && yarn test:agencyimport && yarn test:email && yarn test:lib"
   },
   "dependencies": {
     "adm-zip": "0.5.9",

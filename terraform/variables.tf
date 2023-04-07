@@ -2,6 +2,17 @@ variable "namespace" {
   type = string
 }
 
+variable "env" {
+  description = "Value to set as the default env tag on all resources that support tagging."
+  type        = string
+}
+
+variable "version_identifier" {
+  description = "Version identifier (e.g. commit SHA) for this deployment."
+  type        = string
+  default     = "dev"
+}
+
 // Common
 variable "permissions_boundary_policy_name" {
   description = "Name of the permissions boundary for service roles"
@@ -43,6 +54,15 @@ variable "website_enabled" {
 
 variable "website_domain_name" {
   type = string
+}
+
+variable "website_managed_waf_rules" {
+  description = "Map of rules and associated parameters for managed WAF ACL"
+  type = map(object({
+    managed_rule      = string
+    priority          = number
+    metric_visibility = bool
+  }))
 }
 
 // ECS cluster

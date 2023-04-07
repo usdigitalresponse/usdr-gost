@@ -43,7 +43,7 @@ Install ASDF using the instructions [here](https://asdf-vm.com/guide/getting-sta
 
 ### Gmail Setup
 
-See [./setup-email.md](./setup-email.md) for instructions on setting up Gmail to send emails.
+See [./setup-gmail.md](./setup-gmail.md) for instructions on setting up Gmail to send emails.
 
 ## Installation
 
