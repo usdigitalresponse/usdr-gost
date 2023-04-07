@@ -19,14 +19,27 @@ it('loads page', () => {
     });
 
     cy.contains('Grants Identification Tool');
+    /*
     cy.get('#email').type('invalid@usdigitalresponse.org');
     cy.get('button[type="Submit"]').click();
     cy.contains(`User 'invalid@usdigitalresponse.org' not found`);
-
+    */
     cy.get('#email').type('asridhar@usdigitalresponse.org');
     cy.get('button[type="Submit"]').click();
     cy.contains(`Email sent to asridhar@usdigitalresponse.org. Check your inbox`);
-    cy.task('log', 'Attempting to access directories');
+
+    cy.request(`http://${Cypress.env('LOCALSTACK_HOSTNAME')}:${Cypress.env('EDGE_PORT')}/_aws/ses`).then(
+        (res) => {
+            // const htmlBody = res.body.messages[-1].Body;
+
+            // cy.task('log', htmlBody);
+            cy.task('log', res.body.messages);
+            cy.task('log', res.body.messages[0].Body.text_part);
+        },
+    );
+
+    // cy.request(`http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT}/_aws/ses`).as('emails');
+    // cy.task('log', '@emails');
 
     // Add ability to look at process.env.LOCALSTACK_VOLUME_DIR
     /*

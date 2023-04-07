@@ -6,6 +6,10 @@ module.exports = defineConfig({
     reporterOptions: {
         mochaFile: 'cypress/results/output.xml',
     },
+    env: {
+        LOCALSTACK_HOSTNAME: 'aws',
+        EDGE_PORT: 4566,
+    },
     e2e: {
         // We've imported your old cypress plugins here.
         // You may want to clean this up later by importing these.
