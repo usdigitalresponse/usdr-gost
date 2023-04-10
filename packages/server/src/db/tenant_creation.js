@@ -40,11 +40,6 @@ async function validateUserEmail(email, trns = knex) {
     return true;
 }
 
-async function firstAgencyId(trns = knex) {
-    // Don't want to assume 0 or 1 exist, they could have been deleted
-    return trns('agencies').first('id').then((agency) => agency.id);
-}
-
 const buildInquirerQuestionsForCreateTenantOptions = (trns) => [
     {
         name: 'tenantName',
