@@ -94,5 +94,5 @@ function send(message) {
 
 module.exports = {
     getS3Client,
-    send
+    send,
 };
