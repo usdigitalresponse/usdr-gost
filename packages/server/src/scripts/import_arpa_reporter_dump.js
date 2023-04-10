@@ -277,7 +277,7 @@ async function importAgencies(
     await Promise.all(
         inserted.map((agency) => {
             // Gets the main agency ID from the tenant to set the parent
-            const mainAgencyId = tenantsById[agency.tenant_id].mainagency_id;
+            const mainAgencyId = tenantsById[agency.tenant_id].main_agency_id;
             return trns("agencies")
                 .where("id", agency.id)
                 .update({
