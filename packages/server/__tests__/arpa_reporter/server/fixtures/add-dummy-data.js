@@ -18,8 +18,7 @@ const setupAgencies = async (knex) => {
             id: 4, name: 'Executive Office of Health and Human Services', code: 'EOHHS', tenant_id: 0,
         },
     ].map(
-    // GOST has a non-null main_agency_id field on agencies that legacy arpa-reporter does not have
-        (row) => (isGost ? ({ ...row, main_agency_id: row.id }) : row),
+        (row) => row,
     )).then(() => 'Agency data added OK');
 };
 

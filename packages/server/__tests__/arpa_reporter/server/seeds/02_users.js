@@ -16,7 +16,6 @@ const agencies = {
         name: 'State Board of Accountancy',
         parent: null,
         tenant_id: 0,
-        main_agency_id: 0,
     },
 };
 
