@@ -63,14 +63,18 @@ exports.seed = async (knex) => {
     // populate it after the agency has been created. We are
     // looking at removing main_agency_id entirely.
     // TODO (Brian Spates): Update once main_agency_id is removed
-    await knex.raw(`WITH main_agency_lookup AS (
-                        SELECT id, tenant_id
-                        FROM agencies
-                        WHERE main_agency_id = id
-                    ) UPDATE tenants
-                      SET main_agency_id = mal.id
-                      FROM main_agency_lookup mal
-                      WHERE mal.tenant_id = tenants.id`);
+    //
+    // TODO (pearkes): How should this be modified with the removal of
+    // main_agency_id? It does look like we're using this to set
+    // the tenant.main_agency_id. Should we be reading the parent?
+    // await knex.raw(`WITH main_agency_lookup AS (
+    //                     SELECT id, tenant_id
+    //                     FROM agencies
+    //                     WHERE main_agency_id = id
+    //                 ) UPDATE tenants
+    //                   SET main_agency_id = mal.id
+    //                   FROM main_agency_lookup mal
+    //                   WHERE mal.tenant_id = tenants.id`);
 
     if (userList.length) {
         await knex('users').insert(userList)
