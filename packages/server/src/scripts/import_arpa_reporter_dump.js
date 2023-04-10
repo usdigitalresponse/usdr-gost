@@ -232,17 +232,7 @@ async function importAgencies(
     insertedRowsByTable,
     trns = knexWithoutTransaction
 ) {
-    // main_agency_id is non-nullable, so we need to init agencies with a main_agency_id of some value,
-    // even though we're going to overwrite it after insert. Since it's a FK, that value has to correspond
-    // to a real row.
-    //
-    // TODO(mbroussard): should we remove the NOT NULL constraint and have null mean root
-    // agency vs. having self-loops (similar to parent field)?
-    const someExistingAgencyId = await trns("agencies")
-        .first("id")
-        .then((row) => row.id);
-
-    // First, create all agencies, defaulting their parent and main_agency_id pointers to null (need the
+    // First, create all agencies, defaulting their parent pointers to null (need the
     // rows inserted to know IDs).
     const agenciesToCreate = dbContents.agencies.map((agency) =>
         rekeyForeignKeys(
@@ -253,7 +243,6 @@ async function importAgencies(
                 code: agency.code,
                 abbreviation: agency.code,
                 parent: null,
-                main_agency_id: someExistingAgencyId,
                 // Note: id field gets dropped by rekeyForeignKeys, but is useful for debug logging
                 // if the rekey fails
                 id: agency.id,
@@ -287,11 +276,11 @@ async function importAgencies(
     const tenantsById = _.keyBy(insertedRowsByTable.tenants, "id");
     await Promise.all(
         inserted.map((agency) => {
-            const mainAgencyId = tenantsById[agency.tenant_id].main_agency_id;
+            // Gets the main agency ID from the tenant to set the parent
+            const mainAgencyId = tenantsById[agency.tenant_id].mainagency_id;
             return trns("agencies")
                 .where("id", agency.id)
                 .update({
-                    main_agency_id: mainAgencyId,
                     // Main agencies have no parent; non-main agencies have their main
                     // agency as parent.
                     parent: mainAgencyId === agency.id ? null : mainAgencyId,
@@ -412,7 +401,6 @@ async function importUsers(
 
     const mainAgencyByTenant = _.chain(insertedRowsByTable.tenants)
         .keyBy("id")
-        .mapValues("main_agency_id")
         .value();
     let usersToCreate = dbContents.users.map((user) =>
         rekeyForeignKeys(
