@@ -830,8 +830,7 @@ async function createAgency(agency, creatorId) {
               :warning_threshold::integer,
               :danger_threshold::integer,
               :code,
-              u.tenant_id,
-              t.main_agency_id
+              u.tenant_id
             FROM users u
             JOIN tenants t ON u.tenant_id = t.id
             WHERE u.id = :creator_id
@@ -842,8 +841,7 @@ async function createAgency(agency, creatorId) {
             warning_threshold,
             danger_threshold,
             code,
-            tenant_id,
-            main_agency_id
+            tenant_id
         ) (SELECT * FROM upd) RETURNING *`, update);
 
     return result.rows[0];
