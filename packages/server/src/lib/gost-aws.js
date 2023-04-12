@@ -20,7 +20,6 @@ function getS3Client() {
         console.log('------------ USING LOCALSTACK ------------');
         const endpoint = new AWS.Endpoint(`http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT || 4566}`);
         s3 = new AWS.S3({
-            region: process.env.AWS_DEFAULT_REGION || 'us-west-2',
             endpoint,
             s3ForcePathStyle: true,
         });
