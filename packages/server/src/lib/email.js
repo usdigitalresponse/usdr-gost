@@ -72,10 +72,16 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
         },
     );
 
+    const emailPlain = `Your link to access USDR's Grants tool is ${href}. It expires in ${expiryMinutes} minutes`
+
+    if (process.env.DEV_LOGIN_LINK && process.env.NODE_ENV === 'development') {
+        console.log(emailPlain);
+    }
+
     return module.exports.deliverEmail({
         toAddress: email,
         emailHTML,
-        emailPlain: `Your link to access USDR's Grants tool is ${href}. It expires in ${expiryMinutes} minutes`,
+        emailPlain: emailPlain,
         subject: 'USDR Grants Tool Access Link',
     });
 }

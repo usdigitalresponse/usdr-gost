@@ -5,7 +5,7 @@
 
 */
 
-const AWS = require('aws-sdk');
+const {SESClient, SendEmailCommand} = require('@aws-sdk/client-ses');
 
 function createTransport() {
     const requiredEnvironmentVariables = [
@@ -25,11 +25,16 @@ function createTransport() {
     }
 
     const sesOptions = {};
+
+    if (process.env.AWS_ENDPOINT_URL) {
+        sesOptions.endpoint = process.env.AWS_ENDPOINT_URL;
+    }
+
     if (process.env.SES_REGION) {
         sesOptions.region = process.env.SES_REGION;
     }
 
-    return new AWS.SES(sesOptions);
+    return new SESClient(sesOptions);
 }
 
 function send(message) {
@@ -58,8 +63,8 @@ function send(message) {
             },
         },
     };
-    transport.sendEmail(params).promise()
-        .then((data) => console.log('Success sending SES email:', data))
+    const command = new SendEmailCommand(params)
+    transport.send(command).then((data) => console.log('Success sending SES email:', data))
         .catch((err) => console.error('Error sending SES email:', err, err.stack));
 }
 

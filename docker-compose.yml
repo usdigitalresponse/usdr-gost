@@ -37,6 +37,7 @@ services:
     networks:
       - app
     volumes:
+      - "${PWD}/localstack/entrypoint/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh"
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
 
