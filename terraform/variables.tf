@@ -2,6 +2,17 @@ variable "namespace" {
   type = string
 }
 
+variable "env" {
+  description = "Value to set as the default env tag on all resources that support tagging."
+  type        = string
+}
+
+variable "version_identifier" {
+  description = "Version identifier (e.g. commit SHA) for this deployment."
+  type        = string
+  default     = "dev"
+}
+
 // Common
 variable "permissions_boundary_policy_name" {
   description = "Name of the permissions boundary for service roles"

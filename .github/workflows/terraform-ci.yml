@@ -40,6 +40,7 @@ jobs:
     environment: ${{ needs.select_target_environment.outputs.selected }}
     env:
       TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
+      TF_VAR_version_identifier: ${{ github.sha }}
     concurrency:
       group: run_terraform-${{ needs.select_target_environment.outputs.selected }}
     steps:
