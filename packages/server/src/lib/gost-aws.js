@@ -35,35 +35,10 @@ function getS3Client() {
 ----------------------------------------------------------
 */
 
-function createTransport() {
-    const requiredEnvironmentVariables = [
-        'NOTIFICATIONS_EMAIL',
-    ];
-    for (let i = 0; i < requiredEnvironmentVariables.length; i += 1) {
-        const ev = process.env[requiredEnvironmentVariables[i]];
-        if (!ev) {
-            return {
-                sendEmail: () => {
-                    throw new Error(
-                        `Missing environment variable ${requiredEnvironmentVariables[i]}!`,
-                    );
-                },
-            };
-        }
-    }
-
-    const sesOptions = {};
-    if (process.env.SES_REGION) {
-        sesOptions.region = process.env.SES_REGION;
-    }
-
-    return new AWS.SES(sesOptions);
-}
-
 function send(message) {
     if (process.env.SUPPRESS_EMAIL) return;
 
-    const transport = createTransport();
+    const transport = new AWS.SES();
     const params = {
         Destination: {
             ToAddresses: [message.toAddress],
