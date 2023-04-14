@@ -17,7 +17,7 @@ async function deliverEmail({
     emailPlain,
     subject,
 }) {
-    return emailService.getTransport().send({
+    return emailService.getTransport().sendEmail({
         toAddress,
         subject,
         body: emailHTML,
