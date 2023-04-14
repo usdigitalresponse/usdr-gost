@@ -78,6 +78,9 @@ describe('Email module', () => {
         });
 
         it('Fails when NOTIFICATIONS_EMAIL is missing', async () => {
+            // 'send' will throw no error, but will log an error to the console.
+            // However, without returning the result of the promise in 'send',
+            // we can't capture it here
             delete process.env.NOTIFICATIONS_EMAIL;
             let err = { message: 'No error' };
 
