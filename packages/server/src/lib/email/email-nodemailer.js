@@ -41,7 +41,7 @@ function createTransport() {
     });
 }
 
-async function send(message) {
+async function sendEmail(message) {
     if (process.env.SUPPRESS_EMAIL) return;
 
     const transport = createTransport();
@@ -55,6 +55,6 @@ async function send(message) {
     transport.sendMail(params);
 }
 
-module.exports = { send };
+module.exports = { sendEmail };
 
 /*                                  *  *  *                                   */

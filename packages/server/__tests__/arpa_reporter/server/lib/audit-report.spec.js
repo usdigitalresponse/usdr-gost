@@ -3,7 +3,7 @@ const sinon = require('sinon');
 const email = require('../../../../src/lib/email');
 
 const audit_report = require('../../../../src/arpa_reporter/lib/audit-report');
-const aws = require('../../../../src/arpa_reporter/lib/aws-client');
+const aws = require('../../../../src/lib/gost-aws');
 const { withTenantId } = require('../helpers/with-tenant-id');
 
 function handleUploadFake(type) {
