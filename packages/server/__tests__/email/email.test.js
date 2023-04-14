@@ -85,7 +85,7 @@ describe('Email module', () => {
             let err = { message: 'No error' };
 
             try {
-                await emailService.getTransport().send(testEmail);
+                await emailService.getTransport().sendEmail(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -96,7 +96,7 @@ describe('Email module', () => {
             let err;
             let result;
             try {
-                result = await emailService.getTransport().send(testEmail);
+                result = await emailService.getTransport().sendEmail(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -115,7 +115,7 @@ describe('Email module', () => {
             let err = { message: 'No error' };
 
             try {
-                await emailService.getTransport().send(testEmail);
+                await emailService.getTransport().sendEmail(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -127,7 +127,7 @@ describe('Email module', () => {
             let err = { message: 'No error' };
 
             try {
-                await emailService.getTransport().send(testEmail);
+                await emailService.getTransport().sendEmail(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -139,7 +139,7 @@ describe('Email module', () => {
             let err = { message: 'No error' };
 
             try {
-                await emailService.getTransport().send(testEmail);
+                await emailService.getTransport().sendEmail(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -151,7 +151,7 @@ describe('Email module', () => {
 
             let result;
             try {
-                result = await emailService.getTransport().send(testEmail);
+                result = await emailService.getTransport().sendEmail(testEmail);
             } catch (e) {
                 err = e;
             }
@@ -183,7 +183,7 @@ describe('Email sender', () => {
     context('grant assigned email', () => {
         it('deliverEmail calls the transport function with appropriate parameters', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ send: sendFake }));
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
             email.deliverEmail({
                 toAddress: 'foo@bar.com',

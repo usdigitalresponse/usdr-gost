@@ -35,7 +35,7 @@ function getS3Client() {
 ----------------------------------------------------------
 */
 
-function send(message) {
+function sendEmail(message) {
     if (process.env.SUPPRESS_EMAIL) return;
 
     const transport = new AWS.SES();
@@ -68,5 +68,5 @@ function send(message) {
 
 module.exports = {
     getS3Client,
-    send,
+    sendEmail,
 };
