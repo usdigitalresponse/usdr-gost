@@ -29,7 +29,7 @@ module.exports = [
         abbreviation: 'BSDR',
         code: 'BSDR',
         name: 'B Test sub USDR',
-        parent: 0,
+        parent: 400,
         tenant_id: 1,
     },
     {
