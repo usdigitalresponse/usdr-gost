@@ -47,3 +47,4 @@ postgres_enabled                   = true
 postgres_prevent_destroy           = true
 postgres_snapshot_before_destroy   = true
 postgres_apply_changes_immediately = false
+postgres_query_logging_enabled     = true

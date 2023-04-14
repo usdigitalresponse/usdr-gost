@@ -120,3 +120,6 @@ variable "postgres_snapshot_before_destroy" {
 variable "postgres_apply_changes_immediately" {
   default = false
 }
+variable "postgres_query_logging_enabled" {
+  default = false
+}

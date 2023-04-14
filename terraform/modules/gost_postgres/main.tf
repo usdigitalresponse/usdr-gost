@@ -20,12 +20,12 @@ resource "aws_rds_cluster_parameter_group" "postgres13" {
 
   parameter {
     name  = "log_statement"
-    value = "all"
+    value = var.query_logging_enabled ? "all" : "none"
   }
 
   parameter {
     name  = "log_min_duration_statement"
-    value = "1"
+    value = var.query_logging_enabled ? "1" : "-1"
   }
 }
 
