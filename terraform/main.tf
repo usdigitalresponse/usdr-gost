@@ -152,6 +152,7 @@ module "postgres" {
   prevent_destroy           = var.postgres_prevent_destroy
   snapshot_before_destroy   = var.postgres_snapshot_before_destroy
   apply_changes_immediately = var.postgres_apply_changes_immediately
+  query_logging_enabled     = var.postgres_query_logging_enabled
 }
 
 // Deployment parameters
