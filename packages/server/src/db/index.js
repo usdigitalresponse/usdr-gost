@@ -137,7 +137,7 @@ async function getUser(id) {
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
-        .leftJoin('tenants', 'tenants.main_agency_id', 'agencies.id')
+        .leftJoin('tenants', 'tenants.id', 'users.tenant_id')
         .where('users.id', id);
 
     if (!user) return null;
