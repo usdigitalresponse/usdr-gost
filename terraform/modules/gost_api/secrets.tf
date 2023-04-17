@@ -28,6 +28,7 @@ resource "aws_ssm_parameter" "postgres_connection_string" {
     # e.g. "postgres://user@endpoint:port/dbname"
     "postgres://%s@%s:%s/%s",
     var.postgres_username,
+    var.postgres_password,
     var.postgres_endpoint,
     var.postgres_port,
     var.postgres_db_name

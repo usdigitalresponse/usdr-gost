@@ -29,6 +29,10 @@ resource "aws_rds_cluster_parameter_group" "postgres13" {
   }
 }
 
+resource "random_password" "postgres_user" {
+  length = 32
+}
+
 module "db" {
   create  = var.enabled
   source  = "terraform-aws-modules/rds-aurora/aws"
@@ -59,6 +63,7 @@ module "db" {
 
   database_name                       = var.default_db_name
   master_username                     = "postgres"
+  master_password                     = random_password.postgres_user.result
   manage_master_user_password         = false
   iam_database_authentication_enabled = true
 
