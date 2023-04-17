@@ -40,7 +40,6 @@ locals {
   api_domain_name          = coalesce(var.api_domain_name, "api.${var.website_domain_name}")
 }
 
-
 data "aws_ssm_parameter" "public_dns_zone_id" {
   name = "${var.ssm_deployment_parameters_path_prefix}/dns/public_zone_id"
 }
