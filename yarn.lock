@@ -1212,13 +1212,13 @@
     resolve-global "1.0.0"
     yargs "^15.1.0"
 
-"@commitlint/cli@^17.0.0", "@commitlint/cli@^17.4.4", "@commitlint/cli@^17.5.1":
-  version "17.5.1"
-  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-17.5.1.tgz#db176538db7b4140c8856c88a46bd15ec705f881"
-  integrity sha512-pRRgGSzdHQHehxZbGA3qF6wVPyl+EEQgTe/t321rtMLFbuJ7nRj2waS17s/v5oEbyZtiY5S8PGB6XtEIm0I+Sg==
+"@commitlint/cli@^17.0.0", "@commitlint/cli@^17.4.4", "@commitlint/cli@^17.6.1":
+  version "17.6.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-17.6.1.tgz#571a1272a656cd316f4b601cbb0fcb2ef50bfc7a"
+  integrity sha512-kCnDD9LE2ySiTnj/VPaxy4/oRayRcdv4aCuVxtoum8SxIU7OADHc0nJPQfheE8bHcs3zZdWzDMWltRosuT13bg==
   dependencies:
     "@commitlint/format" "^17.4.4"
-    "@commitlint/lint" "^17.4.4"
+    "@commitlint/lint" "^17.6.1"
     "@commitlint/load" "^17.5.0"
     "@commitlint/read" "^17.5.1"
     "@commitlint/types" "^17.4.4"
@@ -1322,14 +1322,14 @@
     "@commitlint/rules" "^11.0.0"
     "@commitlint/types" "^11.0.0"
 
-"@commitlint/lint@^17.4.4":
-  version "17.4.4"
-  resolved "https://registry.yarnpkg.com/@commitlint/lint/-/lint-17.4.4.tgz#0ecd70b44ec5f4823c2e00e0c4b04ebd41d42856"
-  integrity sha512-qgkCRRFjyhbMDWsti/5jRYVJkgYZj4r+ZmweZObnbYqPUl5UKLWMf9a/ZZisOI4JfiPmRktYRZ2JmqlSvg+ccw==
+"@commitlint/lint@^17.6.1":
+  version "17.6.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/lint/-/lint-17.6.1.tgz#52275acc6b3d92a9ad466535331c5dd8e85b6f42"
+  integrity sha512-VARJ9kxH64isgwVnC+ABPafCYzqxpsWJIpDaTuI0gh8aX4GQ0i7cn9tvxtFNfJj4ER2BAJeWJ0vURdNYjK2RQQ==
   dependencies:
     "@commitlint/is-ignored" "^17.4.4"
     "@commitlint/parse" "^17.4.4"
-    "@commitlint/rules" "^17.4.4"
+    "@commitlint/rules" "^17.6.1"
     "@commitlint/types" "^17.4.4"
 
 "@commitlint/load@^11.0.0":
@@ -1444,10 +1444,10 @@
     "@commitlint/to-lines" "^11.0.0"
     "@commitlint/types" "^11.0.0"
 
-"@commitlint/rules@^17.4.4":
-  version "17.4.4"
-  resolved "https://registry.yarnpkg.com/@commitlint/rules/-/rules-17.4.4.tgz#9b33f41e5eb529f916396bac7c62e61f0edd6791"
-  integrity sha512-0tgvXnHi/mVcyR8Y8mjTFZIa/FEQXA4uEutXS/imH2v1UNkYDSEMsK/68wiXRpfW1euSgEdwRkvE1z23+yhNrQ==
+"@commitlint/rules@^17.6.1":
+  version "17.6.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/rules/-/rules-17.6.1.tgz#dff529b8d1e0455808fe7e3e1fa70617e4eb2759"
+  integrity sha512-lUdHw6lYQ1RywExXDdLOKxhpp6857/4c95Dc/1BikrHgdysVUXz26yV0vp1GL7Gv+avx9WqZWTIVB7pNouxlfw==
   dependencies:
     "@commitlint/ensure" "^17.4.4"
     "@commitlint/message" "^17.4.2"
@@ -3619,9 +3619,9 @@ aws-sdk-mock@5.8.0:
     traverse "^0.6.6"
 
 aws-sdk@^2.1231.0, aws-sdk@^2.963.0:
-  version "2.1357.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1357.0.tgz#779628a6e2db847f2fbb3687f01c7557b92cc581"
-  integrity sha512-bSOfBCVPQ/0NWYpPl34MgqMbJf0eO6PsyVlmjbStlba+98hnE6X7z67tawBRot7S+qH3L49KW2u6dfJjvhDfdQ==
+  version "2.1359.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1359.0.tgz#2cde4dce72a6681a9ac5b3c751545e13e5fec850"
+  integrity sha512-uGNIU4czx8P0YITV8uhuLFhmyYvLWsFYINlHJX77/fea4VuTwcCGktYy2OEnrErp3FK9NHQvwXBxZCbY0lcxBg==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -4566,11 +4566,11 @@ comment-patterns@^0.12.0:
     lodash "^4.17.11"
 
 commitlint@^17.4.4:
-  version "17.5.1"
-  resolved "https://registry.yarnpkg.com/commitlint/-/commitlint-17.5.1.tgz#9a4c5b2af7df5ab73ea7814920faf65001d04b12"
-  integrity sha512-BmYX5GJrZFk/90Owlsoh7J38hbikK1AIE+j0MlU0U+Vns+JNHwOE+6jkU9UYEiyY9rrgrI50kx2thI3028FwGw==
+  version "17.6.1"
+  resolved "https://registry.yarnpkg.com/commitlint/-/commitlint-17.6.1.tgz#9dff9b7ab681a33a330284bb3761df568adaaba9"
+  integrity sha512-yO11o5DmN/X4VCL+aLzgfJ1YXOM7qFzMN659SpISS4EBiv+QO16A0jeJU9rgVRbM2K06M7AfBQkZz7EPR3sAnQ==
   dependencies:
-    "@commitlint/cli" "^17.5.1"
+    "@commitlint/cli" "^17.6.1"
     "@commitlint/types" "^17.4.4"
 
 common-tags@^1.8.0:
@@ -4846,9 +4846,9 @@ core-js@^2.6.12:
   integrity sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==
 
 core-js@^3.21.1, core-js@^3.6.1, core-js@^3.8.3:
-  version "3.30.0"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.30.0.tgz#64ac6f83bc7a49fd42807327051701d4b1478dea"
-  integrity sha512-hQotSSARoNh1mYPi9O2YaWeiq/cEB95kOrFb4NCrO4RIFt1qqNpKsaE+vy/L3oiqvND5cThqXzUU3r9F7Efztg==
+  version "3.30.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.30.1.tgz#fc9c5adcc541d8e9fa3e381179433cbf795628ba"
+  integrity sha512-ZNS5nbiSwDTq4hFosEDqm65izl2CWmLz0hARJMyNQBgkUZMIF51cQiMvIQKA6hvuaeWxQDP3hEedM1JZIgTldQ==
 
 core-util-is@1.0.2:
   version "1.0.2"

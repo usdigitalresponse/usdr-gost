@@ -58,3 +58,9 @@ variable "default_db_name" {
   description = "Name of the default Postgres database to create within the cluster."
   type        = string
 }
+
+variable "query_logging_enabled" {
+  description = "Enable query logging for Postgres cluster."
+  type        = bool
+  default     = false
+}

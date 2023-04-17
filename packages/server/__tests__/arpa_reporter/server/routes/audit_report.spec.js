@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 const { makeTestServer, getSessionCookie } = require('./route_test_helpers');
 const audit_report = require('../../../../src/arpa_reporter/lib/audit-report');
-const aws = require('../../../../src/arpa_reporter/lib/aws-client');
+const aws = require('../../../../src/lib/gost-aws');
 
 function headObjectFake(type, callback) {
     if (type === 'error') {
