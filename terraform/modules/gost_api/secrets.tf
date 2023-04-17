@@ -25,10 +25,9 @@ resource "aws_ssm_parameter" "postgres_connection_string" {
   key_id      = data.aws_kms_key.ssm.arn
 
   value = format(
-    # e.g. "postgres://user:pass@endpoint:port/dbname"
-    "postgres://%s:%s@%s:%s/%s",
+    # e.g. "postgres://user@endpoint:port/dbname"
+    "postgres://%s@%s:%s/%s",
     var.postgres_username,
-    var.postgres_password,
     var.postgres_endpoint,
     var.postgres_port,
     var.postgres_db_name

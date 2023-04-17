@@ -148,7 +148,7 @@ module "postgres" {
   default_db_name           = "gost"
   vpc_id                    = data.aws_ssm_parameter.vpc_id.value
   subnet_ids                = local.private_subnet_ids
-  allowed_security_groups   = [module.api_to_postgres_security_group.id]
+  ingress_security_groups   = { from_api = module.api_to_postgres_security_group.id }
   prevent_destroy           = var.postgres_prevent_destroy
   snapshot_before_destroy   = var.postgres_snapshot_before_destroy
   apply_changes_immediately = var.postgres_apply_changes_immediately
