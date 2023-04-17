@@ -60,6 +60,20 @@ This is not always necessary, as often the value in the output template is the s
 
 See [Updating Output Templates](./updating-output-templates.md) for more information on how to do this.
 
+## Step 5: Test Changes
+
+Once you have made the relevant changes to `templateRules.json`, it is necessary to test these changes to make sure that they work as expected.
+
+To do this, request two copies of a sheet to be validated: one which fails validation and one which passes validation. Joe should be able to assist with creating these.
+
+Then, follow this procedure to test:
+
+1. Checkout `_staging`, run `docker compose up`
+2. Go to `Uploads`-> `Submit Workbook`
+3. Upload the two files - the failure version should fail.
+4. Checkout your feature branch - your already-running `docker compose up` should pick up the changes.
+5. Upload the two files again. Both should now pass.
+
 ## Finish Up
 
 To complete these changes, it's necessary to commit the following changes to the repository:
