@@ -44,19 +44,27 @@ To debug the script, if you're using VSCode, you can run the script by using the
 
 ### Step 3: Implement Application Logic
 
-Once the new rules have been generated, we need to implement any necessary application logic to support the new rules. This is usually done by adding new functions to the [validate-upload.js](../../packages/server/src/arpa_reporter/lib/validate-upload.js) file.
+Once the new rules have been generated, depending on the change we may need to implement any necessary application logic to support the new rules. This is usually done by adding new functions to the [validate-upload.js](../../packages/server/src/arpa_reporter/lib/validate-upload.js) file.
 
-Specific modifications will depend on the nature of the changes that were made to the spreadsheet. If you have any questions about this, please reach out to Joe Comeau.
+Specific modifications will depend on the nature of the changes that were made to the spreadsheet.
+
+For many input template changes, such as changes to the field type of the file being uploaded, no change is necsesary on top of adding the new sheet and running the script. For more involved changes you made need to update `validate-upload.js`.
+
+If you have any questions about this, please reach out to Joe Comeau.
 
 ### Step 4: Update Output Templates
 
-Once the new rules have been generated and the application logic has been updated, we usually need to update the output templates to support the new rules. See [Updating Output Templates](./updating-output-templates.md) for more information on how to do this.
+Once the new rules have been generated and the application logic has been updated, we may also need to update the output templates to support the new rules.
+
+This is not always necessary, as often the value in the output template is the same.
+
+See [Updating Output Templates](./updating-output-templates.md) for more information on how to do this.
 
 ## Finish Up
 
 To complete these changes, it's necessary to commit the following changes to the repository:
 
-1. The new spreadsheet, located in [./packages/server/src/arpa_reporter/data](./packages/server/src/arpa_reporter/data
+1. The new spreadsheet, located in [./packages/server/src/arpa_reporter/data](./packages/server/src/arpa_reporter/data). **IMPORTANT** you need to run `git add -f` to add this file! Github CI/CD will otherwise fail.
 1. The changes to the `EMPTY_TEMPLATE_NAME` variable in [environment.js](../../packages/server/src/arpa_reporter/environment.js)
 1. The new `templateRules.json` file, located in [./packages/server/src/arpa_reporter/lib](./packages/server/src/arpa_reporter/lib)
 1. Any necessary changes to [validate-upload.js](../../packages/server/src/arpa_reporter/lib/validate-upload.js)
