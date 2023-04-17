@@ -3,6 +3,8 @@
 const express = require('express');
 
 const router = express.Router();
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const { HeadObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 
 const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
 const audit_report = require('../lib/audit-report');
@@ -27,7 +29,7 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
     const baseParams = { Bucket: process.env.AUDIT_REPORT_BUCKET, Key };
 
     try {
-        await s3.headObject(baseParams).promise();
+        await s3.send(new HeadObjectCommand(baseParams));
     } catch (error) {
         console.log(error);
         res.redirect(encodeURI(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=The audit report you requested has expired. Please try again by clicking the 'Send Audit Report By Email'.&alert_level=err`));
@@ -36,7 +38,7 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
 
     let signedUrl;
     try {
-        signedUrl = await s3.getSignedUrlPromise('getObject', { ...baseParams, Expires: 60 });
+        signedUrl = await getSignedUrl(s3, new GetObjectCommand(baseParams), { expiresIn: 60 });
     } catch (error) {
         console.log(error);
         res.redirect(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=Something went wrong. Please reach out to grants-helpdesk@usdigitalresponse.org.&alert_level=err`);

@@ -2,6 +2,7 @@ const moment = require('moment');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
 const asyncBatch = require('async-batch').default;
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const aws = require('../../lib/gost-aws');
 
 const { getPreviousReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
@@ -174,14 +175,7 @@ async function generateAndSendEmail(requestHost, recipientEmail) {
     const report = await module.exports.generate(requestHost);
     // Upload to S3 and send email link
     const reportKey = `${tenantId}/${report.periodId}/${report.filename}`;
-    const handleUpload = (err, data) => {
-        if (err) {
-            console.log(`Failed to upload audit report ${err}`);
-            return;
-        }
-        console.log(data);
-        module.exports.sendEmailWithLink(reportKey, recipientEmail);
-    };
+
     const s3 = aws.getS3Client();
     const uploadParams = {
         Bucket: process.env.AUDIT_REPORT_BUCKET,
@@ -189,7 +183,13 @@ async function generateAndSendEmail(requestHost, recipientEmail) {
         Body: report.outputWorkBook,
         ServerSideEncryption: 'AES256',
     };
-    s3.upload(uploadParams, handleUpload);
+    try {
+        console.log(uploadParams);
+        await s3.send(new PutObjectCommand(uploadParams));
+        sendEmailWithLink(reportKey, recipientEmail);
+    } catch (err) {
+        console.log(`Failed to upload/email audit report ${err}`);
+    }
 }
 
 module.exports = {

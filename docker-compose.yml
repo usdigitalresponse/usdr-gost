@@ -27,6 +27,7 @@ services:
 
   localstack:
     container_name: "gost-localstack_main"
+    hostname: localhost.localstack.cloud
     image: localstack/localstack
     ports:
       - 4566:4566           # LocalStack Gateway
@@ -34,11 +35,13 @@ services:
     environment:
       - DEBUG=${DEBUG-}
       - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOSTNAME_EXTERNAL=localhost.localstack.cloud
     networks:
       - app
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - "${PWD}/localstack/entrypoint/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh"
 
   frontend:
     container_name: gost-frontend
