@@ -30,7 +30,8 @@ resource "aws_rds_cluster_parameter_group" "postgres13" {
 }
 
 resource "random_password" "postgres_user" {
-  length = 32
+  length  = 32
+  special = false
 }
 
 module "db" {
@@ -91,6 +92,7 @@ locals {
   connect_resource_base_arn = !var.enabled ? "" : join(":", [
     "arn",
     data.aws_partition.current.id,
+    "rds-db",
     data.aws_region.current.id,
     data.aws_caller_identity.current.account_id,
     "dbuser",
