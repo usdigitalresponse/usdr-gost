@@ -186,7 +186,7 @@ async function generateAndSendEmail(requestHost, recipientEmail) {
     try {
         console.log(uploadParams);
         await s3.send(new PutObjectCommand(uploadParams));
-        sendEmailWithLink(reportKey, recipientEmail);
+        await module.exports.sendEmailWithLink(reportKey, recipientEmail);
     } catch (err) {
         console.log(`Failed to upload/email audit report ${err}`);
     }

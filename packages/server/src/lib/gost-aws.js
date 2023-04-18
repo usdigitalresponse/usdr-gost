@@ -1,5 +1,6 @@
 const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
 const { S3Client } = require('@aws-sdk/client-s3');
+const { getSignedUrl: awsGetSignedUrl } = require('@aws-sdk/s3-request-presigner');
 /*
 ----------------------------------------------------------
                         AWS S3
@@ -19,16 +20,24 @@ function getS3Client() {
         */
         console.log('------------ USING LOCALSTACK ------------');
         const endpoint = `http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT || 4566}`;
-        console.log(endpoint);
+        console.log(`endpoint: ${endpoint}`);
         s3 = new S3Client({
             endpoint,
-            s3ForcePathStyle: true,
+            forcePathStyle: true,
             region: 'us-west-2',
         });
     } else {
         s3 = new S3Client();
     }
     return s3;
+}
+
+/**
+ *  This function is a wrapper around the getSignedUrl function from the @aws-sdk/s3-request-presigner package.
+ *  Exists to organize the imports and to make it easier to mock in tests.
+ */
+async function getSignedUrl(s3, command, options) {
+    return awsGetSignedUrl(s3, command, options);
 }
 
 /*
@@ -82,5 +91,6 @@ function sendEmail(message) {
 
 module.exports = {
     getS3Client,
+    getSignedUrl,
     sendEmail,
 };

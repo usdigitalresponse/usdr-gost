@@ -27,7 +27,6 @@ services:
 
   localstack:
     container_name: "gost-localstack_main"
-    hostname: localhost.localstack.cloud
     image: localstack/localstack
     ports:
       - 4566:4566           # LocalStack Gateway

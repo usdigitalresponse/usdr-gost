@@ -3,7 +3,6 @@
 const express = require('express');
 
 const router = express.Router();
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { HeadObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 
 const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
@@ -38,7 +37,7 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
 
     let signedUrl;
     try {
-        signedUrl = await getSignedUrl(s3, new GetObjectCommand(baseParams), { expiresIn: 60 });
+        signedUrl = await aws.getSignedUrl(s3, new GetObjectCommand(baseParams), { expiresIn: 60 });
     } catch (error) {
         console.log(error);
         res.redirect(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=Something went wrong. Please reach out to grants-helpdesk@usdigitalresponse.org.&alert_level=err`);
