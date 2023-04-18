@@ -51,31 +51,36 @@ module.exports = {
     production: {
         client: 'pg',
         connection: async () => {
-            const tokenExpiration = new Date();
             const postgresURL = new URL(process.env.POSTGRES_URL);
             postgresURL.searchParams.set('ssl', 'true');
-            const signer = new Signer({
-                hostname: postgresURL.hostname,
-                port: postgresURL.port,
-                username: postgresURL.username,
-            });
-            const token = await signer.getAuthToken().catch((err) => {
-                console.warn("Failed to create Postgres IAM auth token, using POSTGRES_URL");
+            const hostname = process.env.PGHOST || postgresURL.hostname;
+            const port = process.env.PGPORT || postgresURL.port;
+            const username = process.env.PGUSER || postgresURL.username;
+            const dbname = process.env.PGDATABASE
+                || path.parse(postgresURL.pathname || 'gost').name
+                || 'gost';
+
+            const tokenExpiration = new Date();
+            const signer = new Signer({ hostname, port, username });
+            const token = await signer.getAuthToken().then((authToken) => {
+                tokenExpiration.setSeconds(tokenExpiration.getSeconds() + 900);
+                return authToken;
+            }).catch(() => {});
+            if (!token) {
+                console.warn("Failed to sign IAM auth token for Postgres, using POSTGRES_URL");
                 return process.env.POSTGRES_URL;
-             });
-            tokenExpiration.setSeconds(tokenExpiration.getSeconds() + 900);
+            }
+
             return {
-                host: postgresURL.hostname,
-                port: postgresURL.port,
-                user: postgresURL.username,
+                host: hostname,
+                port: port,
+                user: username,
                 password: token,
-                database: 'gost',
+                database: dbname,
                 ssl: {
                     ca: fs.readFileSync(path.resolve('./rds-combined-ca-bundle.pem'), "utf-8"),
                 },
-                expirationChecker: () => {
-                    return tokenExpiration <= new Date();
-                },
+                expirationChecker: () => { return tokenExpiration <= new Date(); },
             };
         },
         pool: {
