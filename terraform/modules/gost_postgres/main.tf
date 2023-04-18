@@ -17,6 +17,16 @@ resource "aws_rds_cluster_parameter_group" "postgres13" {
   name        = "${var.namespace}-aurora-postgres13-cluster"
   family      = "aurora-postgresql13"
   description = "RDS Aurora cluster parameter group for ${var.namespace}."
+
+  parameter {
+    name  = "log_statement"
+    value = var.query_logging_enabled ? "all" : "none"
+  }
+
+  parameter {
+    name  = "log_min_duration_statement"
+    value = var.query_logging_enabled ? "1" : "-1"
+  }
 }
 
 module "db" {

@@ -24,7 +24,7 @@ const PERIOD_TEMPLATES_DIR = join(UPLOAD_DIR, 'period_templates');
 const SERVER_CODE_DIR = __dirname;
 const SERVER_DATA_DIR = join(SERVER_CODE_DIR, 'data');
 
-const EMPTY_TEMPLATE_NAME = 'ARPA SFRF Reporting Workbook v20230312.xlsm';
+const EMPTY_TEMPLATE_NAME = 'ARPA SFRF Reporting Workbook v20230417.xlsm';
 
 const { COOKIE_SECRET } = process.env;
 
@@ -44,7 +44,6 @@ const { NODEMAILER_PORT } = process.env;
 
 const { AWS_ACCESS_KEY_ID } = process.env;
 const { AWS_SECRET_ACCESS_KEY } = process.env;
-const { SES_REGION } = process.env;
 
 const { LOGIN_DISABLED_MESSAGE } = process.env;
 const { LOGIN_WARNING_MESSAGE } = process.env;
@@ -72,7 +71,6 @@ module.exports = {
     NODEMAILER_PORT,
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
-    SES_REGION,
     LOGIN_DISABLED_MESSAGE,
     LOGIN_WARNING_MESSAGE,
 };
