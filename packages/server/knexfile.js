@@ -60,7 +60,7 @@ module.exports = {
                 username: postgresURL.username,
             });
             const token = await signer.getAuthToken().catch((err) => {
-                console.error("Failed to create Postgres IAM auth token, will POSTGRES_URL", err);
+                console.warn("Failed to create Postgres IAM auth token, using POSTGRES_URL");
                 return process.env.POSTGRES_URL;
              });
             tokenExpiration.setSeconds(tokenExpiration.getSeconds() + 900);
