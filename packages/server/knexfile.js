@@ -52,10 +52,11 @@ module.exports = {
             const uri = new URL(process.env.POSTGRES_URL);
             uri.searchParams.set('ssl', 'true');
             let postgresURL = process.env.POSTGRES_URL;
-            const signer = Signer({
+            const signer = new Signer({
                 hostname: uri.hostname,
                 port: uri.port,
                 username: uri.username,
+
             });
             const token = await signer.getAuthToken();
             const tokenExpiration = new Date();
@@ -66,6 +67,9 @@ module.exports = {
                 user: uri.username,
                 password: token,
                 database: 'gost',
+                ssl: {
+                    ca: fs.readFileSync(path.resolve('/home/ssm-user/rds-combined-ca-bundle.pem'), "utf-8")
+                },
                 expirationChecker: () => {
                     return tokenExpiration <= new Date();
                 },
