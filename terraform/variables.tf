@@ -63,6 +63,7 @@ variable "website_managed_waf_rules" {
     priority          = number
     metric_visibility = bool
   }))
+  default = {}
 }
 
 // ECS cluster
