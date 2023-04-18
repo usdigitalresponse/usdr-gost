@@ -75,6 +75,7 @@ export default {
           // col for Grants and interested agencies
           key: 'title',
           label: '',
+          tdClass: 'pl-1',
           thStyle: { width: '80%' },
         },
         {

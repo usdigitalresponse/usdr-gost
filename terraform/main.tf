@@ -4,11 +4,24 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.61.0"
+      version = "~> 4.63.0"
     }
   }
 
   backend "s3" {}
+}
+
+provider "aws" {
+  default_tags {
+    tags = {
+      env        = var.env
+      management = "terraform"
+      owner      = "grants"
+      repo       = "usdr-gost"
+      service    = "gost"
+      usage      = "workload"
+    }
+  }
 }
 
 data "aws_caller_identity" "current" {}
@@ -38,9 +51,10 @@ module "website" {
   namespace                = var.namespace
   permissions_boundary_arn = local.permissions_boundary_arn
 
-  dns_zone_id     = data.aws_ssm_parameter.public_dns_zone_id.value
-  domain_name     = var.website_domain_name
-  gost_api_domain = local.api_domain_name
+  dns_zone_id       = data.aws_ssm_parameter.public_dns_zone_id.value
+  domain_name       = var.website_domain_name
+  gost_api_domain   = local.api_domain_name
+  managed_waf_rules = var.website_managed_waf_rules
 }
 
 module "api_to_postgres_security_group" {
@@ -100,6 +114,7 @@ module "api" {
   default_desired_task_count = var.api_default_desired_task_count
   enable_grants_scraper      = var.api_enable_grants_scraper
   enable_grants_digest       = var.api_enable_grants_digest
+  unified_service_tags       = { service = "gost", env = var.env, version = var.version_identifier }
 
   # DNS
   domain_name         = local.api_domain_name
@@ -137,6 +152,7 @@ module "postgres" {
   prevent_destroy           = var.postgres_prevent_destroy
   snapshot_before_destroy   = var.postgres_snapshot_before_destroy
   apply_changes_immediately = var.postgres_apply_changes_immediately
+  query_logging_enabled     = var.postgres_query_logging_enabled
 }
 
 // Deployment parameters

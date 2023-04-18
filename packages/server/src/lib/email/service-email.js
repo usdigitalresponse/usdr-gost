@@ -4,7 +4,7 @@
 --------------------------------------------------------------------------------
 
 */
-const awsTransport = require('./email-aws');
+const awsTransport = require('../gost-aws');
 const nodemailerTransport = require('./email-nodemailer');
 
 function getTransport() {

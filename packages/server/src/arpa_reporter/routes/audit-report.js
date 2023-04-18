@@ -7,7 +7,7 @@ const router = express.Router();
 const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
 const audit_report = require('../lib/audit-report');
 const { useUser } = require('../use-request');
-const aws = require('../lib/aws-client');
+const aws = require('../../lib/gost-aws');
 
 router.get('/:tenantId/:periodId/:filename', async (req, res) => {
     let user;

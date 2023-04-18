@@ -1,14 +1,14 @@
 <template>
 <section class="container-fluid">
     <b-row>
-        <b-col><h3>Include results with:</h3></b-col>
+        <b-col><h3>Keywords</h3></b-col>
         <b-col class="d-flex justify-content-end">
             <div>
                 <b-button variant="success" name="include-button" @click="openAddKeywordModal">Add</b-button>
             </div>
         </b-col>
     </b-row>
-    <b-table sticky-header="600px" hover :items="includeKeywords" :fields="fields">
+    <b-table sticky-header="600px" hover :items="keywords" :fields="fields">
         <template #cell(actions)="row">
             <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
             <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
@@ -16,21 +16,6 @@
         </template>
     </b-table>
     <hr>
-    <b-row v-if="this.$negative_keywords_enabled">
-        <b-col><h3>Exclude results with:</h3></b-col>
-        <b-col class="d-flex justify-content-end">
-            <div>
-                <b-button variant="success" name="exclude-button" @click="openAddKeywordModal">Add</b-button>
-            </div>
-        </b-col>
-    </b-row>
-    <b-table v-if="this.$negative_keywords_enabled" sticky-header="600px" hover :items="excludeKeywords" :fields="fields">
-        <template #cell(actions)="row">
-            <b-button variant="danger" class="mr-1" size="sm" @click="deleteKeyword(row.item.id)">
-            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
-            </b-button>
-        </template>
-    </b-table>
     <AddKeywordModal :keywordType="keywordType" :showModal.sync="showAddKeywordModal"/>
 </section>
 </template>
@@ -38,7 +23,6 @@
 <script>
 
 import { mapActions, mapGetters } from 'vuex';
-import moment from 'moment';
 import AddKeywordModal from '@/components/Modals/AddKeyword.vue';
 
 export default {
@@ -50,21 +34,16 @@ export default {
       fields: [
         {
           key: 'search_term',
-          thStyle: { width: '20%' },
+          thStyle: { width: '92%' },
         },
         {
-          key: 'notes',
-          thStyle: { width: '50%' },
-        },
-        {
-          key: 'created_at',
-          thStyle: { width: '20%' },
-          formatter: (value) => moment(value, 'YYYY-MM-DD').format('MM/DD/YYYY'),
+          key: 'type',
+          thStyle: { width: '3%' },
         },
         {
           key: 'actions',
-          label: 'Actions',
-          thStyle: { width: '10%' },
+          label: '',
+          thStyle: { width: '5%' },
         },
       ],
       keywordType: 'include',
@@ -76,8 +55,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      includeKeywords: 'keywords/includeKeywords',
-      excludeKeywords: 'keywords/excludeKeywords',
+      keywords: 'keywords/allKeywords',
       userRole: 'users/userRole',
       selectedAgency: 'users/selectedAgency',
     }),

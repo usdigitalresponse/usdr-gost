@@ -30,7 +30,6 @@
    NODE_ENV=development or production or test
 
    NOTIFICATIONS_EMAIL="grants-identification@usdigitalresponse.org"
-   SES_REGION="us-east-1"
    AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID>
    AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY>
 

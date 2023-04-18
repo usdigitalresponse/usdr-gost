@@ -2,7 +2,7 @@ const moment = require('moment');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
 const asyncBatch = require('async-batch').default;
-const aws = require('./aws-client');
+const aws = require('../../lib/gost-aws');
 
 const { getPreviousReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');

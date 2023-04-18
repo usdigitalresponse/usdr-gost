@@ -38,6 +38,7 @@ module "cdn" {
   enabled             = true
   aliases             = [var.domain_name]
   default_root_object = "index.html"
+  web_acl_id          = module.waf.arn
 
   // Optimized for North America
   // See https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PriceClass.html
@@ -48,6 +49,17 @@ module "cdn" {
   }
 
   create_origin_access_identity = false
+
+  custom_error_response = [{
+    error_code         = 404
+    response_code      = 404
+    response_page_path = "/errors/404.html"
+    }, {
+    error_code         = 403
+    response_code      = 403
+    response_page_path = "/errors/403.html"
+  }]
+
   origin = {
     content = {
       domain_name = module.origin_bucket.bucket_domain_name
