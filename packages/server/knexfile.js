@@ -1,5 +1,7 @@
 // Update with your config settings.
 require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
 const { Signer } = require("@aws-sdk/rds-signer");
 
 module.exports = {
@@ -32,7 +34,7 @@ module.exports = {
         },
         debug: process.env.NODE_ENV === 'staging',
     },
-    production_old: {
+    productionBasic: {
         client: 'pg',
         connection: process.env.POSTGRES_URL,
         pool: {
@@ -49,26 +51,27 @@ module.exports = {
     production: {
         client: 'pg',
         connection: async () => {
-            const uri = new URL(process.env.POSTGRES_URL);
-            uri.searchParams.set('ssl', 'true');
-            let postgresURL = process.env.POSTGRES_URL;
-            const signer = new Signer({
-                hostname: uri.hostname,
-                port: uri.port,
-                username: uri.username,
-
-            });
-            const token = await signer.getAuthToken();
             const tokenExpiration = new Date();
+            const postgresURL = new URL(process.env.POSTGRES_URL);
+            postgresURL.searchParams.set('ssl', 'true');
+            const signer = new Signer({
+                hostname: postgresURL.hostname,
+                port: postgresURL.port,
+                username: postgresURL.username,
+            });
+            const token = await signer.getAuthToken().catch((err) => {
+                console.error("Failed to create Postgres IAM auth token, will POSTGRES_URL", err);
+                return process.env.POSTGRES_URL;
+             });
             tokenExpiration.setSeconds(tokenExpiration.getSeconds() + 900);
             return {
-                host: uri.hostname,
-                port: uri.port,
-                user: uri.username,
+                host: postgresURL.hostname,
+                port: postgresURL.port,
+                user: postgresURL.username,
                 password: token,
                 database: 'gost',
                 ssl: {
-                    ca: fs.readFileSync(path.resolve('/home/ssm-user/rds-combined-ca-bundle.pem'), "utf-8")
+                    ca: fs.readFileSync(path.resolve('./rds-combined-ca-bundle.pem'), "utf-8"),
                 },
                 expirationChecker: () => {
                     return tokenExpiration <= new Date();

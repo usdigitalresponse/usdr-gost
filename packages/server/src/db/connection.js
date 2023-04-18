@@ -3,7 +3,15 @@ const { builtins } = require('pg-types');
 const { attachPaginate } = require('knex-paginate');
 const config = require('../../knexfile');
 // eslint-disable-next-line import/order
-const knex = require('knex')(config[process.env.NODE_ENV || 'production']);
+const knexLib = require('knex');
+let knex = knexLib(config[process.env.NODE_ENV || 'production']);
+if ((process.env.NODE_ENV || 'production') === 'production') {
+    knex.raw('select 1').catch((err) => {
+        console.error("Failed to connect to Postgres, will try basic auth", err);
+        knex = knexLib(config.productionBasic);
+    });
+}
+
 
 // override parser for date fields — just return the raw string content.
 //
