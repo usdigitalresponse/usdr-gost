@@ -36,21 +36,6 @@
                 <b-form-select-option value="exclude">Exclude this keyword in searches</b-form-select-option>
             </b-form-select>
         </b-form-group>
-        <b-form-group
-          :state="!$v.formData.notes.$invalid"
-          label="Notes"
-          label-for="notes-input"
-          invalid-feedback="Note is invalid"
-        >
-          <b-form-textarea
-            id="notes-input"
-            v-model="formData.notes"
-            :state="!$v.formData.notes.$invalid"
-            @change="$v.$touch()"
-            rows="3"
-            max-rows="6"
-          ></b-form-textarea>
-        </b-form-group>
       </form>
     </b-modal>
   </div>
@@ -58,7 +43,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { required, maxLength } from 'vuelidate/lib/validators';
+import { required } from 'vuelidate/lib/validators';
 
 export default {
   props: {
@@ -68,7 +53,6 @@ export default {
   data() {
     return {
       formData: {
-        notes: null,
         searchTerm: null,
         type: this.keywordType,
       },
@@ -78,9 +62,6 @@ export default {
     formData: {
       searchTerm: {
         required,
-      },
-      notes: {
-        maxLength: maxLength(512),
       },
     },
   },
