@@ -34,20 +34,6 @@ module.exports = {
         },
         debug: process.env.NODE_ENV === 'staging',
     },
-    productionBasic: {
-        client: 'pg',
-        connection: process.env.POSTGRES_URL,
-        pool: {
-            min: 2,
-            max: 10,
-        },
-        seeds: {
-            directory: './seeds/dev',
-        },
-        migrations: {
-            tableName: 'migrations',
-        },
-    },
     production: {
         client: 'pg',
         connection: async () => {
@@ -59,6 +45,13 @@ module.exports = {
             const dbname = process.env.PGDATABASE
                 || path.parse(postgresURL.pathname || 'gost').name
                 || 'gost';
+            const basicAuthConfig = {
+                user: username,
+                password: postgresURL.password,
+                host: hostname,
+                port,
+                database: dbname,
+            };
 
             const tokenExpiration = new Date();
             const signer = new Signer({ hostname, port, username });
@@ -67,21 +60,30 @@ module.exports = {
                 return authToken;
             }).catch(() => {});
             if (!token) {
-                console.warn("Failed to sign IAM auth token for Postgres, using POSTGRES_URL");
-                return process.env.POSTGRES_URL;
+                console.warn('Failed to sign IAM auth token for Postgres, will use basic auth');
+                return basicAuthConfig;
             }
 
-            return {
-                host: hostname,
-                port: port,
+            const iamAuthConfig = {
                 user: username,
                 password: token,
+                host: hostname,
+                port,
                 database: dbname,
                 ssl: {
                     ca: fs.readFileSync(path.resolve('./rds-combined-ca-bundle.pem'), "utf-8"),
                 },
                 expirationChecker: () => { return tokenExpiration <= new Date(); },
             };
+
+            try {
+                // Test IAM authentication:
+                await require('knex')({ client: 'pg', connection: iamAuthConfig}).raw('select 1');
+            } catch (e) {
+                console.warn('Postgres IAM auth failed, will use POSTGRES_URL');
+                return basicAuthConfig;
+            }
+            return iamAuthConfig;
         },
         pool: {
             min: 2,
