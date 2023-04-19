@@ -45,14 +45,18 @@ module.exports = {
             const dbname = process.env.PGDATABASE
                 || path.parse(postgresURL.pathname || 'gost').name
                 || 'gost';
+
             const basicAuthConfig = {
                 user: username,
                 password: postgresURL.password,
                 host: hostname,
                 port,
                 database: dbname,
-                ssl: process.env.PGSSLMODE === 'disable' ? false : Object.fromEntries(
-                    Object.entries({
+                ssl: (() => {
+                    if (process.env.PGSSLMODE === 'disable') {
+                        return false;
+                    }
+                    const sslConfig = Object.fromEntries(Object.entries({
                         // We assume that the below env vars will point to a file if/when set.
                         ca: process.env.PGSSLROOTCERT,
                         key: process.env.PGSSLKEY,
@@ -60,9 +64,10 @@ module.exports = {
                     })
                         // Filter the above keys to those with a truthy value
                         .filter(([_, v]) => v)
-                        // Map remaining keys to the contents of the file referenced by the env var
-                        .map(([k, v]) => [k, fs.readFileSync(path.resolve(v)).toString()])
-                ),
+                        // Map remaining keys to the contents of the file named by the env var
+                        .map(([k, v]) => [k, fs.readFileSync(path.resolve(v)).toString()]));
+                    return Object.keys(sslConfig).length > 0 ? sslConfig : undefined;
+                })(),
             };
 
             // Attempt to get a signed token for IAM auth or fall back to basic auth
