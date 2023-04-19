@@ -57,7 +57,7 @@ module.exports = {
                     ca: process.env.PGSSLROOTCERT,
                     key: process.env.PGSSLKEY,
                     cert: process.env.PGSSLCERT,
-                }).map(([k, v]) => v ? [k, fs.readFileSync(path.resolve(v)).toString()] : [])),
+                }).map(([k, v]) => (v ? [k, fs.readFileSync(path.resolve(v)).toString()] : []))),
             };
 
             // Attempt to get a signed token for IAM auth or fall back to basic auth
