@@ -126,7 +126,6 @@ async function getUser(id) {
             'agencies.name as agency_name',
             'agencies.abbreviation as agency_abbreviation',
             'agencies.parent as agency_parent_id_id',
-            'agencies.main_agency_id as agency_main_agency_id',
             'agencies.warning_threshold as agency_warning_threshold',
             'agencies.danger_threshold as agency_danger_threshold',
             'tenants.id as tenant_id',
@@ -138,7 +137,7 @@ async function getUser(id) {
         )
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
-        .leftJoin('tenants', 'tenants.main_agency_id', 'agencies.main_agency_id')
+        .leftJoin('tenants', 'tenants.id', 'users.tenant_id')
         .where('users.id', id);
 
     if (!user) return null;
@@ -831,8 +830,7 @@ async function createAgency(agency, creatorId) {
               :warning_threshold::integer,
               :danger_threshold::integer,
               :code,
-              u.tenant_id,
-              t.main_agency_id
+              u.tenant_id
             FROM users u
             JOIN tenants t ON u.tenant_id = t.id
             WHERE u.id = :creator_id
@@ -843,8 +841,7 @@ async function createAgency(agency, creatorId) {
             warning_threshold,
             danger_threshold,
             code,
-            tenant_id,
-            main_agency_id
+            tenant_id
         ) (SELECT * FROM upd) RETURNING *`, update);
 
     return result.rows[0];
