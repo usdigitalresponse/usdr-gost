@@ -51,9 +51,13 @@ module.exports = {
                 host: hostname,
                 port,
                 database: dbname,
-                ssl: {
-                    ca: fs.readFileSync(path.resolve('./rds-combined-ca-bundle.pem'), 'utf-8'),
-                },
+                ssl: Object.fromEntries(Object.entries({
+                    // Set these keys when the corresponding env var has a truthy value.
+                    // We assume that the below env vars will point to a file if/when set.
+                    ca: process.env.PGSSLROOTCERT,
+                    key: process.env.PGSSLKEY,
+                    cert: process.env.PGSSLCERT,
+                }).map(([k, v]) => v ? [k, fs.readFileSync(path.resolve(v)).toString()] : [])),
             };
 
             // Attempt to get a signed token for IAM auth or fall back to basic auth
