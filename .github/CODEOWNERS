@@ -3,3 +3,6 @@
 
 # Require admin approval for Terraform IAC modifications
 /terraform/ @usdigitalresponse/grants-admins
+
+# Require admin approval when Postgres root CA bundle is modified
+/packages/server/rds-combined-ca-bundle.pem @usdigitalresponse/grants-admins
