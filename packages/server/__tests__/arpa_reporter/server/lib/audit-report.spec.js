@@ -8,14 +8,14 @@ const { withTenantId } = require('../helpers/with-tenant-id');
 
 function handleUploadFake(type) {
     if (type === 'success') {
-        return (options, callback) => {
+        return () => {
             console.log('success path');
-            callback(undefined, { valid: 'data' });
+            return { valid: 'data' };
         };
     }
 
-    return (options, callback) => {
-        callback('some error message', {});
+    return () => {
+        throw new Error('some error message');
     };
 }
 
@@ -45,7 +45,7 @@ describe('audit report generation', () => {
         sandbox.replace(audit_report, 'generate', generateFake);
 
         const uploadFake = sandbox.fake.returns('just s3');
-        uploadFake.upload = sandbox.fake(handleUploadFake('success'));
+        uploadFake.send = sandbox.fake(handleUploadFake('success'));
         const s3Fake = sandbox.fake.returns(uploadFake);
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
@@ -57,15 +57,16 @@ describe('audit report generation', () => {
         expect(generateFake.firstCall.firstArg).to.equal('usdigitalresponse.org');
 
         console.log('Asserting s3 upload function');
-        expect(uploadFake.upload.calledOnce).to.equal(true);
+        expect(uploadFake.send.calledOnce).to.equal(true);
 
-        const params = Object.keys(uploadFake.upload.firstCall.firstArg);
+        const command = uploadFake.send.firstCall.firstArg.input;
+        const params = Object.keys(command);
         expect(params).to.contain('Bucket');
         expect(params).to.contain('Key');
         expect(params).to.contain('Body');
         expect(params).to.contain('ServerSideEncryption');
-        expect(uploadFake.upload.firstCall.firstArg.Bucket).to.equal('arpa-audit-reports');
-        expect(uploadFake.upload.firstCall.firstArg.ServerSideEncryption).to.equal('AES256');
+        expect(command.Bucket).to.equal('arpa-audit-reports');
+        expect(command.ServerSideEncryption).to.equal('AES256');
 
         console.log('Asserting presigned and email function');
         expect(sendEmailFake.calledOnce).to.equal(true);
@@ -83,7 +84,7 @@ describe('audit report generation', () => {
         sandbox.replace(audit_report, 'generate', generateFake);
 
         const uploadFake = sandbox.fake.returns('just s3');
-        uploadFake.upload = sandbox.fake(handleUploadFake('error'));
+        uploadFake.send = sandbox.fake(handleUploadFake('error'));
         const s3Fake = sandbox.fake.returns(uploadFake);
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
@@ -95,15 +96,15 @@ describe('audit report generation', () => {
         expect(generateFake.firstCall.firstArg).to.equal('usdigitalresponse.org');
 
         console.log('Asserting s3 upload function');
-        expect(uploadFake.upload.calledOnce).to.equal(true);
-
-        const params = Object.keys(uploadFake.upload.firstCall.firstArg);
+        expect(uploadFake.send.calledOnce).to.equal(true);
+        const command = uploadFake.send.firstCall.firstArg.input;
+        const params = Object.keys(command);
         expect(params).to.contain('Bucket');
         expect(params).to.contain('Key');
         expect(params).to.contain('Body');
         expect(params).to.contain('ServerSideEncryption');
-        expect(uploadFake.upload.firstCall.firstArg.Bucket).to.equal('arpa-audit-reports');
-        expect(uploadFake.upload.firstCall.firstArg.ServerSideEncryption).to.equal('AES256');
+        expect(command.Bucket).to.equal('arpa-audit-reports');
+        expect(command.ServerSideEncryption).to.equal('AES256');
 
         console.log('Asserting presigned and email function');
         expect(sendEmailFake.notCalled).to.equal(true);
