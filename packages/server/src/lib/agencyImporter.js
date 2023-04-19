@@ -8,7 +8,6 @@ class AgencyImporter {
             parent: this.agencies[row.parent_name].id,
             warning_threshold: Number.parseInt(row.warning_threshold, 10),
             danger_threshold: Number.parseInt(row.danger_threshold, 10),
-            main_agency_id: this.main_agency_id,
             tenant_id: adminUser.tenant_id,
             code: row.code,
         };
@@ -61,9 +60,6 @@ class AgencyImporter {
         // eslint-disable-next-line no-restricted-syntax
         for (const agency of agenciesArray) {
             this.agencies[agency.name] = agency;
-            if (agency.parent === null) {
-                this.main_agency_id = agency.id;
-            }
         }
     }
 
