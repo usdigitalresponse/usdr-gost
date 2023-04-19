@@ -34,7 +34,7 @@ services:
     environment:
       - DEBUG=${DEBUG-}
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - HOSTNAME_EXTERNAL=localhost.localstack.cloud
+      - AWS_DEFAULT_REGION=${AWS_REGION:-us-west-2}
     networks:
       - app
     volumes:

@@ -24,7 +24,7 @@ function getS3Client() {
         s3 = new S3Client({
             endpoint,
             forcePathStyle: true,
-            region: 'us-west-2',
+            region: process.env.AWS_DEFAULT_REGION,
         });
     } else {
         s3 = new S3Client();
@@ -51,7 +51,7 @@ function getSESClient() {
 
     if (process.env.LOCALSTACK_HOSTNAME) {
         sesOptions.endpoint = `http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT || 4566}`;
-        sesOptions.region = 'us-west-2';
+        sesOptions.region = process.env.AWS_DEFAULT_REGION;
     }
 
     return new SESClient(sesOptions);
