@@ -25,7 +25,6 @@ const agencies = {
         name: 'State Board of Accountancy',
         parent: null,
         tenant_id: tenants.SBA.id,
-        main_agency_id: 0,
     },
     subAccountancy: {
         id: 1,
@@ -34,7 +33,6 @@ const agencies = {
         name: 'State Board of Sub Accountancy',
         parent: 0,
         tenant_id: tenants.SBA.id,
-        main_agency_id: 0,
     },
     fleetServices: {
         id: 4,
@@ -43,7 +41,6 @@ const agencies = {
         name: 'Administration: Fleet Services Division',
         parent: null,
         tenant_id: tenants.FS.id,
-        main_agency_id: 4,
     },
 };
 
