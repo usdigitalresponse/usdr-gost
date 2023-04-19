@@ -72,6 +72,9 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
         },
     );
 
+    if (process.env.DEV_LOGIN_LINK && process.env.NODE_ENV === 'development') {
+        console.log(`Login link generated: ${href}`);
+    }
     return module.exports.deliverEmail({
         toAddress: email,
         emailHTML,
