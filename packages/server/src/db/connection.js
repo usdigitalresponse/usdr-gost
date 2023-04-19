@@ -5,7 +5,6 @@ const config = require('../../knexfile');
 // eslint-disable-next-line import/order
 const knex = require('knex')(config[process.env.NODE_ENV || 'production']);
 
-
 // override parser for date fields — just return the raw string content.
 //
 // The reason for this is that the Date() constructor assumes a timezone when

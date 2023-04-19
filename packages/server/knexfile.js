@@ -2,7 +2,7 @@
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
-const { Signer } = require("@aws-sdk/rds-signer");
+const { Signer } = require('@aws-sdk/rds-signer');
 
 module.exports = {
     test: {
@@ -52,7 +52,7 @@ module.exports = {
                 port,
                 database: dbname,
                 ssl: {
-                    ca: fs.readFileSync(path.resolve('./rds-combined-ca-bundle.pem'), "utf-8"),
+                    ca: fs.readFileSync(path.resolve('./rds-combined-ca-bundle.pem'), 'utf-8'),
                 },
             };
 
@@ -71,11 +71,12 @@ module.exports = {
             const iamAuthConfig = {
                 ...basicAuthConfig,
                 password: token,
-                expirationChecker: () => { return tokenExpiration <= new Date(); }
+                expirationChecker: () => tokenExpiration <= new Date(),
             };
 
             try {
                 // Test IAM authentication
+                // eslint-disable-next-line global-require
                 await require('knex')({ client: 'pg', connection: iamAuthConfig }).raw('select 1');
             } catch (e) {
                 console.warn('Postgres connectivity test with IAM auth failed, will use basic auth');
@@ -93,5 +94,5 @@ module.exports = {
         migrations: {
             tableName: 'migrations',
         },
-    }
+    },
 };
