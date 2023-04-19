@@ -32,25 +32,25 @@ module "api_container_definition" {
 
   map_environment = merge(
     {
+      API_DOMAIN                = "https://${var.domain_name}"
+      AUDIT_REPORT_BUCKET       = module.arpa_audit_reports_bucket.bucket_id
+      DATA_DIR                  = "/var/data"
+      ENABLE_GRANTS_DIGEST      = var.enable_grants_digest ? "true" : "false"
       ENABLE_GRANTS_SCRAPER     = "false"
       GRANTS_SCRAPER_DATE_RANGE = 7
-      ENABLE_GRANTS_DIGEST      = var.enable_grants_digest ? "true" : "false"
       GRANTS_SCRAPER_DELAY      = 1000
       NODE_OPTIONS              = "--max_old_space_size=1024"
-      API_DOMAIN                = "https://${var.domain_name}"
+      NOTIFICATIONS_EMAIL       = var.notifications_email_address
       VUE_APP_GRANTS_API_URL    = module.api_gateway.apigatewayv2_api_api_endpoint
       WEBSITE_DOMAIN            = "https://${var.website_domain_name}"
-      NOTIFICATIONS_EMAIL       = var.notifications_email_address
-      DATA_DIR                  = "/var/data"
-      AUDIT_REPORT_BUCKET       = module.arpa_audit_reports_bucket.bucket_id
     },
     local.datadog_env_vars,
     var.api_container_environment,
   )
 
   map_secrets = {
-    POSTGRES_URL  = join("", aws_ssm_parameter.postgres_connection_string.*.arn)
     COOKIE_SECRET = join("", aws_ssm_parameter.cookie_secret.*.arn)
+    POSTGRES_URL  = join("", aws_ssm_parameter.postgres_connection_string.*.arn)
   }
 
   port_mappings = [{
