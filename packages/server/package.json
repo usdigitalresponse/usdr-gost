@@ -37,6 +37,7 @@
     "test": "yarn test:apis && yarn test:arpa && yarn test:db && yarn test:userimport && yarn test:agencyimport && yarn test:email && yarn test:lib"
   },
   "dependencies": {
+    "@aws-sdk/rds-signer": "^3.315.0",
     "adm-zip": "0.5.9",
     "async-batch": "1.1.2",
     "aws-sdk": "^2.963.0",
