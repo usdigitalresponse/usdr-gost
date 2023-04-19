@@ -63,7 +63,7 @@ module.exports = {
                         cert: process.env.PGSSLCERT,
                     })
                         // Filter the above keys to those with a truthy value
-                        .filter(([_, v]) => v)
+                        .filter(([, v]) => v)
                         // Map remaining keys to the contents of the file named by the env var
                         .map(([k, v]) => [k, fs.readFileSync(path.resolve(v)).toString()]));
                     return Object.keys(sslConfig).length > 0 ? sslConfig : undefined;
