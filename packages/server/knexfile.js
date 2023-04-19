@@ -51,13 +51,18 @@ module.exports = {
                 host: hostname,
                 port,
                 database: dbname,
-                ssl: Object.fromEntries(Object.entries({
-                    // Set these keys when the corresponding env var has a truthy value.
-                    // We assume that the below env vars will point to a file if/when set.
-                    ca: process.env.PGSSLROOTCERT,
-                    key: process.env.PGSSLKEY,
-                    cert: process.env.PGSSLCERT,
-                }).map(([k, v]) => (v ? [k, fs.readFileSync(path.resolve(v)).toString()] : []))),
+                ssl: process.env.PGSSLMODE === 'disable' ? false : Object.fromEntries(
+                    Object.entries({
+                        // We assume that the below env vars will point to a file if/when set.
+                        ca: process.env.PGSSLROOTCERT,
+                        key: process.env.PGSSLKEY,
+                        cert: process.env.PGSSLCERT,
+                    })
+                        // Filter the above keys to those with a truthy value
+                        .filter(([_, v]) => v)
+                        // Map remaining keys to the contents of the file referenced by the env var
+                        .map(([k, v]) => [k, fs.readFileSync(path.resolve(v)).toString()])
+                ),
             };
 
             // Attempt to get a signed token for IAM auth or fall back to basic auth
