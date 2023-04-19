@@ -38,6 +38,7 @@ module.exports = {
         client: 'pg',
         connection: async () => {
             // Define base connection parameters from POSTGRES_URL and/or standard PG env vars
+            // See https://www.postgresql.org/docs/current/libpq-envars.html
             const postgresURL = new URL(process.env.POSTGRES_URL);
             const hostname = process.env.PGHOST || postgresURL.hostname;
             const port = process.env.PGPORT || postgresURL.port;
@@ -74,6 +75,7 @@ module.exports = {
             const tokenExpiration = new Date();
             const signer = new Signer({ hostname, port, username });
             const token = await signer.getAuthToken().then((authToken) => {
+                // Auth tokens are valid for 15 minutes (900 seconds)
                 tokenExpiration.setSeconds(tokenExpiration.getSeconds() + 900);
                 return authToken;
             }).catch(() => { });
