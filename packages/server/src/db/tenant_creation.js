@@ -40,11 +40,6 @@ async function validateUserEmail(email, trns = knex) {
     return true;
 }
 
-async function firstAgencyId(trns = knex) {
-    // Don't want to assume 0 or 1 exist, they could have been deleted
-    return trns('agencies').first('id').then((agency) => agency.id);
-}
-
 const buildInquirerQuestionsForCreateTenantOptions = (trns) => [
     {
         name: 'tenantName',
@@ -171,21 +166,12 @@ async function createTenant(options, trns = knex) {
             abbreviation: agencyAbbreviation,
             code: agencyCode,
             parent: null,
-            // main_agency_id is non-nullable, but trns.ref('id') doesn't seem to work. So we have
-            // to set to an existing value, then update it afterward.
-            //
-            // TODO(mbroussard): should we remove the NOT NULL constraint and have null mean root
-            // agency vs. having self-loops (similar to parent field)?
-            main_agency_id: await firstAgencyId(trns),
             tenant_id: tenantId,
         })
         .returning('id as agencyId')
         .then((rows) => rows[0]);
 
     // Update main_agency_id
-    await trns('agencies')
-        .where('id', agencyId)
-        .update({ main_agency_id: agencyId });
     await trns('tenants')
         .where('id', tenantId)
         .update({ main_agency_id: agencyId });

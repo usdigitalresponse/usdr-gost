@@ -1,5 +1,6 @@
-const AWS = require('aws-sdk');
-
+const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
+const { S3Client } = require('@aws-sdk/client-s3');
+const { getSignedUrl: awsGetSignedUrl } = require('@aws-sdk/s3-request-presigner');
 /*
 ----------------------------------------------------------
                         AWS S3
@@ -18,15 +19,25 @@ function getS3Client() {
                 - awslocal s3api list-objects --bucket arpa-audit-reports
         */
         console.log('------------ USING LOCALSTACK ------------');
-        const endpoint = new AWS.Endpoint(`http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT || 4566}`);
-        s3 = new AWS.S3({
+        const endpoint = `http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT || 4566}`;
+        console.log(`endpoint: ${endpoint}`);
+        s3 = new S3Client({
             endpoint,
-            s3ForcePathStyle: true,
+            forcePathStyle: true,
+            region: process.env.AWS_DEFAULT_REGION,
         });
     } else {
-        s3 = new AWS.S3();
+        s3 = new S3Client();
     }
     return s3;
+}
+
+/**
+ *  This function is a wrapper around the getSignedUrl function from the @aws-sdk/s3-request-presigner package.
+ *  Exists to organize the imports and to make it easier to mock in tests.
+ */
+async function getSignedUrl(s3, command, options) {
+    return awsGetSignedUrl(s3, command, options);
 }
 
 /*
@@ -35,10 +46,21 @@ function getS3Client() {
 ----------------------------------------------------------
 */
 
+function getSESClient() {
+    const sesOptions = {};
+
+    if (process.env.LOCALSTACK_HOSTNAME) {
+        sesOptions.endpoint = `http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT || 4566}`;
+        sesOptions.region = process.env.AWS_DEFAULT_REGION;
+    }
+
+    return new SESClient(sesOptions);
+}
+
 function sendEmail(message) {
     if (process.env.SUPPRESS_EMAIL) return;
 
-    const transport = new AWS.SES();
+    const transport = getSESClient();
     const params = {
         Destination: {
             ToAddresses: [message.toAddress],
@@ -61,12 +83,14 @@ function sendEmail(message) {
             },
         },
     };
-    transport.sendEmail(params).promise()
+    const command = new SendEmailCommand(params);
+    transport.send(command)
         .then((data) => console.log('Success sending SES email:', data))
         .catch((err) => console.error('Error sending SES email:', err, err.stack));
 }
 
 module.exports = {
     getS3Client,
+    getSignedUrl,
     sendEmail,
 };

@@ -58,19 +58,16 @@ exports.seed = async (knex) => {
         .onConflict('id')
         .merge();
 
-    // Due to a cyclical foriegn key dependency we have to leave
-    // main_agency_id null when creating the tenant, and only
-    // populate it after the agency has been created. We are
-    // looking at removing main_agency_id entirely.
-    // TODO (Brian Spates): Update once main_agency_id is removed
+    // We need to now set the main_agency_id on tenants that have specified
+    // the USDR agency as a parent.
     await knex.raw(`WITH main_agency_lookup AS (
-                        SELECT id, tenant_id
-                        FROM agencies
-                        WHERE main_agency_id = id
-                    ) UPDATE tenants
-                      SET main_agency_id = mal.id
-                      FROM main_agency_lookup mal
-                      WHERE mal.tenant_id = tenants.id`);
+                    SELECT id, tenant_id
+                    FROM agencies
+                    WHERE parent = ${usdrAgency.id}
+                ) UPDATE tenants
+                    SET main_agency_id = mal.id
+                    FROM main_agency_lookup mal
+                    WHERE mal.tenant_id = tenants.id;`);
 
     if (userList.length) {
         await knex('users').insert(userList)
