@@ -78,7 +78,7 @@ module.exports = {
                 // Auth tokens are valid for 15 minutes (900 seconds)
                 tokenExpiration.setSeconds(tokenExpiration.getSeconds() + 900);
                 return authToken;
-            }).catch((e) => { console.error('Error getting IAM auth token for Postgres:', e) });
+            }).catch((e) => { console.error('Error getting IAM auth token for Postgres:', e); });
             if (!token) {
                 console.warn('Failed to sign IAM auth token for Postgres, will use basic auth');
                 return basicAuthConfig;
