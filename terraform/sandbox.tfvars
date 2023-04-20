@@ -6,8 +6,9 @@ ssm_service_parameters_path_prefix    = "/gost/sandbox"
 ssm_deployment_parameters_path_prefix = "/gost/sandbox/deploy-config"
 
 // Website
-website_enabled     = true
-website_domain_name = "sandbox.grants.usdr.dev"
+website_enabled           = true
+website_domain_name       = "sandbox.grants.usdr.dev"
+website_managed_waf_rules = {}
 
 // ECS Cluster
 cluster_container_insights_enabled = false

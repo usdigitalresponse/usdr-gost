@@ -40,7 +40,6 @@ locals {
   api_domain_name          = coalesce(var.api_domain_name, "api.${var.website_domain_name}")
 }
 
-
 data "aws_ssm_parameter" "public_dns_zone_id" {
   name = "${var.ssm_deployment_parameters_path_prefix}/dns/public_zone_id"
 }
@@ -148,7 +147,7 @@ module "postgres" {
   default_db_name           = "gost"
   vpc_id                    = data.aws_ssm_parameter.vpc_id.value
   subnet_ids                = local.private_subnet_ids
-  allowed_security_groups   = [module.api_to_postgres_security_group.id]
+  ingress_security_groups   = { from_api = module.api_to_postgres_security_group.id }
   prevent_destroy           = var.postgres_prevent_destroy
   snapshot_before_destroy   = var.postgres_snapshot_before_destroy
   apply_changes_immediately = var.postgres_apply_changes_immediately
