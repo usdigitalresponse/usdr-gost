@@ -1,4 +1,4 @@
-const tracer = require('dd-trace').init();
+const tracer = require('dd-trace').init(); // eslint-disable-line no-unused-vars
 const express = require('express');
 const { CronJob } = require('cron');
 const fs = require('fs').promises;
