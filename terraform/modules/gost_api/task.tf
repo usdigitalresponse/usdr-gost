@@ -6,6 +6,10 @@ locals {
     for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]) :
     "DD_${upper(k)}" => var.unified_service_tags[k]
   }
+  datadog_docker_labels = {
+    for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]) :
+    "com.datadoghq.tags.${lower(k)}" => var.unified_service_tags[k]
+  }
 }
 
 module "api_container_definition" {
@@ -54,6 +58,8 @@ module "api_container_definition" {
     POSTGRES_URL  = join("", aws_ssm_parameter.postgres_connection_string.*.arn)
   }
 
+  docker_labels = local.datadog_docker_labels
+
   port_mappings = [{
     containerPort = local.api_container_port
     hostPort      = local.api_container_port
@@ -98,6 +104,7 @@ module "datadog_container_definition" {
   map_secrets = {
     DD_API_KEY = join("", data.aws_ssm_parameter.datadog_api_key.*.arn),
   }
+  docker_labels = local.datadog_docker_labels
 }
 
 resource "aws_iam_role" "execution" {
