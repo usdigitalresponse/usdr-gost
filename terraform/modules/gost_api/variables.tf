@@ -177,3 +177,13 @@ variable "unified_service_tags" {
     version = optional(string)
   })
 }
+
+variable "autoscaling_desired_count_minimum" {
+  description = "Minimum desired auto-scaling group capacity"
+  type        = number
+}
+
+variable "autoscaling_desired_count_maximum" {
+  description = "Maximum desired auto-scaling group capacity"
+  type        = number
+}

@@ -108,6 +108,14 @@ variable "api_log_retention_in_days" {
   type = number
 }
 
+variable "api_minumum_task_count" {
+  type = number
+}
+
+variable "api_maximum_task_count" {
+  type = number
+}
+
 // Postgres
 variable "postgres_enabled" {
   default = true
