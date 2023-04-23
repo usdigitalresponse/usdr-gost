@@ -84,6 +84,7 @@ jobs:
     environment: ${{ needs.select_target_environment.outputs.selected }}
     env:
       TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
+      TF_VAR_version_identifier: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v3
       - name: Get project TF version
