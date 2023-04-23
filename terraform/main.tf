@@ -108,12 +108,14 @@ module "api" {
   ecs_cluster_name = join("", aws_ecs_cluster.default.*.name)
 
   # Task configuration
-  docker_tag                 = var.api_container_image_tag
-  api_container_environment  = var.api_container_environment
-  default_desired_task_count = var.api_default_desired_task_count
-  enable_grants_scraper      = var.api_enable_grants_scraper
-  enable_grants_digest       = var.api_enable_grants_digest
-  unified_service_tags       = { service = "gost", env = var.env, version = var.version_identifier }
+  docker_tag                        = var.api_container_image_tag
+  api_container_environment         = var.api_container_environment
+  default_desired_task_count        = var.api_default_desired_task_count
+  autoscaling_desired_count_minimum = var.api_minumum_task_count
+  autoscaling_desired_count_maximum = var.api_maximum_task_count
+  enable_grants_scraper             = var.api_enable_grants_scraper
+  enable_grants_digest              = var.api_enable_grants_digest
+  unified_service_tags              = { service = "gost", env = var.env, version = var.version_identifier }
 
   # DNS
   domain_name         = local.api_domain_name

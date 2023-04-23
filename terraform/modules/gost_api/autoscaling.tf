@@ -5,8 +5,8 @@ resource "aws_appautoscaling_target" "desired_count" {
   scalable_dimension = "ecs:service:DesiredCount"
   resource_id        = "service/${var.ecs_cluster_name}/${join("", aws_ecs_service.default.*.name)}"
 
-  min_capacity = 1
-  max_capacity = 5
+  min_capacity = var.autoscaling_desired_count_minimum
+  max_capacity = var.autoscaling_desired_count_maximum
 }
 
 resource "aws_appautoscaling_policy" "average_cpu_target_tracking" {
