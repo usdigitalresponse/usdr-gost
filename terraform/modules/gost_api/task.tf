@@ -6,11 +6,15 @@ locals {
     for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]) :
     "DD_${upper(k)}" => var.unified_service_tags[k]
   }
+  datadog_docker_labels = {
+    for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]) :
+    "com.datadoghq.tags.${lower(k)}" => var.unified_service_tags[k]
+  }
 }
 
 module "api_container_definition" {
   source  = "cloudposse/ecs-container-definition/aws"
-  version = "0.58.2"
+  version = "0.58.3"
 
   container_name           = "api"
   container_image          = local.api_container_image
@@ -32,26 +36,29 @@ module "api_container_definition" {
 
   map_environment = merge(
     {
+      API_DOMAIN                = "https://${var.domain_name}"
+      AUDIT_REPORT_BUCKET       = module.arpa_audit_reports_bucket.bucket_id
+      DATA_DIR                  = "/var/data"
+      ENABLE_GRANTS_DIGEST      = var.enable_grants_digest ? "true" : "false"
       ENABLE_GRANTS_SCRAPER     = "false"
       GRANTS_SCRAPER_DATE_RANGE = 7
-      ENABLE_GRANTS_DIGEST      = var.enable_grants_digest ? "true" : "false"
       GRANTS_SCRAPER_DELAY      = 1000
       NODE_OPTIONS              = "--max_old_space_size=1024"
-      API_DOMAIN                = "https://${var.domain_name}"
+      NOTIFICATIONS_EMAIL       = var.notifications_email_address
+      PGSSLROOTCERT             = "rds-combined-ca-bundle.pem"
       VUE_APP_GRANTS_API_URL    = module.api_gateway.apigatewayv2_api_api_endpoint
       WEBSITE_DOMAIN            = "https://${var.website_domain_name}"
-      NOTIFICATIONS_EMAIL       = var.notifications_email_address
-      DATA_DIR                  = "/var/data"
-      AUDIT_REPORT_BUCKET       = module.arpa_audit_reports_bucket.bucket_id
     },
     local.datadog_env_vars,
     var.api_container_environment,
   )
 
   map_secrets = {
-    POSTGRES_URL  = join("", aws_ssm_parameter.postgres_connection_string.*.arn)
     COOKIE_SECRET = join("", aws_ssm_parameter.cookie_secret.*.arn)
+    POSTGRES_URL  = join("", aws_ssm_parameter.postgres_connection_string.*.arn)
   }
+
+  docker_labels = local.datadog_docker_labels
 
   port_mappings = [{
     containerPort = local.api_container_port
@@ -79,7 +86,7 @@ module "api_container_definition" {
 
 module "datadog_container_definition" {
   source  = "cloudposse/ecs-container-definition/aws"
-  version = "0.58.2"
+  version = "0.58.3"
 
   container_name           = "datadog"
   container_image          = "public.ecr.aws/datadog/agent:latest"
@@ -97,6 +104,7 @@ module "datadog_container_definition" {
   map_secrets = {
     DD_API_KEY = join("", data.aws_ssm_parameter.datadog_api_key.*.arn),
   }
+  docker_labels = local.datadog_docker_labels
 }
 
 resource "aws_iam_role" "execution" {

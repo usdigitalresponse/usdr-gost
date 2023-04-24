@@ -18,7 +18,7 @@ output "master_username" {
 
 output "master_password" {
   description = "Cluster master password."
-  value       = module.db.cluster_master_password
+  value       = random_password.postgres_user.result
   sensitive   = true
 }
 

@@ -6,8 +6,9 @@ ssm_service_parameters_path_prefix    = "/gost/sandbox"
 ssm_deployment_parameters_path_prefix = "/gost/sandbox/deploy-config"
 
 // Website
-website_enabled     = true
-website_domain_name = "sandbox.grants.usdr.dev"
+website_enabled           = true
+website_domain_name       = "sandbox.grants.usdr.dev"
+website_managed_waf_rules = {}
 
 // ECS Cluster
 cluster_container_insights_enabled = false
@@ -16,6 +17,8 @@ cluster_container_insights_enabled = false
 api_enabled                    = true
 api_container_image_tag        = "latest"
 api_default_desired_task_count = 1
+api_minumum_task_count         = 1
+api_maximum_task_count         = 5
 api_enable_grants_scraper      = false
 api_enable_grants_digest       = false
 api_log_retention_in_days      = 7

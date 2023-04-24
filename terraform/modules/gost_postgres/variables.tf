@@ -25,15 +25,9 @@ variable "subnet_ids" {
   type        = list(string)
 }
 
-variable "allowed_security_groups" {
-  description = "Security Group IDs which should be allowed to connect (ingress) to Postgres."
-  type        = list(string)
-}
-
-variable "allowed_cidr_blocks" {
-  description = "CIDR blocks which should be allowed to connect (ingress) to Postgres."
-  type        = list(string)
-  default     = []
+variable "ingress_security_groups" {
+  description = "Map of Security Group IDs (keys are informational and ignored) which should be allowed to connect (ingress) to Postgres."
+  type        = map(string)
 }
 
 variable "apply_changes_immediately" {

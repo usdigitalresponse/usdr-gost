@@ -29,10 +29,15 @@ resource "aws_rds_cluster_parameter_group" "postgres13" {
   }
 }
 
+resource "random_password" "postgres_user" {
+  length  = 32
+  special = false
+}
+
 module "db" {
-  create_cluster = var.enabled
-  source         = "terraform-aws-modules/rds-aurora/aws"
-  version        = "7.7.1"
+  create  = var.enabled
+  source  = "terraform-aws-modules/rds-aurora/aws"
+  version = "8.0.2"
 
   name                       = "${var.namespace}-postgres"
   cluster_use_name_prefix    = true
@@ -45,15 +50,22 @@ module "db" {
   vpc_id                         = var.vpc_id
   subnets                        = var.subnet_ids
   create_security_group          = true
+  create_db_subnet_group         = true
   security_group_use_name_prefix = true
-  allowed_security_groups        = var.allowed_security_groups
-  allowed_cidr_blocks            = var.allowed_cidr_blocks
+  security_group_rules = {
+    for k, security_group_id in var.ingress_security_groups : k => {
+      type                     = "ingress"
+      source_security_group_id = security_group_id
+    }
+  }
 
   db_parameter_group_name         = aws_db_parameter_group.postgres13.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.postgres13.id
 
   database_name                       = var.default_db_name
   master_username                     = "postgres"
+  master_password                     = random_password.postgres_user.result
+  manage_master_user_password         = false
   iam_database_authentication_enabled = true
 
   monitoring_interval           = 60 // seconds
@@ -80,6 +92,7 @@ locals {
   connect_resource_base_arn = !var.enabled ? "" : join(":", [
     "arn",
     data.aws_partition.current.id,
+    "rds-db",
     data.aws_region.current.id,
     data.aws_caller_identity.current.account_id,
     "dbuser",

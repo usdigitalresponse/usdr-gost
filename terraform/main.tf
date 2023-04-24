@@ -4,7 +4,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.63.0"
+      version = "~> 4.64.0"
     }
   }
 
@@ -39,7 +39,6 @@ locals {
   permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_policy_name}"
   api_domain_name          = coalesce(var.api_domain_name, "api.${var.website_domain_name}")
 }
-
 
 data "aws_ssm_parameter" "public_dns_zone_id" {
   name = "${var.ssm_deployment_parameters_path_prefix}/dns/public_zone_id"
@@ -109,12 +108,14 @@ module "api" {
   ecs_cluster_name = join("", aws_ecs_cluster.default.*.name)
 
   # Task configuration
-  docker_tag                 = var.api_container_image_tag
-  api_container_environment  = var.api_container_environment
-  default_desired_task_count = var.api_default_desired_task_count
-  enable_grants_scraper      = var.api_enable_grants_scraper
-  enable_grants_digest       = var.api_enable_grants_digest
-  unified_service_tags       = { service = "gost", env = var.env, version = var.version_identifier }
+  docker_tag                        = var.api_container_image_tag
+  api_container_environment         = var.api_container_environment
+  default_desired_task_count        = var.api_default_desired_task_count
+  autoscaling_desired_count_minimum = var.api_minumum_task_count
+  autoscaling_desired_count_maximum = var.api_maximum_task_count
+  enable_grants_scraper             = var.api_enable_grants_scraper
+  enable_grants_digest              = var.api_enable_grants_digest
+  unified_service_tags              = { service = "gost", env = var.env, version = var.version_identifier }
 
   # DNS
   domain_name         = local.api_domain_name
@@ -148,7 +149,7 @@ module "postgres" {
   default_db_name           = "gost"
   vpc_id                    = data.aws_ssm_parameter.vpc_id.value
   subnet_ids                = local.private_subnet_ids
-  allowed_security_groups   = [module.api_to_postgres_security_group.id]
+  ingress_security_groups   = { from_api = module.api_to_postgres_security_group.id }
   prevent_destroy           = var.postgres_prevent_destroy
   snapshot_before_destroy   = var.postgres_snapshot_before_destroy
   apply_changes_immediately = var.postgres_apply_changes_immediately
