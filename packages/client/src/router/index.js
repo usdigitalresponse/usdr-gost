@@ -16,6 +16,12 @@ const routes = [
     component: Login,
   },
   {
+    path: '/grants_next',
+    beforeEnter() {
+      window.location.href = 'http://localhost:3001/grants';
+    },
+  },
+  {
     path: '/arpa-annual-performance-reporter',
     name: 'annualReporter',
     component: ArpaAnnualPerformanceReporter,

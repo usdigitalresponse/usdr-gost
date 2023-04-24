@@ -11,6 +11,9 @@
 		{
 			"name": "📦 server",
 			"path": "packages/server"
+		},
+		{
+			"path": "packages/usdr-gost-next"
 		}
 	],
 	"settings": {

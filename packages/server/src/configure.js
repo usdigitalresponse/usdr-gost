@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const history = require('connect-history-api-fallback');
 const { resolve } = require('path');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const { configureApiRoutes: configureArpaReporterApiRoutes } = require('./arpa_reporter/configure');
 const { requestProviderMiddleware } = require('./arpa_reporter/use-request');
 
@@ -27,6 +28,8 @@ function configureApiRoutes(app) {
 }
 
 function configureApp(app, options = {}) {
+    app.use('/grants_next', createProxyMiddleware({ target: 'http://gost-nextjs:3000', changeOrigin: true }));
+
     app.use(morgan('common', {
         skip: (req) => {
             // Render hits the health check path extremely often, so don't clutter logs with it.

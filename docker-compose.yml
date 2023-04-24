@@ -61,6 +61,25 @@ services:
       - GOST_API_URL=http://app:3000/
     env_file:
       - ./packages/client/.env
+  
+  nextjs:
+    container_name: gost-nextjs
+    build:
+      context: ./packages/usdr-gost-next
+      dockerfile: Dockerfile
+    volumes:
+      - ./packages/usdr-gost-next:/app
+      - type: volume
+        source: node_modules
+        target: /app/node_modules
+    networks:
+      - app
+    ports:
+      - 3001:3000
+    command:
+      - "npm"
+      - "run"
+      - "dev"
 
   postgres:
     container_name: gost-postgres
