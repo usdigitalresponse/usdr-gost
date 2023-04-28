@@ -2624,10 +2624,10 @@
     debug "^3.1.0"
     lodash.once "^4.1.1"
 
-"@datadog/native-appsec@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-2.0.0.tgz#ad65ba19bfd68e6b6c6cf64bb8ef55d099af8edc"
-  integrity sha512-XHARZ6MVgbnfOUO6/F3ZoZ7poXHJCNYFlgcyS2Xetuk9ITA5bfcooX2B2F7tReVB+RLJ+j8bsm0t55SyF04KDw==
+"@datadog/native-appsec@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-3.1.0.tgz#967145398dbbc8e13b8e2baa76e0a55f0a1569ff"
+  integrity sha512-YSso/MWlphS5F0KDja42Oe5wGRL0CplremEf0fWE7OcoTQiHZKEPFtKAfT8bDQI+x8N4MRAVQGk4ew7AG2ICgQ==
   dependencies:
     node-gyp-build "^3.9.0"
 
@@ -6349,11 +6349,11 @@ dayjs@^1.10.4:
   integrity sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==
 
 dd-trace@^3.17.1:
-  version "3.18.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-3.18.0.tgz#688f111f1888a3f0c500975aa5a86f60e7b4efea"
-  integrity sha512-ViMPyd9F5lZSQJu7bDDESRZmhLRoPa3KG29eBKTFCufCRqMy/iDPZUwK99NCXgycSbjanWuEG1YM46VpyDC8DA==
+  version "3.19.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-3.19.0.tgz#f85068716f9101afe62aff63dd9c4940e23e85e7"
+  integrity sha512-4YruRpO3me2+zFya7WXujMsVFG9rKiDvl+qOVQhS04/6bW8iuvZ3g/siAkpSfYz9U+QdLLJ1KFt3XWogW1635w==
   dependencies:
-    "@datadog/native-appsec" "2.0.0"
+    "@datadog/native-appsec" "^3.1.0"
     "@datadog/native-iast-rewriter" "2.0.1"
     "@datadog/native-iast-taint-tracking" "^1.4.0"
     "@datadog/native-metrics" "^1.6.0"
