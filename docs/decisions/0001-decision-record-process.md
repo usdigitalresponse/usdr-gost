@@ -1,7 +1,7 @@
 # 1. Decision Record Process
 
-Date: 2023-04-24
-Status: proposed
+Date: 2023-05-03
+Status: accepted
 
 ## Context and Problem Statement
 
