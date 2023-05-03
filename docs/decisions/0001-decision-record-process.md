@@ -40,7 +40,9 @@ The subject of an ADR should affect one of the following areas:
 - Interfaces
 - Construction techniques
 
-Small changes don't need one, but for larger changes that would introduce a new dependency or affect our overall system architecture, we recommend opening one.
+Small changes don't necessarily need one, but particularly for larger changes that would introduce a new dependency or affect our overall system architecture, we recommend opening one.
+
+In general, create a new ADR when your instincts indicate that having one could be useful – even if it is not ultimately accepted, the resulting discussions still might be valuable.
 
 ### Process
 
