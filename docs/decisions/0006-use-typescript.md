@@ -5,44 +5,42 @@ Status: Proposed  <!-- Proposed | Accepted | Rejected | Superceded -->
 
 ## Context and Problem Statement
 
-Typescript has been widely adopted and easily adopted across the industry because of the benefits it gives applications. Typescript is a superset of javascript and provides types checking which reduces the amount of bugs, simplifies testings, and improves onboarding for developers. 
+Typescript has been widely and quickly adopted across the industry because of the benefits it gives applications. Typescript is a superset of javascript and provides types checking which reduces the amount of bugs, simplifies testings, and improves onboarding for developers. 
 
 Since Typescript provides so many widesread benefits for an applications, this ADR will focus primary on the best way to migrate to Typescript.
 
- I also will be focusing on migrations solutions that allow for gradual ts adoption instead of a cutover solution. This is because cutover solutions may introduce bugs due to a large release and it would require substaintial work and organiztion up front to execute.  
+I also will be focusing on migrations solutions that allow for gradual ts adoption instead of a cutover solution. This is because cutover solutions may introduce bugs due to a large release and it would require substaintial work and organization up front to execute.  
 
-## Decision Drivers <!-- optional -->
+## Decision Drivers
 
 - Migration can done iteratively 
 - Should work with monorepos 
+- Should work with both the frontend and backend codebases 
+- Minimize PRs with a large footprint
+
 
 ## Considered Options
 
 1. Mixed JavaScript/TypeScript code bases
 2. Adding type information to plain JavaScript files
-- [option 3]
-- … <!-- numbers of options can vary -->
+3. Migrate all files to TS with ts-ignore comments and any on existing files and migrate them overtime 
+
 
 ## Decision Outcome
 
-Chosen option: "[option 1]", because [justification. e.g., only option, which meets k.o. criterion decision driver | which resolves force force | … | comes out best (see below)].
+I believe the best option to do an intial migration is to use Option 2. In this way we can working on migrating in an iterative manner. That way we can introduce ts without modifying our build process. We could introduce the ts in the build process whenenver the team sees fit. 
 
-### Positive Consequences <!-- optional -->
+### Positive Consequences
 
-- [e.g., improvement of quality attribute satisfaction, follow-up decisions required, …]
-- …
+This approach will allow us to break the work into several sections. The initial steps are  ts enablement, migrating individual files, and in parallel  enabling ts in the build step. This way we can make sure that we can introduce changes in small PRs. 
 
-### Negative Consequences <!-- optional -->
-
-- [e.g., compromising quality attribute, follow-up decisions required, …]
-- …
+### Negative Consequences 
+If the team is not zealous migrating individual files, the overall TS migration may take a significant amount of time. 
 
 ---
 ### Option 1: Mixed JavaScript/TypeScript code bases
 
-**Overview**
-
-We can support a mix of JavaScript and TypeScript files for our code base. We start with only JavaScript files and then switch more and more files to TypeScript.
+We can support a mix of JavaScript and TypeScript files for our code base and typescheck with the compiler. We start with only JavaScript files and then switch more and more files to TypeScript.
 
 **Code changes required**
 
@@ -50,59 +48,48 @@ We can support a mix of JavaScript and TypeScript files for our code base. We st
 2. Set `allowJs` in the ts compiler options
 3. Modify build scripts to support ts  
 
-**Breakdown of benefits and drawbacks**
-- Good, because [argument a]
-- Good, because [argument b]
-- Bad, because [argument c]
-- … <!-- numbers of pros and cons can vary -->
+**Benefits and drawbacks**
+- Good - Allows JS and TS to coexist 
+- Good - Enables TS and its benefits
+- Bad - Introduces both the build step change and ts enablement in the same PR. That could have a large impact if not rolled out correctly. 
 
 ---
-### Option 2: Adding type information to plain JavaScript files
+### Option 2: Use Typescript as a type check but not as a compiler
 
-We can keep our current Javascript build process and our JavaScript-only code base. We add static type information via JSDoc comments and use TypeScript as a type checker (not as a compiler). Once everything is correctly typed, we switch to TypeScript for building.
+We can keep our current Javascript build process and our JavaScript-only code base. We use TypeScript as a type checker (not as a compiler). Once everything is correctly typed, we switch to TypeScript for building.
 
-[example | description | pointer to more information | …] <!-- optional -->
+**Code changes required**
+1. Run the ts compiler as a type checker by adding the --no-emit option 
+2. Add `--allowJs` for allowing and copying JavaScript files
+3. Add `-checkJs` for type-checking JavaScript files
+4. Build the project with existing build infrastructure. 
 
+**Benefits and drawbacks**
 - Good, because [argument a]
 - Good, because [argument b]
 - Bad, because [argument c]
-- … <!-- numbers of pros and cons can vary -->
 
-### [option 3]
+---
+### Option 3: Migrate JS file to typescript, and use any and ts-ignore comments
 
-[example | description | pointer to more information | …] <!-- optional -->
 
+
+**Code changes required**
+1. Migrate all the javascript files to typescript 
+2. Add `@ts-ignore` to each file to avoid typechecking on non migrated files 
+3.  
+
+**Benefits and drawbacks**
 - Good, because [argument a]
 - Good, because [argument b]
 - Bad, because [argument c]
-- … <!-- numbers of pros and cons can vary -->
 
-## Code Examples
+### Additional consideration 
 
-[If relevant / it would help the discussion, please provide code examples here that would help in comparing the various options on the table.
-
-A few possible options for doing this:
-
-- A link to a gist or proof of concept repository
-- A separate code block using [github code fencing](https://help.github.com/articles/creating-and-highlighting-code-blocks/)
-- If necessary, you can add a new folder within the `docs/decisions` directory titled `000X-decision-name-files` and add necessary code files there.
-Ideally use the same mechanism for storing all files related to a decision - the below examples are meant to show the full set of different options
-]
-
-### Option 1 Code Example <!-- optional -->
-
-```javascript
-console.log('Hello, World!');
-```
-
-### Option 2 Code Example <!-- optional -->
-
-[Link to gist](www.example.com)
-
-### Option 3 Code Example <!-- optional -->
-
-[local link to file](000X-decision-name-files/example.js)
+There are various codemods that make the migrations much easier and we can run them as needed. 
 
 ## Resource Links <!-- optional -->
 
 - [Strategies for migrating to TS](https://exploringjs.com/tackling-ts/ch_migrating-to-typescript.html) 
+- [ts-migrate: A Tool for migrating to Typescript at Scale](https://medium.com/airbnb-engineering/ts-migrate-a-tool-for-migrating-to-typescript-at-scale-cd23bfeb5cc)
+- [A simple guide for migrating from javascript to typescript](https://blog.logrocket.com/a-simple-guide-for-migrating-from-javascript-to-typescript/)
