@@ -62,6 +62,7 @@ router.get('/', requireUser, async (req, res) => {
         },
         orderBy: req.query.orderBy,
         orderDesc: req.query.orderDesc,
+        tosqlString: true,
     });
     res.json(grants);
 });
