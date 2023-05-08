@@ -86,9 +86,9 @@ We can keep our current Javascript build process and our JavaScript-only code ba
 
 ### Additional consideration 
 
-There are various codemods that make the migrations much easier and we can run them as needed. 
+There are various codemods that make the migrations much easier and we can run them as needed. A great option is the Airbnb package called: [ts-migrate](https://github.com/airbnb/ts-migrate/tree/master/packages/ts-migrate-plugins. This package will reduce the manual process of common file changes required like renaming. 
 
-## Resource Links <!-- optional -->
+## Resource Links
 
 - [Strategies for migrating to TS](https://exploringjs.com/tackling-ts/ch_migrating-to-typescript.html) 
 - [ts-migrate: A Tool for migrating to Typescript at Scale](https://medium.com/airbnb-engineering/ts-migrate-a-tool-for-migrating-to-typescript-at-scale-cd23bfeb5cc)
