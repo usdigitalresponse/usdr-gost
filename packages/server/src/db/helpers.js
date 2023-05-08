@@ -28,9 +28,9 @@ function whereAgencyCriteriaMatch(qb, criteria) {
     if (criteria.excludeKeywords && criteria.excludeKeywords.length > 0) {
         qb.where((q) => q
             .where('description', '!~*', criteria.excludeKeywords.join('|'))
-            .andWhere('grant_id', '!~*', criteria.includeKeywords.join('|'))
-            .andWhere('grant_number', '!~*', criteria.includeKeywords.join('|'))
-            .andWhere('title', '!~*', criteria.includeKeywords.join('|')));
+            .andWhere('grant_id', '!~*', criteria.excludeKeywords.join('|'))
+            .andWhere('grant_number', '!~*', criteria.excludeKeywords.join('|'))
+            .andWhere('title', '!~*', criteria.excludeKeywords.join('|')));
     }
 }
 
