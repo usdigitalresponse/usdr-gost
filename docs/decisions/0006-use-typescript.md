@@ -7,9 +7,9 @@ Status: Proposed  <!-- Proposed | Accepted | Rejected | Superceded -->
 
 Typescript has been widely and quickly adopted across the industry because of the benefits it gives applications. Typescript is a superset of javascript and provides types checking which reduces the amount of bugs, simplifies testings, and improves onboarding for developers. 
 
-Since Typescript provides so many widesread benefits for an applications, this ADR will focus primary on the best way to migrate to Typescript.
+Since Typescript provides widesread benefits for an applications, this ADR will focus on the best way to migrate to Typescript.
 
-I also will be focusing on migrations solutions that allow for gradual ts adoption instead of a cutover solution. This is because cutover solutions may introduce bugs due to a large release and it would require substaintial work and organization up front to execute.  
+I also will be focusing on migrations solutions that allow for gradual TS adoption instead of a cut-over solution. Cutover solutions may introduce bugs due to large release. Additionally, cutover solutions would require substaintial work and organization up-front to execute.  
 
 ## Decision Drivers
 
@@ -54,7 +54,7 @@ We can support a mix of JavaScript and TypeScript files for our code base and ty
 - Bad - Introduces both the build step change and ts enablement in the same PR. That could have a large impact if not rolled out correctly. 
 
 ---
-### Option 2: Use Typescript as a type check but not as a compiler
+### Option 2: Use Typescript for type checking but not as a compiler
 
 We can keep our current Javascript build process and our JavaScript-only code base. We use TypeScript as a type checker (not as a compiler). Once everything is correctly typed, we switch to TypeScript for building.
 
@@ -70,14 +70,14 @@ We can keep our current Javascript build process and our JavaScript-only code ba
 - Bad, because [argument c]
 
 ---
-### Option 3: Migrate JS file to typescript, and use any and ts-ignore comments
+### Option 3: Migrate JS file to typescript files, and use any and ts-ignore
 
-
+We could migrate all javascript files to typscript files and just ignore type checking on all files, until each file is migrated. 
 
 **Code changes required**
 1. Migrate all the javascript files to typescript 
 2. Add `@ts-ignore` to each file to avoid typechecking on non migrated files 
-3.  
+3. Remove `@ts-ignore` from files as they are fully migrated
 
 **Benefits and drawbacks**
 - Good, because [argument a]
