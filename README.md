@@ -23,6 +23,10 @@ There are two main parts to the application:
 
 Read more about how to get started developing [here](./docs/getting-started.md).
 
+## Decisions
+
+To see [decision records](https://adr.github.io/) for architectural decisions we have made, check out [this folder](./docs/decisions/).
+
 ## Code of Conduct
 
 This repository falls under [U.S. Digital Response’s Code of Conduct](./CODE_OF_CONDUCT.md), and we will hold all participants in issues, pull requests, discussions, and other spaces related to this project to that Code of Conduct. Please see [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) for the full code.
