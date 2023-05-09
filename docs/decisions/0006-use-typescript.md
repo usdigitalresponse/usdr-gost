@@ -5,11 +5,13 @@ Status: Proposed  <!-- Proposed | Accepted | Rejected | Superceded -->
 
 ## Context and Problem Statement
 
-Typescript has been widely and quickly adopted across the industry because of the benefits it gives applications. Typescript is a superset of javascript and provides types checking which reduces the amount of bugs, simplifies testings, and improves onboarding for developers. 
+Typescript has been widely and quickly adopted across the industry because of the benefits it gives applications. Typescript is a superset of javascript and provides type checking, reduces bugs, simplifies testings, and improves developers' onboarding. 
 
-Since Typescript provides widesread benefits for an applications, this ADR will focus on the best way to migrate to Typescript.
+Since Typescript provides widespread benefits for applications, this ADR will focus on the best way to migrate to Typescript.
 
-I also will be focusing on migrations solutions that allow for gradual TS adoption instead of a cut-over solution. Cutover solutions may introduce bugs due to large release. Additionally, cutover solutions would require substaintial work and organization up-front to execute.  
+I will also focus on migrations solutions that allow for gradual TS adoption instead of a cut-over solution. Cut-over solutions may introduce bugs due to significant releases. 
+Additionally, cut-over solutions would require substantial work and organization up-front to execute. 
+
 
 ## Decision Drivers
 
@@ -28,19 +30,19 @@ I also will be focusing on migrations solutions that allow for gradual TS adopti
 
 ## Decision Outcome
 
-I believe the best option to do an intial migration is to use Option 2. In this way we can working on migrating in an iterative manner. That way we can introduce ts without modifying our build process. We could introduce the ts in the build process whenenver the team sees fit. 
+The best option to do an initial migration is to use Option 2. In this way, we can work on migrating iteratively. That way, we can introduce ts without modifying our build process. We can introduce the ts in the build process whenever the team sees fit. 
 
 ### Positive Consequences
 
-This approach will allow us to break the work into several sections. The initial steps are  ts enablement, migrating individual files, and in parallel  enabling ts in the build step. This way we can make sure that we can introduce changes in small PRs. 
+This approach will allow us to break the work into several sections. The initial steps are ts enablement, migrating individual files, and enabling ts in the build step (which can be done in parallel). This way, we can ensure we can introduce changes in small PRs. 
 
 ### Negative Consequences 
-If the team is not zealous migrating individual files, the overall TS migration may take a significant amount of time. 
+The overall TS migration may take time if the team is not zealous in migrating individual files. 
 
 ---
 ### Option 1: Mixed JavaScript/TypeScript code bases
 
-We can support a mix of JavaScript and TypeScript files for our code base and typescheck with the compiler. We start with only JavaScript files and then switch more and more files to TypeScript.
+We can support a mix of JavaScript and TypeScript files for our code base and type-check with the compiler. We start with only JavaScript files and then migrate each file to TypeScript.
 
 **Code changes required**
 
@@ -65,14 +67,15 @@ We can keep our current Javascript build process and our JavaScript-only code ba
 4. Build the project with existing build infrastructure. 
 
 **Benefits and drawbacks**
-- Good, because [argument a]
-- Good, because [argument b]
-- Bad, because [argument c]
+- Good - We are able to migrate files slowly. 
+- Good - We support a mix of js and ts files. 
+- Good - We seperate out the migration into 3 smaller steps.
+- Bad - Since we setup the compiler last, we might miss out some of those benefits. 
 
 ---
 ### Option 3: Migrate JS file to typescript files, and use any and ts-ignore
 
-We could migrate all javascript files to typscript files and just ignore type checking on all files, until each file is migrated. 
+We could migrate all javascript files to typscript files and just ignore type checking on all files, until each file is migrated. Use ts as type checker not as a tool for compiling. 
 
 **Code changes required**
 1. Migrate all the javascript files to typescript 
@@ -80,9 +83,8 @@ We could migrate all javascript files to typscript files and just ignore type ch
 3. Remove `@ts-ignore` from files as they are fully migrated
 
 **Benefits and drawbacks**
-- Good, because [argument a]
-- Good, because [argument b]
-- Bad, because [argument c]
+- Good - allows to migrate file one by one. 
+- Bad - large inital commit as we convert js to ts files and add the git ignore 
 
 ### Additional consideration 
 
@@ -93,3 +95,4 @@ There are various codemods that make the migrations much easier and we can run t
 - [Strategies for migrating to TS](https://exploringjs.com/tackling-ts/ch_migrating-to-typescript.html) 
 - [ts-migrate: A Tool for migrating to Typescript at Scale](https://medium.com/airbnb-engineering/ts-migrate-a-tool-for-migrating-to-typescript-at-scale-cd23bfeb5cc)
 - [A simple guide for migrating from javascript to typescript](https://blog.logrocket.com/a-simple-guide-for-migrating-from-javascript-to-typescript/)
+- [Understanding Typescript compilation process](https://medium.com/jspoint/typescript-compilation-the-typescript-compiler-4cb15f7244bc)
