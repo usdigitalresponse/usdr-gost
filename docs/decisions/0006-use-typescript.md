@@ -15,29 +15,29 @@ Additionally, cut-over solutions would require substantial work and organization
 
 ## Decision Drivers
 
-- Migration can done iteratively 
+- Migration can be done iteratively 
 - Should work with monorepos 
 - Should work with both the frontend and backend codebases 
-- Minimize PRs with a large footprint
+- Minimize PRs with large footprints
 
 
 ## Considered Options
 
 1. Mixed JavaScript/TypeScript code bases
 2. Adding type information to plain JavaScript files
-3. Migrate all files to TS with ts-ignore comments and any on existing files and migrate them overtime 
+3. Migrate all files to TS with `ts-ignore` comments and `any` on existing files and migrate them overtime 
 
 
 ## Decision Outcome
 
-The best option to do an initial migration is to use Option 2. In this way, we can work on migrating iteratively. That way, we can introduce ts without modifying our build process. We can introduce the ts in the build process whenever the team sees fit. 
+The best option for an initial migration is to use Option 2. In this way, we can work on migrating iteratively. That way, we can introduce ts without modifying our build process. We can introduce Typescript in the build process whenever the team sees fit. 
 
 ### Positive Consequences
 
 This approach will allow us to break the work into several sections. The initial steps are ts enablement, migrating individual files, and enabling ts in the build step (which can be done in parallel). This way, we can ensure we can introduce changes in small PRs. 
 
 ### Negative Consequences 
-The overall TS migration may take time if the team is not zealous in migrating individual files. 
+The overall TS migration may take a significant amount of time if the team is not zealous in migrating individual files. 
 
 ---
 ### Option 1: Mixed JavaScript/TypeScript code bases
