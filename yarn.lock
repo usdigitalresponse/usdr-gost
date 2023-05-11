@@ -278,16 +278,16 @@
     tslib "^2.5.0"
 
 "@aws-sdk/client-s3@^3.312.0":
-  version "3.331.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.331.0.tgz#d2c88c36835c14a630d001a2502ea59f09456528"
-  integrity sha512-HhoEBF6VxqiErExuDTbp034YjSGRXSyNlWRSfQUOO2uPf41LUINMiFj5FZmmAOUnPJl+GUIPwiVIXnO2zpjjrw==
+  version "3.332.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.332.0.tgz#99488145424265e87e55cbc740f3bed8751116ed"
+  integrity sha512-4AkbBPGjFkIvN15l9uDHcry3kwMknpl0b7mqFaNQqQJR2OyFJnr7US/KyeTjwijJAuU+f7lKz8QMTtBcghJm3w==
   dependencies:
     "@aws-crypto/sha1-browser" "3.0.0"
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.329.0"
+    "@aws-sdk/client-sts" "3.332.0"
     "@aws-sdk/config-resolver" "3.329.0"
-    "@aws-sdk/credential-provider-node" "3.329.0"
+    "@aws-sdk/credential-provider-node" "3.332.0"
     "@aws-sdk/eventstream-serde-browser" "3.329.0"
     "@aws-sdk/eventstream-serde-config-resolver" "3.329.0"
     "@aws-sdk/eventstream-serde-node" "3.329.0"
@@ -312,7 +312,7 @@
     "@aws-sdk/middleware-signing" "3.329.0"
     "@aws-sdk/middleware-ssec" "3.329.0"
     "@aws-sdk/middleware-stack" "3.329.0"
-    "@aws-sdk/middleware-user-agent" "3.329.0"
+    "@aws-sdk/middleware-user-agent" "3.332.0"
     "@aws-sdk/node-config-provider" "3.329.0"
     "@aws-sdk/node-http-handler" "3.329.0"
     "@aws-sdk/protocol-http" "3.329.0"
@@ -325,7 +325,7 @@
     "@aws-sdk/util-body-length-node" "3.310.0"
     "@aws-sdk/util-defaults-mode-browser" "3.329.0"
     "@aws-sdk/util-defaults-mode-node" "3.329.0"
-    "@aws-sdk/util-endpoints" "3.329.0"
+    "@aws-sdk/util-endpoints" "3.332.0"
     "@aws-sdk/util-retry" "3.329.0"
     "@aws-sdk/util-stream-browser" "3.329.0"
     "@aws-sdk/util-stream-node" "3.331.0"
