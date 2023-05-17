@@ -59,7 +59,7 @@ module "website" {
 module "api_to_postgres_security_group" {
   enabled = var.api_enabled
   source  = "cloudposse/security-group/aws"
-  version = "2.0.1"
+  version = "2.1.0"
 
   namespace        = var.namespace
   vpc_id           = data.aws_ssm_parameter.vpc_id.value
