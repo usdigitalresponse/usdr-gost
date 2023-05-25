@@ -9,6 +9,7 @@
         title="Search"
         shadow
       >
+      <b-form-group></b-form-group>
       </b-sidebar>
     </div>
   </template>
