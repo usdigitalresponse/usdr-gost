@@ -20,10 +20,10 @@ export default {
       await fetchApi.post('/api/organizations/:organizationId/agencies/', body);
       dispatch('fetchAgencies');
     },
-    deleteAgency({ dispatch }, {
+    async deleteAgency({ dispatch }, {
       agencyId, parent, name, abbreviation, warningThreshold, dangerThreshold,
     }) {
-      fetchApi.deleteRequest(`/api/organizations/:organizationId/agencies/del/${agencyId}`, {
+      await fetchApi.deleteRequest(`/api/organizations/:organizationId/agencies/del/${agencyId}`, {
         parent,
         name,
         abbreviation,

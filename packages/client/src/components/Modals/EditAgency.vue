@@ -194,23 +194,28 @@ export default {
       if (this.$v.formData.$invalid) {
         return;
       }
-      await this.$bvModal.msgBoxConfirm(
-        'Are you sure you want to delete this agency? This cannot be undone. If the agency has children,'
-      + ' reassign child agencies to continue deletion.',
-      ).then(() => {
-        this.deleteAgency({
+      const msgBoxConfirmResult = await this.$bvModal.msgBoxConfirm(
+        'Are you sure you want to delete this agency? This cannot be undone. '
+      + 'If the agency has children, reassign child agencies to continue deletion.',
+        { okTitle: 'Delete', okVariant: 'danger', title: 'Delete Agency' },
+      );
+      if (msgBoxConfirmResult === true) {
+        await this.deleteAgency({
           agencyId: this.agency.id,
           parent: this.agency.parent,
           name: this.agency.name,
           abbreviation: this.agency.abbreviation,
           warningThreshold: this.formData.warningThreshold,
           dangerThreshold: this.formData.dangerThreshold,
+        }).then(() => {
+          this.resetModal();
+        }).catch(async (e) => {
+          await this.$bvModal.msgBoxOk(`Could not delete agency: ${e.message}`, {
+            title: 'Error',
+            bodyTextVariant: 'danger',
+          });
         });
-        this.resetModal();
-      })
-        .catch((err) => {
-          console.log(` ${err}`);
-        });
+      }
     },
     async handleSubmit() {
       if (this.$v.formData.$invalid) {
