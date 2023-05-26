@@ -6,15 +6,15 @@
           <b-input-group-text>
             <b-icon icon="search" />
           </b-input-group-text>
-          <b-form-input type="search" @input="debounceSearchInput"></b-form-input>
+          <b-form-input type="sliders" @input="debounceSearchInput"></b-form-input>
         </b-input-group>
       </b-col>
       <b-col class="d-flex justify-content-end">
+        <SearchPanel />
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
           <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
           Export to CSV
         </b-button>
-        <SearchPanel />
       </b-col>
     </b-row>
     <b-row class="mt-3 mb-3" align-h="start" style="position: relative; z-index: 999">
