@@ -22,6 +22,8 @@ const {
     setAgencyParent,
     setAgencyCode,
     deleteAgency,
+    getUsersByAgency,
+    getAgencyTree,
 } = require('../db');
 const AgencyImporter = require('../lib/agencyImporter');
 const email = require('../lib/email');
@@ -65,17 +67,21 @@ router.delete('/del/:agency', requireAdminUser, async (req, res) => {
     const { agency } = req.params;
     const { user } = req.session;
 
-    const allowed = isUserAuthorized(user, agency);
-    if (!allowed) {
-        res.sendStatus(403);
-        return;
+    if (!isUserAuthorized(user, agency)) {
+        return res.sendStatus(403);
+    }
+    if ((await getUsersByAgency(agency)).length > 0) {
+        return res.status(400).send('agency has assigned users');
+    }
+    if ((await getAgencyTree(agency)).length > 1) {
+        return res.status(400).send('agency has sub-agencies');
     }
 
     const {
         parent, name, abbreviation, warningThreshold, dangerThreshold,
     } = req.body;
     const result = await deleteAgency(agency, parent, name, abbreviation, warningThreshold, dangerThreshold);
-    res.json(result);
+    return res.json(result);
 });
 
 router.put('/name/:agency', requireAdminUser, async (req, res) => {
