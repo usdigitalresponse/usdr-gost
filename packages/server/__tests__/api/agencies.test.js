@@ -119,6 +119,13 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
                 },
             );
         });
+        after(async () => {
+            const {
+                id, parent, name, abbreviation, warning_threshold, danger_threshold,
+            } = agency;
+            await deleteAgency(id, parent, name, abbreviation, warning_threshold, danger_threshold);
+            await deleteUser(admin.id);
+        });
 
         it('issues 400 Bad Request when agency has users', async () => {
             const blockingUser = await createUser({
