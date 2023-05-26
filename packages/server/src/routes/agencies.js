@@ -81,7 +81,7 @@ router.delete('/del/:agency', requireAdminUser, async (req, res) => {
         parent, name, abbreviation, warningThreshold, dangerThreshold,
     } = req.body;
     const result = await deleteAgency(agency, parent, name, abbreviation, warningThreshold, dangerThreshold);
-    res.json(result);
+    return res.json(result);
 });
 
 router.put('/name/:agency', requireAdminUser, async (req, res) => {
