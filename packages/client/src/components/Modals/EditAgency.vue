@@ -197,7 +197,7 @@ export default {
       const msgBoxConfirmResult = await this.$bvModal.msgBoxConfirm(
         'Are you sure you want to delete this agency? This cannot be undone. '
       + 'If the agency has children, reassign child agencies to continue deletion.',
-        { okTitle: 'Delete', okVariant: 'danger', title: 'Delete Agency' }
+        { okTitle: 'Delete', okVariant: 'danger', title: 'Delete Agency' },
       );
       if (msgBoxConfirmResult === true) {
         await this.deleteAgency({
