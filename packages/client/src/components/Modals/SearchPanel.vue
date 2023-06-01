@@ -8,6 +8,7 @@
         id="search-panel"
         title="Search"
         class="search-panel"
+        right
         shadow
       >
       <b-form-group></b-form-group>
