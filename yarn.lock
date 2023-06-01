@@ -279,28 +279,28 @@
     tslib "^2.5.0"
 
 "@aws-sdk/client-s3@^3.312.0":
-  version "3.342.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.342.0.tgz#fa7674b016163f5e1f6900655d32842ee5ee2961"
-  integrity sha512-dH7NSNdsIQme7W+df9uyIIgIqiXcBSCVB0Cf5/Rd1ZzGZPsCUTpQMHZETkPymTA2eJ3051pkAWa+0fpYEteVWQ==
+  version "3.344.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.344.0.tgz#e39d1ad73702dcaf02217d87537c1694054749aa"
+  integrity sha512-SinsWuxcSgMHleOFxrVJumSULtMMU0oCQgGrRrtOhPNoZ4NclBdyNP3gWJYTU11fZpy4/URQ+be0YA21B2s2eg==
   dependencies:
     "@aws-crypto/sha1-browser" "3.0.0"
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.342.0"
+    "@aws-sdk/client-sts" "3.344.0"
     "@aws-sdk/config-resolver" "3.342.0"
-    "@aws-sdk/credential-provider-node" "3.342.0"
+    "@aws-sdk/credential-provider-node" "3.344.0"
     "@aws-sdk/eventstream-serde-browser" "3.342.0"
     "@aws-sdk/eventstream-serde-config-resolver" "3.342.0"
     "@aws-sdk/eventstream-serde-node" "3.342.0"
     "@aws-sdk/fetch-http-handler" "3.342.0"
     "@aws-sdk/hash-blob-browser" "3.342.0"
-    "@aws-sdk/hash-node" "3.342.0"
+    "@aws-sdk/hash-node" "3.344.0"
     "@aws-sdk/hash-stream-node" "3.342.0"
     "@aws-sdk/invalid-dependency" "3.342.0"
     "@aws-sdk/md5-js" "3.342.0"
     "@aws-sdk/middleware-bucket-endpoint" "3.342.0"
     "@aws-sdk/middleware-content-length" "3.342.0"
-    "@aws-sdk/middleware-endpoint" "3.342.0"
+    "@aws-sdk/middleware-endpoint" "3.344.0"
     "@aws-sdk/middleware-expect-continue" "3.342.0"
     "@aws-sdk/middleware-flexible-checksums" "3.342.0"
     "@aws-sdk/middleware-host-header" "3.342.0"
@@ -315,8 +315,8 @@
     "@aws-sdk/middleware-stack" "3.342.0"
     "@aws-sdk/middleware-user-agent" "3.342.0"
     "@aws-sdk/node-config-provider" "3.342.0"
-    "@aws-sdk/node-http-handler" "3.342.0"
-    "@aws-sdk/signature-v4-multi-region" "3.342.0"
+    "@aws-sdk/node-http-handler" "3.344.0"
+    "@aws-sdk/signature-v4-multi-region" "3.344.0"
     "@aws-sdk/smithy-client" "3.342.0"
     "@aws-sdk/types" "3.342.0"
     "@aws-sdk/url-parser" "3.342.0"
@@ -328,7 +328,7 @@
     "@aws-sdk/util-endpoints" "3.342.0"
     "@aws-sdk/util-retry" "3.342.0"
     "@aws-sdk/util-stream-browser" "3.342.0"
-    "@aws-sdk/util-stream-node" "3.342.0"
+    "@aws-sdk/util-stream-node" "3.344.0"
     "@aws-sdk/util-user-agent-browser" "3.342.0"
     "@aws-sdk/util-user-agent-node" "3.342.0"
     "@aws-sdk/util-utf8" "3.310.0"
@@ -1201,6 +1201,16 @@
     "@aws-sdk/types" "3.342.0"
     tslib "^2.5.0"
 
+"@aws-sdk/signature-v4-multi-region@3.344.0":
+  version "3.344.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/signature-v4-multi-region/-/signature-v4-multi-region-3.344.0.tgz#38c2da1c75c13d93964ac4a3682b427eeb75253a"
+  integrity sha512-B5hN9b0Qa3UvpzsLjGIeCZ9AXE1qpwSXNXEeGcAdUIyf6lG3l+JMREKr+ZVaqAwAcZCOWmUyuuHIhkiK5YzClg==
+  dependencies:
+    "@aws-sdk/protocol-http" "3.342.0"
+    "@aws-sdk/signature-v4" "3.342.0"
+    "@aws-sdk/types" "3.342.0"
+    tslib "^2.5.0"
+
 "@aws-sdk/signature-v4@3.342.0":
   version "3.342.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/signature-v4/-/signature-v4-3.342.0.tgz#c2249594c53c76891986e3a54a077062a0b55b63"
@@ -1386,12 +1396,12 @@
     "@aws-sdk/util-utf8" "3.310.0"
     tslib "^2.5.0"
 
-"@aws-sdk/util-stream-node@3.342.0":
-  version "3.342.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/util-stream-node/-/util-stream-node-3.342.0.tgz#97a668b34c2fff600c5f2b7b3cc60f85da349e89"
-  integrity sha512-g0CQqZ6tL2Ds6h94yl+jsMIl0GRNj+yaYGJwzonL5cK9aIE5gIS7GsTOXSAVNRpSfOF5M9ZYSeUoueyNxygNbg==
+"@aws-sdk/util-stream-node@3.344.0":
+  version "3.344.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/util-stream-node/-/util-stream-node-3.344.0.tgz#8144e73d52f583610f75ff41cc8dd84b1851fdfb"
+  integrity sha512-Qn2CdmJyt6I+ofokNl5sa8GfKbuKTne5lw6DOhtGVUbqegyRmCx04Qkxy1fe++jdvf7zqb8V8I95lmlvnGYX1Q==
   dependencies:
-    "@aws-sdk/node-http-handler" "3.342.0"
+    "@aws-sdk/node-http-handler" "3.344.0"
     "@aws-sdk/types" "3.342.0"
     "@aws-sdk/util-buffer-from" "3.310.0"
     tslib "^2.5.0"
