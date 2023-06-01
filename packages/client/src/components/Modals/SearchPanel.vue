@@ -60,6 +60,7 @@ export default {
 .search-panel > .b-sidebar > .b-sidebar-header{
   font-size: 1.25rem;
   border-bottom: 1.5px solid #e8e8e8;
+  margin: 0 auto;
 }
 .sidebar-footer {
   border-top: 1.5px solid #e8e8e8;
