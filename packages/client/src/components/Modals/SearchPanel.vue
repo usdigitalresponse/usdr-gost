@@ -11,7 +11,35 @@
         right
         shadow
       >
-      <b-form-group></b-form-group>
+        <form ref="form" class="search-form">
+        <b-form-group label-for="include-input">
+          <template slot="label">Include Keywords</template>
+            <b-form-input
+              id="include-input"
+              type="text"
+              v-model="formData.includeInput"
+              required
+            ></b-form-input>
+        </b-form-group>
+        <b-form-group label-for="exclude-input">
+          <template slot="label">Exclude Keywords</template>
+            <b-form-input
+              id="exclude-input"
+              type="text"
+              v-model="formData.excludeInput"
+              required
+            ></b-form-input>
+        </b-form-group>
+        <b-form-group label-for="oportunity-number">
+          <template slot="label">Oportunity #</template>
+            <b-form-input
+              id="oportunity-number-input"
+              type="number"
+              v-model="formData.oportunityNumber"
+              required
+            ></b-form-input>
+        </b-form-group>
+      </form>
       <template #footer="{ hide }">
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
@@ -39,7 +67,11 @@ export default {
   },
   data() {
     return {
-      formData: {},
+      formData: {
+        includeInput: null,
+        excludeInput: null,
+        oportunityNumber: null,
+      },
     };
   },
   validations: {
@@ -79,5 +111,8 @@ export default {
   width: 190px;
   display: flex;
   justify-content: space-between;
+}
+.search-form {
+  padding: 10px;
 }
 </style>
