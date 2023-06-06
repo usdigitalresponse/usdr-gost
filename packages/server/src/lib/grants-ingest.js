@@ -10,9 +10,9 @@ const opportunityCategoryMap = {
 
 /**
  * receiveNextMessageBatch long-polls an SQS queue for up to 10 messages.
- * @param {SQSClient} sqs AWS SDK client used to issue commands to the SQS API.
- * @param {string} queueUrl The URL identifying the queue to poll.
- * @returns {Array[ReceiveMessageCommandOutput]} Received messages, if any.
+ * @param { import('@aws-sdk/client-sqs').SQSClient } sqs AWS SDK client used to issue commands to the SQS API.
+ * @param { string} queueUrl The URL identifying the queue to poll.
+ * @returns { Array[import('@aws-sdk/client-sqs').Message] } Received messages, if any.
  */
 async function receiveNextMessageBatch(sqs, queueUrl) {
     let messages = [];
@@ -86,9 +86,10 @@ async function deleteMessage(sqs, queueUrl, receiptHandle) {
  *
  * Any errors are logged do not prevent further processing of other messages.
  *
- * @param {Knex} knex Database client for persisting grants.
- * @param {SQSClient} sqs AWS SDK client used to issue commands to the SQS API.
- * @param {string} queueUrl The URL identifying the queue to poll.
+ * @param { import('knex').Knex } knex Database client for persisting grants.
+ * @param { import('@aws-sdk/client-sqs').SQSClient } sqs AWS SDK client used to issue commands to the SQS API.
+ * @param { string } queueUrl The URL identifying the queue to poll.
+ * @param { Array[import('@aws-sdk/client-sqs').Message] } messages Messages to process from SQS.
  */
 async function processMessages(knex, sqs, queueUrl, messages) {
     let sqsDeleteErrorCount = 0;
