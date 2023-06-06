@@ -11,6 +11,7 @@
     "npm": "please-use-yarn"
   },
   "scripts": {
+    "consume-grants": "node src/scripts/consumeGrantModifications.js",
     "coverage": "nyc yarn test",
     "create_tenant": "node src/db/tenant_creation.js",
     "db:migrate": "knex migrate:latest",
