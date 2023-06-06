@@ -1,5 +1,4 @@
 const { ReceiveMessageCommand, DeleteMessageCommand } = require('@aws-sdk/client-sqs');
-const knex = require('../db/connection');
 
 const opportunityCategoryMap = {
     C: 'Continuation',
@@ -50,7 +49,7 @@ function sqsMessageToGrant(jsonBody) {
             ? parseInt(messageData.AwardFloor, 10) : undefined,
         cost_sharing: messageData.CostSharingOrMatchingRequirement ? 'Yes' : 'No',
         title: messageData.OpportunityTitle,
-        cfda_list: (messageData.CFDANumbers && messageData.CFDANumbers.join(', ')),
+        cfda_list: (messageData.CFDANumbers || []).join(', '),
         open_date: messageData.PostDate,
         close_date: messageData.CloseDate || '2100-01-01',
         notes: 'auto-inserted by script',
@@ -58,12 +57,12 @@ function sqsMessageToGrant(jsonBody) {
         reviewer_name: 'none',
         opportunity_category: opportunityCategoryMap[messageData.OpportunityCategory],
         description: messageData.Description,
-        eligibility_codes: messageData.EligibleApplicants.join(' '),
+        eligibility_codes: (messageData.EligibleApplicants || []).join(' '),
         opportunity_status: 'posted',
     };
 }
 
-async function upsertGrant(grant) {
+async function upsertGrant(knex, grant) {
     await knex('grants')
         .insert(grant)
         .onConflict('grant_id')
@@ -87,17 +86,17 @@ async function deleteMessage(sqs, queueUrl, receiptHandle) {
  *
  * Any errors are logged do not prevent further processing of other messages.
  *
+ * @param {Knex} knex Database client for persisting grants.
  * @param {SQSClient} sqs AWS SDK client used to issue commands to the SQS API.
  * @param {string} queueUrl The URL identifying the queue to poll.
- * @param {Array[ReceiveMessageCommandOutput]} messages Messages received from SQS.
  */
-async function processMessages(sqs, queueUrl, messages) {
+async function processMessages(knex, sqs, queueUrl, messages) {
     let sqsDeleteErrorCount = 0;
     let grantParseErrorCount = 0;
     let grantSaveSuccessCount = 0;
     let grantSaveErrorCount = 0;
 
-    await messages.forEach(async (message) => {
+    return Promise.all(messages.map(async (message) => {
         console.log('Processing message:', message.Body);
 
         let grant;
@@ -110,7 +109,7 @@ async function processMessages(sqs, queueUrl, messages) {
         }
 
         try {
-            await upsertGrant(grant);
+            await upsertGrant(knex, grant);
             grantSaveSuccessCount += 1;
         } catch (e) {
             grantSaveErrorCount += 1;
@@ -127,15 +126,15 @@ async function processMessages(sqs, queueUrl, messages) {
         }
 
         console.log(`Processing completed successfully for grant ${grant.grant_id}`);
+    })).then(() => {
+        console.log(
+            'Finished processing messages with the following results: ',
+            `Grants Saved Successfully: ${grantSaveSuccessCount}`,
+            `| SQS Message Delete Failures: ${sqsDeleteErrorCount}`,
+            `| Parsing Errors: ${grantParseErrorCount}`,
+            `| Postgres Errors: ${grantSaveErrorCount}`,
+        );
     });
-
-    console.log(
-        'Finished processing messages with the following results: ',
-        `Grants Saved Successfully: ${grantSaveSuccessCount}`,
-        `| SQS Message Delete Failures: ${sqsDeleteErrorCount}`,
-        `| Parsing Errors: ${grantParseErrorCount}`,
-        `| Postgres Errors: ${grantSaveErrorCount}`,
-    );
 }
 
 module.exports = {

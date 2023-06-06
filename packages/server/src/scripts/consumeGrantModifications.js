@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const { getSQSClient } = require('../lib/gost-aws');
+const knex = require('../db/connection');
 const { processMessages, receiveNextMessageBatch } = require('../lib/grants-ingest');
 
 async function main() {
@@ -24,7 +25,7 @@ async function main() {
             break;
         }
         // eslint-disable-next-line no-await-in-loop
-        await processMessages(sqs, queueUrl, messages);
+        await processMessages(knex, sqs, queueUrl, messages);
     }
     console.log('Shutting down');
 }
