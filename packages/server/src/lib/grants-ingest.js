@@ -85,7 +85,7 @@ async function upsertGrant(knex, grant) {
     await knex('grants')
         .insert(grant)
         .onConflict('grant_id')
-        .merge()
+        .merge({ ...grant, ...{ updated_at: 'now' } })
         .returning('grant_id');
 }
 
