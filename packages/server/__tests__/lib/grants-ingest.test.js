@@ -231,38 +231,6 @@ describe('processMessages', async () => {
             input: { QueueUrl: queueUrl, ReceiptHandle: messages[1].ReceiptHandle },
         }));
     });
-
-    it('should handle error deleting message without interrupting others', async () => {
-        const messages = [
-            {
-                Body: JSON.stringify({ OpportunityId: 1, PostDate: '2023-06-07' }),
-                ReceiptHandle: 'receipt-handle-1',
-            },
-            {
-                Body: JSON.stringify({ OpportunityId: 2, PostDate: '2023-06-07' }),
-                ReceiptHandle: 'receipt-handle-2',
-            },
-        ];
-        sqsStub.send
-            .withArgs(sinon.match({
-                input: { QueueUrl: queueUrl, ReceiptHandle: messages[0].ReceiptHandle },
-            }))
-            .throws(new Error('Some SQS error'));
-
-        await processMessages(knexStub, sqsStub, queueUrl, messages);
-
-        sinon.assert.calledWithExactly(knexStub, 'grants');
-        sinon.assert.callCount(knexStub, 2);
-        sinon.assert.calledWith(knexQuery.insert, sinon.match({ grant_id: 1 }));
-        sinon.assert.calledWith(knexQuery.insert, sinon.match({ grant_id: 2 }));
-        sinon.assert.callCount(sqsStub.send, 2);
-        sinon.assert.calledWith(sqsStub.send, sinon.match({
-            input: { QueueUrl: queueUrl, ReceiptHandle: messages[0].ReceiptHandle },
-        }));
-        sinon.assert.calledWith(sqsStub.send, sinon.match({
-            input: { QueueUrl: queueUrl, ReceiptHandle: messages[1].ReceiptHandle },
-        }));
-    });
 });
 
 describe('receiveNextMessageBatch', () => {

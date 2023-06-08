@@ -103,7 +103,6 @@ async function deleteMessage(sqs, queueUrl, receiptHandle) {
  * @param { Array[import('@aws-sdk/client-sqs').Message] } messages Messages to process from SQS.
  */
 async function processMessages(knex, sqs, queueUrl, messages) {
-    let sqsDeleteErrorCount = 0;
     let grantParseErrorCount = 0;
     let grantSaveSuccessCount = 0;
     let grantSaveErrorCount = 0;
@@ -132,9 +131,11 @@ async function processMessages(knex, sqs, queueUrl, messages) {
         try {
             await deleteMessage(sqs, queueUrl, message.ReceiptHandle);
         } catch (e) {
-            sqsDeleteErrorCount += 1;
-            console.error(`Error deleting SQS message for grant ${grant.grant_id}:`, e);
-            return;
+            console.log(
+                `Error deleting SQS message with receipt handle ${message.ReceiptHandle} `,
+                `for grant ${grant.grant_id}`,
+            );
+            throw e;
         }
 
         console.log(`Processing completed successfully for grant ${grant.grant_id}`);
@@ -142,7 +143,6 @@ async function processMessages(knex, sqs, queueUrl, messages) {
         console.log(
             'Finished processing messages with the following results: ',
             `Grants Saved Successfully: ${grantSaveSuccessCount}`,
-            `| SQS Message Delete Failures: ${sqsDeleteErrorCount}`,
             `| Parsing Errors: ${grantParseErrorCount}`,
             `| Postgres Errors: ${grantSaveErrorCount}`,
         );
