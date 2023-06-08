@@ -58,7 +58,7 @@ function sqsMessageToGrant(jsonBody) {
     const messageData = JSON.parse(jsonBody);
     return {
         status: 'inbox',
-        grant_id: messageData.OpportunityId,
+        grant_id: messageData.OpportunityId || messageData.grant_id,
         grant_number: messageData.OpportunityNumber,
         agency_code: messageData.AgencyCode,
         award_ceiling: (messageData.AwardCeiling && parseInt(messageData.AwardCeiling, 10))
