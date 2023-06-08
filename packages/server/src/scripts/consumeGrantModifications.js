@@ -5,11 +5,12 @@ const { processMessages, receiveNextMessageBatch } = require('../lib/grants-inge
 
 async function main() {
     let shutDownRequested = false;
-
-    process.on('SIGTERM', () => {
-        console.log('SIGTERM received. Requesting shutdown...');
+    const requestShutdown = (signal) => {
+        console.log(`${signal} received. Requesting shutdown...`);
         shutDownRequested = true;
-    });
+    };
+    process.on('SIGTERM', requestShutdown);
+    process.on('SIGINT', requestShutdown);
 
     const queueUrl = process.env.GRANTS_INGEST_EVENTS_QUEUE_URL;
     const sqs = getSQSClient();
@@ -17,15 +18,10 @@ async function main() {
         console.log(`Long-polling next SQS message batch from ${queueUrl}`);
         // eslint-disable-next-line no-await-in-loop
         const messages = await receiveNextMessageBatch(sqs, queueUrl);
-        if (shutDownRequested === true) {
-            console.warn(
-                'Shutdown requested before messages could be processed;',
-                'messages will be unavailable until the queue visibility timeout has elapsed.',
-            );
-            break;
+        if (messages.length > 0) {
+            // eslint-disable-next-line no-await-in-loop
+            await processMessages(knex, sqs, queueUrl, messages);
         }
-        // eslint-disable-next-line no-await-in-loop
-        await processMessages(knex, sqs, queueUrl, messages);
     }
     console.log('Shutting down');
 }
