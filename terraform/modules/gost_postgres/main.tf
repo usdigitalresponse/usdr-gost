@@ -37,7 +37,7 @@ resource "random_password" "postgres_user" {
 module "db" {
   create  = var.enabled
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "8.3.0"
+  version = "8.3.1"
 
   name                       = "${var.namespace}-postgres"
   cluster_use_name_prefix    = true
