@@ -95,7 +95,8 @@ async function deleteMessage(sqs, queueUrl, receiptHandle) {
  * a message's grant identifier are updated. After each message is processed, it is
  * deleted from the SQS queue.
  *
- * Any errors are logged do not prevent further processing of other messages.
+ * Any errors related to parsing or saving are logged and do not prevent further processing.
+ * Errors interacting with SQS are fatal.
  *
  * @param { import('knex').Knex } knex Database client for persisting grants.
  * @param { import('@aws-sdk/client-sqs').SQSClient } sqs AWS SDK client used to issue commands to the SQS API.
