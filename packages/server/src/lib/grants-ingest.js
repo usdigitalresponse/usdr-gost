@@ -1,4 +1,5 @@
 const { ReceiveMessageCommand, DeleteMessageCommand } = require('@aws-sdk/client-sqs');
+const moment = require('moment');
 
 const opportunityCategoryMap = {
     C: 'Continuation',
@@ -7,6 +8,23 @@ const opportunityCategoryMap = {
     M: 'Mandatory',
     O: 'Other',
 };
+
+function normalizeDateString(dateString, formats = ['YYYY-MM-DD', 'MMDDYYYY']) {
+    const target = 'YYYY-MM-DD';
+    for (const fmt of formats) {
+        const parsed = moment(dateString, fmt, true);
+        if (parsed.isValid()) {
+            const result = parsed.format(target);
+            if (result !== dateString) {
+                console.log(`Input date string ${dateString} normalized to ${result}`);
+            }
+            console.log(`Input date string ${dateString} already in target format ${target}`);
+            return result;
+        }
+        console.log(`Failed to parse value ${dateString} as date using format ${fmt}`);
+    }
+    throw new Error(`Value ${dateString} could not be parsed from formats ${formats.join(', ')}`);
+}
 
 /**
  * receiveNextMessageBatch long-polls an SQS queue for up to 10 messages.
@@ -50,8 +68,8 @@ function sqsMessageToGrant(jsonBody) {
         cost_sharing: messageData.CostSharingOrMatchingRequirement ? 'Yes' : 'No',
         title: messageData.OpportunityTitle,
         cfda_list: (messageData.CFDANumbers || []).join(', '),
-        open_date: messageData.PostDate,
-        close_date: messageData.CloseDate || '2100-01-01',
+        open_date: normalizeDateString(messageData.PostDate),
+        close_date: normalizeDateString(messageData.CloseDate || '2100-01-01'),
         notes: 'auto-inserted by script',
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
