@@ -14,4 +14,4 @@ done
 
 awslocal s3api create-bucket --bucket arpa-audit-reports --region us-west-2 --create-bucket-configuration '{"LocationConstraint": "us-west-2"}'
 
-awslocal sqs create-queue --queue-name grant-ingest-events
+awslocal sqs create-queue --queue-name grants-ingest-events

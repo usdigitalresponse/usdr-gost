@@ -11,7 +11,7 @@ async function main() {
         shutDownRequested = true;
     });
 
-    const queueUrl = process.env.GRANT_INGEST_EVENTS_QUEUE_URL;
+    const queueUrl = process.env.GRANTS_INGEST_EVENTS_QUEUE_URL;
     const sqs = getSQSClient();
     while (shutDownRequested === false) {
         console.log(`Long-polling next SQS message batch from ${queueUrl}`);
