@@ -315,15 +315,4 @@ describe('receiveNextMessageBatch', () => {
         expect(sqsStub.send.calledOnce).to.be.true;
         expect(messages).to.deep.equal([]);
     });
-
-    it('should handle error receiving messages', async () => {
-        sqsStub.send
-            .withArgs(sinon.match({ input: receiveCommandArgs }))
-            .throws(new Error('Some SQS error'));
-
-        const messages = await receiveNextMessageBatch(sqsStub, queueUrl);
-
-        expect(sqsStub.send.calledOnce).to.be.true;
-        expect(messages).to.deep.equal([]);
-    });
 });

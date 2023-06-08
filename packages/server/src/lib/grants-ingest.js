@@ -33,21 +33,13 @@ function normalizeDateString(dateString, formats = ['YYYY-MM-DD', 'MMDDYYYY']) {
  * @returns { Array[import('@aws-sdk/client-sqs').Message] } Received messages, if any.
  */
 async function receiveNextMessageBatch(sqs, queueUrl) {
-    let messages = [];
-    try {
-        const resp = await sqs.send(new ReceiveMessageCommand({
-            QueueUrl: queueUrl,
-            WaitTimeSeconds: 20,
-            MaxNumberOfMessages: 10,
-        }));
-        if (resp && resp.Messages && resp.Messages.length > 0) {
-            messages = resp.Messages;
-        }
-    } catch (e) {
-        console.error('Error receiving SQS messages:', e);
-        return messages;
-    }
+    const resp = await sqs.send(new ReceiveMessageCommand({
+        QueueUrl: queueUrl,
+        WaitTimeSeconds: 20,
+        MaxNumberOfMessages: 10,
+    }));
 
+    const messages = (resp && resp.Messages) ? resp.Messages : [];
     if (messages.length === 0) {
         console.log('Empty message batch received from SQS');
     }
