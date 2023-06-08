@@ -31,5 +31,5 @@ async function main() {
 }
 
 if (require.main === module) {
-    main.then(() => process.exit());
+    main().then(() => process.exit());
 }
