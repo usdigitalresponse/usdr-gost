@@ -77,6 +77,7 @@ function sqsMessageToGrant(jsonBody) {
         description: messageData.Description,
         eligibility_codes: (messageData.EligibleApplicants || []).join(' '),
         opportunity_status: 'posted',
+        raw_body: JSON.stringify(messageData),
     };
 }
 
