@@ -101,7 +101,6 @@ function getSQSClient() {
     if (process.env.LOCALSTACK_HOSTNAME) {
         console.log('------------ USING LOCALSTACK FOR SQS ------------');
         const endpoint = `http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT || 4566}`;
-        console.log(`endpoint: ${endpoint}`);
         sqs = new SQSClient({ endpoint, region: process.env.AWS_DEFAULT_REGION });
     } else {
         sqs = new SQSClient();
