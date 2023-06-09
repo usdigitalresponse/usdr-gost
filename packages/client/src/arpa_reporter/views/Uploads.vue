@@ -16,6 +16,10 @@
       :columns="columns"
       :rows="rows"
       :group-options="groupOptions"
+      :sort-options="{
+        enabled: true,
+        initialSortBy: defaultSortOrder
+      }"
       styleClass="vgt-table table table-striped table-bordered"
       ref="uploadsTable"
       >
@@ -89,6 +93,12 @@ export default {
     groupOptions() {
       return {
         enabled: this.groupByAgency,
+      };
+    },
+    defaultSortOrder() {
+      return {
+        field: 'validated_at',
+        type: 'desc',
       };
     },
     rows() {
@@ -196,7 +206,7 @@ export default {
   methods: {
     resetFilters() {
       this.$refs.uploadsTable.reset();
-      this.$refs.uploadsTable.changeSort([]);
+      this.$refs.uploadsTable.changeSort([this.defaultSortOrder]);
     },
     shortUuid,
     async loadExportedUploads() {
