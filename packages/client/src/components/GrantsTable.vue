@@ -6,10 +6,11 @@
           <b-input-group-text>
             <b-icon icon="search" />
           </b-input-group-text>
-          <b-form-input type="search" @input="debounceSearchInput"></b-form-input>
+          <b-form-input type="sliders" @input="debounceSearchInput"></b-form-input>
         </b-input-group>
       </b-col>
       <b-col class="d-flex justify-content-end">
+        <SearchPanel />
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
           <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
           Export to CSV
@@ -70,9 +71,10 @@ import { debounce } from 'lodash';
 import Multiselect from 'vue-multiselect';
 import { titleize } from '../helpers/form-helpers';
 import GrantDetails from './Modals/GrantDetails.vue';
+import SearchPanel from './Modals/SearchPanel.vue';
 
 export default {
-  components: { GrantDetails, Multiselect },
+  components: { GrantDetails, Multiselect, SearchPanel },
   props: {
     showMyInterested: Boolean,
     showInterested: Boolean,
