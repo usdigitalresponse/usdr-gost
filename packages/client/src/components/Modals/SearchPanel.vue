@@ -8,13 +8,12 @@
         id="search-panel"
         title="Search"
         class="search-panel"
-<<<<<<< HEAD
-=======
         right
->>>>>>> upstream/_staging
         shadow
       >
-      <b-form-group></b-form-group>
+      <b-form-group>
+        <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :close-on-select="false" :clear-on-select="false"></multiselect>
+      </b-form-group>
       <template #footer="{ hide }">
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
@@ -31,8 +30,10 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
+import Multiselect from 'vue-multiselect';
 
 export default {
+  components: { Multiselect },
   props: {
     SearchType: String,
     showModal: Boolean,
@@ -43,6 +44,8 @@ export default {
   data() {
     return {
       formData: {},
+      opportunityCategoryFilters: [],
+      opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
     };
   },
   validations: {
@@ -63,10 +66,7 @@ export default {
 .search-panel > .b-sidebar > .b-sidebar-header{
   font-size: 1.25rem;
   border-bottom: 1.5px solid #e8e8e8;
-<<<<<<< HEAD
-=======
   margin: 0 auto;
->>>>>>> upstream/_staging
 }
 .sidebar-footer {
   border-top: 1.5px solid #e8e8e8;
