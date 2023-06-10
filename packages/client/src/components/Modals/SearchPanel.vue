@@ -8,6 +8,10 @@
         id="search-panel"
         title="Search"
         class="search-panel"
+<<<<<<< HEAD
+=======
+        right
+>>>>>>> upstream/_staging
         shadow
       >
       <b-form-group></b-form-group>
@@ -59,6 +63,10 @@ export default {
 .search-panel > .b-sidebar > .b-sidebar-header{
   font-size: 1.25rem;
   border-bottom: 1.5px solid #e8e8e8;
+<<<<<<< HEAD
+=======
+  margin: 0 auto;
+>>>>>>> upstream/_staging
 }
 .sidebar-footer {
   border-top: 1.5px solid #e8e8e8;
