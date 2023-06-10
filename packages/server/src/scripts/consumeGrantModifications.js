@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const tracer = require('dd-trace').init(); // eslint-disable-line no-unused-vars
 const { getSQSClient } = require('../lib/gost-aws');
 const knex = require('../db/connection');
 const { processMessages, receiveNextMessageBatch } = require('../lib/grants-ingest');
