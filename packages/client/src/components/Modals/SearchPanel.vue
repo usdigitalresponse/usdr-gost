@@ -11,8 +11,11 @@
         right
         shadow
       >
-      <b-form-group>
-        <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
+      <b-form-group class="form">
+        <div class="multiselect-group">
+          <div class="multiselect-title">Category</div>
+          <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
+        </div>
       </b-form-group>
       <template #footer="{ hide }">
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
@@ -66,10 +69,21 @@ export default {
 };
 </script>
 <style>
+.form{
+  margin: 10px;
+}
+.multiselect-title{
+  font-weight: 500;
+  line-height: 150%;
+  margin-left: 2px;
+  margin-bottom: 5px;
+  color: #1F2123;
+}
 .multiselect > .multiselect__tags{
   display: flex;
   align-items: center;
 }
+
 .multiselect > .multiselect__tags > .multiselect__strong{
   display: inline;
   padding: 4px 5px 4px;
