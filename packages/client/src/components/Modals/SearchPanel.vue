@@ -12,7 +12,7 @@
         shadow
       >
       <b-form-group>
-        <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :close-on-select="false" :clear-on-select="false"></multiselect>
+        <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
       </b-form-group>
       <template #footer="{ hide }">
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
@@ -59,10 +59,26 @@ export default {
   },
   methods: {
     ...mapActions({}),
+    customLimitText(count) {
+      return `+${count}`
+    }
   },
 };
 </script>
 <style>
+.multiselect > .multiselect__tags{
+  display: flex;
+  align-items: center;
+}
+.multiselect > .multiselect__tags > .multiselect__strong{
+  display: inline;
+  padding: 4px 5px 4px;
+  border-radius: 5px;
+  color: #fff;
+  line-height: 1;
+  background: #41b883;
+  margin-bottom: 11px;
+}
 .search-panel > .b-sidebar > .b-sidebar-header{
   font-size: 1.25rem;
   border-bottom: 1.5px solid #e8e8e8;
