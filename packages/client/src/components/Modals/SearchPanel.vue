@@ -63,8 +63,8 @@ export default {
   methods: {
     ...mapActions({}),
     customLimitText(count) {
-      return `+${count}`
-    }
+      return `+${count}`;
+    },
   },
 };
 </script>
@@ -83,7 +83,6 @@ export default {
   display: flex;
   align-items: center;
 }
-
 .multiselect > .multiselect__tags > .multiselect__strong{
   display: inline;
   padding: 4px 5px 4px;
