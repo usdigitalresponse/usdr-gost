@@ -12,34 +12,44 @@
         shadow
       >
         <form ref="form" class="search-form">
-        <b-form-group label-for="include-input">
-          <template slot="label">Include Keywords</template>
-            <b-form-input
-              id="include-input"
-              type="text"
-              v-model="formData.includeInput"
-              required
-            ></b-form-input>
-        </b-form-group>
-        <b-form-group label-for="exclude-input">
-          <template slot="label">Exclude Keywords</template>
-            <b-form-input
-              id="exclude-input"
-              type="text"
-              v-model="formData.excludeInput"
-              required
-            ></b-form-input>
-        </b-form-group>
-        <b-form-group label-for="oportunity-number">
-          <template slot="label">Oportunity #</template>
-            <b-form-input
-              id="oportunity-number-input"
-              type="number"
-              v-model="formData.oportunityNumber"
-              required
-            ></b-form-input>
-        </b-form-group>
-      </form>
+          <b-form-group label-for="include-input">
+            <template slot="label">Include Keywords</template>
+              <b-form-input
+                id="include-input"
+                type="text"
+                v-model="formData.includeInput"
+              ></b-form-input>
+          </b-form-group>
+          <b-form-group label-for="exclude-input">
+            <template slot="label">Exclude Keywords</template>
+              <b-form-input
+                id="exclude-input"
+                type="text"
+                v-model="formData.excludeInput"
+              ></b-form-input>
+          </b-form-group>
+          <b-form-group label-for="oportunity-number">
+            <template slot="label">Oportunity #</template>
+              <b-form-input
+                id="oportunity-number-input"
+                type="number"
+                v-model="formData.oportunityNumber"
+              ></b-form-input>
+          </b-form-group>
+          <b-form-group label="Oportunity Status" v-slot="{ ariaDescribedby }">
+            <b-form-checkbox-group
+              id="oportunity-status"
+              v-model="formData.oportunityStatus"
+              :aria-describedby="ariaDescribedby"
+              name="oportunity-status"
+              inline
+            >
+              <b-form-checkbox value="forecasted">Forecasted</b-form-checkbox>
+              <b-form-checkbox value="posted">Posted</b-form-checkbox>
+              <b-form-checkbox value="closed">Closed</b-form-checkbox>
+            </b-form-checkbox-group>
+          </b-form-group>
+        </form>
       <template #footer="{ hide }">
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
@@ -52,7 +62,6 @@
       </b-sidebar>
     </div>
   </template>
-
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
@@ -71,6 +80,7 @@ export default {
         includeInput: null,
         excludeInput: null,
         oportunityNumber: null,
+        oportunityStatus: [],
       },
     };
   },
