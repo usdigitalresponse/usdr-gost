@@ -10,7 +10,7 @@ data "aws_ses_domain_identity" "notifications" {
 
 module "send_emails_policy" {
   source  = "cloudposse/iam-policy/aws"
-  version = "0.4.0"
+  version = "1.0.0"
   context = module.this.context
 
   name = "send-emails"

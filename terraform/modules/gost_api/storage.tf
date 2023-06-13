@@ -53,7 +53,7 @@ module "arpa_audit_reports_bucket" {
 
 module "access_arpa_reports_bucket_policy" {
   source  = "cloudposse/iam-policy/aws"
-  version = "0.4.0"
+  version = "1.0.0"
   context = module.s3_label.context
 
   name = "access_arpa_reports_bucket"
