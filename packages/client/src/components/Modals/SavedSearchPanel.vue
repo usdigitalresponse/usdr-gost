@@ -11,9 +11,9 @@
     >
     <template #header="{ hide }">
       <div class="saved-search-title">Saved Searches</div>
-      <div @click="hide">
-        <svg viewBox="0 0 16 16" width="1em" height="1em" focusable="false" role="img" aria-label="x" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi-x b-icon bi header-close-button"><g><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path></g></svg>
-      </div>
+      <b-button type="button" class="close" aria-label="Close" @click="hide">
+       <span aria-hidden="true">&times;</span>
+      </b-button>
     </template>
     <div class="saved-search-empty-state">
       <h4>No saved searches</h4>
@@ -61,8 +61,8 @@ export default {
   font-size: 20px;
   line-height: 120%;
 }
-.header-close-button{
-  cursor: pointer;
+.b-sidebar.b-sidebar-right > .b-sidebar-header .close{
+  margin-right: 0px;
 }
 .b-sidebar-header{
   justify-content: space-between;
