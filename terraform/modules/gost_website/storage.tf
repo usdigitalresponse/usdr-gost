@@ -28,7 +28,7 @@ locals {
 
 module "cloudfront_to_origin_bucket_access_policy" {
   source  = "cloudposse/iam-policy/aws"
-  version = "0.4.0"
+  version = "1.0.0"
   context = module.s3_label.context
 
   iam_policy_statements = {
@@ -62,7 +62,7 @@ module "cloudfront_to_origin_bucket_access_policy" {
 
 module "github_deploy_to_origin_bucket_policy" {
   source  = "cloudposse/iam-policy/aws"
-  version = "0.4.0"
+  version = "1.0.0"
   context = module.s3_label.context
 
   iam_policy_statements = {
