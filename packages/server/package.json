@@ -11,6 +11,7 @@
     "npm": "please-use-yarn"
   },
   "scripts": {
+    "consume-grants": "node src/scripts/consumeGrantModifications.js",
     "coverage": "nyc yarn test",
     "create_tenant": "node src/db/tenant_creation.js",
     "db:migrate": "knex migrate:latest",
@@ -39,6 +40,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.312.0",
     "@aws-sdk/client-ses": "^3.312.0",
+    "@aws-sdk/client-sqs": "^3.345.0",
     "@aws-sdk/rds-signer": "^3.315.0",
     "@aws-sdk/s3-request-presigner": "^3.312.0",
     "adm-zip": "0.5.9",
