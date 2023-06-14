@@ -49,6 +49,26 @@
               <b-form-checkbox value="closed">Closed</b-form-checkbox>
             </b-form-checkbox-group>
           </b-form-group>
+          <b-form-group label-for="Funding Type">
+            <template slot="label">Funding Type</template>
+              <b-form-input
+                id="funding-type"
+                type="text"
+                v-model="formData.fundingType"
+              ></b-form-input>
+          </b-form-group>
+          <b-form-group label-for="Agency">
+            <template slot="label">Agency</template>
+              <b-form-input
+                id="agency"
+                type="text"
+                v-model="formData.agency"
+              ></b-form-input>
+          </b-form-group>
+          <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }">
+            <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="A">Yes</b-form-radio>
+            <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="B">No</b-form-radio>
+          </b-form-group>
         </form>
       <template #footer="{ hide }">
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
@@ -81,6 +101,9 @@ export default {
         excludeInput: null,
         oportunityNumber: null,
         oportunityStatus: [],
+        fundingType: null,
+        agency: null,
+        costSharing: false,
       },
     };
   },
