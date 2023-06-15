@@ -43,7 +43,7 @@ data "aws_ssm_parameter" "datadog_api_key" {
 
 module "decrypt_secrets_policy" {
   source  = "cloudposse/iam-policy/aws"
-  version = "1.0.0"
+  version = "1.0.1"
   context = module.this.context
 
   name = "decrypt-secrets"
