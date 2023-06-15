@@ -65,9 +65,11 @@
                 v-model="formData.agency"
               ></b-form-input>
           </b-form-group>
-          <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }">
-            <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="A">Yes</b-form-radio>
-            <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="B">No</b-form-radio>
+          <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }" row>
+            <b-form-radio-group>
+              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="A">Yes</b-form-radio>
+              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="B">No</b-form-radio>
+            </b-form-radio-group>
           </b-form-group>
         </form>
       <template #footer="{ hide }">
