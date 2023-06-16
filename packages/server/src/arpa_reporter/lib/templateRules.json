@@ -1,7 +1,7 @@
 {
   "logic": {
     "version": {
-      "version": "v:20230615",
+      "version": "v:20230616",
       "key": "version",
       "index": 0,
       "required": false,
@@ -7315,8 +7315,8 @@
       "key": "Place_of_Performance_Zip__c",
       "index": 22,
       "required": true,
-      "dataType": "Numeric",
-      "maxLength": 99999,
+      "dataType": "String",
+      "maxLength": 5,
       "listVals": [],
       "columnName": "W",
       "humanColName": "Primary Place of Performance Zip",
@@ -7326,8 +7326,8 @@
       "key": "Place_of_Performance_Zip_4__c",
       "index": 23,
       "required": false,
-      "dataType": "Numeric",
-      "maxLength": 9999,
+      "dataType": "String",
+      "maxLength": 4,
       "listVals": [],
       "columnName": "X",
       "humanColName": "Place of Performance Zip4",
