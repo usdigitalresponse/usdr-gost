@@ -311,6 +311,15 @@ async function validateRecord({ upload, record, typeRules: rules }) {
                 }
             }
 
+            if (rule.dataType === 'Date') {
+                if (value && typeof value === 'string' && Number.isNaN(Date.parse(value))) {
+                    errors.push(new ValidationError(
+                        `Data entered in cell is "${value}", which is not a valid date.`,
+                        { severity: 'err', col: rule.columnName },
+                    ));
+                }
+            }
+
             if (rule.dataType === 'String') {
                 const patternError = validateFieldPattern(key, value);
                 if (patternError) {

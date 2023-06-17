@@ -1,24 +1,6 @@
 {
   "Agency Code": [
-    "ADJ01",
-    "AGE01",
-    "AGO01",
-    "AGR01",
-    "ART01",
-    "BOR01",
-    "BWC01",
-    "DAS01",
-    "DEV01",
-    "DMH01",
-    "DNR01",
-    "DOH01",
-    "DPS01",
-    "DRC01",
-    "DVS01",
-    "EDU01",
-    "EPA01",
-    "JFS01",
-    "OBM01"
+    "UNUSED"
   ],
   "Expenditure Category Group": [
     "<< Values contained on Logic sheet >>"

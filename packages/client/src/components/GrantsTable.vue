@@ -11,6 +11,7 @@
       </b-col>
       <b-col class="d-flex justify-content-end">
         <SearchPanel />
+        <SavedSearchPanel />
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
           <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
           Export to CSV
@@ -72,9 +73,12 @@ import Multiselect from 'vue-multiselect';
 import { titleize } from '../helpers/form-helpers';
 import GrantDetails from './Modals/GrantDetails.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
+import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
 
 export default {
-  components: { GrantDetails, Multiselect, SearchPanel },
+  components: {
+    GrantDetails, Multiselect, SearchPanel, SavedSearchPanel,
+  },
   props: {
     showMyInterested: Boolean,
     showInterested: Boolean,
