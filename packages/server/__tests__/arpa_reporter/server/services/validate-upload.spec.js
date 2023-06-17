@@ -65,6 +65,28 @@ describe('validate record', () => {
         Number_Affordable_Housing_Units__c: 0,
     };
 
+    const VALID_AWARDS_50K = {
+        Recipient_UEI__c: 'ABCDEFGHIJK',
+        Recipient_EIN__c: '00-0000000',
+        Entity_Type_2__c: 'Contractor',
+        Project_Identification_Number__c: 1,
+        Award_No__c: '000',
+        Award_Type__c: 'Contract: Blanket Purchase Agreement',
+        Award_Amount__c: 10,
+        Award_Date__c: '3/29/2022',
+        Primary_Sector__c: 'Family or child care',
+        Purpose_of_Funds__c: 'Sample purpose',
+        Period_of_Performance_Start__c: '2022-02-01T05:00:00.000Z',
+        Period_of_Performance_End__c: '2022-08-31T04:00:00.000Z',
+        Place_of_Performance_Address_1__c: 'Somewhere Else',
+        Place_of_Performance_Address_2__c: 'Area 51',
+        Place_of_Performance_City__c: 'Somewhere',
+        State_Abbreviated__c: 'RI',
+        Place_of_Performance_Zip__c: '02920',
+        Description__c: 'Sample description',
+        Subaward_Changed__c: 'No',
+    };
+
     it('validates a valid project succesfully', () => validateRecord({
         upload: { ec_code: '2.16' },
         record: VALID_EC2_PROJECT,
@@ -106,6 +128,38 @@ describe('validate record', () => {
                 assert(generatedErrors.length === 1);
                 assert(generatedErrors[0].severity === 'err');
                 assert.equal(generatedErrors[0].message, `Expected a number, but the value was 'N/A'`);
+            },
+            (thrownException) => { assert.fail(`Unexpected error while validating record: ${thrownException}`); },
+        );
+    });
+
+    it('validates a valid award successfully', () => {
+        const project = _.clone(VALID_AWARDS_50K);
+        return validateRecord({
+            upload: { ec_code: '2.16' },
+            record: project,
+            typeRules: ALL_RULES.awards50k,
+        }).then(
+            (generatedErrors) => {
+                assert(generatedErrors.length === 0,
+                    `Unexpected error when validating record: ${generatedErrors}`);
+            },
+            (thrownException) => { assert.fail(`Unexpected error while validating record: ${thrownException}`); },
+        );
+    });
+
+    it('throws error for a bad date', () => {
+        const project = _.clone(VALID_AWARDS_50K);
+        project.Award_Date__c = '3/292022';
+        return validateRecord({
+            upload: { ec_code: '2.16' },
+            record: project,
+            typeRules: ALL_RULES.awards50k,
+        }).then(
+            (generatedErrors) => {
+                assert(generatedErrors.length === 1);
+                assert(generatedErrors[0].severity === 'err');
+                assert.equal(generatedErrors[0].message, `Data entered in cell is "3/292022", which is not a valid date.`);
             },
             (thrownException) => { assert.fail(`Unexpected error while validating record: ${thrownException}`); },
         );
