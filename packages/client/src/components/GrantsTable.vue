@@ -18,6 +18,11 @@
         </b-button>
       </b-col>
     </b-row>
+    <b-row>
+      <b-col cols="12">
+        <SearchFilter :filterKeys="searchFilters" />
+      </b-col>
+    </b-row>
     <b-row class="mt-3 mb-3" align-h="start" style="position: relative; z-index: 999">
       <b-col v-if="!showInterested && !showRejected && !showResult && !showAssignedToAgency" cols="3">
         <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions" :multiple="true"
@@ -74,10 +79,11 @@ import { titleize } from '../helpers/form-helpers';
 import GrantDetails from './Modals/GrantDetails.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
+import SearchFilter from './SearchFilter.vue';
 
 export default {
   components: {
-    GrantDetails, Multiselect, SearchPanel, SavedSearchPanel,
+    GrantDetails, Multiselect, SearchPanel, SavedSearchPanel, SearchFilter,
   },
   props: {
     showMyInterested: Boolean,
@@ -93,6 +99,10 @@ export default {
       perPage: 50,
       currentPage: 1,
       loading: false,
+      searchFilters: {
+        include: ['Nevada', 'infrastructure'],
+        exclude: ['highways', 'roads', 'streets'],
+      },
       fields: [
         {
           key: 'grant_number',
@@ -256,6 +266,7 @@ export default {
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
+      this.searchFilters.include = newVal;
     }, 500),
     async paginateGrants() {
       try {
