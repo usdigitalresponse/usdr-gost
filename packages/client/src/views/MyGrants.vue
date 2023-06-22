@@ -1,16 +1,16 @@
 <template>
   <b-tabs pills align="center" lazy>
     <b-tab title="Interested" active>
-      <GrantsTable :showInterested="true"/>
+      <component :is="tableComponent" :showInterested="true"/>
     </b-tab>
     <b-tab title="Assigned">
-      <GrantsTable :showAssignedToAgency="selectedAgencyId"/>
+      <component :is="tableComponent" :showAssignedToAgency="selectedAgencyId"/>
     </b-tab>
     <b-tab title="Not Applying">
-      <GrantsTable :showRejected="true"/>
+      <component :is="tableComponent" :showRejected="true"/>
     </b-tab>
     <b-tab title="Applied">
-        <GrantsTable :showResult="true"/>
+        <component :is="tableComponent" :showResult="true"/>
     </b-tab>
   </b-tabs>
 </template>
@@ -19,6 +19,7 @@
 import { mapGetters } from 'vuex';
 
 import GrantsTable from '@/components/GrantsTable.vue';
+import GrantsTableNext from '@/components/GrantsTableNext.vue';
 
 export default {
   components: { GrantsTable },
@@ -31,6 +32,10 @@ export default {
     ...mapGetters({
       selectedAgencyId: 'users/selectedAgencyId',
     }),
+    tableComponent() {
+      const useNewTable = process.env.NODE_ENV === 'development' || process.env.VUE_APP_USE_NEW_TABLE === 'true';
+      return useNewTable ? GrantsTableNext : GrantsTable;
+    },
   },
   methods: {},
 };
