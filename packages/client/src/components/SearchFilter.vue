@@ -1,10 +1,12 @@
 <template>
   <div>
-    <span class="filter-item" v-for="(item, idx) in Object.entries($props.filterKeys)" :key="idx">
-      <strong >{{ item[0] }}: </strong>{{ formatValue(item[1])  }} <b-icon icon="x">&nbsp;</b-icon>
-    </span>
-    <div>
-      <a href="#" v-on:click="clear">Clear all</a>
+    <div class="mb-3">
+      <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">
+        <strong >{{ item.label }}: </strong>{{ formatValue(item.value)  }} <a href="#" v-on:click.prevent="clearFilter(idx)"><b-icon icon="x" font-scale="1.5">&nbsp;</b-icon></a>
+      </span>
+    </div>
+    <div class="mb-3">
+      <a href="#" v-on:click="clearAll">Clear all</a>
     </div>
   </div>
 </template>
@@ -13,13 +15,10 @@
 export default {
   props: {
     filterKeys: {
-      type: Object,
+      type: Array,
       required: true,
+      validator: (value) => value.every((item) => typeof item.label === 'string'),
     },
-  },
-  data() {
-    return {
-    };
   },
   methods: {
     formatValue(value) {
@@ -28,7 +27,13 @@ export default {
       }
       return value;
     },
-    clear() {
+    clearAll() {
+      this.filterKeys.splice(0, this.filterKeys.length);
+    },
+    clearFilter(index) {
+      // TODO emit event when parent component is handling state
+      // this.$emit('filter:remove', index);
+      this.filterKeys.splice(index, 1);
     },
   },
 };

@@ -99,10 +99,28 @@ export default {
       perPage: 50,
       currentPage: 1,
       loading: false,
-      searchFilters: {
-        include: ['Nevada', 'infrastructure'],
-        exclude: ['highways', 'roads', 'streets'],
-      },
+      searchFilters: [
+        {
+          label: 'Include',
+          value: ['Nevada', 'infrastructure'],
+        },
+        {
+          label: 'Exclude',
+          value: ['road', 'highways'],
+        },
+        {
+          label: 'Opp Status',
+          value: ['forecasted', 'posted'],
+        },
+        {
+          label: 'Cost Sharing',
+          value: 'Yes',
+        },
+        {
+          label: 'Review Status',
+          value: ['Interested', 'Supporting'],
+        },
+      ],
       fields: [
         {
           key: 'grant_number',
