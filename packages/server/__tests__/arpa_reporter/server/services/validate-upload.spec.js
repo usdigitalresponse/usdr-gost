@@ -3,6 +3,8 @@ const assert = require('assert');
 const rewire = require('rewire');
 const sinon = require('sinon');
 const { expect } = require('chai');
+const fixtures = require('../fixtures/fixtures');
+const { knex } = require('../mocha_init');
 
 const { getRules } = require('../../../../src/arpa_reporter/services/validation-rules');
 const { EXPENDITURE_CATEGORIES } = require('../../../../src/arpa_reporter/lib/format');
@@ -407,5 +409,29 @@ describe('validateSubrecipientRecord', () => {
             ),
         ]);
         sinon.assert.notCalled(updateRecipientStub);
+    });
+});
+
+describe('invalidate', () => {
+    before(async () => {
+        await fixtures.seed(knex);
+    });
+
+    after(async () => {
+        await fixtures.clean(knex);
+    });
+
+    it('should invalidate', async () => {
+        const { upload1 } = fixtures.uploads;
+        const user = fixtures.users.staffUser;
+        await validateUploadModule.invalidateUpload(upload1, user);
+        const rows = await knex('uploads')
+            .where('id', upload1.id)
+            .select('uploads.*');
+        const row = rows[0];
+        assert.equal(row.invalidated_by, user.id);
+        assert(row.invalidated_at !== null);
+        assert(row.validated_at !== null);
+        assert(row.validated_by !== null);
     });
 });
