@@ -36,11 +36,14 @@ const uploads = {
         reporting_period_id: reportingPeriods.q1_2021.id,
         user_id: users.adminUser.id,
         agency_id: agencies.accountancy.id,
-        validated_at: '2022-01-01',
         ec_code: '1.1',
         tenant_id: TENANT_ID,
         id: '00000000-0000-0000-0000-000000000000',
         notes: null,
+        validated_at: '2022-01-01',
+        validated_by: users.adminUser.id,
+        invalidated_at: null,
+        invalidated_by: null,
     },
     upload2: {
         filename: 'test-filename-2.xlsm',
@@ -51,6 +54,10 @@ const uploads = {
         tenant_id: TENANT_ID,
         id: '00000000-0000-0000-0000-000000000001',
         notes: null,
+        validated_at: null,
+        validated_by: null,
+        invalidated_at: null,
+        invalidated_by: null,
     },
     upload3: {
         filename: 'test-filename-3.xlsm',
@@ -61,18 +68,24 @@ const uploads = {
         tenant_id: TENANT_ID + 1,
         id: '00000000-0000-0000-0000-000000000002',
         notes: null,
+        validated_at: null,
+        validated_by: null,
+        invalidated_at: null,
+        invalidated_by: null,
     },
     upload4_invalidated: {
         filename: 'test-filename-4.xlsm',
         reporting_period_id: reportingPeriods.q1_2021.id,
         user_id: users.adminUser.id,
         agency_id: agencies.accountancy.id,
-        invalidated_at: '2023-03-02',
-        invalidated_by: users.staffUser.id,
         ec_code: '1.1',
         tenant_id: TENANT_ID,
         id: '00000000-0000-0000-0000-000000000003',
         notes: null,
+        validated_at: null,
+        validated_by: null,
+        invalidated_at: '2023-03-02',
+        invalidated_by: users.staffUser.id,
     },
     upload5_new_quarter: {
         filename: 'test-filename-5.xlsm',
@@ -83,6 +96,10 @@ const uploads = {
         tenant_id: TENANT_ID,
         id: '00000000-0000-0000-0000-000000000004',
         notes: null,
+        validated_at: null,
+        validated_by: null,
+        invalidated_at: null,
+        invalidated_by: null,
     },
 };
 
@@ -91,20 +108,14 @@ module.exports = {
     reportingPeriods,
     uploads,
     TENANT_ID,
+    users,
 };
 
 module.exports.clean = async (knex) => {
-    await knex.raw('TRUNCATE TABLE users CASCADE');
     await knex.raw('TRUNCATE TABLE uploads CASCADE');
-    await knex.raw('TRUNCATE TABLE reporting_periods CASCADE');
 };
 
 module.exports.seed = async (knex) => {
-    await knex.raw('TRUNCATE TABLE users CASCADE');
     await knex.raw('TRUNCATE TABLE uploads CASCADE');
-    await knex.raw('TRUNCATE TABLE reporting_periods CASCADE');
-
-    await knex('users').insert(Object.values(users));
-    await knex('reporting_periods').insert(Object.values(reportingPeriods));
     await knex('uploads').insert(Object.values(uploads));
 };

@@ -409,3 +409,28 @@ describe('validateSubrecipientRecord', () => {
         sinon.assert.notCalled(updateRecipientStub);
     });
 });
+
+/*
+describe('invalidate', () => {
+    before(async () => {
+        await fixtures.seed(knex);
+    });
+
+    after(async () => {
+        await fixtures.clean(knex);
+        //await knex.destroy(knex);
+    });
+
+    it('should invalidate', async () => {
+        const rows = await withTenantId(fixtures.TENANT_ID, async () => {
+            const r = await uploads.usedForTreasuryExport(fixtures.reportingPeriods.q1_2021.id);
+            return r;
+        });
+        const uploadsFiltered = Object.values(fixtures.uploads)
+            .filter((f) => f.tenant_id === fixtures.TENANT_ID)
+            .filter((f) => f.invalidated_at === null)
+            .filter((f) => f.reporting_period_id === fixtures.reportingPeriods.q1_2021.id);
+        assert.equal(rows.length, uploadsFiltered.length);
+    });
+});
+*/

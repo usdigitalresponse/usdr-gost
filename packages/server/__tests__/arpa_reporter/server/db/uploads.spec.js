@@ -44,14 +44,13 @@ describe('db/uploads.js', () => {
         });
     });
 
-    context('usedForTreasuryExport', () => {
+    describe('usedForTreasuryExport', () => {
         before(async () => {
             await fixtures.seed(knex);
         });
 
         after(async () => {
             await fixtures.clean(knex);
-            await knex.destroy(knex);
         });
 
         it('should only have two results', async () => {
@@ -64,6 +63,56 @@ describe('db/uploads.js', () => {
                 .filter((f) => f.invalidated_at === null)
                 .filter((f) => f.reporting_period_id === fixtures.reportingPeriods.q1_2021.id);
             assert.equal(rows.length, uploadsFiltered.length);
+        });
+    });
+
+    describe('markInvalidated', () => {
+        before(async () => {
+            await fixtures.clean(knex);
+            await fixtures.seed(knex);
+        });
+
+        after(async () => {
+            await fixtures.clean(knex);
+        });
+
+        it('should be invalidated', async () => {
+            const { upload1 } = fixtures.uploads;
+            const user = fixtures.users.staffUser;
+            await uploads.markInvalidated(upload1.id, user.id, knex);
+            const rows = await knex('uploads')
+                .where('id', upload1.id)
+                .select('uploads.*');
+            const row = rows[0];
+            assert.equal(row.invalidated_by, user.id);
+            assert(row.invalidated_at !== null);
+            assert(row.validated_at !== null);
+            assert(row.validated_by !== null);
+        });
+    });
+
+    describe('markValidated', () => {
+        before(async () => {
+            await fixtures.clean(knex);
+            await fixtures.seed(knex);
+        });
+
+        after(async () => {
+            await fixtures.clean(knex);
+        });
+
+        it('should be validated', async () => {
+            const { upload2 } = fixtures.uploads;
+            const user = fixtures.users.staffUser;
+            await uploads.markValidated(upload2.id, user.id, knex);
+            const rows = await knex('uploads')
+                .where('id', upload2.id)
+                .select('uploads.*');
+            const row = rows[0];
+            assert.equal(row.validated_by, user.id);
+            assert(row.validated_at !== null);
+            assert(row.invalidated_at === null);
+            assert(row.invalidated_by === null);
         });
     });
 });
