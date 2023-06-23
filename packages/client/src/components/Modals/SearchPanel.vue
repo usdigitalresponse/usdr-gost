@@ -39,7 +39,7 @@
           <b-form-group label="Oportunity Status" v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               id="oportunity-status"
-              v-model="formData.oportunityStatus"
+              v-model="formData.oportunityStatusFilters"
               :aria-describedby="ariaDescribedby"
               name="oportunity-status"
               inline
@@ -50,8 +50,12 @@
             </b-form-checkbox-group>
           </b-form-group>
           <b-form-group class="multiselect-group">
+            <template slot="label">Eligibility</template>
+            <multiselect v-model="formData.opportunityCategoryFilters" :options="opportunityStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
+          </b-form-group>
+          <b-form-group class="multiselect-group">
             <template slot="label">Category</template>
-            <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
           <b-form-group label-for="Funding Type">
             <template slot="label">Funding Type</template>
@@ -75,13 +79,11 @@
               <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="B">No</b-form-radio>
             </b-form-radio-group>
           </b-form-group>
+          <b-form-group class="multiselect-group">
+            <template slot="label">Review Status</template>
+            <multiselect v-model="formData.reviewStatusFilters" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
+          </b-form-group>
         </form>
-      <!-- <b-form-group class="form">
-        <div class="multiselect-group">
-          <div class="multiselect-title">Category</div>
-          <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
-        </div>
-      </b-form-group> -->
       <template #footer="{ hide }">
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
@@ -114,13 +116,15 @@ export default {
         includeInput: null,
         excludeInput: null,
         oportunityNumber: null,
-        oportunityStatus: [],
+        oportunityStatusFilters: [],
         fundingType: null,
         agency: null,
         costSharing: false,
+        opportunityCategoryFilters: [],
+        reviewStatusFilters: [],
       },
-      opportunityCategoryFilters: [],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
+      reviewStatusOptions: ['interested', 'result', 'rejected'],
     };
   },
   validations: {
