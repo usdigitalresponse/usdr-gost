@@ -33,7 +33,7 @@ export default {
       selectedAgencyId: 'users/selectedAgencyId',
     }),
     tableComponent() {
-      const useNewTable = process.env.NODE_ENV === 'development' || process.env.VUE_APP_USE_NEW_TABLE === 'true';
+      const useNewTable = process.env.VUE_APP_USE_NEW_TABLE === true || (window.APP_CONFIG || {}).UseNewTable === true;
       return useNewTable ? GrantsTableNext : GrantsTable;
     },
   },
