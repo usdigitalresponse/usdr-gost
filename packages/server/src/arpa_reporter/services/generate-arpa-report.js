@@ -18,6 +18,7 @@ const {
     zip4,
 } = require('../lib/format');
 const { requiredArgument } = require('../lib/preconditions');
+const { useTenantId } = require('../use-request');
 
 const BOM = '\ufeff'; // UTF-8 byte order mark
 const EC_CODE_REGEX = /^(\d.\d\d?)/;
@@ -940,7 +941,7 @@ async function setCSVData(data) {
 }
 
 async function generateReport(periodId, tenantId) {
-    requiredArgument(tenantId, 'must specify tenantId');
+    tenantId = tenantId || useTenantId();
     requiredArgument(periodId, 'must specify periodId');
     const records = await recordsForReportingPeriod(periodId, tenantId);
 
