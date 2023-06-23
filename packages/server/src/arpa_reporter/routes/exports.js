@@ -6,6 +6,7 @@ const _ = require('lodash');
 const { requireUser } = require('../../lib/access-helpers');
 const arpa = require('../services/generate-arpa-report');
 const { getReportingPeriodID, getReportingPeriod } = require('../db/reporting-periods');
+const { useTenantId } = require('../use-request');
 
 router.get('/', requireUser, async (req, res) => {
     const periodId = await getReportingPeriodID(req.query.period_id);
@@ -15,7 +16,8 @@ router.get('/', requireUser, async (req, res) => {
         return;
     }
 
-    const report = await arpa.generateReport(periodId);
+    const tenantId = useTenantId();
+    const report = await arpa.generateReport(periodId, tenantId);
 
     if (_.isError(report)) {
         res.status(500).send(report.message);
