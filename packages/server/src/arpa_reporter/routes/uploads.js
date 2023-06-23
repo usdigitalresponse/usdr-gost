@@ -15,7 +15,7 @@ const {
 
 const { recordsForUpload } = require('../services/records');
 const { persistUpload, bufferForUpload } = require('../services/persist-upload');
-const { validateUpload } = require('../services/validate-upload');
+const { invalidateUpload, validateUpload } = require('../services/validate-upload');
 const { ensureAsyncContext } = require('../lib/ensure-async-context');
 const ValidationError = require('../lib/validation-error');
 
@@ -150,6 +150,32 @@ router.post('/:id/validate', requireUser, async (req, res) => {
     } catch (e) {
         let msg = e.message;
         if (e.code === 'ENOENT') msg = 'Cannot find upload data; please re-submit this upload';
+
+        res.status(500).json({ error: msg });
+    }
+});
+
+router.post('/:id/invalidate', requireUser, async (req, res) => {
+    const { id } = req.params;
+
+    const { user } = req.session;
+    const upload = await getUpload(id);
+    if (!upload || upload.tenant_id !== user.tenant_id) {
+        res.sendStatus(404);
+        res.end();
+        return;
+    }
+
+    try {
+        const errors = await invalidateUpload(upload, user);
+
+        res.json({
+            errors: errors.map((e) => e.toObject()),
+            upload,
+        });
+    } catch (e) {
+        let msg = e.message;
+        if (e.code === 'ENOENT') msg = 'Cannot invalidate upload';
 
         res.status(500).json({ error: msg });
     }
