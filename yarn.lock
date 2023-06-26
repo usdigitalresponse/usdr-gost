@@ -1199,14 +1199,14 @@
     tslib "^2.5.0"
 
 "@aws-sdk/s3-request-presigner@^3.312.0":
-  version "3.359.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.359.0.tgz#70b8b80eaabd74a30e93e38c54278cb2293a190c"
-  integrity sha512-zKnB3INrnFFLCmwkp/6rpdFdJmJXkLhB6gDEgJDj9kZMciKsONFd9PwubW3gnpQeQxrdMlB0JQmOO3oyZH9aAA==
+  version "3.360.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.360.0.tgz#1d015c51f2bd4e6f4a36fb1f28868823fc01566f"
+  integrity sha512-SWfRyyEbGKnrllKRWHsFfS4xbfM1YHYsaO2PJRo49vYIZvsj10vs0HZX8fF0v4md1XW99E7wBanxkoMo3mYVvg==
   dependencies:
     "@aws-sdk/middleware-endpoint" "3.357.0"
     "@aws-sdk/protocol-http" "3.357.0"
     "@aws-sdk/signature-v4-multi-region" "3.357.0"
-    "@aws-sdk/smithy-client" "3.358.0"
+    "@aws-sdk/smithy-client" "3.360.0"
     "@aws-sdk/types" "3.357.0"
     "@aws-sdk/util-format-url" "3.357.0"
     tslib "^2.5.0"
