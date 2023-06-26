@@ -1,5 +1,5 @@
 const {
-    setEcCode, markValidated, markNotValidated,
+    setEcCode, markValidated, markNotValidated, markInvalidated,
 } = require('../db/uploads');
 const knex = require('../../db/connection');
 const { createRecipient, findRecipient, updateRecipient } = require('../db/arpa-subrecipients');
@@ -645,8 +645,36 @@ async function validateUpload(upload, user, trns = null) {
     return flatErrors;
 }
 
+async function invalidateUpload(upload, user, trns = null) {
+    const errors = [];
+
+    const ourTransaction = !trns;
+    if (ourTransaction) {
+        trns = await knex.transaction();
+    }
+
+    // if we successfully validated for the first time, let's mark it!
+    try {
+        await markInvalidated(upload.id, user.id);
+    } catch (e) {
+        errors.push(new ValidationError(`failed to mark upload: ${e.message}`));
+    }
+
+    // depending on whether we validated or not, lets commit/rollback. we MUST do
+    // this or bad things happen. this is why there are try/catch blocks around
+    // every other function call above here
+    if (ourTransaction) {
+        await trns.commit();
+        trns = knex;
+    }
+
+    // finally, return our errors
+    return errors;
+}
+
 module.exports = {
     validateUpload,
+    invalidateUpload,
 };
 
 // NOTE: This file was copied from src/server/services/validate-upload.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

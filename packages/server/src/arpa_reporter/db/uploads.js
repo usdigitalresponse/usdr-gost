@@ -54,11 +54,13 @@ function usedForTreasuryExport(periodId, tenantId = undefined, trns = knex) {
             'SELECT agency_id, ec_code, reporting_period_id, MAX(created_at) AS most_recent '
       + 'FROM uploads WHERE validated_at IS NOT NULL '
       + 'AND tenant_id = :tenantId '
+      + 'AND invalidated_at IS NULL '
       + 'GROUP BY agency_id, ec_code, reporting_period_id',
             { tenantId },
         ))
         .where('uploads.reporting_period_id', periodId)
         .where('uploads.tenant_id', tenantId)
+        .where('uploads.invalidated_at', null)
         .innerJoin('agency_max_val', function () {
             this.on('uploads.created_at', '=', 'agency_max_val.most_recent')
                 .andOn('uploads.agency_id', '=', 'agency_max_val.agency_id')
@@ -134,6 +136,8 @@ async function markValidated(uploadId, userId, trns = knex) {
         .update({
             validated_at: trns.fn.now(),
             validated_by: userId,
+            invalidated_at: null,
+            invalidated_by: null,
         })
         .returning('*')
         .then((rows) => rows[0]);
@@ -145,6 +149,19 @@ async function markNotValidated(uploadId, trns = knex) {
         .update({
             validated_at: null,
             validated_by: null,
+            invalidated_at: null,
+            invalidated_by: null,
+        })
+        .returning('*')
+        .then((rows) => rows[0]);
+}
+
+async function markInvalidated(uploadId, userId, trns = knex) {
+    return trns('uploads')
+        .where('id', uploadId)
+        .update({
+            invalidated_at: trns.fn.now(),
+            invalidated_by: userId,
         })
         .returning('*')
         .then((rows) => rows[0]);
@@ -161,6 +178,7 @@ module.exports = {
     setEcCode,
     markValidated,
     markNotValidated,
+    markInvalidated,
     usedForTreasuryExport,
 };
 
