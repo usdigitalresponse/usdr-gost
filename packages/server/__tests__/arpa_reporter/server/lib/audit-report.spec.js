@@ -26,17 +26,18 @@ describe('audit report generation', () => {
     });
     it('sendEmailWithLink creates a presigned url and sends email to recipient', async () => {
         const sendFake = sandbox.fake.returns('foo');
-        sandbox.replace(email, 'sendAuditReportEmail', sendFake);
+        sandbox.replace(email, 'sendAsyncReportEmail', sendFake);
 
         await audit_report.sendEmailWithLink('1/99/example.xlsx', 'foo@example.com');
 
         expect(sendFake.calledOnce).to.equal(true);
         expect(sendFake.firstCall.firstArg).to.equal('foo@example.com');
-        expect(sendFake.firstCall.lastArg).to.equal(`${process.env.API_DOMAIN}/api/audit_report/1/99/example.xlsx`);
+        expect(sendFake.firstCall.secondArg).to.equal(`${process.env.API_DOMAIN}/api/audit_report/1/99/example.xlsx`);
+        expect(sendFake.firstCall.lastArg).to.equal('audit');
     });
     it('generateAndSendEmail generates a report, uploads to s3, and sends an email', async () => {
         const sendFake = sandbox.fake.returns('foo');
-        sandbox.replace(email, 'sendAuditReportEmail', sendFake);
+        sandbox.replace(email, 'sendAsyncReportEmail', sendFake);
 
         const sendEmailFake = sandbox.fake.returns('foo2');
         sandbox.replace(audit_report, 'sendEmailWithLink', sendEmailFake);
@@ -75,7 +76,7 @@ describe('audit report generation', () => {
     });
     it('generateAndSendEmail does not send an email if upload fails', async () => {
         const sendFake = sandbox.fake.returns('foo');
-        sandbox.replace(email, 'sendAuditReportEmail', sendFake);
+        sandbox.replace(email, 'sendAsyncReportEmail', sendFake);
 
         const sendEmailFake = sandbox.fake.returns('foo2');
         sandbox.replace(audit_report, 'sendEmailWithLink', sendEmailFake);
