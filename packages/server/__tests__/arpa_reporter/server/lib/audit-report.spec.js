@@ -31,9 +31,9 @@ describe('audit report generation', () => {
         await audit_report.sendEmailWithLink('1/99/example.xlsx', 'foo@example.com');
 
         expect(sendFake.calledOnce).to.equal(true);
-        expect(sendFake.firstCall.firstArg).to.equal('foo@example.com');
-        expect(sendFake.firstCall.secondArg).to.equal(`${process.env.API_DOMAIN}/api/audit_report/1/99/example.xlsx`);
-        expect(sendFake.firstCall.lastArg).to.equal('audit');
+        expect(sendFake.firstCall.args[0]).to.equal('foo@example.com');
+        expect(sendFake.firstCall.args[1]).to.equal(`${process.env.API_DOMAIN}/api/audit_report/1/99/example.xlsx`);
+        expect(sendFake.firstCall.args[2]).to.equal('audit');
     });
     it('generateAndSendEmail generates a report, uploads to s3, and sends an email', async () => {
         const sendFake = sandbox.fake.returns('foo');
