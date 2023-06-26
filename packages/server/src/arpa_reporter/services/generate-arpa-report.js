@@ -2,10 +2,13 @@ const moment = require('moment');
 const AdmZip = require('adm-zip');
 const XLSX = require('xlsx');
 const asyncBatch = require('async-batch').default;
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const aws = require('../../lib/gost-aws');
 
 const { applicationSettings } = require('../db/settings');
 const { listRecipientsForReportingPeriod } = require('../db/arpa-subrecipients');
 const { getTemplate } = require('./get-template');
+const email = require('../../lib/email');
 const { recordsForReportingPeriod } = require('./records');
 const {
     capitalizeFirstLetter,
@@ -995,8 +998,37 @@ async function generateReport(periodId, tenantId) {
     };
 }
 
+async function sendEmailWithLink(fileKey, recipientEmail) {
+    const url = `${process.env.API_DOMAIN}/api/exports/${fileKey}`;
+    email.sendAsyncReportEmail(recipientEmail, url, email.ASYNC_REPORT_TYPES.treasury);
+}
+
+async function generateAndSendEmail(recipientEmail, periodId, tenantId) {
+    // Generate the report
+    const report = await module.exports.generateReport(periodId, tenantId);
+    // Upload to S3 and send email link
+    const reportKey = `${tenantId}/${periodId}/${report.filename}`;
+
+    const s3 = aws.getS3Client();
+    const uploadParams = {
+        Bucket: process.env.AUDIT_REPORT_BUCKET,
+        Key: reportKey,
+        Body: report.content,
+        ServerSideEncryption: 'AES256',
+    };
+    try {
+        console.log(uploadParams);
+        await s3.send(new PutObjectCommand(uploadParams));
+        await module.exports.sendEmailWithLink(reportKey, recipientEmail);
+    } catch (err) {
+        console.log(`Failed to upload/email treasury report ${err}`);
+    }
+}
+
 module.exports = {
     generateReport,
+    sendEmailWithLink,
+    generateAndSendEmail,
 };
 
 // NOTE: This file was copied from src/server/services/generate-arpa-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

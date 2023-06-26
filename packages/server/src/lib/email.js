@@ -10,6 +10,10 @@ const db = require('../db');
 const { notificationType } = require('./email/constants');
 
 const expiryMinutes = 30;
+const ASYNC_REPORT_TYPES = {
+    audit: 'audit',
+    treasury: 'treasury',
+};
 
 async function deliverEmail({
     toAddress,
@@ -270,11 +274,11 @@ async function buildAndSendGrantDigest() {
     console.log(`Successfully built and sent grants digest emails for ${openDate}`);
 }
 
-async function sendAuditReportEmail(recipient, signedUrl) {
+async function sendAsyncReportEmail(recipient, signedUrl, reportType) {
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
-        body_title: 'Your audit report is ready for download',
+        body_title: `Your ${reportType} report is ready for download`,
         body_detail: `<p><a href=${signedUrl}><b>Click here</b></a> to download your file<br>Or, paste this link into your browser:<br><b>${signedUrl}</b><br><br>This link will remain active for 7 days.</p>`,
     });
 
@@ -282,15 +286,15 @@ async function sendAuditReportEmail(recipient, signedUrl) {
         formattedBody,
         {
             tool_name: 'Grants Reporter Tool',
-            title: 'Your audit report is ready for download',
+            title: `Your ${reportType} report is ready for download`,
         },
     );
 
     return module.exports.deliverEmail({
         toAddress: recipient,
         emailHTML,
-        emailPlain: `Your audit report is ready for download. Paste this link into your browser to download it: ${signedUrl} This link will remain active for 7 days.`,
-        subject: 'Your audit report is ready for download',
+        emailPlain: `Your ${reportType} report is ready for download. Paste this link into your browser to download it: ${signedUrl} This link will remain active for 7 days.`,
+        subject: `Your ${reportType} report is ready for download`,
     });
 }
 
@@ -306,5 +310,6 @@ module.exports = {
     getGrantDetail,
     addBaseBranding,
     buildDigestBody,
-    sendAuditReportEmail,
+    sendAsyncReportEmail,
+    ASYNC_REPORT_TYPES,
 };
