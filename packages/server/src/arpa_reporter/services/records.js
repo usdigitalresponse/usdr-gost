@@ -188,11 +188,11 @@ async function recordsForUpload(upload) {
     return recordPromise;
 }
 
-async function recordsForReportingPeriod(periodId) {
+async function recordsForReportingPeriod(periodId, tenantId = undefined) {
     log(`recordsForReportingPeriod(${periodId})`);
     requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod');
 
-    const uploads = await usedForTreasuryExport(periodId);
+    const uploads = await usedForTreasuryExport(periodId, tenantId);
     const groupedRecords = await asyncBatch(uploads, recordsForUpload, 2);
     return groupedRecords.flat();
 }
