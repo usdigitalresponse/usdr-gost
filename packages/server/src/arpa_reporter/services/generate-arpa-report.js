@@ -918,7 +918,6 @@ async function setCSVData(data) {
 
     if (!Array.isArray(csvData)) {
         console.dir({ name, func });
-        console.dir(csvData);
         throw new Error(`CSV Data from ${name} was not an array!`);
     }
 
