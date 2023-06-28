@@ -339,15 +339,15 @@
     tslib "^2.5.0"
 
 "@aws-sdk/client-ses@^3.312.0":
-  version "3.360.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ses/-/client-ses-3.360.0.tgz#0565d2c76d91d50b991e45eb4166b801d5fff7d8"
-  integrity sha512-2PlkFUsMTLm9FO1UNhAeFyatXWb0u6cy5dleAPeMsgeGxeokxPNabLiFUoxh5hYL6EXOUs15mjttMu/A0wLIzg==
+  version "3.362.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ses/-/client-ses-3.362.0.tgz#3a15c6c9693b94c8cea841f9558e3a7bf69486e2"
+  integrity sha512-SPvutSmF24DTf0t5A3l0xelCdWxa17RZ28weiG4uvRU0pWjmHL0C8oHzOFAxesc+lZZWrrqkK0dkyVOINBMMBw==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.360.0"
+    "@aws-sdk/client-sts" "3.362.0"
     "@aws-sdk/config-resolver" "3.357.0"
-    "@aws-sdk/credential-provider-node" "3.360.0"
+    "@aws-sdk/credential-provider-node" "3.362.0"
     "@aws-sdk/fetch-http-handler" "3.357.0"
     "@aws-sdk/hash-node" "3.357.0"
     "@aws-sdk/invalid-dependency" "3.357.0"
@@ -356,7 +356,7 @@
     "@aws-sdk/middleware-host-header" "3.357.0"
     "@aws-sdk/middleware-logger" "3.357.0"
     "@aws-sdk/middleware-recursion-detection" "3.357.0"
-    "@aws-sdk/middleware-retry" "3.357.0"
+    "@aws-sdk/middleware-retry" "3.362.0"
     "@aws-sdk/middleware-serde" "3.357.0"
     "@aws-sdk/middleware-signing" "3.357.0"
     "@aws-sdk/middleware-stack" "3.357.0"
@@ -372,7 +372,7 @@
     "@aws-sdk/util-defaults-mode-browser" "3.360.0"
     "@aws-sdk/util-defaults-mode-node" "3.360.0"
     "@aws-sdk/util-endpoints" "3.357.0"
-    "@aws-sdk/util-retry" "3.357.0"
+    "@aws-sdk/util-retry" "3.362.0"
     "@aws-sdk/util-user-agent-browser" "3.357.0"
     "@aws-sdk/util-user-agent-node" "3.357.0"
     "@aws-sdk/util-utf8" "3.310.0"
