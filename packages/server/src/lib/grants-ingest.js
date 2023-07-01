@@ -1,14 +1,6 @@
 const { ReceiveMessageCommand, DeleteMessageCommand } = require('@aws-sdk/client-sqs');
 const moment = require('moment');
 
-const opportunityCategoryMap = {
-    C: 'Continuation',
-    D: 'Discretionary',
-    E: 'Earmark',
-    M: 'Mandatory',
-    O: 'Other',
-};
-
 function normalizeDateString(dateString, formats = ['YYYY-MM-DD', 'MMDDYYYY']) {
     const target = 'YYYY-MM-DD';
     for (const fmt of formats) {
@@ -47,30 +39,73 @@ async function receiveNextMessageBatch(sqs, queueUrl) {
 }
 
 function sqsMessageToGrant(jsonBody) {
-    const messageData = JSON.parse(jsonBody);
-    return {
-        status: 'inbox',
-        grant_id: messageData.OpportunityId || messageData.grant_id,
-        grant_number: messageData.OpportunityNumber,
-        agency_code: messageData.AgencyCode,
-        award_ceiling: (messageData.AwardCeiling && parseInt(messageData.AwardCeiling, 10))
-            ? parseInt(messageData.AwardCeiling, 10) : undefined,
-        award_floor: (messageData.AwardFloor && parseInt(messageData.AwardFloor, 10))
-            ? parseInt(messageData.AwardFloor, 10) : undefined,
-        cost_sharing: messageData.CostSharingOrMatchingRequirement ? 'Yes' : 'No',
-        title: messageData.OpportunityTitle,
-        cfda_list: (messageData.CFDANumbers || []).join(', '),
-        open_date: normalizeDateString(messageData.PostDate),
-        close_date: normalizeDateString(messageData.CloseDate || '2100-01-01'),
-        notes: 'auto-inserted by script',
+    const eventData = JSON.parse(jsonBody);
+    const source = eventData.detail.versions.new;
+    if (!source) {
+        return {};
+    }
+
+    const grant = {
+        // Old defaults/placeholders:
         search_terms: '[in title/desc]+',
+        status: 'inbox',
+        notes: 'auto-inserted by script',
         reviewer_name: 'none',
-        opportunity_category: opportunityCategoryMap[messageData.OpportunityCategory],
-        description: messageData.Description,
-        eligibility_codes: (messageData.EligibleApplicants || []).join(' '),
-        opportunity_status: 'posted',
-        raw_body: JSON.stringify(messageData),
+        // Data from event:
+        grant_id: source.opportunity.id,
+        grant_number: source.opportunity.number,
+        title: source.opportunity.title,
+        description: source.opportunity.description,
+        agency_code: source.agency.code,
+        cost_sharing: source.cost_sharing_or_matching_requirement ? 'Yes' : 'No',
+        opportunity_category: source.opportunity.category.name,
+        cfda_list: (source.cfda_numbers || []).join(', '),
+        eligibility_codes: (source.eligible_applicants || []).map(it => it.code),
+        raw_body: JSON.stringify(source)
     };
+
+    const milestones = source.opportunity.milestones;
+    grant.open_date = milestones.post_date;
+    grant.close_date = milestones.close && milestones.close.date || '2100-01-01';
+    if (milestones.archive_date && moment(milestones.archive_date).isBefore(moment(), 'date')) {
+        grant.opportunity_status = 'archived';
+    } else if (moment(grant.close_date).isBefore(moment(), 'date')) {
+        grant.opportunity_status = 'closed';
+    } else {
+        grant.opportunity_status = 'posted';
+    }
+
+    const award = source.award;
+    if (award) {
+        grant.award_ceiling = award.ceiling && parseInt(source.award.ceiling, 10) || undefined;
+        grant.award_floor = award.floor && parseInt(award.floor) || undefined;
+    };
+
+    return grant;
+
+    // return {
+        //status: 'inbox',
+        //grant_id: eventData.OpportunityId || eventData.grant_id,
+        //grant_number: eventData.OpportunityNumber,
+        //agency_code: eventData.AgencyCode,
+        // award_ceiling: (eventData.AwardCeiling && parseInt(eventData.AwardCeiling, 10))
+        //     ? parseInt(eventData.AwardCeiling, 10) : undefined,
+        // award_floor: (eventData.AwardFloor && parseInt(eventData.AwardFloor, 10))
+        //     ? parseInt(eventData.AwardFloor, 10) : undefined,
+        //cost_sharing: eventData.CostSharingOrMatchingRequirement ? 'Yes' : 'No',
+        //title: eventData.OpportunityTitle,
+        // cfda_list: (eventData.CFDANumbers || []).join(', '),
+        // open_date: normalizeDateString(eventData.PostDate),
+        //close_date: normalizeDateString(eventData.CloseDate || '2100-01-01'),
+        // notes: 'auto-inserted by script',
+        // search_terms: '[in title/desc]+',
+        // reviewer_name: 'none',
+        //opportunity_category: opportunityCategoryMap[eventData.OpportunityCategory],
+        //description: eventData.Description,
+        //eligibility_codes: (eventData.EligibleApplicants || []).join(' '),
+        // opportunity_status: 'posted',
+        // raw_body: JSON.stringify(eventData),
+    // };
 }
 
 async function upsertGrant(knex, grant) {
