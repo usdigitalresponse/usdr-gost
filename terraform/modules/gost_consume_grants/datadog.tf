@@ -28,7 +28,7 @@ module "decrypt_datadog_api_key_policy" {
       effect  = "Allow"
       actions = ["kms:Decrypt"]
       resources = [
-        data.aws_ssm_parameter.datadog_api_key,
+        data.aws_ssm_parameter.datadog_api_key.arn,
         data.aws_kms_key.ssm.arn,
       ]
     }

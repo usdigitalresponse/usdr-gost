@@ -126,7 +126,7 @@ resource "aws_ecs_task_definition" "consume_grants" {
 }
 
 resource "aws_iam_role" "execution" {
-  name_prefix          = "${var.namespace}-consume_grants-ECSTaskExecution-"
+  name_prefix          = "${var.namespace}-consume_grants-ECS-"
   permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

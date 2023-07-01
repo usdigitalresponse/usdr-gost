@@ -4,7 +4,8 @@ resource "aws_cloudwatch_event_rule" "grants_ingest-grant_modifications" {
 
   event_bus_name = data.aws_cloudwatch_event_bus.grants_ingest.name
   event_pattern = jsonencode({
-    # TODO
+    source      = ["org.usdigitalresponse.grants-ingest"]
+    detail-type = ["GrantModificationEvent"]
   })
 }
 
@@ -31,18 +32,34 @@ module "sqs_queue" {
   sqs_managed_sse_enabled    = true
   create_queue_policy        = true
   queue_policy_statements = {
-    #    consume = {} # TODO?
+#    consume = {
+#      sid = "AllowConsumeFromECSTask"
+#      effect = "Allow"
+#      actions = [
+#        "sqs:DeleteMessage",
+#        "sqs:DeleteMessageBatch",
+#        "sqs:ReceiveMessage",
+#        "sqs:GetQueueAttributes",
+#        "sqs:GetQueueUrl",
+#      ]
+#      principals = [
+#        {
+#          type        = "AWS"
+#          identifiers = [aws_iam_role.task.arn]
+#        }
+#      ]
+#    }
     publish = {
+      sid = "AllowPublishFromEventBridgeRule"
       effect = "Allow"
       actions = [
         "sqs:SendMessage",
         "sqs:SendMessageBatch",
       ]
-      resources = [module.sqs_queue.queue_arn]
       principals = [
         {
-          type       = "Service"
-          identifier = "events.amazonaws.com"
+          type        = "Service"
+          identifiers = ["events.amazonaws.com"]
         },
       ]
       conditions = [{
@@ -71,8 +88,7 @@ module "consume_sqs_messages_policy" {
       effect = "Allow"
       actions = [
         "sqs:DeleteMessage",
-        "sqs:DeleteMessageBatch",
-        "sqs:ReceiveMessages",
+        "sqs:ReceiveMessage",
       ]
       resources = [module.sqs_queue.queue_arn]
     }
