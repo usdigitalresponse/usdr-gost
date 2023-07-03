@@ -10,10 +10,17 @@
         </b-input-group>
       </b-col>
       <b-col class="d-flex justify-content-end">
+        <SearchPanel />
+        <SavedSearchPanel />
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
           <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
           Export to CSV
         </b-button>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col cols="12">
+        <SearchFilter :filterKeys="searchFilters" />
       </b-col>
     </b-row>
     <b-row class="mt-3 mb-3" align-h="start" style="position: relative; z-index: 999">
@@ -70,10 +77,13 @@ import { debounce } from 'lodash';
 import Multiselect from 'vue-multiselect';
 import { titleize } from '../helpers/form-helpers';
 import GrantDetails from './Modals/GrantDetails.vue';
+import SearchPanel from './Modals/SearchPanel.vue';
+import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
+import SearchFilter from './SearchFilter.vue';
 
 export default {
   components: {
-    GrantDetails, Multiselect,
+    GrantDetails, Multiselect, SearchPanel, SavedSearchPanel, SearchFilter,
   },
   props: {
     showMyInterested: Boolean,
@@ -89,6 +99,28 @@ export default {
       perPage: 50,
       currentPage: 1,
       loading: false,
+      searchFilters: [
+        {
+          label: 'Include',
+          value: ['Nevada', 'infrastructure'],
+        },
+        {
+          label: 'Exclude',
+          value: ['road', 'highways'],
+        },
+        {
+          label: 'Opp Status',
+          value: ['forecasted', 'posted'],
+        },
+        {
+          label: 'Cost Sharing',
+          value: 'Yes',
+        },
+        {
+          label: 'Review Status',
+          value: ['Interested', 'Supporting'],
+        },
+      ],
       fields: [
         {
           key: 'grant_number',

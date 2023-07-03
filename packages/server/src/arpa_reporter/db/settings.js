@@ -20,8 +20,8 @@ async function getCurrentReportingPeriodID(trns = knex) {
         .then((r) => r[0].current_reporting_period_id);
 }
 
-async function applicationSettings(trns = knex) {
-    const tenantId = useTenantId();
+async function applicationSettings(tenantId = undefined, trns = knex) {
+    tenantId = tenantId || useTenantId();
 
     return trns('application_settings')
         .join(

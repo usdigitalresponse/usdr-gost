@@ -8,6 +8,13 @@
         <DownloadButton :href="downloadTreasuryReportURL()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
       </div>
 
+      <div class="col" v-if="this.$route.query.async_treasury_download && isAdmin">
+        <button class="btn btn-primary btn-block" @click="sendTreasuryReport" :disabled="sending">
+          <span v-if="sending">Sending...</span>
+          <span v-else>Send Treasury Report by Email</span>
+        </button>
+      </div>
+
       <div class="col" v-if="this.$route.query.sync_audit_download && isAdmin">
         <DownloadButton :href="downloadAuditReportURL()" class="btn btn-info btn-block">Download Audit Report</DownloadButton>
       </div>
@@ -128,6 +135,34 @@ export default {
     downloadTreasuryReportURL() {
       const periodId = this.$store.getters.viewPeriod.id || 0;
       return apiURL(`/api/exports?period_id=${periodId}`);
+    },
+    async sendTreasuryReport() {
+      this.sending = true;
+
+      try {
+        const result = await getJson('/api/exports?async=true');
+
+        if (result.error) {
+          this.alert = {
+            text: 'Something went wrong. Unable to send an email containing the treasury report. Reach out to grants-helpdesk@usdigitalresponse.org if this happens again.',
+            level: 'err',
+          };
+          console.log(result.error);
+        } else {
+          this.alert = {
+            text: 'Sent. Please note, it could take up to 1 hour for this email to arrive.',
+            level: 'ok',
+          };
+        }
+      } catch (error) {
+        // we got an error from the backend, but the backend didn't send reasons
+        this.alert = {
+          text: 'Something went wrong. Unable to send an email containing the treasury report. Reach out to grants-helpdesk@usdigitalresponse.org if this happens again.',
+          level: 'err',
+        };
+      }
+
+      this.sending = false;
     },
     startUpload() {
       if (this.viewingOpenPeriod) {

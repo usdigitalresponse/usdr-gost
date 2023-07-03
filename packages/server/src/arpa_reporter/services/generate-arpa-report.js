@@ -1,10 +1,14 @@
 const moment = require('moment');
 const AdmZip = require('adm-zip');
 const XLSX = require('xlsx');
+const asyncBatch = require('async-batch').default;
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const aws = require('../../lib/gost-aws');
 
 const { applicationSettings } = require('../db/settings');
 const { listRecipientsForReportingPeriod } = require('../db/arpa-subrecipients');
 const { getTemplate } = require('./get-template');
+const email = require('../../lib/email');
 const { recordsForReportingPeriod } = require('./records');
 const {
     capitalizeFirstLetter,
@@ -17,6 +21,7 @@ const {
     zip4,
 } = require('../lib/format');
 const { requiredArgument } = require('../lib/preconditions');
+const { useTenantId } = require('../use-request');
 
 const BOM = '\ufeff'; // UTF-8 byte order mark
 const EC_CODE_REGEX = /^(\d.\d\d?)/;
@@ -45,9 +50,9 @@ function isProjectRecord(record) {
     ].includes(record.type);
 }
 
-async function generateReportName(periodId) {
+async function generateReportName(periodId, tenantId) {
     const now = moment().utc();
-    const { title: state } = await applicationSettings();
+    const { title: state } = await applicationSettings(tenantId);
 
     const filename = [
         state.replace(/ /g, '-'),
@@ -904,9 +909,43 @@ async function generateSubRecipient(records, periodId) {
     });
 }
 
-async function generateReport(periodId) {
+async function setCSVData(data) {
+    const {
+        csvObject, admZip, records, periodId,
+    } = data;
+    const { name, func } = csvObject;
+    const csvData = await func(records, periodId);
+
+    if (!Array.isArray(csvData)) {
+        console.dir({ name, func });
+        throw new Error(`CSV Data from ${name} was not an array!`);
+    }
+
+    // ignore empty CSV files
+    if (csvData.length === 0) {
+        return;
+    }
+
+    const template = await getTemplate(name);
+
+    // 2022-09-29
+    // The treasury portal csv parser doesn't adhere to correct semantics for parsing some line
+    // ending characters. To correct for that, we'll strip any of this problematic characters out
+    // of the export. The csv upload validator doesn't depend on any of the values with linebreaks
+    // so this doesn't break parsing, though it might cause minor formatting differences in the
+    // downloaded exports.
+    const escapedContent = [...template, ...csvData].map((row) => row.map((value) => (typeof value === 'string' ? value.replace(/\r\n|\r|\n/g, ' -- ') : value)));
+    const sheet = XLSX.utils.aoa_to_sheet(escapedContent, { dateNF: 'MM/DD/YYYY' });
+    const csvString = XLSX.utils.sheet_to_csv(sheet, { RS: '\r\n' });
+    const buffer = Buffer.from(BOM + csvString, 'utf8');
+
+    admZip.addFile(`${name}.csv`, buffer);
+}
+
+async function generateReport(periodId, tenantId) {
+    tenantId = tenantId || useTenantId();
     requiredArgument(periodId, 'must specify periodId');
-    const records = await recordsForReportingPeriod(periodId);
+    const records = await recordsForReportingPeriod(periodId, tenantId);
 
     // generate every csv file for the report
     const csvObjects = [
@@ -942,43 +981,14 @@ async function generateReport(periodId) {
 
     const admZip = new AdmZip();
 
+    const reportName = await generateReportName(periodId, tenantId);
+
     // compute the CSV data for each file, and write it into the zip container
-    const csvPromises = csvObjects.map(async ({ name, func }) => {
-        const csvData = await func(records, periodId);
-
-        if (!Array.isArray(csvData)) {
-            console.dir({ name, func });
-            console.dir(csvData);
-            throw new Error(`CSV Data from ${name} was not an array!`);
-        }
-
-        // ignore empty CSV files
-        if (csvData.length === 0) {
-            return;
-        }
-
-        const template = await getTemplate(name);
-
-        // 2022-09-29
-        // The treasury portal csv parser doesn't adhere to correct semantics for parsing some line
-        // ending characters. To correct for that, we'll strip any of this problematic characters out
-        // of the export. The csv upload validator doesn't depend on any of the values with linebreaks
-        // so this doesn't break parsing, though it might cause minor formatting differences in the
-        // downloaded exports.
-        const escapedContent = [...template, ...csvData].map((row) => row.map((value) => (typeof value === 'string' ? value.replace(/\r\n|\r|\n/g, ' -- ') : value)));
-        const sheet = XLSX.utils.aoa_to_sheet(escapedContent, { dateNF: 'MM/DD/YYYY' });
-        const csvString = XLSX.utils.sheet_to_csv(sheet, { RS: '\r\n' });
-        const buffer = Buffer.from(BOM + csvString, 'utf8');
-
-        admZip.addFile(`${name}.csv`, buffer);
-    });
-
-    const reportNamePromise = generateReportName(periodId);
-
-    const [reportName] = await Promise.all([
-        reportNamePromise,
-        ...csvPromises,
-    ]);
+    const inputs = [];
+    csvObjects.forEach((c) => inputs.push({
+        csvObject: c, admZip, records, periodId,
+    }));
+    await asyncBatch(inputs, setCSVData, 2);
 
     // return the correct format
     return {
@@ -987,8 +997,37 @@ async function generateReport(periodId) {
     };
 }
 
+async function sendEmailWithLink(fileKey, recipientEmail) {
+    const url = `${process.env.API_DOMAIN}/api/exports/${fileKey}`;
+    email.sendAsyncReportEmail(recipientEmail, url, email.ASYNC_REPORT_TYPES.treasury);
+}
+
+async function generateAndSendEmail(recipientEmail, periodId, tenantId) {
+    // Generate the report
+    const report = await module.exports.generateReport(periodId, tenantId);
+    // Upload to S3 and send email link
+    const reportKey = `${tenantId}/${periodId}/${report.filename}`;
+
+    const s3 = aws.getS3Client();
+    const uploadParams = {
+        Bucket: process.env.AUDIT_REPORT_BUCKET,
+        Key: reportKey,
+        Body: report.content,
+        ServerSideEncryption: 'AES256',
+    };
+    try {
+        console.log(uploadParams);
+        await s3.send(new PutObjectCommand(uploadParams));
+        await module.exports.sendEmailWithLink(reportKey, recipientEmail);
+    } catch (err) {
+        console.log(`Failed to upload/email treasury report ${err}`);
+    }
+}
+
 module.exports = {
     generateReport,
+    sendEmailWithLink,
+    generateAndSendEmail,
 };
 
 // NOTE: This file was copied from src/server/services/generate-arpa-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
