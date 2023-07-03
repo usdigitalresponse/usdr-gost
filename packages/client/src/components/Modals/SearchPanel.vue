@@ -28,20 +28,20 @@
                 v-model="formData.excludeInput"
               ></b-form-input>
           </b-form-group>
-          <b-form-group label-for="oportunity-number">
-            <template slot="label">Oportunity #</template>
+          <b-form-group label-for="opportunity-number">
+            <template slot="label">Opportunity #</template>
               <b-form-input
-                id="oportunity-number-input"
+                id="opportunity-number-input"
                 type="number"
-                v-model="formData.oportunityNumber"
+                v-model="formData.opportunityNumber"
               ></b-form-input>
           </b-form-group>
-          <b-form-group label="Oportunity Status" v-slot="{ ariaDescribedby }">
+          <b-form-group label="Opportunity Status" v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
-              id="oportunity-status"
-              v-model="formData.oportunityStatusFilters"
+              id="opportunity-status"
+              v-model="formData.opportunityStatusFilters"
               :aria-describedby="ariaDescribedby"
-              name="oportunity-status"
+              name="opportunity-status"
               inline
             >
               <b-form-checkbox value="forecasted">Forecasted</b-form-checkbox>
@@ -121,8 +121,8 @@ export default {
       formData: {
         includeInput: null,
         excludeInput: null,
-        oportunityNumber: null,
-        oportunityStatusFilters: [],
+        opportunityNumber: null,
+        opportunityStatusFilters: [],
         fundingType: null,
         agency: null,
         costSharing: false,
