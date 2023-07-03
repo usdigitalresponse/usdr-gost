@@ -94,23 +94,28 @@
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
         <div class="right-button-container">
-          <b-button size="sm" @click="hide" variant="outline-primary">Save New Search</b-button>
+          <b-button size="sm" @click="showSavedSearchNameModal" variant="outline-primary">Save New Search</b-button>
           <b-button size="sm" @click="hide" variant="primary">Apply</b-button>
         </div>
        </div>
       </template>
       </b-sidebar>
+      <SavedSearchNameModal showSearchModal.sync="showSearchModal"/>
     </div>
   </template>
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
+import SavedSearchNameModal from './SavedSearchNameModal.vue';
 
 export default {
-  components: { Multiselect },
+  components: {
+    Multiselect,
+    SavedSearchNameModal,
+  },
   props: {
-    SearchType: String,
+    searchType: String,
     showModal: Boolean,
   },
   directives: {
@@ -133,6 +138,7 @@ export default {
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       reviewStatusOptions: ['interested', 'result', 'rejected'],
+      showSearchModal: false,
     };
   },
   validations: {
@@ -157,6 +163,9 @@ export default {
     },
     eligibilityLabel({ label }) {
       return label;
+    },
+    showSavedSearchNameModal() {
+      this.showSearchModal = false;
     },
   },
 };
