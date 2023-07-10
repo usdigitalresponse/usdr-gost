@@ -160,6 +160,8 @@ async function markInvalidated(uploadId, userId, trns = knex) {
     return trns('uploads')
         .where('id', uploadId)
         .update({
+            validated_at: null,
+            validated_by: null,
             invalidated_at: trns.fn.now(),
             invalidated_by: userId,
         })

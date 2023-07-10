@@ -76,7 +76,7 @@ router.get('/:id/series', requireUser, async (req, res) => {
     }
 
     let series;
-    if (upload.agency_id && upload.ec_code) {
+    if (upload.agency_id != null && upload.ec_code) {
         series = await uploadsInSeries(upload);
     } else {
         series = [upload];

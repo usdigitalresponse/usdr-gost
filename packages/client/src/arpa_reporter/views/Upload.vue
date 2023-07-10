@@ -47,7 +47,6 @@
           <li class="list-group-item">
             <span class="font-weight-bold">Filename: </span>
             {{ upload.filename }}
-            <DownloadFileButton :upload="upload" />
           </li>
 
           <li class="list-group-item">
@@ -75,26 +74,56 @@
             {{ upload.notes || 'Not set' }}
           </li>
 
-          <li class="list-group-item" :class="validatedLiClass">
-            <span class="font-weight-bold">Validation: </span>
-
-            <span v-if="upload.validated_at">
-              {{ displayTs(upload.validated_at) }} ({{ fromNow(upload.validated_at) }}) by {{ upload.validated_by_email }}
+          <li class="list-group-item d-flex" :class="validatedLiClass">
+            <span class="font-weight-bold warning mr-2">Validation: </span>
+            <span v-if="upload.invalidated_at">
+                <b-icon icon="x-circle-fill" variant="danger"></b-icon> Invalidated on {{ displayTs(upload.invalidated_at) }} ({{ fromNow(upload.validated_at) }}) by {{ upload.validated_by_email }}
+            </span>
+            <span v-else-if="upload.validated_at">
+                <b-icon icon="check-lg" variant="success"></b-icon> Validated on {{ displayTs(upload.validated_at) }} ({{ fromNow(upload.validated_at) }}) by {{ upload.validated_by_email }}
             </span>
             <span v-else>
               Not Validated
             </span>
 
+          </li>
+          <li class="list-group-item float-right">
+            <span v-if="validating" class="float-right">
+                <button class="btn btn-primary ml-2" @click="validateUpload" :disabled="validating">
+                    Validating...
+                </button>
+            </span>
+            <span v-else-if="upload.validated_at" class="mt-2 float-right">
+                <DownloadFileButton :upload="upload" :small="false" />
+                <button class="btn btn-outline-primary ml-2" @click="invalidateUpload" :disabled="upload.invalidated_at">
+                    Invalidate
+                </button>
+                <button class="btn btn-outline-primary ml-2" @click="validateUpload" :disabled="validating">
+                    Re-validate
+                </button>
+            </span>
+            <span v-else class="float-right">
+                <DownloadFileButton :upload="upload" :small="false" />
+                <button class="btn btn-outline-primary ml-2" @click="invalidateUpload" :disabled="upload.invalidated_at">
+                    Invalidate
+                </button>
+                <button class="btn btn-primary ml-2" @click="validateUpload" :disabled="validating">
+                    Validate
+                </button>
+            </span>
+
+            <!--
             <button class="btn btn-primary ml-2" @click="validateUpload" :disabled="validating">
               <span v-if="validating">Validating...</span>
               <span v-else-if="upload.validated_at">Re-validate</span>
               <span v-else>Validate</span>
             </button>
+            -->
           </li>
         </ul>
       </div>
 
-      <div class="col-sm-12 col-md-6" v-if="upload.agency_id && upload.ec_code">
+      <div class="col-sm-12 col-md-6" v-if="upload.agency_code && upload.ec_code">
         <h4>
           All from agency
           <span class="text-primary bg-light">{{ upload.agency_code }}</span>
@@ -146,6 +175,7 @@
                 <td><router-link :to="`/uploads/${sUpload.id}`">{{ sUpload.id }}</router-link></td>
                 <td>{{ displayTs(sUpload.created_at) }}</td>
                 <td v-if="sUpload.validated_at">{{ displayTs(sUpload.validated_at) }}</td>
+                <td v-else-if="sUpload.invalidated_at">Invalidated {{ displayTs(sUpload.invalidated_at) }}</td>
                 <td v-else>Not Validated</td>
               </template>
             </tr>
@@ -198,8 +228,9 @@ export default {
       if (!this.upload) return {};
 
       return {
-        'list-group-item-success': this.upload.validated_at,
-        'list-group-item-warning': !this.upload.validated_at,
+        'text-success': (this.upload.validated_at && !this.upload.invalidated_at) || (this.upload.validated_at > this.upload.invalidated_at),
+        'text-warning': !this.upload.validated_at && !this.upload.invalidated_at,
+        'text-danger': this.upload.invalidated_at,
       };
     },
     reportingPeriodName() {
@@ -245,6 +276,31 @@ export default {
         // we got an error from the backend, but the backend didn't send reasons
         this.alert = {
           text: `validateUpload Error: ${error.message}`,
+          level: 'err',
+        };
+      }
+
+      this.validating = false;
+    },
+    async invalidateUpload() {
+      this.validating = true;
+
+      try {
+        const result = await post(`/api/uploads/${this.uploadId}/invalidate`);
+        await this.loadUpload();
+
+        if (result.errors?.length) {
+          this.errors = result.errors;
+        } else {
+          this.alert = {
+            text: 'Upload successfully invalidated!',
+            level: 'ok',
+          };
+        }
+      } catch (error) {
+        // we got an error from the backend, but the backend didn't send reasons
+        this.alert = {
+          text: `invalidateUpload Error: ${error.message}`,
           level: 'err',
         };
       }
