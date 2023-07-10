@@ -23,12 +23,24 @@ describe('validate upload', () => {
         const malformedEmail = 'john smith john.smith@email.com';
         const properEmail = 'john.smith@email.com';
 
+        const CITY_KEY = 'Place_of_Performance_City__c';
+        const malformedCity = 'St. Louis';
+        const properCity = 'New York City';
+
         it('Does not raise an error for valid emails', () => {
             assert(validateFieldPattern(EMAIL_KEY, properEmail) === null);
         });
 
         it('Raises an error for invalid emails', () => {
             assert(validateFieldPattern(EMAIL_KEY, malformedEmail) !== null);
+        });
+
+        it('Does not raise an error for valid cities', () => {
+            assert(validateFieldPattern(CITY_KEY, properCity) === null);
+        });
+
+        it('Raises an error for invalid cities', () => {
+            assert(validateFieldPattern(CITY_KEY, malformedCity) !== null);
         });
     });
 });

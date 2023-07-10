@@ -249,15 +249,26 @@ describe('Email sender', () => {
             expect(sendFake.secondCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
         });
     });
-    context('audit report email', () => {
-        it('sendAuditReportEmail delivers an email with the signedURL', async () => {
+    context('async report email', () => {
+        it('sendAsyncReportEmail delivers an email with the signedURL for audit report', async () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(email, 'deliverEmail', sendFake);
 
-            await email.sendAuditReportEmail('foo@example.com', 'https://example.usdigitalresponse.org');
+            await email.sendAsyncReportEmail('foo@example.com', 'https://example.usdigitalresponse.org', email.ASYNC_REPORT_TYPES.audit);
             expect(sendFake.calledOnce).to.equal(true);
             expect(sendFake.firstCall.firstArg.subject).to.equal('Your audit report is ready for download');
             expect(sendFake.firstCall.firstArg.emailPlain).to.equal('Your audit report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org This link will remain active for 7 days.');
+            expect(sendFake.firstCall.firstArg.toAddress).to.equal('foo@example.com');
+            expect(sendFake.firstCall.firstArg.emailHTML).contains('https://example.usdigitalresponse.org');
+        });
+        it('sendAsyncReportEmail delivers an email with the signedURL for treasury report', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'deliverEmail', sendFake);
+
+            await email.sendAsyncReportEmail('foo@example.com', 'https://example.usdigitalresponse.org', email.ASYNC_REPORT_TYPES.treasury);
+            expect(sendFake.calledOnce).to.equal(true);
+            expect(sendFake.firstCall.firstArg.subject).to.equal('Your treasury report is ready for download');
+            expect(sendFake.firstCall.firstArg.emailPlain).to.equal('Your treasury report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org This link will remain active for 7 days.');
             expect(sendFake.firstCall.firstArg.toAddress).to.equal('foo@example.com');
             expect(sendFake.firstCall.firstArg.emailHTML).contains('https://example.usdigitalresponse.org');
         });

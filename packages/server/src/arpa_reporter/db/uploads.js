@@ -45,8 +45,8 @@ function getUpload(id, trns = knex) {
         .then((r) => r[0]);
 }
 
-function usedForTreasuryExport(periodId, trns = knex) {
-    const tenantId = useTenantId();
+function usedForTreasuryExport(periodId, tenantId = undefined, trns = knex) {
+    tenantId = tenantId || useTenantId();
     requiredArgument(periodId, 'periodId must be specified in validForReportingPeriod');
 
     return baseQuery(trns)

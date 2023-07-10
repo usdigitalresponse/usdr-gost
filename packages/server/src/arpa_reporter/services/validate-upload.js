@@ -19,10 +19,13 @@ const EMAIL_REGEX_PATTERN = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)
 
 const BETA_VALIDATION_MESSAGE = '[BETA] This is a new validation that is running in beta mode (as a warning instead of a blocking error). If you see anything incorrect about this validation, please report it at grants-helpdesk@usdigitalresponse.org';
 
+const SHOULD_NOT_CONTAIN_PERIOD_REGEX_PATTERN = /^[^.]*$/;
+
 // This maps from field name to regular expression that must match on the field.
 // Note that this only covers cases where the name of the field is what we want to match on.
 const FIELD_NAME_TO_PATTERN = {
     POC_Email_Address__c: { pattern: EMAIL_REGEX_PATTERN, explanation: 'Email must be of the form "user@email.com"' },
+    Place_of_Performance_City__c: { pattern: SHOULD_NOT_CONTAIN_PERIOD_REGEX_PATTERN, explanation: 'Field must not contain a period.' },
 };
 
 // This is a convenience wrapper that lets us use consistent behavior for new validation errors.
