@@ -32,9 +32,6 @@ via `docker compose <subcommand>` in your command-line environment, but your sys
 that you invoke it by running `docker-compose <subcommand>`.
 
 
-
-
-
 ## Development Cookbook
 
 Refer to this section for common scenarios and their solutions when using Docker
