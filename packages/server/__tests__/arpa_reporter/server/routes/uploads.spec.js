@@ -39,7 +39,7 @@ describe('/api/invalidate', () => {
         const row = rows[0];
         assert(row.invalidated_by !== null);
         assert(row.invalidated_at !== null);
-        assert(row.validated_at !== null);
-        assert(row.validated_by !== null);
+        assert(row.validated_at === null);
+        assert(row.validated_by === null);
     });
 });
