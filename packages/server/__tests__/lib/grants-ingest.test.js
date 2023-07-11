@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const { expect } = require('chai');
+const moment = require('moment');
 const sinon = require('sinon');
 const { processMessages, receiveNextMessageBatch } = require('../../src/lib/grants-ingest');
 
@@ -8,6 +9,18 @@ describe('processMessages', async () => {
     let knexQuery;
     let knexStub;
     let sqsStub;
+
+    const serlializeGrantEvent = (newData = {}, prevData = {}) => {
+        const eventData = { detail: { versions: { new: newData, previous: prevData } } };
+        if (newData !== {} && prevData !== {}) {
+            eventData.detail.type = 'update';
+        } else if (newData !== {}) {
+            eventData.detail.type = 'create';
+        } else {
+            eventData.detail.type = 'delete';
+        }
+        return JSON.stringify(eventData);
+    };
 
     beforeEach(() => {
         knexQuery = {
@@ -25,57 +38,77 @@ describe('processMessages', async () => {
     });
 
     it('should process messages successfully', async () => {
-        const jsonMatcher = (expectedString) => (actualString) => _.isEqual(JSON.parse(expectedString), JSON.parse(actualString));
+        const jsonMatcher = (expectedString) => (actualString) => _.isEqual(
+            JSON.parse(expectedString), JSON.parse(actualString),
+        );
         const messages = [
             {
-                Body: JSON.stringify({
-                    OpportunityId: '1',
-                    OpportunityNumber: 'for-some-reason-not-a-number',
-                    AgencyCode: 'ABC-ZYX-QMWN',
-                    AwardCeiling: '98765',
-                    AwardFloor: '12345',
-                    CostSharingOrMatchingRequirement: true,
-                    OpportunityTitle: 'Great opportunity',
-                    CFDANumbers: ['12.345'],
-                    PostDate: '2023-06-05',
-                    CloseDate: '2024-01-02',
-                    OpportunityCategory: 'O',
-                    Description: 'Here is a description of this cool grant',
-                    EligibleApplicants: ['00', '01', '02', '03'],
+                Body: serlializeGrantEvent({
+                    opportunity: {
+                        id: '1',
+                        number: 'for-some-reason-not-a-number',
+                        title: 'Great opportunity',
+                        description: 'Here is a description of this cool grant',
+                        milestones: { post_date: '2023-06-05', close: { date: '2024-01-02' } },
+                        category: { code: 'O', name: 'Other' },
+                    },
+                    agency: { code: 'ABC-ZYX-QMWN' },
+                    award: { ceiling: '98765', floor: '12345' },
+                    cost_sharing_or_matching_requirement: true,
+                    cfda_numbers: ['12.345'],
+                    eligible_applicants: [
+                        { code: '00' }, { code: '01' }, { code: '02' }, { code: '03' },
+                    ],
                 }),
                 ReceiptHandle: 'receipt-handle-2',
             },
             {
-                Body: JSON.stringify({
-                    OpportunityId: '2',
-                    OpportunityNumber: 'nope-no-numbers-here',
-                    AgencyCode: 'ZYX-ABC-PZOX',
-                    AwardCeiling: '987',
-                    AwardFloor: 'unparseable',
-                    CostSharingOrMatchingRequirement: false,
-                    OpportunityTitle: 'Awesome opportunity',
-                    CFDANumbers: ['98.765', '87.654'],
-                    PostDate: '2023-05-06',
-                    OpportunityCategory: 'M',
-                    Description: 'Here is a description of this awesome grant',
-                    EligibleApplicants: ['25', '20', '13', '12', '11', '10'],
+                Body: serlializeGrantEvent({
+                    opportunity: {
+                        id: '2',
+                        number: 'nope-no-numbers-here',
+                        title: 'Awesome opportunity',
+                        description: 'Here is a description of this awesome grant',
+                        milestones: {
+                            post_date: '2023-05-06',
+                            close: { date: moment().subtract(7, 'days').format('YYYY-MM-DD') },
+                        },
+                        category: { code: 'M', name: 'Mandatory' },
+                    },
+                    agency: { code: 'ZYX-ABC-PZOX' },
+                    award: { ceiling: '987' },
+                    cost_sharing_or_matching_requirement: false,
+                    cfda_numbers: ['98.765', '87.654'],
+                    eligible_applicants: [
+                        { code: '25' }, { code: '20' },
+                        { code: '13' }, { code: '12' },
+                        { code: '11' }, { code: '10' },
+                    ],
                 }),
                 ReceiptHandle: 'receipt-handle-1',
             },
             {
-                Body: JSON.stringify({
-                    grant_id: '3',
-                    OpportunityNumber: 'not-a-number-either',
-                    AgencyCode: 'CUVY-MWN-IVUB',
-                    AwardCeiling: 'unparseable',
-                    AwardFloor: '7654',
-                    CostSharingOrMatchingRequirement: false,
-                    OpportunityTitle: 'Superb opportunity',
-                    CFDANumbers: ['98.765', '87.654'],
-                    PostDate: '05062023',
-                    OpportunityCategory: 'M',
-                    Description: 'Here is a description of this superb grant',
-                    EligibleApplicants: ['25', '20', '13', '12', '11', '10'],
+                Body: serlializeGrantEvent({
+                    opportunity: {
+                        id: '3',
+                        number: 'not-a-number-either',
+                        title: 'Superb opportunity',
+                        description: 'Here is a description of this superb grant',
+                        milestones: {
+                            post_date: '2023-05-06',
+                            archive_date: moment().subtract(7, 'days').format('YYYY-MM-DD'),
+                        },
+                        category: { code: 'M', name: 'Mandatory' },
+                    },
+                    agency: { code: 'CUVY-MWN-IVUB' },
+                    award: { floor: '7654' },
+                    cost_sharing_or_matching_requirement: false,
+                    cfda_numbers: ['98.765', '87.654'],
+                    eligible_applicants: [
+                        { code: '25' }, { code: '20' },
+                        { code: '13' }, { code: '12' },
+                        { code: '11' }, { code: '10' },
+                    ],
                 }),
                 ReceiptHandle: 'receipt-handle-1',
             },
@@ -90,8 +123,8 @@ describe('processMessages', async () => {
             grant_id: '1',
             grant_number: 'for-some-reason-not-a-number',
             agency_code: 'ABC-ZYX-QMWN',
-            award_ceiling: 98765,
-            award_floor: 12345,
+            award_ceiling: '98765',
+            award_floor: '12345',
             cost_sharing: 'Yes',
             title: 'Great opportunity',
             cfda_list: '12.345',
@@ -104,28 +137,32 @@ describe('processMessages', async () => {
             description: 'Here is a description of this cool grant',
             eligibility_codes: '00 01 02 03',
             opportunity_status: 'posted',
-            raw_body: sinon.match(jsonMatcher(messages[0].Body)),
+            raw_body: sinon.match(
+                jsonMatcher(JSON.stringify(JSON.parse(messages[0].Body).detail.versions.new)),
+            ),
         }));
         sinon.assert.calledWith(knexQuery.insert, sinon.match({
             status: 'inbox',
             grant_id: '2',
             grant_number: 'nope-no-numbers-here',
             agency_code: 'ZYX-ABC-PZOX',
-            award_ceiling: 987,
+            award_ceiling: '987',
             award_floor: undefined,
             cost_sharing: 'No',
             title: 'Awesome opportunity',
             cfda_list: '98.765, 87.654',
             open_date: '2023-05-06',
-            close_date: '2100-01-01',
+            close_date: moment().subtract(7, 'days').format('YYYY-MM-DD'),
             notes: 'auto-inserted by script',
             search_terms: '[in title/desc]+',
             reviewer_name: 'none',
             opportunity_category: 'Mandatory',
             description: 'Here is a description of this awesome grant',
             eligibility_codes: '25 20 13 12 11 10',
-            opportunity_status: 'posted',
-            raw_body: sinon.match(jsonMatcher(messages[1].Body)),
+            opportunity_status: 'closed',
+            raw_body: sinon.match(
+                jsonMatcher(JSON.stringify(JSON.parse(messages[1].Body).detail.versions.new)),
+            ),
         }));
         sinon.assert.calledWith(knexQuery.insert, sinon.match({
             status: 'inbox',
@@ -133,7 +170,7 @@ describe('processMessages', async () => {
             grant_number: 'not-a-number-either',
             agency_code: 'CUVY-MWN-IVUB',
             award_ceiling: undefined,
-            award_floor: 7654,
+            award_floor: '7654',
             cost_sharing: 'No',
             title: 'Superb opportunity',
             cfda_list: '98.765, 87.654',
@@ -145,8 +182,10 @@ describe('processMessages', async () => {
             opportunity_category: 'Mandatory',
             description: 'Here is a description of this superb grant',
             eligibility_codes: '25 20 13 12 11 10',
-            opportunity_status: 'posted',
-            raw_body: sinon.match(jsonMatcher(messages[2].Body)),
+            opportunity_status: 'archived',
+            raw_body: sinon.match(
+                jsonMatcher(JSON.stringify(JSON.parse(messages[2].Body).detail.versions.new)),
+            ),
         }));
         sinon.assert.callCount(sqsStub.send, messages.length);
         sinon.assert.calledWith(sqsStub.send, sinon.match({
@@ -160,7 +199,13 @@ describe('processMessages', async () => {
     it('should skip processing message when error parsing json', async () => {
         const messages = [
             {
-                Body: JSON.stringify({ OpportunityId: 1, PostDate: '05062023' }),
+                Body: serlializeGrantEvent({
+                    opportunity: {
+                        id: '1',
+                        category: { name: 'Other' },
+                        milestones: { post_date: '2023-06-05' },
+                    },
+                }),
                 ReceiptHandle: 'receipt-handle-1',
             },
             {
@@ -173,7 +218,7 @@ describe('processMessages', async () => {
 
         sinon.assert.calledWithExactly(knexStub, 'grants');
         sinon.assert.callCount(knexStub, 1);
-        sinon.assert.calledWith(knexQuery.insert, sinon.match({ grant_id: 1 }));
+        sinon.assert.calledWith(knexQuery.insert, sinon.match({ grant_id: '1' }));
         sinon.assert.callCount(sqsStub.send, 1);
         sinon.assert.calledWith(sqsStub.send, sinon.match({
             input: { QueueUrl: queueUrl, ReceiptHandle: messages[0].ReceiptHandle },
@@ -183,11 +228,17 @@ describe('processMessages', async () => {
     it('should skip processing message when error parsing date', async () => {
         const messages = [
             {
-                Body: JSON.stringify({ OpportunityId: 1, PostDate: '06072023' }),
+                Body: serlializeGrantEvent({
+                    opportunity: {
+                        id: '1',
+                        category: { name: 'Other' },
+                        milestones: { post_date: '2023-06-05' },
+                    },
+                }),
                 ReceiptHandle: 'receipt-handle-1',
             },
             {
-                Body: JSON.stringify({
+                Body: serlializeGrantEvent({
                     OpportunityId: 2,
                     PostDate: 'this-date-cannot-be-parsed PM',
                 }),
@@ -199,7 +250,7 @@ describe('processMessages', async () => {
 
         sinon.assert.calledWithExactly(knexStub, 'grants');
         sinon.assert.callCount(knexStub, 1);
-        sinon.assert.calledWith(knexQuery.insert, sinon.match({ grant_id: 1 }));
+        sinon.assert.calledWith(knexQuery.insert, sinon.match({ grant_id: '1' }));
         sinon.assert.callCount(sqsStub.send, 1);
         sinon.assert.calledWith(sqsStub.send, sinon.match({
             input: { QueueUrl: queueUrl, ReceiptHandle: messages[0].ReceiptHandle },
@@ -209,23 +260,35 @@ describe('processMessages', async () => {
     it('should not delete the sqs message when error saving grant', async () => {
         const messages = [
             {
-                Body: JSON.stringify({ OpportunityId: 1, PostDate: '2023-06-07' }),
+                Body: serlializeGrantEvent({
+                    opportunity: {
+                        id: '1',
+                        category: { name: 'Other' },
+                        milestones: { post_date: '2023-06-05' },
+                    },
+                }),
                 ReceiptHandle: 'receipt-handle-1',
             },
             {
-                Body: JSON.stringify({ OpportunityId: 2, PostDate: '2023-06-07' }),
+                Body: serlializeGrantEvent({
+                    opportunity: {
+                        id: '2',
+                        category: { name: 'Mandatory' },
+                        milestones: { post_date: '2023-05-06' },
+                    },
+                }),
                 ReceiptHandle: 'receipt-handle-2',
             },
         ];
         knexQuery.insert
-            .withArgs(sinon.match({ grant_id: 1 }))
+            .withArgs(sinon.match({ grant_id: '1' }))
             .throws(new Error('Some knex error'));
 
         await processMessages(knexStub, sqsStub, queueUrl, messages);
 
         sinon.assert.calledWithExactly(knexStub, 'grants');
         sinon.assert.callCount(knexStub, 2);
-        sinon.assert.calledWith(knexQuery.insert, sinon.match({ grant_id: 1 }));
+        sinon.assert.calledWith(knexQuery.insert, sinon.match({ grant_id: '1' }));
         sinon.assert.callCount(sqsStub.send, 1);
         sinon.assert.calledWith(sqsStub.send, sinon.match({
             input: { QueueUrl: queueUrl, ReceiptHandle: messages[1].ReceiptHandle },
