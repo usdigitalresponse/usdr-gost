@@ -21,6 +21,8 @@ steps to prepare your environment:
   ([more info](#cookbook-non-localhost)).
 4. Run `docker compose up -d` to start the services in the background (the `-d` flag).
 5. Install application dependencies via yarn: `docker compose exec app yarn`.
+6. Visit http://localhost:8080 to confirm you see 'Grants Identification Tool' with a prompt to enter an email address.
+If you see a blank screen, [review the logs](#cookbook-logs), you may need to [run a db migrate](#cookbook-db-migrate) and restart the app container.
 
 
 **Note:** Some systems may have Docker Compose installed as an integrated plugin for Docker,
@@ -28,6 +30,9 @@ while others may have it installed as a standalone executable (e.g. via `pip ins
 The example commands in this documentation assume the plugin is installed and is invoked
 via `docker compose <subcommand>` in your command-line environment, but your system may require
 that you invoke it by running `docker-compose <subcommand>`.
+
+
+
 
 
 ## Development Cookbook
@@ -45,12 +50,14 @@ setup: `docker compose exec app yarn`.
 For more on how dependencies are managed in the application see the documentation
 on how we use [Workspaces](../docs/workspaces.md).
 
-### Seed and apply migrations to the database
+### Seed and apply migrations to the database <a name="cookbook-db-migrate"></a>
 
 - To apply database migrations, run: `docker compose exec app yarn db:migrate`
 - To seed the database, run: `docker compose exec app yarn db:seed`
 
-### Working with logs
+For a first time run, the app may need to be restarted in order to pick up a migrate, run: `docker compose restart app`
+
+### Working with logs <a name="cookbook-logs"></a>
 
 You may want to retrieve logs from all of the services (eg app, db, frontend)
 and that can be accomplished with:
