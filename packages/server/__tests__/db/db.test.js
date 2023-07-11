@@ -14,6 +14,58 @@ describe('db', () => {
     after(async () => {
         await db.knex.destroy();
     });
+    context('CRUD Saved Search', () => {
+        it('creates a new saved search', async () => {
+            const row = await db.createSavedSearch({
+                name: 'Example search',
+                agencyId: fixtures.agencies.accountancy.id,
+                userId: fixtures.users.adminUser.id,
+                criteria: 'test-search-text',
+            });
+            expect(row.id).to.be.greaterThan(0);
+            expect(row.createdAt).to.not.be.null;
+            expect(row.agencyId).to.equal(fixtures.agencies.accountancy.id);
+            expect(row.createdBy).to.equal(fixtures.users.adminUser.id);
+            expect(row.criteria).to.equal('test-search-text');
+        });
+        it('reads an existing saved search', async () => {
+            // testing pagination
+            await db.createSavedSearch({
+                name: 'Example search 1',
+                agencyId: fixtures.agencies.fleetServices.id,
+                userId: fixtures.users.adminUser.id,
+                criteria: 'test-search-text',
+            });
+            await db.createSavedSearch({
+                name: 'Example search 2',
+                agencyId: fixtures.agencies.fleetServices.id,
+                userId: fixtures.users.adminUser.id,
+                criteria: 'test-search-text',
+            });
+            await db.createSavedSearch({
+                name: 'Example search 3',
+                agencyId: fixtures.agencies.fleetServices.id,
+                userId: fixtures.users.adminUser.id,
+                criteria: 'test-search-text',
+            });
+            const rows = await db.getSavedSearches(fixtures.users.adminUser.id, fixtures.agencies.fleetServices.id, { perPage: 2, currentPage: 1 });
+            expect(rows.data).to.have.lengthOf(2);
+            expect(rows.data[0].name).to.equal('Example search 1');
+            expect(rows.data[1].name).to.equal('Example search 2');
+
+            const rows2 = await db.getSavedSearches(fixtures.users.adminUser.id, fixtures.agencies.fleetServices.id, { perPage: 2, currentPage: 2 });
+            expect(rows2.data).to.have.lengthOf(1);
+            expect(rows2.data[0].name).to.equal('Example search 3');
+        });
+        /*
+        it('deletes an existing saved search', async () => {
+            // testing pagination
+            const rows = await db.deleteSavedSearch({ agencyId: fixtures.users.staffUser.agency_id, perPage: 2, currentPage: 1 });
+            expect(rows.data).to.have.lengthOf(2);
+            expect(rows.data.map((r) => r.created_at.getTime())).to.have.all.members([1663117521515, 1659827033570]);
+        });
+        */
+    });
 
     context('getGrantsInterested', () => {
         it('gets the most recent interested grant', async () => {

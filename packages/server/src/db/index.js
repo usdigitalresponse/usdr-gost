@@ -1040,12 +1040,87 @@ async function inTenant(tenantId, agencyIds) {
     return result.same_tenant === true;
 }
 
+/**
+ * Creates and saves a new saved search, given a name, agency ID, user ID, and criteria
+ *  interface SavedSearch {
+    id?: number
+    name: string
+    agencyId: number
+    userId: number
+    criteria: string
+    createdAt?: string
+   }
+ * @param  SavedSearch           searchItem
+ * @return Promise<SavedSearch>
+ * */
+async function createSavedSearch(searchItem) {
+    const response = await knex
+        .insert({
+            name: searchItem.name,
+            agency_id: searchItem.agencyId,
+            created_by: searchItem.userId,
+            criteria: searchItem.criteria,
+        })
+        .into('grants_saved_searches')
+        .returning('*');
+
+    return {
+        id: response[0].id,
+        name: response[0].name,
+        agencyId: response[0].agency_id,
+        createdBy: response[0].created_by,
+        criteria: response[0].criteria,
+        createdAt: new Date(response[0].created_at).toISOString(),
+    };
+}
+
+/**
+ * Retrieves saved searches, given an agency ID, result limit, and result offset
+ * @param  int              userId
+ * @param  int              agencyId
+ * @param  IPaginateParams  paginationParams
+ * @return Promise<boolean>
+ * */
+async function getSavedSearches(userId, agencyId, paginationParams) {
+    const response = await knex('grants_saved_searches')
+        .where('created_by', userId)
+        .andWhere('agency_id', agencyId)
+        .orderBy('id')
+        .paginate(paginationParams);
+
+    return response;
+}
+
+// Deletes saved searches, given an ID and agency ID (not just ID)
+/**
+ * Deletes saved searches, given an ID and agency ID (not just ID)
+ * @param  int              searchId
+ * @param  int              agencyId
+ * @return Promise<boolean>
+ * */
+async function deleteSavedSearch(searchId, agencyId) {
+    try {
+        await knex('grants_saved_searches')
+            .where('id', searchId)
+            .andWhere('agency_id', agencyId)
+            .del();
+    } catch (e) {
+        console.error(`Unable to delete ${searchId}. Error: ${e}`);
+        return false;
+    }
+
+    return true;
+}
+
 function close() {
     return knex.destroy();
 }
 
 module.exports = {
     knex,
+    createSavedSearch,
+    getSavedSearches,
+    deleteSavedSearch,
     getUsers,
     createUser,
     deleteUser,
