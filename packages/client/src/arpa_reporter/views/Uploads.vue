@@ -75,9 +75,6 @@ import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
 import { getJson } from '../store/index';
 import { shortUuid } from '../helpers/short-uuid';
 
-// const validatedColumnField = (rowObj) => rowObj.validated_at;
-// const validatedColumnField = (rowObj) => ({ validatedAt: rowObj.validated_at, invalidatedAt: rowObj.invalidated_at });
-
 export default {
   name: 'Uploads',
   data() {
@@ -102,12 +99,10 @@ export default {
     defaultSortOrder() {
       return {
         field: 'validated_at',
-        // field: validatedColumnField,
         type: 'desc',
       };
     },
     rows() {
-      console.log(this.onlyExported);
       const uploads = this.onlyExported ? this.exportedUploads : this.uploads;
 
       if (!this.groupByAgency) return uploads;
@@ -137,7 +132,6 @@ export default {
     columns() {
       const validatedCol = {
         label: 'Validated?',
-        // field: validatedColumnField,
         field: (rowObj) => ({ validatedAt: rowObj.validated_at, invalidatedAt: rowObj.invalidated_at }),
         formatFn: ({ validatedAt, invalidatedAt }) => {
           if (!validatedAt && !invalidatedAt) return 'Not set';
@@ -170,7 +164,6 @@ export default {
           }
           return 0;
         },
-        // FIXME add sortable
       };
 
       return [
@@ -265,9 +258,6 @@ export default {
   async mounted() {
     this.$store.dispatch('updateUploads');
     this.$store.dispatch('updateAgencies');
-    // const column = this.$refs.uploadsTable.columns.filter(c => (c.label === 'Validated?'))[0];
-    // console.log(column);
-    // this.$refs.uploadsTable.changeSort([column]);
   },
   components: {
     VueGoodTable,
