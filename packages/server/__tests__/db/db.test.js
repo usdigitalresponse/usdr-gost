@@ -57,14 +57,21 @@ describe('db', () => {
             expect(rows2.data).to.have.lengthOf(1);
             expect(rows2.data[0].name).to.equal('Example search 3');
         });
-        /*
         it('deletes an existing saved search', async () => {
-            // testing pagination
-            const rows = await db.deleteSavedSearch({ agencyId: fixtures.users.staffUser.agency_id, perPage: 2, currentPage: 1 });
-            expect(rows.data).to.have.lengthOf(2);
-            expect(rows.data.map((r) => r.created_at.getTime())).to.have.all.members([1663117521515, 1659827033570]);
+            const row = await db.createSavedSearch({
+                name: 'Example search to Delete',
+                agencyId: fixtures.agencies.subAccountancy.id,
+                userId: fixtures.users.adminUser.id,
+                criteria: 'test-search-text',
+            });
+
+            const result = await db.deleteSavedSearch(row.id, fixtures.agencies.subAccountancy.id);
+            expect(result).to.equal(true);
+
+            // verify by attempting to get the searches as well
+            const getRes = await db.getSavedSearches(fixtures.users.adminUser.id, fixtures.agencies.subAccountancy.id, { perPage: 10, currentPage: 1 });
+            expect(getRes.data).to.have.lengthOf(0);
         });
-        */
     });
 
     context('getGrantsInterested', () => {
