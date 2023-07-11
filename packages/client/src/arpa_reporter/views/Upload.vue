@@ -77,7 +77,7 @@
           <li class="list-group-item d-flex" :class="validatedLiClass">
             <span class="font-weight-bold warning mr-2">Validation: </span>
             <span v-if="upload.invalidated_at">
-                <b-icon icon="x-circle-fill" variant="danger"></b-icon> Invalidated on {{ displayTs(upload.invalidated_at) }} ({{ fromNow(upload.validated_at) }}) by {{ upload.validated_by_email }}
+                <b-icon icon="x-circle-fill" variant="danger"></b-icon> Invalidated on {{ displayTs(upload.invalidated_at) }} ({{ fromNow(upload.invalidated_at) }}) by {{ upload.validated_by_email }}
             </span>
             <span v-else-if="upload.validated_at">
                 <b-icon icon="check-lg" variant="success"></b-icon> Validated on {{ displayTs(upload.validated_at) }} ({{ fromNow(upload.validated_at) }}) by {{ upload.validated_by_email }}

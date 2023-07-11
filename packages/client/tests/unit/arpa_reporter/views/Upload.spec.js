@@ -1,6 +1,7 @@
 // import { nextTick } from 'vue';
 import { expect } from 'chai';
 import { mount, createLocalVue } from '@vue/test-utils';
+import moment from 'moment';
 import Vuex from 'vuex';
 import Upload from '../../../../src/arpa_reporter/views/Upload.vue';
 
@@ -38,13 +39,14 @@ describe('Upload.vue', () => {
       },
     });
 
+    const date = new Date('August 19, 2022 23:15:30');
     const upload = {
       filename: 'UPLOAD_CLEAN.xlsm',
       created_at: '2023-06-30T02:09:34.025Z',
       reporting_period_id: 43,
       user_id: 1,
       agency_id: 0,
-      validated_at: '2022-07-06T02:31:34.437Z', // this is UTC
+      validated_at: date.toISOString(), // this is UTC
       validated_by: 1,
       ec_code: '2.32',
       tenant_id: 1,
@@ -65,8 +67,9 @@ describe('Upload.vue', () => {
     });
     await wrapper.setData({ upload });
     await wrapper.vm.$nextTick();
+    const dateStr = moment(date).format('LTS ll');
     expect(wrapper.text()).to.include('Upload 00000000');
-    expect(wrapper.text()).to.include('Validated on 10:31:34 PM Jul 5, 2022');
+    expect(wrapper.text()).to.include(`Validated on ${dateStr}`);
   });
 
   it('renders with an upload - invalidated', async () => {
@@ -90,6 +93,7 @@ describe('Upload.vue', () => {
       },
     });
 
+    const date = new Date('August 19, 2022 23:15:30');
     const upload = {
       filename: 'UPLOAD_CLEAN.xlsm',
       created_at: '2023-06-30T02:09:34.025Z',
@@ -102,7 +106,7 @@ describe('Upload.vue', () => {
       tenant_id: 1,
       id: '00000000-0000-0000-0000-000000000000',
       notes: null,
-      invalidated_at: '2022-07-06T02:31:34.437Z', // this is UTC
+      invalidated_at: date, // this is UTC
       invalidated_by: 1,
       created_by: 'test@usdigitalresponse.org',
       agency_code: 'USDR',
@@ -117,7 +121,8 @@ describe('Upload.vue', () => {
     });
     await wrapper.setData({ upload });
     await wrapper.vm.$nextTick();
+    const dateStr = moment(date).format('LTS ll');
     expect(wrapper.text()).to.include('Upload 00000000');
-    expect(wrapper.text()).to.include('Invalidated on 10:31:34 PM Jul 5, 2022');
+    expect(wrapper.text()).to.include(`Invalidated on ${dateStr}`);
   });
 });
