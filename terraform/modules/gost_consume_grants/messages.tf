@@ -33,7 +33,7 @@ module "sqs_queue" {
   create_queue_policy        = true
   queue_policy_statements = {
     publish = {
-      sid = "AllowPublishFromEventBridgeRule"
+      sid    = "AllowPublishFromEventBridgeRule"
       effect = "Allow"
       actions = [
         "sqs:SendMessage",
