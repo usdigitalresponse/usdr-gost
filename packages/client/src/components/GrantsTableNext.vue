@@ -6,11 +6,11 @@
           <b-input-group-text>
             <b-icon icon="search" />
           </b-input-group-text>
-          <b-form-input type="sliders" @input="debounceSearchInput"></b-form-input>
+          <b-form-input type="text" @input="debounceSearchInput"></b-form-input>
         </b-input-group>
       </b-col>
       <b-col class="d-flex justify-content-end">
-        <SearchPanel />
+        <SearchPanel @filters-applied="paginateGrants"/>
         <SavedSearchPanel />
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
           <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
@@ -272,10 +272,16 @@ export default {
         await this.paginateGrants();
       }
     },
+    // 'grants.searchFormFilters': {
+    //   handler() {
+    //     this.paginateGrants();
+    //   },
+    //   deep: true,
+    // },
   },
   methods: {
     ...mapActions({
-      fetchGrants: 'grants/fetchGrants',
+      fetchGrants: 'grants/fetchGrantsNext',
       navigateToExportCSV: 'grants/exportCSV',
     }),
     setup() {
@@ -299,12 +305,6 @@ export default {
           interestedByMe: this.showMyInterested,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
-          positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
-          result: this.showResult || (this.reviewStatusFilters.includes('result') ? true : null),
-          rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
-          opportunityStatuses: this.parseOpportunityStatusFilters(),
-          opportunityCategories: this.opportunityCategoryFilters,
-          costSharing: this.costSharingFilter,
         });
       } catch (e) {
         console.log(e);

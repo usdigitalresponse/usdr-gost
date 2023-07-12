@@ -39,7 +39,7 @@
           <b-form-group label="Opportunity Status" v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               id="opportunity-status"
-              v-model="formData.opportunityStatusFilters"
+              v-model="formData.opportunityStatuses"
               :aria-describedby="ariaDescribedby"
               name="opportunity-status"
               inline
@@ -55,7 +55,7 @@
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Category</template>
-            <multiselect v-model="formData.opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.opportunityCategories" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
           <b-form-group label-for="Funding Type">
             <template slot="label">Funding Type</template>
@@ -81,8 +81,8 @@
           </b-form-group>
           <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }" row>
             <b-form-radio-group>
-              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="A">Yes</b-form-radio>
-              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="B">No</b-form-radio>
+              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="Yes">Yes</b-form-radio>
+              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="No">No</b-form-radio>
             </b-form-radio-group>
           </b-form-group>
           <b-form-group class="multiselect-group">
@@ -95,7 +95,7 @@
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
         <div class="right-button-container">
           <b-button size="sm" @click="hide" variant="outline-primary">Save New Search</b-button>
-          <b-button size="sm" @click="hide" variant="primary">Apply</b-button>
+          <b-button size="sm" @click="apply" variant="primary">Apply</b-button>
         </div>
        </div>
       </template>
@@ -122,11 +122,11 @@ export default {
         includeInput: null,
         excludeInput: null,
         opportunityNumber: null,
-        opportunityStatusFilters: [],
+        opportunityStatuses: [],
         fundingType: null,
         agency: null,
         costSharing: false,
-        opportunityCategoryFilters: [],
+        opportunityCategories: [],
         reviewStatusFilters: [],
         postedWithinFilters: [],
       },
@@ -148,7 +148,10 @@ export default {
     }),
   },
   methods: {
-    ...mapActions({}),
+    ...mapActions({
+      applyFilters: 'grants/applyFilters',
+      fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+    }),
     setup() {
       this.fetchEligibilityCodes();
     },
@@ -157,6 +160,11 @@ export default {
     },
     eligibilityLabel({ label }) {
       return label;
+    },
+    apply() {
+      this.applyFilters(this.formData);
+      // send event to parent
+      this.$emit('filters-applied');
     },
   },
 };

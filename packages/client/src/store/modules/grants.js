@@ -10,6 +10,14 @@ function initialState() {
     totalUpcomingGrants: 0,
     totalInterestedGrants: 0,
     currentGrant: {},
+    searchFormFilters: {
+      costSharing: null,
+      opportunityStatuses: [],
+      opportunityCategories: [],
+      includeKeywords: [],
+      excludeKeywords: [],
+      opportunityNumber: null,
+    },
   };
 }
 
@@ -37,6 +45,29 @@ export default {
       assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency,
       opportunityStatuses, opportunityCategories, costSharing,
     }) {
+      const query = Object.entries({
+        currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
+      })
+        // filter out undefined and nulls since api expects parameters not present as undefined
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value || typeof value === 'number')
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
+        .then((data) => commit('SET_GRANTS', data));
+    },
+    fetchGrantsNext({ commit }, {
+      currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe,
+      assignedToAgency, aging, interestedByAgency,
+    }) {
+      // pull cost sharing from state
+      const { costSharing, opportunityStatuses, opportunityCategories } = this.state.grants.searchFormFilters;
+      // review status filters go into three separate fields TODO refactor this to be less repetitive
+      const reviewStatusFilters = this.state.grants.searchFormFilters.reviewStatusFilters || [];
+      const positiveInterest = reviewStatusFilters.includes('interested') ? true : null;
+      const result = reviewStatusFilters.includes('result') ? true : null;
+      const rejected = reviewStatusFilters.includes('rejected') ? true : null;
+
       const query = Object.entries({
         currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
       })
@@ -129,6 +160,9 @@ export default {
     exportCSVRecentActivities() {
       window.location = fetchApi.apiURL(fetchApi.addOrganizationId('/api/organizations/:organizationId/grants/exportCSVRecentActivities'));
     },
+    applyFilters(context, filters) {
+      context.commit('APPLY_FILTERS', filters);
+    },
   },
   mutations: {
     SET_GRANTS(state, grants) {
@@ -161,6 +195,9 @@ export default {
     SET_CLOSEST_GRANTS(state, closestGrants) {
       state.closestGrants = closestGrants.data;
       state.totalUpcomingGrants = closestGrants.pagination.total;
+    },
+    APPLY_FILTERS(state, filters) {
+      state.searchFormFilters = filters;
     },
   },
 };
