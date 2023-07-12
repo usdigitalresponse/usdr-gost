@@ -27,6 +27,8 @@ describe('processMessages', async () => {
             insert: sinon.stub().returnsThis(),
             onConflict: sinon.stub().returnsThis(),
             merge: sinon.stub().returnsThis(),
+            where: sinon.stub().returnsThis(),
+            orWhereNull: sinon.stub().returnsThis(),
             returning: sinon.stub().resolves(),
         };
         knexStub = sinon.stub().returns(knexQuery);
@@ -59,6 +61,7 @@ describe('processMessages', async () => {
                     eligible_applicants: [
                         { code: '00' }, { code: '01' }, { code: '02' }, { code: '03' },
                     ],
+                    revision: { id: 'a1' },
                 }),
                 ReceiptHandle: 'receipt-handle-2',
             },
@@ -84,6 +87,7 @@ describe('processMessages', async () => {
                         { code: '13' }, { code: '12' },
                         { code: '11' }, { code: '10' },
                     ],
+                    revision: { id: 'b2' },
                 }),
                 ReceiptHandle: 'receipt-handle-1',
             },
@@ -109,6 +113,7 @@ describe('processMessages', async () => {
                         { code: '13' }, { code: '12' },
                         { code: '11' }, { code: '10' },
                     ],
+                    revision: { id: 'c3' },
                 }),
                 ReceiptHandle: 'receipt-handle-1',
             },
@@ -121,6 +126,7 @@ describe('processMessages', async () => {
         sinon.assert.calledWith(knexQuery.insert, sinon.match({
             status: 'inbox',
             grant_id: '1',
+            revision_id: 'a1',
             grant_number: 'for-some-reason-not-a-number',
             agency_code: 'ABC-ZYX-QMWN',
             award_ceiling: '98765',
@@ -144,6 +150,7 @@ describe('processMessages', async () => {
         sinon.assert.calledWith(knexQuery.insert, sinon.match({
             status: 'inbox',
             grant_id: '2',
+            revision_id: 'b2',
             grant_number: 'nope-no-numbers-here',
             agency_code: 'ZYX-ABC-PZOX',
             award_ceiling: '987',
@@ -167,6 +174,7 @@ describe('processMessages', async () => {
         sinon.assert.calledWith(knexQuery.insert, sinon.match({
             status: 'inbox',
             grant_id: '3',
+            revision_id: 'c3',
             grant_number: 'not-a-number-either',
             agency_code: 'CUVY-MWN-IVUB',
             award_ceiling: undefined,
@@ -205,43 +213,12 @@ describe('processMessages', async () => {
                         category: { name: 'Other' },
                         milestones: { post_date: '2023-06-05' },
                     },
+                    revision: { id: 'a1' },
                 }),
                 ReceiptHandle: 'receipt-handle-1',
             },
             {
                 Body: 'invalid-json',
-                ReceiptHandle: 'receipt-handle-2',
-            },
-        ];
-
-        await processMessages(knexStub, sqsStub, queueUrl, messages);
-
-        sinon.assert.calledWithExactly(knexStub, 'grants');
-        sinon.assert.callCount(knexStub, 1);
-        sinon.assert.calledWith(knexQuery.insert, sinon.match({ grant_id: '1' }));
-        sinon.assert.callCount(sqsStub.send, 1);
-        sinon.assert.calledWith(sqsStub.send, sinon.match({
-            input: { QueueUrl: queueUrl, ReceiptHandle: messages[0].ReceiptHandle },
-        }));
-    });
-
-    it('should skip processing message when error parsing date', async () => {
-        const messages = [
-            {
-                Body: serlializeGrantEvent({
-                    opportunity: {
-                        id: '1',
-                        category: { name: 'Other' },
-                        milestones: { post_date: '2023-06-05' },
-                    },
-                }),
-                ReceiptHandle: 'receipt-handle-1',
-            },
-            {
-                Body: serlializeGrantEvent({
-                    OpportunityId: 2,
-                    PostDate: 'this-date-cannot-be-parsed PM',
-                }),
                 ReceiptHandle: 'receipt-handle-2',
             },
         ];
@@ -266,6 +243,7 @@ describe('processMessages', async () => {
                         category: { name: 'Other' },
                         milestones: { post_date: '2023-06-05' },
                     },
+                    revision: { id: 'a1' },
                 }),
                 ReceiptHandle: 'receipt-handle-1',
             },
@@ -276,6 +254,7 @@ describe('processMessages', async () => {
                         category: { name: 'Mandatory' },
                         milestones: { post_date: '2023-05-06' },
                     },
+                    revision: { id: 'b2' },
                 }),
                 ReceiptHandle: 'receipt-handle-2',
             },

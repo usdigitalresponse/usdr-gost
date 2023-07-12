@@ -30,6 +30,7 @@ function mapSourceDataToGrant(source) {
         reviewer_name: 'none',
         // Data from event:
         grant_id: source.opportunity.id,
+        revision_id: source.revision.id,
         grant_number: source.opportunity.number,
         title: source.opportunity.title,
         description: source.opportunity.description,
@@ -44,10 +45,10 @@ function mapSourceDataToGrant(source) {
     };
 
     const { milestones } = source.opportunity;
-    const today = moment().startOf('day');
     grant.open_date = milestones.post_date;
     grant.close_date = milestones.close && milestones.close.date
         ? milestones.close.date : '2100-01-01';
+    const today = moment().startOf('day');
     if (milestones.archive_date && today.isSameOrAfter(moment(milestones.archive_date), 'date')) {
         grant.opportunity_status = 'archived';
     } else if (today.isSameOrAfter(moment(grant.close_date), 'date')) {
@@ -58,12 +59,23 @@ function mapSourceDataToGrant(source) {
 
     return grant;
 }
-
+/**
+ * Inserts a grant record into the database, or updates an exist record with the same grant_id value.
+ *
+ * So as to prevent writes from events received out-of-order, updates will only occur when
+ * the revision_id value of the incoming grant object is greater than that of the extant
+ * database record, or when the .
+ *
+ * @param { import('knex').Knex } knex Database client for persisting grants.
+ * @param { object } grant The Grant object to persist
+ */
 async function upsertGrant(knex, grant) {
     await knex('grants')
         .insert(grant)
         .onConflict('grant_id')
         .merge({ ...grant, ...{ updated_at: 'now' } })
+        .where('grants.revision_id', '<', grant.revision_id)
+        .orWhereNull('grants.revision_id')
         .returning('grant_id');
 }
 
