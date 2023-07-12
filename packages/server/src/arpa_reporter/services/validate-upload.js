@@ -1,5 +1,5 @@
 const {
-    setEcCode, markValidated, markNotValidated,
+    setEcCode, markValidated, markNotValidated, markInvalidated,
 } = require('../db/uploads');
 const knex = require('../../db/connection');
 const { createRecipient, findRecipient, updateRecipient } = require('../db/arpa-subrecipients');
@@ -19,10 +19,13 @@ const EMAIL_REGEX_PATTERN = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)
 
 const BETA_VALIDATION_MESSAGE = '[BETA] This is a new validation that is running in beta mode (as a warning instead of a blocking error). If you see anything incorrect about this validation, please report it at grants-helpdesk@usdigitalresponse.org';
 
+const SHOULD_NOT_CONTAIN_PERIOD_REGEX_PATTERN = /^[^.]*$/;
+
 // This maps from field name to regular expression that must match on the field.
 // Note that this only covers cases where the name of the field is what we want to match on.
 const FIELD_NAME_TO_PATTERN = {
     POC_Email_Address__c: { pattern: EMAIL_REGEX_PATTERN, explanation: 'Email must be of the form "user@email.com"' },
+    Place_of_Performance_City__c: { pattern: SHOULD_NOT_CONTAIN_PERIOD_REGEX_PATTERN, explanation: 'Field must not contain a period.' },
 };
 
 // This is a convenience wrapper that lets us use consistent behavior for new validation errors.
@@ -654,8 +657,36 @@ async function validateUpload(upload, user, trns = null) {
     return flatErrors;
 }
 
+async function invalidateUpload(upload, user, trns = null) {
+    const errors = [];
+
+    const ourTransaction = !trns;
+    if (ourTransaction) {
+        trns = await knex.transaction();
+    }
+
+    // if we successfully validated for the first time, let's mark it!
+    try {
+        await markInvalidated(upload.id, user.id);
+    } catch (e) {
+        errors.push(new ValidationError(`failed to mark upload: ${e.message}`));
+    }
+
+    // depending on whether we validated or not, lets commit/rollback. we MUST do
+    // this or bad things happen. this is why there are try/catch blocks around
+    // every other function call above here
+    if (ourTransaction) {
+        await trns.commit();
+        trns = knex;
+    }
+
+    // finally, return our errors
+    return errors;
+}
+
 module.exports = {
     validateUpload,
+    invalidateUpload,
 };
 
 // NOTE: This file was copied from src/server/services/validate-upload.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
