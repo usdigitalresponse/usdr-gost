@@ -30,7 +30,7 @@ describe('db', () => {
         });
         it('reads an existing saved search', async () => {
             // testing pagination
-            await db.createSavedSearch({
+            const firstSearch = await db.createSavedSearch({
                 name: 'Example search 1',
                 agencyId: fixtures.agencies.fleetServices.id,
                 userId: fixtures.users.adminUser.id,
@@ -56,6 +56,9 @@ describe('db', () => {
             const rows2 = await db.getSavedSearches(fixtures.users.adminUser.id, fixtures.agencies.fleetServices.id, { perPage: 2, currentPage: 2 });
             expect(rows2.data).to.have.lengthOf(1);
             expect(rows2.data[0].name).to.equal('Example search 3');
+
+            const row = await db.getSavedSearch(firstSearch.id, firstSearch.agencyId);
+            expect(row.name).to.equal('Example search 1');
         });
         it('deletes an existing saved search', async () => {
             const row = await db.createSavedSearch({
