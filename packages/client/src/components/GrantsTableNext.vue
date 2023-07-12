@@ -99,28 +99,6 @@ export default {
       perPage: 50,
       currentPage: 1,
       loading: false,
-      searchFilters: [
-        {
-          label: 'Include',
-          value: ['Nevada', 'infrastructure'],
-        },
-        {
-          label: 'Exclude',
-          value: ['road', 'highways'],
-        },
-        {
-          label: 'Opp Status',
-          value: ['forecasted', 'posted'],
-        },
-        {
-          label: 'Cost Sharing',
-          value: 'Yes',
-        },
-        {
-          label: 'Review Status',
-          value: ['Interested', 'Supporting'],
-        },
-      ],
       fields: [
         {
           key: 'grant_number',
@@ -194,6 +172,7 @@ export default {
       grantsPagination: 'grants/grantsPagination',
       agency: 'users/agency',
       selectedAgency: 'users/selectedAgency',
+      activeFilters: 'grants/activeFilters',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -230,6 +209,31 @@ export default {
           return {};
         })(),
       }));
+    },
+    searchFilters() {
+      console.log(this.activeFilters);
+      return [
+        {
+          label: 'Include',
+          value: ['Nevada', 'infrastructure'],
+        },
+        {
+          label: 'Exclude',
+          value: ['road', 'highways'],
+        },
+        {
+          label: 'Opp Status',
+          value: ['forecasted', 'posted'],
+        },
+        {
+          label: 'Cost Sharing',
+          value: 'Yes',
+        },
+        {
+          label: 'Review Status',
+          value: ['Interested', 'Supporting'],
+        },
+      ];
     },
   },
   watch: {
@@ -272,12 +276,6 @@ export default {
         await this.paginateGrants();
       }
     },
-    // 'grants.searchFormFilters': {
-    //   handler() {
-    //     this.paginateGrants();
-    //   },
-    //   deep: true,
-    // },
   },
   methods: {
     ...mapActions({
@@ -303,6 +301,9 @@ export default {
           searchTerm: this.debouncedSearchInput,
           interestedByAgency: this.showInterested || this.showResult || this.showRejected,
           interestedByMe: this.showMyInterested,
+          showInterested: this.showInterested,
+          showResult: this.showResult,
+          showRejected: this.showRejected,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
         });

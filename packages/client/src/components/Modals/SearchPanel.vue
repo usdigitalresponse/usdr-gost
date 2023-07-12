@@ -8,6 +8,7 @@
         id="search-panel"
         title="Search"
         class="search-panel"
+        ref="sidebar"
         right
         shadow
       >
@@ -165,6 +166,7 @@ export default {
       this.applyFilters(this.formData);
       // send event to parent
       this.$emit('filters-applied');
+      this.$refs.sidebar.hide();
     },
   },
 };

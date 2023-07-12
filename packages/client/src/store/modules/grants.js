@@ -38,6 +38,9 @@ export default {
       result: state.interestedCodes.filter((c) => c.status_code === 'Result'),
       interested: state.interestedCodes.filter((c) => c.status_code === 'Interested'),
     }),
+    activeFilters(state) {
+      return state.searchFormFilters;
+    },
   },
   actions: {
     fetchGrants({ commit }, {
@@ -58,15 +61,15 @@ export default {
     },
     fetchGrantsNext({ commit }, {
       currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe,
-      assignedToAgency, aging, interestedByAgency,
+      assignedToAgency, showInterested, showResult, showRejected, aging, interestedByAgency,
     }) {
       // pull cost sharing from state
       const { costSharing, opportunityStatuses, opportunityCategories } = this.state.grants.searchFormFilters;
       // review status filters go into three separate fields TODO refactor this to be less repetitive
       const reviewStatusFilters = this.state.grants.searchFormFilters.reviewStatusFilters || [];
-      const positiveInterest = reviewStatusFilters.includes('interested') ? true : null;
-      const result = reviewStatusFilters.includes('result') ? true : null;
-      const rejected = reviewStatusFilters.includes('rejected') ? true : null;
+      const positiveInterest = showInterested || reviewStatusFilters.includes('interested') ? true : null;
+      const result = showResult || reviewStatusFilters.includes('result') ? true : null;
+      const rejected = showRejected || reviewStatusFilters.includes('rejected') ? true : null;
 
       const query = Object.entries({
         currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
