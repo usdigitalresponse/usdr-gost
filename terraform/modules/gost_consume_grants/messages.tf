@@ -32,23 +32,6 @@ module "sqs_queue" {
   sqs_managed_sse_enabled    = true
   create_queue_policy        = true
   queue_policy_statements = {
-#    consume = {
-#      sid = "AllowConsumeFromECSTask"
-#      effect = "Allow"
-#      actions = [
-#        "sqs:DeleteMessage",
-#        "sqs:DeleteMessageBatch",
-#        "sqs:ReceiveMessage",
-#        "sqs:GetQueueAttributes",
-#        "sqs:GetQueueUrl",
-#      ]
-#      principals = [
-#        {
-#          type        = "AWS"
-#          identifiers = [aws_iam_role.task.arn]
-#        }
-#      ]
-#    }
     publish = {
       sid = "AllowPublishFromEventBridgeRule"
       effect = "Allow"
