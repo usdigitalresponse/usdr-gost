@@ -49,4 +49,4 @@ postgres_snapshot_before_destroy   = true
 postgres_apply_changes_immediately = false
 
 // Grant events consumer
-consume_grants_source_event_bus_name = "grants_ingest-prod-grant_events"
+consume_grants_source_event_bus_name = "default"

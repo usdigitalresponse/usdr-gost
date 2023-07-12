@@ -52,4 +52,4 @@ postgres_apply_changes_immediately = false
 postgres_query_logging_enabled     = true
 
 // Grant events consumer
-consume_grants_source_event_bus_name = "grants_ingest-staging-grant_events"
+consume_grants_source_event_bus_name = "default"
