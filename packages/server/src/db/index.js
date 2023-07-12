@@ -1088,6 +1088,30 @@ async function getSavedSearches(userId, agencyId, paginationParams) {
         .orderBy('id')
         .paginate(paginationParams);
 
+    response.data = response.data.map((r) => ({
+        id: r.id,
+        name: r.name,
+        agencyId: r.agency_id,
+        createdBy: r.created_by,
+        criteria: r.criteria,
+        createdAt: new Date(r.created_at).toISOString(),
+    }));
+
+    return response;
+}
+
+/**
+ * Get Saved Search with ID
+ * @param  int              id
+ * @param  int              agencyId
+ * @return Promise<boolean>
+ * */
+async function getSavedSearch(searchId, agencyId) {
+    const response = await knex('grants_saved_searches')
+        .where('id', searchId)
+        .andWhere('agency_id', agencyId)
+        .first();
+
     return response;
 }
 
@@ -1119,6 +1143,7 @@ function close() {
 module.exports = {
     knex,
     createSavedSearch,
+    getSavedSearch,
     getSavedSearches,
     deleteSavedSearch,
     getUsers,
