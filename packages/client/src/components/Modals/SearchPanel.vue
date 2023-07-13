@@ -18,7 +18,7 @@
               <b-form-input
                 id="include-input"
                 type="text"
-                v-model="formData.includeInput"
+                v-model="formData.includeKeywords"
               ></b-form-input>
           </b-form-group>
           <b-form-group label-for="exclude-input">
@@ -26,7 +26,7 @@
               <b-form-input
                 id="exclude-input"
                 type="text"
-                v-model="formData.excludeInput"
+                v-model="formData.excludeKeywords"
               ></b-form-input>
           </b-form-group>
           <b-form-group label-for="opportunity-number">
@@ -118,19 +118,21 @@ export default {
     'v-b-toggle': VBToggle,
   },
   data() {
+    const defaultFormData = {
+      includeKeywords: null,
+      excludeKeywords: null,
+      opportunityNumber: null,
+      opportunityStatuses: [],
+      fundingType: null,
+      agency: null,
+      costSharing: false,
+      opportunityCategories: [],
+      reviewStatusFilters: [],
+      postedWithinFilters: [],
+    };
+    const currentFormState = { ...defaultFormData, ...this.searchFormFilters };
     return {
-      formData: {
-        includeInput: null,
-        excludeInput: null,
-        opportunityNumber: null,
-        opportunityStatuses: [],
-        fundingType: null,
-        agency: null,
-        costSharing: false,
-        opportunityCategories: [],
-        reviewStatusFilters: [],
-        postedWithinFilters: [],
-      },
+      formData: currentFormState,
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       reviewStatusOptions: ['interested', 'result', 'rejected'],
@@ -146,6 +148,7 @@ export default {
   computed: {
     ...mapGetters({
       eligibilityCodes: 'grants/eligibilityCodes',
+      searchFormFilters: 'grants/searchFormFilters',
     }),
   },
   methods: {
@@ -163,8 +166,8 @@ export default {
       return label;
     },
     apply() {
-      this.applyFilters(this.formData);
-      // send event to parent
+      const formDataCopy = { ...this.formData };
+      this.applyFilters(formDataCopy);
       this.$emit('filters-applied');
       this.$refs.sidebar.hide();
     },

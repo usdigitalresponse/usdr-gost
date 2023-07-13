@@ -1,5 +1,14 @@
 const fetchApi = require('@/helpers/fetchApi');
 
+const FILTER_FIELD_NAME_MAP = {
+  costSharing: 'Cost Sharing',
+  opportunityStatuses: 'Opportunity Statuses',
+  opportunityCategories: 'Opportunity Categories',
+  includeKeywords: 'Include Keywords',
+  excludeKeywords: 'Exclude Keywords',
+  opportunityNumber: 'Opportunity Number',
+};
+
 function initialState() {
   return {
     grantsPaginated: {},
@@ -12,10 +21,10 @@ function initialState() {
     currentGrant: {},
     searchFormFilters: {
       costSharing: null,
-      opportunityStatuses: [],
-      opportunityCategories: [],
-      includeKeywords: [],
-      excludeKeywords: [],
+      opportunityStatuses: null,
+      opportunityCategories: null,
+      includeKeywords: null,
+      excludeKeywords: null,
       opportunityNumber: null,
     },
   };
@@ -39,6 +48,24 @@ export default {
       interested: state.interestedCodes.filter((c) => c.status_code === 'Interested'),
     }),
     activeFilters(state) {
+      const filters = [];
+      Object.entries(state.searchFormFilters).forEach(([key, value]) => {
+        if (value && FILTER_FIELD_NAME_MAP[key]) {
+          // if it's an array, make sure it's not empty
+          if (Array.isArray(value) && value.length === 0) {
+            return;
+          }
+          filters.push({
+            label: FILTER_FIELD_NAME_MAP[key],
+            key,
+            value,
+          });
+        }
+      });
+
+      return filters;
+    },
+    searchFormFilters(state) {
       return state.searchFormFilters;
     },
   },
@@ -166,6 +193,12 @@ export default {
     applyFilters(context, filters) {
       context.commit('APPLY_FILTERS', filters);
     },
+    removeFilter(context, key) {
+      context.commit('REMOVE_FILTER', key);
+    },
+    clearFilters(context) {
+      context.commit('CLEAR_FILTERS');
+    },
   },
   mutations: {
     SET_GRANTS(state, grants) {
@@ -201,6 +234,12 @@ export default {
     },
     APPLY_FILTERS(state, filters) {
       state.searchFormFilters = filters;
+    },
+    REMOVE_FILTER(state, key) {
+      state.searchFormFilters[key] = null;
+    },
+    CLEAR_FILTERS(state) {
+      state.searchFormFilters = initialState().searchFormFilters;
     },
   },
 };
