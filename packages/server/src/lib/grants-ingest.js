@@ -1,31 +1,6 @@
 const { ReceiveMessageCommand, DeleteMessageCommand } = require('@aws-sdk/client-sqs');
 const moment = require('moment');
 
-const opportunityCategoryMap = {
-    C: 'Continuation',
-    D: 'Discretionary',
-    E: 'Earmark',
-    M: 'Mandatory',
-    O: 'Other',
-};
-
-function normalizeDateString(dateString, formats = ['YYYY-MM-DD', 'MMDDYYYY']) {
-    const target = 'YYYY-MM-DD';
-    for (const fmt of formats) {
-        const parsed = moment(dateString, fmt, true);
-        if (parsed.isValid()) {
-            const result = parsed.format(target);
-            if (result !== dateString) {
-                console.log(`Input date string ${dateString} normalized to ${result}`);
-            }
-            console.log(`Input date string ${dateString} already in target format ${target}`);
-            return result;
-        }
-        console.log(`Failed to parse value ${dateString} as date using format ${fmt}`);
-    }
-    throw new Error(`Value ${dateString} could not be parsed from formats ${formats.join(', ')}`);
-}
-
 /**
  * receiveNextMessageBatch long-polls an SQS queue for up to 10 messages.
  * @param { import('@aws-sdk/client-sqs').SQSClient } sqs AWS SDK client used to issue commands to the SQS API.
@@ -46,38 +21,61 @@ async function receiveNextMessageBatch(sqs, queueUrl) {
     return messages;
 }
 
-function sqsMessageToGrant(jsonBody) {
-    const messageData = JSON.parse(jsonBody);
-    return {
-        status: 'inbox',
-        grant_id: messageData.OpportunityId || messageData.grant_id,
-        grant_number: messageData.OpportunityNumber,
-        agency_code: messageData.AgencyCode,
-        award_ceiling: (messageData.AwardCeiling && parseInt(messageData.AwardCeiling, 10))
-            ? parseInt(messageData.AwardCeiling, 10) : undefined,
-        award_floor: (messageData.AwardFloor && parseInt(messageData.AwardFloor, 10))
-            ? parseInt(messageData.AwardFloor, 10) : undefined,
-        cost_sharing: messageData.CostSharingOrMatchingRequirement ? 'Yes' : 'No',
-        title: messageData.OpportunityTitle,
-        cfda_list: (messageData.CFDANumbers || []).join(', '),
-        open_date: normalizeDateString(messageData.PostDate),
-        close_date: normalizeDateString(messageData.CloseDate || '2100-01-01'),
-        notes: 'auto-inserted by script',
+function mapSourceDataToGrant(source) {
+    const grant = {
+        // Old defaults/placeholders:
         search_terms: '[in title/desc]+',
+        status: 'inbox',
+        notes: 'auto-inserted by script',
         reviewer_name: 'none',
-        opportunity_category: opportunityCategoryMap[messageData.OpportunityCategory],
-        description: messageData.Description,
-        eligibility_codes: (messageData.EligibleApplicants || []).join(' '),
-        opportunity_status: 'posted',
-        raw_body: JSON.stringify(messageData),
+        // Data from event:
+        grant_id: source.opportunity.id,
+        revision_id: source.revision.id,
+        grant_number: source.opportunity.number,
+        title: source.opportunity.title,
+        description: source.opportunity.description,
+        agency_code: source.agency ? source.agency.code : undefined,
+        cost_sharing: source.cost_sharing_or_matching_requirement ? 'Yes' : 'No',
+        opportunity_category: source.opportunity.category.name,
+        cfda_list: (source.cfda_numbers || []).join(', '),
+        eligibility_codes: (source.eligible_applicants || []).map((it) => it.code).join(' '),
+        award_ceiling: source.award && source.award.ceiling ? source.award.ceiling : undefined,
+        award_floor: source.award && source.award.floor ? source.award.floor : undefined,
+        raw_body: JSON.stringify(source),
     };
-}
 
+    const { milestones } = source.opportunity;
+    grant.open_date = milestones.post_date;
+    grant.close_date = milestones.close && milestones.close.date
+        ? milestones.close.date : '2100-01-01';
+    const today = moment().startOf('day');
+    if (milestones.archive_date && today.isSameOrAfter(moment(milestones.archive_date), 'date')) {
+        grant.opportunity_status = 'archived';
+    } else if (today.isSameOrAfter(moment(grant.close_date), 'date')) {
+        grant.opportunity_status = 'closed';
+    } else {
+        grant.opportunity_status = 'posted';
+    }
+
+    return grant;
+}
+/**
+ * Inserts a grant record into the database, or updates an exist record with the same grant_id value.
+ *
+ * So as to prevent writes from events received out-of-order, updates will only occur when
+ * the revision_id value of the incoming grant object is greater than that of the extant
+ * database record, or when the .
+ *
+ * @param { import('knex').Knex } knex Database client for persisting grants.
+ * @param { object } grant The Grant object to persist
+ */
 async function upsertGrant(knex, grant) {
     await knex('grants')
         .insert(grant)
         .onConflict('grant_id')
         .merge({ ...grant, ...{ updated_at: 'now' } })
+        .where('grants.revision_id', '<', grant.revision_id)
+        .orWhereNull('grants.revision_id')
         .returning('grant_id');
 }
 
@@ -107,16 +105,33 @@ async function processMessages(knex, sqs, queueUrl, messages) {
     let grantParseErrorCount = 0;
     let grantSaveSuccessCount = 0;
     let grantSaveErrorCount = 0;
+    let grantDeletionCount = 0;
 
     return Promise.all(messages.map(async (message) => {
         console.log('Processing message:', message.Body);
 
-        let grant;
+        let modificationEvent;
         try {
-            grant = sqsMessageToGrant(message.Body);
+            modificationEvent = JSON.parse(message.Body).detail;
         } catch (e) {
             grantParseErrorCount += 1;
-            console.error('Error parsing grant from SQS message:', e);
+            console.error('Error parsing event data from SQS message:', e);
+            return;
+        }
+
+        if (modificationEvent.type === 'delete') {
+            grantDeletionCount += 1;
+            const { opportunity } = modificationEvent.versions.previous;
+            console.warn(`Received deletion event for Opportunity ID ${opportunity.id}`);
+            return;
+        }
+
+        let grant;
+        try {
+            grant = mapSourceDataToGrant(modificationEvent.versions.new);
+        } catch (e) {
+            grantParseErrorCount += 1;
+            console.error('Error mapping data from grant modification event:', e);
             return;
         }
 
@@ -146,6 +161,7 @@ async function processMessages(knex, sqs, queueUrl, messages) {
             `Grants Saved Successfully: ${grantSaveSuccessCount}`,
             `| Parsing Errors: ${grantParseErrorCount}`,
             `| Postgres Errors: ${grantSaveErrorCount}`,
+            `| Unhandled Deletion Events: ${grantDeletionCount}`,
         );
     });
 }

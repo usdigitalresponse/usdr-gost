@@ -50,3 +50,6 @@ postgres_prevent_destroy           = true
 postgres_snapshot_before_destroy   = true
 postgres_apply_changes_immediately = false
 postgres_query_logging_enabled     = true
+
+// Grant events consumer
+consume_grants_source_event_bus_name = "default"
