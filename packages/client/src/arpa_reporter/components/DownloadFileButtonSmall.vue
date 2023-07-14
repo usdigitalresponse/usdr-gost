@@ -1,5 +1,5 @@
 <template>
-  <a :href="href" class="btn-primary ml-2" :class="small ? 'btn-sm' : 'btn'">
+  <a :href="href" class="btn-sm btn-primary ml-2">
       Download file
   </a>
 </template>
@@ -8,13 +8,9 @@
 import { apiURL } from '@/helpers/fetchApi';
 
 export default {
-  name: 'DownloadFileButton',
+  name: 'DownloadFileButtonSmall',
   props: {
     upload: Object,
-    small: {
-      type: Boolean,
-      default: true,
-    },
   },
   computed: {
     href() {

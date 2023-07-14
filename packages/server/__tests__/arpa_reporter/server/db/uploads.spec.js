@@ -11,6 +11,12 @@ describe('db/uploads.js', () => {
 
     beforeEach('init an upload row', async () => {
         upload = { filename: 'filename' };
+        await fixtures.clean(knex);
+        await fixtures.seed(knex);
+    });
+
+    afterEach(async () => {
+        await fixtures.clean(knex);
     });
 
     describe('createUpload', () => {
@@ -45,14 +51,6 @@ describe('db/uploads.js', () => {
     });
 
     describe('usedForTreasuryExport', () => {
-        before(async () => {
-            await fixtures.seed(knex);
-        });
-
-        after(async () => {
-            await fixtures.clean(knex);
-        });
-
         it('should only have two results', async () => {
             const rows = await withTenantId(fixtures.TENANT_ID, async () => {
                 const r = await uploads.usedForTreasuryExport(fixtures.reportingPeriods.q1_2021.id);
@@ -67,15 +65,6 @@ describe('db/uploads.js', () => {
     });
 
     describe('markInvalidated', () => {
-        before(async () => {
-            await fixtures.clean(knex);
-            await fixtures.seed(knex);
-        });
-
-        after(async () => {
-            await fixtures.clean(knex);
-        });
-
         it('should be invalidated', async () => {
             const { upload1 } = fixtures.uploads;
             const user = fixtures.users.staffUser;
@@ -86,21 +75,12 @@ describe('db/uploads.js', () => {
             const row = rows[0];
             assert.equal(row.invalidated_by, user.id);
             assert(row.invalidated_at !== null);
-            assert(row.validated_at !== null);
-            assert(row.validated_by !== null);
+            assert(row.validated_at === null);
+            assert(row.validated_by === null);
         });
     });
 
     describe('markValidated', () => {
-        before(async () => {
-            await fixtures.clean(knex);
-            await fixtures.seed(knex);
-        });
-
-        after(async () => {
-            await fixtures.clean(knex);
-        });
-
         it('should be validated', async () => {
             const { upload2 } = fixtures.uploads;
             const user = fixtures.users.staffUser;

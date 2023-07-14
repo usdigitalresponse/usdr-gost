@@ -1,3 +1,4 @@
+// import { nextTick } from 'vue';
 import { expect } from 'chai';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
@@ -28,6 +29,7 @@ describe('Uploads.vue', () => {
   });
 
   it('renders with data and defaults to descending sorting', async () => {
+    const date = new Date();
     const store = new Vuex.Store({
       state: {
         agencies: [],
@@ -43,7 +45,21 @@ describe('Uploads.vue', () => {
           reporting_period_id: 64,
           tenant_id: 1,
           user_id: 1,
-          validated_at: new Date().toISOString(),
+          validated_at: date.toISOString(),
+          validated_by: 1,
+        }, {
+          agency_code: 'USDR',
+          agency_id: 0,
+          created_at: new Date().toISOString(),
+          created_by: 'test@usdigitalresponse.org',
+          ec_code: '0',
+          filename: 'TEST_UPLOAD_1.xlsm',
+          id: '11111111-1111-1111-1111-111111111111',
+          notes: null,
+          reporting_period_id: 64,
+          tenant_id: 1,
+          user_id: 1,
+          validated_at: new Date(date.getTime() + 1000 * 60 * 60).toISOString(),
           validated_by: 1,
         }],
       },
@@ -60,13 +76,16 @@ describe('Uploads.vue', () => {
     });
     expect(wrapper.text()).to.include('00000000');
 
-    const validatedCol = wrapper.find('#vgt-table').findAll('th').at(6);
+    // const validatedCol = wrapper.find('#vgt-table').findAll('th').at(6);
+    const t = wrapper.findComponent({ ref: 'uploadsTable' });
+
     // table sorting doesn't happen until the next tick. this can be found in the
     // good table test cases
     // https://github.com/xaksis/vue-good-table/blob/master/test/unit/specs/Table.spec.js#L78
     await wrapper.vm.$nextTick();
-    expect(validatedCol.classes()).to.include('sorting-desc');
-    expect(validatedCol.classes()).to.include('sortable');
+    await t.vm.$nextTick();
+    const tableHtml = t.html();
+    expect(tableHtml.indexOf('11111111') < tableHtml.indexOf('00000000')).to.equal(true);
   });
 });
 
