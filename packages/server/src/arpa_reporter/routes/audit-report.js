@@ -1,5 +1,5 @@
 /* eslint camelcase: 0 */
-
+const fs = require('fs');
 const express = require('express');
 
 const router = express.Router();
@@ -7,7 +7,6 @@ const { HeadObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 
 const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
 const audit_report = require('../lib/audit-report');
-const { useUser } = require('../use-request');
 const aws = require('../../lib/gost-aws');
 
 router.get('/:tenantId/:periodId/:filename', async (req, res) => {
@@ -48,7 +47,7 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
 
 router.get('/', requireUser, async (req, res) => {
     console.log('/api/audit-report GET');
-
+    /*
     if (req.query.async) {
         // Special handling for async audit report generation and sending.
         console.log('/api/audit-report?async=true GET');
@@ -64,10 +63,19 @@ router.get('/', requireUser, async (req, res) => {
             return;
         }
     }
+    */
 
     let report;
     try {
         report = await audit_report.generate(req.headers.host);
+        fs.writeFile(report.filename, Buffer.from(report.outputWorkBook, 'binary'), 'binary', (err) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log('The file was saved!');
+                console.log(report.filename);
+            }
+        });
         console.log('Successfully generated report');
     } catch (error) {
     // In addition to sending the error message in the 500 response, log the full error stacktrace
