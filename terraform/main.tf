@@ -214,6 +214,20 @@ resource "aws_ssm_parameter" "deploy_api_service_name" {
   value       = module.api.ecs_service_name
 }
 
+resource "aws_ssm_parameter" "deploy_consume_grants_cluster_name" {
+  name        = "${var.ssm_deployment_parameters_path_prefix}/consume-grants/cluster-name"
+  description = "Name of the ECS cluster to specify when forcing new deployments for the grants consumer."
+  type        = "String"
+  value       = module.consume_grants.ecs_cluster_name
+}
+
+resource "aws_ssm_parameter" "deploy_consume_grants_service_name" {
+  name        = "${var.ssm_deployment_parameters_path_prefix}/consume-grants/service-name"
+  description = "Name of the ECS service to specify when forcing new deployments for the grants consumer."
+  type        = "String"
+  value       = module.consume_grants.ecs_service_name
+}
+
 resource "aws_ssm_parameter" "deploy_website_s3_uri" {
   name        = "${var.ssm_deployment_parameters_path_prefix}/website/s3-uri"
   description = "Base URI for deploying website dist artifacts to the origin bucket."
