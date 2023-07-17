@@ -181,10 +181,35 @@ jobs:
           withDecryption: "true"
           parameterPairs: |
             /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/cluster-name = ECS_API_CLUSTER_NAME,
-            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/service-name = ECS_API_SERVICE_NAME,
-            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_CONSUME_GRANTS_CLUSTER_NAME,
-            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_CONSUME_GRANTS_SERVICE_NAME,
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/service-name = ECS_API_SERVICE_NAME
       - name: Update ECS service for API
         run: aws ecs update-service --cluster ${{ env.ECS_API_CLUSTER_NAME }} --service ${{ env.ECS_API_SERVICE_NAME }} --force-new-deployment > /dev/null
+
+  deploy_grants_consumer:
+    name: Deploy Grants Consumer
+    runs-on: ubuntu-latest
+    needs:
+      - build_api
+      - select_target_environment
+      - deploy_terraform
+    if: |
+      always() &&
+      needs.build_api.result == 'success' &&
+      (needs.deploy_terraform.result == 'success' || needs.deploy_terraform.result == 'skipped') &&
+      needs.select_target_environment.outputs.selected == 'staging'
+    environment: ${{ needs.select_target_environment.outputs.selected }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          role-to-assume: "${{ secrets.AWS_ROLE_TO_ASSUME }}"
+      - name: Get deployment parameters
+        uses: dkershner6/aws-ssm-getparameters-action@v1
+        with:
+          withDecryption: "true"
+          parameterPairs: |
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_CONSUME_GRANTS_CLUSTER_NAME,
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_CONSUME_GRANTS_SERVICE_NAME
       - name: Update ECS service for Grants Consumer
         run: aws ecs update-service --cluster ${{ env.ECS_CONSUME_GRANTS_CLUSTER_NAME }} --service ${{ env.ECS_CONSUME_GRANTS_SERVICE_NAME }} --force-new-deployment > /dev/null
