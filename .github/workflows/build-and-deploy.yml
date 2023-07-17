@@ -180,10 +180,10 @@ jobs:
         with:
           withDecryption: "true"
           parameterPairs: |
-            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/cluster-name = ECS_API_CLUSTER_NAME,
-            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/service-name = ECS_API_SERVICE_NAME
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/cluster-name = ECS_CLUSTER_NAME,
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/service-name = ECS_SERVICE_NAME
       - name: Update ECS service for API
-        run: aws ecs update-service --cluster ${{ env.ECS_API_CLUSTER_NAME }} --service ${{ env.ECS_API_SERVICE_NAME }} --force-new-deployment > /dev/null
+        run: aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --force-new-deployment > /dev/null
 
   deploy_grants_consumer:
     name: Deploy Grants Consumer
@@ -209,7 +209,7 @@ jobs:
         with:
           withDecryption: "true"
           parameterPairs: |
-            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_CONSUME_GRANTS_CLUSTER_NAME,
-            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_CONSUME_GRANTS_SERVICE_NAME
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_CLUSTER_NAME,
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_SERVICE_NAME
       - name: Update ECS service for Grants Consumer
-        run: aws ecs update-service --cluster ${{ env.ECS_CONSUME_GRANTS_CLUSTER_NAME }} --service ${{ env.ECS_CONSUME_GRANTS_SERVICE_NAME }} --force-new-deployment > /dev/null
+        run: aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --force-new-deployment > /dev/null
