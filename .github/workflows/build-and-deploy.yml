@@ -182,7 +182,7 @@ jobs:
           parameterPairs: |
             /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/cluster-name = ECS_CLUSTER_NAME,
             /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/api/service-name = ECS_SERVICE_NAME
-      - name: Update ECS service for API
+      - name: Update ECS service
         run: aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --force-new-deployment > /dev/null
 
   deploy_grants_consumer:
@@ -211,5 +211,5 @@ jobs:
           parameterPairs: |
             /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_CLUSTER_NAME,
             /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_SERVICE_NAME
-      - name: Update ECS service for Grants Consumer
+      - name: Update ECS service
         run: aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --force-new-deployment > /dev/null
