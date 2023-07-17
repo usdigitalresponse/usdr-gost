@@ -118,35 +118,28 @@ async function getColumnForProjectSummaryGroupedByProjectRow(projectId, records,
     // initialize the columns in the row
     currReportingPeriods.map(async (reportingPeriodId) => {
         reportingPeriodStartDate = reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].start_date;
-
-        let columnName = `${reportingPeriodStartDate} Total Aggregate Expenditures`;
-        row[columnName] = 0;
-
-        columnName = `${reportingPeriodStartDate} Total Expenditures for Awards Greater or Equal to $50k`;
-        row[columnName] = 0;
-
-        columnName = `${reportingPeriodStartDate} Total Aggregate Obligations`;
-        row[columnName] = 0;
-
-        columnName = `${reportingPeriodStartDate} Total Obligations for Awards Greater or Equal to $50k`;
-        row[columnName] = 0;
+        [
+            `${reportingPeriodStartDate} Total Aggregate Expenditures`,
+            `${reportingPeriodStartDate} Total Expenditures for Awards Greater or Equal to $50k`,
+            `${reportingPeriodStartDate} Total Aggregate Obligations`
+            `${reportingPeriodStartDate} Total Obligations for Awards Greater or Equal to $50k`
+        ].forEach((columnName) => { row[columnName] = 0; });
     });
 
     // set values in each column
     records.forEach(async (r) => {
         reportingPeriodStartDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].start_date;
 
-        row[`${reportingPeriodStartDate} Total Aggregate Expenditures`] += r.content.Current_Period_Expenditures__c;
-        row[`${reportingPeriodStartDate} Total Aggregate Obligations`] += r.content.Current_Period_Obligations__c;
-        row[`${reportingPeriodStartDate} Total Expenditures for Awards Greater or Equal to $50k`] += r.content.Total_Expenditures__c;
-        row[`${reportingPeriodStartDate} Total Obligations for Awards Greater or Equal to $50k`] += r.content.Total_Obligations__c;
-
         switch (r.type) {
             case 'ec7':
-                row[`${reportingPeriodStartDate} Total Aggregate Expenditures`] += r.content.Current_Period_Expenditures__c;
-                row[`${reportingPeriodStartDate} Total Aggregate Obligations`] += r.content.Current_Period_Obligations__c;
-                row[`${reportingPeriodStartDate} Total Expenditures for Awards Greater or Equal to $50k`] += r.content.Total_Expenditures__c;
-                row[`${reportingPeriodStartDate} Total Obligations for Awards Greater or Equal to $50k`] += r.content.Total_Obligations__c;
+                row[`${reportingPeriodStartDate} Total Aggregate Expenditures`] += r.content.Total_Expenditures__c;
+                row[`${reportingPeriodStartDate} Total Aggregate Obligations`] += r.content.Total_Obligations__c;
+                break;
+            case 'awards50k':
+                row[`${reportingPeriodStartDate} Total Obligations for Awards Greater or Equal to $50k`] += record.content.Award_Amount__c;
+                break;
+            case 'expenditures50k':
+                row[`${reportingPeriodStartDate} Total Expenditures for Awards Greater or Equal to $50k`] += record.content.Expenditure_Amount__c;
                 break;
             default:
         }
