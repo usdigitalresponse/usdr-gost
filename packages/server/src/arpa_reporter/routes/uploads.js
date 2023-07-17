@@ -4,7 +4,7 @@ const express = require('express');
 
 const router = express.Router();
 const multer = require('multer');
-const { requireUser } = require('../../lib/access-helpers');
+const { requireUser, requireAdminUser } = require('../../lib/access-helpers');
 
 const multerUpload = multer({ storage: multer.memoryStorage() });
 
@@ -76,7 +76,7 @@ router.get('/:id/series', requireUser, async (req, res) => {
     }
 
     let series;
-    if (upload.agency_id && upload.ec_code) {
+    if (upload.agency_id != null && upload.ec_code) {
         series = await uploadsInSeries(upload);
     } else {
         series = [upload];
@@ -155,7 +155,7 @@ router.post('/:id/validate', requireUser, async (req, res) => {
     }
 });
 
-router.post('/:id/invalidate', requireUser, async (req, res) => {
+router.post('/:id/invalidate', requireAdminUser, async (req, res) => {
     const { id } = req.params;
 
     const { user } = req.session;

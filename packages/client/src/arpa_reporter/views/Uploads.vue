@@ -64,6 +64,7 @@
 </template>
 
 <script>
+/* eslint no-unused-vars: ["error", { "args": "none" }] */
 import moment from 'moment';
 import 'vue-good-table/dist/vue-good-table.css';
 import { VueGoodTable } from 'vue-good-table';
@@ -131,12 +132,16 @@ export default {
     columns() {
       const validatedCol = {
         label: 'Validated?',
-        field: 'validated_at',
-        formatFn: (date) => {
-          if (!date) return 'Not set';
-          return moment(date).local().format('MMM Do YYYY, h:mm:ss A');
+        field: (rowObj) => ({ validatedAt: rowObj.validated_at, invalidatedAt: rowObj.invalidated_at }),
+        formatFn: ({ validatedAt, invalidatedAt }) => {
+          if (!validatedAt && !invalidatedAt) return 'Not set';
+          if (invalidatedAt) {
+            return `Invalidated on ${moment(invalidatedAt).local().format('MMM Do YYYY, h:mm:ss A')}`;
+          }
+
+          return moment(validatedAt).local().format('MMM Do YYYY, h:mm:ss A');
         },
-        tdClass: (row) => (!row.validated_at ? 'table-danger' : undefined),
+        tdClass: (row) => ((!row.validated_at || row.invalidated_at) ? 'table-danger' : undefined),
         filterOptions: {
           enabled: !this.onlyExported,
           placeholder: 'Any validation status',
@@ -144,6 +149,20 @@ export default {
             { value: true, text: 'Show only validated' },
           ],
           filterFn: (validatedAt) => validatedAt,
+        },
+        // x - row1 value for column
+        // y - row2 value for column
+        // col - column being sorted
+        // rowX - row object for row1
+        // rowY - row object for row2
+        sortFn: (x, y, col, rowX, rowY) => {
+          if (x.validated_at < y.validated_at) {
+            return -1;
+          }
+          if (x.validated_at > y.validated_at) {
+            return 1;
+          }
+          return 0;
         },
       };
 
@@ -197,6 +216,11 @@ export default {
           },
         },
         validatedCol,
+        {
+          label: 'Validated At',
+          field: 'validated_at',
+          hidden: true,
+        },
       ];
     },
     periodId() {
