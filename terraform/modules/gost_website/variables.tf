@@ -35,6 +35,12 @@ variable "gost_api_domain" {
   type        = string
 }
 
+variable "gost_use_new_table" {
+  description = "Flag to tell client to use the new table experience."
+  type        = bool
+  default     = false
+}
+
 variable "logs_bucket_versioning" {
   description = "Enable versioning for the logs S3 bucket"
   type        = bool

@@ -2,7 +2,8 @@ locals {
   deployConfigContents = templatefile(
     "${path.module}/tpl/deploy-config.js",
     {
-      gost_api_domain = var.gost_api_domain,
+      gost_api_domain    = var.gost_api_domain,
+      gost_use_new_table = var.gost_use_new_table,
     }
   )
 }

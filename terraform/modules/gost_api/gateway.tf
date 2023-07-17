@@ -1,6 +1,6 @@
 module "http_security_group" {
   source  = "cloudposse/security-group/aws"
-  version = "2.0.1"
+  version = "2.2.0"
   context = module.this.context
 
   vpc_id           = var.vpc_id

@@ -4,7 +4,7 @@
           <b-icon icon="envelope-fill" font-scale="1.5" style="width: 50px; color: #0FA958;"></b-icon>
           <div style="padding-right: 10px; color: #212529;">
           <b>The Grant ID Tool now has email notifications!</b>
-          Fine tune which email you will recieve in <u v-on:click="showProfileSettings()">Settings</u> or turn on all notifications here:
+          Fine tune which email you will receive in <u v-on:click="showProfileSettings()">Settings</u> or turn on all notifications here:
         </div >
         <b-form-checkbox v-model="checked" name="email-opt-in-switch" switch @change="onUserSubscriptionChangeSubmit"/>
       </b-alert>

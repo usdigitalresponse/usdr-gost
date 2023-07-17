@@ -1,5 +1,6 @@
 const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
 const { S3Client } = require('@aws-sdk/client-s3');
+const { SQSClient } = require('@aws-sdk/client-sqs');
 const { getSignedUrl: awsGetSignedUrl } = require('@aws-sdk/s3-request-presigner');
 /*
 ----------------------------------------------------------
@@ -89,8 +90,27 @@ function sendEmail(message) {
         .catch((err) => console.error('Error sending SES email:', err, err.stack));
 }
 
+/*
+----------------------------------------------------------
+                        AWS SQS
+----------------------------------------------------------
+*/
+
+function getSQSClient() {
+    let sqs;
+    if (process.env.LOCALSTACK_HOSTNAME) {
+        console.log('------------ USING LOCALSTACK FOR SQS ------------');
+        const endpoint = `http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT || 4566}`;
+        sqs = new SQSClient({ endpoint, region: process.env.AWS_DEFAULT_REGION });
+    } else {
+        sqs = new SQSClient();
+    }
+    return sqs;
+}
+
 module.exports = {
     getS3Client,
     getSignedUrl,
     sendEmail,
+    getSQSClient,
 };

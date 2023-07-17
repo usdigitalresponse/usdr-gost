@@ -6,7 +6,7 @@
           <b-input-group-text>
             <b-icon icon="search" />
           </b-input-group-text>
-          <b-form-input type="search" @input="debounceSearchInput"></b-form-input>
+          <b-form-input type="sliders" @input="debounceSearchInput"></b-form-input>
         </b-input-group>
       </b-col>
       <b-col class="d-flex justify-content-end">
@@ -72,7 +72,9 @@ import { titleize } from '../helpers/form-helpers';
 import GrantDetails from './Modals/GrantDetails.vue';
 
 export default {
-  components: { GrantDetails, Multiselect },
+  components: {
+    GrantDetails, Multiselect,
+  },
   props: {
     showMyInterested: Boolean,
     showInterested: Boolean,
@@ -250,6 +252,7 @@ export default {
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
+      this.searchFilters.include = newVal;
     }, 500),
     async paginateGrants() {
       try {
@@ -278,6 +281,13 @@ export default {
       }
     },
     getAwardFloor(grant) {
+      // First try to get the award floor amount from the award_floor field
+      const floor = parseInt(grant.award_floor, 10);
+      if (!Number.isNaN(floor)) {
+        return floor;
+      }
+
+      // Fall back to getting award floor amount from the raw_body
       let body;
       try {
         body = JSON.parse(grant.raw_body);
@@ -292,11 +302,11 @@ export default {
         return undefined;
       }
 
-      const floor = parseInt(body.synopsis && body.synopsis.awardFloor, 10);
-      if (Number.isNaN(floor)) {
+      const synopsisFloor = parseInt(body.synopsis && body.synopsis.awardFloor, 10);
+      if (Number.isNaN(synopsisFloor)) {
         return undefined;
       }
-      return floor;
+      return synopsisFloor;
     },
     onRowSelected(items) {
       const [row] = items;
