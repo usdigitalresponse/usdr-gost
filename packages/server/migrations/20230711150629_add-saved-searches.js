@@ -6,14 +6,15 @@ exports.up = function (knex) {
     return knex.schema
         .createTable('grants_saved_searches', (table) => {
             table.increments('id').primary();
-            table.string('name');
-            table.integer('agency_id').unsigned();
+            table.text('name').notNullable();
+            table.integer('agency_id').unsigned().index().notNullable();
             table.foreign('agency_id').references('agencies.id');
-            table.integer('created_by').unsigned();
+            table.integer('created_by').unsigned().index().notNullable();
             table.foreign('created_by').references('users.id');
-            table.string('criteria').notNullable();
+            table.text('criteria').notNullable();
             table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
-            table.timestamp('updated_at');
+            table.timestamp('updated_at').notNullable().defaultTo(knex.fn.now());
+            table.unique(['name', 'agency_id', 'created_by'], { indexName: 'grants_saved_searches_user_agency_created_by_idx' });
         });
 };
 

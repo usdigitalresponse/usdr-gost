@@ -64,13 +64,20 @@ router.delete('/:agencyId/:searchId', requireUser, async (req, res) => {
         res.sendStatus(400).send('Could not find the saved search');
         return;
     }
+    let deleteSuccess = false;
 
-    const success = await db.deleteSavedSearch(toDelete.id, toDelete.agency_id);
+    try {
+        deleteSuccess = await db.deleteSavedSearch(toDelete.id, toDelete.agency_id);
+    } catch (e) {
+        console.error(`Error deleting saved search: ${e}`);
+        res.status(500).send('Error deleting saved search');
+        return;
+    }
 
-    if (success) {
+    if (deleteSuccess) {
         res.status(200).send('OK');
     } else {
-        res.status(400).send('Failed to delete the saved search');
+        res.status(404).send('Could not find the saved search');
     }
 });
 

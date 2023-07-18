@@ -1054,14 +1054,13 @@ async function inTenant(tenantId, agencyIds) {
  * @return Promise<SavedSearch>
  * */
 async function createSavedSearch(searchItem) {
-    const response = await knex
+    const response = await knex('grants_saved_searches')
         .insert({
             name: searchItem.name,
             agency_id: searchItem.agencyId,
             created_by: searchItem.userId,
             criteria: searchItem.criteria,
         })
-        .into('grants_saved_searches')
         .returning('*');
 
     return {
@@ -1071,6 +1070,7 @@ async function createSavedSearch(searchItem) {
         createdBy: response[0].created_by,
         criteria: response[0].criteria,
         createdAt: new Date(response[0].created_at).toISOString(),
+        updatedAt: new Date(response[0].updated_at).toISOString(),
     };
 }
 
@@ -1102,9 +1102,9 @@ async function getSavedSearches(userId, agencyId, paginationParams) {
 
 /**
  * Get Saved Search with ID
- * @param  int              id
- * @param  int              agencyId
- * @return Promise<boolean>
+ * @param  int   id
+ * @param  int   agencyId
+ * @return any   row | null
  * */
 async function getSavedSearch(searchId, agencyId) {
     const response = await knex('grants_saved_searches')
@@ -1123,17 +1123,18 @@ async function getSavedSearch(searchId, agencyId) {
  * @return Promise<boolean>
  * */
 async function deleteSavedSearch(searchId, agencyId) {
+    let rowsDeleted = 0;
+
     try {
-        await knex('grants_saved_searches')
-            .where('id', searchId)
-            .andWhere('agency_id', agencyId)
+        rowsDeleted = await knex('grants_saved_searches')
+            .where({ id: searchId, agency_id: agencyId })
             .del();
     } catch (e) {
         console.error(`Unable to delete ${searchId}. Error: ${e}`);
-        return false;
+        throw e;
     }
 
-    return true;
+    return rowsDeleted === 1;
 }
 
 function close() {
