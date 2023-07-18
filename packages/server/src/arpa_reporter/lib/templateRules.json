@@ -1,7 +1,7 @@
 {
   "logic": {
     "version": {
-      "version": "v:20230616",
+      "version": "v:20230718",
       "key": "version",
       "index": 0,
       "required": false,
@@ -6157,7 +6157,7 @@
     "Fabric_ID__c": {
       "key": "Fabric_ID__c",
       "index": 69,
-      "required": true,
+      "required": false,
       "dataType": "Numeric",
       "maxLength": 9999999999,
       "listVals": [],
@@ -6172,7 +6172,7 @@
     "FCC_Provider_ID__c": {
       "key": "FCC_Provider_ID__c",
       "index": 70,
-      "required": true,
+      "required": false,
       "dataType": "Numeric",
       "maxLength": 999999,
       "listVals": [],
