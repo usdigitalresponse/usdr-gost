@@ -42,13 +42,15 @@ describe('`/api/grants-saved-search` endpoint', () => {
         fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
         fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
 
-        const allAgencyIds = Object.values(agencies.admin).concat(Object.values(agencies.staff));
-        const testSavedSearches = allAgencyIds.map((agency_id) => ({
+        const allAgencyIds = new Set(Object.values(agencies.admin).concat(Object.values(agencies.staff)));
+        const testSavedSearches = [];
+
+        allAgencyIds.forEach((agency_id) => (testSavedSearches.push({
             name: `Saved Search ${agency_id}`,
             criteria: `Criteria for ${agency_id}`,
             created_by: 13,
             agency_id,
-        }));
+        })));
         console.log(testSavedSearches);
         const createdSearches = await knex(TABLES.grants_saved_searches)
             .insert(testSavedSearches)
