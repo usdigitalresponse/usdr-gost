@@ -191,6 +191,10 @@ export default new Vuex.Store({
         commit('setAllUploads', result.uploads);
       }
     },
+    async updateUpload({ commit, state }, upload) {
+      const uploadsNew = state.uploads.map((u) => (u.id === upload.id ? upload : u));
+      commit('setAllUploads', uploadsNew);
+    },
     async updateAgencies({ commit }) {
       const result = await getJson('/api/agencies');
       if (result.error) {

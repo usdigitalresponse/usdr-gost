@@ -443,7 +443,7 @@ describe('invalidate', () => {
         const row = rows[0];
         assert.equal(row.invalidated_by, user.id);
         assert(row.invalidated_at !== null);
-        assert(row.validated_at !== null);
-        assert(row.validated_by !== null);
+        assert(row.validated_at === null);
+        assert(row.validated_by === null);
     });
 });
