@@ -10,7 +10,7 @@
         </b-input-group>
       </b-col>
       <b-col class="d-flex justify-content-end">
-        <SearchPanel />
+        <SearchPanel ref="searchPanel" />
         <SavedSearchPanel />
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
           <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
@@ -45,9 +45,14 @@
         </multiselect>
       </b-col>
     </b-row>
+    <b-row align-h="start">
+      <b-col cols="1">
+        <strong>{{totalRows}} grants</strong>
+      </b-col>
+    </b-row>
     <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields.filter( field => !field.hideGrantItem)" selectable striped
       :sort-by.sync="orderBy" :sort-desc.sync="orderDesc" :no-local-sorting="true"
-      select-mode="single" :busy="loading" @row-selected="onRowSelected">
+      select-mode="single" :busy="loading" @row-selected="onRowSelected" show-empty emptyText="No matches found">
       <template #cell(award_floor)="row">
         <p> {{ formatMoney(row.item.award_floor) }}</p>
       </template>
@@ -58,6 +63,18 @@
         <div class="text-center text-danger my-2">
           <b-spinner class="align-middle"></b-spinner>
           <strong> Loading...</strong>
+        </div>
+      </template>
+      <template #empty="scope">
+        &emsp;
+        &emsp;
+        <div class="text-center">
+          <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
+          <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
+          &nbsp;
+          <p><a @click="$refs.searchPanel.showSideBar()" class="link">
+            Edit Search Criteria
+          </a></p>
         </div>
       </template>
     </b-table>
@@ -430,3 +447,8 @@ export default {
   },
 };
 </script>
+<style>
+.empty-text {
+  margin: 2px;
+}
+</style>

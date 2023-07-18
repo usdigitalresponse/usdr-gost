@@ -6,6 +6,7 @@
         </b-button>
       <b-sidebar
         id="search-panel"
+        ref="searchPanelSideBar"
         title="Search"
         class="search-panel"
         right
@@ -157,6 +158,14 @@ export default {
     },
     eligibilityLabel({ label }) {
       return label;
+    },
+    showSideBar() {
+      if (!this.$refs.searchPanelSideBar.isOpen) {
+        // b-sidebar does not have show() method and v-model does not
+        // account for accessibility.
+        // See https://bootstrap-vue.org/docs/components/sidebar#v-model
+        this.$root.$emit('bv::toggle::collapse', 'search-panel');
+      }
     },
   },
 };
