@@ -227,6 +227,24 @@ async function mostRecentProjectRecords(periodId) {
     return Object.values(latestProjectRecords);
 }
 
+async function recordsForProject(periodId) {
+    log(`recordsForProject`);
+    requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
+
+    const reportingPeriods = await getPreviousReportingPeriods(periodId);
+
+    const inputs = [];
+    reportingPeriods.forEach((rp) => inputs.push(rp.id));
+    const allRecords = await asyncBatch(inputs, recordsForReportingPeriod, 2);
+
+    const projectRecords = allRecords
+        .flat()
+    // exclude non-project records
+        .filter((record) => Object.values(EC_SHEET_TYPES).includes(record.type));
+
+    return Object.values(projectRecords);
+}
+
 module.exports = {
     recordsForReportingPeriod,
     recordsForUpload,
@@ -234,6 +252,7 @@ module.exports = {
     DATA_SHEET_TYPES,
     TYPE_TO_SHEET_NAME,
     readVersionRecord,
+    recordsForProject,
 };
 
 // NOTE: This file was copied from src/server/services/records.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
