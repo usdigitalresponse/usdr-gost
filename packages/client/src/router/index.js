@@ -73,22 +73,6 @@ const routes = [
         },
       },
       {
-        path: '/eligibility-codes',
-        name: 'eligibilityCodes',
-        component: () => import('../views/EligibilityCodes.vue'),
-        meta: {
-          requiresAuth: true,
-        },
-      },
-      {
-        path: '/keywords',
-        name: 'keywords',
-        component: () => import('../views/Keywords.vue'),
-        meta: {
-          requiresAuth: true,
-        },
-      },
-      {
         path: '/tenants',
         name: 'tenants',
         component: () => import('../views/Tenants.vue'),
