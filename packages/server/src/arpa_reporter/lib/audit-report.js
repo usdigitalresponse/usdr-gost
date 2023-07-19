@@ -131,20 +131,10 @@ async function getProjectSummaryGroupedByProjectRow(data) {
     // set values in each column
     records.forEach(async (r) => {
         const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
-
-        switch (r.type) {
-            case 'ec7':
-                row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += r.content.Total_Expenditures__c;
-                row[`${reportingPeriodEndDate} Total Aggregate Obligations`] += r.content.Total_Obligations__c;
-                break;
-            case 'awards50k':
-                row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += record.content.Award_Amount__c;
-                break;
-            case 'expenditures50k':
-                row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += record.content.Expenditure_Amount__c;
-                break;
-            default:
-        }
+        row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += r.content.Total_Expenditures__c;
+        row[`${reportingPeriodEndDate} Total Aggregate Obligations`] += r.content.Total_Obligations__c;
+        row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += record.content.Award_Amount__c;
+        row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += record.content.Expenditure_Amount__c;
     });
 
     return row;
