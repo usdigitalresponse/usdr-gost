@@ -32,6 +32,8 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set date/time-based version string as env var
+        run: echo "DATETIME_VERSION=$(TZ=UTC date +'%Y%m%d.%H%M')" >> $GITHUB_ENV
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v4
@@ -39,12 +41,12 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,enable=true,priority=100,prefix=,suffix=,format=short
-            type=raw,enable=true,priority=200,prefix=,suffix=,value={{date 'YYYYMMDD.HHmm'}}
+            type=raw,enable=true,priority=200,prefix=,suffix=,value=${{ env.DATETIME_VERSION }}
             type=raw,enable=${{ github.event_name != 'pull_request' }},priority=300,value=latest
             type=raw,enable=${{ github.ref == 'refs/heads/main' }},priority=300,value=stable
           labels: |
             org.opencontainers.image.title=${{ env.IMAGE_NAME }}
-            org.opencontainers.image.version={{date 'YYYYMMDD.HHmm'}}
+            org.opencontainers.image.version=${{ env.DATETIME_VERSION }}
             com.datadoghq.tags.service=gost
             com.datadoghq.tags.version=${{ github.sha }}
       - name: Build and push Docker image

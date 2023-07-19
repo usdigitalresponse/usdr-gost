@@ -4,6 +4,12 @@
   </div>
 </template>
 
+<style lang="scss">
+@import 'bootstrap/scss/bootstrap.scss';
+@import 'bootstrap-vue/src/index.scss';
+@import 'vue-select/src/scss/vue-select.scss';
+</style>
+
 <script>
 import '../../arpa_reporter/scss/index.scss';
 import 'bootstrap/dist/js/bootstrap.min';
