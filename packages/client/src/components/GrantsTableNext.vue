@@ -2,7 +2,7 @@
   <section class="container-fluid">
     <b-row class="mt-3 mb-3" align-h="between">
       <b-col class="d-flex justify-content-start">
-        <SearchPanel @filters-applied="paginateGrants"/>
+        <SearchPanel @filters-applied="paginateGrants" />
         <SavedSearchPanel />
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
           <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
@@ -15,9 +15,10 @@
         <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" />
       </b-col>
     </b-row>
-    <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields.filter( field => !field.hideGrantItem)" selectable striped
-      :sort-by.sync="orderBy" :sort-desc.sync="orderDesc" :no-local-sorting="true"
-      select-mode="single" :busy="loading" @row-selected="onRowSelected">
+    <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants"
+      :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
+      :sort-desc.sync="orderDesc" :no-local-sorting="true" select-mode="single" :busy="loading"
+      @row-selected="onRowSelected">
       <template #cell(award_floor)="row">
         <p> {{ formatMoney(row.item.award_floor) }}</p>
       </template>
@@ -32,9 +33,8 @@
       </template>
     </b-table>
     <b-row align-v="center">
-      <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
-        last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
-        aria-controls="grants-table" />
+      <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number last-number
+        first-text="First" prev-text="Prev" next-text="Next" last-text="Last" aria-controls="grants-table" />
       <b-button class="ml-2" variant="outline-primary disabled">{{ grants.length }} of {{ totalRows }}</b-button>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
@@ -228,8 +228,10 @@ export default {
     ...mapActions({
       fetchGrants: 'grants/fetchGrantsNext',
       navigateToExportCSV: 'grants/exportCSV',
+      clearFilters: 'grants/clearFilters',
     }),
     setup() {
+      this.clearFilters();
       this.paginateGrants();
     },
     titleize,

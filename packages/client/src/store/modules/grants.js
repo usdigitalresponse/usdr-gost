@@ -1,12 +1,17 @@
 const fetchApi = require('@/helpers/fetchApi');
 
+// fields with ⚠️ are not yet implemented in the api
 const FILTER_FIELD_NAME_MAP = {
   costSharing: 'Cost Sharing',
   opportunityStatuses: 'Opportunity Statuses',
   opportunityCategories: 'Opportunity Categories',
-  includeKeywords: 'Include Keywords',
-  excludeKeywords: 'Exclude Keywords',
-  opportunityNumber: 'Opportunity Number',
+  reviewStatus: 'Review Status',
+  includeKeywords: 'Include Keywords ⚠️',
+  excludeKeywords: 'Exclude Keywords ⚠️',
+  opportunityNumber: 'Opportunity Number ⚠️',
+  postedWithin: 'Posted Within ⚠️',
+  fundingType: 'Funding Type ⚠️',
+  eligibility: 'Eligibility ⚠️',
 };
 
 function initialState() {
@@ -21,11 +26,15 @@ function initialState() {
     currentGrant: {},
     searchFormFilters: {
       costSharing: null,
-      opportunityStatuses: null,
-      opportunityCategories: null,
+      opportunityStatuses: [],
+      opportunityCategories: [],
       includeKeywords: null,
       excludeKeywords: null,
       opportunityNumber: null,
+      postedWithin: null,
+      fundingType: null,
+      eligibility: null,
+      reviewStatus: null,
     },
   };
 }
@@ -90,9 +99,10 @@ export default {
       currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe,
       assignedToAgency, showInterested, showResult, showRejected, aging, interestedByAgency,
     }) {
-      // pull cost sharing from state
+      // pull filters from state
       const { costSharing, opportunityStatuses, opportunityCategories } = this.state.grants.searchFormFilters;
-      // review status filters go into three separate fields TODO refactor this to be less repetitive
+      // review status filters can be in state or overridden based on how `fetchGrants` is called
+      // this is to facilitate a grants table having default filters on those (i.e. My Grants)
       const reviewStatusFilters = this.state.grants.searchFormFilters.reviewStatusFilters || [];
       const positiveInterest = showInterested || reviewStatusFilters.includes('interested') ? true : null;
       const result = showResult || reviewStatusFilters.includes('result') ? true : null;
@@ -236,7 +246,7 @@ export default {
       state.searchFormFilters = filters;
     },
     REMOVE_FILTER(state, key) {
-      state.searchFormFilters[key] = null;
+      state.searchFormFilters[key] = initialState().searchFormFilters[key];
     },
     CLEAR_FILTERS(state) {
       state.searchFormFilters = initialState().searchFormFilters;

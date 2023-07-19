@@ -9,6 +9,7 @@
         title="Search"
         class="search-panel"
         ref="sidebar"
+        @shown="onShown"
         right
         shadow
       >
@@ -33,7 +34,6 @@
             <template slot="label">Opportunity #</template>
               <b-form-input
                 id="opportunity-number-input"
-                type="number"
                 v-model="formData.opportunityNumber"
               ></b-form-input>
           </b-form-group>
@@ -52,7 +52,7 @@
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Eligibility</template>
-            <multiselect v-model="formData.opportunityCategoryFilters" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.eligibility" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Category</template>
@@ -76,7 +76,7 @@
           </b-form-group>
           <b-form-group>
             <template slot="label">Posted Within</template>
-            <multiselect v-model="formData.postedWithinFilters" :options="postedWithinOptions" :multiple="false"
+            <multiselect v-model="formData.postedWithin" :options="postedWithinOptions" :multiple="false"
                      :close-on-select="true" :clear-on-select="false" placeholder="All Time" :show-labels="false">
             </multiselect>
           </b-form-group>
@@ -88,7 +88,7 @@
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Review Status</template>
-            <multiselect v-model="formData.reviewStatusFilters" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.reviewStatus" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
         </form>
       <template #footer="{ hide }">
@@ -127,12 +127,11 @@ export default {
       agency: null,
       costSharing: false,
       opportunityCategories: [],
-      reviewStatusFilters: [],
-      postedWithinFilters: [],
+      reviewStatus: [],
+      postedWithin: [],
     };
-    const currentFormState = { ...defaultFormData, ...this.searchFormFilters };
     return {
-      formData: currentFormState,
+      formData: defaultFormData,
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       reviewStatusOptions: ['interested', 'result', 'rejected'],
@@ -141,7 +140,6 @@ export default {
   validations: {
     formData: {},
   },
-  watch: {},
   mounted() {
     this.setup();
   },
@@ -158,6 +156,7 @@ export default {
     }),
     setup() {
       this.fetchEligibilityCodes();
+      this.syncFilterState();
     },
     customLimitText(count) {
       return `+${count}`;
@@ -170,6 +169,13 @@ export default {
       this.applyFilters(formDataCopy);
       this.$emit('filters-applied');
       this.$refs.sidebar.hide();
+    },
+    syncFilterState() {
+      this.formData = { ...this.searchFormFilters };
+    },
+    onShown() {
+      // current filters may have changed since form was opened
+      this.syncFilterState();
     },
   },
 };

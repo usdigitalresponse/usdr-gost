@@ -29,7 +29,10 @@ export default {
     }),
     formatValue(value) {
       if (Array.isArray(value)) {
-        return value.join(', ');
+        return value.map((item) => this.formatValue(item)).join(', ');
+      }
+      if (value !== null && value.label) {
+        return value.label;
       }
       return value;
     },
