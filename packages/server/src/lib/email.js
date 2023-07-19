@@ -119,20 +119,20 @@ function getGrantDetail(grant, emailNotificationType) {
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
-        title: grant.title,
-        description: grant.description && grant.description.length > 400 ? `${grant.description.substring(0, 400)}...` : grant.description,
-        status: grant.opportunity_status,
-        show_date_range: grant.open_date && grant.close_date,
-        open_date: grant.open_date ? new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
-        close_date: grant.close_date ? new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
-        award_floor: grant.award_floor || '$0',
-        award_ceiling: grant.award_ceiling || 'Not available',
-        // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
-        cost_sharing: grant.cost_sharing,
-        link_url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
-        grants_url: `${process.env.WEBSITE_DOMAIN}/#/${emailNotificationType === notificationType.grantDigest ? 'grants' : 'my-grants'}`,
-        view_grant_label: emailNotificationType === notificationType.grantDigest ? 'View New Grants' : 'View My Grants',
-    },
+            title: grant.title,
+            description: grant.description && grant.description.length > 400 ? `${grant.description.substring(0, 400)}...` : grant.description,
+            status: grant.opportunity_status,
+            show_date_range: grant.open_date && grant.close_date,
+            open_date: grant.open_date ? new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
+            close_date: grant.close_date ? new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
+            award_floor: grant.award_floor || '$0',
+            award_ceiling: grant.award_ceiling || 'Not available',
+            // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
+            cost_sharing: grant.cost_sharing,
+            link_url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
+            grants_url: `${process.env.WEBSITE_DOMAIN}/#/${emailNotificationType === notificationType.grantDigest ? 'grants' : 'my-grants'}`,
+            view_grant_label: emailNotificationType === notificationType.grantDigest ? 'View New Grants' : 'View My Grants',
+        },
     );
     return grantDetail;
 }
