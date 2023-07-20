@@ -34,7 +34,7 @@ describe('`/api/grants-saved-search` endpoint', () => {
         },
     };
 
-    let testSearchesByAgency = null;
+    let createdSearches = null;
     let testServer;
     let fetchApi;
     before(async function beforeHook() {
@@ -50,14 +50,11 @@ describe('`/api/grants-saved-search` endpoint', () => {
             criteria: `Criteria for ${agency_id}`,
             created_by: 13,
         })));
-        console.log(testSavedSearches);
-        const createdSearches = await knex(TABLES.grants_saved_searches)
+        createdSearches = await knex(TABLES.grants_saved_searches)
             .insert(testSavedSearches)
             .onConflict('id')
             .merge()
             .returning(['id']);
-        testSearchesByAgency = _.groupBy(createdSearches, 'agency_id');
-        console.log(testSearchesByAgency);
 
         testServer = await makeTestServer();
         fetchApi = testServer.fetchApi;
@@ -68,7 +65,7 @@ describe('`/api/grants-saved-search` endpoint', () => {
 
     after(async () => {
         // Delete saved seraches created by this test to avoid impacting other tests
-        const allTestSearchIds = _.chain(testSearchesByAgency)
+        const allTestSearchIds = _.chain(createdSearches)
             .values()
             .flatten()
             .map('id')
@@ -80,19 +77,18 @@ describe('`/api/grants-saved-search` endpoint', () => {
 
     context('GET api/grants-saved-search', () => {
         context('by an authorized user', () => {
-            it('lists searches of this user\'s own agency', async () => {
+            it('lists searches of a user when non-zero', async () => {
                 // Will default to user's own agency ID
                 const response = await fetchApi(`/grants-saved-search`, agencies.admin.own, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                console.log(json);
-                expect((json.data.every((r) => r.agencyId === agencies.admin.own))).to.equal(true);
+                expect(json.data.length).to.equal(5);
             });
-            it('lists saved searches of a subagency of this user\'s own agency', async () => {
-                const response = await fetchApi(`/grants-saved-search`, agencies.admin.own, fetchOptions.admin);
+            it('lists saved searches of a user when there are none', async () => {
+                const response = await fetchApi(`/grants-saved-search`, agencies.admin.own, fetchOptions.staff);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect((json.data.every((r) => r.agencyId === agencies.admin.ownSub))).to.equal(true);
+                expect(json.data.length).to.equal(0);
             });
             it('is forbidden for an agency outside this user\'s hierarchy', async () => {
                 const response = await fetchApi(`/grants-saved-search`, agencies.admin.offLimits, fetchOptions.admin);
@@ -111,19 +107,9 @@ describe('`/api/grants-saved-search` endpoint', () => {
             await knex(TABLES.grants_saved_searches).whereIn('id', idsToDelete).del();
         });
 
-        context('by a user with admin role', () => {
-            it('creates a saved search for this user\'s own agency', async () => {
+        context('by an authorized user', () => {
+            it('creates a saved search for this user', async () => {
                 const response = await fetchApi(`/grants-saved-search`, agencies.admin.own, {
-                    ...fetchOptions.admin,
-                    method: 'post',
-                    body: JSON.stringify({ ...savedSearch }),
-                });
-                expect(response.statusText).to.equal('OK');
-                const json = await response.json();
-                idsToDelete.push(json.id);
-            });
-            it('creates a saved search for a subagency of this user\'s own agency', async () => {
-                const response = await fetchApi(`/grants-saved-search`, agencies.admin.ownSub, {
                     ...fetchOptions.admin,
                     method: 'post',
                     body: JSON.stringify({ ...savedSearch }),
@@ -144,26 +130,16 @@ describe('`/api/grants-saved-search` endpoint', () => {
     });
     context('DELETE /grants-saved-search/:id (delete a saved search for an agency)', () => {
         context('by an authorized user', () => {
-            it('deletes a saved search of this user\'s own agency', async () => {
-                const searchId = testSearchesByAgency[agencies.admin.own][0].id;
+            it('deletes a saved search of this user', async () => {
+                const searchId = createdSearches[0].id;
                 const response = await fetchApi(`/grants-saved-search/${searchId}`, agencies.admin.own, {
                     ...fetchOptions.admin,
                     method: 'delete',
                 });
-                console.log(response);
-                expect(response.statusText).to.equal('OK');
-            });
-            it('deletes a saved search of a subagency of this user\'s own agency', async () => {
-                const searchId = testSearchesByAgency[agencies.admin.ownSub][0].id;
-                const response = await fetchApi(`/grants-saved-search/${searchId}`, agencies.admin.ownSub, {
-                    ...fetchOptions.admin,
-                    method: 'delete',
-                });
-                console.log(response);
                 expect(response.statusText).to.equal('OK');
             });
             it('is forbidden for a saved search of an agency outside this user\'s hierarchy', async () => {
-                const searchId = testSearchesByAgency[agencies.admin.offLimits][0].id;
+                const searchId = createdSearches[0].id;
                 const response = await fetchApi(`/grants-saved-search/${searchId}`, agencies.admin.offLimits, {
                     ...fetchOptions.admin,
                     method: 'delete',
