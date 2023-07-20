@@ -38,15 +38,10 @@ router.delete('/:searchId', requireUser, async (req, res) => {
     const { searchId } = req.params;
     const { user } = req.session;
 
-    const toDelete = await db.getSavedSearch(searchId);
-    if (!toDelete || toDelete.created_by !== user.id) {
-        res.sendStatus(400).send('Could not find the saved search');
-        return;
-    }
     let deleteSuccess = false;
 
     try {
-        deleteSuccess = await db.deleteSavedSearch(toDelete.id);
+        deleteSuccess = await db.deleteSavedSearch(searchId, user.id);
     } catch (e) {
         console.error(`Error deleting saved search: ${e}`);
         res.status(500).send('Error deleting saved search');

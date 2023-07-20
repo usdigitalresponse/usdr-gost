@@ -62,7 +62,7 @@ describe('db', () => {
                 criteria: 'test-search-text',
             });
 
-            const result = await db.deleteSavedSearch(row.id);
+            const result = await db.deleteSavedSearch(row.id, fixtures.users.subStaffUser.id);
             expect(result).to.equal(true);
 
             // verify by attempting to get the searches as well

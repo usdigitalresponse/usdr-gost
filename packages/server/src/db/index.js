@@ -1112,12 +1112,12 @@ async function getSavedSearch(searchId) {
  * @param  int               searchId
  * @return Promise<boolean>
  * */
-async function deleteSavedSearch(searchId) {
+async function deleteSavedSearch(searchId, userId) {
     let rowsDeleted = 0;
 
     try {
         rowsDeleted = await knex('grants_saved_searches')
-            .where({ id: searchId })
+            .where({ id: searchId, created_by: userId })
             .del();
     } catch (e) {
         console.error(`Unable to delete ${searchId}. Error: ${e}`);
