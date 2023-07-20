@@ -2,17 +2,10 @@ const express = require('express');
 
 const router = express.Router({ mergeParams: true });
 const db = require('../db');
-const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
+const { requireUser } = require('../lib/access-helpers');
 
-router.get('/:agencyId', requireUser, async (req, res) => {
-    const { agencyId } = req.params;
+router.get('/', requireUser, async (req, res) => {
     const { user } = req.session;
-
-    const authorized = await isUserAuthorized(user, agencyId);
-    if (!authorized) {
-        res.sendStatus(403);
-        return;
-    }
 
     const paginationParams = {
         currentPage: req.params.currentPage || 1,
@@ -20,25 +13,17 @@ router.get('/:agencyId', requireUser, async (req, res) => {
         isLengthAware: req.params.isLengthAware || true,
     };
 
-    const savedSearches = await db.getSavedSearches(user.id, agencyId, paginationParams);
+    const savedSearches = await db.getSavedSearches(user.id, paginationParams);
 
     res.json(savedSearches);
 });
 
-router.post('/:agencyId', requireUser, async (req, res) => {
-    const { agencyId } = req.params;
+router.post('/', requireUser, async (req, res) => {
     const { user } = req.session;
-
-    const authorized = await isUserAuthorized(user, agencyId);
-    if (!authorized) {
-        res.sendStatus(403);
-        return;
-    }
 
     try {
         const result = await db.createSavedSearch({
             name: req.body.name,
-            agencyId,
             userId: user.id,
             criteria: req.body.criteria,
         });
@@ -49,25 +34,19 @@ router.post('/:agencyId', requireUser, async (req, res) => {
     }
 });
 
-router.delete('/:agencyId/:searchId', requireUser, async (req, res) => {
-    const { agencyId, searchId } = req.params;
+router.delete('/:searchId', requireUser, async (req, res) => {
+    const { searchId } = req.params;
     const { user } = req.session;
-    console.log('here');
-    const authorized = await isUserAuthorized(user, agencyId);
-    if (!authorized) {
-        res.sendStatus(403);
-        return;
-    }
 
-    const toDelete = await db.getSavedSearch(searchId, agencyId);
-    if (!toDelete) {
+    const toDelete = await db.getSavedSearch(searchId);
+    if (!toDelete || toDelete.created_by !== user.id) {
         res.sendStatus(400).send('Could not find the saved search');
         return;
     }
     let deleteSuccess = false;
 
     try {
-        deleteSuccess = await db.deleteSavedSearch(toDelete.id, toDelete.agency_id);
+        deleteSuccess = await db.deleteSavedSearch(toDelete.id);
     } catch (e) {
         console.error(`Error deleting saved search: ${e}`);
         res.status(500).send('Error deleting saved search');

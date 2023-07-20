@@ -17,14 +17,12 @@ describe('db', () => {
     context('CRUD Saved Search', () => {
         it('creates a new saved search', async () => {
             const row = await db.createSavedSearch({
-                name: 'Example search',
-                agencyId: fixtures.agencies.accountancy.id,
+                name: 'Example search 1',
                 userId: fixtures.users.adminUser.id,
                 criteria: 'test-search-text',
             });
             expect(row.id).to.be.greaterThan(0);
             expect(row.createdAt).to.not.be.null;
-            expect(row.agencyId).to.equal(fixtures.agencies.accountancy.id);
             expect(row.createdBy).to.equal(fixtures.users.adminUser.id);
             expect(row.criteria).to.equal('test-search-text');
         });
@@ -32,47 +30,43 @@ describe('db', () => {
             // testing pagination
             const firstSearch = await db.createSavedSearch({
                 name: 'Example search 1',
-                agencyId: fixtures.agencies.fleetServices.id,
-                userId: fixtures.users.adminUser.id,
+                userId: fixtures.users.staffUser.id,
                 criteria: 'test-search-text',
             });
             await db.createSavedSearch({
                 name: 'Example search 2',
-                agencyId: fixtures.agencies.fleetServices.id,
-                userId: fixtures.users.adminUser.id,
+                userId: fixtures.users.staffUser.id,
                 criteria: 'test-search-text',
             });
             await db.createSavedSearch({
                 name: 'Example search 3',
-                agencyId: fixtures.agencies.fleetServices.id,
-                userId: fixtures.users.adminUser.id,
+                userId: fixtures.users.staffUser.id,
                 criteria: 'test-search-text',
             });
-            const rows = await db.getSavedSearches(fixtures.users.adminUser.id, fixtures.agencies.fleetServices.id, { perPage: 2, currentPage: 1 });
+            const rows = await db.getSavedSearches(fixtures.users.staffUser.id, { perPage: 2, currentPage: 1 });
             expect(rows.data).to.have.lengthOf(2);
             expect(rows.data[0].name).to.equal('Example search 1');
             expect(rows.data[1].name).to.equal('Example search 2');
 
-            const rows2 = await db.getSavedSearches(fixtures.users.adminUser.id, fixtures.agencies.fleetServices.id, { perPage: 2, currentPage: 2 });
+            const rows2 = await db.getSavedSearches(fixtures.users.staffUser.id, { perPage: 2, currentPage: 2 });
             expect(rows2.data).to.have.lengthOf(1);
             expect(rows2.data[0].name).to.equal('Example search 3');
 
-            const row = await db.getSavedSearch(firstSearch.id, firstSearch.agencyId);
+            const row = await db.getSavedSearch(firstSearch.id);
             expect(row.name).to.equal('Example search 1');
         });
         it('deletes an existing saved search', async () => {
             const row = await db.createSavedSearch({
                 name: 'Example search to Delete',
-                agencyId: fixtures.agencies.subAccountancy.id,
-                userId: fixtures.users.adminUser.id,
+                userId: fixtures.users.subStaffUser.id,
                 criteria: 'test-search-text',
             });
 
-            const result = await db.deleteSavedSearch(row.id, fixtures.agencies.subAccountancy.id);
+            const result = await db.deleteSavedSearch(row.id);
             expect(result).to.equal(true);
 
             // verify by attempting to get the searches as well
-            const getRes = await db.getSavedSearches(fixtures.users.adminUser.id, fixtures.agencies.subAccountancy.id, { perPage: 10, currentPage: 1 });
+            const getRes = await db.getSavedSearches(fixtures.users.subStaffUser.id, { perPage: 10, currentPage: 1 });
             expect(getRes.data).to.have.lengthOf(0);
         });
     });
