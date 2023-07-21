@@ -45,12 +45,12 @@ describe('db', () => {
             });
             const rows = await db.getSavedSearches(fixtures.users.staffUser.id, { perPage: 2, currentPage: 1 });
             expect(rows.data).to.have.lengthOf(2);
-            expect(rows.data[0].name).to.equal('Example search 1');
+            expect(rows.data[0].name).to.equal('Example search 3');
             expect(rows.data[1].name).to.equal('Example search 2');
 
             const rows2 = await db.getSavedSearches(fixtures.users.staffUser.id, { perPage: 2, currentPage: 2 });
             expect(rows2.data).to.have.lengthOf(1);
-            expect(rows2.data[0].name).to.equal('Example search 3');
+            expect(rows2.data[0].name).to.equal('Example search 1');
 
             const row = await db.getSavedSearch(firstSearch.id);
             expect(row.name).to.equal('Example search 1');
