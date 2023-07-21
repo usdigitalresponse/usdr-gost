@@ -13,5 +13,6 @@ module.exports = {
         agency_eligibility_codes: 'agency_eligibility_codes',
         keywords: 'keywords',
         email_subscriptions: 'email_subscriptions',
+        grants_saved_searches: 'grants_saved_searches',
     },
 };
