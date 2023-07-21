@@ -1080,7 +1080,7 @@ async function createSavedSearch(searchItem) {
 async function getSavedSearches(userId, paginationParams) {
     const response = await knex('grants_saved_searches')
         .where('created_by', userId)
-        .orderBy('id')
+        .orderBy('updated_at', 'desc')
         .paginate(paginationParams);
 
     response.data = response.data.map((r) => ({
