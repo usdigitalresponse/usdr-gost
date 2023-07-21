@@ -14,6 +14,7 @@
     "consume-grants": "node src/scripts/consumeGrantModifications.js",
     "coverage": "nyc yarn test",
     "create_tenant": "node src/db/tenant_creation.js",
+    "migrate_saved_searches": "node src/db/saved_search_migration.js",
     "db:migrate": "knex migrate:latest",
     "db:rollback": "knex migrate:rollback",
     "db:seed": "yarn db:migrate && knex seed:run",
