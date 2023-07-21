@@ -17,6 +17,7 @@ function configureApiRoutes(app) {
     app.use('/api/organizations/:organizationId/agencies', require('./routes/agencies'));
     app.use('/api/organizations/:organizationId/tenants', require('./routes/tenants'));
     app.use('/api/organizations/:organizationId/grants', require('./routes/grants'));
+    app.use('/api/organizations/:organizationId/grants-saved-search', require('./routes/grantsSavedSearch'));
     app.use('/api/organizations/:organizationId/dashboard', require('./routes/dashboard'));
     app.use('/api/organizations/:organizationId/eligibility-codes', require('./routes/eligibilityCodes'));
     app.use('/api/organizations/:organizationId/interested-codes', require('./routes/interestedCodes'));

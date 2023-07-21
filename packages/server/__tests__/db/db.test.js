@@ -14,6 +14,62 @@ describe('db', () => {
     after(async () => {
         await db.knex.destroy();
     });
+    context('CRUD Saved Search', () => {
+        it('creates a new saved search', async () => {
+            const row = await db.createSavedSearch({
+                name: 'Example search 1',
+                userId: fixtures.users.adminUser.id,
+                criteria: 'test-search-text',
+            });
+            expect(row.id).to.be.greaterThan(0);
+            expect(row.createdAt).to.not.be.null;
+            expect(row.createdBy).to.equal(fixtures.users.adminUser.id);
+            expect(row.criteria).to.equal('test-search-text');
+        });
+        it('reads an existing saved search', async () => {
+            // testing pagination
+            const firstSearch = await db.createSavedSearch({
+                name: 'Example search 1',
+                userId: fixtures.users.staffUser.id,
+                criteria: 'test-search-text',
+            });
+            await db.createSavedSearch({
+                name: 'Example search 2',
+                userId: fixtures.users.staffUser.id,
+                criteria: 'test-search-text',
+            });
+            await db.createSavedSearch({
+                name: 'Example search 3',
+                userId: fixtures.users.staffUser.id,
+                criteria: 'test-search-text',
+            });
+            const rows = await db.getSavedSearches(fixtures.users.staffUser.id, { perPage: 2, currentPage: 1 });
+            expect(rows.data).to.have.lengthOf(2);
+            expect(rows.data[0].name).to.equal('Example search 1');
+            expect(rows.data[1].name).to.equal('Example search 2');
+
+            const rows2 = await db.getSavedSearches(fixtures.users.staffUser.id, { perPage: 2, currentPage: 2 });
+            expect(rows2.data).to.have.lengthOf(1);
+            expect(rows2.data[0].name).to.equal('Example search 3');
+
+            const row = await db.getSavedSearch(firstSearch.id);
+            expect(row.name).to.equal('Example search 1');
+        });
+        it('deletes an existing saved search', async () => {
+            const row = await db.createSavedSearch({
+                name: 'Example search to Delete',
+                userId: fixtures.users.subStaffUser.id,
+                criteria: 'test-search-text',
+            });
+
+            const result = await db.deleteSavedSearch(row.id, fixtures.users.subStaffUser.id);
+            expect(result).to.equal(true);
+
+            // verify by attempting to get the searches as well
+            const getRes = await db.getSavedSearches(fixtures.users.subStaffUser.id, { perPage: 10, currentPage: 1 });
+            expect(getRes.data).to.have.lengthOf(0);
+        });
+    });
 
     context('getGrantsInterested', () => {
         it('gets the most recent interested grant', async () => {
