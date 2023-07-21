@@ -2354,7 +2354,7 @@
   dependencies:
     node-gyp-build "^4.5.0"
 
-"@datadog/native-iast-taint-tracking@^1.5.0":
+"@datadog/native-iast-taint-tracking@1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@datadog/native-iast-taint-tracking/-/native-iast-taint-tracking-1.5.0.tgz#1a55eca6692079ac6167696682acb972aa0b0181"
   integrity sha512-SOWIk1M6PZH0osNB191Voz2rKBPoF5hISWVSK9GiJPrD40+xjib1Z/bFDV7EkDn3kjOyordSBdNPG5zOqZJdyg==
@@ -2369,10 +2369,10 @@
     node-addon-api "^6.1.0"
     node-gyp-build "^3.9.0"
 
-"@datadog/pprof@3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@datadog/pprof/-/pprof-3.0.0.tgz#b5e6df853589512ceb470c44cfc50cbe2ebfa5ab"
-  integrity sha512-nE/iWBX6h61SXrVWA6DeJ/m2iJX9ZNHrcoxFzHkK0LnSbNzrMlQZ0yw24ExhvIPLOFP4uFW057Cm48rsgr0NyQ==
+"@datadog/pprof@3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@datadog/pprof/-/pprof-3.1.0.tgz#d58aac33985dbb71f77d85a41023a35f1ad55290"
+  integrity sha512-Bg8O8yrHeL2KKHXhLoAAT33ZfzLnZ6rWfOjy8PkcNhUJy3UwNVLbUoApf+99EyLjqpzpk/kZXrIAMBzMMB8ilg==
   dependencies:
     delay "^5.0.0"
     node-gyp-build "<4.0"
@@ -6537,15 +6537,15 @@ dayjs@^1.10.4:
   integrity sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==
 
 dd-trace@^3.17.1:
-  version "3.28.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-3.28.0.tgz#8067bee43d2c234a19bb9aea95c75785a043b933"
-  integrity sha512-BBwr+muLmITnMSNEMz6uKy+SYlMCvTIyIoGkNyMKzWD/uOw7S6xsVjrAO0fwiw5InjCL0tib/iIsLn+y9VHPDQ==
+  version "3.29.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-3.29.0.tgz#80de1a0862c0db16c29850db02dc03559281906b"
+  integrity sha512-GXUTj32lS0So1pbHKMGkZjbX/6Wr9PSy2zAzhmeor49VPivlX/n3hq/h0sdJ53uekoKHCXFC5OhX6ZqvhrLR2g==
   dependencies:
     "@datadog/native-appsec" "^3.2.0"
     "@datadog/native-iast-rewriter" "2.0.1"
-    "@datadog/native-iast-taint-tracking" "^1.5.0"
+    "@datadog/native-iast-taint-tracking" "1.5.0"
     "@datadog/native-metrics" "^2.0.0"
-    "@datadog/pprof" "3.0.0"
+    "@datadog/pprof" "3.1.0"
     "@datadog/sketches-js" "^2.1.0"
     "@opentelemetry/api" "^1.0.0"
     "@opentelemetry/core" "^1.14.0"
