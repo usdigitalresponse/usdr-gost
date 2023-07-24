@@ -6537,9 +6537,9 @@ dayjs@^1.10.4:
   integrity sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==
 
 dd-trace@^3.17.1:
-  version "3.29.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-3.29.0.tgz#80de1a0862c0db16c29850db02dc03559281906b"
-  integrity sha512-GXUTj32lS0So1pbHKMGkZjbX/6Wr9PSy2zAzhmeor49VPivlX/n3hq/h0sdJ53uekoKHCXFC5OhX6ZqvhrLR2g==
+  version "3.29.1"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-3.29.1.tgz#684e0ac40145115fc4886a7aeb9141ec3ce31956"
+  integrity sha512-EKpamMiBbuL65Dq+TuyCf5Bc7NEhD0uwpgmbKN7tXK5O5fswdGDvyO1013B8SWnQQNcfoFvnlgtw/TmBYs9mXg==
   dependencies:
     "@datadog/native-appsec" "^3.2.0"
     "@datadog/native-iast-rewriter" "2.0.1"
