@@ -1040,12 +1040,103 @@ async function inTenant(tenantId, agencyIds) {
     return result.same_tenant === true;
 }
 
+/**
+ * Creates and saves a new saved search, given a name, agency ID, user ID, and criteria
+ *  interface SavedSearch {
+    id?: number
+    name: string
+    createdBy: number
+    criteria: string
+    createdAt?: string
+   }
+ * @param  SavedSearch           searchItem
+ * @return Promise<SavedSearch>
+ * */
+async function createSavedSearch(searchItem) {
+    const response = await knex('grants_saved_searches')
+        .insert({
+            name: searchItem.name,
+            created_by: searchItem.userId,
+            criteria: searchItem.criteria,
+        })
+        .returning('*');
+
+    return {
+        id: response[0].id,
+        name: response[0].name,
+        createdBy: response[0].created_by,
+        criteria: response[0].criteria,
+        createdAt: new Date(response[0].created_at).toISOString(),
+        updatedAt: new Date(response[0].updated_at).toISOString(),
+    };
+}
+
+/**
+ * Retrieves saved searches
+ * @param  int              userId
+ * @param  IPaginateParams  paginationParams
+ * @return Promise<boolean>
+ * */
+async function getSavedSearches(userId, paginationParams) {
+    const response = await knex('grants_saved_searches')
+        .where('created_by', userId)
+        .orderBy('updated_at', 'desc')
+        .paginate(paginationParams);
+
+    response.data = response.data.map((r) => ({
+        id: r.id,
+        name: r.name,
+        createdBy: r.created_by,
+        criteria: r.criteria,
+        createdAt: new Date(r.created_at).toISOString(),
+    }));
+
+    return response;
+}
+
+/**
+ * Get Saved Search by ID
+ * @param  int   id
+ * @return any   row | null
+ * */
+async function getSavedSearch(searchId) {
+    const response = await knex('grants_saved_searches')
+        .where('id', searchId)
+        .first();
+
+    return response;
+}
+
+/**
+ * Deletes a saved search
+ * @param  int               searchId
+ * @return Promise<boolean>
+ * */
+async function deleteSavedSearch(searchId, userId) {
+    let rowsDeleted = 0;
+
+    try {
+        rowsDeleted = await knex('grants_saved_searches')
+            .where({ id: searchId, created_by: userId })
+            .del();
+    } catch (e) {
+        console.error(`Unable to delete ${searchId}. Error: ${e}`);
+        throw e;
+    }
+
+    return rowsDeleted === 1;
+}
+
 function close() {
     return knex.destroy();
 }
 
 module.exports = {
     knex,
+    createSavedSearch,
+    getSavedSearch,
+    getSavedSearches,
+    deleteSavedSearch,
     getUsers,
     createUser,
     deleteUser,

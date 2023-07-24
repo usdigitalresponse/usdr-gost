@@ -301,6 +301,7 @@ module.exports = {
 
 module.exports.seed = async (knex) => {
     // https://stackoverflow.com/a/36499676
+    // await knex.migrate.rollback();
     const truncateStmt = `TRUNCATE TABLE ${Object.values(TABLES).join(', ')} RESTART IDENTITY CASCADE`;
     await knex.raw(truncateStmt).catch(
         async (err) => {
