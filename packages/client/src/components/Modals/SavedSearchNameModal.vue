@@ -1,9 +1,9 @@
 <template>
-    <div>
+  <div>
       <b-modal
-        id="saved-search-name-modal"
+        id="save-search-name-modal"
         ref="modal"
-        title="Add Keyword"
+        title="Save Search Name"
         @show="resetModal"
         @hidden="resetModal"
         @ok="handleOk"
@@ -29,12 +29,13 @@
     </div>
   </template>
 <script>
+
 import { mapActions, mapGetters } from 'vuex';
 import { required } from 'vuelidate/lib/validators';
 
 export default {
   props: {
-    showSearchModal: Boolean,
+    showModal: Boolean,
   },
   data() {
     return {
@@ -51,8 +52,12 @@ export default {
     },
   },
   watch: {
-    showSearchModal() {
-      this.$bvModal.show('saved-search-name-modal');
+    showModal() {
+      if (this.showModal) {
+        this.$bvModal.show('save-search-name-modal');
+      } else {
+        this.$bvModal.hide('save-search-name-modal');
+      }
     },
   },
   computed: {
@@ -66,7 +71,10 @@ export default {
       savedSearchName: 'keywords/savedSearchName',
     }),
     resetModal() {
-      this.$emit('update:showSearchModal', false);
+      this.formData = {
+        searchName: null,
+      };
+      this.$emit('update:showModal', false);
       this.$v.$reset();
     },
     handleOk(bvModalEvt) {
@@ -83,7 +91,8 @@ export default {
       await this.saveSearchName(this.formData);
       // Hide the modal manually
       this.$nextTick(() => {
-        this.$bvModal.hide('saved-search-name-modal');
+        this.$emit('update:showModal', false);
+        this.$bvModal.hide('save-search-name-modal');
       });
     },
   },

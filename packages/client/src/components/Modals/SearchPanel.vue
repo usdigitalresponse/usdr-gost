@@ -94,13 +94,13 @@
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
         <div class="right-button-container">
-          <b-button size="sm" @click="showSavedSearchNameModal" variant="outline-primary">Save New Search</b-button>
+          <b-button size="sm" @click="openSaveSearchNameModal" variant="outline-primary">Save New Search</b-button>
           <b-button size="sm" @click="hide" variant="primary">Apply</b-button>
         </div>
        </div>
       </template>
       </b-sidebar>
-      <SavedSearchNameModal showSearchModal.sync="showSearchModal"/>
+      <SavedSearchNameModal :showModal.sync="showSaveSearchNameModal"/>
     </div>
   </template>
 <script>
@@ -116,7 +116,6 @@ export default {
   },
   props: {
     searchType: String,
-    showModal: Boolean,
   },
   directives: {
     'v-b-toggle': VBToggle,
@@ -138,7 +137,7 @@ export default {
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       reviewStatusOptions: ['interested', 'result', 'rejected'],
-      showSearchModal: false,
+      showSaveSearchNameModal: false,
     };
   },
   validations: {
@@ -164,8 +163,8 @@ export default {
     eligibilityLabel({ label }) {
       return label;
     },
-    showSavedSearchNameModal() {
-      this.showSearchModal = false;
+    openSaveSearchNameModal() {
+      this.showSaveSearchNameModal = true;
     },
   },
 };
