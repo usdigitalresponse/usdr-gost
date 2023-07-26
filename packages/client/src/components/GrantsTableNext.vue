@@ -1,14 +1,6 @@
 <template>
   <section class="container-fluid">
     <b-row class="mt-3 mb-3" align-h="between">
-      <b-col cols="5">
-        <b-input-group size="md">
-          <b-input-group-text>
-            <b-icon icon="search" />
-          </b-input-group-text>
-          <b-form-input type="sliders" @input="debounceSearchInput"></b-form-input>
-        </b-input-group>
-      </b-col>
       <b-col class="d-flex justify-content-end">
         <SearchPanel ref="searchPanel" />
         <SavedSearchPanel />
