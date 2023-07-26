@@ -1,12 +1,13 @@
 <template>
   <div>
     <div class="mb-3">
+      <div class="ml-2">
+        <b>Saved Search Name </b>
+        <a href="#" v-on:click="clearAll">Edit</a> | <a href="#" v-on:click="clearAll">Clear</a>
+      </div>
       <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">
-        <strong >{{ item.label }}: </strong>{{ formatValue(item.value)  }} <a href="#" v-on:click.prevent="clearFilter(idx)"><b-icon icon="x" font-scale="1.5">&nbsp;</b-icon></a>
+        <strong >{{ item.label }}: </strong>{{ formatValue(item.value)  }}
       </span>
-    </div>
-    <div class="mb-3">
-      <a href="#" v-on:click="clearAll">Clear all</a>
     </div>
   </div>
 </template>

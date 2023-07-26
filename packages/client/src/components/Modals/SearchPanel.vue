@@ -1,9 +1,8 @@
 <template>
     <div>
-      <b-button v-b-toggle.search-panel variant="outline-secondary">
-          <b-icon icon="sliders" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
-          Search
-        </b-button>
+      <b-button v-b-toggle.search-panel variant="outline-primary" size="sm">
+        New Search
+      </b-button>
       <b-sidebar
         id="search-panel"
         ref="searchPanelSideBar"
@@ -13,6 +12,15 @@
         shadow
       >
         <form ref="form" class="search-form">
+          <b-form-group label-for="search-title">
+            <template slot="label"><b>Search Title</b></template>
+              <b-form-input
+                id="searchTitle"
+                type="text"
+                v-model="formData.searchTitle"
+              ></b-form-input>
+              <b-form-text id="input-live-help">ex. Infrastructure</b-form-text>
+          </b-form-group>
           <b-form-group label-for="include-input">
             <template slot="label">Include Keywords</template>
               <b-form-input
@@ -93,10 +101,9 @@
         </form>
       <template #footer="{ hide }">
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
-        <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
-        <div class="right-button-container">
-          <b-button size="sm" @click="hide" variant="outline-primary">Save New Search</b-button>
-          <b-button size="sm" @click="hide" variant="primary">Apply</b-button>
+        <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Cancel</b-button>
+        <div>
+          <b-button size="sm" @click="hide" variant="primary">Save</b-button>
         </div>
        </div>
       </template>

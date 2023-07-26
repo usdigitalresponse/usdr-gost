@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-button v-b-toggle.saved-search-panel variant="outline-secondary">
+    <b-button v-b-toggle.saved-search-panel variant="primary" size="sm">
       My Saved Searches
     </b-button>
     <b-sidebar

@@ -1,48 +1,21 @@
 <template>
-  <section class="container-fluid">
-    <b-row class="mt-3 mb-3" align-h="between">
-      <b-col cols="5">
-        <b-input-group size="md">
-          <b-input-group-text>
-            <b-icon icon="search" />
-          </b-input-group-text>
-          <b-form-input type="sliders" @input="debounceSearchInput"></b-form-input>
-        </b-input-group>
-      </b-col>
-      <b-col class="d-flex justify-content-end">
-        <SearchPanel ref="searchPanel" />
+  <section class="container-fluid" style="margin: 10px;" >
+    <b-row class="my-3">
+      <div class="ml-3">
         <SavedSearchPanel />
-        <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
-          <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
-          Export to CSV
-        </b-button>
-      </b-col>
+      </div>
+      <div class="ml-3">
+        <SearchPanel ref="searchPanel" />
+      </div>
     </b-row>
     <b-row>
-      <b-col cols="12">
+      <b-col cols="11">
         <SearchFilter :filterKeys="searchFilters" />
       </b-col>
-    </b-row>
-    <b-row class="mt-3 mb-3" align-h="start" style="position: relative; z-index: 999">
-      <b-col v-if="!showInterested && !showRejected && !showResult && !showAssignedToAgency" cols="3">
-        <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions" :multiple="true"
-          :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false">
-        </multiselect>
-      </b-col>
-      <b-col cols="3">
-        <multiselect v-model="opportunityStatusFilters" :options="opportunityStatusOptions" :multiple="true"
-                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Status" :show-labels="false">
-        </multiselect>
-      </b-col>
-      <b-col cols="3">
-        <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true"
-                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false">
-        </multiselect>
-      </b-col>
-      <b-col cols="2">
-        <multiselect v-model="costSharingFilter" :options="costSharingOptions" :multiple="false"
-                     :close-on-select="true" :clear-on-select="false" placeholder="Cost Sharing" :show-labels="false">
-        </multiselect>
+      <b-col align-self="end">
+        <b-button @click="exportCSV" :disabled="loading" variant="outline-primary border-0">
+          Export CSV
+        </b-button>
       </b-col>
     </b-row>
     <b-row align-h="start">
@@ -90,8 +63,6 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { debounce } from 'lodash';
-import Multiselect from 'vue-multiselect';
 import { titleize } from '../helpers/form-helpers';
 import GrantDetails from './Modals/GrantDetails.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
@@ -100,7 +71,7 @@ import SearchFilter from './SearchFilter.vue';
 
 export default {
   components: {
-    GrantDetails, Multiselect, SearchPanel, SavedSearchPanel, SearchFilter,
+    GrantDetails, SearchPanel, SavedSearchPanel, SearchFilter,
   },
   props: {
     showMyInterested: Boolean,
@@ -299,10 +270,6 @@ export default {
       this.paginateGrants();
     },
     titleize,
-    debounceSearchInput: debounce(function bounce(newVal) {
-      this.debouncedSearchInput = newVal;
-      this.searchFilters.include = newVal;
-    }, 500),
     async paginateGrants() {
       try {
         this.loading = true;
