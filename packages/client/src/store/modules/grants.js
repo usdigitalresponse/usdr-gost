@@ -116,6 +116,17 @@ export default {
     async setEligibilityCodeEnabled(context, { code, enabled }) {
       await fetchApi.put(`/api/organizations/:organizationId/eligibility-codes/${code}/enable/${enabled}`);
     },
+    fetchSavedSearches({ commit }) {
+      // TODO: Add pagination URL parameters.
+      fetchApi.get('/api/organizations/:organizationId/grants-saved-search')
+        .then((data) => commit('SET_SAVED_SEARCHES', data));
+    },
+    createSavedSearch(context, { searchInfo }) {
+      fetchApi.post('/api/organizations/:organizationId/grants-saved-search', { searchInfo });
+    },
+    updateSavedSearch(context, { searchId, searchInfo }) {
+      fetchApi.put(`/api/organizations/:organizationId/grants-saved-search/${searchId}`, { searchInfo });
+    },
     exportCSV(context, queryParams) {
       const query = Object.entries(queryParams)
         // filter out undefined and nulls since api expects parameters not present as undefined

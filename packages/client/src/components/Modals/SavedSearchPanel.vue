@@ -50,7 +50,11 @@ export default {
   mounted() {
   },
   methods: {
-    ...mapActions({}),
+    ...mapActions({
+      createSavedSearch: 'grants/createSavedSearch',
+      updateSavedSearch: 'grants/updateSavedSearch',
+      getSavedSearches: 'grants/fetchSavedSearches',
+    }),
   },
 };
 </script>

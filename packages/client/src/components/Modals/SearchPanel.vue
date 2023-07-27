@@ -1,6 +1,6 @@
 <template>
     <div>
-      <b-button v-b-toggle.search-panel variant="outline-primary" size="sm">
+      <b-button @click="openSearchPanel" variant="outline-primary" size="sm">
         New Search
       </b-button>
       <b-sidebar
@@ -8,6 +8,7 @@
         ref="searchPanelSideBar"
         title="Search"
         class="search-panel"
+        v-model="isSearchPanelOpen"
         right
         shadow
       >
@@ -103,7 +104,7 @@
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Cancel</b-button>
         <div>
-          <b-button size="sm" @click="hide" variant="primary">Save</b-button>
+          <b-button size="sm" @click="saveSearch" variant="primary">Save</b-button>
         </div>
        </div>
       </template>
@@ -141,6 +142,7 @@ export default {
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       reviewStatusOptions: ['interested', 'result', 'rejected'],
+      isSearchPanelOpen: false,
     };
   },
   validations: {
@@ -165,6 +167,13 @@ export default {
     },
     eligibilityLabel({ label }) {
       return label;
+    },
+    saveSearch() {
+      console.log('foo');
+      this.isSearchPanelOpen = false;
+    },
+    openSearchPanel() {
+      this.isSearchPanelOpen = true;
     },
     showSideBar() {
       if (!this.$refs.searchPanelSideBar.isOpen) {
