@@ -41,6 +41,16 @@ variable "gost_use_new_table" {
   default     = false
 }
 
+variable "feature_flags" {
+  description = "Feature flags for configuring the website runtime"
+  type        = object({})
+  default     = {}
+  validation {
+    condition     = can(jsonencode(var.feature_flags))
+    error_message = "Value must be JSON-serializable."
+  }
+}
+
 variable "logs_bucket_versioning" {
   description = "Enable versioning for the logs S3 bucket"
   type        = bool
