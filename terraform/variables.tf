@@ -66,6 +66,12 @@ variable "website_managed_waf_rules" {
   default = {}
 }
 
+variable "website_feature_flags" {
+  description = "Map of website feature flag names and their values."
+  type        = object({})
+  default     = {}
+}
+
 // ECS cluster
 variable "cluster_container_insights_enabled" {
   type    = bool
