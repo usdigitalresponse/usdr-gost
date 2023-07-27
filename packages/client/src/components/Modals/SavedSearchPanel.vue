@@ -45,7 +45,9 @@ export default {
   validations: {},
   watch: {},
   computed: {
-    ...mapGetters({}),
+    ...mapGetters({
+      getSavedSearches: 'grants/fetchSavedSearches',
+    }),
   },
   mounted() {
   },
@@ -53,7 +55,6 @@ export default {
     ...mapActions({
       createSavedSearch: 'grants/createSavedSearch',
       updateSavedSearch: 'grants/updateSavedSearch',
-      getSavedSearches: 'grants/fetchSavedSearches',
     }),
   },
 };

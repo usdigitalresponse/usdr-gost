@@ -27,7 +27,7 @@
               <b-form-input
                 id="include-input"
                 type="text"
-                v-model="formData.includeInput"
+                v-model="formData.criteria.includeInput"
               ></b-form-input>
           </b-form-group>
           <b-form-group label-for="exclude-input">
@@ -35,7 +35,7 @@
               <b-form-input
                 id="exclude-input"
                 type="text"
-                v-model="formData.excludeInput"
+                v-model="formData.criteria.excludeInput"
               ></b-form-input>
           </b-form-group>
           <b-form-group label-for="opportunity-number">
@@ -43,13 +43,13 @@
               <b-form-input
                 id="opportunity-number-input"
                 type="number"
-                v-model="formData.opportunityNumber"
+                v-model="formData.criteria.opportunityNumber"
               ></b-form-input>
           </b-form-group>
           <b-form-group label="Opportunity Status" v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               id="opportunity-status"
-              v-model="formData.opportunityStatusFilters"
+              v-model="formData.criteria.opportunityStatusFilters"
               :aria-describedby="ariaDescribedby"
               name="opportunity-status"
               inline
@@ -61,18 +61,18 @@
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Eligibility</template>
-            <multiselect v-model="formData.opportunityCategoryFilters" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.criteria.opportunityCategoryFilters" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Category</template>
-            <multiselect v-model="formData.opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.criteria.opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
           <b-form-group label-for="Funding Type">
             <template slot="label">Funding Type</template>
               <b-form-input
                 id="funding-type"
                 type="text"
-                v-model="formData.fundingType"
+                v-model="formData.criteria.fundingType"
               ></b-form-input>
           </b-form-group>
           <b-form-group label-for="Agency">
@@ -80,7 +80,7 @@
               <b-form-input
                 id="agency"
                 type="text"
-                v-model="formData.agency"
+                v-model="formData.criteria.agency"
               ></b-form-input>
           </b-form-group>
           <b-form-group>
@@ -91,20 +91,21 @@
           </b-form-group>
           <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }" row>
             <b-form-radio-group>
-              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="A">Yes</b-form-radio>
-              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="B">No</b-form-radio>
+              <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="A">Yes</b-form-radio>
+              <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="B">No</b-form-radio>
             </b-form-radio-group>
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Review Status</template>
-            <multiselect v-model="formData.reviewStatusFilters" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.criteria.reviewStatusFilters" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
         </form>
       <template #footer="{ hide }">
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Cancel</b-button>
         <div>
-          <b-button size="sm" @click="saveSearch" variant="primary">Save</b-button>
+          <b-button v-if="formData.searchId !== null" size="sm" @click="saveSearch" variant="primary">Save</b-button>
+          <b-button v-if="formData.searchId === null" size="sm" @click="saveSearch" variant="primary">Save and View Results</b-button>
         </div>
        </div>
       </template>
@@ -128,16 +129,20 @@ export default {
   data() {
     return {
       formData: {
-        includeInput: null,
-        excludeInput: null,
-        opportunityNumber: null,
-        opportunityStatusFilters: [],
-        fundingType: null,
-        agency: null,
-        costSharing: false,
-        opportunityCategoryFilters: [],
-        reviewStatusFilters: [],
-        postedWithinFilters: [],
+        searchId: null,
+        searchTitle: null,
+        criteria: {
+          includeInput: null,
+          excludeInput: null,
+          opportunityNumber: null,
+          opportunityStatusFilters: [],
+          fundingType: null,
+          agency: null,
+          costSharing: false,
+          opportunityCategoryFilters: [],
+          reviewStatusFilters: [],
+          postedWithinFilters: [],
+        },
       },
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
@@ -154,13 +159,16 @@ export default {
   },
   computed: {
     ...mapGetters({
-      eligibilityCodes: 'grants/eligibilityCodes',
+      fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
     }),
   },
   methods: {
-    ...mapActions({}),
+    ...mapActions({
+      createSavedSearch: 'grants/createSavedSearch',
+      updateSavedSearch: 'grants/updateSavedSearch',
+    }),
     setup() {
-      this.fetchEligibilityCodes();
+      // this.fetchEligibilityCodes();
     },
     customLimitText(count) {
       return `+${count}`;
@@ -170,6 +178,24 @@ export default {
     },
     saveSearch() {
       console.log('foo');
+      console.log(this.formData);
+      if (this.formData.searchId !== null) {
+        this.updateSavedSearch({
+          searchId: this.formData.searchId,
+          searchInfo: {
+            name: this.formData.searchTitle,
+            criteria: this.formData.criteria,
+          },
+        });
+      } else {
+        const res = this.createSavedSearch({
+          searchInfo: {
+            name: this.formData.searchTitle || 'sample name',
+            criteria: this.formData.criteria,
+          },
+        });
+        console.log(res);
+      }
       this.isSearchPanelOpen = false;
     },
     openSearchPanel() {

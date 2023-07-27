@@ -122,10 +122,10 @@ export default {
         .then((data) => commit('SET_SAVED_SEARCHES', data));
     },
     createSavedSearch(context, { searchInfo }) {
-      fetchApi.post('/api/organizations/:organizationId/grants-saved-search', { searchInfo });
+      fetchApi.post('/api/organizations/:organizationId/grants-saved-search', searchInfo);
     },
     updateSavedSearch(context, { searchId, searchInfo }) {
-      fetchApi.put(`/api/organizations/:organizationId/grants-saved-search/${searchId}`, { searchInfo });
+      fetchApi.put(`/api/organizations/:organizationId/grants-saved-search/${searchId}`, searchInfo);
     },
     exportCSV(context, queryParams) {
       const query = Object.entries(queryParams)
