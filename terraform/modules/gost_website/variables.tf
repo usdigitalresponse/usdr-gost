@@ -35,12 +35,6 @@ variable "gost_api_domain" {
   type        = string
 }
 
-variable "gost_use_new_table" {
-  description = "Flag to tell client to use the new table experience."
-  type        = bool
-  default     = false
-}
-
 variable "feature_flags" {
   description = "Feature flags for configuring the website runtime"
   type        = object({})
