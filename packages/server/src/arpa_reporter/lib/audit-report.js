@@ -150,8 +150,8 @@ async function getReportDataGroupedByProjectRow(data) {
 
         // for kpi report
         const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
-        kpiRow['Number of Subawards'] += (r.type === 'awards50k' ? 1 : 0);
-        kpiRow['Number of Expenditures'] += (currentPeriodExpenditure > 0 ? 1 : 0);
+        kpiRow['Number of Subawards'] += (r.type === 'awards50k');
+        kpiRow['Number of Expenditures'] += (currentPeriodExpenditure > 0);
         kpiRow['Evidence based total spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
     });
 
