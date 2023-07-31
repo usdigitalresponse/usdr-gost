@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
+import { useNewGrantsTable } from '@/helpers/featureFlags';
 import Login from '../views/Login.vue';
 import Layout from '../components/Layout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
@@ -78,6 +79,7 @@ const routes = [
         component: () => import('../views/EligibilityCodes.vue'),
         meta: {
           requiresAuth: true,
+          enabledWithOldGrantsTableOnly: true,
         },
       },
       {
@@ -86,6 +88,7 @@ const routes = [
         component: () => import('../views/Keywords.vue'),
         meta: {
           requiresAuth: true,
+          enabledWithOldGrantsTableOnly: true,
         },
       },
       {
@@ -139,7 +142,8 @@ router.beforeEach((to, from, next) => {
     next({ name: 'login', query: { redirect_to: redirectTo } });
   } else if (to.name === 'login' && authenticated) {
     next({ name: 'grants' });
-  } else if (to.name === 'not-found') {
+  } else if (to.name === 'not-found'
+  || (to.meta.enabledWithOldGrantsTableOnly && useNewGrantsTable())) {
     if (authenticated) {
       next({ name: 'grants' });
     } else {

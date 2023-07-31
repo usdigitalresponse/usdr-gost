@@ -32,8 +32,8 @@
     <b-nav tabs justified style="margin-top: 20px">
         <b-nav-item to="/my-grants" exact exact-active-class="active">My Grants</b-nav-item>
         <b-nav-item to="/grants" exact exact-active-class="active">Browse Grants</b-nav-item>
-        <b-nav-item to="/eligibility-codes" exact exact-active-class="active">Eligibility Codes</b-nav-item>
-        <b-nav-item to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
+        <b-nav-item v-if="!useNewGrantsTable" to="/eligibility-codes" exact exact-active-class="active">Eligibility Codes</b-nav-item>
+        <b-nav-item v-if="!useNewGrantsTable" to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
         <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
         <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
         <b-nav-item to="/Agencies" exact exact-active-class="active">Agencies</b-nav-item>
@@ -54,6 +54,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import { useNewGrantsTable } from '@/helpers/featureFlags';
 import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
 import AlertBox from '../arpa_reporter/components/AlertBox.vue';
 
@@ -79,6 +80,9 @@ export default {
     }),
     canSeeTenantsTab() {
       return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
+    },
+    useNewGrantsTable() {
+      return useNewGrantsTable();
     },
   },
   methods: {
