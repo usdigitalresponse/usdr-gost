@@ -10,7 +10,7 @@
     </b-row>
     <b-row>
       <b-col cols="11">
-        <SearchFilter :filterKeys="searchFilters" />
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" />
       </b-col>
       <b-col align-self="end">
         <b-button @click="exportCSV" :disabled="loading" variant="outline-primary border-0">

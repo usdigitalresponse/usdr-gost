@@ -43,7 +43,6 @@
             <template slot="label">Opportunity #</template>
               <b-form-input
                 id="opportunity-number-input"
-                type="number"
                 v-model="formData.criteria.opportunityNumber"
               ></b-form-input>
           </b-form-group>
