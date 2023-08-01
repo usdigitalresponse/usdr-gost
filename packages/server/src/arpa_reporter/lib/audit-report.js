@@ -128,13 +128,16 @@ async function getProjectSummaryGroupedByProjectRow(data) {
         ].forEach((columnName) => { row[columnName] = 0; });
     });
 
+    row['Capital Expenditure Amount'] = 0;
+
     // set values in each column
     records.forEach(async (r) => {
         const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
         row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += (r.content.Total_Expenditures__c || 0);
         row[`${reportingPeriodEndDate} Total Aggregate Obligations`] += (r.content.Total_Obligations__c || 0);
-        row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += (record.content.Award_Amount__c || 0);
-        row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += (record.content.Expenditure_Amount__c || 0);
+        row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += (r.content.Award_Amount__c || 0);
+        row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += (r.content.Expenditure_Amount__c || 0);
+        row['Capital Expenditure Amount'] += (r.content.Total_Cost_Capital_Expenditure__c || 0);
     });
 
     return row;
