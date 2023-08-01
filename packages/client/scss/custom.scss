@@ -1,0 +1,65 @@
+// override theme variables here
+
+///////////////
+/// COLORS  ///
+///////////////
+
+// USDR BRAND
+$usdr-brand-primary: #0066FF;
+$usdr-brand-secondary: #071A51;
+
+// BLUE
+$raw-blue-50: #EAF5FE;
+$raw-blue-100: #D8ECFE;
+$raw-blue-600: #305CE0;
+$raw-blue-700: #2348C2;
+$raw-blue-800: #0D2F81;
+$raw-blue-50-50pct: #EAF5FE; // PLACEHOLDER VALUE - WRONG 
+
+// WHITE
+$raw-white: #FFFFFF;
+
+// GRAY
+$raw-gray-50: #F4F7F9;
+$raw-gray-300: #B1B8BE;
+$raw-gray-400: #879097;
+$raw-gray-500: #6D7278;
+$raw-gray-600: #43464A;
+$raw-gray-700: #1F2123;
+$raw-black-alpha-600: rgba(0, 0, 0, 48);
+
+// BLUE
+
+// GREEN
+$raw-green-600: #107747;
+
+// YELLOW
+$raw-yellow-550: #956F0D;
+
+// RED
+$raw-red-600: #C22E31;
+
+// THEME (SEMANTIC TOKEN) DEFINITION - SASS MAP
+$theme-colors: () !default;
+$theme-colors: map-merge(
+  (
+    "primary":    $usdr-brand-primary,
+    "secondary":  $usdr-brand-secondary,
+    "success":    $raw-green-600,
+    "info":       $raw-blue-600,
+    "warning":    $raw-yellow-550,
+    "danger":     $raw-red-600,
+  ),
+  $theme-colors
+);
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+@import 'bootstrap/scss/bootstrap.scss';
+@import 'bootstrap-vue/src/index.scss';
+@import 'vue-select/src/scss/vue-select.scss';
