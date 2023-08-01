@@ -37,6 +37,7 @@ function initialState() {
       reviewStatus: null,
     },
     savedSearches: {},
+    selectedSearchId: null,
   };
 }
 
@@ -79,6 +80,7 @@ export default {
       return state.searchFormFilters;
     },
     savedSearches: (state) => state.savedSearches,
+    selectedSearchId: (state) => state.selectedSearchId,
   },
   actions: {
     fetchGrants({ commit }, {
@@ -203,6 +205,9 @@ export default {
     deleteSavedSearch(context, { searchId }) {
       fetchApi.deleteRequest(`/api/organizations/:organizationId/grants-saved-search/${searchId}`);
     },
+    changeSelectedSearchId({ commit }, searchId) {
+      commit('SET_SELECTED_SEARCH_ID', searchId);
+    },
     exportCSV(context, queryParams) {
       const query = Object.entries(queryParams)
         // filter out undefined and nulls since api expects parameters not present as undefined
@@ -269,6 +274,9 @@ export default {
     },
     SET_SAVED_SEARCHES(state, savedSearches) {
       state.savedSearches = savedSearches;
+    },
+    SET_SELECTED_SEARCH_ID(state, searchId) {
+      state.selectedSearchId = !Number.isNaN(searchId) ? searchId.toString() : searchId;
     },
   },
 };

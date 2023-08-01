@@ -88,19 +88,21 @@ export default {
       updateSavedSearch: 'grants/updateSavedSearch',
       deleteSavedSearchAPI: 'grants/deleteSavedSearch',
       fetchSavedSearches: 'grants/fetchSavedSearches',
+      changeSelectedSearchId: 'grants/changeSelectedSearchId',
     }),
     setup() {
       this.fetchSavedSearches();
     },
-    editSavedSearch() {
+    editSavedSearch(e) {
+      this.changeSelectedSearchId(e.target.getAttribute('searchid'));
       this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
       this.$root.$emit('bv::toggle::collapse', 'search-panel');
     },
     deleteSavedSearch(e) {
       const searchId = `${e.target.getAttribute('searchid')}`;
       this.deleteSavedSearchAPI({ searchId });
-      this.fetchSavedSearches();
       this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
+      this.fetchSavedSearches();
     },
   },
 };

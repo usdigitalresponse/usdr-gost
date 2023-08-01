@@ -169,6 +169,7 @@ export default {
       fetchSavedSearches: 'grants/fetchSavedSearches',
       applyFilters: 'grants/applyFilters',
       fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+      changeSelectedSearchId: 'grants/changeSelectedSearchId',
     }),
     setup() {
       this.fetchEligibilityCodes();
@@ -196,6 +197,7 @@ export default {
       console.log('foo');
       console.log(this.formData);
       this.apply();
+      let searchId;
       if (this.formData.searchId !== undefined) {
         this.updateSavedSearch({
           searchId: this.formData.searchId,
@@ -204,6 +206,7 @@ export default {
             criteria: this.formData.criteria,
           },
         });
+        searchId = this.formData.searchId;
       } else {
         const res = this.createSavedSearch({
           searchInfo: {
@@ -211,8 +214,9 @@ export default {
             criteria: this.formData.criteria,
           },
         });
-        console.log(res);
+        searchId = res.searchId;
       }
+      this.changeSelectedSearchId(searchId);
       this.fetchSavedSearches();
       this.isSearchPanelOpen = false;
     },
