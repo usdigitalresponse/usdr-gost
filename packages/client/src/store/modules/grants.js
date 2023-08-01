@@ -10,6 +10,7 @@ function initialState() {
     totalUpcomingGrants: 0,
     totalInterestedGrants: 0,
     currentGrant: {},
+    savedSearches: {},
   };
 }
 
@@ -30,6 +31,7 @@ export default {
       result: state.interestedCodes.filter((c) => c.status_code === 'Result'),
       interested: state.interestedCodes.filter((c) => c.status_code === 'Interested'),
     }),
+    savedSearches: (state) => state.savedSearches,
   },
   actions: {
     fetchGrants({ commit }, {
@@ -172,6 +174,9 @@ export default {
     SET_CLOSEST_GRANTS(state, closestGrants) {
       state.closestGrants = closestGrants.data;
       state.totalUpcomingGrants = closestGrants.pagination.total;
+    },
+    SET_SAVED_SEARCHES(state, savedSearches) {
+      state.savedSearches = savedSearches;
     },
   },
 };
