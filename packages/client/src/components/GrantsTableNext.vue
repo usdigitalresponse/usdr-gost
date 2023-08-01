@@ -5,12 +5,12 @@
         <SavedSearchPanel />
       </div>
       <div class="ml-3">
-        <SearchPanel ref="searchPanel" />
+        <SearchPanel ref="searchPanel" @filters-applied="paginateGrants" />
       </div>
     </b-row>
     <b-row>
       <b-col cols="11">
-        <SearchFilter :filterKeys="searchFilters" />
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" />
       </b-col>
       <b-col align-self="end">
         <b-button @click="exportCSV" :disabled="loading" variant="outline-primary border-0">
@@ -87,28 +87,6 @@ export default {
       perPage: 50,
       currentPage: 1,
       loading: false,
-      searchFilters: [
-        {
-          label: 'Include',
-          value: ['Nevada', 'infrastructure'],
-        },
-        {
-          label: 'Exclude',
-          value: ['road', 'highways'],
-        },
-        {
-          label: 'Opp Status',
-          value: ['forecasted', 'posted'],
-        },
-        {
-          label: 'Cost Sharing',
-          value: 'Yes',
-        },
-        {
-          label: 'Review Status',
-          value: ['Interested', 'Supporting'],
-        },
-      ],
       fields: [
         {
           key: 'grant_number',
@@ -182,6 +160,7 @@ export default {
       grantsPagination: 'grants/grantsPagination',
       agency: 'users/agency',
       selectedAgency: 'users/selectedAgency',
+      activeFilters: 'grants/activeFilters',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -218,6 +197,9 @@ export default {
           return {};
         })(),
       }));
+    },
+    searchFilters() {
+      return this.activeFilters;
     },
   },
   watch: {
@@ -263,10 +245,12 @@ export default {
   },
   methods: {
     ...mapActions({
-      fetchGrants: 'grants/fetchGrants',
+      fetchGrants: 'grants/fetchGrantsNext',
       navigateToExportCSV: 'grants/exportCSV',
+      clearFilters: 'grants/clearFilters',
     }),
     setup() {
+      this.clearFilters();
       this.paginateGrants();
     },
     titleize,
@@ -281,14 +265,11 @@ export default {
           searchTerm: this.debouncedSearchInput,
           interestedByAgency: this.showInterested || this.showResult || this.showRejected,
           interestedByMe: this.showMyInterested,
+          showInterested: this.showInterested,
+          showResult: this.showResult,
+          showRejected: this.showRejected,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
-          positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
-          result: this.showResult || (this.reviewStatusFilters.includes('result') ? true : null),
-          rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
-          opportunityStatuses: this.parseOpportunityStatusFilters(),
-          opportunityCategories: this.opportunityCategoryFilters,
-          costSharing: this.costSharingFilter,
         });
       } catch (e) {
         console.log(e);

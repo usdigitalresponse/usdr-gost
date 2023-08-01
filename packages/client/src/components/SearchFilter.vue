@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="filter-container">
     <div class="mb-3">
       <div class="ml-2">
         <b>Saved Search Name </b>
-        <a href="#" v-on:click="clearAll">Edit</a> | <a href="#" v-on:click="clearAll">Clear</a>
+        <a href="#" v-on:click="clearAll">Edit</a> | <a href="#" v-on:click="clearAll" v-if="$props.filterKeys.length > 0">Clear</a>
       </div>
       <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">
         <strong >{{ item.label }}: </strong>{{ formatValue(item.value)  }}
@@ -12,6 +12,7 @@
   </div>
 </template>
 <script>
+import { mapActions } from 'vuex';
 
 export default {
   props: {
@@ -22,19 +23,27 @@ export default {
     },
   },
   methods: {
+    ...mapActions({
+      removeFilter: 'grants/removeFilter',
+      clearFilters: 'grants/clearFilters',
+      fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+    }),
     formatValue(value) {
       if (Array.isArray(value)) {
-        return value.join(', ');
+        return value.map((item) => this.formatValue(item)).join(', ');
+      }
+      if (value !== null && value.label) {
+        return value.label;
       }
       return value;
     },
     clearAll() {
-      this.filterKeys.splice(0, this.filterKeys.length);
+      this.clearFilters();
+      this.$emit('filter-removed');
     },
-    clearFilter(index) {
-      // TODO emit event when parent component is handling state
-      // this.$emit('filter:remove', index);
-      this.filterKeys.splice(index, 1);
+    clearFilter(key) {
+      this.removeFilter(key);
+      this.$emit('filter-removed', key);
     },
   },
 };
@@ -44,5 +53,7 @@ export default {
 .filter-item {
   padding: 0.25rem 0.5rem;
 }
-
+.filter-container {
+  height: 65px;
+}
 </style>
