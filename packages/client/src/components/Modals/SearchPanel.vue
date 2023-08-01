@@ -1,24 +1,34 @@
 <template>
     <div>
-      <b-button v-b-toggle.search-panel variant="outline-secondary">
-          <b-icon icon="sliders" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
-          Search
-        </b-button>
+      <b-button @click="openSearchPanel" variant="outline-primary" size="sm">
+        New Search
+      </b-button>
       <b-sidebar
         id="search-panel"
         ref="searchPanelSideBar"
         title="Search"
         class="search-panel"
+        v-model="isSearchPanelOpen"
+        @shown="onShown"
         right
         shadow
       >
         <form ref="form" class="search-form">
+          <b-form-group label-for="search-title">
+            <template slot="label"><b>Search Title</b></template>
+              <b-form-input
+                id="searchTitle"
+                type="text"
+                v-model="formData.searchTitle"
+              ></b-form-input>
+              <b-form-text id="input-live-help">ex. Infrastructure</b-form-text>
+          </b-form-group>
           <b-form-group label-for="include-input">
             <template slot="label">Include Keywords</template>
               <b-form-input
                 id="include-input"
                 type="text"
-                v-model="formData.includeInput"
+                v-model="formData.criteria.includeKeywords"
               ></b-form-input>
           </b-form-group>
           <b-form-group label-for="exclude-input">
@@ -26,21 +36,20 @@
               <b-form-input
                 id="exclude-input"
                 type="text"
-                v-model="formData.excludeInput"
+                v-model="formData.criteria.excludeKeywords"
               ></b-form-input>
           </b-form-group>
           <b-form-group label-for="opportunity-number">
             <template slot="label">Opportunity #</template>
               <b-form-input
                 id="opportunity-number-input"
-                type="number"
-                v-model="formData.opportunityNumber"
+                v-model="formData.criteria.opportunityNumber"
               ></b-form-input>
           </b-form-group>
           <b-form-group label="Opportunity Status" v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               id="opportunity-status"
-              v-model="formData.opportunityStatusFilters"
+              v-model="formData.criteria.opportunityStatuses"
               :aria-describedby="ariaDescribedby"
               name="opportunity-status"
               inline
@@ -52,18 +61,18 @@
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Eligibility</template>
-            <multiselect v-model="formData.opportunityCategoryFilters" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.criteria.eligibility" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Category</template>
-            <multiselect v-model="formData.opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.criteria.opportunityCategories" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
           <b-form-group label-for="Funding Type">
             <template slot="label">Funding Type</template>
               <b-form-input
                 id="funding-type"
                 type="text"
-                v-model="formData.fundingType"
+                v-model="formData.criteria.fundingType"
               ></b-form-input>
           </b-form-group>
           <b-form-group label-for="Agency">
@@ -71,32 +80,32 @@
               <b-form-input
                 id="agency"
                 type="text"
-                v-model="formData.agency"
+                v-model="formData.criteria.agency"
               ></b-form-input>
           </b-form-group>
           <b-form-group>
             <template slot="label">Posted Within</template>
-            <multiselect v-model="formData.postedWithinFilters" :options="postedWithinOptions" :multiple="false"
+            <multiselect v-model="formData.postedWithin" :options="postedWithinOptions" :multiple="false"
                      :close-on-select="true" :clear-on-select="false" placeholder="All Time" :show-labels="false">
             </multiselect>
           </b-form-group>
           <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }" row>
             <b-form-radio-group>
-              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="A">Yes</b-form-radio>
-              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="B">No</b-form-radio>
+              <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="Yes">Yes</b-form-radio>
+              <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="No">No</b-form-radio>
             </b-form-radio-group>
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Review Status</template>
-            <multiselect v-model="formData.reviewStatusFilters" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.criteria.reviewStatus" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
         </form>
       <template #footer="{ hide }">
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
-        <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
-        <div class="right-button-container">
-          <b-button size="sm" @click="hide" variant="outline-primary">Save New Search</b-button>
-          <b-button size="sm" @click="hide" variant="primary">Apply</b-button>
+        <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Cancel</b-button>
+        <div>
+          <b-button v-if="formData.searchId !== null" size="sm" @click="saveSearch" variant="primary">Save</b-button>
+          <b-button v-if="formData.searchId === null" size="sm" @click="saveSearch" variant="primary">Save and View Results</b-button>
         </div>
        </div>
       </template>
@@ -118,22 +127,26 @@ export default {
     'v-b-toggle': VBToggle,
   },
   data() {
+    const defaultCriteria = {
+      includeKeywords: null,
+      excludeKeywords: null,
+      opportunityNumber: null,
+      opportunityStatuses: [],
+      fundingType: null,
+      agency: null,
+      costSharing: false,
+      opportunityCategories: [],
+      reviewStatus: [],
+      postedWithin: [],
+    };
     return {
       formData: {
-        includeInput: null,
-        excludeInput: null,
-        opportunityNumber: null,
-        opportunityStatusFilters: [],
-        fundingType: null,
-        agency: null,
-        costSharing: false,
-        opportunityCategoryFilters: [],
-        reviewStatusFilters: [],
-        postedWithinFilters: [],
+        criteria: defaultCriteria,
       },
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       reviewStatusOptions: ['interested', 'result', 'rejected'],
+      isSearchPanelOpen: false,
     };
   },
   validations: {
@@ -145,11 +158,19 @@ export default {
   },
   computed: {
     ...mapGetters({
+      searchFormFilters: 'grants/searchFormFilters',
       eligibilityCodes: 'grants/eligibilityCodes',
     }),
   },
   methods: {
-    ...mapActions({}),
+    ...mapActions({
+      createSavedSearch: 'grants/createSavedSearch',
+      updateSavedSearch: 'grants/updateSavedSearch',
+      fetchSavedSearches: 'grants/fetchSavedSearches',
+      applyFilters: 'grants/applyFilters',
+      fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+      changeSelectedSearchId: 'grants/changeSelectedSearchId',
+    }),
     setup() {
       this.fetchEligibilityCodes();
     },
@@ -158,6 +179,49 @@ export default {
     },
     eligibilityLabel({ label }) {
       return label;
+    },
+    apply() {
+      const formDataCopy = { ...this.formData.criteria };
+      this.applyFilters(formDataCopy);
+      this.$emit('filters-applied');
+      this.$refs.searchPanelSideBar.hide();
+    },
+    syncFilterState() {
+      this.formData.criteria = { ...this.searchFormFilters };
+    },
+    onShown() {
+      // current filters may have changed since form was opened
+      this.syncFilterState();
+    },
+    saveSearch() {
+      console.log('foo');
+      console.log(this.formData);
+      this.apply();
+      let searchId;
+      if (this.formData.searchId !== undefined) {
+        this.updateSavedSearch({
+          searchId: this.formData.searchId,
+          searchInfo: {
+            name: this.formData.searchTitle,
+            criteria: this.formData.criteria,
+          },
+        });
+        searchId = this.formData.searchId;
+      } else {
+        const res = this.createSavedSearch({
+          searchInfo: {
+            name: this.formData.searchTitle || 'sample name',
+            criteria: this.formData.criteria,
+          },
+        });
+        searchId = res.searchId;
+      }
+      this.changeSelectedSearchId(searchId);
+      this.fetchSavedSearches();
+      this.isSearchPanelOpen = false;
+    },
+    openSearchPanel() {
+      this.isSearchPanelOpen = true;
     },
     showSideBar() {
       if (!this.$refs.searchPanelSideBar.isOpen) {

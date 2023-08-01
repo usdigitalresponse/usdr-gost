@@ -1071,6 +1071,25 @@ async function createSavedSearch(searchItem) {
     };
 }
 
+async function updateSavedSearch(searchItem) {
+    const response = await knex('grants_saved_searches')
+        .where({ id: searchItem.id, created_by: searchItem.userId })
+        .update({
+            name: searchItem.name,
+            criteria: searchItem.criteria,
+        })
+        .returning('*');
+
+    return {
+        id: response[0].id,
+        name: response[0].name,
+        createdBy: response[0].created_by,
+        criteria: response[0].criteria,
+        createdAt: new Date(response[0].created_at).toISOString(),
+        updatedAt: new Date(response[0].updated_at).toISOString(),
+    };
+}
+
 /**
  * Retrieves saved searches
  * @param  int              userId
@@ -1137,6 +1156,7 @@ module.exports = {
     getSavedSearch,
     getSavedSearches,
     deleteSavedSearch,
+    updateSavedSearch,
     getUsers,
     createUser,
     deleteUser,
