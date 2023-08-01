@@ -95,7 +95,7 @@ Follow these steps to start contributing:
    $ git commit
    ```
 
-   Please write [good commit messages](https://chris.beams.io/posts/git-commit/).
+   Commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) style. 
 
    It is a good idea to sync your copy of the code with the original
    repository regularly. This way you can quickly account for changes:
