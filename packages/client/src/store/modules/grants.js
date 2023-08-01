@@ -36,6 +36,7 @@ function initialState() {
       eligibility: null,
       reviewStatus: null,
     },
+    savedSearches: {},
   };
 }
 
@@ -77,6 +78,7 @@ export default {
     searchFormFilters(state) {
       return state.searchFormFilters;
     },
+    savedSearches: (state) => state.savedSearches,
   },
   actions: {
     fetchGrants({ commit }, {
@@ -261,6 +263,9 @@ export default {
     },
     CLEAR_FILTERS(state) {
       state.searchFormFilters = initialState().searchFormFilters;
+    },
+    SET_SAVED_SEARCHES(state, savedSearches) {
+      state.savedSearches = savedSearches;
     },
   },
 };

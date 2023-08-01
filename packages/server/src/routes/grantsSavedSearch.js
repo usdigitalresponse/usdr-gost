@@ -30,6 +30,7 @@ router.post('/', requireUser, async (req, res) => {
 
         res.json(result);
     } catch (e) {
+        console.error(e);
         res.status(500).send('Unable to create saved search. Please reach out to grants-helpdesk@usdigitalresponse.org');
     }
 });

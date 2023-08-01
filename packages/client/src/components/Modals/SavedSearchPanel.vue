@@ -15,10 +15,34 @@
        <span aria-hidden="true">&times;</span>
       </b-button>
     </template>
-    <div class="saved-search-empty-state">
+    <div class="saved-search-empty-state" v-if="savedSearches.data.length === 0">
       <h4>No saved searches</h4>
       <span>Save search criteria to easily apply or share a search</span>
     </div>
+    <section class="container-fluid">
+      <div v-for="(search,idx) in savedSearches.data" :key="idx">
+        <b-row>
+          <b-col cols="9"><b>{{  search.name }}</b></b-col>
+          <b-col cols="1">
+            <button><b-icon icon="three-dots-vertical" font-scale="1"></b-icon></button>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col cols="9">
+            <!-- TODO: Change this to updatedAt -->
+            Last used {{ new Intl.DateTimeFormat("en-US", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(search.createdAt)) }}
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col cols="9">
+            <div v-for="[key, value] of Object.entries(JSON.parse(search.criteria))" :key="key">
+              {{ key }}: {{ value }}
+            </div>
+          </b-col>
+        </b-row>
+        <hr />
+      </div>
+    </section>
     <template #footer="{ hide }">
      <div class="d-flex text-light align-items-center px-3 py-2">
       <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
@@ -46,16 +70,21 @@ export default {
   watch: {},
   computed: {
     ...mapGetters({
-      getSavedSearches: 'grants/fetchSavedSearches',
+      savedSearches: 'grants/savedSearches',
     }),
   },
   mounted() {
+    this.setup();
   },
   methods: {
     ...mapActions({
       createSavedSearch: 'grants/createSavedSearch',
       updateSavedSearch: 'grants/updateSavedSearch',
+      fetchSavedSearches: 'grants/fetchSavedSearches',
     }),
+    setup() {
+      this.fetchSavedSearches();
+    },
   },
 };
 </script>
