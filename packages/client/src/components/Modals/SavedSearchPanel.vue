@@ -24,7 +24,13 @@
         <b-row>
           <b-col cols="9"><b>{{  search.name }}</b></b-col>
           <b-col cols="1">
-            <button><b-icon icon="three-dots-vertical" font-scale="1"></b-icon></button>
+            <b-dropdown size="sm"  variant="link" toggle-class="text-decoration-none" no-caret>
+              <template #button-content>
+                <b-icon icon="three-dots-vertical" font-scale="1"></b-icon>
+              </template>
+              <b-dropdown-item :searchId="search.id" @click="editSavedSearch">Edit</b-dropdown-item>
+              <b-dropdown-item @click="deleteSavedSearch" :searchId="search.id">Delete</b-dropdown-item>
+            </b-dropdown>
           </b-col>
         </b-row>
         <b-row>
@@ -80,10 +86,21 @@ export default {
     ...mapActions({
       createSavedSearch: 'grants/createSavedSearch',
       updateSavedSearch: 'grants/updateSavedSearch',
+      deleteSavedSearchAPI: 'grants/deleteSavedSearch',
       fetchSavedSearches: 'grants/fetchSavedSearches',
     }),
     setup() {
       this.fetchSavedSearches();
+    },
+    editSavedSearch() {
+      this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
+      this.$root.$emit('bv::toggle::collapse', 'search-panel');
+    },
+    deleteSavedSearch(e) {
+      const searchId = `${e.target.getAttribute('searchid')}`;
+      this.deleteSavedSearchAPI({ searchId });
+      this.fetchSavedSearches();
+      this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
     },
   },
 };

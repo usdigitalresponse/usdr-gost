@@ -166,6 +166,7 @@ export default {
     ...mapActions({
       createSavedSearch: 'grants/createSavedSearch',
       updateSavedSearch: 'grants/updateSavedSearch',
+      fetchSavedSearches: 'grants/fetchSavedSearches',
       applyFilters: 'grants/applyFilters',
       fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
     }),
@@ -195,7 +196,7 @@ export default {
       console.log('foo');
       console.log(this.formData);
       this.apply();
-      if (this.formData.searchId !== null) {
+      if (this.formData.searchId !== undefined) {
         this.updateSavedSearch({
           searchId: this.formData.searchId,
           searchInfo: {
@@ -212,6 +213,7 @@ export default {
         });
         console.log(res);
       }
+      this.fetchSavedSearches();
       this.isSearchPanelOpen = false;
     },
     openSearchPanel() {

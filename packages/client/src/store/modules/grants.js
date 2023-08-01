@@ -200,6 +200,9 @@ export default {
     updateSavedSearch(context, { searchId, searchInfo }) {
       fetchApi.put(`/api/organizations/:organizationId/grants-saved-search/${searchId}`, searchInfo);
     },
+    deleteSavedSearch(context, { searchId }) {
+      fetchApi.deleteRequest(`/api/organizations/:organizationId/grants-saved-search/${searchId}`);
+    },
     exportCSV(context, queryParams) {
       const query = Object.entries(queryParams)
         // filter out undefined and nulls since api expects parameters not present as undefined
