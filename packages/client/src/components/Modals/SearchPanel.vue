@@ -104,8 +104,7 @@
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Cancel</b-button>
         <div>
-          <b-button v-if="formData.searchId !== null" size="sm" @click="saveSearch" variant="primary">Save</b-button>
-          <b-button v-if="formData.searchId === null" size="sm" @click="saveSearch" variant="primary">Save and View Results</b-button>
+          <b-button size="sm" @click="saveSearch" variant="primary">Save and View Results</b-button>
         </div>
        </div>
       </template>
@@ -122,6 +121,7 @@ export default {
   props: {
     SearchType: String,
     showModal: Boolean,
+    searchId: Number,
   },
   directives: {
     'v-b-toggle': VBToggle,
@@ -142,6 +142,7 @@ export default {
     return {
       formData: {
         criteria: defaultCriteria,
+        searchId: this.searchId,
       },
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
@@ -160,6 +161,7 @@ export default {
     ...mapGetters({
       searchFormFilters: 'grants/searchFormFilters',
       eligibilityCodes: 'grants/eligibilityCodes',
+      savedSearches: 'grants/savedSearches',
     }),
   },
   methods: {
@@ -187,18 +189,28 @@ export default {
       this.$refs.searchPanelSideBar.hide();
     },
     syncFilterState() {
-      this.formData.criteria = { ...this.searchFormFilters };
+      if (this.searchId !== undefined && this.searchId !== null) {
+        const search = this.savedSearches.data.find((s) => s.id === this.searchId);
+        this.formData.searchId = search.id;
+        this.formData.searchTitle = search.name;
+        const criteria = JSON.parse(search.criteria);
+        this.formData.criteria = { ...criteria };
+      } else {
+        this.formData.searchId = null;
+        this.formData.searchTitle = null;
+        this.formData.criteria = { ...this.searchFormFilters };
+      }
     },
     onShown() {
       // current filters may have changed since form was opened
       this.syncFilterState();
     },
-    saveSearch() {
+    async saveSearch() {
       console.log('foo');
       console.log(this.formData);
       this.apply();
       let searchId;
-      if (this.formData.searchId !== undefined) {
+      if (this.formData.searchId !== undefined && this.formData.searchId !== null) {
         this.updateSavedSearch({
           searchId: this.formData.searchId,
           searchInfo: {
@@ -208,13 +220,14 @@ export default {
         });
         searchId = this.formData.searchId;
       } else {
-        const res = this.createSavedSearch({
+        const res = await this.createSavedSearch({
           searchInfo: {
             name: this.formData.searchTitle || 'sample name',
             criteria: this.formData.criteria,
           },
         });
-        searchId = res.searchId;
+        debugger;
+        searchId = res.id;
       }
       this.changeSelectedSearchId(searchId);
       this.fetchSavedSearches();

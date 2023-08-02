@@ -2,15 +2,15 @@
   <section class="container-fluid" style="margin: 10px;" >
     <b-row class="my-3">
       <div class="ml-3">
-        <SavedSearchPanel />
+        <SavedSearchPanel @edit-filter="openSearchForEdit" @filters-applied="paginateGrants" />
       </div>
       <div class="ml-3">
-        <SearchPanel ref="searchPanel" @filters-applied="paginateGrants" />
+        <SearchPanel ref="searchPanel" :search-id="searchId" @filters-applied="paginateGrants" />
       </div>
     </b-row>
     <b-row>
       <b-col cols="11">
-        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" />
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" @edit-filter="openSearchForEdit" />
       </b-col>
       <b-col align-self="end">
         <b-button @click="exportCSV" :disabled="loading" variant="outline-primary border-0">
@@ -148,6 +148,7 @@ export default {
       opportunityStatusOptions: ['Forecasted', 'Posted', 'Closed / Archived'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       costSharingOptions: ['Yes', 'No'],
+      searchId: null,
     };
   },
   mounted() {
@@ -161,6 +162,7 @@ export default {
       agency: 'users/agency',
       selectedAgency: 'users/selectedAgency',
       activeFilters: 'grants/activeFilters',
+      selectedSearchId: 'grants/selectedSearchId',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -276,6 +278,16 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    openSearchForEdit(searchId) {
+      if (searchId === null || searchId === undefined) {
+        debugger;
+        this.searchId = Number(this.selectedSearchId);
+      } else {
+        this.searchId = Number(searchId);
+      }
+
+      this.$root.$emit('bv::toggle::collapse', 'search-panel');
     },
     getAwardFloor(grant) {
       let body;
