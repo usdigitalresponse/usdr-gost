@@ -30,7 +30,26 @@ router.post('/', requireUser, async (req, res) => {
 
         res.json(result);
     } catch (e) {
+        console.error(e);
         res.status(500).send('Unable to create saved search. Please reach out to grants-helpdesk@usdigitalresponse.org');
+    }
+});
+
+router.put('/:searchId', requireUser, async (req, res) => {
+    const { user } = req.session;
+
+    try {
+        const result = await db.updateSavedSearch({
+            id: req.params.searchId,
+            name: req.body.name,
+            userId: user.id,
+            criteria: req.body.criteria,
+        });
+
+        res.json(result);
+    } catch (e) {
+        console.error(e);
+        res.status(500).send('Unable to update saved search. Please reach out to grants-helpdesk@usdigitalresponse.org');
     }
 });
 
