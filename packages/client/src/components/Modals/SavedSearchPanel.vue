@@ -15,12 +15,12 @@
        <span aria-hidden="true">&times;</span>
       </b-button>
     </template>
-    <div class="saved-search-empty-state" v-if="savedSearches.data.length === 0">
+    <div class="saved-search-empty-state" v-if="savedSearches.data && savedSearches.data.length === 0">
       <h4>No saved searches</h4>
       <span>Save search criteria to easily apply or share a search</span>
     </div>
     <section class="container-fluid">
-      <div v-for="(search,idx) in savedSearches.data" :key="idx">
+      <div v-for="(search,idx) in savedSearches.data" :key="idx" class="saved-search-row" :searchid="search.id" @click="appylySavedSearch(search.id)" >
         <b-row>
           <b-col cols="9"><b>{{  search.name }}</b></b-col>
           <b-col cols="1">
@@ -41,8 +41,8 @@
         </b-row>
         <b-row>
           <b-col cols="9">
-            <div v-for="[key, value] of Object.entries(JSON.parse(search.criteria))" :key="key">
-              {{ key }}: {{ value }}
+            <div v-for="(field, idx) of formatCriteria(search.criteria)" :key="idx">
+              {{ field.label }}: {{ field.value }}
             </div>
           </b-col>
         </b-row>
@@ -61,6 +61,8 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
+
+import { formatFilterDisplay } from '@/helpers/filters';
 
 export default {
   props: {
@@ -89,20 +91,33 @@ export default {
       deleteSavedSearchAPI: 'grants/deleteSavedSearch',
       fetchSavedSearches: 'grants/fetchSavedSearches',
       changeSelectedSearchId: 'grants/changeSelectedSearchId',
+      applyFilters: 'grants/applyFilters',
     }),
     setup() {
       this.fetchSavedSearches();
     },
     editSavedSearch(e) {
-      this.changeSelectedSearchId(e.target.getAttribute('searchid'));
+      const searchId = e.target.getAttribute('searchid');
+      // this.changeSelectedSearchId();
       this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
-      this.$root.$emit('bv::toggle::collapse', 'search-panel');
+      this.$emit('edit-filter', searchId);
     },
     deleteSavedSearch(e) {
       const searchId = `${e.target.getAttribute('searchid')}`;
       this.deleteSavedSearchAPI({ searchId });
       this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
       this.fetchSavedSearches();
+    },
+    appylySavedSearch(searchId) {
+      const searchData = this.savedSearches.data.find((search) => search.id === searchId);
+      this.changeSelectedSearchId(searchId);
+      this.applyFilters(JSON.parse(searchData.criteria));
+      this.$emit('filters-applied');
+      this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
+    },
+    formatCriteria(criteria) {
+      const criteriaObj = JSON.parse(criteria);
+      return formatFilterDisplay(criteriaObj);
     },
   },
 };
@@ -146,5 +161,8 @@ export default {
   font-weight: 500;
   font-size: 14px;
   line-height: 150%;
+}
+.saved-search-row:hover{
+  background: rgba(0, 0, 0, 0.075);
 }
 </style>

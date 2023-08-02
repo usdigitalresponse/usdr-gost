@@ -1,18 +1,6 @@
 const fetchApi = require('@/helpers/fetchApi');
 
-// fields with ⚠️ are not yet implemented in the api
-const FILTER_FIELD_NAME_MAP = {
-  costSharing: 'Cost Sharing',
-  opportunityStatuses: 'Opportunity Statuses',
-  opportunityCategories: 'Opportunity Categories',
-  reviewStatus: 'Review Status',
-  includeKeywords: 'Include Keywords ⚠️',
-  excludeKeywords: 'Exclude Keywords ⚠️',
-  opportunityNumber: 'Opportunity Number ⚠️',
-  postedWithin: 'Posted Within ⚠️',
-  fundingType: 'Funding Type ⚠️',
-  eligibility: 'Eligibility ⚠️',
-};
+const { formatFilterDisplay } = require('@/helpers/filters');
 
 function initialState() {
   return {
@@ -59,22 +47,7 @@ export default {
       interested: state.interestedCodes.filter((c) => c.status_code === 'Interested'),
     }),
     activeFilters(state) {
-      const filters = [];
-      Object.entries(state.searchFormFilters).forEach(([key, value]) => {
-        if (value && FILTER_FIELD_NAME_MAP[key]) {
-          // if it's an array, make sure it's not empty
-          if (Array.isArray(value) && value.length === 0) {
-            return;
-          }
-          filters.push({
-            label: FILTER_FIELD_NAME_MAP[key],
-            key,
-            value,
-          });
-        }
-      });
-
-      return filters;
+      return formatFilterDisplay(state.searchFormFilters);
     },
     searchFormFilters(state) {
       return state.searchFormFilters;
@@ -196,8 +169,8 @@ export default {
       fetchApi.get('/api/organizations/:organizationId/grants-saved-search')
         .then((data) => commit('SET_SAVED_SEARCHES', data));
     },
-    createSavedSearch(context, { searchInfo }) {
-      fetchApi.post('/api/organizations/:organizationId/grants-saved-search', searchInfo);
+    async createSavedSearch(context, { searchInfo }) {
+      return fetchApi.post('/api/organizations/:organizationId/grants-saved-search', searchInfo);
     },
     updateSavedSearch(context, { searchId, searchInfo }) {
       fetchApi.put(`/api/organizations/:organizationId/grants-saved-search/${searchId}`, searchInfo);
