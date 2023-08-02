@@ -20,6 +20,7 @@ import { mapGetters } from 'vuex';
 
 import GrantsTable from '@/components/GrantsTable.vue';
 import GrantsTableNext from '@/components/GrantsTableNext.vue';
+import { useNewGrantsTable } from '@/helpers/featureFlags';
 
 export default {
   components: { GrantsTable },
@@ -33,8 +34,7 @@ export default {
       selectedAgencyId: 'users/selectedAgencyId',
     }),
     tableComponent() {
-      const useNewTable = process.env.VUE_APP_USE_NEW_TABLE === true || (window.APP_CONFIG || {}).UseNewTable === true;
-      return useNewTable ? GrantsTableNext : GrantsTable;
+      return useNewGrantsTable() ? GrantsTableNext : GrantsTable;
     },
   },
   methods: {},

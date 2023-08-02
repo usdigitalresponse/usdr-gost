@@ -1,53 +1,31 @@
 <template>
-  <section class="container-fluid">
-    <b-row class="mt-3 mb-3" align-h="between">
-      <b-col cols="5">
-        <b-input-group size="md">
-          <b-input-group-text>
-            <b-icon icon="search" />
-          </b-input-group-text>
-          <b-form-input type="sliders" @input="debounceSearchInput"></b-form-input>
-        </b-input-group>
+  <section class="container-fluid" style="margin: 10px;" >
+    <b-row class="my-3">
+      <div class="ml-3">
+        <SavedSearchPanel @edit-filter="openSearchForEdit" @filters-applied="paginateGrants" />
+      </div>
+      <div class="ml-3">
+        <SearchPanel ref="searchPanel" :search-id="searchId" @filters-applied="paginateGrants" />
+      </div>
+    </b-row>
+    <b-row>
+      <b-col cols="11">
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" @edit-filter="openSearchForEdit" />
       </b-col>
-      <b-col class="d-flex justify-content-end">
-        <SearchPanel />
-        <SavedSearchPanel />
-        <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
-          <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
-          Export to CSV
+      <b-col align-self="end">
+        <b-button @click="exportCSV" :disabled="loading" variant="outline-primary border-0">
+          Export CSV
         </b-button>
       </b-col>
     </b-row>
-    <b-row>
-      <b-col cols="12">
-        <SearchFilter :filterKeys="searchFilters" />
-      </b-col>
-    </b-row>
-    <b-row class="mt-3 mb-3" align-h="start" style="position: relative; z-index: 999">
-      <b-col v-if="!showInterested && !showRejected && !showResult && !showAssignedToAgency" cols="3">
-        <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions" :multiple="true"
-          :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false">
-        </multiselect>
-      </b-col>
-      <b-col cols="3">
-        <multiselect v-model="opportunityStatusFilters" :options="opportunityStatusOptions" :multiple="true"
-                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Status" :show-labels="false">
-        </multiselect>
-      </b-col>
-      <b-col cols="3">
-        <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true"
-                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false">
-        </multiselect>
-      </b-col>
-      <b-col cols="2">
-        <multiselect v-model="costSharingFilter" :options="costSharingOptions" :multiple="false"
-                     :close-on-select="true" :clear-on-select="false" placeholder="Cost Sharing" :show-labels="false">
-        </multiselect>
+    <b-row align-h="start">
+      <b-col cols="1">
+        <strong>{{totalRows}} grants</strong>
       </b-col>
     </b-row>
     <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields.filter( field => !field.hideGrantItem)" selectable striped
       :sort-by.sync="orderBy" :sort-desc.sync="orderDesc" :no-local-sorting="true"
-      select-mode="single" :busy="loading" @row-selected="onRowSelected">
+      select-mode="single" :busy="loading" @row-selected="onRowSelected" show-empty emptyText="No matches found">
       <template #cell(award_floor)="row">
         <p> {{ formatMoney(row.item.award_floor) }}</p>
       </template>
@@ -58,6 +36,18 @@
         <div class="text-center text-danger my-2">
           <b-spinner class="align-middle"></b-spinner>
           <strong> Loading...</strong>
+        </div>
+      </template>
+      <template #empty="scope">
+        &emsp;
+        &emsp;
+        <div class="text-center">
+          <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
+          <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
+          &nbsp;
+          <p><a @click="$refs.searchPanel.showSideBar()" class="link">
+            Edit Search Criteria
+          </a></p>
         </div>
       </template>
     </b-table>
@@ -73,8 +63,6 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { debounce } from 'lodash';
-import Multiselect from 'vue-multiselect';
 import { titleize } from '../helpers/form-helpers';
 import GrantDetails from './Modals/GrantDetails.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
@@ -83,7 +71,7 @@ import SearchFilter from './SearchFilter.vue';
 
 export default {
   components: {
-    GrantDetails, Multiselect, SearchPanel, SavedSearchPanel, SearchFilter,
+    GrantDetails, SearchPanel, SavedSearchPanel, SearchFilter,
   },
   props: {
     showMyInterested: Boolean,
@@ -99,28 +87,6 @@ export default {
       perPage: 50,
       currentPage: 1,
       loading: false,
-      searchFilters: [
-        {
-          label: 'Include',
-          value: ['Nevada', 'infrastructure'],
-        },
-        {
-          label: 'Exclude',
-          value: ['road', 'highways'],
-        },
-        {
-          label: 'Opp Status',
-          value: ['forecasted', 'posted'],
-        },
-        {
-          label: 'Cost Sharing',
-          value: 'Yes',
-        },
-        {
-          label: 'Review Status',
-          value: ['Interested', 'Supporting'],
-        },
-      ],
       fields: [
         {
           key: 'grant_number',
@@ -182,6 +148,7 @@ export default {
       opportunityStatusOptions: ['Forecasted', 'Posted', 'Closed / Archived'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       costSharingOptions: ['Yes', 'No'],
+      searchId: null,
     };
   },
   mounted() {
@@ -194,6 +161,8 @@ export default {
       grantsPagination: 'grants/grantsPagination',
       agency: 'users/agency',
       selectedAgency: 'users/selectedAgency',
+      activeFilters: 'grants/activeFilters',
+      selectedSearchId: 'grants/selectedSearchId',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -230,6 +199,9 @@ export default {
           return {};
         })(),
       }));
+    },
+    searchFilters() {
+      return this.activeFilters;
     },
   },
   watch: {
@@ -275,17 +247,15 @@ export default {
   },
   methods: {
     ...mapActions({
-      fetchGrants: 'grants/fetchGrants',
+      fetchGrants: 'grants/fetchGrantsNext',
       navigateToExportCSV: 'grants/exportCSV',
+      clearFilters: 'grants/clearFilters',
     }),
     setup() {
+      this.clearFilters();
       this.paginateGrants();
     },
     titleize,
-    debounceSearchInput: debounce(function bounce(newVal) {
-      this.debouncedSearchInput = newVal;
-      this.searchFilters.include = newVal;
-    }, 500),
     async paginateGrants() {
       try {
         this.loading = true;
@@ -297,20 +267,27 @@ export default {
           searchTerm: this.debouncedSearchInput,
           interestedByAgency: this.showInterested || this.showResult || this.showRejected,
           interestedByMe: this.showMyInterested,
+          showInterested: this.showInterested,
+          showResult: this.showResult,
+          showRejected: this.showRejected,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
-          positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
-          result: this.showResult || (this.reviewStatusFilters.includes('result') ? true : null),
-          rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
-          opportunityStatuses: this.parseOpportunityStatusFilters(),
-          opportunityCategories: this.opportunityCategoryFilters,
-          costSharing: this.costSharingFilter,
         });
       } catch (e) {
         console.log(e);
       } finally {
         this.loading = false;
       }
+    },
+    openSearchForEdit(searchId) {
+      if (searchId === null || searchId === undefined) {
+        debugger;
+        this.searchId = Number(this.selectedSearchId);
+      } else {
+        this.searchId = Number(searchId);
+      }
+
+      this.$root.$emit('bv::toggle::collapse', 'search-panel');
     },
     getAwardFloor(grant) {
       let body;
@@ -430,3 +407,8 @@ export default {
   },
 };
 </script>
+<style>
+.empty-text {
+  margin: 2px;
+}
+</style>

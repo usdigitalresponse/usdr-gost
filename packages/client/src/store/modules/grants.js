@@ -1,5 +1,7 @@
 const fetchApi = require('@/helpers/fetchApi');
 
+const { formatFilterDisplay } = require('@/helpers/filters');
+
 function initialState() {
   return {
     grantsPaginated: {},
@@ -10,6 +12,20 @@ function initialState() {
     totalUpcomingGrants: 0,
     totalInterestedGrants: 0,
     currentGrant: {},
+    searchFormFilters: {
+      costSharing: null,
+      opportunityStatuses: [],
+      opportunityCategories: [],
+      includeKeywords: null,
+      excludeKeywords: null,
+      opportunityNumber: null,
+      postedWithin: null,
+      fundingType: null,
+      eligibility: null,
+      reviewStatus: null,
+    },
+    savedSearches: {},
+    selectedSearchId: null,
   };
 }
 
@@ -30,6 +46,14 @@ export default {
       result: state.interestedCodes.filter((c) => c.status_code === 'Result'),
       interested: state.interestedCodes.filter((c) => c.status_code === 'Interested'),
     }),
+    activeFilters(state) {
+      return formatFilterDisplay(state.searchFormFilters);
+    },
+    searchFormFilters(state) {
+      return state.searchFormFilters;
+    },
+    savedSearches: (state) => state.savedSearches,
+    selectedSearchId: (state) => state.selectedSearchId,
   },
   actions: {
     fetchGrants({ commit }, {
@@ -37,6 +61,30 @@ export default {
       assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency,
       opportunityStatuses, opportunityCategories, costSharing,
     }) {
+      const query = Object.entries({
+        currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
+      })
+        // filter out undefined and nulls since api expects parameters not present as undefined
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value || typeof value === 'number')
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
+        .then((data) => commit('SET_GRANTS', data));
+    },
+    fetchGrantsNext({ commit }, {
+      currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe,
+      assignedToAgency, showInterested, showResult, showRejected, aging, interestedByAgency,
+    }) {
+      // pull filters from state
+      const { costSharing, opportunityStatuses, opportunityCategories } = this.state.grants.searchFormFilters;
+      // review status filters can be in state or overridden based on how `fetchGrants` is called
+      // this is to facilitate a grants table having default filters on those (i.e. My Grants)
+      const reviewStatusFilters = this.state.grants.searchFormFilters.reviewStatusFilters || [];
+      const positiveInterest = showInterested || reviewStatusFilters.includes('interested') ? true : null;
+      const result = showResult || reviewStatusFilters.includes('result') ? true : null;
+      const rejected = showRejected || reviewStatusFilters.includes('rejected') ? true : null;
+
       const query = Object.entries({
         currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
       })
@@ -116,6 +164,23 @@ export default {
     async setEligibilityCodeEnabled(context, { code, enabled }) {
       await fetchApi.put(`/api/organizations/:organizationId/eligibility-codes/${code}/enable/${enabled}`);
     },
+    fetchSavedSearches({ commit }) {
+      // TODO: Add pagination URL parameters.
+      fetchApi.get('/api/organizations/:organizationId/grants-saved-search')
+        .then((data) => commit('SET_SAVED_SEARCHES', data));
+    },
+    async createSavedSearch(context, { searchInfo }) {
+      return fetchApi.post('/api/organizations/:organizationId/grants-saved-search', searchInfo);
+    },
+    updateSavedSearch(context, { searchId, searchInfo }) {
+      fetchApi.put(`/api/organizations/:organizationId/grants-saved-search/${searchId}`, searchInfo);
+    },
+    deleteSavedSearch(context, { searchId }) {
+      fetchApi.deleteRequest(`/api/organizations/:organizationId/grants-saved-search/${searchId}`);
+    },
+    changeSelectedSearchId({ commit }, searchId) {
+      commit('SET_SELECTED_SEARCH_ID', searchId);
+    },
     exportCSV(context, queryParams) {
       const query = Object.entries(queryParams)
         // filter out undefined and nulls since api expects parameters not present as undefined
@@ -128,6 +193,15 @@ export default {
     },
     exportCSVRecentActivities() {
       window.location = fetchApi.apiURL(fetchApi.addOrganizationId('/api/organizations/:organizationId/grants/exportCSVRecentActivities'));
+    },
+    applyFilters(context, filters) {
+      context.commit('APPLY_FILTERS', filters);
+    },
+    removeFilter(context, key) {
+      context.commit('REMOVE_FILTER', key);
+    },
+    clearFilters(context) {
+      context.commit('CLEAR_FILTERS');
     },
   },
   mutations: {
@@ -161,6 +235,21 @@ export default {
     SET_CLOSEST_GRANTS(state, closestGrants) {
       state.closestGrants = closestGrants.data;
       state.totalUpcomingGrants = closestGrants.pagination.total;
+    },
+    APPLY_FILTERS(state, filters) {
+      state.searchFormFilters = filters;
+    },
+    REMOVE_FILTER(state, key) {
+      state.searchFormFilters[key] = initialState().searchFormFilters[key];
+    },
+    CLEAR_FILTERS(state) {
+      state.searchFormFilters = initialState().searchFormFilters;
+    },
+    SET_SAVED_SEARCHES(state, savedSearches) {
+      state.savedSearches = savedSearches;
+    },
+    SET_SELECTED_SEARCH_ID(state, searchId) {
+      state.selectedSearchId = !Number.isNaN(searchId) ? searchId.toString() : searchId;
     },
   },
 };
