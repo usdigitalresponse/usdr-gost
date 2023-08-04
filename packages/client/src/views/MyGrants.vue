@@ -1,7 +1,7 @@
 <template>
   <b-tabs pills align="center" lazy>
     <b-tab title="Interested" active>
-      <component :is="tableComponent" :showInterested="true"/>
+      <component :is="tableComponent" :showInterested="true" :showSearchControls="false"/>
     </b-tab>
     <b-tab title="Assigned">
       <component :is="tableComponent" :showAssignedToAgency="selectedAgencyId"/>

@@ -226,7 +226,6 @@ export default {
             criteria: this.formData.criteria,
           },
         });
-        debugger;
         searchId = res.id;
       }
       this.changeSelectedSearchId(searchId);

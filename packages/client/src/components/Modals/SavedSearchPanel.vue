@@ -15,11 +15,14 @@
        <span aria-hidden="true">&times;</span>
       </b-button>
     </template>
-    <div class="saved-search-empty-state" v-if="savedSearches.data && savedSearches.data.length === 0">
+    <div class="saved-search-empty-state" v-if="emptyState">
       <h4>No saved searches</h4>
-      <span>Save search criteria to easily apply or share a search</span>
+      <div>Save search criteria to easily apply or share a search</div>
+      <b-button @click="newSavedSearch" variant="outline-primary" size="sm">
+        New Search
+      </b-button>
     </div>
-    <section class="container-fluid">
+    <section class="container-fluid" v-if="!emptyState">
       <div v-for="(search,idx) in savedSearches.data" :key="idx" class="saved-search-row" :searchid="search.id" @click="appylySavedSearch(search.id)" >
         <b-row>
           <b-col cols="9"><b>{{  search.name }}</b></b-col>
@@ -80,6 +83,9 @@ export default {
     ...mapGetters({
       savedSearches: 'grants/savedSearches',
     }),
+    emptyState() {
+      return this.savedSearches.data && this.savedSearches.data.length === 0;
+    },
   },
   mounted() {
     this.setup();
@@ -101,6 +107,10 @@ export default {
       // this.changeSelectedSearchId();
       this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
       this.$emit('edit-filter', searchId);
+    },
+    newSavedSearch() {
+      this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
+      this.$emit('edit-filter');
     },
     deleteSavedSearch(e) {
       const searchId = `${e.target.getAttribute('searchid')}`;

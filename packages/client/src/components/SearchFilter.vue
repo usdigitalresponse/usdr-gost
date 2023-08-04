@@ -1,9 +1,12 @@
 <template>
   <div class="filter-container">
     <div class="mb-3">
-      <div class="ml-2">
-        <b>Saved Search Name </b>
+      <div class="ml-2" v-if="selectedSearch !== null">
+        <b>{{ searchName }} </b>
         <a href="#" v-on:click="editFilter">Edit</a> | <a href="#" v-on:click="clearAll" v-if="$props.filterKeys.length > 0">Clear</a>
+      </div>
+      <div class="ml-2" v-if="selectedSearch === null">
+        <b>All Grants</b>
       </div>
       <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">
         <strong >{{ item.label }}: </strong>{{ formatValue(item.value)  }}
@@ -12,7 +15,7 @@
   </div>
 </template>
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   props: {
@@ -25,7 +28,7 @@ export default {
   methods: {
     ...mapActions({
       removeFilter: 'grants/removeFilter',
-      clearFilters: 'grants/clearFilters',
+      clearSelectedSearch: 'grants/clearSelectedSearch',
       fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
     }),
     formatValue(value) {
@@ -41,8 +44,20 @@ export default {
       this.$emit('edit-filter');
     },
     clearAll() {
-      this.clearFilters();
+      this.clearSelectedSearch();
       this.$emit('filter-removed');
+    },
+  },
+  computed: {
+    ...mapGetters({
+      selectedSearch: 'grants/selectedSearch',
+    }),
+    searchName() {
+      const search = this.selectedSearch;
+      if (!search) {
+        return 'OPE';
+      }
+      return this.selectedSearch.name;
     },
   },
 };

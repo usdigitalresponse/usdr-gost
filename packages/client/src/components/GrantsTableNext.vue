@@ -1,6 +1,6 @@
 <template>
   <section class="container-fluid" style="margin: 10px;" >
-    <b-row class="my-3">
+    <b-row class="my-3" v-if="showSearchControls">
       <div class="ml-3">
         <SavedSearchPanel @edit-filter="openSearchForEdit" @filters-applied="paginateGrants" />
       </div>
@@ -10,7 +10,7 @@
     </b-row>
     <b-row>
       <b-col cols="11">
-        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" @edit-filter="openSearchForEdit" />
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" @edit-filter="openSearchForEdit" v-if="showSearchControls"/>
       </b-col>
       <b-col align-self="end">
         <b-button @click="exportCSV" :disabled="loading" variant="outline-primary border-0">
@@ -81,6 +81,10 @@ export default {
     showAging: Boolean,
     showAssignedToAgency: String,
     hideGrantItems: Boolean,
+    showSearchControls: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
@@ -249,10 +253,10 @@ export default {
     ...mapActions({
       fetchGrants: 'grants/fetchGrantsNext',
       navigateToExportCSV: 'grants/exportCSV',
-      clearFilters: 'grants/clearFilters',
+      clearSelectedSearch: 'grants/clearSelectedSearch',
     }),
     setup() {
-      this.clearFilters();
+      this.clearSelectedSearch();
       this.paginateGrants();
     },
     titleize,
@@ -281,7 +285,6 @@ export default {
     },
     openSearchForEdit(searchId) {
       if (searchId === null || searchId === undefined) {
-        debugger;
         this.searchId = Number(this.selectedSearchId);
       } else {
         this.searchId = Number(searchId);

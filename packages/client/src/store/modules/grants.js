@@ -26,6 +26,7 @@ function initialState() {
     },
     savedSearches: {},
     selectedSearchId: null,
+    selectedSearch: null,
   };
 }
 
@@ -54,6 +55,7 @@ export default {
     },
     savedSearches: (state) => state.savedSearches,
     selectedSearchId: (state) => state.selectedSearchId,
+    selectedSearch: (state) => state.selectedSearch,
   },
   actions: {
     fetchGrants({ commit }, {
@@ -200,8 +202,8 @@ export default {
     removeFilter(context, key) {
       context.commit('REMOVE_FILTER', key);
     },
-    clearFilters(context) {
-      context.commit('CLEAR_FILTERS');
+    clearSelectedSearch(context) {
+      context.commit('CLEAR_SEARCH');
     },
   },
   mutations: {
@@ -242,14 +244,24 @@ export default {
     REMOVE_FILTER(state, key) {
       state.searchFormFilters[key] = initialState().searchFormFilters[key];
     },
-    CLEAR_FILTERS(state) {
-      state.searchFormFilters = initialState().searchFormFilters;
+    CLEAR_SEARCH(state) {
+      const emptyState = initialState();
+      state.searchFormFilters = emptyState.searchFormFilters;
+      state.selectedSearch = emptyState.selectedSearch;
+      state.selectedSearchId = emptyState.selectedSearchId;
     },
     SET_SAVED_SEARCHES(state, savedSearches) {
       state.savedSearches = savedSearches;
     },
     SET_SELECTED_SEARCH_ID(state, searchId) {
-      state.selectedSearchId = !Number.isNaN(searchId) ? searchId.toString() : searchId;
+      if (searchId === null || searchId === undefined || Number.isNaN(searchId)) {
+        state.selectedSearchId = null;
+        state.selectedSearch = null;
+        return;
+      }
+      state.selectedSearchId = searchId;
+      const data = state.savedSearches.data || [];
+      state.selectedSearch = data.find((search) => search.id === searchId);
     },
   },
 };
