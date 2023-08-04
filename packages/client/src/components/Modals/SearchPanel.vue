@@ -104,7 +104,7 @@
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
         <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Cancel</b-button>
         <div>
-          <b-button size="sm" @click="saveSearch" variant="primary">Save and View Results</b-button>
+          <b-button size="sm" @click="saveSearch" variant="primary" :disabled="!saveEnabled">Save and View Results</b-button>
         </div>
        </div>
       </template>
@@ -163,6 +163,10 @@ export default {
       eligibilityCodes: 'grants/eligibilityCodes',
       savedSearches: 'grants/savedSearches',
     }),
+    saveEnabled() {
+      // save is enabled if any criteria is not null and a title is set
+      return Object.values(this.formData.criteria).some((value) => value !== null && !(Array.isArray(value) && value.length === 0)) && this.formData.searchTitle !== null;
+    },
   },
   methods: {
     ...mapActions({
@@ -188,7 +192,7 @@ export default {
       this.$emit('filters-applied');
       this.$refs.searchPanelSideBar.hide();
     },
-    syncFilterState() {
+    initFormState() {
       if (this.searchId !== undefined && this.searchId !== null) {
         const search = this.savedSearches.data.find((s) => s.id === this.searchId);
         this.formData.searchId = search.id;
@@ -197,13 +201,16 @@ export default {
         this.formData.criteria = { ...criteria };
       } else {
         this.formData.searchId = null;
-        this.formData.searchTitle = null;
+        this.formData.searchTitle = `My Saved Search ${this.getNextSearchId()}`;
         this.formData.criteria = { ...this.searchFormFilters };
       }
     },
     onShown() {
-      // current filters may have changed since form was opened
-      this.syncFilterState();
+      this.initFormState();
+    },
+    getNextSearchId() {
+      const searchIds = this.savedSearches.data.map((s) => s.id);
+      return Math.max(...searchIds) + 1;
     },
     async saveSearch() {
       console.log('foo');
@@ -222,14 +229,14 @@ export default {
       } else {
         const res = await this.createSavedSearch({
           searchInfo: {
-            name: this.formData.searchTitle || 'sample name',
+            name: this.formData.searchTitle,
             criteria: this.formData.criteria,
           },
         });
         searchId = res.id;
       }
-      this.changeSelectedSearchId(searchId);
       this.fetchSavedSearches();
+      this.changeSelectedSearchId(searchId);
       this.isSearchPanelOpen = false;
     },
     openSearchPanel() {

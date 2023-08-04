@@ -13,9 +13,9 @@
         <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" @edit-filter="openSearchForEdit" v-if="showSearchControls"/>
       </b-col>
       <b-col align-self="end">
-        <b-button @click="exportCSV" :disabled="loading" variant="outline-primary border-0">
-          Export CSV
-        </b-button>
+        <a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0" class="text-right text-nowrap">
+          <p>Export CSV</p>
+        </a>
       </b-col>
     </b-row>
     <b-row align-h="start">
