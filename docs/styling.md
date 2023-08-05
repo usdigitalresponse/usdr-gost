@@ -6,9 +6,9 @@ This app implements the [USDR Design System](https://www.figma.com/file/HWu4iIjc
 
 This app is built with [Bootstrap Vue](https://bootstrap-vue.org/).
 
-The implementation of the USDR design system primarily overrides Bootstrap's theme colors and fonts. 
+The implementation of the USDR design system primarily overrides Bootstrap's theme colors and fonts. Bootstrap provides a small set of [theme color definitions](https://getbootstrap.com/docs/5.0/customize/css-variables/#root-variables). This is the primary way the USDR brand is expressed in this app through Bootstrap.
 
-The override definitions live in [custom.scss](../packages/client/scss/custom.scss).
+These theme override definitions live in [custom.scss](../packages/client/scss/custom.scss).
 
 ## Using USDR styles in the app
 
@@ -43,7 +43,7 @@ $raw-red-800: #6D1210;
 $raw-red-900: #4C110B;
 ```
 
-Semantic tokens pair a context where a component is used to a base color value. For example:
+Semantic tokens pair a user context to a base color value. For example:
 ```scss
 // NEGATIVE 
 $negative-default: $raw-red-600;
@@ -59,3 +59,9 @@ A set of semantic token definitions function as a *theme*. Multiple theme defini
 *Please use semantic tokens wherever possible.* If you are required to use a base token for which there is no corresponding semantic token, please consult your designer. 
 
 ### Fonts
+
+The fonts used in the USDR design system are:
+- [Lora](https://fonts.google.com/specimen/Lora): heading font
+- [Inter](https://fonts.google.com/specimen/Inter): body font
+
+These font styles are implemented in [fonts.scss](../packages/clients/scss/fonts.scss).
