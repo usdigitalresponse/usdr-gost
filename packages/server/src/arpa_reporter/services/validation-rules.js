@@ -133,7 +133,7 @@ function generateRules() {
             rule.validationFormatters = [];
             rule.persistentFormatters = [];
 
-            if (rule.dataType === 'String') {
+            if (rule.dataType === 'String' || rule.dataType === 'String-Fixed') {
                 rule.validationFormatters.push(recordValueFormatters.makeString);
                 rule.persistentFormatters.push(recordValueFormatters.trimWhitespace);
             }

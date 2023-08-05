@@ -4,10 +4,11 @@ const XLSX = require('xlsx');
 const asyncBatch = require('async-batch').default;
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const aws = require('../../lib/gost-aws');
+const { ec } = require('./format');
 
-const { getPreviousReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
+const { getPreviousReportingPeriods, getReportingPeriod, getAllReportingPeriods } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
-const { recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records');
+const { recordsForProject, recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records');
 const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
@@ -100,6 +101,48 @@ async function getProjectSummaryRow(data) {
     };
 }
 
+async function getProjectSummaryGroupedByProjectRow(data) {
+    const { projectId, records, reportingPeriods } = data;
+
+    const record = records[0];
+
+    // set values for columns that are common across all records of projectId
+    const row = {
+        'Project ID': projectId,
+        'Project Description': record.content.Project_Description__c,
+        'Project Expenditure Category Group': ec(record.type),
+        'Project Expenditure Category': record.subcategory,
+    };
+
+    // get all reporting periods related to the project
+    const allReportingPeriods = Array.from(new Set(records.map((r) => r.upload.reporting_period_id)));
+
+    // initialize the columns in the row
+    allReportingPeriods.map(async (reportingPeriodId) => {
+        const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].end_date;
+        [
+            `${reportingPeriodEndDate} Total Aggregate Expenditures`,
+            `${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`,
+            `${reportingPeriodEndDate} Total Aggregate Obligations`,
+            `${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`,
+        ].forEach((columnName) => { row[columnName] = 0; });
+    });
+
+    row['Capital Expenditure Amount'] = 0;
+
+    // set values in each column
+    records.forEach(async (r) => {
+        const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
+        row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += (r.content.Total_Expenditures__c || 0);
+        row[`${reportingPeriodEndDate} Total Aggregate Obligations`] += (r.content.Total_Obligations__c || 0);
+        row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += (r.content.Award_Amount__c || 0);
+        row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += (r.content.Expenditure_Amount__c || 0);
+        row['Capital Expenditure Amount'] += (r.content.Total_Cost_Capital_Expenditure__c || 0);
+    });
+
+    return row;
+}
+
 async function getAggregatePeriodRow(data) {
     const { period, domain } = data;
     const uploads = await usedForTreasuryExport(period.id);
@@ -135,6 +178,32 @@ async function createProjectSummaries(periodId, domain) {
     return rows;
 }
 
+function getRecordsByProject(records) {
+    return records.reduce((groupByProject, item) => {
+        const project = item.content.Project_Identification_Number__c;
+        const group = (groupByProject[project] || []);
+        group.push(item);
+        groupByProject[project] = group;
+        return groupByProject;
+    }, {});
+}
+
+async function createProjectSummariesGroupedByProject(periodId) {
+    const records = await recordsForProject(periodId);
+    const recordsByProject = getRecordsByProject(records);
+    const reportingPeriods = await getAllReportingPeriods();
+
+    const inputs = [];
+
+    Object.entries(recordsByProject).forEach(([projectId, r]) => {
+        inputs.push({ projectId, records: r, reportingPeriods });
+    });
+
+    const rows = await asyncBatch(inputs, getProjectSummaryGroupedByProjectRow, 2);
+
+    return rows;
+}
+
 async function generate(requestHost) {
     const periodId = await getCurrentReportingPeriodID();
     console.log(`generate(${periodId})`);
@@ -145,17 +214,21 @@ async function generate(requestHost) {
     const [
         obligations,
         projectSummaries,
+        projectSummariesGroupedByProject,
     ] = await Promise.all([
         createObligationSheet(periodId, domain),
         createProjectSummaries(periodId, domain),
+        createProjectSummariesGroupedByProject(periodId),
     ]);
 
     // compose workbook
     const sheet1 = XLSX.utils.json_to_sheet(obligations, { dateNF: 'MM/DD/YYYY' });
     const sheet2 = XLSX.utils.json_to_sheet(projectSummaries, { dateNF: 'MM/DD/YYYY' });
+    const sheet3 = XLSX.utils.json_to_sheet(projectSummariesGroupedByProject, { dateNF: 'MM/DD/YYYY' });
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, sheet1, 'Obligations & Expenditures');
     XLSX.utils.book_append_sheet(workbook, sheet2, 'Project Summaries');
+    XLSX.utils.book_append_sheet(workbook, sheet3, 'Project Summaries V2');
 
     return {
         periodId,

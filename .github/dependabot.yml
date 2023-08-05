@@ -19,6 +19,10 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "terraform"
+    directory: "/terraform/modules/gost_consume_grants"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_website"
     schedule:
       interval: "daily"

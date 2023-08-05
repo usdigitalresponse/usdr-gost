@@ -1,9 +1,14 @@
 import Vue from 'vue';
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import App from './App.vue';
 import router from './router/index';
 import store, { get } from './store/index';
 
 Vue.config.productionTip = false;
+
+Vue.use(BootstrapVue);
+// Optionally install the BootstrapVue icon components plugin
+Vue.use(IconsPlugin);
 
 async function main() {
   const session = await get('/api/sessions');

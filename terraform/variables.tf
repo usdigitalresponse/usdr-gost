@@ -132,3 +132,8 @@ variable "postgres_apply_changes_immediately" {
 variable "postgres_query_logging_enabled" {
   default = false
 }
+
+# Consume Grants
+variable "consume_grants_source_event_bus_name" {
+  type = string
+}
