@@ -1,6 +1,6 @@
 <template>
     <div>
-      <b-button @click="openSearchPanel" variant="outline-primary" size="sm">
+      <b-button @click="initNewSearch" variant="outline-primary" size="sm">
         New Search
       </b-button>
       <b-sidebar
@@ -8,11 +8,16 @@
         ref="searchPanelSideBar"
         title="Search"
         class="search-panel"
-        v-model="isSearchPanelOpen"
         @shown="onShown"
         right
         shadow
       >
+        <template #header>
+          <div class="search-panel-title">Search</div>
+          <b-button type="button" class="close" aria-label="Close" @click="cancel">
+          <span aria-hidden="true">&times;</span>
+          </b-button>
+        </template>
         <form ref="form" class="search-form">
           <b-form-group label-for="search-title">
             <template slot="label"><b>Search Title</b></template>
@@ -100,9 +105,9 @@
             <multiselect v-model="formData.criteria.reviewStatus" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
         </form>
-      <template #footer="{ hide }">
+      <template #footer>
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
-        <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Cancel</b-button>
+        <b-button size="sm" @click="cancel" variant="outline-primary" class="borderless-button">Cancel</b-button>
         <div>
           <b-button size="sm" @click="saveSearch" variant="primary" :disabled="!saveEnabled">Save and View Results</b-button>
         </div>
@@ -147,13 +152,20 @@ export default {
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       reviewStatusOptions: ['interested', 'result', 'rejected'],
-      isSearchPanelOpen: false,
     };
   },
   validations: {
     formData: {},
   },
-  watch: {},
+  watch: {
+    displaySearchPanel() {
+      if (this.displaySearchPanel) {
+        this.$root.$emit('bv::toggle::collapse', 'search-panel');
+      } else {
+        this.$refs.searchPanelSideBar.hide();
+      }
+    },
+  },
   mounted() {
     this.setup();
   },
@@ -162,6 +174,7 @@ export default {
       searchFormFilters: 'grants/searchFormFilters',
       eligibilityCodes: 'grants/eligibilityCodes',
       savedSearches: 'grants/savedSearches',
+      displaySearchPanel: 'grants/displaySearchPanel',
     }),
     saveEnabled() {
       // save is enabled if any criteria is not null and a title is set
@@ -176,6 +189,8 @@ export default {
       applyFilters: 'grants/applyFilters',
       fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
       changeSelectedSearchId: 'grants/changeSelectedSearchId',
+      initNewSearch: 'grants/initNewSearch',
+      cancel: 'grants/initViewResults',
     }),
     setup() {
       this.fetchEligibilityCodes();
@@ -210,11 +225,9 @@ export default {
     },
     getNextSearchId() {
       const searchIds = this.savedSearches.data.map((s) => s.id);
-      return Math.max(...searchIds) + 1;
+      return Math.max(...searchIds, 0) + 1;
     },
     async saveSearch() {
-      console.log('foo');
-      console.log(this.formData);
       this.apply();
       let searchId;
       if (this.formData.searchId !== undefined && this.formData.searchId !== null) {
@@ -237,10 +250,6 @@ export default {
       }
       this.fetchSavedSearches();
       this.changeSelectedSearchId(searchId);
-      this.isSearchPanelOpen = false;
-    },
-    openSearchPanel() {
-      this.isSearchPanelOpen = true;
     },
     showSideBar() {
       if (!this.$refs.searchPanelSideBar.isOpen) {
@@ -254,6 +263,12 @@ export default {
 };
 </script>
 <style>
+.search-panel-title{
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 120%;
+}
 .form{
   margin: 10px;
 }
@@ -277,6 +292,16 @@ export default {
   background: #41b883;
   margin-bottom: 11px;
 }
+.b-sidebar-header{
+  justify-content: space-between;
+  border-bottom: solid #DAE0E5;
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: row;
+  flex-grow: 0;
+  align-items: center;
+}
 .search-panel > .b-sidebar > .b-sidebar-header{
   font-size: 1.25rem;
   border-bottom: 1.5px solid #e8e8e8;
@@ -288,6 +313,7 @@ export default {
 #search-panel___title__{
   margin: 0 auto;
 }
+
 .sidebar-footer {
   border-top: 1.5px solid #e8e8e8;
   justify-content: space-between;

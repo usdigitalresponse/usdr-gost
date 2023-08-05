@@ -1,11 +1,13 @@
 <template>
   <div>
-    <b-button v-b-toggle.saved-search-panel variant="primary" size="sm">
+    <b-button @click="initManageSearches" variant="primary" size="sm">
       My Saved Searches
     </b-button>
     <b-sidebar
       id="saved-search-panel"
       class="saved-search-panel"
+      model="displaySavedSearchPanel"
+      ref="savedSearchPanel"
       right
       shadow
     >
@@ -78,10 +80,19 @@ export default {
     return {};
   },
   validations: {},
-  watch: {},
+  watch: {
+    displaySavedSearchPanel() {
+      if (this.displaySavedSearchPanel) {
+        this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
+      } else {
+        this.$refs.savedSearchPanel.hide();
+      }
+    },
+  },
   computed: {
     ...mapGetters({
       savedSearches: 'grants/savedSearches',
+      displaySavedSearchPanel: 'grants/displaySavedSearchPanel',
     }),
     emptyState() {
       return this.savedSearches.data && this.savedSearches.data.length === 0;
@@ -98,6 +109,7 @@ export default {
       fetchSavedSearches: 'grants/fetchSavedSearches',
       changeSelectedSearchId: 'grants/changeSelectedSearchId',
       applyFilters: 'grants/applyFilters',
+      initManageSearches: 'grants/initManageSearches',
     }),
     setup() {
       this.fetchSavedSearches();

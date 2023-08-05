@@ -2,6 +2,13 @@ const fetchApi = require('@/helpers/fetchApi');
 
 const { formatFilterDisplay } = require('@/helpers/filters');
 
+const tableModes = {
+  VIEW: 'view',
+  MANAGE: 'manage',
+  CREATE: 'create',
+  EDIT: 'edit',
+};
+
 function initialState() {
   return {
     grantsPaginated: {},
@@ -27,6 +34,7 @@ function initialState() {
     savedSearches: {},
     selectedSearchId: null,
     selectedSearch: null,
+    tableMode: tableModes.VIEW,
   };
 }
 
@@ -56,6 +64,8 @@ export default {
     savedSearches: (state) => state.savedSearches,
     selectedSearchId: (state) => state.selectedSearchId,
     selectedSearch: (state) => state.selectedSearch,
+    displaySearchPanel: (state) => state.tableMode === tableModes.CREATE || state.tableMode === tableModes.EDIT,
+    displaySavedSearchPanel: (state) => state.tableMode === tableModes.MANAGE,
   },
   actions: {
     fetchGrants({ commit }, {
@@ -205,6 +215,19 @@ export default {
     clearSelectedSearch(context) {
       context.commit('CLEAR_SEARCH');
     },
+    // table action state
+    initNewSearch(context) {
+      context.commit('SET_TABLE_MODE', tableModes.CREATE);
+    },
+    initEditSearch(context) {
+      context.commit('SET_TABLE_MODE', tableModes.EDIT);
+    },
+    initManageSearches(context) {
+      context.commit('SET_TABLE_MODE', tableModes.MANAGE);
+    },
+    initViewResults(context) {
+      context.commit('SET_TABLE_MODE', tableModes.VIEW);
+    },
   },
   mutations: {
     SET_GRANTS(state, grants) {
@@ -262,6 +285,10 @@ export default {
       state.selectedSearchId = searchId;
       const data = state.savedSearches.data || [];
       state.selectedSearch = data.find((search) => search.id === searchId);
+    },
+    SET_TABLE_MODE(state, tableMode) {
+      console.log('tableMode', tableMode);
+      state.tableMode = tableMode;
     },
   },
 };
