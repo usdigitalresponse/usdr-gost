@@ -66,4 +66,4 @@ The fonts used in the USDR design system are:
 - [Lora](https://fonts.google.com/specimen/Lora): heading font
 - [Inter](https://fonts.google.com/specimen/Inter): body font
 
-These font styles are implemented in [fonts.scss](../packages/clients/scss/fonts.scss).
+These font styles are implemented in [fonts.scss](../packages/client/scss/fonts.scss).
