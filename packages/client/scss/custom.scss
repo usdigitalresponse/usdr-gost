@@ -1,73 +1,53 @@
-// override theme variables here
+/**
+ * custom.scss
+ * 
+ * Theme definition file, based on USDR style guide.
+ * Imports sub-files:
+ * - ./fonts.scss
+ * - ./colors-semantic-tokens.scss
+ *   - ./colors-base-tokens.scss
+ *
+ * Please refer to USDR style guide definition in Figma:
+ *   https://www.figma.com/file/HWu4iIjcoX2txuN543qzIB/USDR-Design-System?type=design&node-id=8%3A2&mode=design&t=8mml86X91f9FzVAE-1
+ */
 
-// IMPORT LORA (HEADING FONT) AND INTER (BODY FONT) FROM GOOGLE FONTS
-@import url('https://fonts.googleapis.com/css2?family=Inter&family=Lora&display=swap');
+// SET USDR FONTS
+@import './fonts.scss';
 
-//////////////////////////////
-/// BASE TOKEN DEFINITIONS ///
-//////////////////////////////
+// IMPORT USDR DESIGN SYSTEM SEMANTIC TOKENS
+@import './colors-semantic-tokens.scss';
 
-// USDR BRAND
-$usdr-brand-primary: #0066FF;
-$usdr-brand-secondary: #071A51;
-
-// BLUE
-$raw-blue-50: #EAF5FE;
-$raw-blue-100: #D8ECFE;
-$raw-blue-600: #305CE0;
-$raw-blue-700: #2348C2;
-$raw-blue-800: #0D2F81;
-$raw-blue-50-50pct: #EAF5FE; // PLACEHOLDER VALUE - WRONG 
-
-// WHITE
-$raw-white: #FFFFFF;
-
-// GRAY
-$raw-gray-50: #F4F7F9;
-$raw-gray-300: #B1B8BE;
-$raw-gray-400: #879097;
-$raw-gray-500: #6D7278;
-$raw-gray-600: #43464A;
-$raw-gray-700: #1F2123;
-$raw-black-alpha-600: rgba(0, 0, 0, 48);
-
-// BLUE
-
-// GREEN
-$raw-green-600: #107747;
-
-// YELLOW
-$raw-yellow-550: #956F0D;
-
-// RED
-$raw-red-600: #C22E31;
-
-// THEME (SEMANTIC TOKEN) DEFINITION - SASS MAP
+// LIGHT THEME (SEMANTIC TOKEN) DEFINITION - SASS MAP
 $theme-colors: () !default;
 $theme-colors: map-merge(
   (
+    // DEFAULT BOOTSTRAP COLORS
+    "blue": #007bff,
+    "indigo": #6610f2,
+    "purple": #6f42c1,
+    "pink": #e83e8c,
+    "red": #dc3545,
+    "orange": #fd7e14,
+    "yellow": #ffc107,
+    "green": #28a745,
+    "teal": #20c997,
+    "cyan": #17a2b8,
+    "white": #fff,
+    "gray": #6c757d,
+    "gray-dark": #343a40,
+
+    // USDR BRAND COLORS
     "primary":    $usdr-brand-primary,
     "secondary":  $usdr-brand-secondary,
     "success":    $raw-green-600,
     "info":       $raw-blue-600,
     "warning":    $raw-yellow-550,
     "danger":     $raw-red-600,
+    "light":      $raw-gray-100,
+    "dark":       $raw-gray-800,
   ),
   $theme-colors
 );
-
-// SET HEADING FONTS TO LORA
-h1, h2, h3, h4, h5, h6 {
-  font-family: Lora, Helvetica, Arial, sans-serif;
-}
-
-#app {
-  // SET BODY FONTS TO HELVETICA
-  font-family: Inter, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
 
 @import 'bootstrap/scss/bootstrap.scss';
 @import 'bootstrap-vue/src/index.scss';
