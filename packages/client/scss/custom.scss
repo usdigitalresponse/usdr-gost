@@ -1,8 +1,11 @@
 // override theme variables here
 
-///////////////
-/// COLORS  ///
-///////////////
+// IMPORT LORA (HEADING FONT) AND INTER (BODY FONT) FROM GOOGLE FONTS
+@import url('https://fonts.googleapis.com/css2?family=Inter&family=Lora&display=swap');
+
+//////////////////////////////
+/// BASE TOKEN DEFINITIONS ///
+//////////////////////////////
 
 // USDR BRAND
 $usdr-brand-primary: #0066FF;
@@ -53,8 +56,14 @@ $theme-colors: map-merge(
   $theme-colors
 );
 
+// SET HEADING FONTS TO LORA
+h1, h2, h3, h4, h5, h6 {
+  font-family: Lora, Helvetica, Arial, sans-serif;
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  // SET BODY FONTS TO HELVETICA
+  font-family: Inter, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
