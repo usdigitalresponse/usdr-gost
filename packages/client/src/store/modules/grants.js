@@ -217,6 +217,7 @@ export default {
     },
     // table action state
     initNewSearch(context) {
+      context.commit('SET_SELECTED_SEARCH_ID', null);
       context.commit('SET_TABLE_MODE', tableModes.CREATE);
     },
     initEditSearch(context) {

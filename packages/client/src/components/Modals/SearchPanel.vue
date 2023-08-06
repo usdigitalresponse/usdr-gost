@@ -13,7 +13,7 @@
         shadow
       >
         <template #header>
-          <div class="search-panel-title">Search</div>
+          <div class="search-panel-title">{{ panelTitle }}</div>
           <b-button type="button" class="close" aria-label="Close" @click="cancel">
           <span aria-hidden="true">&times;</span>
           </b-button>
@@ -35,6 +35,7 @@
                 type="text"
                 v-model="formData.criteria.includeKeywords"
               ></b-form-input>
+              <b-form-text id="input-live-help">Separate keywords with comma</b-form-text>
           </b-form-group>
           <b-form-group label-for="exclude-input">
             <template slot="label">Exclude Keywords</template>
@@ -43,6 +44,7 @@
                 type="text"
                 v-model="formData.criteria.excludeKeywords"
               ></b-form-input>
+              <b-form-text id="input-live-help">Separate keywords with comma</b-form-text>
           </b-form-group>
           <b-form-group label-for="opportunity-number">
             <template slot="label">Opportunity #</template>
@@ -64,14 +66,6 @@
               <b-form-checkbox value="closed">Closed</b-form-checkbox>
             </b-form-checkbox-group>
           </b-form-group>
-          <b-form-group class="multiselect-group">
-            <template slot="label">Eligibility</template>
-            <multiselect v-model="formData.criteria.eligibility" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
-          </b-form-group>
-          <b-form-group class="multiselect-group">
-            <template slot="label">Category</template>
-            <multiselect v-model="formData.criteria.opportunityCategories" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
-          </b-form-group>
           <b-form-group label-for="Funding Type">
             <template slot="label">Funding Type</template>
               <b-form-input
@@ -79,6 +73,14 @@
                 type="text"
                 v-model="formData.criteria.fundingType"
               ></b-form-input>
+          </b-form-group>
+          <b-form-group class="multiselect-group">
+            <template slot="label">Eligibility</template>
+            <multiselect v-model="formData.criteria.eligibility" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
+          </b-form-group>
+          <b-form-group class="multiselect-group">
+            <template slot="label">Category</template>
+            <multiselect v-model="formData.criteria.opportunityCategories" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
           <b-form-group label-for="Agency">
             <template slot="label">Agency</template>
@@ -121,6 +123,19 @@ import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
 
+const defaultCriteria = {
+  includeKeywords: null,
+  excludeKeywords: null,
+  opportunityNumber: null,
+  opportunityStatuses: [],
+  fundingType: null,
+  agency: null,
+  costSharing: false,
+  opportunityCategories: [],
+  reviewStatus: [],
+  postedWithin: [],
+};
+
 export default {
   components: { Multiselect },
   props: {
@@ -132,21 +147,11 @@ export default {
     'v-b-toggle': VBToggle,
   },
   data() {
-    const defaultCriteria = {
-      includeKeywords: null,
-      excludeKeywords: null,
-      opportunityNumber: null,
-      opportunityStatuses: [],
-      fundingType: null,
-      agency: null,
-      costSharing: false,
-      opportunityCategories: [],
-      reviewStatus: [],
-      postedWithin: [],
-    };
     return {
       formData: {
-        criteria: defaultCriteria,
+        criteria: {
+          ...defaultCriteria,
+        },
         searchId: this.searchId,
       },
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
@@ -160,7 +165,8 @@ export default {
   watch: {
     displaySearchPanel() {
       if (this.displaySearchPanel) {
-        this.$root.$emit('bv::toggle::collapse', 'search-panel');
+        this.initFormState();
+        this.showSideBar();
       } else {
         this.$refs.searchPanelSideBar.hide();
       }
@@ -171,7 +177,6 @@ export default {
   },
   computed: {
     ...mapGetters({
-      searchFormFilters: 'grants/searchFormFilters',
       eligibilityCodes: 'grants/eligibilityCodes',
       savedSearches: 'grants/savedSearches',
       displaySearchPanel: 'grants/displaySearchPanel',
@@ -179,6 +184,12 @@ export default {
     saveEnabled() {
       // save is enabled if any criteria is not null and a title is set
       return Object.values(this.formData.criteria).some((value) => value !== null && !(Array.isArray(value) && value.length === 0)) && this.formData.searchTitle !== null;
+    },
+    isEditMode() {
+      return this.searchId !== null && this.searchId !== undefined;
+    },
+    panelTitle() {
+      return this.isEditMode ? 'Edit Search' : 'New Search';
     },
   },
   methods: {
@@ -194,6 +205,9 @@ export default {
     }),
     setup() {
       this.fetchEligibilityCodes();
+      if (this.displaySearchPanel) {
+        this.showSideBar();
+      }
     },
     customLimitText(count) {
       return `+${count}`;
@@ -208,7 +222,7 @@ export default {
       this.$refs.searchPanelSideBar.hide();
     },
     initFormState() {
-      if (this.searchId !== undefined && this.searchId !== null) {
+      if (this.isEditMode) {
         const search = this.savedSearches.data.find((s) => s.id === this.searchId);
         this.formData.searchId = search.id;
         this.formData.searchTitle = search.name;
@@ -217,7 +231,7 @@ export default {
       } else {
         this.formData.searchId = null;
         this.formData.searchTitle = `My Saved Search ${this.getNextSearchId()}`;
-        this.formData.criteria = { ...this.searchFormFilters };
+        this.formData.criteria = { ...defaultCriteria };
       }
     },
     onShown() {

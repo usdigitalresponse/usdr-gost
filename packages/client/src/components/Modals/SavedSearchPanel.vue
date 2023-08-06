@@ -113,6 +113,9 @@ export default {
     }),
     setup() {
       this.fetchSavedSearches();
+      if (this.displaySavedSearchPanel) {
+        this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
+      }
     },
     editSavedSearch(e) {
       const searchId = e.target.getAttribute('searchid');

@@ -243,10 +243,8 @@ export default {
     debouncedSearchInput() {
       this.paginateGrants();
     },
-    async selectedGrant() {
-      if (!this.selectedGrant) {
-        await this.paginateGrants();
-      }
+    selectedSearchId() {
+      this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
     },
   },
   methods: {
