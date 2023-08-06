@@ -4,13 +4,13 @@
       <component :is="tableComponent" :showInterested="true" :showSearchControls="false"/>
     </b-tab>
     <b-tab title="Assigned">
-      <component :is="tableComponent" :showAssignedToAgency="selectedAgencyId"/>
+      <component :is="tableComponent" :showAssignedToAgency="selectedAgencyId" :showSearchControls="false"/>
     </b-tab>
     <b-tab title="Not Applying">
-      <component :is="tableComponent" :showRejected="true"/>
+      <component :is="tableComponent" :showRejected="true" :showSearchControls="false"/>
     </b-tab>
     <b-tab title="Applied">
-        <component :is="tableComponent" :showResult="true"/>
+        <component :is="tableComponent" :showResult="true" :showSearchControls="false"/>
     </b-tab>
   </b-tabs>
 </template>

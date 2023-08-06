@@ -9,7 +9,7 @@
         <b>All Grants</b>
       </div>
       <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">
-        <strong >{{ item.label }}: </strong>{{ formatValue(item.value)  }}
+        {{ item.label }}: <strong >{{ formatValue(item.value)}}</strong><span v-if="idx != $props.filterKeys.length - 1">;</span>
       </span>
     </div>
   </div>
