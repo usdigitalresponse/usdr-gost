@@ -1,5 +1,5 @@
 <template>
-  <section class="container-fluid grants-table-container" >
+  <section class="container-fluid grants-table-container">
     <b-row class="my-3" v-if="showSearchControls">
       <div class="ml-3">
         <SavedSearchPanel @edit-filter="openSearchForEdit" @filters-applied="paginateGrants" />
@@ -10,49 +10,57 @@
     </b-row>
     <b-row>
       <b-col cols="11">
-        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" @edit-filter="openSearchForEdit" v-if="showSearchControls"/>
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" @edit-filter="openSearchForEdit"
+          v-if="showSearchControls" />
       </b-col>
       <b-col align-self="end">
-        <a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0" class="text-right text-nowrap">
+        <a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0"
+          class="text-right text-nowrap">
           <p>Export CSV</p>
         </a>
       </b-col>
     </b-row>
+    <b-row  v-if="!showSearchControls">
+      <b-col cols="11">
+        <h5>{{ searchTitle }}</h5>
+      </b-col>
+    </b-row>
     <b-row align-h="start">
       <b-col cols="1">
-        <strong>{{totalRows}} grants</strong>
+        <strong>{{ totalRows }} grants</strong>
       </b-col>
     </b-row>
     <b-row align-v="center">
       <b-col cols="12">
-        <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields.filter( field => !field.hideGrantItem)" selectable striped
-        :sort-by.sync="orderBy" :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true"
-        select-mode="single" :busy="loading" @row-selected="onRowSelected" show-empty emptyText="No matches found">
-        <template #cell(award_floor)="row">
-          <p> {{ formatMoney(row.item.award_floor) }}</p>
-        </template>
-        <template #cell(award_ceiling)="row">
-          <p> {{ formatMoney(row.item.award_ceiling) }}</p>
-        </template>
-        <template #table-busy>
-          <div class="text-center text-danger my-2">
-            <b-spinner class="align-middle"></b-spinner>
-            <strong> Loading...</strong>
-          </div>
-        </template>
-        <template #empty="scope">
-          &emsp;
-          &emsp;
-          <div class="text-center">
-            <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
-            <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
-            &nbsp;
-            <p><a @click="$refs.searchPanel.showSideBar()" class="link">
-              Edit Search Criteria
-            </a></p>
-          </div>
-        </template>
-      </b-table>
+        <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants"
+          :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
+          :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
+          @row-selected="onRowSelected" show-empty emptyText="No matches found">
+          <template #cell(award_floor)="row">
+            <p> {{ formatMoney(row.item.award_floor) }}</p>
+          </template>
+          <template #cell(award_ceiling)="row">
+            <p> {{ formatMoney(row.item.award_ceiling) }}</p>
+          </template>
+          <template #table-busy>
+            <div class="text-center text-danger my-2">
+              <b-spinner class="align-middle"></b-spinner>
+              <strong> Loading...</strong>
+            </div>
+          </template>
+          <template #empty="scope">
+            &emsp;
+            &emsp;
+            <div class="text-center">
+              <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
+              <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
+              &nbsp;
+              <p><a @click="$refs.searchPanel.showSideBar()" class="link">
+                  Edit Search Criteria
+                </a></p>
+            </div>
+          </template>
+        </b-table>
       </b-col>
     </b-row>
     <b-row align-v="center">
@@ -90,6 +98,10 @@ export default {
     showSearchControls: {
       type: Boolean,
       default: true,
+    },
+    searchTitle: {
+      type: String,
+      default: '',
     },
   },
   data() {
@@ -418,6 +430,7 @@ export default {
 .empty-text {
   margin: 2px;
 }
+
 .grants-table-container {
   padding-left: 15px;
   padding-right: 15px;
