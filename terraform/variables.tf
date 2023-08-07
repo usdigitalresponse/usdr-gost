@@ -71,7 +71,7 @@ variable "website_feature_flags" {
   type        = any
   default     = {}
   validation {
-    condition     = can(lookup(var.myobj, uuid(), "default"))
+    condition     = can(lookup(var.website_feature_flags, uuid(), "default"))
     error_message = "Value must be an object."
   }
 }
