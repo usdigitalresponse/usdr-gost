@@ -1,3 +1,8 @@
+import { getFeatureFlags } from './helpers';
+
+/**
+ * @returns { boolean } true if the useNewTable feature flag is active, else false.
+ */
 export function useNewGrantsTable() {
-  return process.env.VUE_APP_USE_NEW_TABLE === 'true' || (window.APP_CONFIG || {}).UseNewTable === true;
+  return process.env.VUE_APP_USE_NEW_TABLE === 'true' || getFeatureFlags().useNewTable === true;
 }
