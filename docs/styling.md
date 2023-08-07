@@ -29,7 +29,7 @@ To import semantic token styles into your Vue component, please follow this patt
 Colors are defined through a base and semantic token system.
 
 #### Base Tokens
-Base tokens define raw values for styles. For example, the USDR red base token color stack defines a gradient of red values in hex:
+Base tokens define raw values for styles. For example, the USDR green base token color stack defines a gradient of green values in hex:
 ```scss
 // GREEN
 $raw-green-50: #DAFCE4;
