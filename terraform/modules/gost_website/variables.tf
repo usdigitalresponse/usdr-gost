@@ -37,8 +37,12 @@ variable "gost_api_domain" {
 
 variable "feature_flags" {
   description = "Feature flags for configuring the website runtime"
-  type        = object({})
+  type        = any
   default     = {}
+  validation {
+    condition     = can(lookup(var.feature_flags, uuid(), "default"))
+    error_message = "Value must be an object."
+  }
   validation {
     condition     = can(jsonencode(var.feature_flags))
     error_message = "Value must be JSON-serializable."
