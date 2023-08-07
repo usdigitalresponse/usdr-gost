@@ -31,29 +31,29 @@ Colors are defined through a base and semantic token system.
 #### Base Tokens
 Base tokens define raw values for styles. For example, the USDR red base token color stack defines a gradient of red values in hex:
 ```scss
-// RED
-$raw-red-50: #FEF0EF;
-$raw-red-100: #FDE5E3;
-$raw-red-200: #FCCAC7;
-$raw-red-300: #F8AFA9;
-$raw-red-400: #ED8780;
-$raw-red-500: #DC5B56;
-$raw-red-600: #C22E31;
-$raw-red-700: #A8161E;
-$raw-red-800: #6D1210;
-$raw-red-900: #4C110B;
+// GREEN
+$raw-green-50: #DAFCE4;
+$raw-green-100: #C5F6D4;
+$raw-green-200: #9FE6B7;
+$raw-green-300: #77D498;
+$raw-green-400: #43B874;
+$raw-green-500: #20975A;
+$raw-green-600: #107747;
+$raw-green-700: #15603F;
+$raw-green-800: #173D2B;
+$raw-green-900: #142B20;
 ```
 
 #### Semantic Tokens
 Semantic tokens pair a user context to a base color value. For example:
 ```scss
-// NEGATIVE 
-$negative-default: $raw-red-600;
-$negative-hover: $raw-red-700;
-$negative-active: $raw-red-800;
-$negative-content: $raw-white;
-$negative-accent: $raw-red-100;
-$negative-accentContent: $raw-gray-700;
+// POSITIVE
+$positive-default: $raw-green-600;
+$positive-hover: $raw-green-700;
+$positive-active: $raw-green-800;
+$positive-content: $raw-white;
+$positive-accent: $raw-green-100;
+$positive-accentContent: $raw-gray-700;
 ```
 
 A set of semantic token definitions function as a *theme*. Multiple theme definitions may exist for the same set of semantic tokens, which allows implementation of alternate color themes like dark mode.  
