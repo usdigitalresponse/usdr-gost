@@ -186,7 +186,7 @@ export default {
       return Object.values(this.formData.criteria).some((value) => value !== null && !(Array.isArray(value) && value.length === 0)) && this.formData.searchTitle !== null;
     },
     isEditMode() {
-      return this.searchId !== null && this.searchId !== undefined;
+      return this.searchId !== null && this.searchId !== undefined && this.searchId !== 0;
     },
     panelTitle() {
       return this.isEditMode ? 'Edit Search' : 'New Search';
@@ -201,7 +201,7 @@ export default {
       fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
       changeSelectedSearchId: 'grants/changeSelectedSearchId',
       initNewSearch: 'grants/initNewSearch',
-      cancel: 'grants/initViewResults',
+      initViewResults: 'grants/initViewResults',
     }),
     setup() {
       this.fetchEligibilityCodes();
@@ -218,8 +218,10 @@ export default {
     apply() {
       const formDataCopy = { ...this.formData.criteria };
       this.applyFilters(formDataCopy);
-      this.$emit('filters-applied');
-      this.$refs.searchPanelSideBar.hide();
+      this.initViewResults();
+    },
+    cancel() {
+      this.initViewResults();
     },
     initFormState() {
       if (this.isEditMode) {
@@ -262,7 +264,7 @@ export default {
         });
         searchId = res.id;
       }
-      this.fetchSavedSearches();
+      await this.fetchSavedSearches();
       this.changeSelectedSearchId(searchId);
     },
     showSideBar() {

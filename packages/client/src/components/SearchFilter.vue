@@ -30,6 +30,7 @@ export default {
       removeFilter: 'grants/removeFilter',
       clearSelectedSearch: 'grants/clearSelectedSearch',
       fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+      initEditSearch: 'grants/initEditSearch',
     }),
     formatValue(value) {
       if (Array.isArray(value)) {
@@ -41,7 +42,7 @@ export default {
       return value;
     },
     editFilter() {
-      this.$emit('edit-filter');
+      this.initEditSearch(this.selectedSearch.id);
     },
     clearAll() {
       this.clearSelectedSearch();

@@ -2,15 +2,15 @@
   <section class="container-fluid grants-table-container">
     <b-row class="my-3" v-if="showSearchControls">
       <div class="ml-3">
-        <SavedSearchPanel @edit-filter="openSearchForEdit" @filters-applied="paginateGrants" />
+        <SavedSearchPanel @filters-applied="paginateGrants" />
       </div>
       <div class="ml-3">
-        <SearchPanel ref="searchPanel" :search-id="searchId" @filters-applied="paginateGrants" />
+        <SearchPanel ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
       </div>
     </b-row>
     <b-row>
       <b-col cols="11">
-        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" @edit-filter="openSearchForEdit"
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants"
           v-if="showSearchControls" />
       </b-col>
       <b-col align-self="end">
@@ -185,6 +185,7 @@ export default {
       selectedAgency: 'users/selectedAgency',
       activeFilters: 'grants/activeFilters',
       selectedSearchId: 'grants/selectedSearchId',
+      editingSearchId: 'grants/editingSearchId',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -298,15 +299,6 @@ export default {
       } finally {
         this.loading = false;
       }
-    },
-    openSearchForEdit(searchId) { // TODO refactor to state store
-      if (searchId === null || searchId === undefined) {
-        this.searchId = Number(this.selectedSearchId);
-      } else {
-        this.searchId = Number(searchId);
-      }
-
-      this.$root.$emit('bv::toggle::collapse', 'search-panel');
     },
     getAwardFloor(grant) {
       let body;

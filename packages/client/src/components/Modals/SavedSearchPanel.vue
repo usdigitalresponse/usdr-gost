@@ -11,9 +11,9 @@
       right
       shadow
     >
-    <template #header="{ hide }">
+    <template #header>
       <div class="saved-search-title">Saved Searches</div>
-      <b-button type="button" class="close" aria-label="Close" @click="hide">
+      <b-button type="button" class="close" aria-label="Close" @click="initViewResults">
        <span aria-hidden="true">&times;</span>
       </b-button>
     </template>
@@ -33,7 +33,7 @@
               <template #button-content>
                 <b-icon icon="three-dots-vertical" font-scale="1"></b-icon>
               </template>
-              <b-dropdown-item :searchId="search.id" @click="editSavedSearch">Edit</b-dropdown-item>
+              <b-dropdown-item :searchId="search.id" @click.stop="editSavedSearch">Edit</b-dropdown-item>
               <b-dropdown-item @click="deleteSavedSearch" :searchId="search.id">Delete</b-dropdown-item>
             </b-dropdown>
           </b-col>
@@ -110,6 +110,9 @@ export default {
       changeSelectedSearchId: 'grants/changeSelectedSearchId',
       applyFilters: 'grants/applyFilters',
       initManageSearches: 'grants/initManageSearches',
+      initEditSearch: 'grants/initEditSearch',
+      initNewSearch: 'grants/initNewSearch',
+      initViewResults: 'grants/initViewResults',
     }),
     setup() {
       this.fetchSavedSearches();
@@ -119,26 +122,21 @@ export default {
     },
     editSavedSearch(e) {
       const searchId = e.target.getAttribute('searchid');
-      // this.changeSelectedSearchId();
-      this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
-      this.$emit('edit-filter', searchId);
+      this.initEditSearch(searchId);
     },
     newSavedSearch() {
-      this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
-      this.$emit('edit-filter');
+      this.initNewSearch();
     },
     deleteSavedSearch(e) {
       const searchId = `${e.target.getAttribute('searchid')}`;
       this.deleteSavedSearchAPI({ searchId });
-      this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
       this.fetchSavedSearches();
     },
     appylySavedSearch(searchId) {
       const searchData = this.savedSearches.data.find((search) => search.id === searchId);
       this.changeSelectedSearchId(searchId);
       this.applyFilters(JSON.parse(searchData.criteria));
-      this.$emit('filters-applied');
-      this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
+      this.initViewResults();
     },
     formatCriteria(criteria) {
       const criteriaObj = JSON.parse(criteria);
