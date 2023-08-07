@@ -11,9 +11,6 @@
  *   https://www.figma.com/file/HWu4iIjcoX2txuN543qzIB/USDR-Design-System?type=design&node-id=8%3A2&mode=design&t=8mml86X91f9FzVAE-1
  */
 
-// SET USDR FONTS
-@import './fonts.scss';
-
 // IMPORT USDR DESIGN SYSTEM SEMANTIC TOKENS
 @import './colors-semantic-tokens.scss';
 
@@ -52,3 +49,6 @@ $theme-colors: map-merge(
 @import 'bootstrap/scss/bootstrap.scss';
 @import 'bootstrap-vue/src/index.scss';
 @import 'vue-select/src/scss/vue-select.scss';
+
+// SET USDR FONTS
+@import './fonts.scss';
