@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getFeatureFlags } from '@/helpers/featureFlags/helpers';
+import { getFeatureFlags } from '@/helpers/featureFlags/utils';
 
 describe('featureFlags', () => {
   describe('helpers', () => {

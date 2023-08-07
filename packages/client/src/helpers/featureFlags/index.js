@@ -1,4 +1,4 @@
-import { getFeatureFlags } from './helpers';
+import { getFeatureFlags } from './utils';
 
 /**
  * @returns { boolean } true if the useNewTable feature flag is active, else false.
