@@ -9,7 +9,7 @@ const { ec } = require('./format');
 const { getPreviousReportingPeriods, getReportingPeriod, getAllReportingPeriods } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
 const { recordsForProject, recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records');
-const { usedForTreasuryExport } = require('../db/uploads');
+const { usedForTreasuryExport, setUsedForTreasuryExportCache, clearUsedForTreasuryExportCache } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
 const { useTenantId } = require('../use-request');
@@ -206,10 +206,9 @@ async function createProjectSummariesGroupedByProject(periodId) {
 
 async function generate(requestHost) {
     const periodId = await getCurrentReportingPeriodID();
-    console.log(`generate(${periodId})`);
 
     const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
-
+    await setUsedForTreasuryExportCache();
     // generate sheets
     const [
         obligations,
@@ -220,6 +219,7 @@ async function generate(requestHost) {
         createProjectSummaries(periodId, domain),
         createProjectSummariesGroupedByProject(periodId),
     ]);
+    clearUsedForTreasuryExportCache();
 
     // compose workbook
     const sheet1 = XLSX.utils.json_to_sheet(obligations, { dateNF: 'MM/DD/YYYY' });

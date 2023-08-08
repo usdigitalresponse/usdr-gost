@@ -1,11 +1,12 @@
 /* eslint camelcase: 0 */
 
+const NodeCache = require('node-cache');
 const knex = require('../../db/connection');
 const {
     getCurrentReportingPeriodID,
 } = require('./settings');
 const { requiredArgument } = require('../lib/preconditions');
-const { useTenantId } = require('../use-request');
+const { useRequest, useTenantId } = require('../use-request');
 
 function baseQuery(trns) {
     return trns('uploads')
@@ -45,8 +46,51 @@ function getUpload(id, trns = knex) {
         .then((r) => r[0]);
 }
 
+/*
+ * UsedForTreasurySummary caching
+ *
+ */
+const UsedForTreasurySummaryCache = new NodeCache({ stdTTL: 2000 });
+async function setUsedForTreasuryExportCache(trns = knex) {
+    const request = useRequest();
+    const tenantId = useTenantId();
+    const data = await baseQuery(trns)
+        .with('agency_max_val', trns.raw(
+            'SELECT agency_id, ec_code, reporting_period_id, MAX(created_at) AS most_recent '
+      + 'FROM uploads WHERE validated_at IS NOT NULL '
+      + 'AND tenant_id = :tenantId '
+      + 'AND invalidated_at IS NULL '
+      + 'GROUP BY agency_id, ec_code, reporting_period_id',
+            { tenantId },
+        ))
+        .where('uploads.tenant_id', tenantId)
+        .where('uploads.invalidated_at', null)
+        .innerJoin('agency_max_val', function () {
+            this.on('uploads.created_at', '=', 'agency_max_val.most_recent')
+                .andOn('uploads.agency_id', '=', 'agency_max_val.agency_id')
+                .andOn('uploads.ec_code', '=', 'agency_max_val.ec_code')
+                .andOn('uploads.reporting_period_id', '=', 'agency_max_val.reporting_period_id');
+        });
+    UsedForTreasurySummaryCache.set(request.id, data);
+}
+function getUsedForTreasuryExportCache(periodId, tenantId = undefined) {
+    tenantId = tenantId || useTenantId();
+    const request = useRequest();
+    const data = UsedForTreasurySummaryCache.get(request.id);
+    const results = data.filter((d) => (d.reporting_period_id === periodId && d.tenant_id === tenantId));
+    if (results.length === 0) {
+        return null;
+    }
+
+    return results;
+}
+
 function usedForTreasuryExport(periodId, tenantId = undefined, trns = knex) {
     tenantId = tenantId || useTenantId();
+    const data = getUsedForTreasuryExportCache(periodId, tenantId);
+    if (data != null) {
+        return data;
+    }
     requiredArgument(periodId, 'periodId must be specified in validForReportingPeriod');
 
     return baseQuery(trns)
@@ -69,6 +113,11 @@ function usedForTreasuryExport(periodId, tenantId = undefined, trns = knex) {
         });
 }
 
+function clearUsedForTreasuryExportCache() {
+    const request = useRequest();
+    UsedForTreasurySummaryCache.del(request.id);
+}
+
 /*  getUploadSummaries() returns a knex promise containing an array of
     records like this:
     {
@@ -82,7 +131,6 @@ function usedForTreasuryExport(periodId, tenantId = undefined, trns = knex) {
     */
 function getUploadSummaries(period_id, trns = knex) {
     const tenantId = useTenantId();
-    // console.log(`period_id is ${period_id}`)
     return trns('uploads')
         .select('*')
         .where({ reporting_period_id: period_id, tenant_id: tenantId });
@@ -182,6 +230,8 @@ module.exports = {
     markNotValidated,
     markInvalidated,
     usedForTreasuryExport,
+    setUsedForTreasuryExportCache,
+    clearUsedForTreasuryExportCache,
 };
 
 // NOTE: This file was copied from src/server/db/uploads.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

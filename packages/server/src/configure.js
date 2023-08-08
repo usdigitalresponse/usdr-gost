@@ -1,6 +1,7 @@
 /* eslint-disable global-require */
 require('dotenv').config();
 require('express-async-errors');
+const { v4 } = require('uuid');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -9,6 +10,34 @@ const history = require('connect-history-api-fallback');
 const { resolve } = require('path');
 const { configureApiRoutes: configureArpaReporterApiRoutes } = require('./arpa_reporter/configure');
 const { requestProviderMiddleware } = require('./arpa_reporter/use-request');
+
+function generateV4UUID() {
+    return v4();
+}
+
+const ATTRIBUTE_NAME = 'id';
+
+/*
+ * Function to add a unique request ID to all requests
+ */
+function requestID({
+    generator = generateV4UUID,
+    headerName = 'X-Request-Id',
+    setHeader = true,
+} = {}) {
+    return function (request, response, next) {
+        const oldValue = request.get(headerName);
+        const id = oldValue === undefined ? generator(request) : oldValue;
+
+        if (setHeader) {
+            response.set(headerName, id);
+        }
+
+        request[ATTRIBUTE_NAME] = id;
+
+        next();
+    };
+}
 
 function configureApiRoutes(app) {
     app.use('/api/organizations/:organizationId/users', require('./routes/users'));
@@ -47,6 +76,7 @@ function configureApp(app, options = {}) {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(requestProviderMiddleware);
+    app.use(requestID());
 
     configureApiRoutes(app);
     configureArpaReporterApiRoutes(app);
@@ -92,7 +122,6 @@ function configureApp(app, options = {}) {
         // time after the history middleware rewrote the URL.
         staticMiddleware,
     );
-
     // eslint-disable-next-line no-unused-vars
     app.use((err, req, res, next) => {
         console.error(err.stack);
