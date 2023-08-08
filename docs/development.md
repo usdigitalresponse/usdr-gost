@@ -11,7 +11,6 @@
     - [IntelliJ](#intellij)
   - [Debugging](#debugging)
     - [Chrome](#chrome)
-  - [Website Feature Flags](#website-feature-flags)
 
 As mentioned in the [Getting Started](../docs/getting-started.md) guide, there are two ways to set up this repository for development:
 
