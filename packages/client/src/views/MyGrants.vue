@@ -1,18 +1,20 @@
 <template>
-  <b-tabs pills align="center" lazy>
-    <b-tab title="Interested" active>
-      <component :is="tableComponent" :showInterested="true"/>
-    </b-tab>
-    <b-tab title="Assigned">
-      <component :is="tableComponent" :showAssignedToAgency="selectedAgencyId"/>
-    </b-tab>
-    <b-tab title="Not Applying">
-      <component :is="tableComponent" :showRejected="true"/>
-    </b-tab>
-    <b-tab title="Applied">
-        <component :is="tableComponent" :showResult="true"/>
-    </b-tab>
-  </b-tabs>
+  <div class="grants-tabs">
+    <b-tabs align="left" lazy>
+      <b-tab title="Interested" active>
+        <component :is="tableComponent" searchTitle="Interested" :showInterested="true" :showSearchControls="false"/>
+      </b-tab>
+      <b-tab title="Assigned">
+        <component :is="tableComponent" searchTitle="Assigned" :showAssignedToAgency="selectedAgencyId" :showSearchControls="false"/>
+      </b-tab>
+      <b-tab title="Not Applying">
+        <component :is="tableComponent" searchTitle="Not Applying" :showRejected="true" :showSearchControls="false"/>
+      </b-tab>
+      <b-tab title="Applied">
+          <component :is="tableComponent" searchTitle="Applied" :showResult="true" :showSearchControls="false"/>
+      </b-tab>
+    </b-tabs>
+  </div>
 </template>
 
 <script>
@@ -40,3 +42,15 @@ export default {
   methods: {},
 };
 </script>
+<style>
+.grants-tabs .nav-tabs {
+  padding-left: 20px;
+  border-bottom: none;
+}
+.grants-tabs .nav-link.active {
+  /* border: 0px;
+  border-bottom: 1px; */
+  isolation: isolate;
+  border-color: transparent transparent #dee2e6;
+}
+</style>

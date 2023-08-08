@@ -1,61 +1,75 @@
 <template>
-  <section class="container-fluid" style="margin: 10px;" >
-    <b-row class="my-3">
+  <section class="container-fluid grants-table-container">
+    <b-row class="my-3" v-if="showSearchControls">
       <div class="ml-3">
-        <SavedSearchPanel @edit-filter="openSearchForEdit" @filters-applied="paginateGrants" />
+        <SavedSearchPanel @filters-applied="paginateGrants" />
       </div>
       <div class="ml-3">
-        <SearchPanel ref="searchPanel" :search-id="searchId" @filters-applied="paginateGrants" />
+        <SearchPanel ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
       </div>
     </b-row>
     <b-row>
       <b-col cols="11">
-        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" @edit-filter="openSearchForEdit" />
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants"
+          v-if="showSearchControls" />
       </b-col>
       <b-col align-self="end">
-        <b-button @click="exportCSV" :disabled="loading" variant="outline-primary border-0">
-          Export CSV
-        </b-button>
+        <a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0"
+          class="text-right text-nowrap">
+          <p>Export CSV</p>
+        </a>
+      </b-col>
+    </b-row>
+    <b-row  v-if="!showSearchControls">
+      <b-col cols="11">
+        <h5>{{ searchTitle }}</h5>
       </b-col>
     </b-row>
     <b-row align-h="start">
       <b-col cols="1">
-        <strong>{{totalRows}} grants</strong>
+        <strong>{{ totalRows }} grants</strong>
       </b-col>
     </b-row>
-    <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields.filter( field => !field.hideGrantItem)" selectable striped
-      :sort-by.sync="orderBy" :sort-desc.sync="orderDesc" :no-local-sorting="true"
-      select-mode="single" :busy="loading" @row-selected="onRowSelected" show-empty emptyText="No matches found">
-      <template #cell(award_floor)="row">
-        <p> {{ formatMoney(row.item.award_floor) }}</p>
-      </template>
-      <template #cell(award_ceiling)="row">
-        <p> {{ formatMoney(row.item.award_ceiling) }}</p>
-      </template>
-      <template #table-busy>
-        <div class="text-center text-danger my-2">
-          <b-spinner class="align-middle"></b-spinner>
-          <strong> Loading...</strong>
-        </div>
-      </template>
-      <template #empty="scope">
-        &emsp;
-        &emsp;
-        <div class="text-center">
-          <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
-          <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
-          &nbsp;
-          <p><a @click="$refs.searchPanel.showSideBar()" class="link">
-            Edit Search Criteria
-          </a></p>
-        </div>
-      </template>
-    </b-table>
     <b-row align-v="center">
-      <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
-        last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
-        aria-controls="grants-table" />
-      <b-button class="ml-2" variant="outline-primary disabled">{{ grants.length }} of {{ totalRows }}</b-button>
+      <b-col cols="12">
+        <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants"
+          :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
+          :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
+          @row-selected="onRowSelected" show-empty emptyText="No matches found">
+          <template #cell(award_floor)="row">
+            <p> {{ formatMoney(row.item.award_floor) }}</p>
+          </template>
+          <template #cell(award_ceiling)="row">
+            <p> {{ formatMoney(row.item.award_ceiling) }}</p>
+          </template>
+          <template #table-busy>
+            <div class="text-center text-danger my-2">
+              <b-spinner class="align-middle"></b-spinner>
+              <strong> Loading...</strong>
+            </div>
+          </template>
+          <template #empty="scope">
+            &emsp;
+            &emsp;
+            <div class="text-center">
+              <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
+              <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
+              &nbsp;
+              <p><a @click="$refs.searchPanel.showSideBar()" class="link">
+                  Edit Search Criteria
+                </a></p>
+            </div>
+          </template>
+        </b-table>
+      </b-col>
+    </b-row>
+    <b-row align-v="center">
+      <b-col cols="12" class="d-flex">
+        <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
+          last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
+          aria-controls="grants-table" />
+        <b-button class="ml-2" variant="outline-primary disabled">{{ grants.length }} of {{ totalRows }}</b-button>
+      </b-col>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
@@ -81,6 +95,14 @@ export default {
     showAging: Boolean,
     showAssignedToAgency: String,
     hideGrantItems: Boolean,
+    showSearchControls: {
+      type: Boolean,
+      default: true,
+    },
+    searchTitle: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
@@ -163,6 +185,7 @@ export default {
       selectedAgency: 'users/selectedAgency',
       activeFilters: 'grants/activeFilters',
       selectedSearchId: 'grants/selectedSearchId',
+      editingSearchId: 'grants/editingSearchId',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -239,20 +262,18 @@ export default {
     debouncedSearchInput() {
       this.paginateGrants();
     },
-    async selectedGrant() {
-      if (!this.selectedGrant) {
-        await this.paginateGrants();
-      }
+    selectedSearchId() {
+      this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
     },
   },
   methods: {
     ...mapActions({
       fetchGrants: 'grants/fetchGrantsNext',
       navigateToExportCSV: 'grants/exportCSV',
-      clearFilters: 'grants/clearFilters',
+      clearSelectedSearch: 'grants/clearSelectedSearch',
     }),
     setup() {
-      this.clearFilters();
+      this.clearSelectedSearch();
       this.paginateGrants();
     },
     titleize,
@@ -278,16 +299,6 @@ export default {
       } finally {
         this.loading = false;
       }
-    },
-    openSearchForEdit(searchId) {
-      if (searchId === null || searchId === undefined) {
-        debugger;
-        this.searchId = Number(this.selectedSearchId);
-      } else {
-        this.searchId = Number(searchId);
-      }
-
-      this.$root.$emit('bv::toggle::collapse', 'search-panel');
     },
     getAwardFloor(grant) {
       let body;
@@ -410,5 +421,11 @@ export default {
 <style>
 .empty-text {
   margin: 2px;
+}
+
+.grants-table-container {
+  padding-left: 15px;
+  padding-right: 15px;
+  margin: 10px;
 }
 </style>
