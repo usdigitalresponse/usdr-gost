@@ -29,6 +29,9 @@ website_managed_waf_rules = {
     metric_visibility = true
   }
 }
+website_feature_flags = {
+  useNewTable = false,
+}
 
 // ECS Cluster
 cluster_container_insights_enabled = true
