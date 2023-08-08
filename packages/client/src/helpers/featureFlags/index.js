@@ -1,8 +1,8 @@
 import { getFeatureFlags } from './utils';
 
 /**
- * @returns { boolean } true if the useNewTable feature flag is active, else false.
+ * @returns { boolean } true if the new grants table should be active, else false.
  */
 export function useNewGrantsTable() {
-  return process.env.VUE_APP_USE_NEW_TABLE === 'true' || getFeatureFlags().useNewTable === true;
+  return getFeatureFlags().useNewTable === true;
 }
