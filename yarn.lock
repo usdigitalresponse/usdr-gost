@@ -6634,10 +6634,10 @@ dayjs@^1.10.4:
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.7.tgz#4b296922642f70999544d1144a2c25730fce63e2"
   integrity sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==
 
-dd-trace@^3.17.1:
-  version "3.32.1"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-3.32.1.tgz#f9ae34c78f163b484f21556d364bb9a33de5fb20"
-  integrity sha512-5Q157u+ly9v94ZmRBWijOXuuVxsm3pA3ei0Nhhu2D9/gHp/ECldDkn5qUEX/y7/x1KKLKApq/XieSD3uhRLIKQ==
+dd-trace@^4.11.1:
+  version "4.11.1"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.11.1.tgz#69d4b1d26fde0a392b438db476d480ddacd3e39c"
+  integrity sha512-4HKackJ+Q5Z7qJ5RLI+J479Fp/gvZDCbXtb19dyZMVDbIXN2gX+pgoqMEKBTnldCzXiP8e4bWtXXrh5aI38wYA==
   dependencies:
     "@datadog/native-appsec" "^3.2.0"
     "@datadog/native-iast-rewriter" "2.0.1"
