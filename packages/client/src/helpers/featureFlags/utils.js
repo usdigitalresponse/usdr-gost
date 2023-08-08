@@ -8,7 +8,7 @@
  * @example
  * // Returns true or false
  * function useFoo() {
- *  return process.env.VUE_APP_USE_FOO === 'true' || getFeatureFlags().useFoo === true;
+ *  return getFeatureFlags().useFoo === true;
  * }
  *
  * @returns { object } Object keyed by runtime feature flags, which may be empty.
