@@ -6,7 +6,9 @@ This app implements the [USDR Design System](https://www.figma.com/file/HWu4iIjc
 
 This app is built with [Bootstrap Vue](https://bootstrap-vue.org/).
 
-The implementation of the USDR design system primarily overrides Bootstrap's theme colors and fonts. Bootstrap provides a small set of [theme color definitions](https://getbootstrap.com/docs/5.0/customize/css-variables/#root-variables). This is the primary way the USDR brand is expressed in this app through Bootstrap.
+The implementation of the USDR design system primarily overrides Bootstrap's
+theme colors and fonts.
+Bootstrap provides a small set of [theme color definitions](https://getbootstrap.com/docs/5.0/customize/css-variables/#root-variables).
 
 These theme override definitions live in [custom.scss](../packages/client/scss/custom.scss).
 
@@ -25,11 +27,12 @@ To import semantic token styles into your Vue component, please follow this patt
 </style>
 ```
 
-### Token System 
+### Token System
 Colors are defined through a base and semantic token system.
 
 #### Base Tokens
-Base tokens define raw values for styles. For example, the USDR green base token color stack defines a gradient of green values in hex:
+Base tokens define raw values for styles.
+For example, the USDR green base token color stack defines a gradient of green values in hex:
 ```scss
 // GREEN
 $raw-green-50: #DAFCE4;
@@ -56,9 +59,12 @@ $positive-accent: $raw-green-100;
 $positive-accentContent: $raw-gray-700;
 ```
 
-A set of semantic token definitions function as a *theme*. Multiple theme definitions may exist for the same set of semantic tokens, which allows implementation of alternate color themes like dark mode.  
+A set of semantic token definitions function as a *theme*.
+Multiple theme definitions may exist for the same set of semantic tokens,
+ which allows implementation of alternate color themes like dark mode.
 
-*Please use semantic tokens wherever possible.* If you are required to use a base token for which there is no corresponding semantic token, please consult your designer. 
+*Please use semantic tokens wherever possible.*
+If you are required to use a base token for which there is no corresponding semantic token, please consult your designer.
 
 ### Fonts
 
