@@ -2,6 +2,13 @@ const fetchApi = require('@/helpers/fetchApi');
 
 const { formatFilterDisplay } = require('@/helpers/filters');
 
+const tableModes = {
+  VIEW: 'view',
+  MANAGE: 'manage',
+  CREATE: 'create',
+  EDIT: 'edit',
+};
+
 function initialState() {
   return {
     grantsPaginated: {},
@@ -25,7 +32,10 @@ function initialState() {
       reviewStatus: null,
     },
     savedSearches: {},
+    editingSearchId: null,
     selectedSearchId: null,
+    selectedSearch: null,
+    tableMode: tableModes.VIEW,
   };
 }
 
@@ -54,6 +64,10 @@ export default {
     },
     savedSearches: (state) => state.savedSearches,
     selectedSearchId: (state) => state.selectedSearchId,
+    editingSearchId: (state) => state.editingSearchId,
+    selectedSearch: (state) => state.selectedSearch,
+    displaySearchPanel: (state) => state.tableMode === tableModes.CREATE || state.tableMode === tableModes.EDIT,
+    displaySavedSearchPanel: (state) => state.tableMode === tableModes.MANAGE,
   },
   actions: {
     fetchGrants({ commit }, {
@@ -164,10 +178,10 @@ export default {
     async setEligibilityCodeEnabled(context, { code, enabled }) {
       await fetchApi.put(`/api/organizations/:organizationId/eligibility-codes/${code}/enable/${enabled}`);
     },
-    fetchSavedSearches({ commit }) {
+    async fetchSavedSearches({ commit }) {
       // TODO: Add pagination URL parameters.
-      fetchApi.get('/api/organizations/:organizationId/grants-saved-search')
-        .then((data) => commit('SET_SAVED_SEARCHES', data));
+      const data = await fetchApi.get('/api/organizations/:organizationId/grants-saved-search');
+      commit('SET_SAVED_SEARCHES', data);
     },
     async createSavedSearch(context, { searchInfo }) {
       return fetchApi.post('/api/organizations/:organizationId/grants-saved-search', searchInfo);
@@ -180,6 +194,9 @@ export default {
     },
     changeSelectedSearchId({ commit }, searchId) {
       commit('SET_SELECTED_SEARCH_ID', searchId);
+    },
+    changeEditingSearchId({ commit }, searchId) {
+      commit('SET_EDITING_SEARCH_ID', searchId);
     },
     exportCSV(context, queryParams) {
       const query = Object.entries(queryParams)
@@ -200,8 +217,23 @@ export default {
     removeFilter(context, key) {
       context.commit('REMOVE_FILTER', key);
     },
-    clearFilters(context) {
-      context.commit('CLEAR_FILTERS');
+    clearSelectedSearch(context) {
+      context.commit('CLEAR_SEARCH');
+    },
+    // table action state
+    initNewSearch(context) {
+      context.commit('SET_TABLE_MODE', tableModes.CREATE);
+    },
+    initEditSearch(context, searchId) {
+      context.commit('SET_EDITING_SEARCH_ID', searchId);
+      context.commit('SET_TABLE_MODE', tableModes.EDIT);
+    },
+    initManageSearches(context) {
+      context.commit('SET_TABLE_MODE', tableModes.MANAGE);
+    },
+    initViewResults(context) {
+      context.commit('SET_EDITING_SEARCH_ID', null);
+      context.commit('SET_TABLE_MODE', tableModes.VIEW);
     },
   },
   mutations: {
@@ -242,14 +274,30 @@ export default {
     REMOVE_FILTER(state, key) {
       state.searchFormFilters[key] = initialState().searchFormFilters[key];
     },
-    CLEAR_FILTERS(state) {
-      state.searchFormFilters = initialState().searchFormFilters;
+    CLEAR_SEARCH(state) {
+      const emptyState = initialState();
+      state.searchFormFilters = emptyState.searchFormFilters;
+      state.selectedSearch = emptyState.selectedSearch;
+      state.selectedSearchId = emptyState.selectedSearchId;
     },
     SET_SAVED_SEARCHES(state, savedSearches) {
       state.savedSearches = savedSearches;
     },
     SET_SELECTED_SEARCH_ID(state, searchId) {
-      state.selectedSearchId = !Number.isNaN(searchId) ? searchId.toString() : searchId;
+      if (searchId === null || searchId === undefined || Number.isNaN(searchId)) {
+        state.selectedSearchId = null;
+        state.selectedSearch = null;
+        return;
+      }
+      state.selectedSearchId = searchId;
+      const data = state.savedSearches.data || [];
+      state.selectedSearch = data.find((search) => search.id === searchId);
+    },
+    SET_EDITING_SEARCH_ID(state, searchId) {
+      state.editingSearchId = searchId;
+    },
+    SET_TABLE_MODE(state, tableMode) {
+      state.tableMode = tableMode;
     },
   },
 };
