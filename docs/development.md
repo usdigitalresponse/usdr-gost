@@ -11,6 +11,7 @@
     - [IntelliJ](#intellij)
   - [Debugging](#debugging)
     - [Chrome](#chrome)
+  - [Styling](#styling)
 
 As mentioned in the [Getting Started](../docs/getting-started.md) guide, there are two ways to set up this repository for development:
 
@@ -90,3 +91,7 @@ See also:
 
 - [How to set up client debugging using Google Chrome browser](https://github.com/usdigitalresponse/usdr-gost/wiki/How-to-set-up-client-debugging-using-Google-Chrome-browser)
 - [How to set up server debugging using Google Chrome browser](https://github.com/usdigitalresponse/usdr-gost/wiki/How-to-set-up-server-debugging-using-Google-Chrome-browser)
+
+## Styling
+
+For guidance on how to use the USDR Design System styles in this app, please refer to our [frontend style guidelines](./styling.md).
