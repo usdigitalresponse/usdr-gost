@@ -47,7 +47,6 @@ variable "rds_db_connect_resources" {
 variable "postgres_username" {
   description = "Username for authenticated connecting to the Postgres db."
   type        = string
-  sensitive   = true
 }
 
 variable "postgres_endpoint" {

@@ -57,14 +57,11 @@ module "consumer_task_definition" {
       GRANTS_INGEST_EVENTS_QUEUE_URL = module.sqs_queue.queue_url
       NODE_OPTIONS                   = "--max_old_space_size=200"
       PGSSLROOTCERT                  = "rds-combined-ca-bundle.pem"
+      POSTGRES_URL                   = local.postgres_connection_string
     },
     local.datadog_env_vars,
     var.consumer_container_environment,
   )
-
-  map_secrets = {
-    POSTGRES_URL = local.postgres_connection_string
-  }
 
   docker_labels = local.datadog_docker_labels
 
