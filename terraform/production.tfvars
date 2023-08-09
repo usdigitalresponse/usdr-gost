@@ -41,9 +41,6 @@ api_minumum_task_count         = 2
 api_maximum_task_count         = 5
 api_enable_grants_scraper      = true
 api_log_retention_in_days      = 30
-api_datadog_environment_variables = {
-  DD_PROFILING_ENABLED = true,
-}
 
 // Postgres
 postgres_enabled                   = true
