@@ -43,6 +43,9 @@ api_maximum_task_count         = 5
 api_enable_grants_scraper      = false
 api_enable_grants_digest       = false
 api_log_retention_in_days      = 14
+api_datadog_environment_variables = {
+  DD_PROFILING_ENABLED = true,
+}
 
 // Postgres
 postgres_enabled                   = true
@@ -53,3 +56,6 @@ postgres_query_logging_enabled     = true
 
 // Grant events consumer
 consume_grants_source_event_bus_name = "default"
+consume_grants_datadog_environment_variables = {
+  DD_PROFILING_ENABLED = true,
+}

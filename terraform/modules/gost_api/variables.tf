@@ -178,6 +178,12 @@ variable "unified_service_tags" {
   })
 }
 
+variable "datadog_environment_variables" {
+  description = "Datadog-related environment variables to apply to both API and Datadog container runtime environments. See also: var.unified_service_tags."
+  type        = map(string)
+  default     = {}
+}
+
 variable "autoscaling_desired_count_minimum" {
   description = "Minimum desired auto-scaling group capacity"
   type        = number

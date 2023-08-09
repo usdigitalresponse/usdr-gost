@@ -2,10 +2,13 @@ locals {
   api_container_image = "${var.docker_repository}:${var.docker_tag}"
   api_container_port  = 3000
 
-  datadog_env_vars = {
-    for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]) :
-    "DD_${upper(k)}" => var.unified_service_tags[k]
-  }
+  datadog_env_vars = merge(
+    {
+      for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]) :
+      "DD_${upper(k)}" => var.unified_service_tags[k]
+    },
+    { for k, v in var.datadog_environment_variables : upper(k) => v },
+  )
   datadog_docker_labels = {
     for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]) :
     "com.datadoghq.tags.${lower(k)}" => var.unified_service_tags[k]
