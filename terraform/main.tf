@@ -55,6 +55,7 @@ module "website" {
   domain_name       = var.website_domain_name
   gost_api_domain   = local.api_domain_name
   managed_waf_rules = var.website_managed_waf_rules
+  feature_flags     = var.website_feature_flags
 }
 
 module "api_to_postgres_security_group" {

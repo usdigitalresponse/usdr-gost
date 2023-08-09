@@ -8,6 +8,31 @@ ssm_deployment_parameters_path_prefix = "/gost/prod/deploy-config"
 // Website
 website_enabled     = true
 website_domain_name = "grants.usdigitalresponse.org"
+website_managed_waf_rules = {
+  "AnonymousIpList" = {
+    managed_rule      = "AWSManagedRulesAnonymousIpList",
+    priority          = 5,
+    metric_visibility = false
+  },
+  "AmazonIpReputationList" = {
+    managed_rule      = "AWSManagedRulesAmazonIpReputationList",
+    priority          = 10,
+    metric_visibility = false
+  },
+  "CommonRuleSet" = {
+    managed_rule      = "AWSManagedRulesCommonRuleSet",
+    priority          = 20,
+    metric_visibility = true
+  },
+  "KnownBadInputsRuleSet" = {
+    managed_rule      = "AWSManagedRulesKnownBadInputsRuleSet",
+    priority          = 30,
+    metric_visibility = true
+  }
+}
+website_feature_flags = {
+  useNewTable = false,
+}
 
 // ECS Cluster
 cluster_container_insights_enabled = true

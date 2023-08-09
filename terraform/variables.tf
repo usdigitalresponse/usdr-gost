@@ -66,6 +66,16 @@ variable "website_managed_waf_rules" {
   default = {}
 }
 
+variable "website_feature_flags" {
+  description = "Map of website feature flag names and their values."
+  type        = any
+  default     = {}
+  validation {
+    condition     = can(lookup(var.website_feature_flags, uuid(), "default"))
+    error_message = "Value must be an object."
+  }
+}
+
 // ECS cluster
 variable "cluster_container_insights_enabled" {
   type    = bool
