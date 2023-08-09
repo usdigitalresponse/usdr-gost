@@ -1,24 +1,59 @@
 <template>
   <div>
-    <b-button v-b-toggle.saved-search-panel variant="outline-secondary">
+    <b-button @click="initManageSearches" variant="primary" size="sm">
       My Saved Searches
     </b-button>
     <b-sidebar
       id="saved-search-panel"
       class="saved-search-panel"
+      model="displaySavedSearchPanel"
+      ref="savedSearchPanel"
       right
       shadow
     >
-    <template #header="{ hide }">
+    <template #header>
       <div class="saved-search-title">Saved Searches</div>
-      <b-button type="button" class="close" aria-label="Close" @click="hide">
+      <b-button type="button" class="close" aria-label="Close" @click="initViewResults">
        <span aria-hidden="true">&times;</span>
       </b-button>
     </template>
-    <div class="saved-search-empty-state">
+    <div class="saved-search-empty-state" v-if="emptyState">
       <h4>No saved searches</h4>
-      <span>Save search criteria to easily apply or share a search</span>
+      <div>Save search criteria to easily apply or share a search</div>
+      <b-button @click="newSavedSearch" variant="outline-primary" size="sm">
+        New Search
+      </b-button>
     </div>
+    <section class="container-fluid" v-if="!emptyState">
+      <div v-for="(search,idx) in savedSearches.data" :key="idx" class="saved-search-row" :searchid="search.id" @click="appylySavedSearch(search.id)" >
+        <b-row>
+          <b-col cols="9"><b>{{  search.name }}</b></b-col>
+          <b-col cols="1">
+            <b-dropdown size="sm"  variant="link" toggle-class="text-decoration-none" no-caret>
+              <template #button-content>
+                <b-icon icon="three-dots-vertical" font-scale="1"></b-icon>
+              </template>
+              <b-dropdown-item :searchId="search.id" @click.stop="editSavedSearch">Edit</b-dropdown-item>
+              <b-dropdown-item @click="deleteSavedSearch" :searchId="search.id">Delete</b-dropdown-item>
+            </b-dropdown>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col cols="9">
+            <!-- TODO: Change this to updatedAt -->
+            Last used {{ new Intl.DateTimeFormat("en-US", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(search.createdAt)) }}
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col cols="9">
+            <div v-for="(field, idx) of formatCriteria(search.criteria)" :key="idx">
+              {{ field.label }}: {{ field.value }}
+            </div>
+          </b-col>
+        </b-row>
+        <hr />
+      </div>
+    </section>
     <template #footer="{ hide }">
      <div class="d-flex text-light align-items-center px-3 py-2">
       <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
@@ -32,6 +67,8 @@
 import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
 
+import { formatFilterDisplay } from '@/helpers/filters';
+
 export default {
   props: {
     showModal: Boolean,
@@ -43,14 +80,68 @@ export default {
     return {};
   },
   validations: {},
-  watch: {},
+  watch: {
+    displaySavedSearchPanel() {
+      if (this.displaySavedSearchPanel) {
+        this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
+      } else {
+        this.$refs.savedSearchPanel.hide();
+      }
+    },
+  },
   computed: {
-    ...mapGetters({}),
+    ...mapGetters({
+      savedSearches: 'grants/savedSearches',
+      displaySavedSearchPanel: 'grants/displaySavedSearchPanel',
+    }),
+    emptyState() {
+      return this.savedSearches.data && this.savedSearches.data.length === 0;
+    },
   },
   mounted() {
+    this.setup();
   },
   methods: {
-    ...mapActions({}),
+    ...mapActions({
+      createSavedSearch: 'grants/createSavedSearch',
+      updateSavedSearch: 'grants/updateSavedSearch',
+      deleteSavedSearchAPI: 'grants/deleteSavedSearch',
+      fetchSavedSearches: 'grants/fetchSavedSearches',
+      changeSelectedSearchId: 'grants/changeSelectedSearchId',
+      applyFilters: 'grants/applyFilters',
+      initManageSearches: 'grants/initManageSearches',
+      initEditSearch: 'grants/initEditSearch',
+      initNewSearch: 'grants/initNewSearch',
+      initViewResults: 'grants/initViewResults',
+    }),
+    setup() {
+      this.fetchSavedSearches();
+      if (this.displaySavedSearchPanel) {
+        this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
+      }
+    },
+    editSavedSearch(e) {
+      const searchId = e.target.getAttribute('searchid');
+      this.initEditSearch(searchId);
+    },
+    newSavedSearch() {
+      this.initNewSearch();
+    },
+    deleteSavedSearch(e) {
+      const searchId = `${e.target.getAttribute('searchid')}`;
+      this.deleteSavedSearchAPI({ searchId });
+      this.fetchSavedSearches();
+    },
+    appylySavedSearch(searchId) {
+      const searchData = this.savedSearches.data.find((search) => search.id === searchId);
+      this.changeSelectedSearchId(searchId);
+      this.applyFilters(JSON.parse(searchData.criteria));
+      this.initViewResults();
+    },
+    formatCriteria(criteria) {
+      const criteriaObj = JSON.parse(criteria);
+      return formatFilterDisplay(criteriaObj);
+    },
   },
 };
 </script>
@@ -93,5 +184,8 @@ export default {
   font-weight: 500;
   font-size: 14px;
   line-height: 150%;
+}
+.saved-search-row:hover{
+  background: rgba(0, 0, 0, 0.075);
 }
 </style>

@@ -1,0 +1,54 @@
+/**
+ * custom.scss
+ * 
+ * Theme definition file, based on USDR style guide.
+ * Imports sub-files:
+ * - ./fonts.scss
+ * - ./colors-semantic-tokens.scss
+ *   - ./colors-base-tokens.scss
+ *
+ * Please refer to USDR style guide definition in Figma:
+ *   https://www.figma.com/file/HWu4iIjcoX2txuN543qzIB/USDR-Design-System?type=design&node-id=8%3A2&mode=design&t=8mml86X91f9FzVAE-1
+ */
+
+// IMPORT USDR DESIGN SYSTEM SEMANTIC TOKENS
+@import './colors-semantic-tokens.scss';
+
+// LIGHT THEME (SEMANTIC TOKEN) DEFINITION - SASS MAP
+$theme-colors: () !default;
+$theme-colors: map-merge(
+  (
+    // DEFAULT BOOTSTRAP COLORS
+    "blue": #007bff,
+    "indigo": #6610f2,
+    "purple": #6f42c1,
+    "pink": #e83e8c,
+    "red": #dc3545,
+    "orange": #fd7e14,
+    "yellow": #ffc107,
+    "green": #28a745,
+    "teal": #20c997,
+    "cyan": #17a2b8,
+    "white": #fff,
+    "gray": #6c757d,
+    "gray-dark": #343a40,
+
+    // USDR BRAND COLORS
+    "primary":    $usdr-brand-primary,
+    "secondary":  $usdr-brand-secondary,
+    "success":    $positive-default,
+    "info":       $info-default,
+    "warning":    $warning-default,
+    "danger":     $negative-default,
+    "light":      $raw-gray-100,
+    "dark":       $raw-gray-800,
+  ),
+  $theme-colors
+);
+
+@import 'bootstrap/scss/bootstrap.scss';
+@import 'bootstrap-vue/src/index.scss';
+@import 'vue-select/src/scss/vue-select.scss';
+
+// SET USDR FONTS
+@import './fonts.scss';

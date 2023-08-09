@@ -52,7 +52,7 @@
     "cryo": "0.0.6",
     "csv-stringify": "^6.0.5",
     "date-fns": "^2.23.0",
-    "dd-trace": "^3.17.1",
+    "dd-trace": "^4.11.1",
     "docx": "^7.3.0",
     "dotenv": "^16.0.0",
     "email-validator": "^2.0.4",

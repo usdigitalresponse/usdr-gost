@@ -1,5 +1,14 @@
 const fetchApi = require('@/helpers/fetchApi');
 
+const { formatFilterDisplay } = require('@/helpers/filters');
+
+const tableModes = {
+  VIEW: 'view',
+  MANAGE: 'manage',
+  CREATE: 'create',
+  EDIT: 'edit',
+};
+
 function initialState() {
   return {
     grantsPaginated: {},
@@ -10,6 +19,23 @@ function initialState() {
     totalUpcomingGrants: 0,
     totalInterestedGrants: 0,
     currentGrant: {},
+    searchFormFilters: {
+      costSharing: null,
+      opportunityStatuses: [],
+      opportunityCategories: [],
+      includeKeywords: null,
+      excludeKeywords: null,
+      opportunityNumber: null,
+      postedWithin: null,
+      fundingType: null,
+      eligibility: null,
+      reviewStatus: null,
+    },
+    savedSearches: {},
+    editingSearchId: null,
+    selectedSearchId: null,
+    selectedSearch: null,
+    tableMode: tableModes.VIEW,
   };
 }
 
@@ -30,6 +56,18 @@ export default {
       result: state.interestedCodes.filter((c) => c.status_code === 'Result'),
       interested: state.interestedCodes.filter((c) => c.status_code === 'Interested'),
     }),
+    activeFilters(state) {
+      return formatFilterDisplay(state.searchFormFilters);
+    },
+    searchFormFilters(state) {
+      return state.searchFormFilters;
+    },
+    savedSearches: (state) => state.savedSearches,
+    selectedSearchId: (state) => state.selectedSearchId,
+    editingSearchId: (state) => state.editingSearchId,
+    selectedSearch: (state) => state.selectedSearch,
+    displaySearchPanel: (state) => state.tableMode === tableModes.CREATE || state.tableMode === tableModes.EDIT,
+    displaySavedSearchPanel: (state) => state.tableMode === tableModes.MANAGE,
   },
   actions: {
     fetchGrants({ commit }, {
@@ -37,6 +75,30 @@ export default {
       assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency,
       opportunityStatuses, opportunityCategories, costSharing,
     }) {
+      const query = Object.entries({
+        currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
+      })
+        // filter out undefined and nulls since api expects parameters not present as undefined
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value || typeof value === 'number')
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
+        .then((data) => commit('SET_GRANTS', data));
+    },
+    fetchGrantsNext({ commit }, {
+      currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe,
+      assignedToAgency, showInterested, showResult, showRejected, aging, interestedByAgency,
+    }) {
+      // pull filters from state
+      const { costSharing, opportunityStatuses, opportunityCategories } = this.state.grants.searchFormFilters;
+      // review status filters can be in state or overridden based on how `fetchGrants` is called
+      // this is to facilitate a grants table having default filters on those (i.e. My Grants)
+      const reviewStatusFilters = this.state.grants.searchFormFilters.reviewStatusFilters || [];
+      const positiveInterest = showInterested || reviewStatusFilters.includes('interested') ? true : null;
+      const result = showResult || reviewStatusFilters.includes('result') ? true : null;
+      const rejected = showRejected || reviewStatusFilters.includes('rejected') ? true : null;
+
       const query = Object.entries({
         currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
       })
@@ -116,6 +178,26 @@ export default {
     async setEligibilityCodeEnabled(context, { code, enabled }) {
       await fetchApi.put(`/api/organizations/:organizationId/eligibility-codes/${code}/enable/${enabled}`);
     },
+    async fetchSavedSearches({ commit }) {
+      // TODO: Add pagination URL parameters.
+      const data = await fetchApi.get('/api/organizations/:organizationId/grants-saved-search');
+      commit('SET_SAVED_SEARCHES', data);
+    },
+    async createSavedSearch(context, { searchInfo }) {
+      return fetchApi.post('/api/organizations/:organizationId/grants-saved-search', searchInfo);
+    },
+    updateSavedSearch(context, { searchId, searchInfo }) {
+      fetchApi.put(`/api/organizations/:organizationId/grants-saved-search/${searchId}`, searchInfo);
+    },
+    deleteSavedSearch(context, { searchId }) {
+      fetchApi.deleteRequest(`/api/organizations/:organizationId/grants-saved-search/${searchId}`);
+    },
+    changeSelectedSearchId({ commit }, searchId) {
+      commit('SET_SELECTED_SEARCH_ID', searchId);
+    },
+    changeEditingSearchId({ commit }, searchId) {
+      commit('SET_EDITING_SEARCH_ID', searchId);
+    },
     exportCSV(context, queryParams) {
       const query = Object.entries(queryParams)
         // filter out undefined and nulls since api expects parameters not present as undefined
@@ -128,6 +210,30 @@ export default {
     },
     exportCSVRecentActivities() {
       window.location = fetchApi.apiURL(fetchApi.addOrganizationId('/api/organizations/:organizationId/grants/exportCSVRecentActivities'));
+    },
+    applyFilters(context, filters) {
+      context.commit('APPLY_FILTERS', filters);
+    },
+    removeFilter(context, key) {
+      context.commit('REMOVE_FILTER', key);
+    },
+    clearSelectedSearch(context) {
+      context.commit('CLEAR_SEARCH');
+    },
+    // table action state
+    initNewSearch(context) {
+      context.commit('SET_TABLE_MODE', tableModes.CREATE);
+    },
+    initEditSearch(context, searchId) {
+      context.commit('SET_EDITING_SEARCH_ID', searchId);
+      context.commit('SET_TABLE_MODE', tableModes.EDIT);
+    },
+    initManageSearches(context) {
+      context.commit('SET_TABLE_MODE', tableModes.MANAGE);
+    },
+    initViewResults(context) {
+      context.commit('SET_EDITING_SEARCH_ID', null);
+      context.commit('SET_TABLE_MODE', tableModes.VIEW);
     },
   },
   mutations: {
@@ -161,6 +267,37 @@ export default {
     SET_CLOSEST_GRANTS(state, closestGrants) {
       state.closestGrants = closestGrants.data;
       state.totalUpcomingGrants = closestGrants.pagination.total;
+    },
+    APPLY_FILTERS(state, filters) {
+      state.searchFormFilters = filters;
+    },
+    REMOVE_FILTER(state, key) {
+      state.searchFormFilters[key] = initialState().searchFormFilters[key];
+    },
+    CLEAR_SEARCH(state) {
+      const emptyState = initialState();
+      state.searchFormFilters = emptyState.searchFormFilters;
+      state.selectedSearch = emptyState.selectedSearch;
+      state.selectedSearchId = emptyState.selectedSearchId;
+    },
+    SET_SAVED_SEARCHES(state, savedSearches) {
+      state.savedSearches = savedSearches;
+    },
+    SET_SELECTED_SEARCH_ID(state, searchId) {
+      if (searchId === null || searchId === undefined || Number.isNaN(searchId)) {
+        state.selectedSearchId = null;
+        state.selectedSearch = null;
+        return;
+      }
+      state.selectedSearchId = searchId;
+      const data = state.savedSearches.data || [];
+      state.selectedSearch = data.find((search) => search.id === searchId);
+    },
+    SET_EDITING_SEARCH_ID(state, searchId) {
+      state.editingSearchId = searchId;
+    },
+    SET_TABLE_MODE(state, tableMode) {
+      state.tableMode = tableMode;
     },
   },
 };

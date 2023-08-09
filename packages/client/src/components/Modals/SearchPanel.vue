@@ -1,45 +1,62 @@
 <template>
     <div>
-      <b-button v-b-toggle.search-panel variant="outline-secondary">
-          <b-icon icon="sliders" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
-          Search
-        </b-button>
+      <b-button @click="initNewSearch" variant="outline-primary" size="sm">
+        New Search
+      </b-button>
       <b-sidebar
         id="search-panel"
+        ref="searchPanelSideBar"
         title="Search"
         class="search-panel"
+        @shown="onShown"
         right
         shadow
       >
+        <template #header>
+          <div class="search-panel-title">{{ panelTitle }}</div>
+          <b-button type="button" class="close" aria-label="Close" @click="cancel">
+          <span aria-hidden="true">&times;</span>
+          </b-button>
+        </template>
         <form ref="form" class="search-form">
+          <b-form-group label-for="search-title">
+            <template slot="label"><b>Search Title</b></template>
+              <b-form-input
+                id="searchTitle"
+                type="text"
+                v-model="formData.searchTitle"
+              ></b-form-input>
+              <b-form-text id="input-live-help">ex. Infrastructure</b-form-text>
+          </b-form-group>
           <b-form-group label-for="include-input">
             <template slot="label">Include Keywords</template>
               <b-form-input
                 id="include-input"
                 type="text"
-                v-model="formData.includeInput"
+                v-model="formData.criteria.includeKeywords"
               ></b-form-input>
+              <b-form-text id="input-live-help">Separate keywords with comma</b-form-text>
           </b-form-group>
           <b-form-group label-for="exclude-input">
             <template slot="label">Exclude Keywords</template>
               <b-form-input
                 id="exclude-input"
                 type="text"
-                v-model="formData.excludeInput"
+                v-model="formData.criteria.excludeKeywords"
               ></b-form-input>
+              <b-form-text id="input-live-help">Separate keywords with comma</b-form-text>
           </b-form-group>
           <b-form-group label-for="opportunity-number">
             <template slot="label">Opportunity #</template>
               <b-form-input
                 id="opportunity-number-input"
-                type="number"
-                v-model="formData.opportunityNumber"
+                v-model="formData.criteria.opportunityNumber"
               ></b-form-input>
           </b-form-group>
           <b-form-group label="Opportunity Status" v-slot="{ ariaDescribedby }">
             <b-form-checkbox-group
               id="opportunity-status"
-              v-model="formData.opportunityStatusFilters"
+              v-model="formData.criteria.opportunityStatuses"
               :aria-describedby="ariaDescribedby"
               name="opportunity-status"
               inline
@@ -49,53 +66,52 @@
               <b-form-checkbox value="closed">Closed</b-form-checkbox>
             </b-form-checkbox-group>
           </b-form-group>
-          <b-form-group class="multiselect-group">
-            <template slot="label">Eligibility</template>
-            <multiselect v-model="formData.opportunityCategoryFilters" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
-          </b-form-group>
-          <b-form-group class="multiselect-group">
-            <template slot="label">Category</template>
-            <multiselect v-model="formData.opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
-          </b-form-group>
           <b-form-group label-for="Funding Type">
             <template slot="label">Funding Type</template>
               <b-form-input
                 id="funding-type"
                 type="text"
-                v-model="formData.fundingType"
+                v-model="formData.criteria.fundingType"
               ></b-form-input>
+          </b-form-group>
+          <b-form-group class="multiselect-group">
+            <template slot="label">Eligibility</template>
+            <multiselect v-model="formData.criteria.eligibility" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
+          </b-form-group>
+          <b-form-group class="multiselect-group">
+            <template slot="label">Category</template>
+            <multiselect v-model="formData.criteria.opportunityCategories" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
           <b-form-group label-for="Agency">
             <template slot="label">Agency</template>
               <b-form-input
                 id="agency"
                 type="text"
-                v-model="formData.agency"
+                v-model="formData.criteria.agency"
               ></b-form-input>
           </b-form-group>
           <b-form-group>
             <template slot="label">Posted Within</template>
-            <multiselect v-model="formData.postedWithinFilters" :options="postedWithinOptions" :multiple="false"
+            <multiselect v-model="formData.postedWithin" :options="postedWithinOptions" :multiple="false"
                      :close-on-select="true" :clear-on-select="false" placeholder="All Time" :show-labels="false">
             </multiselect>
           </b-form-group>
           <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }" row>
             <b-form-radio-group>
-              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="A">Yes</b-form-radio>
-              <b-form-radio v-model="formData.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="B">No</b-form-radio>
+              <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="Yes">Yes</b-form-radio>
+              <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="No">No</b-form-radio>
             </b-form-radio-group>
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Review Status</template>
-            <multiselect v-model="formData.reviewStatusFilters" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect v-model="formData.criteria.reviewStatus" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
         </form>
-      <template #footer="{ hide }">
+      <template #footer>
        <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
-        <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
-        <div class="right-button-container">
-          <b-button size="sm" @click="hide" variant="outline-primary">Save New Search</b-button>
-          <b-button size="sm" @click="hide" variant="primary">Apply</b-button>
+        <b-button size="sm" @click="cancel" variant="outline-primary" class="borderless-button">Cancel</b-button>
+        <div>
+          <b-button size="sm" @click="saveSearch" variant="primary" :disabled="!saveEnabled">Save and View Results</b-button>
         </div>
        </div>
       </template>
@@ -107,11 +123,25 @@ import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
 
+const defaultCriteria = {
+  includeKeywords: null,
+  excludeKeywords: null,
+  opportunityNumber: null,
+  opportunityStatuses: [],
+  fundingType: null,
+  agency: null,
+  costSharing: false,
+  opportunityCategories: [],
+  reviewStatus: [],
+  postedWithin: [],
+};
+
 export default {
   components: { Multiselect },
   props: {
     SearchType: String,
     showModal: Boolean,
+    searchId: Number,
   },
   directives: {
     'v-b-toggle': VBToggle,
@@ -119,16 +149,10 @@ export default {
   data() {
     return {
       formData: {
-        includeInput: null,
-        excludeInput: null,
-        opportunityNumber: null,
-        opportunityStatusFilters: [],
-        fundingType: null,
-        agency: null,
-        costSharing: false,
-        opportunityCategoryFilters: [],
-        reviewStatusFilters: [],
-        postedWithinFilters: [],
+        criteria: {
+          ...defaultCriteria,
+        },
+        searchId: this.searchId,
       },
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
@@ -138,19 +162,52 @@ export default {
   validations: {
     formData: {},
   },
-  watch: {},
+  watch: {
+    displaySearchPanel() {
+      if (this.displaySearchPanel) {
+        this.initFormState();
+        this.showSideBar();
+      } else {
+        this.$refs.searchPanelSideBar.hide();
+      }
+    },
+  },
   mounted() {
     this.setup();
   },
   computed: {
     ...mapGetters({
       eligibilityCodes: 'grants/eligibilityCodes',
+      savedSearches: 'grants/savedSearches',
+      displaySearchPanel: 'grants/displaySearchPanel',
     }),
+    saveEnabled() {
+      // save is enabled if any criteria is not null and a title is set
+      return Object.values(this.formData.criteria).some((value) => value !== null && !(Array.isArray(value) && value.length === 0)) && this.formData.searchTitle !== null;
+    },
+    isEditMode() {
+      return this.searchId !== null && this.searchId !== undefined && this.searchId !== 0;
+    },
+    panelTitle() {
+      return this.isEditMode ? 'Edit Search' : 'New Search';
+    },
   },
   methods: {
-    ...mapActions({}),
+    ...mapActions({
+      createSavedSearch: 'grants/createSavedSearch',
+      updateSavedSearch: 'grants/updateSavedSearch',
+      fetchSavedSearches: 'grants/fetchSavedSearches',
+      applyFilters: 'grants/applyFilters',
+      fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+      changeSelectedSearchId: 'grants/changeSelectedSearchId',
+      initNewSearch: 'grants/initNewSearch',
+      initViewResults: 'grants/initViewResults',
+    }),
     setup() {
       this.fetchEligibilityCodes();
+      if (this.displaySearchPanel) {
+        this.showSideBar();
+      }
     },
     customLimitText(count) {
       return `+${count}`;
@@ -158,10 +215,76 @@ export default {
     eligibilityLabel({ label }) {
       return label;
     },
+    apply() {
+      const formDataCopy = { ...this.formData.criteria };
+      this.applyFilters(formDataCopy);
+      this.initViewResults();
+    },
+    cancel() {
+      this.initViewResults();
+    },
+    initFormState() {
+      if (this.isEditMode) {
+        const search = this.savedSearches.data.find((s) => s.id === this.searchId);
+        this.formData.searchId = search.id;
+        this.formData.searchTitle = search.name;
+        const criteria = JSON.parse(search.criteria);
+        this.formData.criteria = { ...criteria };
+      } else {
+        this.formData.searchId = null;
+        this.formData.searchTitle = `My Saved Search ${this.getNextSearchId()}`;
+        this.formData.criteria = { ...defaultCriteria };
+      }
+    },
+    onShown() {
+      this.initFormState();
+    },
+    getNextSearchId() {
+      const searchIds = this.savedSearches.data.map((s) => s.id);
+      return Math.max(...searchIds, 0) + 1;
+    },
+    async saveSearch() {
+      this.apply();
+      let searchId;
+      if (this.formData.searchId !== undefined && this.formData.searchId !== null) {
+        this.updateSavedSearch({
+          searchId: this.formData.searchId,
+          searchInfo: {
+            name: this.formData.searchTitle,
+            criteria: this.formData.criteria,
+          },
+        });
+        searchId = this.formData.searchId;
+      } else {
+        const res = await this.createSavedSearch({
+          searchInfo: {
+            name: this.formData.searchTitle,
+            criteria: this.formData.criteria,
+          },
+        });
+        searchId = res.id;
+      }
+      await this.fetchSavedSearches();
+      this.changeSelectedSearchId(searchId);
+    },
+    showSideBar() {
+      if (!this.$refs.searchPanelSideBar.isOpen) {
+        // b-sidebar does not have show() method and v-model does not
+        // account for accessibility.
+        // See https://bootstrap-vue.org/docs/components/sidebar#v-model
+        this.$root.$emit('bv::toggle::collapse', 'search-panel');
+      }
+    },
   },
 };
 </script>
 <style>
+.search-panel-title{
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 120%;
+}
 .form{
   margin: 10px;
 }
@@ -185,6 +308,16 @@ export default {
   background: #41b883;
   margin-bottom: 11px;
 }
+.b-sidebar-header{
+  justify-content: space-between;
+  border-bottom: solid #DAE0E5;
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: row;
+  flex-grow: 0;
+  align-items: center;
+}
 .search-panel > .b-sidebar > .b-sidebar-header{
   font-size: 1.25rem;
   border-bottom: 1.5px solid #e8e8e8;
@@ -196,6 +329,7 @@ export default {
 #search-panel___title__{
   margin: 0 auto;
 }
+
 .sidebar-footer {
   border-top: 1.5px solid #e8e8e8;
   justify-content: space-between;

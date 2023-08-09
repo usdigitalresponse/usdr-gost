@@ -92,6 +92,11 @@ variable "api_container_environment" {
   default = {}
 }
 
+variable "api_datadog_environment_variables" {
+  type    = map(string)
+  default = {}
+}
+
 variable "api_default_desired_task_count" {
   type = number
 }
@@ -131,4 +136,14 @@ variable "postgres_apply_changes_immediately" {
 }
 variable "postgres_query_logging_enabled" {
   default = false
+}
+
+# Consume Grants
+variable "consume_grants_source_event_bus_name" {
+  type = string
+}
+
+variable "consume_grants_datadog_environment_variables" {
+  type    = map(string)
+  default = {}
 }

@@ -1,71 +1,75 @@
 <template>
-  <section class="container-fluid">
-    <b-row class="mt-3 mb-3" align-h="between">
-      <b-col cols="5">
-        <b-input-group size="md">
-          <b-input-group-text>
-            <b-icon icon="search" />
-          </b-input-group-text>
-          <b-form-input type="sliders" @input="debounceSearchInput"></b-form-input>
-        </b-input-group>
-      </b-col>
-      <b-col class="d-flex justify-content-end">
-        <SearchPanel />
-        <SavedSearchPanel />
-        <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
-          <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
-          Export to CSV
-        </b-button>
-      </b-col>
+  <section class="container-fluid grants-table-container">
+    <b-row class="my-3" v-if="showSearchControls">
+      <div class="ml-3">
+        <SavedSearchPanel @filters-applied="paginateGrants" />
+      </div>
+      <div class="ml-3">
+        <SearchPanel ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
+      </div>
     </b-row>
     <b-row>
-      <b-col cols="12">
-        <SearchFilter :filterKeys="searchFilters" />
+      <b-col cols="11">
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants"
+          v-if="showSearchControls" />
+      </b-col>
+      <b-col align-self="end">
+        <a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0"
+          class="text-right text-nowrap">
+          <p>Export CSV</p>
+        </a>
       </b-col>
     </b-row>
-    <b-row class="mt-3 mb-3" align-h="start" style="position: relative; z-index: 999">
-      <b-col v-if="!showInterested && !showRejected && !showResult && !showAssignedToAgency" cols="3">
-        <multiselect v-model="reviewStatusFilters" :options="reviewStatusOptions" :multiple="true"
-          :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false">
-        </multiselect>
-      </b-col>
-      <b-col cols="3">
-        <multiselect v-model="opportunityStatusFilters" :options="opportunityStatusOptions" :multiple="true"
-                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Status" :show-labels="false">
-        </multiselect>
-      </b-col>
-      <b-col cols="3">
-        <multiselect v-model="opportunityCategoryFilters" :options="opportunityCategoryOptions" :multiple="true"
-                     :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false">
-        </multiselect>
-      </b-col>
-      <b-col cols="2">
-        <multiselect v-model="costSharingFilter" :options="costSharingOptions" :multiple="false"
-                     :close-on-select="true" :clear-on-select="false" placeholder="Cost Sharing" :show-labels="false">
-        </multiselect>
+    <b-row  v-if="!showSearchControls">
+      <b-col cols="11">
+        <h5>{{ searchTitle }}</h5>
       </b-col>
     </b-row>
-    <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants" :fields="fields.filter( field => !field.hideGrantItem)" selectable striped
-      :sort-by.sync="orderBy" :sort-desc.sync="orderDesc" :no-local-sorting="true"
-      select-mode="single" :busy="loading" @row-selected="onRowSelected">
-      <template #cell(award_floor)="row">
-        <p> {{ formatMoney(row.item.award_floor) }}</p>
-      </template>
-      <template #cell(award_ceiling)="row">
-        <p> {{ formatMoney(row.item.award_ceiling) }}</p>
-      </template>
-      <template #table-busy>
-        <div class="text-center text-danger my-2">
-          <b-spinner class="align-middle"></b-spinner>
-          <strong> Loading...</strong>
-        </div>
-      </template>
-    </b-table>
+    <b-row align-h="start">
+      <b-col cols="1">
+        <strong>{{ totalRows }} grants</strong>
+      </b-col>
+    </b-row>
     <b-row align-v="center">
-      <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
-        last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
-        aria-controls="grants-table" />
-      <b-button class="ml-2" variant="outline-primary disabled">{{ grants.length }} of {{ totalRows }}</b-button>
+      <b-col cols="12">
+        <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants"
+          :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
+          :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
+          @row-selected="onRowSelected" show-empty emptyText="No matches found">
+          <template #cell(award_floor)="row">
+            <p> {{ formatMoney(row.item.award_floor) }}</p>
+          </template>
+          <template #cell(award_ceiling)="row">
+            <p> {{ formatMoney(row.item.award_ceiling) }}</p>
+          </template>
+          <template #table-busy>
+            <div class="text-center text-danger my-2">
+              <b-spinner class="align-middle"></b-spinner>
+              <strong> Loading...</strong>
+            </div>
+          </template>
+          <template #empty="scope">
+            &emsp;
+            &emsp;
+            <div class="text-center">
+              <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
+              <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
+              &nbsp;
+              <p><a @click="$refs.searchPanel.showSideBar()" class="link">
+                  Edit Search Criteria
+                </a></p>
+            </div>
+          </template>
+        </b-table>
+      </b-col>
+    </b-row>
+    <b-row align-v="center">
+      <b-col cols="12" class="d-flex">
+        <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
+          last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
+          aria-controls="grants-table" />
+        <b-button class="ml-2" variant="outline-primary disabled">{{ grants.length }} of {{ totalRows }}</b-button>
+      </b-col>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
@@ -73,8 +77,6 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { debounce } from 'lodash';
-import Multiselect from 'vue-multiselect';
 import { titleize } from '../helpers/form-helpers';
 import GrantDetails from './Modals/GrantDetails.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
@@ -83,7 +85,7 @@ import SearchFilter from './SearchFilter.vue';
 
 export default {
   components: {
-    GrantDetails, Multiselect, SearchPanel, SavedSearchPanel, SearchFilter,
+    GrantDetails, SearchPanel, SavedSearchPanel, SearchFilter,
   },
   props: {
     showMyInterested: Boolean,
@@ -93,34 +95,20 @@ export default {
     showAging: Boolean,
     showAssignedToAgency: String,
     hideGrantItems: Boolean,
+    showSearchControls: {
+      type: Boolean,
+      default: true,
+    },
+    searchTitle: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
       perPage: 50,
       currentPage: 1,
       loading: false,
-      searchFilters: [
-        {
-          label: 'Include',
-          value: ['Nevada', 'infrastructure'],
-        },
-        {
-          label: 'Exclude',
-          value: ['road', 'highways'],
-        },
-        {
-          label: 'Opp Status',
-          value: ['forecasted', 'posted'],
-        },
-        {
-          label: 'Cost Sharing',
-          value: 'Yes',
-        },
-        {
-          label: 'Review Status',
-          value: ['Interested', 'Supporting'],
-        },
-      ],
       fields: [
         {
           key: 'grant_number',
@@ -182,6 +170,7 @@ export default {
       opportunityStatusOptions: ['Forecasted', 'Posted', 'Closed / Archived'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       costSharingOptions: ['Yes', 'No'],
+      searchId: null,
     };
   },
   mounted() {
@@ -194,6 +183,9 @@ export default {
       grantsPagination: 'grants/grantsPagination',
       agency: 'users/agency',
       selectedAgency: 'users/selectedAgency',
+      activeFilters: 'grants/activeFilters',
+      selectedSearchId: 'grants/selectedSearchId',
+      editingSearchId: 'grants/editingSearchId',
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
@@ -231,6 +223,9 @@ export default {
         })(),
       }));
     },
+    searchFilters() {
+      return this.activeFilters;
+    },
   },
   watch: {
     reviewStatusFilters() {
@@ -267,25 +262,21 @@ export default {
     debouncedSearchInput() {
       this.paginateGrants();
     },
-    async selectedGrant() {
-      if (!this.selectedGrant) {
-        await this.paginateGrants();
-      }
+    selectedSearchId() {
+      this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
     },
   },
   methods: {
     ...mapActions({
-      fetchGrants: 'grants/fetchGrants',
+      fetchGrants: 'grants/fetchGrantsNext',
       navigateToExportCSV: 'grants/exportCSV',
+      clearSelectedSearch: 'grants/clearSelectedSearch',
     }),
     setup() {
+      this.clearSelectedSearch();
       this.paginateGrants();
     },
     titleize,
-    debounceSearchInput: debounce(function bounce(newVal) {
-      this.debouncedSearchInput = newVal;
-      this.searchFilters.include = newVal;
-    }, 500),
     async paginateGrants() {
       try {
         this.loading = true;
@@ -297,14 +288,11 @@ export default {
           searchTerm: this.debouncedSearchInput,
           interestedByAgency: this.showInterested || this.showResult || this.showRejected,
           interestedByMe: this.showMyInterested,
+          showInterested: this.showInterested,
+          showResult: this.showResult,
+          showRejected: this.showRejected,
           aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
-          positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
-          result: this.showResult || (this.reviewStatusFilters.includes('result') ? true : null),
-          rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
-          opportunityStatuses: this.parseOpportunityStatusFilters(),
-          opportunityCategories: this.opportunityCategoryFilters,
-          costSharing: this.costSharingFilter,
         });
       } catch (e) {
         console.log(e);
@@ -430,3 +418,14 @@ export default {
   },
 };
 </script>
+<style>
+.empty-text {
+  margin: 2px;
+}
+
+.grants-table-container {
+  padding-left: 15px;
+  padding-right: 15px;
+  margin: 10px;
+}
+</style>

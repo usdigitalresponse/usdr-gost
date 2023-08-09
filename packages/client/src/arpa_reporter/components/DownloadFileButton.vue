@@ -1,5 +1,5 @@
 <template>
-  <a :href="href" class="btn-sm btn-primary ml-2">
+  <a :href="href" class="btn-primary ml-2" :class="small ? 'btn-sm' : 'btn'">
       Download file
   </a>
 </template>
@@ -11,6 +11,10 @@ export default {
   name: 'DownloadFileButton',
   props: {
     upload: Object,
+    small: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     href() {

@@ -59,7 +59,6 @@ variable "rds_db_connect_resources" {
 variable "postgres_username" {
   description = "Username for authenticated connecting to the Postgres db."
   type        = string
-  sensitive   = true
 }
 
 variable "postgres_password" {
@@ -176,6 +175,12 @@ variable "unified_service_tags" {
     service = string
     version = optional(string)
   })
+}
+
+variable "datadog_environment_variables" {
+  description = "Datadog-related environment variables to apply to both API and Datadog container runtime environments. See also: var.unified_service_tags."
+  type        = map(string)
+  default     = {}
 }
 
 variable "autoscaling_desired_count_minimum" {

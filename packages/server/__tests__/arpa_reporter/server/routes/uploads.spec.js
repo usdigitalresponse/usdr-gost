@@ -6,14 +6,12 @@ const { knex } = require('../mocha_init');
 
 describe('/api/invalidate', () => {
     let server;
-    let tenantACookie;
 
-    before(async () => {
+    beforeEach(async () => {
         await fixtures.seed(knex);
         server = await makeTestServer();
-        tenantACookie = await getSessionCookie('mbroussard+unit-test-admin@usdigitalresponse.org');
     });
-    after(async () => {
+    afterEach(async () => {
         server.stop();
         await fixtures.clean(knex);
     });
@@ -24,8 +22,9 @@ describe('/api/invalidate', () => {
         sandbox.restore();
     });
 
-    it('Ensures async audit report generation returns 200', async () => {
+    it('Success on invalidate for admin user', async () => {
         const { upload1 } = fixtures.uploads;
+        const tenantACookie = await getSessionCookie('mbroussard+unit-test-admin@usdigitalresponse.org');
 
         await server
             .post(`/api/uploads/${upload1.id}/invalidate`)
@@ -39,7 +38,17 @@ describe('/api/invalidate', () => {
         const row = rows[0];
         assert(row.invalidated_by !== null);
         assert(row.invalidated_at !== null);
-        assert(row.validated_at !== null);
-        assert(row.validated_by !== null);
+        assert(row.validated_at === null);
+        assert(row.validated_by === null);
+    });
+
+    it('403 on invalidate for non-admin user', async () => {
+        const { upload1 } = fixtures.uploads;
+
+        const tenantACookie = await getSessionCookie('mbroussard+unit-test-user2@usdigitalresponse.org');
+        await server
+            .post(`/api/uploads/${upload1.id}/invalidate`)
+            .set('Cookie', tenantACookie)
+            .expect(403);
     });
 });
