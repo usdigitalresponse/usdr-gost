@@ -4,6 +4,24 @@ This module provides an SQS queue and an ECS service with tasks that act as "wor
 for processing messages in the queue. In essence, it implements the "consumer" side of a 
 producer-consumer pattern.
 
+- [Naming](#naming)
+- [Components](#components)
+  - [SQS Queues](#sqs-queues)
+    - [Permissions Management](#sqs-permissions-management)
+      - [Examples](#sqs-permissions-management-examples)
+  - [ECS Workers](#ecs-workers)
+    - [Resource Allocation](#resource-allocation)
+    - [Permissions Management](#ecs-permissions-management)
+      - [Examples](#ecs-permissions-management-examples)
+    - [Consumer Execution](#consumer-execution)
+      - [Environment Variables](#environment-variables)
+      - [Startup Command](#startup-command)
+      - [Shutting Down](#shutting-down)
+      - [Autoscaling](#autoscaling)
+        - [Examples](#autoscaling-examples)
+  - [Observability](#observability)
+    - [Datadog Configuration](#datadog-configuration)
+
 ## Naming
 
 When using this module, provide a value to the `namespace` input variable that is prefixed
@@ -47,7 +65,7 @@ This module configures the primary SQS queue policy to grant access for a publis
 the queue. If a DLQ is created, it may only receive messages from the primary queue (see above).
 The publisher is configured via the `sqs_publisher` input variable.
 
-##### Examples
+##### Examples <a name="sqs-permissions-management-examples"></a>
 
 - Allow a specific IAM role to publish messages:
   - *Update the module source path, AWS account ID, and IAM role name according to your use-case!*
@@ -142,7 +160,7 @@ by providing JSON policy documents via the `additional_task_role_json_policies` 
 or by creating additional policies and attaching them to the task role with 
 `aws_iam_role_policy_attachment` resources outside of this module.
 
-##### Examples
+##### Examples <a name="ecs-permissions-management-examples"></a>
 
 - Allow tasks to read and write objects in an S3 bucket:
   ```terraform
@@ -257,7 +275,7 @@ Please note the following aspects of this autoscaling behavior:
 - Providing an empty list for `autoscaling_message_thresholds` will therefore autoscale
   to a single worker task whenever the primary queue contains at least 1 available message.
 
-##### Examples
+##### Examples <a name="autoscaling-examples"></a>
 
 The following examples convey autoscaling behavior according to the `autoscaling_message_thresholds`
 configuration:
