@@ -8,6 +8,31 @@ ssm_deployment_parameters_path_prefix = "/gost/prod/deploy-config"
 // Website
 website_enabled     = true
 website_domain_name = "grants.usdigitalresponse.org"
+website_managed_waf_rules = {
+  "AnonymousIpList" = {
+    managed_rule      = "AWSManagedRulesAnonymousIpList",
+    priority          = 5,
+    metric_visibility = false
+  },
+  "AmazonIpReputationList" = {
+    managed_rule      = "AWSManagedRulesAmazonIpReputationList",
+    priority          = 10,
+    metric_visibility = false
+  },
+  "CommonRuleSet" = {
+    managed_rule      = "AWSManagedRulesCommonRuleSet",
+    priority          = 20,
+    metric_visibility = true
+  },
+  "KnownBadInputsRuleSet" = {
+    managed_rule      = "AWSManagedRulesKnownBadInputsRuleSet",
+    priority          = 30,
+    metric_visibility = true
+  }
+}
+website_feature_flags = {
+  useNewTable = false,
+}
 
 // ECS Cluster
 cluster_container_insights_enabled = true
@@ -21,6 +46,9 @@ api_maximum_task_count         = 5
 api_enable_grants_scraper      = true
 api_enable_grants_digest       = true
 api_log_retention_in_days      = 30
+api_datadog_environment_variables = {
+  DD_PROFILING_ENABLED = true,
+}
 
 // Postgres
 postgres_enabled                   = true
@@ -30,3 +58,6 @@ postgres_apply_changes_immediately = false
 
 // Grant events consumer
 consume_grants_source_event_bus_name = "default"
+consume_grants_datadog_environment_variables = {
+  DD_PROFILING_ENABLED = true,
+}

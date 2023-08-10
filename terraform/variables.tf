@@ -66,6 +66,16 @@ variable "website_managed_waf_rules" {
   default = {}
 }
 
+variable "website_feature_flags" {
+  description = "Map of website feature flag names and their values."
+  type        = any
+  default     = {}
+  validation {
+    condition     = can(lookup(var.website_feature_flags, uuid(), "default"))
+    error_message = "Value must be an object."
+  }
+}
+
 // ECS cluster
 variable "cluster_container_insights_enabled" {
   type    = bool
@@ -88,6 +98,11 @@ variable "api_container_image_tag" {
 }
 
 variable "api_container_environment" {
+  type    = map(string)
+  default = {}
+}
+
+variable "api_datadog_environment_variables" {
   type    = map(string)
   default = {}
 }
@@ -136,4 +151,9 @@ variable "postgres_query_logging_enabled" {
 # Consume Grants
 variable "consume_grants_source_event_bus_name" {
   type = string
+}
+
+variable "consume_grants_datadog_environment_variables" {
+  type    = map(string)
+  default = {}
 }

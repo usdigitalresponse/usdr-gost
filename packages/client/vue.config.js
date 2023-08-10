@@ -6,6 +6,12 @@ module.exports = {
   configureWebpack: {
     devtool: 'source-map',
   },
+  chainWebpack: (config) => {
+    config.plugin('copy').tap(([options]) => {
+      options.patterns[0].globOptions.ignore.push('**/deploy-config.js');
+      return [options];
+    });
+  },
   pages: {
     main: {
       entry: 'src/main.js',

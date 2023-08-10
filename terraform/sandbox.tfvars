@@ -9,6 +9,9 @@ ssm_deployment_parameters_path_prefix = "/gost/sandbox/deploy-config"
 website_enabled           = true
 website_domain_name       = "sandbox.grants.usdr.dev"
 website_managed_waf_rules = {}
+website_feature_flags = {
+  useNewTable = true,
+}
 
 // ECS Cluster
 cluster_container_insights_enabled = false

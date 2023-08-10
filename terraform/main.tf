@@ -38,6 +38,7 @@ locals {
   private_subnet_ids       = split(",", data.aws_ssm_parameter.private_subnet_ids.value)
   permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_policy_name}"
   api_domain_name          = coalesce(var.api_domain_name, "api.${var.website_domain_name}")
+  unified_service_tags     = { service = "gost", env = var.env, version = var.version_identifier }
 }
 
 data "aws_ssm_parameter" "public_dns_zone_id" {
@@ -54,6 +55,7 @@ module "website" {
   domain_name       = var.website_domain_name
   gost_api_domain   = local.api_domain_name
   managed_waf_rules = var.website_managed_waf_rules
+  feature_flags     = var.website_feature_flags
 }
 
 module "api_to_postgres_security_group" {
@@ -125,7 +127,8 @@ module "api" {
   autoscaling_desired_count_maximum = var.api_maximum_task_count
   enable_grants_scraper             = var.api_enable_grants_scraper
   enable_grants_digest              = var.api_enable_grants_digest
-  unified_service_tags              = { service = "gost", env = var.env, version = var.version_identifier }
+  unified_service_tags              = local.unified_service_tags
+  datadog_environment_variables     = var.api_datadog_environment_variables
 
   # DNS
   domain_name         = local.api_domain_name
@@ -160,9 +163,10 @@ module "consume_grants" {
   security_group_ids = [module.api_to_postgres_security_group.id]
 
   # Task configuration
-  ecs_cluster_name     = join("", aws_ecs_cluster.default.*.name)
-  docker_tag           = var.api_container_image_tag
-  unified_service_tags = { service = "gost", env = var.env, version = var.version_identifier }
+  ecs_cluster_name              = join("", aws_ecs_cluster.default.*.name)
+  docker_tag                    = var.api_container_image_tag
+  unified_service_tags          = local.unified_service_tags
+  datadog_environment_variables = var.consume_grants_datadog_environment_variables
 
   # Messaging
   grants_ingest_event_bus_name = var.consume_grants_source_event_bus_name
