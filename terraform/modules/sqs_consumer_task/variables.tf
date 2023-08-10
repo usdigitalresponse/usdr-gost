@@ -53,6 +53,18 @@ variable "stop_timeout_seconds" {
   }
 }
 
+variable "consumer_task_size" {
+  description = "Total available CPU and memory allocated for each ECS task (for all containers). See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size"
+  type = object({
+    cpu    = number
+    memory = number
+  })
+  default = {
+    cpu    = 256
+    memory = 512
+  }
+}
+
 variable "additional_task_role_json_policies" {
   description = "Mapping of JSON-encoded IAM policy documents, keyed by policy name, to add as inline policies on the ECS task role."
   type        = map(string)

@@ -123,6 +123,16 @@ operation is considered to have failed, at which point the associated message wi
 back in the primary queue for reprocessing, or else be sent to the DLQ or disappear entirely 
 (depending on whether the DLQ is enabled via the `sqs_dlq_enabled` input variable).
 
+#### Resource Allocation
+
+ECS Fargate tasks must be configured with a task size that specifies the total available 
+CPU and memory allocated to each task, which can be set via the `consumer_task_size` input
+variable. Both `cpu` and `memory` values are required, and must correspond to a valid Fargate
+configuration, which are documented in the **Task Size** section of [this page][ecs-task-size-doc]
+in the ECS Developer Guide.
+
+[ecs-task-size-doc]: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size
+
 #### Permissions Management <a name="ecs-permissions-management"></a>
 
 ECS service tasks are automatically provisioned with permissions that grant access to the

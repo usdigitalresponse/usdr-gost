@@ -106,9 +106,9 @@ resource "aws_ecs_task_definition" "consumer" {
   requires_compatibilities = ["FARGATE"]
 
   # Valid configurations here:
-  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-tasks-size
-  cpu    = 256
-  memory = 512
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size
+  cpu    = var.consumer_task_size.cpu
+  memory = var.consumer_task_size.memory
 
   runtime_platform {
     operating_system_family = "LINUX"
