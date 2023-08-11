@@ -2,11 +2,11 @@
   <div class="filter-container">
     <div class="mb-3">
       <div class="ml-2" v-if="selectedSearch !== null">
-        <b>{{ searchName }} </b>
+        <h4>{{ searchName }} </h4>
         <a href="#" v-on:click="editFilter">Edit</a> | <a href="#" v-on:click="clearAll" v-if="$props.filterKeys.length > 0">Clear</a>
       </div>
       <div class="ml-2" v-if="selectedSearch === null">
-        <b>All Grants</b>
+        <h4>All Grants</h4>
       </div>
       <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">
         {{ item.label }}: <strong >{{ formatValue(item.value)}}</strong><span v-if="idx != $props.filterKeys.length - 1">;</span>
