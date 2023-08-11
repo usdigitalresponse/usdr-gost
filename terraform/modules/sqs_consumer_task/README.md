@@ -4,7 +4,10 @@ This module provides an SQS queue and an ECS service with tasks that act as "wor
 for processing messages in the queue. In essence, it implements the "consumer" side of a 
 producer-consumer pattern.
 
+ ![Task Processing Architecture](./docs/task-processing-architecture.png)
+
 - [Naming](#naming)
+- [Architecture](#architecture)
 - [Components](#components)
   - [SQS Queues](#sqs-queues)
     - [Permissions Management](#sqs-permissions-management)
