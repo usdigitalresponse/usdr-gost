@@ -1,3 +1,4 @@
+const tracer = require('dd-trace');
 const moment = require('moment');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
@@ -205,36 +206,45 @@ async function createProjectSummariesGroupedByProject(periodId) {
 }
 
 async function generate(requestHost) {
-    const periodId = await getCurrentReportingPeriodID();
-    console.log(`generate(${periodId})`);
+    return tracer.trace('generate()', async () => {
+        const periodId = await getCurrentReportingPeriodID();
+        console.log(`generate(${periodId})`);
 
-    const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
+        const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
 
-    // generate sheets
-    const [
-        obligations,
-        projectSummaries,
-        projectSummariesGroupedByProject,
-    ] = await Promise.all([
-        createObligationSheet(periodId, domain),
-        createProjectSummaries(periodId, domain),
-        createProjectSummariesGroupedByProject(periodId),
-    ]);
+        // generate sheets
+        const [
+            obligations,
+            projectSummaries,
+            projectSummariesGroupedByProject,
+        ] = await Promise.all([
+            createObligationSheet(periodId, domain),
+            createProjectSummaries(periodId, domain),
+            createProjectSummariesGroupedByProject(periodId),
+        ]);
 
-    // compose workbook
-    const sheet1 = XLSX.utils.json_to_sheet(obligations, { dateNF: 'MM/DD/YYYY' });
-    const sheet2 = XLSX.utils.json_to_sheet(projectSummaries, { dateNF: 'MM/DD/YYYY' });
-    const sheet3 = XLSX.utils.json_to_sheet(projectSummariesGroupedByProject, { dateNF: 'MM/DD/YYYY' });
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, sheet1, 'Obligations & Expenditures');
-    XLSX.utils.book_append_sheet(workbook, sheet2, 'Project Summaries');
-    XLSX.utils.book_append_sheet(workbook, sheet3, 'Project Summaries V2');
+        const workbook = tracer.trace('compose-workbook', () => {
+            // compose workbook
+            const sheet1 = XLSX.utils.json_to_sheet(obligations, { dateNF: 'MM/DD/YYYY' });
+            const sheet2 = XLSX.utils.json_to_sheet(projectSummaries, { dateNF: 'MM/DD/YYYY' });
+            const sheet3 = XLSX.utils.json_to_sheet(projectSummariesGroupedByProject, { dateNF: 'MM/DD/YYYY' });
+            const newWorkbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(newWorkbook, sheet1, 'Obligations & Expenditures');
+            XLSX.utils.book_append_sheet(newWorkbook, sheet2, 'Project Summaries');
+            XLSX.utils.book_append_sheet(newWorkbook, sheet3, 'Project Summaries V2');
+            return newWorkbook;
+        });
 
-    return {
-        periodId,
-        filename: `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`,
-        outputWorkBook: XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' }),
-    };
+        const outputWorkBook = tracer.trace('XLSX.write', () => {
+            XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+        });
+
+        return {
+            periodId,
+            filename: `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`,
+            outputWorkBook,
+        };
+    });
 }
 
 async function sendEmailWithLink(fileKey, recipientEmail) {
