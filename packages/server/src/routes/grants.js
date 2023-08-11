@@ -66,6 +66,52 @@ router.get('/', requireUser, async (req, res) => {
     res.json(grants);
 });
 
+router.get('/next', requireUser, async (req, res) => {
+    const { user } = req.session;
+    const grants = await db.getGrantsNew(
+        req.query.criteria,
+        req.query.pagination,
+        req.query.ordering,
+        user.tenant_id,
+    );
+
+    res.json(grants);
+});
+
+router.get('/next/:savedSearchId', requireUser, async (req, res) => {
+    const { user } = req.session;
+    const { savedSearchId } = req.params;
+    let paginationParams;
+    let savedSearch;
+    let grants;
+
+    try {
+        paginationParams = db.buildPaginationParams(req.query.pagination);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Error parsing pagination parameters.' });
+        return;
+    }
+
+    try {
+        savedSearch = db.getSavedSearch(savedSearchId);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Error retrieving saved search.' });
+        return;
+    }
+
+    try {
+        grants = await db.getGrantsNew(savedSearch.criteria, paginationParams, req.query.ordering, user.tenant_id);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Error retrieving grants.' });
+        return;
+    }
+
+    res.json(grants);
+});
+
 // get a single grant details
 router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
     const { grantId } = req.params;

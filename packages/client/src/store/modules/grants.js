@@ -86,6 +86,32 @@ export default {
       return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
     },
+    fetchGrantsBySearchId({ commit }, {
+      savedSearchId, currentPage, perPage, orderBy, orderDesc,
+    }) {
+      const paginationParams = { currentPage, perPage };
+      const paginationQuery = Object.entries(
+        paginationParams,
+      )
+        // filter out undefined and nulls since api expects parameters not present as undefined
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value || typeof value === 'number')
+        .map(([key, value]) => `pagination[${encodeURIComponent[key]}]=${encodeURIComponent(value)}`)
+        .join('&');
+
+      const orderingParams = { orderBy, orderDesc };
+      const orderingQuery = Object.entries(
+        orderingParams,
+      )
+        // filter out undefined and nulls since api expects parameters not present as undefined
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value || typeof value === 'number')
+        .map(([key, value]) => `ordering[${encodeURIComponent[key]}]=${encodeURIComponent(value)}`)
+        .join('&');
+
+      return fetchApi.get(`/api/organizations/:organizationId/grants/next/${savedSearchId}?${paginationQuery}&${orderingQuery}`)
+        .then((data) => commit('SET_GRANTS', data));
+    },
     fetchGrantsNext({ commit }, {
       currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe,
       assignedToAgency, showInterested, showResult, showRejected, aging, interestedByAgency,
