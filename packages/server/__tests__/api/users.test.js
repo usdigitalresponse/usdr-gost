@@ -142,7 +142,7 @@ describe('`/api/users` endpoint', () => {
                 const response = await fetchApi(`/users`, agencies.own, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(11);
+                expect(json.length).to.equal(12);
             });
             it('lists users for an agency outside this user\'s hierarchy but in the same tenant', async () => {
                 const response = await fetchApi(`/users`, agencies.offLimits, fetchOptions.admin);
