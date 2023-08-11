@@ -193,11 +193,10 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
     agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
 }
 
-async function buildDigestBody(data) {
-    const { agency } = data;
+async function buildDigestBody(matchedGrants) {
 
     const grantDetails = [];
-    agency.matched_grants.slice(0, 30).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
+    matchedGrants.slice(0, 30).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
 
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
@@ -205,35 +204,34 @@ async function buildDigestBody(data) {
 
     let additionalBody = grantDetails.join(contentSpacerStr);
 
-    if (agency.matched_grants.length > 30) {
+    if (matchedGrants.length > 30) {
         const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
         additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
     }
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
         body_title: 'New grants have been posted',
-        body_detail: `There are ${agency.matched_grants.length} new grants matching your agency's keywords and settings.`,
+        body_detail: `There are ${matchedGrants.length} new grants matching your keywords and settings.`,
         additional_body: additionalBody,
     });
 
     return formattedBody;
 }
 
-async function sendGrantDigestForAgency(data) {
-    const { agency, openDate } = data;
-    console.log(`${agency.name} is subscribed for notifications on ${openDate}`);
+async function sendGrantDigest({name, matchedGrants, recipients, openDate}) {
+    console.log(`${name} is subscribed for notifications on ${openDate}`);
 
-    if (!agency.matched_grants || agency.matched_grants?.length === 0) {
-        console.error(`There were no grants available for ${agency.name}`);
+    if (!matchedGrants || matchedGrants?.length === 0) {
+        console.error(`There were no grants available for ${name}`);
         return;
     }
 
-    if (!agency.recipients || agency.recipients?.length === 0) {
-        console.error(`There were no email recipients available for ${agency.name}`);
+    if (!recipients || recipients?.length === 0) {
+        console.error(`There were no email recipients available for ${name}`);
         return;
     }
 
-    const formattedBody = await buildDigestBody({ agency });
+    const formattedBody = await buildDigestBody(matchedGrants);
 
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Grants Identification Tool',
@@ -245,13 +243,13 @@ async function sendGrantDigestForAgency(data) {
     const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
 
     const inputs = [];
-    agency.recipients.forEach(
+    recipients.forEach(
         (recipient) => inputs.push(
             {
                 toAddress: recipient.trim(),
                 emailHTML,
                 emailPlain,
-                subject: `New Grants published for ${agency.name}`,
+                subject: `New Grants published for ${name}`,
             },
         ),
     );
@@ -264,12 +262,17 @@ async function buildAndSendGrantDigest() {
     /*
     1. get all agencies with notificaiton turned on (temporarily get all agencies with a custom keyword)
     2. for each agency
-        call sendGrantDigestForAgency
+        call sendGrantDigest
     */
     const agencies = await db.getAgenciesSubscribedToDigest(openDate);
     const inputs = [];
-    agencies.forEach((agency) => inputs.push({ agency, openDate }));
-    await asyncBatch(inputs, module.exports.sendGrantDigestForAgency, 2);
+    agencies.forEach((agency) => inputs.push({
+        name: agency.name,
+        matchedGrants: agency.matched_grants,
+        recipients: agency.recipients,
+        openDate,
+    }));
+    await asyncBatch(inputs, module.exports.sendGrantDigest, 2);
 
     console.log(`Successfully built and sent grants digest emails for ${openDate}`);
 }
@@ -306,7 +309,7 @@ module.exports = {
     buildGrantDetail,
     sendGrantAssignedNotficationForAgency,
     buildAndSendGrantDigest,
-    sendGrantDigestForAgency,
+    sendGrantDigest,
     getGrantDetail,
     addBaseBranding,
     buildDigestBody,

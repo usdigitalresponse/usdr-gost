@@ -352,8 +352,21 @@ async function getNewGrantsForAgency(agency) {
     return rows;
 }
 
+async function getNewGrantsForSavedSearch(tenantId, criteria, paginationParams, date) {
+    // TODO: remove adapter to getGrants when backend getGrants work is done to wire include/exclude and other fields
+
+    return await getGrants({
+        currentPage: paginationParams.currentPage,
+        perPage: paginationParams.perPage,
+        tenantId: tenantId,
+        searchTerm: criteria.includeKeywords,
+        filters: criteria,
+        openDate: date
+    }) ;
+}
+
 async function getGrants({
-    currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
+    currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc, openDate,
 } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
@@ -412,6 +425,9 @@ async function getGrants({
                         }
                         if (filters.costSharing) {
                             qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
+                        }
+                        if (openDate) {
+                            qb.where(`${TABLES.grants}.open_date`, '=', openDate)
                         }
                     },
                 );
@@ -1196,6 +1212,7 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getNewGrantsForSavedSearch,
     getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,

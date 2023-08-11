@@ -8,6 +8,7 @@ const keywords = require('./ref/keywords');
 const userList = require('./ref/users');
 const { grants, assignedGrantsAgency, grantsInterested } = require('./ref/grants');
 const tenants = require('./ref/tenants');
+const { grantsSavedSearches } = require('./ref/grantsSavedSearches');
 
 const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
 // const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
@@ -115,4 +116,5 @@ exports.seed = async (knex) => {
     await knex('grants').insert(grants);
     await knex('assigned_grants_agency').insert(assignedGrantsAgency);
     await knex('grants_interested').insert(grantsInterested);
+    await knex('grants_saved_searches').insert(grantsSavedSearches)
 };

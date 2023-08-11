@@ -273,6 +273,34 @@ describe('Email sender', () => {
             expect(sendFake.firstCall.firstArg.emailHTML).contains('https://example.usdigitalresponse.org');
         });
     });
+    context('saved search grant digest email', () => {
+        before(async () => {
+            await fixtures.seed(db.knex);
+        });
+        after(async () => {
+            await db.knex.destroy();
+        });
+        beforeEach(async () => {
+            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            this.clock = this.clockFn('2021-08-06');
+        });
+        afterEach(async () => {
+            this.clock.restore();
+        });
+        it('buildAndSendGrantDigest sends grants for all subscribed agencies', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'sendGrantDigest', sendFake);
+
+            /* ensure that admin user is subscribed to all notifications */
+            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
+
+            await email.buildAndSendGrantDigest();
+
+            /* only fixtures.agency.accountancy has eligibility-codes, keywords, and users that match an existing grant */
+            expect(sendFake.calledOnce).to.equal(true);
+            await knex('email_subscriptions').del();
+        });
+    });
     context('grant digest email', () => {
         before(async () => {
             await fixtures.seed(db.knex);
@@ -289,7 +317,7 @@ describe('Email sender', () => {
         });
         it('buildAndSendGrantDigest sends grants for all subscribed agencies', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'sendGrantDigestForAgency', sendFake);
+            sinon.replace(email, 'sendGrantDigest', sendFake);
 
             /* ensure that admin user is subscribed to all notifications */
             await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
@@ -300,7 +328,7 @@ describe('Email sender', () => {
             expect(sendFake.calledOnce).to.equal(true);
             await knex('email_subscriptions').del();
         });
-        it('sendGrantDigestForAgency sends no email when there are no grants to send', async () => {
+        it('sendGrantDigest sends no email when there are no grants to send', async () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(email, 'deliverEmail', sendFake);
 
@@ -309,11 +337,16 @@ describe('Email sender', () => {
             agency.matched_grants = [];
             agency.recipients = ['foo@example.com'];
 
-            await email.sendGrantDigestForAgency({ agency: agencies[0], openDate: moment().subtract(1, 'day').format('YYYY-MM-DD') });
+            await email.sendGrantDigest({
+                name: agency.name,
+                recipients: agency.recipients,
+                matchedGrants: agency.matched_grants,
+                openDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
+            });
 
             expect(sendFake.called).to.equal(false);
         });
-        it('sendGrantDigestForAgency sends email to all users when there are grants', async () => {
+        it('sendGrantDigest sends email to all users when there are grants', async () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(email, 'deliverEmail', sendFake);
 
@@ -322,7 +355,12 @@ describe('Email sender', () => {
 
             agency.matched_grants = [fixtures.grants.healthAide];
             agency.recipients = [fixtures.users.adminUser.email, fixtures.users.staffUser.email];
-            await email.sendGrantDigestForAgency({ agency, openDate: moment().subtract(1, 'day').format('YYYY-MM-DD') });
+            await email.sendGrantDigest({
+                name: agency.name,
+                recipients: agency.recipients,
+                matchedGrants: agency.matched_grants,
+                penDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
+            });
 
             expect(sendFake.calledTwice).to.equal(true);
         });
@@ -330,7 +368,7 @@ describe('Email sender', () => {
             const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
             const agency = agencies[0];
             agency.matched_grants = [fixtures.grants.healthAide];
-            const body = await email.buildDigestBody({ agency });
+            const body = await email.buildDigestBody(agency.matched_grants);
             expect(body).to.include(fixtures.grants.healthAide.description);
         });
         it('builds only first 3 grants if >3 available', async () => {
@@ -346,7 +384,7 @@ describe('Email sender', () => {
             };
             const additionalGrants = [...Array(30).keys()].map(updateFn);
             agency.matched_grants = [...additionalGrants, ...[fixtures.grants.healthAide, fixtures.grants.earFellowship, fixtures.grants.redefiningPossible]];
-            const body = await email.buildDigestBody({ agency });
+            const body = await email.buildDigestBody(agency.matched_grants);
 
             /* the last 3 grants should not be included in the email */
             expect(body).to.not.include(fixtures.grants.healthAide.description);

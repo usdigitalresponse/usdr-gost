@@ -12,10 +12,13 @@ const {
     isAuthorized,
     isUserAuthorized,
     isUSDRSuperAdmin,
+    requireUSDRSuperAdminUser,
 } = require('../lib/access-helpers');
 const email = require('../lib/email');
 const db = require('../db');
 const UserImporter = require('../lib/userImporter');
+const { emailSubscriptionStatus, notificationType } = require('../lib/email/constants');
+const moment = require('moment');
 
 router.post('/', requireAdminUser, async (req, res, next) => {
     const { user } = req.session;
@@ -84,6 +87,56 @@ router.put('/:userId/email_subscription', requireUser, async (req, res) => {
         console.error(`Unable to update agency email preferences for user: ${userId} agency: ${agencyId} preferences: ${preferences} error: ${e}`);
         res.status(500).json({ message: 'Something went wrong while updating preferences. Please try again or reach out to support.' });
     }
+});
+
+router.get('/:userId/sendDigestEmail', requireAdminUser, async (req, res) => {
+    /*
+    0. Check if the user is subscribed
+    1. Get the saved searches for a given user
+    2. For each saved search, Query the DB for the updated grants that match the search criteria
+    3. Use the existing code to send an email
+
+    Do we care about agency criteria? No.
+    Do we care about these admin emails? Good for building, might not even work.
+
+    What is a tenant?
+    */
+
+    const user = await db.getUser(req.params.userId);
+    if (user.emailPreferences[notificationType.grantDigest] != emailSubscriptionStatus.subscribed) {
+        res.sendStatus(400).json({message: `User ${user.id} is not subscribed to grant digest emails`});
+        return;
+    }
+
+    try {
+        const savedSearches = await db.getSavedSearches(user.id, {});
+        for (search of savedSearches.data) {
+            let criteriaObj;
+            try {
+                criteriaObj = JSON.parse(search.criteria);
+            } catch(e) {
+                console.error(`Could not parse ${search}: due to error '${e}}' stack: ${e.stack}`);
+                continue;
+            }
+            const yesterday = req.query.date? new Date(req.query.date) : moment().subtract(1, 'day').format('YYYY-MM-DD');
+
+            // Only 30 grants are shown on any given email and 31 will trigger a place to click to see more
+            const { data, pagination } = await db.getNewGrantsForSavedSearch(user.tenant_id, criteriaObj, {perPage: 31}, yesterday);
+
+            // FIXME weird method name but basically just needs  { name: name, recipients: [], matched_grants: [ grant, grant, grant] }
+            await email.sendGrantDigest({
+                openDate: yesterday,
+                name: search.name,
+                recipients: [user.email],
+                matchedGrants: data,
+            }); 
+        }
+    } catch (e) {
+        console.error(`Unable to kick-off digest email for user '${user.id}' due to error '${e}}' stack: ${e.stack}`);
+        res.sendStatus(500).json({ message: 'Something went wrong while kicking off the digest email. Please investigate the server logs.' });
+        return;
+    }
+    res.sendStatus(200);
 });
 
 router.get('/', requireAdminUser, async (req, res) => {
