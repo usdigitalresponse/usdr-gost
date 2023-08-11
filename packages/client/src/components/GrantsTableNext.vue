@@ -8,26 +8,19 @@
         <SearchPanel ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
       </div>
     </b-row>
-    <b-row>
+    <b-row  class="grants-table-title-control">
       <b-col cols="11">
         <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants"
           v-if="showSearchControls" />
+      </b-col>
+      <b-col cols="11" v-if="!showSearchControls">
+        <h4>{{ searchTitle }}</h4>
       </b-col>
       <b-col align-self="end">
         <a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0"
           class="text-right text-nowrap">
           <p>Export CSV</p>
         </a>
-      </b-col>
-    </b-row>
-    <b-row  v-if="!showSearchControls">
-      <b-col cols="11">
-        <h5>{{ searchTitle }}</h5>
-      </b-col>
-    </b-row>
-    <b-row align-h="start">
-      <b-col cols="1">
-        <strong>{{ totalRows }} grants</strong>
       </b-col>
     </b-row>
     <b-row align-v="center">
@@ -94,7 +87,6 @@ export default {
     showResult: Boolean,
     showAging: Boolean,
     showAssignedToAgency: String,
-    hideGrantItems: Boolean,
     showSearchControls: {
       type: Boolean,
       default: true,
@@ -110,13 +102,6 @@ export default {
       currentPage: 1,
       loading: false,
       fields: [
-        {
-          key: 'grant_number',
-          label: 'Opportunity Number',
-          variant: 'dark',
-          stickyColumn: true, // was in the grant id col but not sure if necessary
-          hideGrantItem: this.hideGrantItems,
-        },
         {
           key: 'title',
         },
@@ -426,6 +411,11 @@ export default {
 .grants-table-container {
   padding-left: 15px;
   padding-right: 15px;
-  margin: 10px;
+}
+
+.grants-table-title-control {
+  min-height: 2.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 </style>
