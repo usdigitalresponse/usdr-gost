@@ -7,7 +7,6 @@ producer-consumer pattern.
  ![Task Processing Architecture](./docs/task-processing-architecture.png)
 
 - [Naming](#naming)
-- [Architecture](#architecture)
 - [Components](#components)
   - [SQS Queues](#sqs-queues)
     - [Permissions Management](#sqs-permissions-management)
