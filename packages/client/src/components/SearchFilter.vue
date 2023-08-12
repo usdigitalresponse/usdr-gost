@@ -1,11 +1,11 @@
 <template>
-  <div class="filter-container">
+  <div class="filter-container d-flex">
     <div class="mb-3">
-      <div class="ml-2" v-if="selectedSearch !== null">
+      <div class="ml-2  align-self-end" v-if="selectedSearch !== null">
         <h4>{{ searchName }} </h4>
         <a href="#" v-on:click="editFilter">Edit</a> | <a href="#" v-on:click="clearAll" v-if="$props.filterKeys.length > 0">Clear</a>
       </div>
-      <div class="ml-2" v-if="selectedSearch === null">
+      <div class="ml-2  align-self-end" v-if="selectedSearch === null">
         <h4>All Grants</h4>
       </div>
       <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">

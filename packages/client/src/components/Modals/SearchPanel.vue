@@ -8,15 +8,15 @@
         ref="searchPanelSideBar"
         title="Search"
         class="search-panel"
+        bg-variant="white"
         @shown="onShown"
         right
         shadow
       >
         <template #header>
           <div class="search-panel-title">{{ panelTitle }}</div>
-          <b-button type="button" class="close" aria-label="Close" @click="cancel">
-          <span aria-hidden="true">&times;</span>
-          </b-button>
+          <b-button-close class="close" @click="cancel">
+          </b-button-close>
         </template>
         <form ref="form" class="search-form">
           <b-form-group label-for="search-title">
