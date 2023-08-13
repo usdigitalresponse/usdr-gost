@@ -9,17 +9,16 @@
       </div>
     </b-row>
     <b-row  class="grants-table-title-control">
-      <b-col cols="11">
-        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants"
-          v-if="showSearchControls" />
+      <b-col v-if="showSearchControls" >
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" />
       </b-col>
-      <b-col cols="11" v-if="!showSearchControls">
-        <h4>{{ searchTitle }}</h4>
+      <b-col align-self="end" v-if="!showSearchControls">
+        <h4 class="mb-0">{{ searchTitle }}</h4>
       </b-col>
       <b-col align-self="end">
         <a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0"
           class="text-right text-nowrap">
-          <p>Export CSV</p>
+          <p class="mb-0">Export CSV</p>
         </a>
       </b-col>
     </b-row>
@@ -413,9 +412,4 @@ export default {
   padding-right: 15px;
 }
 
-.grants-table-title-control {
-  min-height: 2.5rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
 </style>
