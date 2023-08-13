@@ -25,7 +25,7 @@
       </b-button>
     </div>
     <section class="container-fluid p-0" style="overflow-x: hidden;" v-if="!emptyState">
-      <div v-for="(search,idx) in savedSearches.data" :key="idx" class="saved-search-row" :searchid="search.id" @click="appylySavedSearch(search.id)" >
+      <div v-for="(search,idx) in savedSearches.data" :key="idx" class="saved-search-row pt-1" :searchid="search.id" @click="appylySavedSearch(search.id)" >
         <b-row>
           <b-col cols="10"><b>{{  search.name }}</b></b-col>
           <b-col cols="1">
@@ -51,7 +51,7 @@
             </div>
           </b-col>
         </b-row>
-        <hr />
+        <hr class="m-0" />
       </div>
     </section>
     <template #footer="{ hide }">
