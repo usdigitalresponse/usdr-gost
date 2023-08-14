@@ -1,4 +1,82 @@
 {
+  "TaxOffsetRevIncCoveredChanges.xlsx": {
+    "version": "2022.06.01",
+    "templateName": "Revenue Increasing Covered Changes Template",
+    "fields": [
+      {
+        "fieldId": "Name",
+        "fieldName": "Name of Revenue-Increasing Covered Change",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Revenue_Increasing_Covered_Change__c",
+        "fieldName": "Value of Revenue-Increasing Covered Change",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Fiscal_Year__c",
+        "fieldName": "Fiscal Year",
+        "required": "Required"
+      }
+    ]
+  },
+  "TaxOffsetRevRedCoveredChanges.xlsx": {
+    "version": "2022.05.19",
+    "templateName": "Revenue Reducing Covered Changes Template",
+    "fields": [
+      {
+        "fieldId": "Name",
+        "fieldName": "Name of Revenue-Reducing Covered Change",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Revenue_Reducing_Covered_Change__c",
+        "fieldName": "Value of Revenue-Reducing Covered Change",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Fiscal_Year__c",
+        "fieldName": "Fiscal Year",
+        "required": "Required"
+      }
+    ]
+  },
+  "TaxOffsetSpendingCuts.xlsx": {
+    "version": "2022.06.16",
+    "templateName": "Tax Offset Specific Spending Cuts",
+    "fields": [
+      {
+        "fieldId": "Name",
+        "fieldName": "Name of Specific Spending Cuts",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Reporting_Unit_Name__c",
+        "fieldName": "Reporting Unit Name",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Description_of_Spending_Cut__c",
+        "fieldName": "Description of Spending Cut",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Amount_Reduction_Spending__c",
+        "fieldName": "Amount of reduction in spending relative to inflation adjusted FY19 level",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Amount_FRF_Funds_Spent__c",
+        "fieldName": "Amount of FRF funds spent in reporting unit in the reporting year",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Amount_Reduction_Exceeds_FRF_Spent__c",
+        "fieldName": "Amount by which the reduction in spending in the reporting unit in the reporting year exceeds the Fiscal Recovery Funds spent in the reporting unit in the reporting year",
+        "required": "Required"
+      }
+    ]
+  },
   "expendituresGT50000BulkUpload.xlsx": {
     "version": "2022.03.28",
     "templateName": "SLFRF Bulk Upload Template for Sub-Award Expenditures-Reporting-GT-50000",
@@ -73,7 +151,7 @@
     ]
   },
   "project111210BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk File Upload Template For EC 1.11, 2.10",
     "ecCodes": [
       "1.11",
@@ -126,12 +204,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -233,7 +311,7 @@
     ]
   },
   "project18_229233BulkUpload.xlsx": {
-    "version": "2022.12.13",
+    "version": "2022.5.17",
     "templateName": "SLFRF Bulk File Upload Template For EC 1.8, 2.29 - 2.33",
     "ecCodes": [
       "1.8",
@@ -290,12 +368,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -387,7 +465,7 @@
     ]
   },
   "project19_234BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk File Upload Template For EC 1.9, 2.34",
     "ecCodes": [
       "1.9",
@@ -440,12 +518,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -537,7 +615,7 @@
     ]
   },
   "project211214BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk File Upload Template For EC 2.11-2.14",
     "ecCodes": [
       "2.11",
@@ -592,12 +670,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -699,7 +777,7 @@
     ]
   },
   "project2128BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "Bulk File Upload Template for EC 2.1 - 2.8",
     "ecCodes": [
       "2.1",
@@ -758,12 +836,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -865,7 +943,7 @@
     ]
   },
   "project215218BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk File Upload Template For EC 2.15-2.16, 2.17-2.18",
     "ecCodes": [
       "2.15",
@@ -920,12 +998,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1022,7 +1100,7 @@
     ]
   },
   "project224227BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk File Upload Template For EC 2.24 - 2.27",
     "ecCodes": [
       "2.24",
@@ -1077,12 +1155,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1179,7 +1257,7 @@
     ]
   },
   "project236BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk File Upload Template for EC 2.36",
     "ecCodes": [
       "2.36"
@@ -1231,12 +1309,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1328,7 +1406,7 @@
     ]
   },
   "project31BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk Upload Template for EC 3.1",
     "ecCodes": [
       "3.1"
@@ -1380,12 +1458,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1447,7 +1525,7 @@
     ]
   },
   "project32BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk File Upload Template for EC 3.2",
     "ecCodes": [
       "3.2"
@@ -1499,12 +1577,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1566,7 +1644,7 @@
     ]
   },
   "project4142BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk Upload Template for EC 4.1 - 4.2",
     "ecCodes": [
       "4.1",
@@ -1619,12 +1697,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1666,7 +1744,7 @@
     ]
   },
   "project51518BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk Upload Template For EC 5.1 - 5.18",
     "ecCodes": [
       "5.1",
@@ -1735,12 +1813,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1802,7 +1880,7 @@
     ]
   },
   "project519521BulkUpload.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk Upload Template For EC 5.19 - 5.21",
     "ecCodes": [
       "5.19",
@@ -1856,12 +1934,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -2044,11 +2122,21 @@
         "fieldId": "Actual_Funded_Locations_Explanation__c",
         "fieldName": "Explanation if the sum of residential, business, and community anchor institutions does not equal total number of funded locations served\r\nActual",
         "required": "Conditional"
+      },
+      {
+        "fieldId": "Do_you_have_Broadband_Location_File__c",
+        "fieldName": "Do you have a Broadband Location File to Upload?",
+        "required": "Required"
+      },
+      {
+        "fieldId": "No_Broadband_Location_File_Explanation__c",
+        "fieldName": "No Broadband File Explanation",
+        "required": "Conditional"
       }
     ]
   },
   "projectBaselineBulkUploadTemplate.xlsx": {
-    "version": "2023.4.18",
+    "version": "2023.5.17",
     "templateName": "SLFRF Bulk Upload Template for Base Projects",
     "ecCodes": [
       "1.1",
@@ -2124,12 +2212,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Obligations__c",
+        "fieldId": "Q2_2023_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q1_2023_Expenditures__c",
+        "fieldId": "Q2_2023_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -2211,6 +2299,82 @@
       {
         "fieldId": "Recipient_Approach_Description__c",
         "fieldName": "Recipients approach",
+        "required": "Required"
+      }
+    ]
+  },
+  "slfrfBroadbandLocationBulkUpload.xlsx": {
+    "version": "2023.5.25",
+    "templateName": "SLFRF Broadband Location Template",
+    "fields": [
+      {
+        "fieldId": "Fabric_ID_Number__c",
+        "fieldName": "Fabric ID Number",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Latitude__c",
+        "fieldName": "Location Latitude",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Longitude__c",
+        "fieldName": "Location Longitude",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Provider_ID__c",
+        "fieldName": "FCC Issued Provider ID #",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Technology_Type_at_Location__c",
+        "fieldName": "Technology Type at Location",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Technology_Type_Other__c",
+        "fieldName": "if Other, Specify (Actual)",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Location_Type__c",
+        "fieldName": "Location Type",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Housing_Units_at_Location__c",
+        "fieldName": "Housing Units at Location",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Speed_Pre_Investment__c",
+        "fieldName": "Speed Pre-Investment",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Max_Download_Speed_Offered__c",
+        "fieldName": "Maximum Download Speed Offered at Location Post-Investment",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Max_Download_Speed_Delivered__c",
+        "fieldName": "Maximum Download Speed Delivered at Location Post-Investment",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Max_Upload_Speed_Offered__c",
+        "fieldName": "Maximum Upload Speed Offered at Location Post-Investment",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Max_Upload_Speed_Delivered__c",
+        "fieldName": "Maximum Upload Speed Delivered at Location Post-Investment",
+        "required": "Required"
+      },
+      {
+        "fieldId": "Latency_Delivered_at_Location__c",
+        "fieldName": "Latency Delivered at Location Post-Investment",
         "required": "Required"
       }
     ]
