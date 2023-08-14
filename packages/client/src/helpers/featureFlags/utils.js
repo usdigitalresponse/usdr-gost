@@ -19,11 +19,13 @@ export function getFeatureFlags() {
   const appConfig = window.APP_CONFIG || {};
   const featureFlagDefaults = appConfig.featureFlags || {};
   const featureFlagOverrides = (() => {
-    const overrideJSON = window.sessionStorage.getItem('featureFlags');
-    if (overrideJSON !== null) {
-      return JSON.parse(overrideJSON);
+    let overrides;
+    try {
+      overrides = JSON.parse(window.sessionStorage.getItem('featureFlags'));
+    } catch (e) {
+      console.error('Error retrieving feature flags overrides:', e);
     }
-    return {};
+    return overrides || {};
   })();
   return merge({}, featureFlagDefaults, featureFlagOverrides);
 }
