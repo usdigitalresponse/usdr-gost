@@ -207,21 +207,21 @@ describe('db', () => {
             this.clock.restore();
         });
         it('returns a new grant when it exists', async () => {
-            criteria = {
-                includeKeywords: 'Community Health Aide Program:  Tribal Planning'
-            }
+            const criteria = {
+                includeKeywords: 'Community Health Aide Program:  Tribal Planning',
+            };
             const result = await db.getNewGrantsForSavedSearch(fixtures.users.staffUser.tenant_id, criteria, {});
-            expect(typeof(result.data)).to.equal(typeof([]));
+            expect(typeof result.data).to.equal(typeof []);
             expect(result.data.length).to.equal(1);
             expect(result.data[0].title).to.equal('Community Health Aide Program:  Tribal Planning &amp; Implementation');
             expect(result.data[0].open_date).to.equal('2021-08-05');
         });
         it('returns 2 new grants if they exist', async () => {
-            criteria = {
-                includeKeywords: 'Grant'
-            }
+            const criteria = {
+                includeKeywords: 'Grant',
+            };
             const result = await db.getNewGrantsForSavedSearch(fixtures.users.staffUser.tenant_id, criteria, {});
-            expect(typeof(result.data)).to.equal(typeof([]));
+            expect(typeof result.data).to.equal(typeof []);
             expect(result.data.length).to.equal(2);
             expect(result.data[0].title).to.contain('Grant');
             expect(result.data[0].open_date).to.equal('2021-08-05');
@@ -229,11 +229,11 @@ describe('db', () => {
             expect(result.data[1].open_date).to.equal('2021-08-05');
         });
         it('returns 0 grants if none exist', async () => {
-            criteria = {
-                includeKeywords: 'Non-existent grant zxcv'
-            }
+            const criteria = {
+                includeKeywords: 'Non-existent grant zxcv',
+            };
             const result = await db.getNewGrantsForSavedSearch(fixtures.users.staffUser.tenant_id, criteria, {});
-            expect(typeof(result.data)).to.equal(typeof([]));
+            expect(typeof result.data).to.equal(typeof []);
             expect(result.data.length).to.equal(0);
         });
     });

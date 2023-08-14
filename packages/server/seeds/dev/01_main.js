@@ -116,5 +116,5 @@ exports.seed = async (knex) => {
     await knex('grants').insert(grants);
     await knex('assigned_grants_agency').insert(assignedGrantsAgency);
     await knex('grants_interested').insert(grantsInterested);
-    await knex('grants_saved_searches').insert(grantsSavedSearches)
+    await knex('grants_saved_searches').insert(grantsSavedSearches);
 };

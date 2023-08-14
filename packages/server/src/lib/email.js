@@ -194,7 +194,6 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
 }
 
 async function buildDigestBody(matchedGrants) {
-
     const grantDetails = [];
     matchedGrants.slice(0, 30).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
 
@@ -218,7 +217,9 @@ async function buildDigestBody(matchedGrants) {
     return formattedBody;
 }
 
-async function sendGrantDigest({name, matchedGrants, recipients, openDate}) {
+async function sendGrantDigest({
+    name, matchedGrants, recipients, openDate,
+}) {
     console.log(`${name} is subscribed for notifications on ${openDate}`);
 
     if (!matchedGrants || matchedGrants?.length === 0) {

@@ -289,7 +289,7 @@ describe('`/api/users` endpoint', () => {
         });
         context('by a user with admin role', () => {
             it('Sends an email based on this user\'s saved searches', async () => {
-                const deliverEmailSpy = sinon.fake.returns('foo')
+                const deliverEmailSpy = sinon.fake.returns('foo');
                 sinon.replace(email, 'deliverEmail', deliverEmailSpy);
                 const response = await fetchApi(
                     `/users/2/sendDigestEmail`,

@@ -5,6 +5,7 @@ const multer = require('multer');
 
 const multerUpload = multer({ storage: multer.memoryStorage() });
 const XLSX = require('xlsx');
+const moment = require('moment');
 const { ensureAsyncContext } = require('../arpa_reporter/lib/ensure-async-context');
 const {
     requireAdminUser,
@@ -18,7 +19,6 @@ const email = require('../lib/email');
 const db = require('../db');
 const UserImporter = require('../lib/userImporter');
 const { emailSubscriptionStatus, notificationType } = require('../lib/email/constants');
-const moment = require('moment');
 
 router.post('/', requireAdminUser, async (req, res, next) => {
     const { user } = req.session;
@@ -90,36 +90,39 @@ router.put('/:userId/email_subscription', requireUser, async (req, res) => {
 });
 
 router.get('/:userId/sendDigestEmail', requireUSDRSuperAdminUser, async (req, res) => {
-
     const user = await db.getUser(req.params.userId);
-    if (user.emailPreferences[notificationType.grantDigest] != emailSubscriptionStatus.subscribed) {
-        res.sendStatus(400).json({message: `User ${user.id} is not subscribed to grant digest emails`});
+    if (user.emailPreferences[notificationType.grantDigest] !== emailSubscriptionStatus.subscribed) {
+        res.sendStatus(400).json({ message: `User ${user.id} is not subscribed to grant digest emails` });
         return;
     }
 
     try {
         const savedSearches = await db.getSavedSearches(user.id, {});
-        for (search of savedSearches.data) {
+        const promises = [];
+        for (const search of savedSearches.data) {
             let criteriaObj;
             try {
                 criteriaObj = JSON.parse(search.criteria);
-            } catch(e) {
+            } catch (e) {
                 console.error(`Could not parse ${search}: due to error '${e}}' stack: ${e.stack}`);
-                continue;
             }
-            const yesterday = req.query.date? new Date(req.query.date) : moment().subtract(1, 'day').format('YYYY-MM-DD');
+            if (criteriaObj !== undefined) {
+                const yesterday = req.query.date ? new Date(req.query.date) : moment().subtract(1, 'day').format('YYYY-MM-DD');
 
-            // Only 30 grants are shown on any given email and 31 will trigger a place to click to see more
-            const { data, pagination } = await db.getNewGrantsForSavedSearch(user.tenant_id, criteriaObj, {perPage: 31}, yesterday);
+                // Only 30 grants are shown on any given email and 31 will trigger a place to click to see more
+                /* eslint-disable no-await-in-loop */
+                const { data } = await db.getNewGrantsForSavedSearch(user.tenant_id, criteriaObj, { perPage: 31 }, yesterday);
+                /* eslint-enable no-await-in-loop */
 
-            // FIXME weird method name but basically just needs  { name: name, recipients: [], matched_grants: [ grant, grant, grant] }
-            await email.sendGrantDigest({
-                openDate: yesterday,
-                name: search.name,
-                recipients: [user.email],
-                matchedGrants: data,
-            }); 
+                promises.push(email.sendGrantDigest({
+                    openDate: yesterday,
+                    name: search.name,
+                    recipients: [user.email],
+                    matchedGrants: data,
+                }));
+            }
         }
+        await Promise.all(promises);
     } catch (e) {
         console.error(`Unable to kick-off digest email for user '${user.id}' due to error '${e}}' stack: ${e.stack}`);
         res.sendStatus(500).json({ message: 'Something went wrong while kicking off the digest email. Please investigate the server logs.' });

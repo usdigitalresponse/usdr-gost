@@ -355,14 +355,14 @@ async function getNewGrantsForAgency(agency) {
 async function getNewGrantsForSavedSearch(tenantId, criteria, paginationParams, date) {
     // TODO: remove adapter to getGrants when backend getGrants work is done to wire include/exclude and other fields
 
-    return await getGrants({
+    return getGrants({
         currentPage: paginationParams.currentPage,
         perPage: paginationParams.perPage,
-        tenantId: tenantId,
+        tenantId,
         searchTerm: criteria.includeKeywords,
         filters: criteria,
-        openDate: date
-    }) ;
+        openDate: date,
+    });
 }
 
 async function getGrants({
@@ -427,7 +427,7 @@ async function getGrants({
                             qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
                         }
                         if (openDate) {
-                            qb.where(`${TABLES.grants}.open_date`, '=', openDate)
+                            qb.where(`${TABLES.grants}.open_date`, '=', openDate);
                         }
                     },
                 );
