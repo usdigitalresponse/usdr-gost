@@ -1,3 +1,5 @@
+import { merge } from 'lodash/merge';
+
 /**
  * Retrieves the object defined at `window.APP_CONFIG.featureFlags` if it exists.
  * Otherwise, an empty object will be provided.
@@ -15,6 +17,13 @@
  */
 export function getFeatureFlags() {
   const appConfig = window.APP_CONFIG || {};
-  const featureFlags = appConfig.featureFlags || {};
-  return featureFlags;
+  const featureFlagDefaults = appConfig.featureFlags || {};
+  const featureFlagOverrides = (() => {
+    const overrideJSON = window.sessionStorage.getItem('featureFlags');
+    if (overrideJSON !== null) {
+      return JSON.parse(overrideJSON);
+    }
+    return {};
+  })();
+  return merge({}, featureFlagDefaults, featureFlagOverrides);
 }
