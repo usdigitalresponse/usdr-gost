@@ -352,7 +352,6 @@ async function getNewGrantsForAgency(agency) {
     return rows;
 }
 
-<<<<<<< HEAD
 async function buildPaginationParams(args) {
     const { currentPage, perPage } = args;
     let { isLengthAware } = args;
@@ -515,19 +514,18 @@ async function enhanceGrantData(tenantId, data) {
     });
 
     return dataWithAgency;
-=======
+}
 async function getNewGrantsForSavedSearch(tenantId, criteria, paginationParams, date) {
     // TODO: remove adapter to getGrants when backend getGrants work is done to wire include/exclude and other fields
 
-    return await getGrants({
+    return getGrants({
         currentPage: paginationParams.currentPage,
         perPage: paginationParams.perPage,
-        tenantId: tenantId,
+        tenantId,
         searchTerm: criteria.includeKeywords,
         filters: criteria,
-        openDate: date
-    }) ;
->>>>>>> 1883be7 (feat: enable saved search digest emails per user)
+        openDate: date,
+    });
 }
 
 async function getGrants({
@@ -592,7 +590,7 @@ async function getGrants({
                             qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
                         }
                         if (openDate) {
-                            qb.where(`${TABLES.grants}.open_date`, '=', openDate)
+                            qb.where(`${TABLES.grants}.open_date`, '=', openDate);
                         }
                     },
                 );
@@ -1377,12 +1375,9 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
-<<<<<<< HEAD
     getGrantsNew,
     buildPaginationParams,
-=======
     getNewGrantsForSavedSearch,
->>>>>>> 1883be7 (feat: enable saved search digest emails per user)
     getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,
