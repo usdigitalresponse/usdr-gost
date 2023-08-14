@@ -8,14 +8,14 @@
       class="saved-search-panel"
       model="displaySavedSearchPanel"
       ref="savedSearchPanel"
+      bg-variant="white"
       right
       shadow
     >
     <template #header>
       <div class="saved-search-title">Saved Searches</div>
-      <b-button type="button" class="close" aria-label="Close" @click="initViewResults">
-       <span aria-hidden="true">&times;</span>
-      </b-button>
+      <b-button-close type="button" class="close" @click="initViewResults">
+      </b-button-close>
     </template>
     <div class="saved-search-empty-state" v-if="emptyState">
       <h4>No saved searches</h4>
@@ -24,14 +24,14 @@
         New Search
       </b-button>
     </div>
-    <section class="container-fluid" v-if="!emptyState">
-      <div v-for="(search,idx) in savedSearches.data" :key="idx" class="saved-search-row" :searchid="search.id" @click="appylySavedSearch(search.id)" >
+    <section class="container-fluid p-0" style="overflow-x: hidden;" v-if="!emptyState">
+      <div v-for="(search,idx) in savedSearches.data" :key="idx" class="saved-search-row pt-1" :searchid="search.id" @click="appylySavedSearch(search.id)" >
         <b-row>
-          <b-col cols="9"><b>{{  search.name }}</b></b-col>
+          <b-col cols="10"><b>{{  search.name }}</b></b-col>
           <b-col cols="1">
             <b-dropdown size="sm"  variant="link" toggle-class="text-decoration-none" no-caret>
               <template #button-content>
-                <b-icon icon="three-dots-vertical" font-scale="1"></b-icon>
+                <b-icon icon="three-dots-vertical" class="text-dark" font-scale="1"></b-icon>
               </template>
               <b-dropdown-item :searchId="search.id" @click.stop="editSavedSearch">Edit</b-dropdown-item>
               <b-dropdown-item @click="deleteSavedSearch" :searchId="search.id">Delete</b-dropdown-item>
@@ -51,7 +51,7 @@
             </div>
           </b-col>
         </b-row>
-        <hr />
+        <hr class="m-0" />
       </div>
     </section>
     <template #footer="{ hide }">
@@ -185,7 +185,11 @@ export default {
   font-size: 14px;
   line-height: 150%;
 }
+.saved-search-row{
+  padding-left: 15px;
+}
 .saved-search-row:hover{
   background: rgba(0, 0, 0, 0.075);
 }
+
 </style>

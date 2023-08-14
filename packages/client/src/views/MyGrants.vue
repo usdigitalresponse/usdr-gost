@@ -46,6 +46,7 @@ export default {
 .grants-tabs .nav-tabs {
   padding-left: 20px;
   border-bottom: none;
+  margin-bottom: 20px;
 }
 
 .grants-tabs .nav-tabs .nav-link:hover {
