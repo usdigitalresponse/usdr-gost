@@ -230,7 +230,7 @@ async function persistJson(upload, workbook) {
  * @returns {Promise<Buffer>}
 */
 async function bufferForUpload(upload) {
-    return tracer.tracer(
+    return tracer.trace(
         'bufferForUpload',
         () => fs.readFile(uploadFSName(upload)),
     );
