@@ -9,8 +9,8 @@ window.APP_CONFIG.overrideFeatureFlag = (flagName, overrideValue) => {
   try {
     overrides = JSON.parse(window.sessionStorage.getItem(storageKey)) || {};
   } catch (e) {
-    console.error(`Error parsing window.sessionStore.$${storageKey} as JSON:`, e);
-    console.warn(`window.sessionStore.$${storageKey} will be replaced.`);
+    console.error(`Error parsing window.sessionStorage.$${storageKey} as JSON:`, e);
+    console.warn(`window.sessionStorage.$${storageKey} will be replaced.`);
   }
   overrides[flagName] = overrideValue;
   window.sessionStorage.setItem(storageKey, JSON.stringify(overrides));
