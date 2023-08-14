@@ -288,7 +288,6 @@ const assignedAgencyGrants = {
 
 const grantsSavedSearches = [
     {
-        id: 1,
         name: 'Simple 2 result search based on included keywords',
         created_by: users.adminUser.id,
         criteria: JSON.stringify({

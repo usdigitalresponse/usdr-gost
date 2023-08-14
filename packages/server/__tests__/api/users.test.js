@@ -292,7 +292,7 @@ describe('`/api/users` endpoint', () => {
                 const deliverEmailSpy = sinon.fake.returns('foo')
                 sinon.replace(email, 'deliverEmail', deliverEmailSpy);
                 const response = await fetchApi(
-                    `/users/16/sendDigestEmail`,
+                    `/users/2/sendDigestEmail`,
                     agencies.own,
                     { ...fetchOptions.admin },
                 );

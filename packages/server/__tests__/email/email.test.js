@@ -274,12 +274,6 @@ describe('Email sender', () => {
         });
     });
     context('saved search grant digest email', () => {
-        before(async () => {
-            await fixtures.seed(db.knex);
-        });
-        after(async () => {
-            await db.knex.destroy();
-        });
         beforeEach(async () => {
             this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
             this.clock = this.clockFn('2021-08-06');
@@ -302,12 +296,6 @@ describe('Email sender', () => {
         });
     });
     context('grant digest email', () => {
-        before(async () => {
-            await fixtures.seed(db.knex);
-        });
-        after(async () => {
-            await db.knex.destroy();
-        });
         beforeEach(async () => {
             this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
             this.clock = this.clockFn('2021-08-06');

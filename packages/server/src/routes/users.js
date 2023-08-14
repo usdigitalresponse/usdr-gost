@@ -89,18 +89,7 @@ router.put('/:userId/email_subscription', requireUser, async (req, res) => {
     }
 });
 
-router.get('/:userId/sendDigestEmail', requireAdminUser, async (req, res) => {
-    /*
-    0. Check if the user is subscribed
-    1. Get the saved searches for a given user
-    2. For each saved search, Query the DB for the updated grants that match the search criteria
-    3. Use the existing code to send an email
-
-    Do we care about agency criteria? No.
-    Do we care about these admin emails? Good for building, might not even work.
-
-    What is a tenant?
-    */
+router.get('/:userId/sendDigestEmail', requireUSDRSuperAdminUser, async (req, res) => {
 
     const user = await db.getUser(req.params.userId);
     if (user.emailPreferences[notificationType.grantDigest] != emailSubscriptionStatus.subscribed) {

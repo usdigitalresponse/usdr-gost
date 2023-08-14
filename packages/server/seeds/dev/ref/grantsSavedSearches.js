@@ -1,8 +1,7 @@
 const grantsSavedSearches = [
     {
-        id: 111,
         name: 'Simple 2 result search based on included keywords',
-        created_by: 16,
+        created_by: 2,
         criteria: JSON.stringify({
             includeKeywords: 'Grant'
         }),
