@@ -3,7 +3,7 @@ window.APP_CONFIG.apiURLForGOST = 'https://${gost_api_domain}/';
 window.apiURLForGOST = window.APP_CONFIG.apiURLForGOST; // Legacy
 window.APP_CONFIG.featureFlags = ${feature_flags};
 
-window.APP_CONFIG.overrideFeatureFlag = (key, value) => {
+window.APP_CONFIG.overrideFeatureFlag = (flagName, overrideValue) => {
   const storageKey = 'featureFlags';
   let overrides = {};
   try {
@@ -12,7 +12,7 @@ window.APP_CONFIG.overrideFeatureFlag = (key, value) => {
     console.error(`Error parsing window.sessionStore.$${storageKey} as JSON:`, e);
     console.warn(`window.sessionStore.$${storageKey} will be replaced.`);
   }
-  overrides[key] = value;
+  overrides[flagName] = overrideValue;
   window.sessionStorage.setItem(storageKey, JSON.stringify(overrides));
   console.log('New feature flag overrides in page session:',
     window.sessionStorage.getItem(storageKey));
