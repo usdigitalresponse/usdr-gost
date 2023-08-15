@@ -8,31 +8,23 @@
         <SearchPanel ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
       </div>
     </b-row>
-    <b-row>
-      <b-col cols="11">
-        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants"
-          v-if="showSearchControls" />
+    <b-row  class="grants-table-title-control">
+      <b-col v-if="showSearchControls" >
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" />
+      </b-col>
+      <b-col align-self="end" v-if="!showSearchControls">
+        <h4 class="mb-0">{{ searchTitle }}</h4>
       </b-col>
       <b-col align-self="end">
         <a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0"
           class="text-right text-nowrap">
-          <p>Export CSV</p>
+          <p class="mb-0">Export CSV</p>
         </a>
-      </b-col>
-    </b-row>
-    <b-row  v-if="!showSearchControls">
-      <b-col cols="11">
-        <h5>{{ searchTitle }}</h5>
-      </b-col>
-    </b-row>
-    <b-row align-h="start">
-      <b-col cols="1">
-        <strong>{{ totalRows }} grants</strong>
       </b-col>
     </b-row>
     <b-row align-v="center">
       <b-col cols="12">
-        <b-table id="grants-table" sticky-header="600px" hover :items="formattedGrants"
+        <b-table fixed id="grants-table" sticky-header="600px" hover :items="formattedGrants" responsive
           :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
           @row-selected="onRowSelected" show-empty emptyText="No matches found">
@@ -43,7 +35,7 @@
             <p> {{ formatMoney(row.item.award_ceiling) }}</p>
           </template>
           <template #table-busy>
-            <div class="text-center text-danger my-2">
+            <div class="text-center text-info my-2" style="height: 1200px;">
               <b-spinner class="align-middle"></b-spinner>
               <strong> Loading...</strong>
             </div>
@@ -55,7 +47,7 @@
               <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
               <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
               &nbsp;
-              <p><a @click="$refs.searchPanel.showSideBar()" class="link">
+              <p><a @click="initEditSearch(searchId);" class="link">
                   Edit Search Criteria
                 </a></p>
             </div>
@@ -68,7 +60,7 @@
         <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
           last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
           aria-controls="grants-table" />
-        <b-button class="ml-2" variant="outline-primary disabled">{{ grants.length }} of {{ totalRows }}</b-button>
+        <div class="ml-2 border border-light rounded text-justify p-2 page-item">{{ grants.length }} of {{ totalRows }}</div>
       </b-col>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
@@ -94,7 +86,6 @@ export default {
     showResult: Boolean,
     showAging: Boolean,
     showAssignedToAgency: String,
-    hideGrantItems: Boolean,
     showSearchControls: {
       type: Boolean,
       default: true,
@@ -110,13 +101,6 @@ export default {
       currentPage: 1,
       loading: false,
       fields: [
-        {
-          key: 'grant_number',
-          label: 'Opportunity Number',
-          variant: 'dark',
-          stickyColumn: true, // was in the grant id col but not sure if necessary
-          hideGrantItem: this.hideGrantItems,
-        },
         {
           key: 'title',
         },
@@ -264,6 +248,7 @@ export default {
     },
     selectedSearchId() {
       this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
+      this.paginateGrants();
     },
   },
   methods: {
@@ -271,6 +256,7 @@ export default {
       fetchGrants: 'grants/fetchGrantsNext',
       navigateToExportCSV: 'grants/exportCSV',
       clearSelectedSearch: 'grants/clearSelectedSearch',
+      initEditSearch: 'grants/initEditSearch',
     }),
     setup() {
       this.clearSelectedSearch();
@@ -426,6 +412,10 @@ export default {
 .grants-table-container {
   padding-left: 15px;
   padding-right: 15px;
-  margin: 10px;
 }
+/* set first columnheader th to 300px*/
+#grants-table th:nth-child(1) {
+  width: 300px;
+}
+
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="grants-tabs">
-    <b-tabs align="left" lazy>
+    <b-tabs align="left" style="margin-top: 1.5rem" lazy>
       <b-tab title="Interested" active>
         <component :is="tableComponent" searchTitle="Interested" :showInterested="true" :showSearchControls="false"/>
       </b-tab>
@@ -46,11 +46,18 @@ export default {
 .grants-tabs .nav-tabs {
   padding-left: 20px;
   border-bottom: none;
+  margin-bottom: 20px;
 }
-.grants-tabs .nav-link.active {
+
+.grants-tabs .nav-tabs .nav-link:hover {
+  border-color: transparent;
+  text-decoration: underline;
+}
+.grants-tabs .nav-link.active,.grants-tabs .nav-link.active:hover {
   /* border: 0px;
   border-bottom: 1px; */
   isolation: isolate;
   border-color: transparent transparent #dee2e6;
+  text-decoration: none;
 }
 </style>
