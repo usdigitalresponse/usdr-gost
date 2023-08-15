@@ -105,8 +105,8 @@ export default {
       const ordering = { orderBy, orderDesc };
       const criteria = { ...this.state.grants.searchFormFilters };
       // Validate and fix the inputs into appropriate types.
-      criteria.includeKeywords = criteria.includeKeywords?.split(',').map((k) => k.trim());
-      criteria.excludeKeywords = criteria.excludeKeywords?.split(',').map((k) => k.trim());
+      criteria.includeKeywords = criteria.includeKeywords && criteria.includeKeywords.length > 0 ? criteria.includeKeywords.split(',').map((k) => k.trim()) : null;
+      criteria.excludeKeywords = criteria.excludeKeywords && criteria.excludeKeywords.length > 0 ? criteria.excludeKeywords.split(',').map((k) => k.trim()) : null;
       criteria.eligibility = criteria.eligibility?.map((e) => e.code);
 
       const paginationQuery = Object.entries(pagination)

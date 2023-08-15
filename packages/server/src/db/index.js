@@ -405,16 +405,20 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId)
                         if (filters.eligibilityCodes?.length) {
                             qb.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
                         }
-                        if (filters.includeKeywords?.length) {
-                            const include = filters.includeKeywords.join('|');
-                            qb.where('description', '~*', include);
-                            qb.orWhere('title', '~*', include);
-                        }
-                        if (filters.excludeKeywords?.length) {
-                            const exclude = filters.excludeKeywords.join('|');
-                            qb.where('description', '!~*', exclude);
-                            qb.orWhere('title', '!~*', exclude);
-                        }
+                        qb.andWhere((q) => {
+                            if (filters.includeKeywords?.length) {
+                                const include = filters.includeKeywords.join('|');
+                                q.where('description', '~*', include);
+                                q.orWhere('title', '~*', include);
+                            }
+                        });
+                        qb.andWhere((q) => {
+                            if (filters.excludeKeywords?.length) {
+                                const exclude = filters.excludeKeywords.join('|');
+                                q.where('description', '!~*', exclude);
+                                q.orWhere('title', '!~*', exclude);
+                            }
+                        });
 
                         /*
                         TODO: add grants.opportunity_number
