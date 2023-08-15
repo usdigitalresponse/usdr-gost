@@ -9,6 +9,7 @@ describe('featureFlags', () => {
           if (window.APP_CONFIG !== undefined) {
             delete window.APP_CONFIG;
           }
+          window.sessionStorage.removeItem('featureFlags');
         });
 
         it('when window.APP_CONFIG does not exist', () => {
@@ -28,11 +29,33 @@ describe('featureFlags', () => {
 
       describe('When featureFlags are defined', () => {
         it('Returns the featureFlags object', () => {
-          const actualFeatureFlags = { useFoo: true, numberFlag: 1234 };
-          window.APP_CONFIG = { featureFlags: actualFeatureFlags };
-          expect(getFeatureFlags()).to.eql(actualFeatureFlags);
-          expect(getFeatureFlags().useFoo).to.be.true;
-          expect(getFeatureFlags().numberFlag).to.equal(1234);
+          const expectedFeatureFlags = { useFoo: true, numberFlag: 1234 };
+          window.APP_CONFIG = { featureFlags: expectedFeatureFlags };
+          const actualFeatureFlags = getFeatureFlags();
+          expect(actualFeatureFlags.useFoo).to.be.true;
+          expect(actualFeatureFlags.numberFlag).to.equal(1234);
+          expect(actualFeatureFlags).to.eql(expectedFeatureFlags);
+        });
+        it('Ignores session storage overrides when JSON is malformed', () => {
+          window.sessionStorage.setItem('featureFlags', 'i}am]not,JS;ON>{');
+          const expectedFeatureFlags = { useFoo: true, numberFlag: 1234 };
+          window.APP_CONFIG = { featureFlags: expectedFeatureFlags };
+          const actualFeatureFlags = getFeatureFlags();
+          expect(actualFeatureFlags.useFoo).to.be.true;
+          expect(actualFeatureFlags.numberFlag).to.equal(1234);
+          expect(actualFeatureFlags).to.eql(expectedFeatureFlags);
+        });
+        it('Overrides feature flag values from session storage', () => {
+          const defaultFeatureFlags = { useFoo: true, numberFlag: 1234 };
+          window.APP_CONFIG = { featureFlags: defaultFeatureFlags };
+          const overriddenFeatureFlags = { useFoo: false, stringFlag: 'hi!' };
+          window.sessionStorage.setItem('featureFlags', JSON.stringify(overriddenFeatureFlags));
+          const actualFeatureFlags = getFeatureFlags();
+          expect(actualFeatureFlags.useFoo).to.be.false;
+          expect(actualFeatureFlags.numberFlag).to.equal(1234);
+          expect(actualFeatureFlags.stringFlag).to.equal('hi!');
+          expect(actualFeatureFlags).to.not.eql(defaultFeatureFlags);
+          expect(actualFeatureFlags).to.eql({ useFoo: false, numberFlag: 1234, stringFlag: 'hi!' });
         });
       });
     });
