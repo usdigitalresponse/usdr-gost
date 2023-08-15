@@ -66,6 +66,34 @@ router.get('/', requireUser, async (req, res) => {
     res.json(grants);
 });
 
+router.get('/next', requireUser, async (req, res) => {
+    const { user } = req.session;
+    const postedWithinOptions = {
+        'All Time': 0, 'One Week': 7, '30 Days': 30, '60 Days': 60,
+    };
+    const filters = req.query.criteria || {};
+    const grants = await db.getGrantsNew(
+        {
+            reviewStatuses: filters.reviewStatus?.split(',').map((r) => r.trim().charAt(0).toUpperCase() + r.trim().slice(1)) || [],
+            eligibilityCodes: filters.eligibility?.split(',') || [],
+            includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
+            excludeKeywords: filters.excludeKeywords?.split(',').map((k) => k.trim()) || [],
+            opportunityNumber: filters.opportunityNumber || '',
+            fundingTypes: filters.fundingTypes?.split(',') || [],
+            opportunityStatuses: filters.opportunityStatuses?.split(',') || [],
+            opportunityCategories: filters.opportunityCategories?.split(',') || [],
+            costSharing: filters.costSharing || '',
+            agencyCode: filters.agency || '',
+            postedWithinDays: postedWithinOptions[filters.postedWithin] || 0,
+        },
+        await db.buildPaginationParams(req.query.pagination),
+        req.query.ordering,
+        user.tenant_id,
+    );
+
+    res.json(grants);
+});
+
 // get a single grant details
 router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
     const { grantId } = req.params;
