@@ -86,32 +86,6 @@ export default {
       return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
     },
-    fetchGrantsBySearchId({ commit }, {
-      savedSearchId, currentPage, perPage, orderBy, orderDesc,
-    }) {
-      const paginationParams = { currentPage, perPage };
-      const paginationQuery = Object.entries(
-        paginationParams,
-      )
-        // filter out undefined and nulls since api expects parameters not present as undefined
-        // eslint-disable-next-line no-unused-vars
-        .filter(([key, value]) => value || typeof value === 'number')
-        .map(([key, value]) => `pagination[${encodeURIComponent[key]}]=${encodeURIComponent(value)}`)
-        .join('&');
-
-      const orderingParams = { orderBy, orderDesc };
-      const orderingQuery = Object.entries(
-        orderingParams,
-      )
-        // filter out undefined and nulls since api expects parameters not present as undefined
-        // eslint-disable-next-line no-unused-vars
-        .filter(([key, value]) => value || typeof value === 'number')
-        .map(([key, value]) => `ordering[${encodeURIComponent[key]}]=${encodeURIComponent(value)}`)
-        .join('&');
-
-      return fetchApi.get(`/api/organizations/:organizationId/grants/next/${savedSearchId}?${paginationQuery}&${orderingQuery}`)
-        .then((data) => commit('SET_GRANTS', data));
-    },
     fetchGrantsNext({ commit }, {
       currentPage, perPage, orderBy, orderDesc,
     }) {
@@ -127,15 +101,13 @@ export default {
       postedWithin
       reviewStatus
       */
-      console.log(this.state.grants.searchFormFilters);
       const pagination = { currentPage, perPage };
       const ordering = { orderBy, orderDesc };
       const criteria = { ...this.state.grants.searchFormFilters };
       // Validate and fix the inputs into appropriate types.
       criteria.includeKeywords = criteria.includeKeywords?.split(',').map((k) => k.trim());
       criteria.excludeKeywords = criteria.excludeKeywords?.split(',').map((k) => k.trim());
-
-      console.log(criteria);
+      criteria.eligibility = criteria.eligibility?.map((e) => e.code);
 
       const paginationQuery = Object.entries(pagination)
         // filter out undefined and nulls since api expects parameters not present as undefined
@@ -287,6 +259,7 @@ export default {
   },
   mutations: {
     SET_GRANTS(state, grants) {
+      console.log('UPDATED state -', grants);
       state.grantsPaginated = grants;
     },
     UPDATE_GRANT(state, { grantId, data }) {
