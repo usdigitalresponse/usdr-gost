@@ -92,7 +92,7 @@
           </b-form-group>
           <b-form-group>
             <template slot="label">Posted Within</template>
-            <multiselect v-model="formData.postedWithin" :options="postedWithinOptions" :multiple="false"
+            <multiselect v-model="formData.criteria.postedWithin" :options="postedWithinOptions" :multiple="false"
                      :close-on-select="true" :clear-on-select="false" placeholder="All Time" :show-labels="false">
             </multiselect>
           </b-form-group>

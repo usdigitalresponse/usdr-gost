@@ -352,6 +352,168 @@ async function getNewGrantsForAgency(agency) {
     return rows;
 }
 
+async function buildPaginationParams(args) {
+    const { currentPage, perPage } = args;
+    let { isLengthAware } = args;
+
+    if (!currentPage) {
+        throw Error('Missing current Page');
+    }
+
+    if (!perPage) {
+        throw Error('Missing per page');
+    }
+
+    if (isLengthAware === undefined || isLengthAware === null) {
+        isLengthAware = true;
+    }
+
+    return { currentPage, perPage, isLengthAware };
+}
+
+/*
+    filters: {
+        reviewStatuses: List[Enum['Interested', 'Result', 'Rejected']],
+        eligibilityCodes: List[String],
+        includeKeywords: List[String],
+        excludeKeywords: List[String],
+        opportunityNumber: String,
+        fundingTypes: List[Enum['CA, 'G', 'PC' ,'O']]
+        opportunityStatuses: List[Enum['posted', 'forecasted', 'closed']],
+        opportunityCategories: List[Enum['Other', 'Discretionary', 'Mandatory', 'Continuation']],
+        costSharing: Enum['Yes', 'No'],
+        agencyCode: String,
+        postedWithinDays: number,
+    },
+    paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
+    orderingParams: { orderBy: List[string], orderDesc: boolean}
+    tenantId: number
+*/
+async function getGrantsNew(filters, paginationParams, orderingParams, tenantId) {
+    console.log(filters, paginationParams, orderingParams, tenantId);
+    const { data, pagination } = await knex(TABLES.grants)
+        .select(`${TABLES.grants}.*`)
+        .distinct()
+        .modify((queryBuilder) => {
+            if (filters) {
+                if (filters.reviewStatuses?.length) {
+                    queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
+                        .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
+                }
+                queryBuilder.andWhere(
+                    (qb) => {
+                        if (filters.eligibilityCodes?.length) {
+                            qb.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
+                        }
+                        qb.andWhere((q) => {
+                            if (filters.includeKeywords?.length) {
+                                const include = filters.includeKeywords.join('|');
+                                q.where('description', '~*', include);
+                                q.orWhere('title', '~*', include);
+                            }
+                        });
+                        qb.andWhere((q) => {
+                            if (filters.excludeKeywords?.length) {
+                                const exclude = filters.excludeKeywords.join('|');
+                                q.where('description', '!~*', exclude);
+                                q.orWhere('title', '!~*', exclude);
+                            }
+                        });
+
+                        /*
+                        TODO: add grants.opportunity_number
+                        if (filters.opportunityNumber) {
+                            qb.where(`${TABLES.grants}.opportunity_number`, '=', filters.opportunityNumber);
+                        }
+
+                        TODO: add grants.funding_instrument_codes
+                            { 'CA': 'Cooperative Agreement', 'G': 'Grant', 'PC': 'Procurement Contract', 'O': 'Other' }
+                        if (filters.fundingTypes) {
+                            qb.where('funding_instrument_codes', '~', filters.fundingTypes.join('|'));
+                        }
+                        */
+                        if (filters.reviewStatuses?.length) {
+                            for (const status in filters.reviewStatuses) {
+                                qb.where(`${TABLES.interested_codes}.status_code`, '=', status);
+                            }
+                        }
+                        if (filters.opportunityStatuses?.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_status`, filters.opportunityStatuses);
+                        }
+                        if (filters.opportunityCategories?.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
+                        }
+                        if (filters.costSharing) {
+                            qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
+                        }
+                        if (filters.agencyCode) {
+                            qb.where(`${TABLES.grants}.agency_code`, '=', filters.agencyCode);
+                        }
+                        if (filters.postedWithinDays > 0) {
+                            const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
+                            qb.where(`${TABLES.grants}.open_date`, '>=', date);
+                        }
+                    },
+                );
+            }
+            if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
+                if (orderingParams.orderBy.includes('interested_agencies')) {
+                    // Only perform the join if it was not already performed above.
+                    if (!filters.reviewStatuses?.length) {
+                        queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
+                    }
+                    const orderArgs = orderingParams.orderBy.split('|');
+                    queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
+                    queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
+                } else if (orderingParams.orderBy.includes('viewed_by')) {
+                    const orderArgs = orderingParams.orderBy.split('|');
+                    queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
+                    queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
+                    queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
+                } else {
+                    const orderArgs = orderingParams.orderBy.split('|');
+                    const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
+                    if (orderArgs.length > 1) {
+                        console.log(`Too many orderArgs: ${orderArgs}`);
+                    }
+                    queryBuilder.orderBy(orderArgs[0], orderDirection);
+                }
+            }
+        })
+        .paginate(paginationParams);
+
+    const dataWithAgency = await enhanceGrantData(tenantId, data);
+
+    return { data: dataWithAgency, pagination };
+}
+
+async function enhanceGrantData(tenantId, data) {
+    const viewedByQuery = knex(TABLES.agencies)
+        .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
+        .whereIn('grant_id', data.map((grant) => grant.grant_id))
+        .andWhere('agencies.tenant_id', tenantId);
+
+    const viewedBy = await viewedByQuery.select(
+        `${TABLES.grants_viewed}.grant_id`,
+        `${TABLES.grants_viewed}.agency_id`,
+        `${TABLES.agencies}.name as agency_name`,
+        `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+    );
+    const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), tenantId });
+
+    const dataWithAgency = data.map((grant) => {
+        const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
+        const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
+        return {
+            ...grant,
+            viewed_by_agencies: viewedByAgencies,
+            interested_agencies: agenciesInterested,
+        };
+    });
+
+    return dataWithAgency;
+}
+
 async function getGrants({
     currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
 } = {}) {
@@ -1196,6 +1358,8 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getGrantsNew,
+    buildPaginationParams,
     getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,
