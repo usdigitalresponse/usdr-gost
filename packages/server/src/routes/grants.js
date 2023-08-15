@@ -68,46 +68,27 @@ router.get('/', requireUser, async (req, res) => {
 
 router.get('/next', requireUser, async (req, res) => {
     const { user } = req.session;
+    const filters = req.query.criteria || {};
     const grants = await db.getGrantsNew(
-        req.query.criteria,
+        {
+            reviewStatuses: filters.reviewStatuses?.split(',').map((r) => r.trim().toUpperCase()) || [],
+            eligibilityCodes: filters.eligibilityCodes?.split(',') || [],
+            includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
+            excludeKeywords: filters.excludeKeywords?.split(',').map((k) => k.trim()) || [],
+            opportunityNumber: filters.opportunityNumber || '',
+            fundingTypes: filters.fundingTypes?.split(',') || [],
+            opportunityStatuses: filters.opportunityStatuses?.split(',') || [],
+            opportunityCategories: filters.opportunityCategories?.split(',') || [],
+            costSharing: filters.opportunityNumber || '',
+            agencyCode: filters.agencyCode || '',
+            postedWithinDays: Number(filters.postedWithinDays) || 0,
+        },
         req.query.pagination,
         req.query.ordering,
         user.tenant_id,
     );
 
-    res.json(grants);
-});
-
-router.get('/next/:savedSearchId', requireUser, async (req, res) => {
-    const { user } = req.session;
-    const { savedSearchId } = req.params;
-    let paginationParams;
-    let savedSearch;
-    let grants;
-
-    try {
-        paginationParams = db.buildPaginationParams(req.query.pagination);
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: 'Error parsing pagination parameters.' });
-        return;
-    }
-
-    try {
-        savedSearch = db.getSavedSearch(savedSearchId);
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: 'Error retrieving saved search.' });
-        return;
-    }
-
-    try {
-        grants = await db.getGrantsNew(savedSearch.criteria, paginationParams, req.query.ordering, user.tenant_id);
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: 'Error retrieving grants.' });
-        return;
-    }
+    await db.getGrantsNew({}, req.query.pagination, req.query.ordering, user.tenant_id);
 
     res.json(grants);
 });

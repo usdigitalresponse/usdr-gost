@@ -113,27 +113,50 @@ export default {
         .then((data) => commit('SET_GRANTS', data));
     },
     fetchGrantsNext({ commit }, {
-      currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe,
-      assignedToAgency, showInterested, showResult, showRejected, aging, interestedByAgency,
+      currentPage, perPage, orderBy, orderDesc,
     }) {
-      // pull filters from state
-      const { costSharing, opportunityStatuses, opportunityCategories } = this.state.grants.searchFormFilters;
-      // review status filters can be in state or overridden based on how `fetchGrants` is called
-      // this is to facilitate a grants table having default filters on those (i.e. My Grants)
-      const reviewStatusFilters = this.state.grants.searchFormFilters.reviewStatusFilters || [];
-      const positiveInterest = showInterested || reviewStatusFilters.includes('interested') ? true : null;
-      const result = showResult || reviewStatusFilters.includes('result') ? true : null;
-      const rejected = showRejected || reviewStatusFilters.includes('rejected') ? true : null;
+      /*
+      costSharing
+      eligibility
+      excludeKeywords
+      fundingType
+      includeKeywords
+      opportunityCategories
+      opportunityNumber
+      opportunityStatuses
+      postedWithin
+      reviewStatus
+      */
+      console.log(this.state.grants.searchFormFilters);
+      const pagination = { currentPage, perPage };
+      const ordering = { orderBy, orderDesc };
+      const criteria = { ...this.state.grants.searchFormFilters };
+      // Validate and fix the inputs into appropriate types.
+      criteria.includeKeywords = criteria.includeKeywords?.split(',').map((k) => k.trim());
+      criteria.excludeKeywords = criteria.excludeKeywords?.split(',').map((k) => k.trim());
 
-      const query = Object.entries({
-        currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe, assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency, opportunityStatuses, opportunityCategories, costSharing,
-      })
+      console.log(criteria);
+
+      const paginationQuery = Object.entries(pagination)
         // filter out undefined and nulls since api expects parameters not present as undefined
         // eslint-disable-next-line no-unused-vars
         .filter(([key, value]) => value || typeof value === 'number')
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .map(([key, value]) => `pagination[${encodeURIComponent(key)}]=${encodeURIComponent(value)}`)
         .join('&');
-      return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
+      const orderingQuery = Object.entries(ordering)
+        // filter out undefined and nulls since api expects parameters not present as undefined
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value || typeof value === 'number')
+        .map(([key, value]) => `ordering[${encodeURIComponent(key)}]=${encodeURIComponent(value)}`)
+        .join('&');
+      const criteriaQuery = Object.entries(criteria)
+        // filter out undefined and nulls since api expects parameters not present as undefined
+        // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => (typeof value === 'string' && value.length > 0) || typeof value === 'number' || (Array.isArray(value) && value.length > 0))
+        .map(([key, value]) => `criteria[${encodeURIComponent(key)}]=${encodeURIComponent(value)}`)
+        .join('&');
+
+      return fetchApi.get(`/api/organizations/:organizationId/grants/next?${paginationQuery}&${orderingQuery}&${criteriaQuery}`)
         .then((data) => commit('SET_GRANTS', data));
     },
     fetchGrantsInterested({ commit }, { perPage, currentPage }) {

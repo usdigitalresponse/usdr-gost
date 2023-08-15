@@ -390,6 +390,7 @@ async function buildPaginationParams(args) {
     tenantId: number
 */
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId) {
+    console.log(filters, paginationParams, orderingParams, tenantId);
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
         .distinct()
@@ -401,18 +402,18 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId)
                 }
                 queryBuilder.andWhere(
                     (qb) => {
-                        if (filters.eligibilityCodes) {
+                        if (filters.eligibilityCodes?.length) {
                             qb.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
                         }
-                        if (filters.includeKeywords && filters.includeKeywords.length > 0) {
+                        if (filters.includeKeywords?.length) {
                             const include = filters.includeKeywords.join('|');
                             qb.where('description', '~*', include);
-                            qb.where('title', '~*', include);
+                            qb.orWhere('title', '~*', include);
                         }
-                        if (filters.excludeKeywords && filters.excludeKeywords.length > 0) {
+                        if (filters.excludeKeywords?.length) {
                             const exclude = filters.excludeKeywords.join('|');
                             qb.where('description', '!~*', exclude);
-                            qb.where('title', '!~*', exclude);
+                            qb.orWhere('title', '!~*', exclude);
                         }
 
                         /*
@@ -444,7 +445,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId)
                         if (filters.agencyCode) {
                             qb.where(`${TABLES.grants}.agency_code`, '=', filters.agencyCode);
                         }
-                        if (filters.postedWithinDays) {
+                        if (filters.postedWithinDays > 0) {
                             const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
                             qb.where(`${TABLES.grants}.open_date`, '>=', date);
                         }
