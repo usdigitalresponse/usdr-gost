@@ -515,18 +515,6 @@ async function enhanceGrantData(tenantId, data) {
 
     return dataWithAgency;
 }
-async function getNewGrantsForSavedSearch(tenantId, criteria, paginationParams, date) {
-    // TODO: remove adapter to getGrants when backend getGrants work is done to wire include/exclude and other fields
-
-    return getGrants({
-        currentPage: paginationParams.currentPage,
-        perPage: paginationParams.perPage,
-        tenantId,
-        searchTerm: criteria.includeKeywords,
-        filters: criteria,
-        openDate: date,
-    });
-}
 
 async function getGrants({
     currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
