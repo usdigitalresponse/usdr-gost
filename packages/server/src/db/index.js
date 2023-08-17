@@ -529,7 +529,7 @@ async function getNewGrantsForSavedSearch(tenantId, criteria, paginationParams, 
 }
 
 async function getGrants({
-    currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc, openDate,
+    currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
 } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
@@ -588,9 +588,6 @@ async function getGrants({
                         }
                         if (filters.costSharing) {
                             qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
-                        }
-                        if (openDate) {
-                            qb.where(`${TABLES.grants}.open_date`, '=', openDate);
                         }
                     },
                 );
@@ -1377,7 +1374,6 @@ module.exports = {
     getGrants,
     getGrantsNew,
     buildPaginationParams,
-    getNewGrantsForSavedSearch,
     getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,
