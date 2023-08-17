@@ -499,7 +499,9 @@ function buildFiltersQuery(queryBuilder, filters, agencyId) {
             if (filters.bill) {
                 qb.where(`${TABLES.grants}.bill`, '~*', filters.bill);
             }
-            if (filters.postedWithinDays > 0) {
+            if (filters.openDate) {
+                qb.where(`${TABLES.grants}.open_date`, '=', filters.openDate);
+            } else if (filters.postedWithinDays > 0) {
                 const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
                 qb.where(`${TABLES.grants}.open_date`, '>=', date);
             }
@@ -616,6 +618,18 @@ async function enhanceGrantData(tenantId, data) {
     });
 
     return dataWithAgency;
+}
+async function getNewGrantsForSavedSearch(tenantId, criteria, paginationParams, date) {
+    // TODO: remove adapter to getGrants when backend getGrants work is done to wire include/exclude and other fields
+
+    return getGrants({
+        currentPage: paginationParams.currentPage,
+        perPage: paginationParams.perPage,
+        tenantId,
+        searchTerm: criteria.includeKeywords,
+        filters: criteria,
+        openDate: date,
+    });
 }
 
 async function getGrants({
