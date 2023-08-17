@@ -136,4 +136,12 @@ module.exports = [
         role_id: roles[0].id,
         tenant_id: usdrTenant.id,
     },
+    {
+        id: 16,
+        email: 'david.marcks@gmail.com',
+        name: 'Dave Marcks',
+        agency_id: usdrSubAgency.id,
+        role_id: roles[0].id,
+        tenant_id: usdrTenant.id,
+    },
 ];

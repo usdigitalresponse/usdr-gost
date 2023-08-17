@@ -142,7 +142,7 @@ describe('`/api/users` endpoint', () => {
                 const response = await fetchApi(`/users`, agencies.own, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(11);
+                expect(json.length).to.equal(12);
             });
             it('lists users for an agency outside this user\'s hierarchy but in the same tenant', async () => {
                 const response = await fetchApi(`/users`, agencies.offLimits, fetchOptions.admin);
@@ -275,6 +275,29 @@ describe('`/api/users` endpoint', () => {
                     { ...fetchOptions.staff, method: 'put', body },
                 );
                 expect(response.statusText).to.equal('Forbidden');
+            });
+        });
+    });
+
+    context('GET /users/:userId/sendDigestEmail (admin send digest email for a specific user)', () => {
+        beforeEach(async () => {
+            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            this.clock = this.clockFn('2021-08-06');
+        });
+        afterEach(async () => {
+            this.clock.restore();
+        });
+        context('by a user with admin role', () => {
+            it('Sends an email based on this user\'s saved searches', async () => {
+                const deliverEmailSpy = sinon.fake.returns('foo');
+                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const response = await fetchApi(
+                    `/users/2/sendDigestEmail`,
+                    agencies.own,
+                    { ...fetchOptions.admin },
+                );
+                expect(response.statusText).to.equal('OK');
+                expect(deliverEmailSpy.calledOnce).to.equal(true);
             });
         });
     });

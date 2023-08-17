@@ -5,6 +5,7 @@ const multer = require('multer');
 
 const multerUpload = multer({ storage: multer.memoryStorage() });
 const XLSX = require('xlsx');
+const moment = require('moment');
 const { ensureAsyncContext } = require('../arpa_reporter/lib/ensure-async-context');
 const {
     requireAdminUser,
@@ -12,10 +13,12 @@ const {
     isAuthorized,
     isUserAuthorized,
     isUSDRSuperAdmin,
+    requireUSDRSuperAdminUser,
 } = require('../lib/access-helpers');
 const email = require('../lib/email');
 const db = require('../db');
 const UserImporter = require('../lib/userImporter');
+const { emailSubscriptionStatus, notificationType } = require('../lib/email/constants');
 
 router.post('/', requireAdminUser, async (req, res, next) => {
     const { user } = req.session;
@@ -84,6 +87,54 @@ router.put('/:userId/email_subscription', requireUser, async (req, res) => {
         console.error(`Unable to update agency email preferences for user: ${userId} agency: ${agencyId} preferences: ${preferences} error: ${e}`);
         res.status(500).json({ message: 'Something went wrong while updating preferences. Please try again or reach out to support.' });
     }
+});
+
+router.get('/:userId/sendDigestEmail', requireUSDRSuperAdminUser, async (req, res) => {
+    const user = await db.getUser(req.params.userId);
+    if (user.emailPreferences[notificationType.grantDigest] !== emailSubscriptionStatus.subscribed) {
+        res.sendStatus(400).json({ message: `User ${user.id} is not subscribed to grant digest emails` });
+        return;
+    }
+
+    try {
+        const savedSearches = await db.getSavedSearches(user.id, {});
+        const promises = [];
+        for (const search of savedSearches.data) {
+            let criteriaObj;
+            try {
+                criteriaObj = JSON.parse(search.criteria);
+            } catch (e) {
+                console.error(`Could not parse ${search}: due to error '${e}}' stack: ${e.stack}`);
+            }
+            if (criteriaObj !== undefined) {
+                const yesterday = req.query.date ? new Date(req.query.date) : moment().subtract(1, 'day').format('YYYY-MM-DD');
+
+                // Only 30 grants are shown on any given email and 31 will trigger a place to click to see more
+                /* eslint-disable no-await-in-loop */
+                const { data } = await db.getGrantsNew(
+                    criteriaObj,
+                    { perPage: 31 },
+                    {},
+                    user.tenant_id,
+                    yesterday,
+                );
+                /* eslint-enable no-await-in-loop */
+
+                promises.push(email.sendGrantDigest({
+                    openDate: yesterday,
+                    name: search.name,
+                    recipients: [user.email],
+                    matchedGrants: data,
+                }));
+            }
+        }
+        await Promise.all(promises);
+    } catch (e) {
+        console.error(`Unable to kick-off digest email for user '${user.id}' due to error '${e}}' stack: ${e.stack}`);
+        res.sendStatus(500).json({ message: 'Something went wrong while kicking off the digest email. Please investigate the server logs.' });
+        return;
+    }
+    res.sendStatus(200);
 });
 
 router.get('/', requireAdminUser, async (req, res) => {
