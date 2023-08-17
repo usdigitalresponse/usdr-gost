@@ -352,19 +352,6 @@ async function getNewGrantsForAgency(agency) {
     return rows;
 }
 
-async function getNewGrantsForSavedSearch(tenantId, criteria, paginationParams, date) {
-    // TODO: remove adapter to getGrants when backend getGrants work is done to wire include/exclude and other fields
-
-    return getGrants({
-        currentPage: paginationParams.currentPage,
-        perPage: paginationParams.perPage,
-        tenantId,
-        searchTerm: criteria.includeKeywords,
-        filters: criteria,
-        openDate: date,
-    });
-}
-
 async function buildPaginationParams(args) {
     const { currentPage, perPage } = args;
     let { isLengthAware } = args;
@@ -402,7 +389,7 @@ async function buildPaginationParams(args) {
     orderingParams: { orderBy: List[string], orderDesc: boolean}
     tenantId: number
 */
-async function getGrantsNew(filters, paginationParams, orderingParams, tenantId) {
+async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, openDate) {
     console.log(filters, paginationParams, orderingParams, tenantId);
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
@@ -462,7 +449,9 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId)
                         if (filters.agencyCode) {
                             qb.where(`${TABLES.grants}.agency_code`, '=', filters.agencyCode);
                         }
-                        if (filters.postedWithinDays > 0) {
+                        if (openDate) {
+                            qb.where(`${TABLES.grants}.open_date`, '=', openDate);
+                        } else if (filters.postedWithinDays > 0) {
                             const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
                             qb.where(`${TABLES.grants}.open_date`, '>=', date);
                         }
@@ -528,7 +517,7 @@ async function enhanceGrantData(tenantId, data) {
 }
 
 async function getGrants({
-    currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc, openDate,
+    currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
 } = {}) {
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
@@ -587,9 +576,6 @@ async function getGrants({
                         }
                         if (filters.costSharing) {
                             qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
-                        }
-                        if (openDate) {
-                            qb.where(`${TABLES.grants}.open_date`, '=', openDate);
                         }
                     },
                 );
@@ -1376,7 +1362,6 @@ module.exports = {
     getGrants,
     getGrantsNew,
     buildPaginationParams,
-    getNewGrantsForSavedSearch,
     getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,

@@ -111,7 +111,13 @@ router.get('/:userId/sendDigestEmail', requireUSDRSuperAdminUser, async (req, re
 
                 // Only 30 grants are shown on any given email and 31 will trigger a place to click to see more
                 /* eslint-disable no-await-in-loop */
-                const { data } = await db.getNewGrantsForSavedSearch(user.tenant_id, criteriaObj, { perPage: 31 }, yesterday);
+                const { data } = await db.getGrantsNew(
+                    criteriaObj,
+                    { perPage: 31 },
+                    {},
+                    user.tenant_id,
+                    yesterday,
+                );
                 /* eslint-enable no-await-in-loop */
 
                 promises.push(email.sendGrantDigest({
