@@ -8,6 +8,7 @@
     - [Accessing Values](#accessing-values)
   - [Deploying](#deploying)
     - [Deploying to Production](#deploying-to-production)
+  - [Dynamically Modifying Flag Values](#dynamically-modifying-flag-values)
   - [Cleanup](#cleanup)
 
 ## Overview
@@ -40,10 +41,12 @@ may be modified dynamically in your browser's development console.
 flags in client-side code, rather than accessing `window.APP_CONFIG.featureFlags` directly.
 2. In development environments, feature flags are defined in
 `packages/client/public/deploy-config.js`.
-3. In non-development (Staging and Production) environments, feature flags are defined in Terraform.
-4. Deploy feature flags to Staging and Production environments incrementally, and do not remove
+3. Call `window.APP_CONFIG.overrideFeatureFlag()` to override a feature flag
+persistently (within the tab/page session).
+4. In non-development (Staging and Production) environments, feature flags are defined in Terraform.
+5. Deploy feature flags to Staging and Production environments incrementally, and do not remove
 feature flags to "un-gate" a feature that is considered ready for Production use.
-5. Once a feature flag is no longer needed (i.e. the feature is fully adopted or abandoned),
+6. Once a feature flag is no longer needed (i.e. the feature is fully adopted or abandoned),
 remove them in order to keep the codebase free of unnecessary complexity.
 
 ### Development
@@ -123,6 +126,39 @@ to be exposed to users in Production (meaning it has been approved by the team),
 "active" value in `terraform/prod.tfvars` – the code responsible for gating behaviors based on
 the feature flag should remain unmodified when the feature is first released, which allows it
 to be more easily deactivated if a problem is identified.
+
+### Dynamically Modifying Flag Values
+
+In some cases, it may be useful to dynamically modify the value of a feature flag within the
+browser development console. This is especially true in environments like Staging and Production,
+where the `deploy-config.js` file cannot be modified outside of a deployment, but may also
+be useful in development environments where you want to quickly test different values for a
+feature flag. In these cases, flags may be overridden for an individual page session (i.e.
+within a particular tab, across reloads) by calling `window.APP_CONFIG.overrideFeatureFlag(k, v)`,
+where `k` is the name of the feature flag and `v` is the desired override value.
+
+Feature flag overrides set by calling this function are persisted in the
+[`window.SessionStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage)
+property's, which is bound to the current page (tab) session and will allow overrides to remain
+in-place even if the page is reloaded. Additionally, multiple tabs can have different overrides
+configured, allowing for side-by-side comparision of different feature flag configurations
+across different tabs.
+
+To reset feature flag overrides, you can do any of the following:
+- Close the tab.
+- Call `window.sessionStorage.removeItem('featureFlags')`.
+- Call `window.sessionStorage.clear()` (note that this will clear all values set in
+  `window.sessionStorage`, including those that are unrelated to feature flags).
+
+**Important:** When set, `window.sessionStorage.featureFlags` is expected to be a JSON-serialized
+object string. Although possible, modifying `window.sessionStorage.featureFlags` directly
+is not advised; you should use `window.APP_CONFIG.overrideFeatureFlag()` to set a discrete
+feature flag value, or else use one of the methods listed above to completely reset any/all
+existing overrides.
+
+Note that it is possible to create and assign feature flag values by modifying the
+`window.APP_CONFIG.featureFlags` object directly via the development console. However, these
+direct modifications will not be retained after a page reload.
 
 ### Cleanup
 
