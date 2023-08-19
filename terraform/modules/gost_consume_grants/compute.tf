@@ -37,6 +37,11 @@ module "consumer_task_definition" {
   stop_timeout             = local.stop_timeout_seconds
   command                  = ["node", "./src/scripts/consumeGrantModifications.js"]
 
+  container_depends_on = [{
+    containerName = "datadog"
+    condition     = "START"
+  }]
+
   linux_parameters = {
     capabilities = {
       add  = []
