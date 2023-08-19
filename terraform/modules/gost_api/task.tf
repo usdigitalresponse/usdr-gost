@@ -24,6 +24,11 @@ module "api_container_definition" {
   essential                = true
   readonly_root_filesystem = "false"
 
+  container_depends_on = [{
+    containerName = "datadog"
+    condition     = "START"
+  }]
+
   linux_parameters = {
     capabilities = {
       add  = []
