@@ -37,6 +37,11 @@ module "consumer_task_definition" {
   stop_timeout             = var.stop_timeout_seconds
   command                  = var.consumer_task_command
 
+  container_depends_on = [{
+    containerName = "datadog"
+    condition     = "START"
+  }]
+
   linux_parameters = {
     capabilities = {
       add  = []
