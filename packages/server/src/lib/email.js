@@ -257,6 +257,52 @@ async function sendGrantDigest({
     asyncBatch(inputs, module.exports.deliverEmail, 2);
 }
 
+async function getAndSendGrantForSavedSearch({
+    userSavedSearch, openDate,
+}) {
+    const criteriaObj = JSON.parse(userSavedSearch.criteria);
+
+    // Only 30 grants are shown on any given email and 31 will trigger a place to click to see more
+    const response = await db.getGrantsNew(
+        criteriaObj,
+        await db.buildPaginationParams({ currentPage: 1, perPage: 31 }),
+        {},
+        userSavedSearch.tenantId,
+        openDate,
+    );
+
+    return sendGrantDigest({
+        name: userSavedSearch.name,
+        matchedGrants: response.data,
+        recipients: [userSavedSearch.email],
+        openDate,
+    });
+}
+
+async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
+    if (!openDate) {
+        openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
+    }
+    console.log(`Building and sending Grants Digest email for ${userId} agencies on ${openDate}`);
+    /*
+    1. get all saved searches mapped to each user
+    2. call getAndSendGrantForSavedSearch to find new grants and send the digest
+    */
+    const userSavedSearches = await db.getAllUserSavedSearches(userId);
+
+    const inputs = [];
+    userSavedSearches.forEach((userSavedSearch) => {
+        inputs.push({
+            userSavedSearch,
+            openDate,
+        });
+    });
+
+    await asyncBatch(inputs, getAndSendGrantForSavedSearch, 2);
+
+    console.log(`Successfully built and sent grants digest emails for ${openDate}`);
+}
+
 async function buildAndSendGrantDigest() {
     const openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
     console.log(`Building and sending Grants Digest email for all agencies on ${openDate}`);
@@ -309,7 +355,9 @@ module.exports = {
     deliverEmail,
     buildGrantDetail,
     sendGrantAssignedNotficationForAgency,
+    buildAndSendUserSavedSearchGrantDigest,
     buildAndSendGrantDigest,
+    getAndSendGrantForSavedSearch,
     sendGrantDigest,
     getGrantDetail,
     addBaseBranding,

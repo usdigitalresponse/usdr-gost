@@ -6,6 +6,19 @@ const { TABLES } = require('../../src/db/constants');
 const fixtures = require('./seeds/fixtures');
 const emailConstants = require('../../src/lib/email/constants');
 
+const BASIC_SEARCH_CRITERIA = JSON.stringify({
+    includeKeywords: 'Grant',
+    excludeKeywords: 'post',
+    opportunityNumber: null,
+    opportunityStatuses: [],
+    fundingType: null,
+    agency: null,
+    costSharing: false,
+    opportunityCategories: [],
+    reviewStatus: [],
+    postedWithin: [],
+});
+
 describe('db', () => {
     before(async () => {
         await fixtures.seed(db.knex);
@@ -19,29 +32,29 @@ describe('db', () => {
             const row = await db.createSavedSearch({
                 name: 'Example search 1',
                 userId: fixtures.users.adminUser.id,
-                criteria: 'test-search-text',
+                criteria: BASIC_SEARCH_CRITERIA,
             });
             expect(row.id).to.be.greaterThan(0);
             expect(row.createdAt).to.not.be.null;
             expect(row.createdBy).to.equal(fixtures.users.adminUser.id);
-            expect(row.criteria).to.equal('test-search-text');
+            expect(row.criteria).to.equal(BASIC_SEARCH_CRITERIA);
         });
         it('reads an existing saved search', async () => {
             // testing pagination
             const firstSearch = await db.createSavedSearch({
                 name: 'Example search 1',
                 userId: fixtures.users.staffUser.id,
-                criteria: 'test-search-text',
+                criteria: BASIC_SEARCH_CRITERIA,
             });
             await db.createSavedSearch({
                 name: 'Example search 2',
                 userId: fixtures.users.staffUser.id,
-                criteria: 'test-search-text',
+                criteria: BASIC_SEARCH_CRITERIA,
             });
             await db.createSavedSearch({
                 name: 'Example search 3',
                 userId: fixtures.users.staffUser.id,
-                criteria: 'test-search-text',
+                criteria: BASIC_SEARCH_CRITERIA,
             });
             const rows = await db.getSavedSearches(fixtures.users.staffUser.id, { perPage: 2, currentPage: 1 });
             expect(rows.data).to.have.lengthOf(2);
@@ -59,7 +72,7 @@ describe('db', () => {
             const row = await db.createSavedSearch({
                 name: 'Example search to Delete',
                 userId: fixtures.users.subStaffUser.id,
-                criteria: 'test-search-text',
+                criteria: BASIC_SEARCH_CRITERIA,
             });
 
             const result = await db.deleteSavedSearch(row.id, fixtures.users.subStaffUser.id);
@@ -68,6 +81,16 @@ describe('db', () => {
             // verify by attempting to get the searches as well
             const getRes = await db.getSavedSearches(fixtures.users.subStaffUser.id, { perPage: 10, currentPage: 1 });
             expect(getRes.data).to.have.lengthOf(0);
+        });
+    });
+
+    context('getAllUserSavedSearches', () => {
+        it('get all user saved searches', async () => {
+            const data = await db.getAllUserSavedSearches();
+            expect(data.length).to.equal(5);
+            for (const row of data) {
+                expect(() => { JSON.parse(row.criteria); }).not.to.throw();
+            }
         });
     });
 

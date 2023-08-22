@@ -383,4 +383,43 @@ describe('Email sender', () => {
             additionalGrants.forEach((grant) => expect(body).to.include(grant.description));
         });
     });
+    context('getAndSendGrantForSavedSearch', () => {
+        it('Sends an email for a saved search', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'deliverEmail', sendFake);
+
+            const userSavedSearch = {
+                name: 'TestSavedSearch',
+                tenantId: 0,
+                email: 'foo@bar.com',
+                criteria: '{"includeKeywords":["Grant"]}',
+            };
+            await email.getAndSendGrantForSavedSearch({ userSavedSearch, openDate: '2021-08-05' });
+
+            expect(sendFake.calledOnce).to.equal(true);
+        });
+    });
+    context('buildAndSendUserSavedSearchGrantDigest', () => {
+        beforeEach(async () => {
+            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            this.clock = this.clockFn('2021-08-06');
+        });
+        afterEach(async () => {
+            this.clock.restore();
+        });
+        it('Sends an email for a saved search', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'deliverEmail', sendFake);
+
+            await email.buildAndSendUserSavedSearchGrantDigest(1, '2021-08-05');
+            expect(sendFake.calledOnce).to.equal(true);
+        });
+        it('Sends an email for a saved search', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'deliverEmail', sendFake);
+
+            await email.buildAndSendUserSavedSearchGrantDigest();
+            expect(sendFake.calledOnce).to.equal(true);
+        });
+    });
 });
