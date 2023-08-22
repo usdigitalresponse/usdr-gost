@@ -4,7 +4,7 @@
       <div class="align-self-end">
         <h4 class="mb-0">{{ selectedSearch === null ? "All Grants" : searchName }} </h4>
         <span v-if="selectedSearch !== null">
-          <a href="#" v-on:click="editFilter">Edit</a> | <a href="#" v-on:click="clearAll" v-if="$props.filterKeys.length > 0">Clear</a>
+          <a href="#" v-on:click.prevent="editFilter">Edit</a> | <a href="#" v-on:click.prevent="clearAll" v-if="$props.filterKeys.length > 0">Clear</a>
         </span>
       </div>
       <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">
