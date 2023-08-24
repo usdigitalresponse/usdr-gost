@@ -571,15 +571,10 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
     tenantId: number
     agencyId: number
 */
-<<<<<<< HEAD
+
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
     console.log(filters, paginationParams, orderingParams, tenantId, agencyId);
     const data = await knex(TABLES.grants)
-=======
-async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, openDate) {
-    console.log(filters, paginationParams, orderingParams, tenantId, openDate);
-    const { data, pagination } = await knex(TABLES.grants)
->>>>>>> 697642af (Update to support bulk email send)
         .select(`${TABLES.grants}.*`)
         .distinct()
         .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams));
