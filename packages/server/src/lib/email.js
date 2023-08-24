@@ -262,13 +262,15 @@ async function getAndSendGrantForSavedSearch({
 }) {
     const criteriaObj = JSON.parse(userSavedSearch.criteria);
 
+    // NOTE: can't pass this as a separate parameter as it exceeds the complexity limit of 5
+    criteriaObj.openDate = openDate;
+
     // Only 30 grants are shown on any given email and 31 will trigger a place to click to see more
     const response = await db.getGrantsNew(
         criteriaObj,
         await db.buildPaginationParams({ currentPage: 1, perPage: 31 }),
         {},
         userSavedSearch.tenantId,
-        openDate,
     );
 
     return sendGrantDigest({

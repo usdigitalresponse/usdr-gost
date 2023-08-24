@@ -389,8 +389,8 @@ async function buildPaginationParams(args) {
     orderingParams: { orderBy: List[string], orderDesc: boolean}
     tenantId: number
 */
-async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, openDate) {
-    console.log(filters, paginationParams, orderingParams, tenantId, openDate);
+async function getGrantsNew(filters, paginationParams, orderingParams, tenantId) {
+    console.log(filters, paginationParams, orderingParams, tenantId);
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
         .distinct()
@@ -449,8 +449,8 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
                         if (filters.agencyCode) {
                             qb.where(`${TABLES.grants}.agency_code`, '=', filters.agencyCode);
                         }
-                        if (openDate) {
-                            qb.where(`${TABLES.grants}.open_date`, '=', openDate);
+                        if (filters.openDate) {
+                            qb.where(`${TABLES.grants}.open_date`, '=', filters.openDate);
                         } else if (filters.postedWithinDays > 0) {
                             const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
                             qb.where(`${TABLES.grants}.open_date`, '>=', date);
