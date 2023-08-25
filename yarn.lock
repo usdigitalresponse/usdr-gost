@@ -6465,9 +6465,9 @@ csstype@^3.1.0:
   integrity sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==
 
 csv-stringify@^6.0.5:
-  version "6.4.1"
-  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.4.1.tgz#cb8211e31b30e8c60cf566bcdd1543c7132bfc7f"
-  integrity sha512-py56qXoqB0z8UZGbqIopgS34H7twT0Tmxigg6S+g/M9xSz7Y4unyXPrrU2fHPqEDcdxJTMs/xJBPF5zQ7LHeoQ==
+  version "6.4.2"
+  resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.4.2.tgz#209cb17ab5520f51bd5a7edeb06ed6d4c322fce3"
+  integrity sha512-DXIdnnCUQYjDKTu6TgCSzRDiAuLxDjhl4ErFP9FGMF3wzBGOVMg9bZTLaUcYtuvhXgNbeXPKeaRfpgyqE4xySw==
 
 cypress@12.7.0:
   version "12.7.0"
