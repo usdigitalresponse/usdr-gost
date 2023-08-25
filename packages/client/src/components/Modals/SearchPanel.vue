@@ -258,7 +258,7 @@ export default {
     async saveSearch() {
       this.apply();
       let searchId;
-      if (this.formData.searchId !== undefined && this.formData.searchId !== null) {
+      if (this.isEditMode) {
         this.updateSavedSearch({
           searchId: this.formData.searchId,
           searchInfo: {
@@ -267,6 +267,7 @@ export default {
           },
         });
         searchId = this.formData.searchId;
+        this.$emit('filters-applied');
       } else {
         const res = await this.createSavedSearch({
           searchInfo: {
