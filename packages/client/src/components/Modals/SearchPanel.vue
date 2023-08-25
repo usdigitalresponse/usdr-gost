@@ -76,14 +76,26 @@
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Eligibility</template>
-            <multiselect v-model="formData.criteria.eligibility" :options="eligibilityCodes" :custom-label="eligibilityLabel" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Eligibility" :show-labels="false" :searchable="false"></multiselect>
+            <multiselect
+              v-model="formData.criteria.eligibility"
+              :options="eligibilityCodes"
+              :custom-label="eligibilityLabel"
+              :multiple="true"
+              :limit="1"
+              :limitText="customLimitText"
+              :close-on-select="false"
+              :clear-on-select="false"
+              placeholder="Eligibility"
+              :show-labels="false"
+              :searchable="false">
+            </multiselect>
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Category</template>
             <multiselect v-model="formData.criteria.opportunityCategories" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
           </b-form-group>
           <b-form-group label-for="Agency">
-            <template slot="label">Agency</template>
+            <template slot="label">Agency Code</template>
               <b-form-input
                 id="agency"
                 type="text"
@@ -156,7 +168,7 @@ export default {
       },
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
-      reviewStatusOptions: ['interested', 'result', 'rejected'],
+      reviewStatusOptions: ['Interested', 'Applied', 'Not Applying', 'Assigned'],
     };
   },
   validations: {
