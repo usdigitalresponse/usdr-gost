@@ -59,10 +59,17 @@
     </b-row>
     <b-row align-v="center">
       <b-col cols="12" class="d-flex">
-        <b-pagination class="m-0" v-model="currentPage" :total-rows="totalRows" :per-page="perPage" first-number
-          last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
+        <b-pagination
+          class="m-0"
+          v-model="currentPage"
+          :total-rows="totalRows"
+          :per-page="perPage"
+          first-text="First"
+          prev-text="Prev"
+          next-text="Next"
+          last-text="Last"
           aria-controls="grants-table" />
-        <div class="ml-2 border border-light rounded text-justify p-2 page-item">{{ grants.length }} of {{ totalRows }}</div>
+        <div class="ml-2 border border-light rounded text-justify p-2 page-item">{{ totalRows }} total grants</div>
       </b-col>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
