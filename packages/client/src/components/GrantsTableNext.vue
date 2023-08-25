@@ -45,11 +45,13 @@
             &emsp;
             <div class="text-center">
               <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
+              <div v-if="showSearchControls">
               <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
               &nbsp;
               <p><a @click="initEditSearch(searchId);" class="link">
                   Edit Search Criteria
                 </a></p>
+              </div>
             </div>
           </template>
         </b-table>
@@ -80,11 +82,9 @@ export default {
     GrantDetails, SearchPanel, SavedSearchPanel, SearchFilter,
   },
   props: {
-    showMyInterested: Boolean,
     showInterested: Boolean,
     showRejected: Boolean,
     showResult: Boolean,
-    showAging: Boolean,
     showAssignedToAgency: String,
     showSearchControls: {
       type: Boolean,
@@ -144,16 +144,6 @@ export default {
       selectedGrantIndex: null,
       orderBy: 'open_date',
       orderDesc: true,
-      searchInput: null,
-      debouncedSearchInput: null,
-      reviewStatusFilters: [],
-      opportunityStatusFilters: [],
-      opportunityCategoryFilters: [],
-      costSharingFilter: null,
-      reviewStatusOptions: ['interested', 'result', 'rejected'],
-      opportunityStatusOptions: ['Forecasted', 'Posted', 'Closed / Archived'],
-      opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
-      costSharingOptions: ['Yes', 'No'],
       searchId: null,
     };
   },
@@ -182,8 +172,14 @@ export default {
       const warningThreshold = (this.agency.warning_threshold || 30) * DAYS_TO_MILLISECS;
       const dangerThreshold = (this.agency.danger_threshold || 15) * DAYS_TO_MILLISECS;
       const now = new Date();
+      const generateTitle = (t) => {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = t;
+        return txt.value;
+      };
       return this.grants.map((grant) => ({
         ...grant,
+        title: generateTitle(grant.title),
         interested_agencies: grant.interested_agencies
           .map((v) => v.agency_abbreviation)
           .join(', '),
@@ -212,18 +208,6 @@ export default {
     },
   },
   watch: {
-    reviewStatusFilters() {
-      this.paginateGrants();
-    },
-    opportunityStatusFilters() {
-      this.paginateGrants();
-    },
-    opportunityCategoryFilters() {
-      this.paginateGrants();
-    },
-    costSharingFilter() {
-      this.paginateGrants();
-    },
     selectedAgency() {
       this.setup();
     },
@@ -243,9 +227,6 @@ export default {
     grants() {
       this.changeSelectedGrant();
     },
-    debouncedSearchInput() {
-      this.paginateGrants();
-    },
     selectedSearchId() {
       this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
       this.paginateGrants();
@@ -257,6 +238,7 @@ export default {
       navigateToExportCSV: 'grants/exportCSV',
       clearSelectedSearch: 'grants/clearSelectedSearch',
       initEditSearch: 'grants/initEditSearch',
+      applyFilters: 'grants/applyFilters',
     }),
     setup() {
       this.clearSelectedSearch();
@@ -265,19 +247,26 @@ export default {
     titleize,
     async paginateGrants() {
       try {
+        if (!this.searchId) {
+          // apply custom filters based on props
+          await this.applyFilters({
+            reviewStatus: [
+              `${this.showInterested ? 'Interested' : ''}`,
+              `${this.showResult ? 'Applied' : ''}`,
+              `${this.showRejected ? 'Not Applying' : ''}`,
+              `${this.showAssignedToAgency ? 'Assigned' : ''}`,
+            ].filter((r) => r),
+          });
+        }
         this.loading = true;
         await this.fetchGrants({
           perPage: this.perPage,
           currentPage: this.currentPage,
           orderBy: this.orderBy,
           orderDesc: this.orderDesc,
-          searchTerm: this.debouncedSearchInput,
-          interestedByAgency: this.showInterested || this.showResult || this.showRejected,
-          interestedByMe: this.showMyInterested,
           showInterested: this.showInterested,
           showResult: this.showResult,
           showRejected: this.showRejected,
-          aging: this.showAging,
           assignedToAgency: this.showAssignedToAgency,
         });
       } catch (e) {
@@ -365,29 +354,12 @@ export default {
       this.navigateToExportCSV({
         orderBy: this.orderBy,
         orderDesc: this.orderDesc,
-        searchTerm: this.debouncedSearchInput,
         interestedByAgency: this.showInterested || this.showResult || this.showRejected,
-        interestedByMe: this.showMyInterested,
-        aging: this.showAging,
         assignedToAgency: this.showAssignedToAgency,
-        positiveInterest: this.showInterested || (this.reviewStatusFilters.includes('interested') ? true : null),
-        result: this.showResult || (this.reviewStatusFilters.includes('result') ? true : null),
-        rejected: this.showRejected || (this.reviewStatusFilters.includes('rejected') ? true : null),
         opportunityStatuses: this.parseOpportunityStatusFilters(),
         opportunityCategories: this.opportunityCategoryFilters,
         costSharing: this.costSharingFilter,
       });
-    },
-    parseOpportunityStatusFilters() {
-      const filtersCopy = this.opportunityStatusFilters.map((status) => status.toLowerCase());
-      const i = filtersCopy.indexOf('closed / archived');
-      if (i === -1) {
-        return filtersCopy;
-      }
-      filtersCopy.splice(i, 1);
-      filtersCopy.push('closed');
-      filtersCopy.push('archived');
-      return filtersCopy;
     },
     formatMoney(value) {
       if (value === undefined) {

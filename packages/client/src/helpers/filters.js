@@ -1,15 +1,17 @@
 // fields with ⚠️ are not yet implemented in the api
 const FILTER_FIELD_NAME_MAP = {
-  costSharing: 'Cost Sharing',
+  includeKeywords: 'Include',
+  excludeKeywords: 'Exclude',
+  opportunityNumber: 'Opportunity Number',
   opportunityStatuses: 'Opportunity Statuses',
+  fundingTypes: 'Funding Type',
+  agency: 'Agency Code',
+  costSharing: 'Cost Sharing',
   opportunityCategories: 'Opportunity Categories',
   reviewStatus: 'Review Status',
-  includeKeywords: 'Include ⚠️',
-  excludeKeywords: 'Exclude ⚠️',
-  opportunityNumber: 'Opportunity Number ⚠️',
-  postedWithin: 'Posted Within ⚠️',
-  fundingType: 'Funding Type ⚠️',
-  eligibility: 'Eligibility ⚠️',
+  postedWithin: 'Posted Within',
+  eligibility: 'Eligibility',
+  bill: 'Bill',
 };
 
 export function formatFilterDisplay(criteria) {
@@ -20,10 +22,25 @@ export function formatFilterDisplay(criteria) {
       if (Array.isArray(value) && value.length === 0) {
         return;
       }
+      let newVal = value;
+      if (['includeKeywords', 'opportunityStatuses', 'opportunityCategories', 'reviewStatus'].includes(key)) {
+        if (typeof (value) === 'string') {
+          newVal = value.split(',').join(' or ');
+        } else if (Array.isArray(value)) {
+          newVal = value.join(' or ');
+        }
+      } else if (key === 'excludeKeywords') {
+        newVal = value.split(',').join(' and ');
+      } else if (key === 'eligibility') {
+        newVal = value.map((i) => i.label).join(' or ');
+      } else if (key === 'fundingTypes') {
+        newVal = value.map((i) => i.name).join(' or ');
+      }
+
       filters.push({
         label: FILTER_FIELD_NAME_MAP[key],
         key,
-        value,
+        value: newVal,
       });
     }
   });

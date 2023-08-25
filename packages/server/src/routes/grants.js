@@ -74,7 +74,7 @@ router.get('/next', requireUser, async (req, res) => {
     const filters = req.query.criteria || {};
     const grants = await db.getGrantsNew(
         {
-            reviewStatuses: filters.reviewStatus?.split(',').map((r) => r.trim().charAt(0).toUpperCase() + r.trim().slice(1)) || [],
+            reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned').map((r) => r.trim()) || [],
             eligibilityCodes: filters.eligibility?.split(',') || [],
             includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
             excludeKeywords: filters.excludeKeywords?.split(',').map((k) => k.trim()) || [],
@@ -85,9 +85,11 @@ router.get('/next', requireUser, async (req, res) => {
             costSharing: filters.costSharing || '',
             agencyCode: filters.agency || '',
             postedWithinDays: postedWithinOptions[filters.postedWithin] || 0,
+            assignedToAgencyId: filters.reviewStatus?.includes('Assigned') ? user.agency_id : null,
+            bill: filters.bill || null,
         },
         await db.buildPaginationParams(req.query.pagination),
-        req.query.ordering,
+        await db.buildOrderingParams(req.query.ordering),
         user.tenant_id,
     );
 

@@ -235,6 +235,63 @@ describe('db', () => {
         });
     });
 
+    context('getGrants with various filters', () => {
+        it('gets grants that match any include keywords', async () => {
+            /*
+                filters: {
+                    reviewStatuses: List[Enum['Interested', 'Result', 'Rejected']],
+                    eligibilityCodes: List[String],
+                    includeKeywords: List[String],
+                    excludeKeywords: List[String],
+                    opportunityNumber: String,
+                    fundingTypes: List[Enum['CA, 'G', 'PC' ,'O']]
+                    opportunityStatuses: List[Enum['posted', 'forecasted', 'closed']],
+                    opportunityCategories: List[Enum['Other', 'Discretionary', 'Mandatory', 'Continuation']],
+                    costSharing: Enum['Yes', 'No'],
+                    agencyCode: String,
+                    postedWithinDays: number,
+                },
+                paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
+                orderingParams: { orderBy: List[string], orderDesc: boolean}
+                tenantId: number
+            */
+            const result = await db.getGrantsNew(
+                { includeKeywords: ['earth', 'sciences'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: true },
+                0,
+            );
+            expect(result).to.have.property('data').with.lengthOf(1);
+        });
+        it('gets grants that match any include phrases', async () => {
+            /*
+                filters: {
+                    reviewStatuses: List[Enum['Interested', 'Result', 'Rejected']],
+                    eligibilityCodes: List[String],
+                    includeKeywords: List[String],
+                    excludeKeywords: List[String],
+                    opportunityNumber: String,
+                    fundingTypes: List[Enum['CA, 'G', 'PC' ,'O']]
+                    opportunityStatuses: List[Enum['posted', 'forecasted', 'closed']],
+                    opportunityCategories: List[Enum['Other', 'Discretionary', 'Mandatory', 'Continuation']],
+                    costSharing: Enum['Yes', 'No'],
+                    agencyCode: String,
+                    postedWithinDays: number,
+                },
+                paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
+                orderingParams: { orderBy: List[string], orderDesc: boolean}
+                tenantId: number
+            */
+            const result = await db.getGrantsNew(
+                { includeKeywords: ['earth sciences'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: true },
+                0,
+            );
+            expect(result).to.have.property('data').with.lengthOf(1);
+        });
+    });
+
     context('getAgency', () => {
         it('returns undefined if no agency matches argument', async () => {
             const result = await db.getAgency(999);

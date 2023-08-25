@@ -27,9 +27,10 @@ function initialState() {
       excludeKeywords: null,
       opportunityNumber: null,
       postedWithin: null,
-      fundingType: null,
+      fundingTypes: null,
       eligibility: null,
       reviewStatus: null,
+      bill: null,
     },
     savedSearches: {},
     editingSearchId: null,
@@ -100,6 +101,7 @@ export default {
       opportunityStatuses
       postedWithin
       reviewStatus
+      bill
       */
       const pagination = { currentPage, perPage };
       const ordering = { orderBy, orderDesc };
@@ -108,6 +110,7 @@ export default {
       criteria.includeKeywords = criteria.includeKeywords && criteria.includeKeywords.length > 0 ? criteria.includeKeywords.split(',').map((k) => k.trim()) : null;
       criteria.excludeKeywords = criteria.excludeKeywords && criteria.excludeKeywords.length > 0 ? criteria.excludeKeywords.split(',').map((k) => k.trim()) : null;
       criteria.eligibility = criteria.eligibility?.map((e) => e.code);
+      criteria.fundingTypes = criteria.fundingTypes?.map((f) => f.code);
 
       const paginationQuery = Object.entries(pagination)
         // filter out undefined and nulls since api expects parameters not present as undefined
@@ -259,7 +262,6 @@ export default {
   },
   mutations: {
     SET_GRANTS(state, grants) {
-      console.log('UPDATED state -', grants);
       state.grantsPaginated = grants;
     },
     UPDATE_GRANT(state, { grantId, data }) {
