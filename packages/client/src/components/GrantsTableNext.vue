@@ -172,9 +172,14 @@ export default {
       const warningThreshold = (this.agency.warning_threshold || 30) * DAYS_TO_MILLISECS;
       const dangerThreshold = (this.agency.danger_threshold || 15) * DAYS_TO_MILLISECS;
       const now = new Date();
+      const generateTitle = (t) => {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = t;
+        return txt.value;
+      };
       return this.grants.map((grant) => ({
         ...grant,
-        title: decodeURIComponent(grant.title),
+        title: generateTitle(grant.title),
         interested_agencies: grant.interested_agencies
           .map((v) => v.agency_abbreviation)
           .join(', '),
