@@ -66,13 +66,17 @@
               <b-form-checkbox value="closed">Closed</b-form-checkbox>
             </b-form-checkbox-group>
           </b-form-group>
-          <b-form-group label-for="Funding Type">
+          <b-form-group class="multiselect-group" label-for="Funding Types">
             <template slot="label">Funding Type</template>
-              <b-form-input
+              <multiselect
+                v-model="formData.criteria.fundingTypes"
+                :options="fundingTypeOptions"
+                track-by="code"
+                label="name"
                 id="funding-type"
                 type="text"
-                v-model="formData.criteria.fundingType"
-              ></b-form-input>
+                :multiple="true"
+              ></multiselect>
           </b-form-group>
           <b-form-group class="multiselect-group">
             <template slot="label">Eligibility</template>
@@ -93,6 +97,15 @@
           <b-form-group class="multiselect-group">
             <template slot="label">Category</template>
             <multiselect v-model="formData.criteria.opportunityCategories" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
+          </b-form-group>
+          <b-form-group label-for="Bill">
+            <template slot="label">Bill</template>
+              <b-form-input
+                id="bill"
+                type="text"
+                v-model="formData.criteria.bill"
+              ></b-form-input>
+              <b-form-text id="input-live-help">ex. IIJA</b-form-text>
           </b-form-group>
           <b-form-group label-for="Agency">
             <template slot="label">Agency Code</template>
@@ -140,8 +153,9 @@ const defaultCriteria = {
   excludeKeywords: null,
   opportunityNumber: null,
   opportunityStatuses: [],
-  fundingType: null,
+  fundingTypes: null,
   agency: null,
+  bill: null,
   costSharing: false,
   opportunityCategories: [],
   reviewStatus: [],
@@ -169,6 +183,12 @@ export default {
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       reviewStatusOptions: ['Interested', 'Applied', 'Not Applying', 'Assigned'],
+      fundingTypeOptions: [
+        { code: 'G', name: 'Grant' },
+        { code: 'CA', name: 'Cooperative Agreement' },
+        { code: 'PC', name: 'Procurement Contract' },
+        { code: 'O', name: 'Other' },
+      ],
     };
   },
   validations: {

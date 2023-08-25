@@ -45,11 +45,13 @@
             &emsp;
             <div class="text-center">
               <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
+              <div v-if="showSearchControls">
               <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
               &nbsp;
               <p><a @click="initEditSearch(searchId);" class="link">
                   Edit Search Criteria
                 </a></p>
+              </div>
             </div>
           </template>
         </b-table>
@@ -172,6 +174,7 @@ export default {
       const now = new Date();
       return this.grants.map((grant) => ({
         ...grant,
+        title: decodeURIComponent(grant.title),
         interested_agencies: grant.interested_agencies
           .map((v) => v.agency_abbreviation)
           .join(', '),

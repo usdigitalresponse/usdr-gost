@@ -4,13 +4,14 @@ const FILTER_FIELD_NAME_MAP = {
   excludeKeywords: 'Exclude',
   opportunityNumber: 'Opportunity Number',
   opportunityStatuses: 'Opportunity Statuses',
-  fundingType: 'Funding Type',
+  fundingTypes: 'Funding Type',
   agency: 'Agency Code',
   costSharing: 'Cost Sharing',
   opportunityCategories: 'Opportunity Categories',
   reviewStatus: 'Review Status',
   postedWithin: 'Posted Within',
   eligibility: 'Eligibility',
+  bill: 'Bill',
 };
 
 export function formatFilterDisplay(criteria) {
@@ -32,6 +33,8 @@ export function formatFilterDisplay(criteria) {
         newVal = value.split(',').join(' and ');
       } else if (key === 'eligibility') {
         newVal = value.map((i) => i.label).join(' or ');
+      } else if (key === 'fundingTypes') {
+        newVal = value.map((i) => i.name).join(' or ');
       }
 
       filters.push({

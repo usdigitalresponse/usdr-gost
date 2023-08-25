@@ -86,9 +86,10 @@ router.get('/next', requireUser, async (req, res) => {
             agencyCode: filters.agency || '',
             postedWithinDays: postedWithinOptions[filters.postedWithin] || 0,
             assignedToAgencyId: filters.reviewStatus?.includes('Assigned') ? user.agency_id : null,
+            bill: filters.bill || null,
         },
         await db.buildPaginationParams(req.query.pagination),
-        req.query.ordering,
+        await db.buildOrderingParams(req.query.ordering),
         user.tenant_id,
     );
 

@@ -351,7 +351,21 @@ async function getNewGrantsForAgency(agency) {
 
     return rows;
 }
+async function buildOrderingParams(args) {
+    const { orderBy, orderDesc } = args;
 
+    // default order by the most recently opened grant
+    const orderingParams = { orderBy: 'open_date', orderDesc: true };
+
+    if (orderBy) {
+        orderingParams.orderBy = orderBy;
+    }
+    if (orderDesc) {
+        orderingParams.orderDesc = orderDesc;
+    }
+
+    return orderingParams;
+}
 async function buildPaginationParams(args) {
     const { currentPage, perPage } = args;
     let { isLengthAware } = args;
@@ -482,6 +496,9 @@ async function buildFiltersQuery(queryBuilder, filters) {
             if (filters.agencyCode) {
                 qb.where(`${TABLES.grants}.agency_code`, '~*', filters.agencyCode);
             }
+            if (filters.bill) {
+                qb.where(`${TABLES.grants}.bill`, '~*', filters.bill);
+            }
             if (filters.postedWithinDays > 0) {
                 const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
                 qb.where(`${TABLES.grants}.open_date`, '>=', date);
@@ -504,6 +521,7 @@ async function buildFiltersQuery(queryBuilder, filters) {
         agencyCode: String,
         postedWithinDays: number,
         assignedToAgencyId: Optional[number],
+        bill: String,
     },
     paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
     orderingParams: { orderBy: List[string], orderDesc: boolean}
@@ -579,6 +597,7 @@ async function enhanceGrantData(tenantId, data) {
         const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
         return {
             ...grant,
+            etitle: decodeURIComponent(escape(grant.title)),
             viewed_by_agencies: viewedByAgencies,
             interested_agencies: agenciesInterested,
         };
@@ -1433,6 +1452,7 @@ module.exports = {
     getGrants,
     getGrantsNew,
     buildPaginationParams,
+    buildOrderingParams,
     getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,
