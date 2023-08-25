@@ -351,7 +351,21 @@ async function getNewGrantsForAgency(agency) {
 
     return rows;
 }
+async function buildOrderingParams(args) {
+    const { orderBy, orderDesc } = args;
 
+    // default order by the most recently opened grant
+    const orderingParams = { orderBy: 'open_date', orderDesc: true };
+
+    if (orderBy) {
+        orderingParams.orderBy = orderBy;
+    }
+    if (orderDesc) {
+        orderingParams.orderDesc = orderDesc;
+    }
+
+    return orderingParams;
+}
 async function buildPaginationParams(args) {
     const { currentPage, perPage } = args;
     let { isLengthAware } = args;
@@ -371,6 +385,128 @@ async function buildPaginationParams(args) {
     return { currentPage, perPage, isLengthAware };
 }
 
+function orIncludeMap(keywords) {
+    return keywords.map((kw) => `(${kw})`).join(' | ');
+}
+
+function andExcludeMap(keywords) {
+    return keywords.map((kw) => `!(${kw})`).join(' & ');
+}
+
+function splitKeywords(keywords) {
+    const result = { phrases: [], words: [] };
+
+    if (!keywords) {
+        return result;
+    }
+
+    for (const keyword of keywords) {
+        if (keyword.indexOf(' ') > 0) {
+            result.phrases.push(keyword);
+        } else {
+            result.words.push(keyword);
+        }
+    }
+
+    return result;
+}
+
+function buildTsqExpression(includeKeywords, excludeKeywords) {
+    const keywords = {
+        include: { phrases: [], words: [] },
+        exclude: { phrases: [], words: [] },
+        expressions: { phrase: '', word: '' },
+    };
+
+    // filter out the keywords as words or phrases
+    keywords.include = splitKeywords(includeKeywords, keywords.include);
+    keywords.exclude = splitKeywords(excludeKeywords, keywords.exclude);
+
+    // For each type of keyword, build the relevant tsquery expression
+    if (keywords.include.phrases.length > 0) {
+        keywords.expressions.phrase = orIncludeMap(keywords.include.phrases);
+    }
+    if (keywords.include.words.length > 0) {
+        keywords.expressions.word = orIncludeMap(keywords.include.words);
+    }
+    if (keywords.exclude.phrases.length > 0) {
+        keywords.expressions.phrase = `${keywords.expressions.phrase}${keywords.expressions.phrase ? ' & ' : ''}${andExcludeMap(keywords.exclude.phrases)}`;
+    }
+    if (keywords.exclude.words.length > 0) {
+        keywords.expressions.word = `${keywords.expressions.word}${keywords.expressions.word ? ' & ' : ''}${andExcludeMap(keywords.exclude.words)}`;
+    }
+
+    return keywords.expressions;
+}
+
+async function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords) {
+    const tsqExpression = buildTsqExpression(includeKeywords, excludeKeywords);
+    if (tsqExpression.phrase) {
+        queryBuilder.joinRaw(`cross join phraseto_tsquery('english', ?) as tsqp`, tsqExpression.phrase);
+        queryBuilder.andWhere((q) => {
+            q.where('tsqp', '@@', knex.raw('title_ts'))
+                .orWhere('tsqp', '@@', knex.raw('description_ts'));
+            return q;
+        });
+    }
+    if (tsqExpression.word) {
+        queryBuilder.joinRaw(`cross join to_tsquery('english', ?) as tsq`, tsqExpression.word);
+        queryBuilder.andWhere((q) => {
+            q.where('tsq', '@@', knex.raw('title_ts'))
+                .orWhere('tsq', '@@', knex.raw('description_ts'));
+            return q;
+        });
+    }
+}
+
+async function buildFiltersQuery(queryBuilder, filters) {
+    const statusMap = {
+        Applied: 'Result',
+        'Not Applying': 'Rejected',
+        Interested: 'Interested',
+    };
+    queryBuilder.andWhere(
+        (qb) => {
+            if (filters.eligibilityCodes?.length) {
+                qb.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
+            }
+            if (filters.opportunityNumber) {
+                qb.where(`${TABLES.grants}.grant_number`, '=', filters.opportunityNumber);
+            }
+            if (filters.fundingTypes?.length) {
+                qb.where('funding_instrument_codes', '~', filters.fundingTypes.join('|'));
+            }
+            if (filters.reviewStatuses?.length) {
+                const statuses = filters.reviewStatuses.map((status) => statusMap[status]);
+                qb.whereIn(`${TABLES.interested_codes}.status_code`, statuses);
+            }
+            if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
+                console.log(filters.assignedToAgencyId);
+                qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgencyId);
+            }
+            if (filters.opportunityStatuses?.length) {
+                qb.whereIn(`${TABLES.grants}.opportunity_status`, filters.opportunityStatuses);
+            }
+            if (filters.opportunityCategories?.length) {
+                qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
+            }
+            if (filters.costSharing) {
+                qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
+            }
+            if (filters.agencyCode) {
+                qb.where(`${TABLES.grants}.agency_code`, '~*', filters.agencyCode);
+            }
+            if (filters.bill) {
+                qb.where(`${TABLES.grants}.bill`, '~*', filters.bill);
+            }
+            if (filters.postedWithinDays > 0) {
+                const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
+                qb.where(`${TABLES.grants}.open_date`, '>=', date);
+            }
+        },
+    );
+}
+
 /*
     filters: {
         reviewStatuses: List[Enum['Interested', 'Result', 'Rejected']],
@@ -384,6 +520,8 @@ async function buildPaginationParams(args) {
         costSharing: Enum['Yes', 'No'],
         agencyCode: String,
         postedWithinDays: number,
+        assignedToAgencyId: Optional[number],
+        bill: String,
     },
     paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
     orderingParams: { orderBy: List[string], orderDesc: boolean}
@@ -394,67 +532,20 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId)
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
         .distinct()
-        .modify((queryBuilder) => {
+        .modify(async (queryBuilder) => {
             if (filters) {
                 if (filters.reviewStatuses?.length) {
                     queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
                         .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
                 }
-                queryBuilder.andWhere(
-                    (qb) => {
-                        if (filters.eligibilityCodes?.length) {
-                            qb.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
-                        }
-                        qb.andWhere((q) => {
-                            if (filters.includeKeywords?.length) {
-                                const include = filters.includeKeywords.join('|');
-                                q.where('description', '~*', include);
-                                q.orWhere('title', '~*', include);
-                            }
-                        });
-                        qb.andWhere((q) => {
-                            if (filters.excludeKeywords?.length) {
-                                const exclude = filters.excludeKeywords.join('|');
-                                q.where('description', '!~*', exclude);
-                                q.orWhere('title', '!~*', exclude);
-                            }
-                        });
+                if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
+                    queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
+                }
 
-                        /*
-                        TODO: add grants.opportunity_number
-                        if (filters.opportunityNumber) {
-                            qb.where(`${TABLES.grants}.opportunity_number`, '=', filters.opportunityNumber);
-                        }
-
-                        TODO: add grants.funding_instrument_codes
-                            { 'CA': 'Cooperative Agreement', 'G': 'Grant', 'PC': 'Procurement Contract', 'O': 'Other' }
-                        if (filters.fundingTypes) {
-                            qb.where('funding_instrument_codes', '~', filters.fundingTypes.join('|'));
-                        }
-                        */
-                        if (filters.reviewStatuses?.length) {
-                            for (const status in filters.reviewStatuses) {
-                                qb.where(`${TABLES.interested_codes}.status_code`, '=', status);
-                            }
-                        }
-                        if (filters.opportunityStatuses?.length) {
-                            qb.whereIn(`${TABLES.grants}.opportunity_status`, filters.opportunityStatuses);
-                        }
-                        if (filters.opportunityCategories?.length) {
-                            qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
-                        }
-                        if (filters.costSharing) {
-                            qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
-                        }
-                        if (filters.agencyCode) {
-                            qb.where(`${TABLES.grants}.agency_code`, '=', filters.agencyCode);
-                        }
-                        if (filters.postedWithinDays > 0) {
-                            const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
-                            qb.where(`${TABLES.grants}.open_date`, '>=', date);
-                        }
-                    },
-                );
+                await buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords);
+                console.log('here 1');
+                await buildFiltersQuery(queryBuilder, filters);
+                console.log('here 2');
             }
             if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
                 if (orderingParams.orderBy.includes('interested_agencies')) {
@@ -506,6 +597,7 @@ async function enhanceGrantData(tenantId, data) {
         const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
         return {
             ...grant,
+            etitle: decodeURIComponent(escape(grant.title)),
             viewed_by_agencies: viewedByAgencies,
             interested_agencies: agenciesInterested,
         };
@@ -1360,6 +1452,7 @@ module.exports = {
     getGrants,
     getGrantsNew,
     buildPaginationParams,
+    buildOrderingParams,
     getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,

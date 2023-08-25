@@ -103,7 +103,7 @@ export default {
   data() {
     return {
       showDialog: false,
-      dialogFields: ['grant_id', 'agency_code', 'award_ceiling', 'cfda_list', 'opportunity_category'],
+      dialogFields: ['grant_id', 'agency_code', 'award_ceiling', 'cfda_list', 'opportunity_category', 'bill'],
       orderBy: '',
       interestedAgenciesFields: [
         {
