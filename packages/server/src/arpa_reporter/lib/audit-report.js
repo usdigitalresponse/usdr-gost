@@ -255,9 +255,7 @@ async function generate(requestHost) {
             return newWorkbook;
         });
 
-        const outputWorkBook = tracer.trace('XLSX.write', () => {
-            XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
-        });
+        const outputWorkBook = tracer.trace('XLSX.write', () => XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' }));
 
         return {
             periodId,
