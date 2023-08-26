@@ -251,7 +251,7 @@ async function generate(requestHost) {
             XLSX.utils.book_append_sheet(newWorkbook, sheet1, 'Obligations & Expenditures');
             XLSX.utils.book_append_sheet(newWorkbook, sheet2, 'Project Summaries');
             XLSX.utils.book_append_sheet(newWorkbook, sheet3, 'Project Summaries V2');
-            XLSX.utils.book_append_sheet(workbook, sheet4, 'KPI');
+            XLSX.utils.book_append_sheet(newWorkbook, sheet4, 'KPI');
             return newWorkbook;
         });
 
