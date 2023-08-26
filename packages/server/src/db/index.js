@@ -439,7 +439,7 @@ function buildTsqExpression(includeKeywords, excludeKeywords) {
     return keywords.expressions;
 }
 
-async function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords) {
+function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords) {
     const tsqExpression = buildTsqExpression(includeKeywords, excludeKeywords);
     if (tsqExpression.phrase) {
         queryBuilder.joinRaw(`cross join phraseto_tsquery('english', ?) as tsqp`, tsqExpression.phrase);
@@ -459,7 +459,7 @@ async function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords)
     }
 }
 
-async function buildFiltersQuery(queryBuilder, filters) {
+function buildFiltersQuery(queryBuilder, filters, agencyId) {
     const statusMap = {
         Applied: 'Result',
         'Not Applying': 'Rejected',
@@ -479,9 +479,9 @@ async function buildFiltersQuery(queryBuilder, filters) {
             if (filters.reviewStatuses?.length) {
                 const statuses = filters.reviewStatuses.map((status) => statusMap[status]);
                 qb.whereIn(`${TABLES.interested_codes}.status_code`, statuses);
+                qb.where(`${TABLES.grants_interested}.agency_id`, '=', agencyId);
             }
             if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
-                console.log(filters.assignedToAgencyId);
                 qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgencyId);
             }
             if (filters.opportunityStatuses?.length) {
@@ -524,15 +524,16 @@ async function buildFiltersQuery(queryBuilder, filters) {
         bill: String,
     },
     paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
-    orderingParams: { orderBy: List[string], orderDesc: boolean}
+    orderingParams: { orderBy: List[string], orderDesc: boolean},
     tenantId: number
+    agencyId: number
 */
-async function getGrantsNew(filters, paginationParams, orderingParams, tenantId) {
-    console.log(filters, paginationParams, orderingParams, tenantId);
+async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
+    console.log(filters, paginationParams, orderingParams, tenantId, agencyId);
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
         .distinct()
-        .modify(async (queryBuilder) => {
+        .modify((queryBuilder) => {
             if (filters) {
                 if (filters.reviewStatuses?.length) {
                     queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
@@ -541,11 +542,8 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId)
                 if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
                     queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
                 }
-
-                await buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords);
-                console.log('here 1');
-                await buildFiltersQuery(queryBuilder, filters);
-                console.log('here 2');
+                buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords);
+                buildFiltersQuery(queryBuilder, filters, agencyId);
             }
             if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
                 if (orderingParams.orderBy.includes('interested_agencies')) {

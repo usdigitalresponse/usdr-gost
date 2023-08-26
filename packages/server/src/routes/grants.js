@@ -91,6 +91,7 @@ router.get('/next', requireUser, async (req, res) => {
         await db.buildPaginationParams(req.query.pagination),
         await db.buildOrderingParams(req.query.ordering),
         user.tenant_id,
+        user.agency_id,
     );
 
     res.json(grants);
