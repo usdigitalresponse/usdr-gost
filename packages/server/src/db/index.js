@@ -459,7 +459,7 @@ async function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords)
     }
 }
 
-async function buildFiltersQuery(queryBuilder, filters) {
+async function buildFiltersQuery(queryBuilder, filters, agencyId) {
     const statusMap = {
         Applied: 'Result',
         'Not Applying': 'Rejected',
@@ -479,6 +479,7 @@ async function buildFiltersQuery(queryBuilder, filters) {
             if (filters.reviewStatuses?.length) {
                 const statuses = filters.reviewStatuses.map((status) => statusMap[status]);
                 qb.whereIn(`${TABLES.interested_codes}.status_code`, statuses);
+                qb.where(`${TABLES.grants_interested}.agency_id`, '=', agencyId);
             }
             if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
                 console.log(filters.assignedToAgencyId);
@@ -524,11 +525,12 @@ async function buildFiltersQuery(queryBuilder, filters) {
         bill: String,
     },
     paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
-    orderingParams: { orderBy: List[string], orderDesc: boolean}
+    orderingParams: { orderBy: List[string], orderDesc: boolean},
     tenantId: number
+    agencyId: number
 */
-async function getGrantsNew(filters, paginationParams, orderingParams, tenantId) {
-    console.log(filters, paginationParams, orderingParams, tenantId);
+async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
+    console.log(filters, paginationParams, orderingParams, tenantId, agencyId);
     const { data, pagination } = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
         .distinct()
@@ -544,7 +546,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId)
 
                 await buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords);
                 console.log('here 1');
-                await buildFiltersQuery(queryBuilder, filters);
+                await buildFiltersQuery(queryBuilder, filters, agencyId);
                 console.log('here 2');
             }
             if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
