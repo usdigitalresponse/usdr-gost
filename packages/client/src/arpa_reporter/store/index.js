@@ -174,8 +174,9 @@ export default new Vuex.Store({
         dispatch('updateUsersRoles'),
       ]);
     },
-    logout({ commit }) {
-      fetch(apiURL('/api/sessions/logout')).then(() => commit('setUser', null));
+    async logout({ commit }) {
+      await get(apiURL('/api/sessions/logout'));
+      commit('setUser', null);
     },
     setViewPeriodID({ commit }, period_id) {
       commit('setViewPeriodID', period_id);
