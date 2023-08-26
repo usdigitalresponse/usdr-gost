@@ -79,7 +79,7 @@
       </b-container>
     </div>
 
-    <b-row>
+    <b-row v-if="showStats">
       <b-col cols='4'>
         <b-card bg-variant='secondary' text-variant='white' header='New Grants Matching Search Criteria, Last 24Hrs'
           class='text-center mb-3 mt-3'>
@@ -102,6 +102,8 @@
         </b-card>
       </b-col>
     </b-row>
+    <br v-if="!showStats" />
+
     <b-card title="Total Interested Grants by Agencies">
       <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
         <template #cell()="{field, value}">
@@ -156,6 +158,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
 import GrantDetails from '@/components/Modals/GrantDetails.vue';
+import { useNewGrantsTable } from '@/helpers/featureFlags';
 
 export default {
   components: { GrantDetails },
@@ -337,6 +340,9 @@ export default {
       agency: 'users/agency',
       currentGrant: 'grants/currentGrant',
     }),
+    showStats() {
+      return !useNewGrantsTable();
+    },
     activityItems() {
       const rtf = new Intl.RelativeTimeFormat('en', {
         numeric: 'auto',
