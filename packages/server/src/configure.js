@@ -1,5 +1,4 @@
 /* eslint-disable global-require */
-require('dotenv').config();
 require('express-async-errors');
 const express = require('express');
 const bodyParser = require('body-parser');
