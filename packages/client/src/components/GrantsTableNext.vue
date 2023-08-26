@@ -69,7 +69,7 @@
           next-text="Next"
           last-text="Last"
           aria-controls="grants-table" />
-        <div class="ml-2 border border-light rounded text-justify p-2 page-item">{{ totalRows }} total grants</div>
+        <div class="ml-2 border border-light rounded text-justify p-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
       </b-col>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
