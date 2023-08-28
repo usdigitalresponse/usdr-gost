@@ -250,7 +250,7 @@ async function jsonForUpload(upload) {
                 const { size } = await fs.stat(jsonFSName(upload));
                 span.setTag('filesize-kb', Math.round(size / (2 ** 10)));
                 span.setTag('tenant-id', upload.tenant_id);
-                span.setTag('reporting-period-id', upload.reporting_perdiod_id);
+                span.setTag('reporting-period-id', upload.reporting_period_id);
                 return f;
             });
             return tracer.trace('Cryo.parse', () => Cryo.parse(file));
