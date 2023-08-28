@@ -244,7 +244,17 @@ async function bufferForUpload(upload) {
 async function jsonForUpload(upload) {
     return tracer.trace(
         'jsonForUpload',
-        async () => Cryo.parse(await fs.readFile(jsonFSName(upload), { encoding: 'utf-8' })),
+        async () => {
+            const file = await tracer.trace('fs.readFile', async (span) => {
+                const f = await fs.readFile(jsonFSName(upload), { encoding: 'utf-8' });
+                const { size } = await fs.stat(jsonFSName(upload));
+                span.setTag('filesize-kb', Math.round(size / (2 ** 10)));
+                span.setTag('tenant-id', upload.tenant_id);
+                span.setTag('reporting-period-id', upload.reporting_period_id);
+                return f;
+            });
+            return tracer.trace('Cryo.parse', () => Cryo.parse(file));
+        },
     );
 }
 
