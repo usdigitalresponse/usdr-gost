@@ -97,3 +97,26 @@ See [./setup-gmail.md](./setup-gmail.md) for instructions on setting up Gmail to
     ```sh
     yarn workspace server run db:seed
     ```
+
+## Datadog
+
+It's possible to send tracing data from your local development instance to datadog.  To do so, you will need to:
+
+1. Install a [Datadog Agent](https://docs.datadoghq.com/getting_started/agent/) locally and give it credentials to send data to the USDR datadog instance.
+1. Configure the datadog tracing library with environment variables
+
+### Install the Datadog Agent
+
+Datadog provides agent installation instructions within the [datadog.hq app](https://app.datadoghq.com/account/settings/agent/latest?_gl=1%2Ancclch%2A_gcl_aw%2AR0NMLjE2OTI3NDkyNzEuQ2owS0NRand1WkduQmhEMUFSSXNBQ3hiQVZqQS13YTlHVFFORGxQaVlFWDQzb1hiWTdHYzNxTFpScXhQam84UFg3cnRqTHZxT1UxSWdNY2FBbzJRRUFMd193Y0I.%2A_gcl_au%2AMTUyNDczOTE5Mi4xNjkyMjQxMDkw%2A_ga%2AMTQ3MTcxNzMzMy4xNjkzMDIxMDQ2%2A_ga_KN80RDFSQK%2AMTY5MzE5MDg2Mi41LjEuMTY5MzE5MDkxNC4wLjAuMA..%2A_fplc%2ARnhXc1BjdFZjcmF6dFZmSmpJNDlXRDUzeXVpdVdtZWI4eDhnazhvYVdpUkI1dWRESFBwVzN1QnNIRXBDVHllJTJCdVdBZUxpJTJGJTJCWCUyRjNnUWVnQWgycWVSb3IyR2tyeWp6T0pSR01oc2YlMkZHWkN5MWd6RTRXS1lWdU80bnR3JTJGJTJCb2clM0QlM0Q.&platform=macos).
+
+Select (or create) an API key and copy the corresponding install command, which should automatically install and start the agent.
+
+### Configure tracing library
+
+Next, make sure your local `packages/server/.env` file includes the recommended datadog environment variables (specified in `packages/server/.env.example`).
+
+### Query traces from datadoghq.com
+
+Now you should be able to start your development service normally. If your environment is set correctly, the dd-trace library should print startup logs confirming the configuration you have specified.
+
+Finally, tracing data should now be available on datadog.  You can filter for your local traces by specifying the `env:sandbox` tag in your trace query.
