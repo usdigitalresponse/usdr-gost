@@ -19,7 +19,7 @@
           </b-button-close>
         </template>
         <form ref="form" class="search-form">
-          <b-form-group label-for="search-title">
+          <b-form-group label-for="searchTitle">
             <template slot="label"><b>Search Title</b></template>
               <b-form-input
                 id="searchTitle"
@@ -46,7 +46,7 @@
               ></b-form-input>
               <b-form-text id="input-live-help">Separate keywords with comma</b-form-text>
           </b-form-group>
-          <b-form-group label-for="opportunity-number">
+          <b-form-group label-for="opportunity-number-input">
             <template slot="label">Opportunity #</template>
               <b-form-input
                 id="opportunity-number-input"
@@ -66,7 +66,7 @@
               <b-form-checkbox value="closed">Closed</b-form-checkbox>
             </b-form-checkbox-group>
           </b-form-group>
-          <b-form-group class="multiselect-group" label-for="Funding Types">
+          <b-form-group class="multiselect-group" label-for="funding-type">
             <template slot="label">Funding Type</template>
               <multiselect
                 v-model="formData.criteria.fundingTypes"
@@ -83,22 +83,30 @@
             <multiselect
               v-model="formData.criteria.eligibility"
               :options="eligibilityCodes"
-              :custom-label="eligibilityLabel"
+              track-by="code"
+              label="label"
+              id="eligibility"
+              type="text"
+              :multiple="true"
+            >
+            </multiselect>
+          </b-form-group>
+          <b-form-group class="multiselect-group">
+            <template slot="label">Category</template>
+            <multiselect
+              v-model="formData.criteria.opportunityCategories"
+              :options="opportunityCategoryOptions"
               :multiple="true"
               :limit="1"
               :limitText="customLimitText"
               :close-on-select="false"
               :clear-on-select="false"
-              placeholder="Eligibility"
+              placeholder="Opportunity Category"
               :show-labels="false"
               :searchable="false">
             </multiselect>
           </b-form-group>
-          <b-form-group class="multiselect-group">
-            <template slot="label">Category</template>
-            <multiselect v-model="formData.criteria.opportunityCategories" :options="opportunityCategoryOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Opportunity Category" :show-labels="false" :searchable="false"></multiselect>
-          </b-form-group>
-          <b-form-group label-for="Bill">
+          <b-form-group label-for="bill">
             <template slot="label">Bill</template>
               <b-form-input
                 id="bill"
@@ -107,7 +115,7 @@
               ></b-form-input>
               <b-form-text id="input-live-help">ex. IIJA</b-form-text>
           </b-form-group>
-          <b-form-group label-for="Agency">
+          <b-form-group label-for="agency">
             <template slot="label">Agency Code</template>
               <b-form-input
                 id="agency"
@@ -117,8 +125,15 @@
           </b-form-group>
           <b-form-group>
             <template slot="label">Posted Within</template>
-            <multiselect v-model="formData.criteria.postedWithin" :options="postedWithinOptions" :multiple="false"
-                     :close-on-select="true" :clear-on-select="false" placeholder="All Time" :show-labels="false">
+            <multiselect
+              id="posted-within"
+              v-model="formData.criteria.postedWithin"
+              :options="postedWithinOptions"
+              :multiple="false"
+              :close-on-select="true"
+              :clear-on-select="false"
+              placeholder="All Time"
+              :show-labels="false">
             </multiselect>
           </b-form-group>
           <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }" row>
