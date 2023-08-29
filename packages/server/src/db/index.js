@@ -507,6 +507,47 @@ function buildFiltersQuery(queryBuilder, filters, agencyId) {
     );
 }
 
+function grantsQuery(queryBuilder, filters, agencyId, orderingParams, paginationParams) {
+    if (filters) {
+        if (filters.reviewStatuses?.length) {
+            queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
+                .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
+        }
+        if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
+            queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
+        }
+        buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords);
+        buildFiltersQuery(queryBuilder, filters, agencyId);
+    }
+    if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
+        if (orderingParams.orderBy.includes('interested_agencies')) {
+            // Only perform the join if it was not already performed above.
+            if (!filters.reviewStatuses?.length) {
+                queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
+            }
+            const orderArgs = orderingParams.orderBy.split('|');
+            queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
+            queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
+        } else if (orderingParams.orderBy.includes('viewed_by')) {
+            const orderArgs = orderingParams.orderBy.split('|');
+            queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
+            queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
+            queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
+        } else {
+            const orderArgs = orderingParams.orderBy.split('|');
+            const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
+            if (orderArgs.length > 1) {
+                console.log(`Too many orderArgs: ${orderArgs}`);
+            }
+            queryBuilder.orderBy(orderArgs[0], orderDirection);
+        }
+    }
+    if (paginationParams) {
+        queryBuilder.limit(paginationParams.perPage);
+        queryBuilder.offset((paginationParams.currentPage - 1) * paginationParams.perPage);
+    }
+}
+
 /*
     filters: {
         reviewStatuses: List[Enum['Interested', 'Result', 'Rejected']],
@@ -530,46 +571,19 @@ function buildFiltersQuery(queryBuilder, filters, agencyId) {
 */
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
     console.log(filters, paginationParams, orderingParams, tenantId, agencyId);
-    const { data, pagination } = await knex(TABLES.grants)
+    const data = await knex(TABLES.grants)
         .select(`${TABLES.grants}.*`)
         .distinct()
-        .modify((queryBuilder) => {
-            if (filters) {
-                if (filters.reviewStatuses?.length) {
-                    queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
-                        .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
-                }
-                if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
-                    queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
-                }
-                buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords);
-                buildFiltersQuery(queryBuilder, filters, agencyId);
-            }
-            if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
-                if (orderingParams.orderBy.includes('interested_agencies')) {
-                    // Only perform the join if it was not already performed above.
-                    if (!filters.reviewStatuses?.length) {
-                        queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
-                    }
-                    const orderArgs = orderingParams.orderBy.split('|');
-                    queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
-                    queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
-                } else if (orderingParams.orderBy.includes('viewed_by')) {
-                    const orderArgs = orderingParams.orderBy.split('|');
-                    queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
-                    queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
-                    queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
-                } else {
-                    const orderArgs = orderingParams.orderBy.split('|');
-                    const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
-                    if (orderArgs.length > 1) {
-                        console.log(`Too many orderArgs: ${orderArgs}`);
-                    }
-                    queryBuilder.orderBy(orderArgs[0], orderDirection);
-                }
-            }
-        })
-        .paginate(paginationParams);
+        .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams));
+
+    const counts = await knex(TABLES.grants)
+        .modify((qb) => grantsQuery(qb, filters, agencyId, { orderBy: undefined }, null))
+        .countDistinct('grants.grant_id as total_grants');
+
+    const pagination = {
+        total: counts[0].total_grants,
+        lastPage: Math.ceil(parseInt(counts[0].total_grants, 10) / parseInt(paginationParams.perPage, 10)),
+    };
 
     const dataWithAgency = await enhanceGrantData(tenantId, data);
 

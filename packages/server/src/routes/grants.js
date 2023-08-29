@@ -111,6 +111,12 @@ router.get('/closestGrants/:perPage/:currentPage', requireUser, async (req, res)
     res.json(rows);
 });
 
+router.get('/exportCSVNext', requireUser, async (req, res) => {
+    console.log(req, res);
+    // Make a CSV file and upload it to S3
+    // Send email to user with a signed link to download the file
+});
+
 // For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
 // without the test having to insert 10k rows, which slows down the test.
 const MAX_CSV_EXPORT_ROWS = process.env.NODE_ENV !== 'test' ? 10000 : 100;
