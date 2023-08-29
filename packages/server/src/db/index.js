@@ -577,6 +577,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
         .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams));
 
     const counts = await knex(TABLES.grants)
+        .distinct()
         .modify((qb) => grantsQuery(qb, filters, agencyId, { orderBy: undefined }, null))
         .count('grant_id as total_grants');
 
