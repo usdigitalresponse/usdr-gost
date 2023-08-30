@@ -171,7 +171,7 @@ const defaultCriteria = {
   fundingTypes: null,
   agency: null,
   bill: null,
-  costSharing: false,
+  costSharing: null,
   opportunityCategories: [],
   reviewStatus: [],
   postedWithin: [],
@@ -230,7 +230,9 @@ export default {
     }),
     saveEnabled() {
       // save is enabled if any criteria is not null and a title is set
-      return Object.values(this.formData.criteria).some((value) => value !== null && !(Array.isArray(value) && value.length === 0)) && this.formData.searchTitle !== null;
+      return Object.values(this.formData.criteria).some((value) => value !== null
+      && !(Array.isArray(value) && value.length === 0))
+      && this.formData.searchTitle !== null;
     },
     isEditMode() {
       return this.searchId !== null && this.searchId !== undefined && this.searchId !== 0;
