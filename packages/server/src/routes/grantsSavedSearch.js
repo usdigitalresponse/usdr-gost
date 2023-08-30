@@ -68,7 +68,7 @@ router.delete('/:searchId', requireUser, async (req, res) => {
     }
 
     if (deleteSuccess) {
-        res.status(200).send('OK');
+        res.status(200).json({ status: 'OK' });
     } else {
         res.status(404).send('Could not find the saved search');
     }

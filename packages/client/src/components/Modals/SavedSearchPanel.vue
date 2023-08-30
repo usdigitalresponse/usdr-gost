@@ -34,7 +34,7 @@
                 <b-icon icon="three-dots-vertical" class="text-dark" font-scale="1"></b-icon>
               </template>
               <b-dropdown-item :searchId="search.id" @click.stop="editSavedSearch">Edit</b-dropdown-item>
-              <b-dropdown-item @click="deleteSavedSearch" :searchId="search.id">Delete</b-dropdown-item>
+              <b-dropdown-item @click.stop="deleteSavedSearch" :searchId="search.id">Delete</b-dropdown-item>
             </b-dropdown>
           </b-col>
         </b-row>
@@ -127,10 +127,11 @@ export default {
     newSavedSearch() {
       this.initNewSearch();
     },
-    deleteSavedSearch(e) {
+    async deleteSavedSearch(e) {
       const searchId = `${e.target.getAttribute('searchid')}`;
-      this.deleteSavedSearchAPI({ searchId });
+      await this.deleteSavedSearchAPI({ searchId });
       this.fetchSavedSearches();
+      this.notifyDeleted();
     },
     appylySavedSearch(searchId) {
       const searchData = this.savedSearches.data.find((search) => search.id === searchId);
@@ -141,6 +142,14 @@ export default {
     formatCriteria(criteria) {
       const criteriaObj = JSON.parse(criteria);
       return formatFilterDisplay(criteriaObj);
+    },
+    notifyDeleted() {
+      this.$bvToast.toast('Search deleted', {
+        title: 'Success',
+        variant: 'success',
+        solid: true,
+        autoHideDelay: 2500,
+      });
     },
   },
 };
