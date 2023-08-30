@@ -296,7 +296,7 @@ export default {
       this.apply();
       let searchId;
       if (this.isEditMode) {
-        this.updateSavedSearch({
+        await this.updateSavedSearch({
           searchId: this.formData.searchId,
           searchInfo: {
             name: this.formData.searchTitle,

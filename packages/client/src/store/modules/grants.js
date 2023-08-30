@@ -210,11 +210,11 @@ export default {
     async createSavedSearch(context, { searchInfo }) {
       return fetchApi.post('/api/organizations/:organizationId/grants-saved-search', searchInfo);
     },
-    updateSavedSearch(context, { searchId, searchInfo }) {
-      fetchApi.put(`/api/organizations/:organizationId/grants-saved-search/${searchId}`, searchInfo);
+    async updateSavedSearch(context, { searchId, searchInfo }) {
+      await fetchApi.put(`/api/organizations/:organizationId/grants-saved-search/${searchId}`, searchInfo);
     },
-    deleteSavedSearch(context, { searchId }) {
-      fetchApi.deleteRequest(`/api/organizations/:organizationId/grants-saved-search/${searchId}`);
+    async deleteSavedSearch(context, { searchId }) {
+      await fetchApi.deleteRequest(`/api/organizations/:organizationId/grants-saved-search/${searchId}`);
     },
     changeSelectedSearchId({ commit }, searchId) {
       commit('SET_SELECTED_SEARCH_ID', searchId);
