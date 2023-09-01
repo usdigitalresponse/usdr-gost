@@ -16,6 +16,7 @@ const { createUpload } = require('../db/uploads');
 const { TEMP_DIR, UPLOAD_DIR } = require('../environment');
 const { log } = require('../lib/log');
 const ValidationError = require('../lib/validation-error');
+const { useTenantId } = require('../use-request');
 
 /**
  * Get the path to the upload file for the given upload
@@ -40,6 +41,17 @@ const uploadFSName = (upload) => {
 const jsonFSName = (upload) => {
     const filename = `${upload.id}.json`;
     return path.join(TEMP_DIR, upload.id[0], filename);
+};
+
+/**
+ * Get the path to the JSON file for cached reporting periods
+ * @param {object} reportingPeriod
+ * @param {int} tenantId
+ * @returns {string}
+*/
+const cacheFSName = (reportingPeriod, tenantId = null) => {
+    const filename = `${tenantId || useTenantId()}.${reportingPeriod.id}.json`;
+    return path.join(TEMP_DIR, filename);
 };
 
 /**
@@ -302,6 +314,7 @@ module.exports = {
     bufferForUpload,
     workbookForUpload,
     uploadFSName,
+    cacheFSName,
 };
 
 // NOTE: This file was copied from src/server/services/persist-upload.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

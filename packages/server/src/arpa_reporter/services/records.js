@@ -3,7 +3,7 @@ const { merge } = require('lodash');
 const asyncBatch = require('async-batch').default;
 
 const { workbookForUpload } = require('./persist-upload');
-const { getPreviousReportingPeriods } = require('../db/reporting-periods');
+const { getPreviousReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
 const { usedForTreasuryExport } = require('../db/uploads');
 const { log } = require('../lib/log');
 const { requiredArgument } = require('../lib/preconditions');
@@ -191,7 +191,7 @@ async function recordsForUpload(upload) {
 }
 
 async function recordsForReportingPeriod(periodId) {
-    log(`recordsForReportingPeriod(${periodId})`);
+    console.log(`recordsForReportingPeriod(${periodId})`);
     requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod');
 
     const uploads = await usedForTreasuryExport(periodId);
@@ -203,11 +203,13 @@ async function recordsForReportingPeriod(periodId) {
  * Get the most recent, validated record for each unique project, as of the
  * specified reporting period.
 */
-async function mostRecentProjectRecords(periodId) {
+async function mostRecentProjectRecords(periodId, calculatePriorPeriods) {
     log(`mostRecentProjectRecords(${periodId})`);
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
-    const reportingPeriods = await getPreviousReportingPeriods(periodId);
+    const reportingPeriods = calculatePriorPeriods
+        ? await getPreviousReportingPeriods(periodId)
+        : [await getReportingPeriod(periodId)];
 
     const inputs = [];
     reportingPeriods.forEach((rp) => inputs.push(rp.id));
@@ -229,11 +231,13 @@ async function mostRecentProjectRecords(periodId) {
     return Object.values(latestProjectRecords);
 }
 
-async function recordsForProject(periodId) {
+async function recordsForProject(periodId, calculatePriorPeriods) {
     log(`recordsForProject`);
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
-    const reportingPeriods = await getPreviousReportingPeriods(periodId);
+    const reportingPeriods = calculatePriorPeriods
+        ? await getPreviousReportingPeriods(periodId)
+        : [await getReportingPeriod(periodId)];
 
     const inputs = [];
     reportingPeriods.forEach((rp) => inputs.push(rp.id));

@@ -1,11 +1,14 @@
 const tracer = require('dd-trace');
 const moment = require('moment');
+const path = require('path');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
 const asyncBatch = require('async-batch').default;
+const fs = require('fs/promises');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const aws = require('../../lib/gost-aws');
 const { ec } = require('./format');
+const { log } = require('./log');
 
 const { getPreviousReportingPeriods, getReportingPeriod, getAllReportingPeriods } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
@@ -14,6 +17,7 @@ const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
 const { useTenantId } = require('../use-request');
+const { cacheFSName } = require('../services/persist-upload');
 
 const COLUMN = {
     EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -171,9 +175,12 @@ async function getAggregatePeriodRow(data) {
     return asyncBatch(inputs, getAggregatePerUpload, 2);
 }
 
-async function createObligationSheet(periodId, domain) {
+async function createObligationSheet(periodId, domain, calculatePriorPeriods = true) {
     // select active reporting periods and sort by date
-    const reportingPeriods = await getPreviousReportingPeriods(periodId);
+    const reportingPeriods = calculatePriorPeriods
+        ? await getPreviousReportingPeriods(periodId)
+        : [await getReportingPeriod(periodId)];
+    // only use the most recent one if we already
     const inputs = [];
     reportingPeriods.forEach((r) => inputs.push({ period: r, domain }));
 
@@ -182,8 +189,8 @@ async function createObligationSheet(periodId, domain) {
     return rows.flat();
 }
 
-async function createProjectSummaries(periodId, domain) {
-    const records = await mostRecentProjectRecords(periodId);
+async function createProjectSummaries(periodId, domain, calculatePriorPeriods) {
+    const records = await mostRecentProjectRecords(periodId, calculatePriorPeriods);
 
     const inputs = [];
     records.forEach((r) => inputs.push({ record: r, domain }));
@@ -203,8 +210,8 @@ function getRecordsByProject(records) {
     }, {});
 }
 
-async function createReportsGroupedByProject(periodId) {
-    const records = await recordsForProject(periodId);
+async function createProjectSummariesGroupedByProject(periodId, calculatePriorPeriods) {
+    const records = await recordsForProject(periodId, calculatePriorPeriods);
     const recordsByProject = getRecordsByProject(records);
     const reportingPeriods = await getAllReportingPeriods();
 
@@ -221,26 +228,64 @@ async function createReportsGroupedByProject(periodId) {
     return [projectSummaryGroupedByProject, KPIDataGroupedByProject];
 }
 
+async function generateSheets(periodId, domain, calculatePriorPeriods = true) {
+    const [
+        obligations,
+        projectSummaries,
+        [
+            projectSummaryGroupedByProject,
+            KPIDataGroupedByProject,
+        ],
+    ] = await Promise.all([
+        createObligationSheet(periodId, domain, calculatePriorPeriods),
+        createProjectSummaries(periodId, domain, calculatePriorPeriods),
+        createProjectSummariesGroupedByProject(periodId, calculatePriorPeriods),
+    ]);
+
+    return {
+        obligations,
+        projectSummaries,
+        projectSummaryGroupedByProject,
+        KPIDataGroupedByProject,
+    };
+}
+
+async function getCache(periodId, domain, tenantId = null) {
+    // check if the cache file exists. if not, let's generate it
+    const reportingPeriods = await getPreviousReportingPeriods(periodId);
+    const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
+    const mostRecentPreviousReportingPeriod = previousReportingPeriods
+        .reduce((a, b) => (a.id > b.id ? a : b));
+    const cacheFilename = cacheFSName(mostRecentPreviousReportingPeriod, tenantId);
+    let data = { };
+    try {
+        const cacheData = await fs.readFile(cacheFilename, { encoding: 'utf-8' });
+        data = JSON.parse(cacheData);
+        log('cache hit');
+    } catch (err) {
+        log('cache miss');
+        data = await generateSheets(mostRecentPreviousReportingPeriod.id, domain, true);
+        const jsonData = JSON.stringify(data);
+        await fs.mkdir(path.dirname(cacheFilename), { recursive: true });
+        await fs.writeFile(cacheFilename, jsonData, { flag: 'wx' });
+    }
+    return data;
+}
+
 async function generate(requestHost) {
     return tracer.trace('generate()', async () => {
         const periodId = await getCurrentReportingPeriodID();
-        console.log(`generate(${periodId})`);
+        log(`generate(${periodId})`);
 
         const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
 
-        // generate sheets
-        const [
-            obligations,
-            projectSummaries,
-            [
-                projectSummaryGroupedByProject,
-                KPIDataGroupedByProject,
-            ],
-        ] = await Promise.all([
-            createObligationSheet(periodId, domain),
-            createProjectSummaries(periodId, domain),
-            createReportsGroupedByProject(periodId),
-        ]);
+        const dataBefore = await getCache(periodId, domain);
+        const dataAfter = await generateSheets(periodId, domain, false);
+        const obligations = [...dataBefore.obligations, ...dataAfter.obligations];
+        const projectSummaries = [...dataBefore.projectSummaries, ...dataAfter.projectSummaries];
+        const projectSummaryGroupedByProject = [...dataBefore.projectSummaryGroupedByProject, ...dataAfter.projectSummaryGroupedByProject];
+        const KPIDataGroupedByProject = [...dataBefore.KPIDataGroupedByProject, ...dataAfter.KPIDataGroupedByProject];
+
         const workbook = tracer.trace('compose-workbook', () => {
             // compose workbook
             const sheet1 = XLSX.utils.json_to_sheet(obligations, { dateNF: 'MM/DD/YYYY' });
