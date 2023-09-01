@@ -571,7 +571,6 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
     tenantId: number
     agencyId: number
 */
-
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
     console.log(filters, paginationParams, orderingParams, tenantId, agencyId);
     const data = await knex(TABLES.grants)

@@ -9,6 +9,8 @@
       model="displaySavedSearchPanel"
       ref="savedSearchPanel"
       bg-variant="white"
+      @hidden="cancel"
+      backdrop
       right
       shadow
     >
@@ -156,6 +158,13 @@ export default {
         autoHideDelay: 2500,
         toaster: 'b-toaster-bottom-right',
       });
+    },
+    cancel() {
+      // something closed the sidebar outside of the state store actions
+      // so we need to reset the state
+      if (this.displaySavedSearchPanel) {
+        this.initViewResults();
+      }
     },
   },
 };
