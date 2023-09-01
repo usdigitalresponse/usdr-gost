@@ -392,7 +392,7 @@ describe('Email sender', () => {
                 name: 'TestSavedSearch',
                 tenantId: 0,
                 email: 'foo@bar.com',
-                criteria: '{"includeKeywords":["Grant"]}',
+                criteria: '{"includeKeywords":["interestedGrant"]}',
             };
             await email.getAndSendGrantForSavedSearch({ userSavedSearch, openDate: '2021-08-05' });
 
