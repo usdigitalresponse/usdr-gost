@@ -10,6 +10,8 @@
         class="search-panel"
         bg-variant="white"
         @shown="onShown"
+        @hidden="cancel"
+        backdrop
         right
         shadow
       >
@@ -218,6 +220,9 @@ export default {
         this.$refs.searchPanelSideBar.hide();
       }
     },
+    isEditMode() {
+      this.initFormState();
+    },
   },
   mounted() {
     this.setup();
@@ -270,7 +275,11 @@ export default {
       this.initViewResults();
     },
     cancel() {
-      this.initViewResults();
+      // something closed the sidebar outside of the state store actions
+      // so we need to reset the state
+      if (this.displaySearchPanel) {
+        this.initViewResults();
+      }
     },
     initFormState() {
       if (this.isEditMode) {
