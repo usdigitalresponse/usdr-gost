@@ -37,6 +37,12 @@ function parseCollectionQueryParam(req, param) {
     return (value && value.split(',')) || [];
 }
 
+function validateFilters(filters) {
+    if (!filters) {
+        throw new Error('Invalid filters')
+    }
+}
+
 router.get('/', requireUser, async (req, res) => {
     const { selectedAgency, user } = req.session;
     let agencyCriteria;
@@ -67,34 +73,46 @@ router.get('/', requireUser, async (req, res) => {
 });
 
 router.get('/next', requireUser, async (req, res) => {
-    const { user } = req.session;
-    const postedWithinOptions = {
-        'All Time': 0, 'One Week': 7, '30 Days': 30, '60 Days': 60,
-    };
-    const filters = req.query.criteria || {};
-    const grants = await db.getGrantsNew(
-        {
-            reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned').map((r) => r.trim()) || [],
-            eligibilityCodes: filters.eligibility?.split(',') || [],
-            includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
-            excludeKeywords: filters.excludeKeywords?.split(',').map((k) => k.trim()) || [],
-            opportunityNumber: filters.opportunityNumber || '',
-            fundingTypes: filters.fundingTypes?.split(',') || [],
-            opportunityStatuses: filters.opportunityStatuses?.split(',') || [],
-            opportunityCategories: filters.opportunityCategories?.split(',') || [],
-            costSharing: filters.costSharing || '',
-            agencyCode: filters.agency || '',
-            postedWithinDays: postedWithinOptions[filters.postedWithin] || 0,
-            assignedToAgencyId: filters.reviewStatus?.includes('Assigned') ? user.agency_id : null,
-            bill: filters.bill || null,
-        },
-        await db.buildPaginationParams(req.query.pagination),
-        await db.buildOrderingParams(req.query.ordering),
-        user.tenant_id,
-        user.agency_id,
-    );
+    try {
+        const { user } = req.session;
+        const postedWithinOptions = {
+            'All Time': 0, 'One Week': 7, '30 Days': 30, '60 Days': 60,
+        };
+        const filters = req.query.criteria || {};
 
-    res.json(grants);
+        validateFilters(filters);
+
+        const grants = await db.getGrantsNew(
+            {
+                reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned').map((r) => r.trim()) || [],
+                eligibilityCodes: filters.eligibility?.split(',') || [],
+                includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
+                excludeKeywords: filters.excludeKeywords?.split(',').map((k) => k.trim()) || [],
+                opportunityNumber: filters.opportunityNumber || '',
+                fundingTypes: filters.fundingTypes?.split(',') || [],
+                opportunityStatuses: filters.opportunityStatuses?.split(',') || [],
+                opportunityCategories: filters.opportunityCategories?.split(',') || [],
+                costSharing: filters.costSharing || '',
+                agencyCode: filters.agency || '',
+                postedWithinDays: postedWithinOptions[filters.postedWithin] || 0,
+                assignedToAgencyId: filters.reviewStatus?.includes('Assigned') ? user.agency_id : null,
+                bill: filters.bill || null,
+            },
+            await db.buildPaginationParams(req.query.pagination),
+            await db.buildOrderingParams(req.query.ordering),
+            user.tenant_id,
+            user.agency_id,
+        );
+
+        res.json(grants);
+
+    } catch (error) {
+        // Log the error (optional)
+        console.error(error);
+
+        // Respond with an error status code and message
+        res.status(400).json({ message: error.message });
+    }
 });
 
 // get a single grant details
