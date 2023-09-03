@@ -304,27 +304,41 @@ export default {
     async saveSearch() {
       this.apply();
       let searchId;
-      if (this.isEditMode) {
-        await this.updateSavedSearch({
-          searchId: this.formData.searchId,
-          searchInfo: {
-            name: this.formData.searchTitle,
-            criteria: this.formData.criteria,
-          },
-        });
-        searchId = this.formData.searchId;
-        this.$emit('filters-applied');
-      } else {
-        const res = await this.createSavedSearch({
-          searchInfo: {
-            name: this.formData.searchTitle,
-            criteria: this.formData.criteria,
-          },
-        });
-        searchId = res.id;
+      try {
+        if (this.isEditMode) {
+          this.updateSavedSearch({
+            searchId: this.formData.searchId,
+            searchInfo: {
+              name: this.formData.searchTitle,
+              criteria: this.formData.criteria,
+            },
+          });
+          searchId = this.formData.searchId;
+          this.$emit('filters-applied');
+        } else {
+          const res = await this.createSavedSearch({
+            searchInfo: {
+              name: this.formData.searchTitle,
+              criteria: this.formData.criteria,
+            },
+          });
+          searchId = res.id;
+        }
+        await this.fetchSavedSearches();
+        this.changeSelectedSearchId(searchId);
+      } catch (e) {
+        this.notifyError(e.message);
       }
-      await this.fetchSavedSearches();
-      this.changeSelectedSearchId(searchId);
+    },
+    notifyError(message) {
+      this.$bvToast.toast(message,
+        {
+          title: 'Error Saving Search',
+          variant: 'danger',
+          solid: true,
+          autoHideDelay: 5000,
+          toaster: 'b-toaster-top-left',
+        });
     },
     showSideBar() {
       if (!this.$refs.searchPanelSideBar.isOpen) {
