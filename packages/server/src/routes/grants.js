@@ -40,22 +40,22 @@ function parseCollectionQueryParam(req, param) {
 function validateFilters(filters) {
     if (!filters) {
         throw new Error('Must have at least one filter')
-    }
+    };
 
     const filterTypes = {
-        reviewStatuses: "Array",
-        eligibilityCodes: "Array",
-        includeKeywords: "Array",
-        excludeKeywords: "Array",
-        opportunityNumber: "String",
-        fundingTypes: "Array",
-        opportunityStatuses: "Array",
-        opportunityCategories: "Array",
-        costSharing: "String",
-        agencyCode: "String",
-        postedWithinDays: "Number",
-        assignedToAgencyId: ["String", "Number", "Null"],
-        bill: ["Unknown", "Null"],
+        reviewStatuses: 'Array',
+        eligibilityCodes: 'Array',
+        includeKeywords: 'Array',
+        excludeKeywords: 'Array',
+        opportunityNumber: 'String',
+        fundingTypes: 'Array',
+        opportunityStatuses: 'Array',
+        opportunityCategories: 'Array',
+        costSharing: 'String',
+        agencyCode: 'String',
+        postedWithinDays: 'Number',
+        assignedToAgencyId: ['String', 'Number', 'Null'],
+        bill: ['Unknown', 'Null'],
     };
 
     for (const [key, value] of Object.entries(receivedFilters)) {
