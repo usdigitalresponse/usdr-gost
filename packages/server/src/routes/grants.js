@@ -39,7 +39,38 @@ function parseCollectionQueryParam(req, param) {
 
 function validateFilters(filters) {
     if (!filters) {
-        throw new Error('Invalid filters')
+        throw new Error('Must have at least one filter')
+    }
+
+    const filterTypes = {
+        reviewStatuses: "Array",
+        eligibilityCodes: "Array",
+        includeKeywords: "Array",
+        excludeKeywords: "Array",
+        opportunityNumber: "String",
+        fundingTypes: "Array",
+        opportunityStatuses: "Array",
+        opportunityCategories: "Array",
+        costSharing: "String",
+        agencyCode: "String",
+        postedWithinDays: "Number",
+        assignedToAgencyId: ["String", "Number", "Null"],
+        bill: ["Unknown", "Null"],
+    };
+
+    for (const [key, value] of Object.entries(receivedFilters)) {
+        const expectedType = filterTypes[key];
+        const actualType = getActualType(value);
+
+        if (Array.isArray(expectedType)) {
+          if (!expectedType.includes(actualType)) {
+            throw new Error(`Invalid type for filter ${key}. Expected one of ${expectedType.join(", ")}, got ${actualType}`);
+          }
+        } else {
+          if (actualType !== expectedType) {
+            throw new Error(`Invalid type for filter ${key}. Expected ${expectedType}, got ${actualType}`);
+          }
+        }
     }
 }
 
@@ -107,7 +138,6 @@ router.get('/next', requireUser, async (req, res) => {
         res.json(grants);
 
     } catch (error) {
-        // Log the error (optional)
         console.error(error);
 
         // Respond with an error status code and message
