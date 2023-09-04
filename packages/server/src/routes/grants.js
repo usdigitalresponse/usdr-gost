@@ -37,10 +37,16 @@ function parseCollectionQueryParam(req, param) {
     return (value && value.split(',')) || [];
 }
 
+function getActualType(value) {
+    if (Array.isArray(value)) return 'Array';
+    if (value === null) return 'Null';
+    return typeof value;
+};
+
 function validateFilters(filters) {
     if (!filters) {
-        throw new Error('Must have at least one filter')
-    };
+        throw new Error('Must have at least one filter');
+    }
 
     const filterTypes = {
         reviewStatuses: 'Array',
@@ -58,18 +64,18 @@ function validateFilters(filters) {
         bill: ['Unknown', 'Null'],
     };
 
-    for (const [key, value] of Object.entries(receivedFilters)) {
+    for (const [key, value] of Object.entries(filters)) {
         const expectedType = filterTypes[key];
         const actualType = getActualType(value);
 
         if (Array.isArray(expectedType)) {
-          if (!expectedType.includes(actualType)) {
-            throw new Error(`Invalid type for filter ${key}. Expected one of ${expectedType.join(", ")}, got ${actualType}`);
-          }
+            if (!expectedType.includes(actualType)) {
+                throw new Error(`Invalid type for filter ${key}. Expected one of ${expectedType.join(', ')}, got ${actualType}`);
+            }
         } else {
-          if (actualType !== expectedType) {
-            throw new Error(`Invalid type for filter ${key}. Expected ${expectedType}, got ${actualType}`);
-          }
+            if (actualType !== expectedType) {
+                throw new Error(`Invalid type for filter ${key}. Expected ${expectedType}, got ${actualType}`);
+            }
         }
     }
 }
