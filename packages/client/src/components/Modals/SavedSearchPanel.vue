@@ -9,6 +9,8 @@
       model="displaySavedSearchPanel"
       ref="savedSearchPanel"
       bg-variant="white"
+      @hidden="cancel"
+      backdrop
       right
       shadow
     >
@@ -93,6 +95,7 @@ export default {
     ...mapGetters({
       savedSearches: 'grants/savedSearches',
       displaySavedSearchPanel: 'grants/displaySavedSearchPanel',
+      selectedSearchId: 'grants/selectedSearchId',
     }),
     emptyState() {
       return this.savedSearches.data && this.savedSearches.data.length === 0;
@@ -108,6 +111,7 @@ export default {
       deleteSavedSearchAPI: 'grants/deleteSavedSearch',
       fetchSavedSearches: 'grants/fetchSavedSearches',
       changeSelectedSearchId: 'grants/changeSelectedSearchId',
+      clearSelectedSearch: 'grants/clearSelectedSearch',
       applyFilters: 'grants/applyFilters',
       initManageSearches: 'grants/initManageSearches',
       initEditSearch: 'grants/initEditSearch',
@@ -130,6 +134,9 @@ export default {
     async deleteSavedSearch(e) {
       const searchId = `${e.target.getAttribute('searchid')}`;
       await this.deleteSavedSearchAPI({ searchId });
+      if (this.selectedSearchId === Number(searchId)) {
+        this.clearSelectedSearch();
+      }
       this.fetchSavedSearches();
       this.notifyDeleted();
     },
@@ -149,7 +156,15 @@ export default {
         variant: 'success',
         solid: true,
         autoHideDelay: 2500,
+        toaster: 'b-toaster-bottom-right',
       });
+    },
+    cancel() {
+      // something closed the sidebar outside of the state store actions
+      // so we need to reset the state
+      if (this.displaySavedSearchPanel) {
+        this.initViewResults();
+      }
     },
   },
 };
@@ -196,6 +211,7 @@ export default {
 }
 .saved-search-row{
   padding-left: 15px;
+  padding-right: 15px;
 }
 .saved-search-row:hover{
   background: rgba(0, 0, 0, 0.075);

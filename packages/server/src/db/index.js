@@ -499,7 +499,9 @@ function buildFiltersQuery(queryBuilder, filters, agencyId) {
             if (filters.bill) {
                 qb.where(`${TABLES.grants}.bill`, '~*', filters.bill);
             }
-            if (filters.postedWithinDays > 0) {
+            if (filters.openDate) {
+                qb.where(`${TABLES.grants}.open_date`, '=', filters.openDate);
+            } else if (filters.postedWithinDays > 0) {
                 const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
                 qb.where(`${TABLES.grants}.open_date`, '>=', date);
             }
@@ -1380,6 +1382,47 @@ async function getSavedSearches(userId, paginationParams) {
 }
 
 /**
+ * Retrieves all saved searches joined with user and digest subscription information
+ * @param int                   userId (optional)
+ * @return Promise<boolean>
+ * */
+async function getAllUserSavedSearches(userId) {
+    const query = knex.select(
+        `${TABLES.grants_saved_searches}.id as id`,
+        `${TABLES.grants_saved_searches}.created_by as created_by`,
+        `${TABLES.grants_saved_searches}.criteria as criteria`,
+        `${TABLES.grants_saved_searches}.name as name`,
+        `${TABLES.email_subscriptions}.status as status`,
+        `${TABLES.email_subscriptions}.notification_type as notification_type`,
+        `${TABLES.users}.tenant_id as tenant_id`,
+        `${TABLES.users}.email as email`,
+    ).from(`${TABLES.grants_saved_searches}`).join(TABLES.users, `${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.users}.id`)
+        .leftJoin(TABLES.email_subscriptions, (builder) => {
+            builder
+                .on(`${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.email_subscriptions}.user_id`)
+                .andOn(`${TABLES.email_subscriptions}.notification_type`, '=', knex.raw('?', [emailConstants.notificationType.grantDigest]));
+        })
+        .where(`${TABLES.email_subscriptions}.status`, `${emailConstants.emailSubscriptionStatus.subscribed}`)
+        .orWhereNull(`${TABLES.email_subscriptions}.status`);
+    if (userId) {
+        query.andWhere(`${TABLES.grants_saved_searches}.created_by`, '=', userId);
+    }
+    const response = await query;
+
+    const data = response.map((r) => ({
+        id: r.id,
+        tenantId: r.tenant_id,
+        userId: r.created_by,
+        email: r.email,
+        status: r.status,
+        name: r.name,
+        criteria: r.criteria,
+    }));
+
+    return data;
+}
+
+/**
  * Get Saved Search by ID
  * @param  int   id
  * @return any   row | null
@@ -1423,6 +1466,7 @@ module.exports = {
     getSavedSearches,
     deleteSavedSearch,
     updateSavedSearch,
+    getAllUserSavedSearches,
     getUsers,
     createUser,
     deleteUser,
