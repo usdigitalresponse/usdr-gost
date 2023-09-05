@@ -29,7 +29,7 @@ if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
 if (process.env.ENABLE_GRANTS_DIGEST === 'true') {
     const generateGrantDigestCron = new CronJob(
         // once per day at 12:00 UTC
-        '0 0 12 * * *', emailService.buildAndSendGrantDigest,
+        '0 0 12 * * *', emailService.buildAndSendUserSavedSearchGrantDigest,
     );
     generateGrantDigestCron.start();
 }

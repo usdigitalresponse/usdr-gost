@@ -286,6 +286,18 @@ const assignedAgencyGrants = {
     },
 };
 
+const grantsSavedSearches = [
+    {
+        name: 'Simple 2 result search based on included keywords',
+        created_by: users.adminUser.id,
+        criteria: JSON.stringify({
+            includeKeywords: ['Community Health Aide Program'],
+        }),
+        created_at: '2023-08-10 16:26:25.555863+00',
+        updated_at: '2023-08-10 16:26:25.555863+00',
+    },
+];
+
 module.exports = {
     tenants,
     agencies,
@@ -293,6 +305,7 @@ module.exports = {
     agencyEligibilityCodes,
     keywords,
     assignedAgencyGrants,
+    grantsSavedSearches,
     grantsInterested,
     grants,
     interestedCodes,
@@ -323,4 +336,5 @@ module.exports.seed = async (knex) => {
     await knex(TABLES.grants).insert(Object.values(grants));
     await knex(TABLES.assigned_grants_agency).insert(Object.values(assignedAgencyGrants));
     await knex(TABLES.grants_interested).insert(Object.values(grantsInterested));
+    await knex(TABLES.grants_saved_searches).insert(Object.values(grantsSavedSearches));
 };
