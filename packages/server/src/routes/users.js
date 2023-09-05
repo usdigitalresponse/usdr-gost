@@ -2,6 +2,7 @@ const express = require('express');
 
 const router = express.Router({ mergeParams: true });
 const multer = require('multer');
+const moment = require('moment');
 
 const multerUpload = multer({ storage: multer.memoryStorage() });
 const XLSX = require('xlsx');
@@ -12,10 +13,12 @@ const {
     isAuthorized,
     isUserAuthorized,
     isUSDRSuperAdmin,
+    requireUSDRSuperAdminUser,
 } = require('../lib/access-helpers');
 const email = require('../lib/email');
 const db = require('../db');
 const UserImporter = require('../lib/userImporter');
+const { emailSubscriptionStatus, notificationType } = require('../lib/email/constants');
 
 router.post('/', requireAdminUser, async (req, res, next) => {
     const { user } = req.session;
@@ -84,6 +87,26 @@ router.put('/:userId/email_subscription', requireUser, async (req, res) => {
         console.error(`Unable to update agency email preferences for user: ${userId} agency: ${agencyId} preferences: ${preferences} error: ${e}`);
         res.status(500).json({ message: 'Something went wrong while updating preferences. Please try again or reach out to support.' });
     }
+});
+
+router.get('/:userId/sendDigestEmail', requireUSDRSuperAdminUser, async (req, res) => {
+    const user = await db.getUser(req.params.userId);
+    if (user.emailPreferences[notificationType.grantDigest] === emailSubscriptionStatus.unsubscribed) {
+        res.status(400).json({ message: `User ${user.id} is not subscribed to grant digest emails` });
+        return;
+    }
+
+    try {
+        await email.buildAndSendUserSavedSearchGrantDigest(
+            user.id,
+            req.query.date ? moment(new Date(req.query.date)).format('YYYY-MM-DD') : undefined,
+        );
+    } catch (e) {
+        console.error(`Unable to kick-off digest email for user '${user.id}' due to error '${e}' stack: ${e.stack}`);
+        res.status(500).json({ message: 'Something went wrong while kicking off the digest email. Please investigate the server logs.' });
+        return;
+    }
+    res.sendStatus(200);
 });
 
 router.get('/', requireAdminUser, async (req, res) => {
