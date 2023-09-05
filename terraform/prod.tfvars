@@ -5,6 +5,14 @@ env       = "production"
 ssm_service_parameters_path_prefix    = "/gost/prod"
 ssm_deployment_parameters_path_prefix = "/gost/prod/deploy-config"
 
+// Datadog provider
+datadog_draft            = false
+datadog_monitors_enabled = true
+datadog_monitor_notification_handles = [
+  "thendrickson@usdigitalresponse.org",
+  "asridhar@usdigitalresponse.org",
+]
+
 // Website
 website_enabled     = true
 website_domain_name = "grants.usdigitalresponse.org"
