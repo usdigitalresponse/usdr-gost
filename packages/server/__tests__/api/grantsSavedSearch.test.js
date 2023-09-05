@@ -126,6 +126,24 @@ describe('`/api/grants-saved-search` endpoint', () => {
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
+            it('cannot create a second saved search of the same name', async () => {
+                const response = await fetchApi(`/grants-saved-search`, agencies.admin.own, {
+                    ...fetchOptions.admin,
+                    method: 'post',
+                    body: JSON.stringify({ name: 'Search2', criteria: '' }),
+                });
+                expect(response.statusText).to.equal('OK');
+                const json = await response.json();
+                idsToDelete.push(json.id);
+
+                const response2 = await fetchApi(`/grants-saved-search`, agencies.admin.own, {
+                    ...fetchOptions.admin,
+                    method: 'post',
+                    body: JSON.stringify({ name: 'Search2', criteria: '' }),
+                });
+                expect(response2.statusText).to.equal('Bad Request');
+                expect(await response2.text()).to.contain('already exists');
+            });
         });
     });
     context('DELETE /grants-saved-search/:id (delete a saved search for an agency)', () => {
