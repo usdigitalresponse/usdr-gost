@@ -2,7 +2,7 @@
   <section class="container-fluid grants-table-container">
     <b-row class="my-3" v-if="showSearchControls">
       <div class="ml-3">
-        <SavedSearchPanel @filters-applied="paginateGrants" />
+        <SavedSearchPanel />
       </div>
       <div class="ml-3">
         <SearchPanel ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
@@ -10,7 +10,7 @@
     </b-row>
     <b-row  class="grants-table-title-control">
       <b-col v-if="showSearchControls" >
-        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" />
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="clearSearch" />
       </b-col>
       <b-col align-self="end" v-if="!showSearchControls">
         <h4 class="mb-0">{{ searchTitle }}</h4>
@@ -149,8 +149,8 @@ export default {
       ],
       selectedGrant: null,
       selectedGrantIndex: null,
-      orderBy: 'open_date',
-      orderDesc: true,
+      orderBy: '',
+      orderDesc: false,
       searchId: null,
     };
   },
@@ -219,12 +219,21 @@ export default {
       this.setup();
     },
     currentPage() {
+      if (this.loading) {
+        return;
+      }
       this.paginateGrants();
     },
     orderBy() {
+      if (this.loading) {
+        return;
+      }
       this.paginateGrants();
     },
     orderDesc() {
+      if (this.loading) {
+        return;
+      }
       this.paginateGrants();
     },
     selectedGrantIndex() {
@@ -235,7 +244,17 @@ export default {
       this.changeSelectedGrant();
     },
     selectedSearchId() {
+      this.loading = true;
       this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
+      const filterKeys = this.activeFilters.map((f) => f.key);
+      if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
+        // only if include/exclude keywords are selected
+        this.orderBy = 'rank';
+        this.orderDesc = false;
+      } else {
+        this.orderBy = 'open_date';
+        this.orderDesc = true;
+      }
       this.paginateGrants();
     },
   },
@@ -250,6 +269,11 @@ export default {
     setup() {
       this.clearSelectedSearch();
       this.paginateGrants();
+    },
+    clearSearch() {
+      this.loading = true;
+      this.orderBy = 'open_date';
+      this.orderDesc = true;
     },
     titleize,
     async paginateGrants() {

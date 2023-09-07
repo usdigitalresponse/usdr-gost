@@ -110,12 +110,17 @@
           </b-form-group>
           <b-form-group label-for="bill">
             <template slot="label">Bill</template>
-              <b-form-input
-                id="bill"
-                type="text"
-                v-model="formData.criteria.bill"
-              ></b-form-input>
-              <b-form-text id="input-live-help">ex. IIJA</b-form-text>
+              <multiselect
+              id="bill"
+              v-model="formData.criteria.bill"
+              open-direction="top"
+              :options="billOptions"
+              :multiple="false"
+              :close-on-select="true"
+              :clear-on-select="false"
+              placeholder="All Bills"
+              :show-labels="false">
+            </multiselect>
           </b-form-group>
           <b-form-group label-for="agency">
             <template slot="label">Agency Code</template>
@@ -164,6 +169,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
+import { billOptions } from '@/helpers/constants';
 
 const defaultCriteria = {
   includeKeywords: null,
@@ -198,6 +204,7 @@ export default {
         searchId: this.searchId,
       },
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
+      billOptions,
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
       reviewStatusOptions: ['Interested', 'Applied', 'Not Applying', 'Assigned'],
       fundingTypeOptions: [
