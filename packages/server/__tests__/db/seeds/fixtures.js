@@ -100,48 +100,7 @@ const agencyEligibilityCodes = {
         agency_id: agencies.fleetServices.id, code: eligibilityCodes.higherEd.code, enabled: false,
     },
 };
-const grantsInterested = {
-    entry1: {
-        agency_id: agencies.accountancy.id,
-        grant_id: '333816',
-        user_id: users.adminUser.id,
-        created_at: '2021-08-11 11:30:38.89828-07',
-        updated_at: '2021-08-11 12:30:39.531-07',
-        interested_code_id: 0,
-    },
-    entry2: {
-        agency_id: agencies.accountancy.id,
-        grant_id: '335255',
-        user_id: users.adminUser.id,
-        created_at: '2022-08-06 16:03:53.57025-07',
-        updated_at: '2021-08-11 12:35:42.562-07',
-        interested_code_id: 1,
-    },
-    entry3: {
-        agency_id: agencies.fleetServices.id,
-        grant_id: '341297',
-        user_id: users.adminUser.id,
-        created_at: '2022-01-06 11:30:38.89828-07',
-        updated_at: '2022-04-23 12:30:39.531-07',
-        interested_code_id: 1,
-    },
-    entry4: {
-        agency_id: agencies.accountancy.id,
-        grant_id: '1',
-        user_id: users.adminUser.id,
-        created_at: '2022-01-06 11:30:38.89828-07',
-        updated_at: '2022-04-23 12:30:39.531-07',
-        interested_code_id: interestedCodes.filter((code) => code.status_code === 'Interested')[0].id,
-    },
-    entry5: {
-        agency_id: agencies.accountancy.id,
-        grant_id: '2',
-        user_id: users.adminUser.id,
-        created_at: '2022-01-06 11:30:38.89828-07',
-        updated_at: '2022-04-23 12:30:39.531-07',
-        interested_code_id: interestedCodes.filter((code) => code.status_code === 'Result')[0].id,
-    },
-};
+
 const grants = {
     earFellowship: {
         status: 'inbox',
@@ -162,6 +121,8 @@ const grants = {
         eligibility_codes: '25',
         opportunity_status: 'posted',
         raw_body: 'raw body',
+        funding_instrument_codes: 'CA G PC',
+        bill: 'Infrastructure Investment and Jobs Act (IIJA)',
         created_at: '2021-08-11 11:30:38.89828-07',
         updated_at: '2021-08-11 12:30:39.531-07',
     },
@@ -184,6 +145,8 @@ const grants = {
         eligibility_codes: '11 07 25',
         opportunity_status: 'posted',
         raw_body: 'raw body',
+        funding_instrument_codes: 'O',
+        bill: '',
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
     },
@@ -206,6 +169,8 @@ const grants = {
         eligibility_codes: '11',
         opportunity_status: 'posted',
         raw_body: 'raw body',
+        funding_instrument_codes: 'O PC',
+        bill: 'Infrastructure Investment and Jobs Act (IIJA)',
         created_at: '2021-01-06 11:30:38.89828-07',
         updated_at: '2022-04-23 12:30:39.531-07',
     },
@@ -228,6 +193,8 @@ const grants = {
         eligibility_codes: '',
         opportunity_status: 'posted',
         raw_body: 'raw body',
+        funding_instrument_codes: '',
+        bill: '',
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
     },
@@ -250,6 +217,8 @@ const grants = {
         eligibility_codes: '',
         opportunity_status: 'posted',
         raw_body: 'raw body',
+        funding_instrument_codes: 'G O',
+        bill: 'Inflation Reduction Act',
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
     },
@@ -272,8 +241,56 @@ const grants = {
         eligibility_codes: '',
         opportunity_status: 'posted',
         raw_body: 'raw body',
+        funding_instrument_codes: 'CA PC',
+        bill: 'Coronavirus',
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
+    },
+};
+
+const grantsInterested = {
+    entry1: {
+        agency_id: agencies.accountancy.id,
+        grant_id: grants.healthAide.grant_id,
+        user_id: users.adminUser.id,
+        created_at: '2021-08-11 11:30:38.89828-07',
+        updated_at: '2021-08-11 12:30:39.531-07',
+        // Rejected
+        interested_code_id: interestedCodes.filter((c) => c.name === 'Not applicable to needs/goals')[0].id,
+    },
+    entry2: {
+        agency_id: agencies.accountancy.id,
+        grant_id: grants.earFellowship.grant_id,
+        user_id: users.adminUser.id,
+        created_at: '2022-08-06 16:03:53.57025-07',
+        updated_at: '2021-08-11 12:35:42.562-07',
+        // Rejected
+        interested_code_id: interestedCodes.filter((c) => c.name === 'Inadequate program capacity')[0].id,
+    },
+    entry3: {
+        agency_id: agencies.fleetServices.id,
+        grant_id: grants.redefiningPossible.grant_id,
+        user_id: users.adminUser.id,
+        created_at: '2022-01-06 11:30:38.89828-07',
+        updated_at: '2022-04-23 12:30:39.531-07',
+        // Rejected
+        interested_code_id: interestedCodes.filter((c) => c.name === 'Inadequate program capacity')[0].id,
+    },
+    entry4: {
+        agency_id: agencies.accountancy.id,
+        grant_id: grants.interestedGrant.grant_id,
+        user_id: users.adminUser.id,
+        created_at: '2022-01-06 11:30:38.89828-07',
+        updated_at: '2022-04-23 12:30:39.531-07',
+        interested_code_id: interestedCodes.filter((code) => code.status_code === 'Interested')[0].id,
+    },
+    entry5: {
+        agency_id: agencies.accountancy.id,
+        grant_id: grants.resultGrant.grant_id,
+        user_id: users.adminUser.id,
+        created_at: '2022-01-06 11:30:38.89828-07',
+        updated_at: '2022-04-23 12:30:39.531-07',
+        interested_code_id: interestedCodes.filter((code) => code.status_code === 'Result')[0].id,
     },
 };
 

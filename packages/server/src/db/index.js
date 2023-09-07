@@ -352,16 +352,12 @@ async function getNewGrantsForAgency(agency) {
     return rows;
 }
 async function buildOrderingParams(args) {
-    const { orderBy, orderDesc } = args;
-
     // default order by the most recently opened grant
-    const orderingParams = { orderBy: 'open_date', orderDesc: true };
+    const orderingParams = { orderBy: 'open_date', orderDesc: 'true' };
 
-    if (orderBy) {
-        orderingParams.orderBy = orderBy;
-    }
-    if (orderDesc) {
-        orderingParams.orderDesc = orderDesc;
+    if (args) {
+        orderingParams.orderBy = args.orderBy;
+        orderingParams.orderDesc = args.orderDesc;
     }
 
     return orderingParams;
@@ -533,8 +529,18 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
         } else if (orderingParams.orderBy.includes('viewed_by')) {
             const orderArgs = orderingParams.orderBy.split('|');
             queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
+            queryBuilder.select(`${TABLES.grants_viewed}.grant_id`);
             queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
             queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
+        } else if (orderingParams.orderBy.includes('rank')) {
+            queryBuilder.select(
+                knex.raw(`ts_rank(title_ts, tsq) as rank_title`),
+                knex.raw(`ts_rank(grants.description_ts, tsq) as rank_description`),
+            );
+            queryBuilder.orderBy([
+                { column: 'rank_title', order: 'desc' },
+                { column: 'rank_description', order: 'desc' },
+            ]);
         } else {
             const orderArgs = orderingParams.orderBy.split('|');
             const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
@@ -544,6 +550,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             queryBuilder.orderBy(orderArgs[0], orderDirection);
         }
     }
+
     if (paginationParams) {
         queryBuilder.limit(paginationParams.perPage);
         queryBuilder.offset((paginationParams.currentPage - 1) * paginationParams.perPage);
@@ -552,7 +559,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
 
 /*
     filters: {
-        reviewStatuses: List[Enum['Interested', 'Result', 'Rejected']],
+        reviewStatuses: List[Enum['Applied', 'Not Applying', 'Interested']],
         eligibilityCodes: List[String],
         includeKeywords: List[String],
         excludeKeywords: List[String],
@@ -583,7 +590,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
         .countDistinct('grants.grant_id as total_grants');
 
     const pagination = {
-        total: counts[0].total_grants,
+        total: parseInt(counts[0].total_grants, 10),
         lastPage: Math.ceil(parseInt(counts[0].total_grants, 10) / parseInt(paginationParams.perPage, 10)),
     };
 
