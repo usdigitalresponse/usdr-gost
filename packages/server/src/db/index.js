@@ -559,7 +559,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
 
 /*
     filters: {
-        reviewStatuses: List[Enum['Interested', 'Result', 'Rejected']],
+        reviewStatuses: List[Enum['Applied', 'Not Applying', 'Interested']],
         eligibilityCodes: List[String],
         includeKeywords: List[String],
         excludeKeywords: List[String],
@@ -590,7 +590,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
         .countDistinct('grants.grant_id as total_grants');
 
     const pagination = {
-        total: counts[0].total_grants,
+        total: parseInt(counts[0].total_grants, 10),
         lastPage: Math.ceil(parseInt(counts[0].total_grants, 10) / parseInt(paginationParams.perPage, 10)),
     };
 
