@@ -246,7 +246,9 @@ export default {
     selectedSearchId() {
       this.loading = true;
       this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
-      if (this.searchId !== null) {
+      const filterKeys = this.activeFilters.map((f) => f.key);
+      if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
+        // only if include/exclude keywords are selected
         this.orderBy = 'rank';
         this.orderDesc = false;
       } else {
