@@ -270,7 +270,6 @@ export default {
     },
     clearSearch() {
       this.loading = true;
-      console.log('clearing search');
       this.orderBy = 'open_date';
       this.orderDesc = true;
     },
