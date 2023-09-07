@@ -623,9 +623,7 @@ async function enhanceGrantData(tenantId, data) {
 async function getGrants({
     currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
 } = {}) {
-    const { data, pagination } = await knex(TABLES.grants)
-        .select(`${TABLES.grants}.*`)
-        .distinct()
+    const data = await knex(TABLES.grants)
         .modify((queryBuilder) => {
             if (searchTerm && searchTerm !== 'null') {
                 queryBuilder.andWhere(
@@ -704,9 +702,76 @@ async function getGrants({
                     queryBuilder.orderBy(orderArgs[0], orderDirection);
                 }
             }
-        })
-        .paginate({ currentPage, perPage, isLengthAware: true });
+            queryBuilder.limit(perPage);
+            queryBuilder.offset((currentPage - 1) * perPage);
+        });
 
+    const counts = await knex(TABLES.grants)
+        .modify((queryBuilder) => {
+            if (searchTerm && searchTerm !== 'null') {
+                queryBuilder.andWhere(
+                    (qb) => qb.where(`${TABLES.grants}.grant_id`, '~*', searchTerm)
+                        .orWhere(`${TABLES.grants}.grant_number`, '~*', searchTerm)
+                        .orWhere(`${TABLES.grants}.title`, '~*', searchTerm),
+                );
+            }
+            if (filters) {
+                if (filters.interestedByUser || filters.positiveInterest || filters.result || filters.rejected || filters.interestedByAgency) {
+                    queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
+                        .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
+                }
+                if (filters.assignedToAgency) {
+                    queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
+                }
+                queryBuilder.andWhere(
+                    (qb) => {
+                        const isMyGrantsQuery = filters.interestedByAgency !== null
+                                                || filters.assignedToAgency !== null
+                                                || filters.rejected !== null
+                                                || filters.result !== null;
+                        if (!isMyGrantsQuery) {
+                            helpers.whereAgencyCriteriaMatch(qb, filters.agencyCriteria);
+                        }
+
+                        if (filters.interestedByAgency != null) {
+                            qb.where('grants_interested.agency_id', filters.interestedByAgency);
+                        }
+                        if (filters.interestedByUser) {
+                            qb.where(`${TABLES.grants_interested}.user_id`, '=', filters.interestedByUser);
+                        }
+                        if (filters.assignedToAgency) {
+                            qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgency);
+                        }
+                        if (!(filters.positiveInterest && filters.result && filters.rejected)) {
+                            if (filters.positiveInterest) {
+                                qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Interested');
+                            }
+                            if (filters.result) {
+                                qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Result');
+                            }
+                            if (filters.rejected) {
+                                qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Rejected');
+                            }
+                        }
+                        if (filters.opportunityStatuses?.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_status`, filters.opportunityStatuses);
+                        }
+                        if (filters.opportunityCategories?.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
+                        }
+                        if (filters.costSharing) {
+                            qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
+                        }
+                    },
+                );
+            }
+        })
+        .countDistinct('grants.grant_id as total_grants');
+
+    const pagination = {
+        total: counts[0].total_grants,
+        lastPage: Math.ceil(parseInt(counts[0].total_grants, 10) / parseInt(perPage, 10)),
+    };
     const viewedByQuery = knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
