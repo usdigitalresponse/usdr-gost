@@ -3,169 +3,190 @@
       <b-button @click="initNewSearch" variant="outline-primary" size="sm">
         New Search
       </b-button>
-      <b-sidebar
-        id="search-panel"
-        ref="searchPanelSideBar"
-        title="Search"
-        class="search-panel"
-        bg-variant="white"
-        @shown="onShown"
-        @hidden="cancel"
-        backdrop
-        right
-        shadow
-      >
-        <template #header>
-          <div class="search-panel-title">{{ panelTitle }}</div>
-          <b-button-close class="close" @click="cancel">
-          </b-button-close>
-        </template>
-        <form ref="form" class="search-form">
-          <b-form-group label-for="searchTitle">
-            <template slot="label"><b>Search Title</b></template>
+
+      <b-form @submit="onSubmit" @reset="cancel">
+        <b-sidebar
+          id="search-panel"
+          ref="searchPanelSideBar"
+          bg-variant="white"
+          @shown="onShown"
+          @hidden="cancel"
+          width="480px"
+          backdrop
+          right
+          shadow
+        >
+          <template #header>
+            <div>{{ panelTitle }}</div>
+            <b-button-close type="reset" @click="cancel"></b-button-close>
+          </template>
+            <b-form-group
+              id="search-title-group"
+              label="Search Title"
+              label-for="search-title"
+              description="ex. Infrastructure"
+            >
               <b-form-input
-                id="searchTitle"
+                id="search-title"
                 type="text"
                 v-model="formData.searchTitle"
-              ></b-form-input>
-              <b-form-text id="input-live-help">ex. Infrastructure</b-form-text>
-          </b-form-group>
-          <b-form-group label-for="include-input">
-            <template slot="label">Include Keywords</template>
-              <b-form-input
-                id="include-input"
-                type="text"
-                v-model="formData.criteria.includeKeywords"
-              ></b-form-input>
-              <b-form-text id="input-live-help">Separate keywords with comma</b-form-text>
-          </b-form-group>
-          <b-form-group label-for="exclude-input">
-            <template slot="label">Exclude Keywords</template>
-              <b-form-input
-                id="exclude-input"
-                type="text"
-                v-model="formData.criteria.excludeKeywords"
-              ></b-form-input>
-              <b-form-text id="input-live-help">Separate keywords with comma</b-form-text>
-          </b-form-group>
-          <b-form-group label-for="opportunity-number-input">
-            <template slot="label">Opportunity #</template>
-              <b-form-input
-                id="opportunity-number-input"
-                v-model="formData.criteria.opportunityNumber"
-              ></b-form-input>
-          </b-form-group>
-          <b-form-group label="Opportunity Status" v-slot="{ ariaDescribedby }">
-            <b-form-checkbox-group
-              id="opportunity-status"
-              v-model="formData.criteria.opportunityStatuses"
-              :aria-describedby="ariaDescribedby"
-              name="opportunity-status"
-              inline
+              />
+            </b-form-group>
+            <b-form-group
+              id="include-input-group"
+              label="Include Keywords"
+              label-for="include-input"
+              description="Separate keywords with comma"
             >
-              <b-form-checkbox value="forecasted">Forecasted</b-form-checkbox>
-              <b-form-checkbox value="posted">Posted</b-form-checkbox>
-              <b-form-checkbox value="closed">Closed</b-form-checkbox>
-            </b-form-checkbox-group>
-          </b-form-group>
-          <b-form-group class="multiselect-group" label-for="funding-type">
-            <template slot="label">Funding Type</template>
+                <b-form-input
+                  id="include-input"
+                  type="text"
+                  v-model="formData.criteria.includeKeywords"
+                />
+            </b-form-group>
+            <b-form-group
+              id="exclude-input-group"
+              label="Exclude Keywords"
+              label-for="exclude-input"
+              description="Separate keywords with comma"
+            >
+                <b-form-input
+                  id="exclude-input"
+                  type="text"
+                  v-model="formData.criteria.excludeKeywords"
+                />
+            </b-form-group>
+            <b-form-group
+              id="opportunity-number-input-group"
+              label="Opportunity #"
+              label-for="opportunity-number-input"
+            >
+                <b-form-input
+                  id="opportunity-number-input"
+                  type="text"
+                  v-model="formData.criteria.opportunityNumber"
+                />
+            </b-form-group>
+            <b-form-group
+              id="opportunity-status-group"
+              label="Opportunity Status"
+              v-slot="{ ariaDescribedby }"
+            >
+              <b-form-checkbox-group
+                id="opportunity-status"
+                v-model="formData.criteria.opportunityStatuses"
+                :options="opportunityStatusOptions"
+                :aria-describedby="ariaDescribedby"
+                inline
+              >
+              </b-form-checkbox-group>
+            </b-form-group>
+            <b-form-group
+              id="funding-type-group"
+              label="Funding Type"
+              label-for="funding-type"
+            >
+                <multiselect
+                  id="funding-type"
+                  v-model="formData.criteria.fundingTypes"
+                  :options="fundingTypeOptions"
+                  label="name"
+                  track-by="code"
+                  :multiple="true"
+                  :close-on-select="false"
+                  :searchable="false"
+                />
+            </b-form-group>
+            <b-form-group
+              id="eligibility-group"
+              label="Eligibility"
+              label-for="eligibility"
+            >
               <multiselect
-                v-model="formData.criteria.fundingTypes"
-                :options="fundingTypeOptions"
+                id="eligibility"
+                v-model="formData.criteria.eligibility"
+                :options="eligibilityCodes"
+                label="label"
                 track-by="code"
-                label="name"
-                id="funding-type"
-                type="text"
                 :multiple="true"
-              ></multiselect>
-          </b-form-group>
-          <b-form-group class="multiselect-group">
-            <template slot="label">Eligibility</template>
-            <multiselect
-              v-model="formData.criteria.eligibility"
-              :options="eligibilityCodes"
-              track-by="code"
-              label="label"
-              id="eligibility"
-              type="text"
-              :multiple="true"
-            >
-            </multiselect>
-          </b-form-group>
-          <b-form-group class="multiselect-group">
-            <template slot="label">Category</template>
-            <multiselect
-              v-model="formData.criteria.opportunityCategories"
-              :options="opportunityCategoryOptions"
-              :multiple="true"
-              :limit="1"
-              :limitText="customLimitText"
-              :close-on-select="false"
-              :clear-on-select="false"
-              placeholder="Opportunity Category"
-              :show-labels="false"
-              :searchable="false">
-            </multiselect>
-          </b-form-group>
-          <b-form-group label-for="bill">
-            <template slot="label">Bill</template>
+                :close-on-select="false"
+                :searchable="true"
+                :option-height="300"
+                :max="5"
+                :max-height="200"
+              >
+              </multiselect>
+            </b-form-group>
+            <b-form-group>
+              <template slot="label">Category</template>
               <multiselect
-              id="bill"
-              v-model="formData.criteria.bill"
-              open-direction="top"
-              :options="billOptions"
-              :multiple="false"
-              :close-on-select="true"
-              :clear-on-select="false"
-              placeholder="All Bills"
-              :show-labels="false">
-            </multiselect>
-          </b-form-group>
-          <b-form-group label-for="agency">
-            <template slot="label">Agency Code</template>
-              <b-form-input
-                id="agency"
-                type="text"
-                v-model="formData.criteria.agency"
-              ></b-form-input>
-          </b-form-group>
-          <b-form-group>
-            <template slot="label">Posted Within</template>
-            <multiselect
-              id="posted-within"
-              v-model="formData.criteria.postedWithin"
-              :options="postedWithinOptions"
-              :multiple="false"
-              :close-on-select="true"
-              :clear-on-select="false"
-              placeholder="All Time"
-              :show-labels="false">
-            </multiselect>
-          </b-form-group>
-          <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }" row>
-            <b-form-radio-group>
-              <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="Yes">Yes</b-form-radio>
-              <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="No">No</b-form-radio>
-            </b-form-radio-group>
-          </b-form-group>
-          <b-form-group class="multiselect-group">
-            <template slot="label">Review Status</template>
-            <multiselect v-model="formData.criteria.reviewStatus" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
-          </b-form-group>
-        </form>
-      <template #footer>
-       <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
-        <b-button size="sm" @click="cancel" variant="outline-primary" class="borderless-button">Cancel</b-button>
-        <div>
-          <b-button size="sm" @click="saveSearch" variant="primary" :disabled="!saveEnabled">Save and View Results</b-button>
-        </div>
-       </div>
-      </template>
-      </b-sidebar>
+                v-model="formData.criteria.opportunityCategories"
+                :options="opportunityCategoryOptions"
+                :multiple="true"
+                :limit="1"
+                :limitText="customLimitText"
+                :close-on-select="false"
+                :clear-on-select="false"
+                placeholder="Opportunity Category"
+                :show-labels="false"
+                :searchable="false">
+              </multiselect>
+            </b-form-group>
+            <b-form-group label-for="bill">
+              <template slot="label">Appropriation Bill</template>
+                <multiselect
+                id="bill"
+                v-model="formData.criteria.bill"
+                open-direction="top"
+                :options="billOptions"
+                :multiple="false"
+                :close-on-select="true"
+                :clear-on-select="false"
+                placeholder="All Bills"
+                :show-labels="false">
+              </multiselect>
+            </b-form-group>
+            <b-form-group label-for="agency">
+              <template slot="label">Agency Code</template>
+                <b-form-input
+                  id="agency"
+                  type="text"
+                  v-model="formData.criteria.agency"
+                ></b-form-input>
+            </b-form-group>
+            <b-form-group>
+              <template slot="label">Posted Within</template>
+              <multiselect
+                id="posted-within"
+                v-model="formData.criteria.postedWithin"
+                :options="postedWithinOptions"
+                :multiple="false"
+                :close-on-select="true"
+                :clear-on-select="false"
+                placeholder="All Time"
+                :show-labels="false">
+              </multiselect>
+            </b-form-group>
+            <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }" row>
+              <b-form-radio-group>
+                <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="Yes">Yes</b-form-radio>
+                <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="No">No</b-form-radio>
+              </b-form-radio-group>
+            </b-form-group>
+            <b-form-group>
+              <template slot="label">Review Status</template>
+              <multiselect v-model="formData.criteria.reviewStatus" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
+            </b-form-group>
+          <template #footer>
+            <b-button type="reset" variant="outline-primary">Cancel</b-button>
+            <b-button type="submit" variant="primary">Save and View Results</b-button>
+          </template>
+        </b-sidebar>
+      </b-form>
     </div>
   </template>
 <script>
+
 import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
@@ -212,6 +233,12 @@ export default {
         { code: 'CA', name: 'Cooperative Agreement' },
         { code: 'PC', name: 'Procurement Contract' },
         { code: 'O', name: 'Other' },
+      ],
+      opportunityStatusOptions: [
+        { text: 'Forecasted', value: 'forecasted' },
+        { text: 'Posted', value: 'posted' },
+        { text: 'Closed', value: 'closed' },
+        { text: 'Archived', value: 'archived' },
       ],
     };
   },
@@ -308,7 +335,7 @@ export default {
       const searchIds = this.savedSearches.data.map((s) => s.id);
       return Math.max(...searchIds, 0) + 1;
     },
-    async saveSearch() {
+    async onSubmit() {
       this.apply();
       let searchId;
       try {
@@ -359,71 +386,4 @@ export default {
 };
 </script>
 <style>
-.search-panel-title{
-  font-style: normal;
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 120%;
-}
-.form{
-  margin: 10px;
-}
-.multiselect-title{
-  font-weight: 500;
-  line-height: 150%;
-  margin-left: 2px;
-  margin-bottom: 5px;
-  color: #1F2123;
-}
-.multiselect > .multiselect__tags{
-  display: flex;
-  align-items: center;
-}
-.multiselect > .multiselect__tags > .multiselect__strong{
-  display: inline;
-  padding: 4px 5px 4px;
-  border-radius: 5px;
-  color: #fff;
-  line-height: 1;
-  background: #41b883;
-  margin-bottom: 11px;
-}
-.b-sidebar-header{
-  justify-content: space-between;
-  border-bottom: solid #DAE0E5;
-  font-size: 1.5rem;
-  padding: 0.5rem 1rem;
-  display: flex;
-  flex-direction: row;
-  flex-grow: 0;
-  align-items: center;
-}
-.search-panel > .b-sidebar > .b-sidebar-header{
-  font-size: 1.25rem;
-  border-bottom: 1.5px solid #e8e8e8;
-  width: 100%;
-}
-.b-sidebar.b-sidebar-right > .b-sidebar-header .close {
-  margin-right: 0;
-}
-#search-panel___title__{
-  margin: 0 auto;
-}
-
-.sidebar-footer {
-  border-top: 1.5px solid #e8e8e8;
-  justify-content: space-between;
-  width: 100%;
-}
-.borderless-button {
-  border-color: transparent;
-}
-.right-button-container{
-  width: 190px;
-  display: flex;
-  justify-content: space-between;
-}
-.search-form {
-  padding: 10px;
-}
 </style>

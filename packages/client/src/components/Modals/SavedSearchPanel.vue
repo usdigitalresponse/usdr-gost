@@ -9,6 +9,7 @@
       model="displaySavedSearchPanel"
       ref="savedSearchPanel"
       bg-variant="white"
+      width="480px"
       @hidden="cancel"
       backdrop
       right
@@ -170,51 +171,4 @@ export default {
 };
 </script>
 <style>
-.saved-search-title{
-  font-style: normal;
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 120%;
-}
-.b-sidebar.b-sidebar-right > .b-sidebar-header .close{
-  margin-right: 0px;
-}
-.b-sidebar-header{
-  justify-content: space-between;
-  border-bottom: solid #DAE0E5;
-}
-.b-sidebar-body{
-  display: flex;
-}
-.b-sidebar-footer{
-  display: flex;
-  justify-content: end;
-  border-top: solid #DAE0E5;
-}
-.saved-search-empty-state{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  font-style: normal;
-}
-.saved-search-empty-state > h4{
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 120%;
-}
-.saved-search-empty-state > span{
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 150%;
-}
-.saved-search-row{
-  padding-left: 15px;
-  padding-right: 15px;
-}
-.saved-search-row:hover{
-  background: rgba(0, 0, 0, 0.075);
-}
-
 </style>
