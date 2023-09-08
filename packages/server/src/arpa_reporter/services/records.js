@@ -69,6 +69,8 @@ async function loadRecordsForUpload(upload) {
     const workbook = await workbookForUpload(upload, {
         cellDates: true,
         type: 'buffer',
+        cellHTML: false,
+        cellFormula: false,
         sheets: [CERTIFICATION_SHEET, COVER_SHEET, LOGIC_SHEET, ...Object.keys(DATA_SHEET_TYPES)],
     });
 
