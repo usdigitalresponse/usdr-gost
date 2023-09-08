@@ -2,7 +2,6 @@ const tracer = require('dd-trace');
 const moment = require('moment');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
-const asyncBatch = require('async-batch').default;
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const aws = require('../../lib/gost-aws');
 const { ec } = require('./format');
@@ -31,80 +30,68 @@ function getUploadLink(domain, id, filename) {
     return { f: `=HYPERLINK("${domain}/uploads/${id}","${filename}")` };
 }
 
-async function getAggregatePerUpload(data) {
-    const {
-        upload, period, domain, records,
-    } = data;
-    const emptyRow = {
-        'Reporting Period': period.name,
-        'Period End Date': new Date(period.end_date),
-        Upload: getUploadLink(domain, upload.id, upload.filename),
-        [COLUMN.EC_BUDGET]: 0,
-        [COLUMN.EC_TCO]: 0,
-        [COLUMN.EC_TCE]: 0,
-        [COLUMN.EC_CPO]: 0,
-        [COLUMN.EC_CPE]: 0,
-        [COLUMN.E50K_OBLIGATION]: 0,
-        [COLUMN.E50K_TEA]: 0,
-        [COLUMN.E_CPO]: 0,
-        [COLUMN.E_CPE]: 0,
-    };
-
-    const row = records
-        .filter((record) => record.upload.id === upload.id)
-        .reduce((newRow, record) => {
-            switch (record.type) {
-                case 'ec1':
-                case 'ec2':
-                case 'ec3':
-                case 'ec4':
-                case 'ec5':
-                case 'ec7':
-                    newRow[COLUMN.EC_BUDGET] += record.content.Adopted_Budget__c;
-                    newRow[COLUMN.EC_TCO] += record.content.Total_Obligations__c;
-                    newRow[COLUMN.EC_TCE] += record.content.Total_Expenditures__c;
-                    newRow[COLUMN.EC_CPO] += record.content.Current_Period_Obligations__c;
-                    newRow[COLUMN.EC_CPE] += record.content.Current_Period_Expenditures__c;
-                    break;
-                case 'awards50k':
-                    newRow[COLUMN.E50K_OBLIGATION] += record.content.Award_Amount__c;
-                    break;
-                case 'expenditures50k':
-                    newRow[COLUMN.E50K_TEA] += record.content.Expenditure_Amount__c;
-                    break;
-                case 'awards':
-                    newRow[COLUMN.E_CPO] += record.content.Quarterly_Obligation_Amt_Aggregates__c;
-                    newRow[COLUMN.E_CPE] += record.content.Quarterly_Expenditure_Amt_Aggregates__c;
-                    break;
-                default:
-            }
-            return newRow;
-        }, emptyRow);
-
-    return row;
-}
-
-async function getAggregatePeriodRow(data) {
-    const { period, domain } = data;
-    const uploads = await usedForTreasuryExport(period.id);
-    const records = await recordsForReportingPeriod(period.id);
-
-    const inputs = [];
-    uploads.forEach((u) => inputs.push({
-        upload: u, period, domain, records,
-    }));
-
-    return asyncBatch(inputs, getAggregatePerUpload, 2);
-}
-
 async function createObligationSheet(periodId, domain) {
     // select active reporting periods and sort by date
     const reportingPeriods = await getPreviousReportingPeriods(periodId);
-    const inputs = [];
-    reportingPeriods.forEach((r) => inputs.push({ period: r, domain }));
 
-    // collect aggregate obligations and expenditures by upload
-    const rows = await asyncBatch(inputs, getAggregatePeriodRow, 2);
+    const rows = await Promise.all(
+        reportingPeriods.map(async (period) => {
+            const uploads = await usedForTreasuryExport(period.id);
+            const records = await recordsForReportingPeriod(period.id);
+
+            return Promise.all(uploads.map(async (upload) => {
+                const emptyRow = {
+                    'Reporting Period': period.name,
+                    'Period End Date': new Date(period.end_date),
+                    Upload: getUploadLink(domain, upload.id, upload.filename),
+                    [COLUMN.EC_BUDGET]: 0,
+                    [COLUMN.EC_TCO]: 0,
+                    [COLUMN.EC_TCE]: 0,
+                    [COLUMN.EC_CPO]: 0,
+                    [COLUMN.EC_CPE]: 0,
+                    [COLUMN.E50K_OBLIGATION]: 0,
+                    [COLUMN.E50K_TEA]: 0,
+                    [COLUMN.E_CPO]: 0,
+                    [COLUMN.E_CPE]: 0,
+                };
+
+                const row = records
+                    .filter((record) => record.upload.id === upload.id)
+                    .reduce((newRow, record) => {
+                        switch (record.type) {
+                            case 'ec1':
+                            case 'ec2':
+                            case 'ec3':
+                            case 'ec4':
+                            case 'ec5':
+                            case 'ec7':
+                                newRow[COLUMN.EC_BUDGET] += record.content.Adopted_Budget__c;
+                                newRow[COLUMN.EC_TCO] += record.content.Total_Obligations__c;
+                                newRow[COLUMN.EC_TCE] += record.content.Total_Expenditures__c;
+                                newRow[COLUMN.EC_CPO] += record.content.Current_Period_Obligations__c;
+                                newRow[COLUMN.EC_CPE] += record.content.Current_Period_Expenditures__c;
+                                break;
+                            case 'awards50k':
+                                newRow[COLUMN.E50K_OBLIGATION] += record.content.Award_Amount__c;
+                                break;
+                            case 'expenditures50k':
+                                newRow[COLUMN.E50K_TEA] += record.content.Expenditure_Amount__c;
+                                break;
+                            case 'awards':
+                                newRow[COLUMN.E_CPO] += record.content.Quarterly_Obligation_Amt_Aggregates__c;
+                                newRow[COLUMN.E_CPE] += record.content.Quarterly_Expenditure_Amt_Aggregates__c;
+                                break;
+                            default:
+                                // pass
+                        }
+                        return newRow;
+                    }, emptyRow);
+
+                return row;
+            }));
+        }),
+    );
+
     return rows.flat();
 }
 
