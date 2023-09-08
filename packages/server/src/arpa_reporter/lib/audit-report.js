@@ -152,7 +152,7 @@ async function getReportDataGroupedByProjectRow(data) {
         const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
         kpiRow['Number of Subawards'] += (r.type === 'awards50k');
         kpiRow['Number of Expenditures'] += (currentPeriodExpenditure > 0);
-        kpiRow['Evidence based total spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
+        kpiRow['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
     });
 
     return [projectSummaryV2Row, kpiRow];
@@ -247,19 +247,15 @@ async function generate(requestHost) {
             const sheet2 = XLSX.utils.json_to_sheet(projectSummaries, { dateNF: 'MM/DD/YYYY' });
             const sheet3 = XLSX.utils.json_to_sheet(projectSummaryGroupedByProject, { dateNF: 'MM/DD/YYYY' });
             const sheet4 = XLSX.utils.json_to_sheet(KPIDataGroupedByProject, { dateNF: 'MM/DD/YYYY' });
-
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, sheet1, 'Obligations & Expenditures');
             XLSX.utils.book_append_sheet(newWorkbook, sheet2, 'Project Summaries');
             XLSX.utils.book_append_sheet(newWorkbook, sheet3, 'Project Summaries V2');
-            XLSX.utils.book_append_sheet(workbook, sheet4, 'KPI');
-
+            XLSX.utils.book_append_sheet(newWorkbook, sheet4, 'KPI');
             return newWorkbook;
         });
 
-        const outputWorkBook = tracer.trace('XLSX.write', () => {
-            XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
-        });
+        const outputWorkBook = tracer.trace('XLSX.write', () => XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' }));
 
         return {
             periodId,
