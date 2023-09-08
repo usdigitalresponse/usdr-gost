@@ -247,11 +247,13 @@ async function generate(requestHost) {
             const sheet2 = XLSX.utils.json_to_sheet(projectSummaries, { dateNF: 'MM/DD/YYYY' });
             const sheet3 = XLSX.utils.json_to_sheet(projectSummaryGroupedByProject, { dateNF: 'MM/DD/YYYY' });
             const sheet4 = XLSX.utils.json_to_sheet(KPIDataGroupedByProject, { dateNF: 'MM/DD/YYYY' });
+
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, sheet1, 'Obligations & Expenditures');
             XLSX.utils.book_append_sheet(newWorkbook, sheet2, 'Project Summaries');
             XLSX.utils.book_append_sheet(newWorkbook, sheet3, 'Project Summaries V2');
             XLSX.utils.book_append_sheet(workbook, sheet4, 'KPI');
+
             return newWorkbook;
         });
 
