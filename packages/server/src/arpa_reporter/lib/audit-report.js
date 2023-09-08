@@ -102,17 +102,24 @@ async function getProjectSummaryRow(data) {
     };
 }
 
-async function getProjectSummaryGroupedByProjectRow(data) {
+async function getReportDataGroupedByProjectRow(data) {
     const { projectId, records, reportingPeriods } = data;
 
     const record = records[0];
 
     // set values for columns that are common across all records of projectId
-    const row = {
+    const projectSummaryV2Row = {
         'Project ID': projectId,
         'Project Description': record.content.Project_Description__c,
         'Project Expenditure Category Group': ec(record.type),
         'Project Expenditure Category': record.subcategory,
+    };
+
+    const kpiRow = {
+        'Project ID': projectId,
+        'Number of Subawards': 0,
+        'Number of Expenditures': 0,
+        'Evidence Based Total Spend': 0,
     };
 
     // get all reporting periods related to the project
@@ -126,22 +133,29 @@ async function getProjectSummaryGroupedByProjectRow(data) {
             `${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`,
             `${reportingPeriodEndDate} Total Aggregate Obligations`,
             `${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`,
-        ].forEach((columnName) => { row[columnName] = 0; });
+        ].forEach((columnName) => { projectSummaryV2Row[columnName] = 0; });
     });
 
-    row['Capital Expenditure Amount'] = 0;
+    projectSummaryV2Row['Capital Expenditure Amount'] = 0;
 
     // set values in each column
     records.forEach(async (r) => {
+        // for project summaries v2 report
         const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
-        row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += (r.content.Total_Expenditures__c || 0);
-        row[`${reportingPeriodEndDate} Total Aggregate Obligations`] += (r.content.Total_Obligations__c || 0);
-        row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += (r.content.Award_Amount__c || 0);
-        row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += (r.content.Expenditure_Amount__c || 0);
-        row['Capital Expenditure Amount'] += (r.content.Total_Cost_Capital_Expenditure__c || 0);
+        projectSummaryV2Row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += (r.content.Total_Expenditures__c || 0);
+        projectSummaryV2Row[`${reportingPeriodEndDate} Total Aggregate Obligations`] += (r.content.Total_Obligations__c || 0);
+        projectSummaryV2Row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += (r.content.Award_Amount__c || 0);
+        projectSummaryV2Row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += (r.content.Expenditure_Amount__c || 0);
+        projectSummaryV2Row['Capital Expenditure Amount'] += (r.content.Total_Cost_Capital_Expenditure__c || 0);
+
+        // for kpi report
+        const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
+        kpiRow['Number of Subawards'] += (r.type === 'awards50k');
+        kpiRow['Number of Expenditures'] += (currentPeriodExpenditure > 0);
+        kpiRow['Evidence based total spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
     });
 
-    return row;
+    return [projectSummaryV2Row, kpiRow];
 }
 
 async function getAggregatePeriodRow(data) {
@@ -189,7 +203,7 @@ function getRecordsByProject(records) {
     }, {});
 }
 
-async function createProjectSummariesGroupedByProject(periodId) {
+async function createReportsGroupedByProject(periodId) {
     const records = await recordsForProject(periodId);
     const recordsByProject = getRecordsByProject(records);
     const reportingPeriods = await getAllReportingPeriods();
@@ -200,9 +214,11 @@ async function createProjectSummariesGroupedByProject(periodId) {
         inputs.push({ projectId, records: r, reportingPeriods });
     });
 
-    const rows = await asyncBatch(inputs, getProjectSummaryGroupedByProjectRow, 2);
+    const reportDataGroupedByProjectData = await asyncBatch(inputs, getReportDataGroupedByProjectRow, 2);
+    const projectSummaryGroupedByProject = reportDataGroupedByProjectData.map((row) => row[0]);
+    const KPIDataGroupedByProject = reportDataGroupedByProjectData.map((row) => row[1]);
 
-    return rows;
+    return [projectSummaryGroupedByProject, KPIDataGroupedByProject];
 }
 
 async function generate(requestHost) {
@@ -216,22 +232,28 @@ async function generate(requestHost) {
         const [
             obligations,
             projectSummaries,
-            projectSummariesGroupedByProject,
+            [
+                projectSummaryGroupedByProject,
+                KPIDataGroupedByProject,
+            ],
         ] = await Promise.all([
             createObligationSheet(periodId, domain),
             createProjectSummaries(periodId, domain),
-            createProjectSummariesGroupedByProject(periodId),
+            createReportsGroupedByProject(periodId),
         ]);
-
         const workbook = tracer.trace('compose-workbook', () => {
             // compose workbook
             const sheet1 = XLSX.utils.json_to_sheet(obligations, { dateNF: 'MM/DD/YYYY' });
             const sheet2 = XLSX.utils.json_to_sheet(projectSummaries, { dateNF: 'MM/DD/YYYY' });
-            const sheet3 = XLSX.utils.json_to_sheet(projectSummariesGroupedByProject, { dateNF: 'MM/DD/YYYY' });
+            const sheet3 = XLSX.utils.json_to_sheet(projectSummaryGroupedByProject, { dateNF: 'MM/DD/YYYY' });
+            const sheet4 = XLSX.utils.json_to_sheet(KPIDataGroupedByProject, { dateNF: 'MM/DD/YYYY' });
+
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, sheet1, 'Obligations & Expenditures');
             XLSX.utils.book_append_sheet(newWorkbook, sheet2, 'Project Summaries');
             XLSX.utils.book_append_sheet(newWorkbook, sheet3, 'Project Summaries V2');
+            XLSX.utils.book_append_sheet(workbook, sheet4, 'KPI');
+
             return newWorkbook;
         });
 
