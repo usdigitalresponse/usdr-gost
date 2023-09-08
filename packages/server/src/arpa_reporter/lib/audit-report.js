@@ -84,24 +84,6 @@ async function getAggregatePerUpload(data) {
     return row;
 }
 
-async function getProjectSummaryRow(data) {
-    const { record, domain } = data;
-    const reportingPeriod = await getReportingPeriod(record.upload.reporting_period_id);
-
-    return {
-        'Project ID': record.content.Project_Identification_Number__c,
-        Upload: getUploadLink(domain, record.upload.id, record.upload.filename),
-        'Last Reported': reportingPeriod.name,
-        // TODO: consider also mapping project IDs to export templates?
-        'Adopted Budget': record.content.Adopted_Budget__c,
-        'Total Cumulative Obligations': record.content.Total_Obligations__c,
-        'Total Cumulative Expenditures': record.content.Total_Expenditures__c,
-        'Current Period Obligations': record.content.Current_Period_Obligations__c,
-        'Current Period Expenditures': record.content.Current_Period_Expenditures__c,
-        'Completion Status': record.content.Completion_Status__c,
-    };
-}
-
 async function getReportDataGroupedByProjectRow(data) {
     const { projectId, records, reportingPeriods } = data;
 
@@ -188,9 +170,24 @@ async function createProjectSummaries(periodId, domain) {
     const inputs = [];
     records.forEach((r) => inputs.push({ record: r, domain }));
 
-    const rows = await asyncBatch(inputs, getProjectSummaryRow, 2);
+    const rows = records.map(async (record) => {
+        const reportingPeriod = await getReportingPeriod(record.upload.reporting_period_id);
 
-    return rows;
+        return {
+            'Project ID': record.content.Project_Identification_Number__c,
+            Upload: getUploadLink(domain, record.upload.id, record.upload.filename),
+            'Last Reported': reportingPeriod.name,
+            // TODO: consider also mapping project IDs to export templates?
+            'Adopted Budget': record.content.Adopted_Budget__c,
+            'Total Cumulative Obligations': record.content.Total_Obligations__c,
+            'Total Cumulative Expenditures': record.content.Total_Expenditures__c,
+            'Current Period Obligations': record.content.Current_Period_Obligations__c,
+            'Current Period Expenditures': record.content.Current_Period_Expenditures__c,
+            'Completion Status': record.content.Completion_Status__c,
+        };
+    });
+
+    return Promise.all(rows);
 }
 
 function getRecordsByProject(records) {
