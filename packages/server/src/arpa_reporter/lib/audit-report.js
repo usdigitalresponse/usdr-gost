@@ -97,18 +97,11 @@ async function getReportDataGroupedByProjectRow(data) {
         'Project Expenditure Category': record.subcategory,
     };
 
-    const kpiRow = {
-        'Project ID': projectId,
-        'Number of Subawards': 0,
-        'Number of Expenditures': 0,
-        'Evidence Based Total Spend': 0,
-    };
-
     // get all reporting periods related to the project
     const allReportingPeriods = Array.from(new Set(records.map((r) => r.upload.reporting_period_id)));
 
     // initialize the columns in the row
-    allReportingPeriods.map(async (reportingPeriodId) => {
+    allReportingPeriods.forEach(async (reportingPeriodId) => {
         const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].end_date;
         [
             `${reportingPeriodEndDate} Total Aggregate Expenditures`,
@@ -129,15 +122,9 @@ async function getReportDataGroupedByProjectRow(data) {
         projectSummaryV2Row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += (r.content.Award_Amount__c || 0);
         projectSummaryV2Row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += (r.content.Expenditure_Amount__c || 0);
         projectSummaryV2Row['Capital Expenditure Amount'] += (r.content.Total_Cost_Capital_Expenditure__c || 0);
-
-        // for kpi report
-        const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
-        kpiRow['Number of Subawards'] += (r.type === 'awards50k');
-        kpiRow['Number of Expenditures'] += (currentPeriodExpenditure > 0);
-        kpiRow['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
     });
 
-    return [projectSummaryV2Row, kpiRow];
+    return projectSummaryV2Row;
 }
 
 async function getAggregatePeriodRow(data) {
@@ -211,11 +198,32 @@ async function createReportsGroupedByProject(periodId) {
         inputs.push({ projectId, records: r, reportingPeriods });
     });
 
-    const reportDataGroupedByProjectData = await asyncBatch(inputs, getReportDataGroupedByProjectRow, 2);
-    const projectSummaryGroupedByProject = reportDataGroupedByProjectData.map((row) => row[0]);
-    const KPIDataGroupedByProject = reportDataGroupedByProjectData.map((row) => row[1]);
+    const projectSummaryGroupedByProject = await asyncBatch(inputs, getReportDataGroupedByProjectRow, 2);
 
-    return [projectSummaryGroupedByProject, KPIDataGroupedByProject];
+    return projectSummaryGroupedByProject;
+}
+
+async function createKpiDataGroupedByProject(periodId) {
+    const records = await recordsForProject(periodId);
+    const recordsByProject = getRecordsByProject(records);
+
+    return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
+        const row = {
+            'Project ID': projectId,
+            'Number of Subawards': 0,
+            'Number of Expenditures': 0,
+            'Evidence Based Total Spend': 0,
+        };
+
+        projectRecords.forEach((r) => {
+            const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
+            row['Number of Subawards'] += (r.type === 'awards50k');
+            row['Number of Expenditures'] += (currentPeriodExpenditure > 0);
+            row['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
+        });
+
+        return row
+    });
 }
 
 async function generate(requestHost) {
@@ -229,14 +237,13 @@ async function generate(requestHost) {
         const [
             obligations,
             projectSummaries,
-            [
-                projectSummaryGroupedByProject,
-                KPIDataGroupedByProject,
-            ],
+            projectSummaryGroupedByProject,
+            KPIDataGroupedByProject,
         ] = await Promise.all([
             createObligationSheet(periodId, domain),
             createProjectSummaries(periodId, domain),
             createReportsGroupedByProject(periodId),
+            createKpiDataGroupedByProject(periodId),
         ]);
         const workbook = tracer.trace('compose-workbook', () => {
             // compose workbook
