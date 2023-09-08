@@ -84,49 +84,6 @@ async function getAggregatePerUpload(data) {
     return row;
 }
 
-async function getReportDataGroupedByProjectRow(data) {
-    const { projectId, records, reportingPeriods } = data;
-
-    const record = records[0];
-
-    // set values for columns that are common across all records of projectId
-    const projectSummaryV2Row = {
-        'Project ID': projectId,
-        'Project Description': record.content.Project_Description__c,
-        'Project Expenditure Category Group': ec(record.type),
-        'Project Expenditure Category': record.subcategory,
-    };
-
-    // get all reporting periods related to the project
-    const allReportingPeriods = Array.from(new Set(records.map((r) => r.upload.reporting_period_id)));
-
-    // initialize the columns in the row
-    allReportingPeriods.forEach(async (reportingPeriodId) => {
-        const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].end_date;
-        [
-            `${reportingPeriodEndDate} Total Aggregate Expenditures`,
-            `${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`,
-            `${reportingPeriodEndDate} Total Aggregate Obligations`,
-            `${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`,
-        ].forEach((columnName) => { projectSummaryV2Row[columnName] = 0; });
-    });
-
-    projectSummaryV2Row['Capital Expenditure Amount'] = 0;
-
-    // set values in each column
-    records.forEach(async (r) => {
-        // for project summaries v2 report
-        const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
-        projectSummaryV2Row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += (r.content.Total_Expenditures__c || 0);
-        projectSummaryV2Row[`${reportingPeriodEndDate} Total Aggregate Obligations`] += (r.content.Total_Obligations__c || 0);
-        projectSummaryV2Row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += (r.content.Award_Amount__c || 0);
-        projectSummaryV2Row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += (r.content.Expenditure_Amount__c || 0);
-        projectSummaryV2Row['Capital Expenditure Amount'] += (r.content.Total_Cost_Capital_Expenditure__c || 0);
-    });
-
-    return projectSummaryV2Row;
-}
-
 async function getAggregatePeriodRow(data) {
     const { period, domain } = data;
     const uploads = await usedForTreasuryExport(period.id);
@@ -192,15 +149,46 @@ async function createReportsGroupedByProject(periodId) {
     const recordsByProject = getRecordsByProject(records);
     const reportingPeriods = await getAllReportingPeriods();
 
-    const inputs = [];
+    return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
+        const record = projectRecords[0];
 
-    Object.entries(recordsByProject).forEach(([projectId, r]) => {
-        inputs.push({ projectId, records: r, reportingPeriods });
+        // set values for columns that are common across all records of projectId
+        const row = {
+            'Project ID': projectId,
+            'Project Description': record.content.Project_Description__c,
+            'Project Expenditure Category Group': ec(record.type),
+            'Project Expenditure Category': record.subcategory,
+        };
+
+        // get all reporting periods related to the project
+        const allReportingPeriods = Array.from(new Set(projectRecords.map((r) => r.upload.reporting_period_id)));
+
+        // initialize the columns in the row
+        allReportingPeriods.forEach(async (reportingPeriodId) => {
+            const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].end_date;
+            [
+                `${reportingPeriodEndDate} Total Aggregate Expenditures`,
+                `${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`,
+                `${reportingPeriodEndDate} Total Aggregate Obligations`,
+                `${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`,
+            ].forEach((columnName) => { row[columnName] = 0; });
+        });
+
+        row['Capital Expenditure Amount'] = 0;
+
+        // set values in each column
+        projectRecords.forEach(async (r) => {
+            // for project summaries v2 report
+            const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
+            row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += (r.content.Total_Expenditures__c || 0);
+            row[`${reportingPeriodEndDate} Total Aggregate Obligations`] += (r.content.Total_Obligations__c || 0);
+            row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += (r.content.Award_Amount__c || 0);
+            row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += (r.content.Expenditure_Amount__c || 0);
+            row['Capital Expenditure Amount'] += (r.content.Total_Cost_Capital_Expenditure__c || 0);
+        });
+
+        return row;
     });
-
-    const projectSummaryGroupedByProject = await asyncBatch(inputs, getReportDataGroupedByProjectRow, 2);
-
-    return projectSummaryGroupedByProject;
 }
 
 async function createKpiDataGroupedByProject(periodId) {
@@ -222,7 +210,7 @@ async function createKpiDataGroupedByProject(periodId) {
             row['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
         });
 
-        return row
+        return row;
     });
 }
 
