@@ -38,11 +38,11 @@
               label-for="include-input"
               description="Separate keywords with comma"
             >
-                <b-form-input
-                  id="include-input"
-                  type="text"
-                  v-model="formData.criteria.includeKeywords"
-                />
+              <b-form-input
+                id="include-input"
+                type="text"
+                v-model="formData.criteria.includeKeywords"
+              />
             </b-form-group>
             <b-form-group
               id="exclude-input-group"
@@ -50,22 +50,22 @@
               label-for="exclude-input"
               description="Separate keywords with comma"
             >
-                <b-form-input
-                  id="exclude-input"
-                  type="text"
-                  v-model="formData.criteria.excludeKeywords"
-                />
+              <b-form-input
+                id="exclude-input"
+                type="text"
+                v-model="formData.criteria.excludeKeywords"
+              />
             </b-form-group>
             <b-form-group
               id="opportunity-number-input-group"
               label="Opportunity #"
               label-for="opportunity-number-input"
             >
-                <b-form-input
-                  id="opportunity-number-input"
-                  type="text"
-                  v-model="formData.criteria.opportunityNumber"
-                />
+              <b-form-input
+                id="opportunity-number-input"
+                type="text"
+                v-model="formData.criteria.opportunityNumber"
+              />
             </b-form-group>
             <b-form-group
               id="opportunity-status-group"
@@ -84,18 +84,18 @@
             <b-form-group
               id="funding-type-group"
               label="Funding Type"
-              label-for="funding-type"
             >
-                <multiselect
-                  id="funding-type"
-                  v-model="formData.criteria.fundingTypes"
-                  :options="fundingTypeOptions"
-                  label="name"
-                  track-by="code"
-                  :multiple="true"
-                  :close-on-select="false"
-                  :searchable="false"
-                />
+              <multiselect
+                id="funding-type"
+                v-model="formData.criteria.fundingTypes"
+                :options="fundingTypeOptions"
+                label="name"
+                track-by="code"
+                :multiple="true"
+                :close-on-select="false"
+                :searchable="false"
+                :limit="2"
+              />
             </b-form-group>
             <b-form-group
               id="eligibility-group"
@@ -111,51 +111,55 @@
                 :multiple="true"
                 :close-on-select="false"
                 :searchable="true"
-                :option-height="300"
-                :max="5"
-                :max-height="200"
-              >
-              </multiselect>
+                :limit="3"
+              />
             </b-form-group>
-            <b-form-group>
-              <template slot="label">Category</template>
+            <b-form-group
+              id="opportunity-category-group"
+              label="Category"
+            >
               <multiselect
+                id="opportunity-category"
                 v-model="formData.criteria.opportunityCategories"
                 :options="opportunityCategoryOptions"
                 :multiple="true"
-                :limit="1"
-                :limitText="customLimitText"
                 :close-on-select="false"
-                :clear-on-select="false"
-                placeholder="Opportunity Category"
-                :show-labels="false"
-                :searchable="false">
-              </multiselect>
+                :searchable="false"
+                :limit="2"
+                placeholder="Select Opportunity Category"
+              />
             </b-form-group>
-            <b-form-group label-for="bill">
-              <template slot="label">Appropriation Bill</template>
-                <multiselect
+            <b-form-group
+              id="bill-group"
+              label="Appropriation Bill"
+            >
+              <multiselect
                 id="bill"
                 v-model="formData.criteria.bill"
-                open-direction="top"
                 :options="billOptions"
                 :multiple="false"
                 :close-on-select="true"
                 :clear-on-select="false"
+                :searchable="false"
                 placeholder="All Bills"
-                :show-labels="false">
-              </multiselect>
+                :show-labels="false"
+              />
             </b-form-group>
-            <b-form-group label-for="agency">
-              <template slot="label">Agency Code</template>
-                <b-form-input
-                  id="agency"
-                  type="text"
-                  v-model="formData.criteria.agency"
-                ></b-form-input>
+            <b-form-group
+              id="agency-group"
+              label="Agency Code"
+              label-for="agency"
+            >
+              <b-form-input
+                id="agency"
+                type="text"
+                v-model="formData.criteria.agency"
+              />
             </b-form-group>
-            <b-form-group>
-              <template slot="label">Posted Within</template>
+            <b-form-group
+              id="posted-within-group"
+              label="Posted Within"
+            >
               <multiselect
                 id="posted-within"
                 v-model="formData.criteria.postedWithin"
@@ -163,19 +167,49 @@
                 :multiple="false"
                 :close-on-select="true"
                 :clear-on-select="false"
+                :searchable="false"
                 placeholder="All Time"
-                :show-labels="false">
-              </multiselect>
+                :show-labels="false"
+              />
             </b-form-group>
-            <b-form-group label="Cost Sharing" v-slot="{ ariaDescribedby }" row>
+            <b-form-group
+              id="cost-sharing-group"
+              label="Cost Sharing"
+              v-slot="{ ariaDescribedby }"
+              row
+            >
               <b-form-radio-group>
-                <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="Yes">Yes</b-form-radio>
-                <b-form-radio v-model="formData.criteria.costSharing" :aria-describedby="ariaDescribedby" name="cost-sharing" value="No">No</b-form-radio>
+                <b-form-radio
+                  v-model="formData.criteria.costSharing"
+                  :aria-describedby="ariaDescribedby"
+                  name="cost-sharing"
+                  value="Yes"
+                >Yes</b-form-radio>
+                <b-form-radio
+                  v-model="formData.criteria.costSharing"
+                  :aria-describedby="ariaDescribedby"
+                  name="cost-sharing"
+                  value="No"
+                >No</b-form-radio>
               </b-form-radio-group>
             </b-form-group>
-            <b-form-group>
-              <template slot="label">Review Status</template>
-              <multiselect v-model="formData.criteria.reviewStatus" :options="reviewStatusOptions" :multiple="true" :limit="1" :limitText="customLimitText" :close-on-select="false" :clear-on-select="false" placeholder="Review Status" :show-labels="false" :searchable="false"></multiselect>
+            <b-form-group
+              id="review-status-group"
+              label="Review Status"
+            >
+              <multiselect
+                id="review-status"
+                v-model="formData.criteria.reviewStatus"
+                :options="reviewStatusOptions"
+                :multiple="true"
+                :close-on-select="false"
+                :clear-on-select="false"
+                :searchable="false"
+                :limit="1"
+                :limitText="customLimitText"
+                placeholder="Review Status"
+                :show-labels="false"
+              />
             </b-form-group>
           <template #footer>
             <b-button type="reset" variant="outline-primary">Cancel</b-button>
@@ -386,4 +420,8 @@ export default {
 };
 </script>
 <style>
+.multiselect__option {
+  word-break: break-all;
+  white-space: normal;
+}
 </style>
