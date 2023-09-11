@@ -32,6 +32,7 @@
       :fields="savedSearchFields"
       hover
       thead-class="saved-search-table-header-class"
+      @row-clicked="onRowClicked"
     >
       <template #cell(searchinfo)="data">
         <div>
@@ -177,7 +178,10 @@ export default {
       });
       this.notifyDeleted();
     },
-    appylySavedSearch(searchId) {
+    onRowClicked(item) {
+      this.applySavedSearch(item.id);
+    },
+    applySavedSearch(searchId) {
       const searchData = this.savedSearches.data.find((search) => search.id === searchId);
       this.changeSelectedSearchId(searchId);
       this.applyFilters(JSON.parse(searchData.criteria));

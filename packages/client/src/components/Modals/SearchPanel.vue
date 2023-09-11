@@ -382,7 +382,10 @@ export default {
           });
           searchId = res.id;
         }
-        await this.fetchSavedSearches();
+        await this.fetchSavedSearches({
+          perPage: 10,
+          currentPage: 1,
+        });
         this.changeSelectedSearchId(searchId);
       } catch (e) {
         this.notifyError(e.message);
