@@ -4,9 +4,10 @@
         New Search
       </b-button>
 
-      <b-form @submit="onSubmit" @reset="cancel">
+      <b-form class="search-form" @submit="onSubmit" @reset="cancel">
         <b-sidebar
           id="search-panel"
+          class="search-side-panel"
           ref="searchPanelSideBar"
           bg-variant="white"
           @shown="onShown"
@@ -17,8 +18,8 @@
           shadow
         >
           <template #header>
-            <div>{{ panelTitle }}</div>
-            <b-button-close type="reset" @click="cancel"></b-button-close>
+            <div class="search-panel-title">{{ panelTitle }}</div>
+            <b-button-close class="close" type="reset" @click="cancel" />
           </template>
             <b-form-group
               id="search-title-group"
@@ -94,6 +95,7 @@
                 :multiple="true"
                 :close-on-select="false"
                 :searchable="false"
+                selectLabel=""
                 :limit="2"
               />
             </b-form-group>
@@ -111,6 +113,7 @@
                 :multiple="true"
                 :close-on-select="false"
                 :searchable="true"
+                selectLabel=""
                 :limit="3"
               />
             </b-form-group>
@@ -178,7 +181,7 @@
               v-slot="{ ariaDescribedby }"
               row
             >
-              <b-form-radio-group>
+              <b-form-radio-group class="search-fields-radio-group">
                 <b-form-radio
                   v-model="formData.criteria.costSharing"
                   :aria-describedby="ariaDescribedby"
@@ -212,8 +215,10 @@
               />
             </b-form-group>
           <template #footer>
-            <b-button type="reset" variant="outline-primary">Cancel</b-button>
-            <b-button type="submit" variant="primary">Save and View Results</b-button>
+            <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
+              <b-button size="sm" type="reset" variant="outline-primary" class="borderless-button">Cancel</b-button>
+              <b-button size="sm" type="submit" variant="primary" :disabled="!saveEnabled">Save and View Results</b-button>
+            </div>
           </template>
         </b-sidebar>
       </b-form>
@@ -423,5 +428,39 @@ export default {
 .multiselect__option {
   word-break: break-all;
   white-space: normal;
+}
+.sidebar-footer {
+  border-top: 1.5px solid #e8e8e8;
+  justify-content: space-between;
+  width: 100%;
+}
+.borderless-button {
+  border-color: transparent;
+}
+.search-panel-title {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 120%;
+}
+.b-sidebar-header{
+  justify-content: space-between;
+  border-bottom: solid #DAE0E5;
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: row;
+  flex-grow: 0;
+  align-items: center;
+}
+.b-sidebar.b-sidebar-right > .b-sidebar-header .close {
+  margin-right: 0;
+}
+.b-sidebar-body {
+  padding: .75rem;
+}
+.search-fields-radio-group {
+  position: relative;
+  z-index: 0;
 }
 </style>
