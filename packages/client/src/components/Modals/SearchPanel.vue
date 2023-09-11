@@ -313,14 +313,14 @@ export default {
       let searchId;
       try {
         if (this.isEditMode) {
-          this.updateSavedSearch({
+          searchId = this.formData.searchId;
+          await this.updateSavedSearch({
             searchId: this.formData.searchId,
             searchInfo: {
               name: this.formData.searchTitle,
               criteria: this.formData.criteria,
             },
           });
-          searchId = this.formData.searchId;
           this.$emit('filters-applied');
         } else {
           const res = await this.createSavedSearch({
