@@ -4,7 +4,7 @@
       <div class="ml-3">
         <SavedSearchPanel />
       </div>
-      <div class="ml-3">
+      <div class="ml-2">
         <SearchPanel ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
       </div>
     </b-row>
@@ -419,6 +419,9 @@ export default {
 /* set first columnheader th to 300px*/
 #grants-table th:nth-child(1) {
   width: 300px;
+}
+.grants-table-title-control {
+  padding-bottom: .75rem;
 }
 
 </style>

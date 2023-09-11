@@ -1,11 +1,10 @@
 <template>
-  <div>
+  <div class="saved-search-panel">
     <b-button @click="initManageSearches" variant="primary" size="sm">
       My Saved Searches
     </b-button>
     <b-sidebar
       id="saved-search-panel"
-      class="saved-search-panel"
       model="displaySavedSearchPanel"
       ref="savedSearchPanel"
       bg-variant="white"
@@ -32,7 +31,7 @@
         <b-row>
           <b-col cols="10"><b>{{  search.name }}</b></b-col>
           <b-col cols="1">
-            <b-dropdown size="sm"  variant="link" toggle-class="text-decoration-none" no-caret>
+            <b-dropdown class="saved-search-settings-dropdown" size="sm"  variant="link" toggle-class="text-decoration-none" no-caret>
               <template #button-content>
                 <b-icon icon="three-dots-vertical" class="text-dark" font-scale="1"></b-icon>
               </template>
@@ -171,4 +170,54 @@ export default {
 };
 </script>
 <style>
+.saved-search-panel .saved-search-title{
+  font-style: normal;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 120%;
+}
+
+.saved-search-panel .b-sidebar-header{
+  justify-content: space-between;
+  border-bottom: solid #DAE0E5;
+}
+.saved-search-panel .b-sidebar.b-sidebar-right > .b-sidebar-header .close{
+  margin-right: 0px;
+}
+
+.saved-search-panel .b-sidebar-footer{
+  display: flex;
+  justify-content: end;
+  border-top: solid #DAE0E5;
+}
+
+.saved-search-panel .saved-search-row{
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.saved-search-panel .saved-search-row:hover{
+  background: rgba(0, 0, 0, 0.075);
+}
+.saved-search-panel .saved-search-settings-dropdown > button {
+  padding-bottom: 0;
+}
+
+.saved-search-panel .saved-search-empty-state{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-style: normal;
+}
+.saved-search-panel .saved-search-empty-state > h4{
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 120%;
+}
+.saved-search-panel .saved-search-empty-state > span{
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 150%;
+}
 </style>

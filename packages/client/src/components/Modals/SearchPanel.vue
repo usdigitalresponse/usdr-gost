@@ -1,10 +1,10 @@
 <template>
-    <div>
+    <div class="search-panel">
       <b-button @click="initNewSearch" variant="outline-primary" size="sm">
         New Search
       </b-button>
 
-      <b-form class="search-form" @submit="onSubmit" @reset="cancel">
+      <b-form class="search-form" @keyup.enter="onEnter" @submit.prevent="onSubmit" @reset="cancel">
         <b-sidebar
           id="search-panel"
           class="search-side-panel"
@@ -374,6 +374,11 @@ export default {
       const searchIds = this.savedSearches.data.map((s) => s.id);
       return Math.max(...searchIds, 0) + 1;
     },
+    async onEnter() {
+      if (this.saveEnabled) {
+        await this.onSubmit();
+      }
+    },
     async onSubmit() {
       this.apply();
       let searchId;
@@ -425,25 +430,25 @@ export default {
 };
 </script>
 <style>
-.multiselect__option {
+.search-panel .multiselect__option {
   word-break: break-all;
   white-space: normal;
 }
-.sidebar-footer {
+.search-panel .sidebar-footer {
   border-top: 1.5px solid #e8e8e8;
   justify-content: space-between;
   width: 100%;
 }
-.borderless-button {
+.search-panel .borderless-button {
   border-color: transparent;
 }
-.search-panel-title {
+.search-panel .search-panel-title {
   font-style: normal;
   font-weight: 700;
-  font-size: 20px;
+  font-size: 17px;
   line-height: 120%;
 }
-.b-sidebar-header{
+.search-panel .b-sidebar-header{
   justify-content: space-between;
   border-bottom: solid #DAE0E5;
   font-size: 1.5rem;
@@ -453,13 +458,16 @@ export default {
   flex-grow: 0;
   align-items: center;
 }
-.b-sidebar.b-sidebar-right > .b-sidebar-header .close {
+.search-panel .b-sidebar.b-sidebar-right > .b-sidebar-header .close {
   margin-right: 0;
 }
-.b-sidebar-body {
+.search-panel .b-sidebar-body {
   padding: .75rem;
 }
-.search-fields-radio-group {
+.search-panel .search-fields-radio-group {
+  /*
+    Ensure radio buttons are hidden behind <multiselect> options
+  */
   position: relative;
   z-index: 0;
 }
