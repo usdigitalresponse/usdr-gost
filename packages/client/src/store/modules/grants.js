@@ -202,9 +202,17 @@ export default {
     async setEligibilityCodeEnabled(context, { code, enabled }) {
       await fetchApi.put(`/api/organizations/:organizationId/eligibility-codes/${code}/enable/${enabled}`);
     },
-    async fetchSavedSearches({ commit }) {
+    async fetchSavedSearches({ commit }, {
+      currentPage, perPage,
+    }) {
       // TODO: Add pagination URL parameters.
-      const data = await fetchApi.get('/api/organizations/:organizationId/grants-saved-search');
+      const paginationQuery = Object.entries({ currentPage, perPage })
+      // filter out undefined and nulls since api expects parameters not present as undefined
+      // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value || typeof value === 'number')
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      const data = await fetchApi.get(`/api/organizations/:organizationId/grants-saved-search?${paginationQuery}`);
       commit('SET_SAVED_SEARCHES', data);
     },
     async createSavedSearch(context, { searchInfo }) {

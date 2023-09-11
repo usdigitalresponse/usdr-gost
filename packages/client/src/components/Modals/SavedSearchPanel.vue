@@ -26,38 +26,52 @@
         New Search
       </b-button>
     </div>
-    <section class="container-fluid p-0" style="overflow-x: hidden;" v-if="!emptyState">
-      <div v-for="(search,idx) in savedSearches.data" :key="idx" class="saved-search-row pt-1" :searchid="search.id" @click="appylySavedSearch(search.id)" >
-        <b-row>
-          <b-col cols="10"><b>{{  search.name }}</b></b-col>
-          <b-col cols="1">
-            <b-dropdown class="saved-search-settings-dropdown" size="sm"  variant="link" toggle-class="text-decoration-none" no-caret>
-              <template #button-content>
-                <b-icon icon="three-dots-vertical" class="text-dark" font-scale="1"></b-icon>
-              </template>
-              <b-dropdown-item :searchId="search.id" @click.stop="editSavedSearch">Edit</b-dropdown-item>
-              <b-dropdown-item @click.stop="deleteSavedSearch" :searchId="search.id">Delete</b-dropdown-item>
-            </b-dropdown>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col cols="9">
-            <!-- TODO: Change this to updatedAt -->
-            Last used {{ new Intl.DateTimeFormat("en-US", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(search.createdAt)) }}
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col cols="9">
-            <div v-for="(field, idx) of formatCriteria(search.criteria)" :key="idx">
-              {{ field.label }}: {{ field.value }}
-            </div>
-          </b-col>
-        </b-row>
-        <hr class="m-0" />
-      </div>
-    </section>
+    <b-table
+      id="saved-searches-table"
+      :items="savedSearches.data"
+      :fields="savedSearchFields"
+      hover
+      thead-class="saved-search-table-header-class"
+    >
+      <template #cell(searchinfo)="data">
+        <div>
+          <b-row>
+            <b-col cols="10"><b>{{  data.item.name }}</b></b-col>
+            <b-col cols="1">
+              <b-dropdown class="saved-search-settings-dropdown" size="sm"  variant="link" toggle-class="text-decoration-none" no-caret>
+                <template #button-content>
+                  <b-icon icon="three-dots-vertical" class="text-dark" font-scale="1"></b-icon>
+                </template>
+                <b-dropdown-item :searchId="data.item.id" @click.stop="editSavedSearch">Edit</b-dropdown-item>
+                <b-dropdown-item @click.stop="deleteSavedSearch" :searchId="data.item.id">Delete</b-dropdown-item>
+              </b-dropdown>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col cols="9">
+              <!-- TODO: Change this to updatedAt -->
+              Last used {{ new Intl.DateTimeFormat("en-US", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(data.item.createdAt)) }}
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col cols="9">
+              <div v-for="(field, idx) of formatCriteria(data.item.criteria)" :key="idx">
+                {{ field.label }}: {{ field.value }}
+              </div>
+            </b-col>
+          </b-row>
+        </div>
+      </template>
+    </b-table>
     <template #footer="{ hide }">
-     <div class="d-flex text-light align-items-center px-3 py-2">
+     <div class="d-flex text-light align-items-center px-3 py-2 saved-search-footer-div">
+      <b-pagination
+        class="m-0 saved-search-pagination"
+        v-model="currentPage"
+        :total-rows="totalRows"
+        :per-page="perPage"
+        aria-controls="saved-searches-table"
+        size="sm" />
       <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
      </div>
     </template>
@@ -79,7 +93,12 @@ export default {
     'v-b-toggle': VBToggle,
   },
   data() {
-    return {};
+    return {
+      perPage: 10,
+      currentPage: 1,
+      loading: false,
+      savedSearchFields: [{ key: 'searchinfo', label: 'Saved Search' }],
+    };
   },
   validations: {},
   watch: {
@@ -90,6 +109,15 @@ export default {
         this.$refs.savedSearchPanel.hide();
       }
     },
+    currentPage() {
+      if (this.loading) {
+        return;
+      }
+      this.fetchSavedSearches({
+        perPage: this.perPage,
+        currentPage: this.currentPage,
+      });
+    },
   },
   computed: {
     ...mapGetters({
@@ -97,6 +125,9 @@ export default {
       displaySavedSearchPanel: 'grants/displaySavedSearchPanel',
       selectedSearchId: 'grants/selectedSearchId',
     }),
+    totalRows() {
+      return this.savedSearches && this.savedSearches.pagination ? this.savedSearches.pagination.total : 0;
+    },
     emptyState() {
       return this.savedSearches.data && this.savedSearches.data.length === 0;
     },
@@ -119,7 +150,10 @@ export default {
       initViewResults: 'grants/initViewResults',
     }),
     setup() {
-      this.fetchSavedSearches();
+      this.fetchSavedSearches({
+        perPage: this.perPage,
+        currentPage: this.currentPage,
+      });
       if (this.displaySavedSearchPanel) {
         this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
       }
@@ -137,7 +171,10 @@ export default {
       if (this.selectedSearchId === Number(searchId)) {
         this.clearSelectedSearch();
       }
-      this.fetchSavedSearches();
+      this.fetchSavedSearches({
+        perPage: this.perPage,
+        currentPage: this.currentPage,
+      });
       this.notifyDeleted();
     },
     appylySavedSearch(searchId) {
@@ -187,7 +224,6 @@ export default {
 
 .saved-search-panel .b-sidebar-footer{
   display: flex;
-  justify-content: end;
   border-top: solid #DAE0E5;
 }
 
@@ -219,5 +255,15 @@ export default {
   font-weight: 500;
   font-size: 14px;
   line-height: 150%;
+}
+.saved-search-panel .saved-search-table-header-class {
+  display: none;
+}
+.saved-search-panel .saved-search-pagination {
+  align-items: center;
+}
+.saved-search-panel .saved-search-footer-div {
+  width: 100%;
+  justify-content: space-between;
 }
 </style>

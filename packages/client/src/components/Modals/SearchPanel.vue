@@ -196,24 +196,6 @@
                 >No</b-form-radio>
               </b-form-radio-group>
             </b-form-group>
-            <b-form-group
-              id="review-status-group"
-              label="Review Status"
-            >
-              <multiselect
-                id="review-status"
-                v-model="formData.criteria.reviewStatus"
-                :options="reviewStatusOptions"
-                :multiple="true"
-                :close-on-select="false"
-                :clear-on-select="false"
-                :searchable="false"
-                :limit="1"
-                :limitText="customLimitText"
-                placeholder="Review Status"
-                :show-labels="false"
-              />
-            </b-form-group>
           <template #footer>
             <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
               <b-button size="sm" type="reset" variant="outline-primary" class="borderless-button">Cancel</b-button>
@@ -241,7 +223,6 @@ const defaultCriteria = {
   bill: null,
   costSharing: null,
   opportunityCategories: [],
-  reviewStatus: [],
   postedWithin: [],
 };
 
@@ -266,7 +247,6 @@ export default {
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
       billOptions,
       opportunityCategoryOptions: ['Discretionary', 'Mandatory', 'Earmark', 'Continuation'],
-      reviewStatusOptions: ['Interested', 'Applied', 'Not Applying', 'Assigned'],
       fundingTypeOptions: [
         { code: 'G', name: 'Grant' },
         { code: 'CA', name: 'Cooperative Agreement' },
