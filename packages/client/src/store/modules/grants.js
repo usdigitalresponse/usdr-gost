@@ -54,7 +54,6 @@ function buildGrantsNextQuery({ filters, ordering, pagination }) {
   reviewStatus
   bill
   */
-  console.log(filters, ordering, pagination);
   const criteria = { ...filters };
   // Validate and fix the inputs into appropriate types.
   criteria.includeKeywords = criteria.includeKeywords && criteria.includeKeywords.length > 0 ? criteria.includeKeywords.split(',').map((k) => k.trim()) : null;
@@ -136,7 +135,6 @@ export default {
       const pagination = { currentPage, perPage };
       const ordering = { orderBy, orderDesc };
       const filters = { ...this.state.grants.searchFormFilters };
-      console.log(filters, ordering, pagination);
       const { criteriaQuery, paginationQuery, orderingQuery } = buildGrantsNextQuery({ filters, ordering, pagination });
 
       return fetchApi.get(`/api/organizations/:organizationId/grants/next?${paginationQuery}&${orderingQuery}&${criteriaQuery}`)
