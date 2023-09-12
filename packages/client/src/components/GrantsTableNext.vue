@@ -22,26 +22,6 @@
         </a>
       </b-col>
     </b-row>
-    <b-row class="grants-table-pagination">
-      <b-col cols="11" class="grants-table-pagination-component">
-        <b-pagination
-          class="m-0"
-          v-model="currentPage"
-          :total-rows="totalRows"
-          :per-page="perPage"
-          first-text="First"
-          prev-text="Prev"
-          next-text="Next"
-          last-text="Last"
-          aria-controls="grants-table"
-          pills
-          size="sm"
-          align="right" />
-      </b-col>
-      <b-col cols="1" class="pl-0">
-        <div class="my-1 rounded py-1 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
-      </b-col>
-    </b-row>
     <b-row align-v="center">
       <b-col cols="12">
         <b-table fixed id="grants-table" sticky-header="32rem" hover :items="formattedGrants" responsive
@@ -75,6 +55,21 @@
             </div>
           </template>
         </b-table>
+      </b-col>
+    </b-row>
+    <b-row class="grants-table-pagination">
+      <b-col cols="11" class="grants-table-pagination-component">
+        <b-pagination
+          class="m-0"
+          v-model="currentPage"
+          :total-rows="totalRows"
+          :per-page="perPage"
+          first-text="First"
+          prev-text="Prev"
+          next-text="Next"
+          last-text="Last"
+          aria-controls="grants-table" />
+          <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
       </b-col>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
@@ -433,7 +428,7 @@ export default {
 }
 .grants-table-pagination-component {
   display: flex;
-  justify-content: right;
+  justify-content: left;
   align-items: center;
 }
 </style>
