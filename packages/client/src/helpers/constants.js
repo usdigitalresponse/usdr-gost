@@ -1,4 +1,5 @@
 const billOptions = [
+  'All Bills',
   'Department of Justice',
   'Department of Energy',
   'Department of the Treasury',
