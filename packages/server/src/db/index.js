@@ -435,7 +435,7 @@ function buildTsqExpression(includeKeywords, excludeKeywords) {
     return keywords.expressions;
 }
 
-function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords) {
+function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, orderingParams) {
     const tsqExpression = buildTsqExpression(includeKeywords, excludeKeywords);
     if (tsqExpression.phrase) {
         queryBuilder.joinRaw(`cross join phraseto_tsquery('english', ?) as tsqp`, tsqExpression.phrase);
@@ -444,6 +444,12 @@ function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords) {
                 .orWhere('tsqp', '@@', knex.raw('description_ts'));
             return q;
         });
+        if (orderingParams.orderBy !== undefined) {
+            queryBuilder.select(
+                knex.raw(`ts_rank(title_ts, tsqp) as rank_title_phrase`),
+                knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description_phrase`),
+            );
+        }
     }
     if (tsqExpression.word) {
         queryBuilder.joinRaw(`cross join to_tsquery('english', ?) as tsq`, tsqExpression.word);
@@ -452,6 +458,12 @@ function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords) {
                 .orWhere('tsq', '@@', knex.raw('description_ts'));
             return q;
         });
+        if (orderingParams.orderBy !== undefined) {
+            queryBuilder.select(
+                knex.raw(`ts_rank(title_ts, tsq) as rank_title_word`),
+                knex.raw(`ts_rank(grants.description_ts, tsq) as rank_description_word`),
+            );
+        }
     }
 }
 
@@ -514,7 +526,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
         if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
             queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
         }
-        buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords);
+        buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords, orderingParams);
         buildFiltersQuery(queryBuilder, filters, agencyId);
     }
     if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
@@ -522,6 +534,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             // Only perform the join if it was not already performed above.
             if (!filters.reviewStatuses?.length) {
                 queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
+                queryBuilder.select(`${TABLES.grants_interested}.grant_id`);
             }
             const orderArgs = orderingParams.orderBy.split('|');
             queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
@@ -533,14 +546,25 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
             queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
         } else if (orderingParams.orderBy.includes('rank')) {
-            queryBuilder.select(
-                knex.raw(`ts_rank(title_ts, tsq) as rank_title`),
-                knex.raw(`ts_rank(grants.description_ts, tsq) as rank_description`),
-            );
-            queryBuilder.orderBy([
-                { column: 'rank_title', order: 'desc' },
-                { column: 'rank_description', order: 'desc' },
-            ]);
+            const rankColumns = new Set();
+            for (const statement of queryBuilder._statements) { // eslint-disable-line no-underscore-dangle
+                if (statement.grouping === 'columns') {
+                    for (const val of statement.value) {
+                        if (val && val.sql) {
+                            if (val.sql.includes('rank_title_word')) {
+                                rankColumns.add({ column: 'rank_title_word', order: 'desc' });
+                            } else if (val.sql.includes('rank_description_word')) {
+                                rankColumns.add({ column: 'rank_description_word', order: 'desc' });
+                            } else if (val.sql.includes('rank_title_phrase')) {
+                                rankColumns.add({ column: 'rank_title_phrase', order: 'desc' });
+                            } else if (val.sql.includes('rank_description_phrase')) {
+                                rankColumns.add({ column: 'rank_description_phrase', order: 'desc' });
+                            }
+                        }
+                    }
+                }
+            }
+            queryBuilder.orderBy([...rankColumns]);
         } else {
             const orderArgs = orderingParams.orderBy.split('|');
             const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
