@@ -383,13 +383,14 @@ export default {
     },
     exportCSV() {
       this.navigateToExportCSV({
+        perPage: this.perPage,
+        currentPage: this.currentPage,
         orderBy: this.orderBy,
         orderDesc: this.orderDesc,
-        interestedByAgency: this.showInterested || this.showResult || this.showRejected,
+        showInterested: this.showInterested,
+        showResult: this.showResult,
+        showRejected: this.showRejected,
         assignedToAgency: this.showAssignedToAgency,
-        opportunityStatuses: this.parseOpportunityStatusFilters(),
-        opportunityCategories: this.opportunityCategoryFilters,
-        costSharing: this.costSharingFilter,
       });
     },
     formatMoney(value) {
