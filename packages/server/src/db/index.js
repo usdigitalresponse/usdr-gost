@@ -565,6 +565,9 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
                 }
             }
             queryBuilder.orderBy([...rankColumns]);
+        } else if (orderingParams.orderBy.includes('award_ceiling')) {
+            queryBuilder.select(knex.raw(`${TABLES.grants}.award_ceiling::bigint`));
+            queryBuilder.orderBy(knex.raw(`${TABLES.grants}.award_ceiling::bigint`), knex.raw(`${orderingParams.orderDesc ? 'desc' : 'asc'} NULLS LAST`));
         } else {
             const orderArgs = orderingParams.orderBy.split('|');
             const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
