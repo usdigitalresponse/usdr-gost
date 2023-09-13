@@ -11,5 +11,5 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-    return knex.raw('DROP INDEX IF EXISTS idx_grants_opportunity_status;');
+    return knex.raw('DROP INDEX IF EXISTS idx_grants_opportunity_status');
 };
