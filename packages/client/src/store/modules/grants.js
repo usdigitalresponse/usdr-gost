@@ -63,8 +63,8 @@ function buildGrantsNextQuery({ filters, ordering, pagination }) {
   criteria.bill = criteria.bill === 'All Bills' ? null : criteria.bill;
 
   if (!criteria.opportunityStatuses || criteria.opportunityStatuses.length === 0) {
-    // by default, only show posted and forecasted opportunities
-    criteria.opportunityStatuses = ['posted', 'forecasted'];
+    // by default, only show posted opportunities
+    criteria.opportunityStatuses = ['posted'];
   }
   const paginationQuery = Object.entries(pagination)
     // filter out undefined and nulls since api expects parameters not present as undefined
