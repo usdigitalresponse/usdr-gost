@@ -203,10 +203,8 @@ async function buildDigestBody(matchedGrants) {
 
     let additionalBody = grantDetails.join(contentSpacerStr);
 
-    if (matchedGrants.length > 30) {
-        const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
-        additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
-    }
+    const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
+    additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
         body_title: 'New grants have been posted',
