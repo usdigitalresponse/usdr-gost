@@ -131,7 +131,7 @@ function getGrantDetail(grant, emailNotificationType) {
             cost_sharing: grant.cost_sharing,
             link_url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
             grants_url: `${process.env.WEBSITE_DOMAIN}/#/${emailNotificationType === notificationType.grantDigest ? 'grants' : 'my-grants'}`,
-            view_grant_label: emailNotificationType === notificationType.grantDigest ? 'View New Grants' : 'View My Grants',
+            view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
         },
     );
     return grantDetail;
