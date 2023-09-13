@@ -199,7 +199,7 @@
           <template #footer>
             <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
               <b-button size="sm" type="reset" variant="outline-primary" class="borderless-button">Cancel</b-button>
-              <b-button size="sm" type="submit" variant="primary" :disabled="!saveEnabled">Save and View Results</b-button>
+              <b-button size="sm" type="submit" variant="primary" :disabled="!formIsDirty">Save and View Results</b-button>
             </div>
           </template>
         </b-sidebar>
@@ -220,7 +220,7 @@ const defaultCriteria = {
   opportunityStatuses: [],
   fundingTypes: null,
   agency: null,
-  bill: null,
+  bill: 'All Bills',
   costSharing: null,
   opportunityCategories: [],
   postedWithin: [],
@@ -286,11 +286,8 @@ export default {
       savedSearches: 'grants/savedSearches',
       displaySearchPanel: 'grants/displaySearchPanel',
     }),
-    saveEnabled() {
-      // save is enabled if any criteria is not null and a title is set
-      return Object.values(this.formData.criteria).some((value) => value !== null
-      && !(Array.isArray(value) && value.length === 0))
-      && this.formData.searchTitle !== null;
+    formIsDirty() {
+      return !(JSON.stringify(this.formData.criteria) === JSON.stringify(defaultCriteria));
     },
     isEditMode() {
       return this.searchId !== null && this.searchId !== undefined && this.searchId !== 0;

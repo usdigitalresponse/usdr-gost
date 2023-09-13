@@ -60,6 +60,7 @@ function buildGrantsNextQuery({ filters, ordering, pagination }) {
   criteria.excludeKeywords = criteria.excludeKeywords && criteria.excludeKeywords.length > 0 ? criteria.excludeKeywords.split(',').map((k) => k.trim()) : null;
   criteria.eligibility = criteria.eligibility?.map((e) => e.code);
   criteria.fundingTypes = criteria.fundingTypes?.map((f) => f.code);
+  criteria.bill = criteria.bill === 'All Bills' ? null : criteria.bill;
 
   const paginationQuery = Object.entries(pagination)
     // filter out undefined and nulls since api expects parameters not present as undefined
