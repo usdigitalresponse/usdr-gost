@@ -26,11 +26,16 @@
               label="Search Title"
               label-for="search-title"
               description="ex. Infrastructure"
+              :invalid-feedback="invalidTitleFeedback"
+              :state="searchTitleState"
             >
               <b-form-input
                 id="search-title"
                 type="text"
+                aria-describedby="input-live-feedback"
                 v-model="formData.searchTitle"
+                required
+                trim
               />
             </b-form-group>
             <b-form-group
@@ -43,6 +48,7 @@
                 id="include-input"
                 type="text"
                 v-model="formData.criteria.includeKeywords"
+                trim
               />
             </b-form-group>
             <b-form-group
@@ -55,6 +61,7 @@
                 id="exclude-input"
                 type="text"
                 v-model="formData.criteria.excludeKeywords"
+                trim
               />
             </b-form-group>
             <b-form-group
@@ -66,6 +73,7 @@
                 id="opportunity-number-input"
                 type="text"
                 v-model="formData.criteria.opportunityNumber"
+                trim
               />
             </b-form-group>
             <b-form-group
@@ -157,6 +165,7 @@
                 id="agency"
                 type="text"
                 v-model="formData.criteria.agency"
+                trim
               />
             </b-form-group>
             <b-form-group
@@ -242,6 +251,7 @@ export default {
         criteria: {
           ...defaultCriteria,
         },
+        searchTitle: null,
         searchId: this.searchId,
       },
       postedWithinOptions: ['All Time', 'One Week', '30 Days', '60 Days'],
@@ -286,17 +296,20 @@ export default {
       savedSearches: 'grants/savedSearches',
       displaySearchPanel: 'grants/displaySearchPanel',
     }),
-    saveEnabled() {
-      // save is enabled if any criteria is not null and a title is set
-      return Object.values(this.formData.criteria).some((value) => value !== null
-      && !(Array.isArray(value) && value.length === 0))
-      && this.formData.searchTitle !== null;
-    },
     isEditMode() {
       return this.searchId !== null && this.searchId !== undefined && this.searchId !== 0;
     },
+    saveEnabled() {
+      return this.searchTitleIsValid() && this.formIsDirty();
+    },
     panelTitle() {
       return this.isEditMode ? 'Edit Search' : 'New Search';
+    },
+    searchTitleState() {
+      return this.searchTitleIsValid();
+    },
+    invalidTitleFeedback() {
+      return 'Search Title is required';
     },
   },
   methods: {
@@ -321,6 +334,12 @@ export default {
     },
     eligibilityLabel({ label }) {
       return label;
+    },
+    searchTitleIsValid() {
+      return !!this.formData.searchTitle;
+    },
+    formIsDirty() {
+      return !(JSON.stringify(this.formData.criteria) === JSON.stringify(defaultCriteria));
     },
     apply() {
       const formDataCopy = { ...this.formData.criteria };
