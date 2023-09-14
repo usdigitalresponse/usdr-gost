@@ -39,7 +39,7 @@ async function createObligationSheet(periodId, domain) {
             const uploads = await usedForTreasuryExport(period.id);
             const records = await recordsForReportingPeriod(period.id);
 
-            return Promise.all(uploads.map(async (upload) => {
+            return Promise.all(uploads.map((upload) => {
                 const emptyRow = {
                     'Reporting Period': period.name,
                     'Period End Date': new Date(period.end_date),
