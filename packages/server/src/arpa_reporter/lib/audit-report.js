@@ -151,7 +151,7 @@ async function createReportsGroupedByProject(periodId) {
         const allReportingPeriods = Array.from(new Set(projectRecords.map((r) => r.upload.reporting_period_id)));
 
         // initialize the columns in the row
-        allReportingPeriods.forEach(async (reportingPeriodId) => {
+        allReportingPeriods.forEach((reportingPeriodId) => {
             const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].end_date;
             [
                 `${reportingPeriodEndDate} Total Aggregate Expenditures`,
@@ -164,7 +164,7 @@ async function createReportsGroupedByProject(periodId) {
         row['Capital Expenditure Amount'] = 0;
 
         // set values in each column
-        projectRecords.forEach(async (r) => {
+        projectRecords.forEach((r) => {
             // for project summaries v2 report
             const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
             row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += (r.content.Total_Expenditures__c || 0);
