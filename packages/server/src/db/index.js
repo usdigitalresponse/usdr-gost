@@ -605,7 +605,40 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
     console.log(filters, paginationParams, orderingParams, tenantId, agencyId);
     const data = await knex(TABLES.grants)
-        .select(`${TABLES.grants}.*`)
+        .select([
+            'grants.grant_id',
+            'grants.grant_number',
+            'grants.title',
+            'grants.status',
+            'grants.agency_code',
+            'grants.award_ceiling',
+            'grants.cost_sharing',
+            'grants.cfda_list',
+            'grants.open_date',
+            'grants.close_date',
+            'grants.reviewer_name',
+            'grants.opportunity_category',
+            'grants.search_terms',
+            'grants.notes',
+            'grants.created_at',
+            'grants.updated_at',
+            'grants.description',
+            'grants.eligibility_codes',
+            'grants.raw_body',
+            'grants.award_floor',
+            'grants.revision_id',
+            'grants.title_ts',
+            'grants.description_ts',
+            'grants.funding_instrument_codes',
+            'grants.bill',
+        ])
+        .select(knex.raw(`
+            CASE
+            WHEN grants.archive_date <= now() THEN 'archived'
+            WHEN grants.close_date <= now() THEN 'closed'
+            ELSE 'posted'
+            END as opportunity_status
+        `))
         .distinct()
         .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams));
 
