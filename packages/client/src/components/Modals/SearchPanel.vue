@@ -226,7 +226,7 @@ const defaultCriteria = {
   includeKeywords: null,
   excludeKeywords: null,
   opportunityNumber: null,
-  opportunityStatuses: [],
+  opportunityStatuses: ['posted'],
   fundingTypes: null,
   agency: null,
   bill: null,
@@ -264,10 +264,8 @@ export default {
         { code: 'O', name: 'Other' },
       ],
       opportunityStatusOptions: [
-        { text: 'Forecasted', value: 'forecasted' },
         { text: 'Posted', value: 'posted' },
-        { text: 'Closed', value: 'closed' },
-        { text: 'Archived', value: 'archived' },
+        { text: 'Closed / Archived', value: ['closed', 'archived'] },
       ],
     };
   },

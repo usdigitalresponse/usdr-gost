@@ -62,6 +62,10 @@ function buildGrantsNextQuery({ filters, ordering, pagination }) {
   criteria.fundingTypes = criteria.fundingTypes?.map((f) => f.code);
   criteria.bill = criteria.bill === 'All Bills' ? null : criteria.bill;
 
+  if (!criteria.opportunityStatuses || criteria.opportunityStatuses.length === 0) {
+    // by default, only show posted opportunities
+    criteria.opportunityStatuses = ['posted'];
+  }
   const paginationQuery = Object.entries(pagination)
     // filter out undefined and nulls since api expects parameters not present as undefined
     // eslint-disable-next-line no-unused-vars
