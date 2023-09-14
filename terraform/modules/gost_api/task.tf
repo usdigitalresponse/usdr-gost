@@ -48,6 +48,7 @@ module "api_container_definition" {
       AUDIT_REPORT_BUCKET       = module.arpa_audit_reports_bucket.bucket_id
       DATA_DIR                  = "/var/data"
       ENABLE_GRANTS_DIGEST      = var.enable_grants_digest ? "true" : "false"
+      ENABLE_SAVED_SEARCH_GRANTS_DIGEST      = var.enable_saved_search_grants_digest ? "true" : "false"
       ENABLE_GRANTS_SCRAPER     = "false"
       GRANTS_SCRAPER_DATE_RANGE = 7
       GRANTS_SCRAPER_DELAY      = 1000
