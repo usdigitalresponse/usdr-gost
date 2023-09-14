@@ -143,7 +143,7 @@ export default {
       searchInput: null,
       debouncedSearchInput: null,
       reviewStatusFilters: [],
-      opportunityStatusFilters: [],
+      opportunityStatusFilters: ['Forecasted', 'Posted'],
       opportunityCategoryFilters: [],
       costSharingFilter: null,
       reviewStatusOptions: ['interested', 'result', 'rejected'],
