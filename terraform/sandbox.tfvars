@@ -17,14 +17,15 @@ website_feature_flags = {
 cluster_container_insights_enabled = false
 
 // API / Backend
-api_enabled                    = true
-api_container_image_tag        = "latest"
-api_default_desired_task_count = 1
-api_minumum_task_count         = 1
-api_maximum_task_count         = 5
-api_enable_grants_scraper      = false
-api_enable_saved_search_grants_digest       = false
-api_log_retention_in_days      = 7
+api_enabled                           = true
+api_container_image_tag               = "latest"
+api_default_desired_task_count        = 1
+api_minumum_task_count                = 1
+api_maximum_task_count                = 5
+api_enable_grants_scraper             = false
+api_enable_grants_digest              = false
+api_enable_saved_search_grants_digest = false
+api_log_retention_in_days             = 7
 
 // Postgres
 postgres_enabled                   = true
