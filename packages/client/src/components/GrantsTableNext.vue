@@ -4,7 +4,7 @@
       <div class="ml-3">
         <SavedSearchPanel />
       </div>
-      <div class="ml-3">
+      <div class="ml-2">
         <SearchPanel ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
       </div>
     </b-row>
@@ -24,7 +24,7 @@
     </b-row>
     <b-row align-v="center">
       <b-col cols="12">
-        <b-table fixed id="grants-table" sticky-header="450px" hover :items="formattedGrants" responsive
+        <b-table fixed id="grants-table" sticky-header="32rem" hover :items="formattedGrants" responsive
           :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
           @row-selected="onRowSelected" show-empty emptyText="No matches found">
@@ -57,8 +57,8 @@
         </b-table>
       </b-col>
     </b-row>
-    <b-row align-v="center">
-      <b-col cols="12" class="d-flex">
+    <b-row class="grants-table-pagination">
+      <b-col cols="11" class="grants-table-pagination-component">
         <b-pagination
           class="m-0"
           v-model="currentPage"
@@ -69,7 +69,7 @@
           next-text="Next"
           last-text="Last"
           aria-controls="grants-table" />
-        <div class="ml-2 rounded text-justify p-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
+          <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
       </b-col>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
@@ -383,13 +383,14 @@ export default {
     },
     exportCSV() {
       this.navigateToExportCSV({
+        perPage: this.perPage,
+        currentPage: this.currentPage,
         orderBy: this.orderBy,
         orderDesc: this.orderDesc,
-        interestedByAgency: this.showInterested || this.showResult || this.showRejected,
+        showInterested: this.showInterested,
+        showResult: this.showResult,
+        showRejected: this.showRejected,
         assignedToAgency: this.showAssignedToAgency,
-        opportunityStatuses: this.parseOpportunityStatusFilters(),
-        opportunityCategories: this.opportunityCategoryFilters,
-        costSharing: this.costSharingFilter,
       });
     },
     formatMoney(value) {
@@ -420,5 +421,15 @@ export default {
 #grants-table th:nth-child(1) {
   width: 300px;
 }
-
+.grants-table-title-control {
+  padding-bottom: .75rem;
+}
+.grants-table-pagination {
+  padding-bottom: .75rem;
+}
+.grants-table-pagination-component {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
 </style>

@@ -40,6 +40,53 @@ function initialState() {
   };
 }
 
+function buildGrantsNextQuery({ filters, ordering, pagination }) {
+  /*
+  costSharing
+  eligibility
+  excludeKeywords
+  fundingType
+  includeKeywords
+  opportunityCategories
+  opportunityNumber
+  opportunityStatuses
+  postedWithin
+  reviewStatus
+  bill
+  */
+  const criteria = { ...filters };
+  // Validate and fix the inputs into appropriate types.
+  criteria.includeKeywords = criteria.includeKeywords && criteria.includeKeywords.length > 0 ? criteria.includeKeywords.split(',').map((k) => k.trim()) : null;
+  criteria.excludeKeywords = criteria.excludeKeywords && criteria.excludeKeywords.length > 0 ? criteria.excludeKeywords.split(',').map((k) => k.trim()) : null;
+  criteria.eligibility = criteria.eligibility?.map((e) => e.code);
+  criteria.fundingTypes = criteria.fundingTypes?.map((f) => f.code);
+  criteria.bill = criteria.bill === 'All Bills' ? null : criteria.bill;
+
+  if (!criteria.opportunityStatuses || criteria.opportunityStatuses.length === 0) {
+    // by default, only show posted opportunities
+    criteria.opportunityStatuses = ['posted'];
+  }
+  const paginationQuery = Object.entries(pagination)
+    // filter out undefined and nulls since api expects parameters not present as undefined
+    // eslint-disable-next-line no-unused-vars
+    .filter(([key, value]) => value || typeof value === 'number')
+    .map(([key, value]) => `pagination[${encodeURIComponent(key)}]=${encodeURIComponent(value)}`)
+    .join('&');
+  const orderingQuery = Object.entries(ordering)
+    // filter out undefined and nulls since api expects parameters not present as undefined
+    // eslint-disable-next-line no-unused-vars
+    .filter(([key, value]) => value || typeof value === 'number')
+    .map(([key, value]) => `ordering[${encodeURIComponent(key)}]=${encodeURIComponent(value)}`)
+    .join('&');
+  const criteriaQuery = Object.entries(criteria)
+    // filter out undefined and nulls since api expects parameters not present as undefined
+    // eslint-disable-next-line no-unused-vars
+    .filter(([key, value]) => (typeof value === 'string' && value.length > 0) || typeof value === 'number' || (Array.isArray(value) && value.length > 0))
+    .map(([key, value]) => `criteria[${encodeURIComponent(key)}]=${encodeURIComponent(value)}`)
+    .join('&');
+  return { criteriaQuery, paginationQuery, orderingQuery };
+}
+
 export default {
   namespaced: true,
   state: initialState,
@@ -90,46 +137,10 @@ export default {
     fetchGrantsNext({ commit }, {
       currentPage, perPage, orderBy, orderDesc,
     }) {
-      /*
-      costSharing
-      eligibility
-      excludeKeywords
-      fundingType
-      includeKeywords
-      opportunityCategories
-      opportunityNumber
-      opportunityStatuses
-      postedWithin
-      reviewStatus
-      bill
-      */
       const pagination = { currentPage, perPage };
       const ordering = { orderBy, orderDesc };
-      const criteria = { ...this.state.grants.searchFormFilters };
-      // Validate and fix the inputs into appropriate types.
-      criteria.includeKeywords = criteria.includeKeywords && criteria.includeKeywords.length > 0 ? criteria.includeKeywords.split(',').map((k) => k.trim()) : null;
-      criteria.excludeKeywords = criteria.excludeKeywords && criteria.excludeKeywords.length > 0 ? criteria.excludeKeywords.split(',').map((k) => k.trim()) : null;
-      criteria.eligibility = criteria.eligibility?.map((e) => e.code);
-      criteria.fundingTypes = criteria.fundingTypes?.map((f) => f.code);
-
-      const paginationQuery = Object.entries(pagination)
-        // filter out undefined and nulls since api expects parameters not present as undefined
-        // eslint-disable-next-line no-unused-vars
-        .filter(([key, value]) => value || typeof value === 'number')
-        .map(([key, value]) => `pagination[${encodeURIComponent(key)}]=${encodeURIComponent(value)}`)
-        .join('&');
-      const orderingQuery = Object.entries(ordering)
-        // filter out undefined and nulls since api expects parameters not present as undefined
-        // eslint-disable-next-line no-unused-vars
-        .filter(([key, value]) => value || typeof value === 'number')
-        .map(([key, value]) => `ordering[${encodeURIComponent(key)}]=${encodeURIComponent(value)}`)
-        .join('&');
-      const criteriaQuery = Object.entries(criteria)
-        // filter out undefined and nulls since api expects parameters not present as undefined
-        // eslint-disable-next-line no-unused-vars
-        .filter(([key, value]) => (typeof value === 'string' && value.length > 0) || typeof value === 'number' || (Array.isArray(value) && value.length > 0))
-        .map(([key, value]) => `criteria[${encodeURIComponent(key)}]=${encodeURIComponent(value)}`)
-        .join('&');
+      const filters = { ...this.state.grants.searchFormFilters };
+      const { criteriaQuery, paginationQuery, orderingQuery } = buildGrantsNextQuery({ filters, ordering, pagination });
 
       return fetchApi.get(`/api/organizations/:organizationId/grants/next?${paginationQuery}&${orderingQuery}&${criteriaQuery}`)
         .then((data) => commit('SET_GRANTS', data));
@@ -202,9 +213,17 @@ export default {
     async setEligibilityCodeEnabled(context, { code, enabled }) {
       await fetchApi.put(`/api/organizations/:organizationId/eligibility-codes/${code}/enable/${enabled}`);
     },
-    async fetchSavedSearches({ commit }) {
+    async fetchSavedSearches({ commit }, {
+      currentPage, perPage,
+    }) {
       // TODO: Add pagination URL parameters.
-      const data = await fetchApi.get('/api/organizations/:organizationId/grants-saved-search');
+      const paginationQuery = Object.entries({ currentPage, perPage })
+      // filter out undefined and nulls since api expects parameters not present as undefined
+      // eslint-disable-next-line no-unused-vars
+        .filter(([key, value]) => value || typeof value === 'number')
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      const data = await fetchApi.get(`/api/organizations/:organizationId/grants-saved-search?${paginationQuery}`);
       commit('SET_SAVED_SEARCHES', data);
     },
     async createSavedSearch(context, { searchInfo }) {
@@ -222,14 +241,16 @@ export default {
     changeEditingSearchId({ commit }, searchId) {
       commit('SET_EDITING_SEARCH_ID', searchId);
     },
-    exportCSV(context, queryParams) {
-      const query = Object.entries(queryParams)
-        // filter out undefined and nulls since api expects parameters not present as undefined
-        // eslint-disable-next-line no-unused-vars
-        .filter(([key, value]) => value || typeof value === 'number')
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
-      const navUrl = fetchApi.apiURL(fetchApi.addOrganizationId(`/api/organizations/:organizationId/grants/exportCSV?${query}`));
+    exportCSV({
+      currentPage, perPage, orderBy, orderDesc,
+    }) {
+      const pagination = { currentPage, perPage };
+      const ordering = { orderBy, orderDesc };
+      const filters = { ...this.state.grants.searchFormFilters };
+      const { criteriaQuery, paginationQuery, orderingQuery } = buildGrantsNextQuery({ filters, ordering, pagination });
+      const navUrl = fetchApi.apiURL(fetchApi.addOrganizationId(
+        `/api/organizations/:organizationId/grants/exportCSVNew?${paginationQuery}&${orderingQuery}&${criteriaQuery}`,
+      ));
       window.location = navUrl;
     },
     exportCSVRecentActivities() {
