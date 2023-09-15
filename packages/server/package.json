@@ -23,6 +23,7 @@
     "import-arpa-dump": "node src/scripts/import_arpa_reporter_dump.js",
     "lint": "eslint '**/*.js'",
     "migrate:make": "knex migrate:make",
+    "migrate:up": "knex migrate:up",
     "parse-output-templates": "node src/scripts/parseOutputTemplates.mjs",
     "pre-commit": "yarn lint",
     "serve": "nodemon src",
