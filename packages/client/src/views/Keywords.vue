@@ -1,7 +1,7 @@
 <template>
 <section class="container-fluid">
     <b-row>
-        <b-col><h3>Keywords</h3></b-col>
+        <b-col><h2>Keywords</h2></b-col>
         <b-col class="d-flex justify-content-end">
             <div>
                 <b-button variant="success" name="include-button" @click="openAddKeywordModal">Add</b-button>

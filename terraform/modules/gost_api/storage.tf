@@ -26,7 +26,7 @@ module "efs_data_volume" {
 
 module "arpa_audit_reports_bucket" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "3.1.2"
+  version = "4.0.0"
   context = module.s3_label.context
   name    = "arpa_audit_reports"
 
@@ -53,7 +53,7 @@ module "arpa_audit_reports_bucket" {
 
 module "access_arpa_reports_bucket_policy" {
   source  = "cloudposse/iam-policy/aws"
-  version = "1.0.1"
+  version = "2.0.0"
   context = module.s3_label.context
 
   name = "access_arpa_reports_bucket"

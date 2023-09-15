@@ -4,9 +4,10 @@ locals {
     for k in compact([for k, v in var.unified_service_tags : (v != null ? k : "")]) :
     k => var.unified_service_tags[k]
   }
-  datadog_env_vars = {
-    for k, v in local.unified_service_tags : "DD_${upper(k)}" => v
-  }
+  datadog_env_vars = merge(
+    { for k, v in local.unified_service_tags : "DD_${upper(k)}" => v },
+    { for k, v in var.datadog_environment_variables : upper(k) => v },
+  )
   datadog_docker_labels = {
     for k, v in local.unified_service_tags : "com.datadoghq.tags.${lower(k)}" => v
   }

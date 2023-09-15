@@ -1,16 +1,20 @@
 <template>
-  <div>
-    <div class="mb-3">
+  <div class="filter-container d-flex">
+    <div class="align-self-end">
+      <div class="align-self-end">
+        <h4 class="mb-0">{{ selectedSearch === null ? "All Grants" : searchName }} </h4>
+        <span v-if="selectedSearch !== null">
+          <a href="#" v-on:click.prevent="editFilter">Edit</a> | <a href="#" v-on:click.prevent="clearAll" >Clear</a>
+        </span>
+      </div>
       <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">
-        <strong >{{ item.label }}: </strong>{{ formatValue(item.value)  }} <a href="#" v-on:click.prevent="clearFilter(idx)"><b-icon icon="x" font-scale="1.5">&nbsp;</b-icon></a>
+        {{ item.label }}: <strong >{{ formatValue(item.value)}}</strong><span v-if="idx != $props.filterKeys.length - 1">;</span>
       </span>
-    </div>
-    <div class="mb-3">
-      <a href="#" v-on:click="clearAll">Clear all</a>
     </div>
   </div>
 </template>
 <script>
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   props: {
@@ -21,27 +25,41 @@ export default {
     },
   },
   methods: {
+    ...mapActions({
+      removeFilter: 'grants/removeFilter',
+      clearSelectedSearch: 'grants/clearSelectedSearch',
+      fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+      initEditSearch: 'grants/initEditSearch',
+    }),
     formatValue(value) {
       if (Array.isArray(value)) {
-        return value.join(', ');
+        return value.map((item) => this.formatValue(item)).join(', ');
+      }
+      if (value !== null && value.label) {
+        return value.label;
       }
       return value;
     },
-    clearAll() {
-      this.filterKeys.splice(0, this.filterKeys.length);
+    editFilter() {
+      this.initEditSearch(this.selectedSearch.id);
     },
-    clearFilter(index) {
-      // TODO emit event when parent component is handling state
-      // this.$emit('filter:remove', index);
-      this.filterKeys.splice(index, 1);
+    clearAll() {
+      this.clearSelectedSearch();
+      this.$emit('filter-removed');
+    },
+  },
+  computed: {
+    ...mapGetters({
+      selectedSearch: 'grants/selectedSearch',
+    }),
+    searchName() {
+      const search = this.selectedSearch;
+      if (!search) {
+        return 'OPE';
+      }
+      return this.selectedSearch.name;
     },
   },
 };
 
 </script>
-<style>
-.filter-item {
-  padding: 0.25rem 0.5rem;
-}
-
-</style>

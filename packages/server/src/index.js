@@ -34,6 +34,15 @@ if (process.env.ENABLE_GRANTS_DIGEST === 'true') {
     generateGrantDigestCron.start();
 }
 
+if (process.env.ENABLE_SAVED_SEARCH_GRANTS_DIGEST === 'true') {
+    const generateSavedSearchGrantDigestCron = new CronJob(
+        // once per day at 13:00 UTC
+        // one hour after the old grant digest
+        '0 0 13 * * *', emailService.buildAndSendUserSavedSearchGrantDigest,
+    );
+    generateSavedSearchGrantDigestCron.start();
+}
+
 const cleanGeneratedPdfCron = new CronJob(
     // once per day at 01:00
     '0 1 * * *',

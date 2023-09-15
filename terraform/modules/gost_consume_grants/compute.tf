@@ -26,7 +26,7 @@ resource "aws_ecs_service" "default" {
   ]
 }
 
-module "consumer_task_definition" {
+module "consumer_container_definition" {
   source  = "cloudposse/ecs-container-definition/aws"
   version = "0.60.0"
 
@@ -36,6 +36,11 @@ module "consumer_task_definition" {
   readonly_root_filesystem = "false"
   stop_timeout             = local.stop_timeout_seconds
   command                  = ["node", "./src/scripts/consumeGrantModifications.js"]
+
+  container_depends_on = [{
+    containerName = "datadog"
+    condition     = "START"
+  }]
 
   linux_parameters = {
     capabilities = {
@@ -116,7 +121,7 @@ resource "aws_ecs_task_definition" "consume_grants" {
   }
 
   container_definitions = jsonencode([
-    module.consumer_task_definition.json_map_object,
+    module.consumer_container_definition.json_map_object,
     module.datadog_container_definition.json_map_object,
   ])
 

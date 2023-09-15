@@ -13,7 +13,6 @@ output "rds_db_connect_resources_list" {
 output "master_username" {
   description = "Cluster master username."
   value       = module.db.cluster_master_username
-  sensitive   = true
 }
 
 output "master_password" {

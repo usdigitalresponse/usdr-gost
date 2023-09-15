@@ -1,0 +1,50 @@
+/**
+ * fonts.scss
+ *
+ * Set font styles across GOST frontend.
+ */
+
+// IMPORT FONTS FROM GOOGLE FONTS:
+// LORA BOLD 700 (HEADING FONT)
+// INTER MEDIUM 500 (BODY FONT)
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Lora:wght@700&display=swap');
+
+// SET HEADING FONTS TO LORA
+h1, h2, h3, h4, h5, h6 {
+  font-family: Lora, Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  line-height: 120%;
+}
+
+h1 {
+  font-size: 38px;
+}
+
+h2 {
+  font-size: 30px;
+}
+
+h3 {
+  font-size: 20px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+// SET BODY FONTS TO INTER
+body {
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 150%;
+  font-weight: 500;
+}
+
+#app {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -59,7 +59,6 @@ variable "rds_db_connect_resources" {
 variable "postgres_username" {
   description = "Username for authenticated connecting to the Postgres db."
   type        = string
-  sensitive   = true
 }
 
 variable "postgres_password" {
@@ -169,6 +168,12 @@ variable "enable_grants_digest" {
   default     = false
 }
 
+variable "enable_saved_search_grants_digest" {
+  description = "When true, sets the ENABLE_SAVED_SEARCH_GRANTS_DIGEST environment variable to true in the API container."
+  type        = bool
+  default     = false
+}
+
 variable "unified_service_tags" {
   description = "Datadog unified service tags to apply to runtime environments."
   type = object({
@@ -176,6 +181,12 @@ variable "unified_service_tags" {
     service = string
     version = optional(string)
   })
+}
+
+variable "datadog_environment_variables" {
+  description = "Datadog-related environment variables to apply to both API and Datadog container runtime environments. See also: var.unified_service_tags."
+  type        = map(string)
+  default     = {}
 }
 
 variable "autoscaling_desired_count_minimum" {

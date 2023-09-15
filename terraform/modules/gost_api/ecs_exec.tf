@@ -1,6 +1,6 @@
 module "ecs_exec_policy" {
   source  = "cloudposse/iam-policy/aws"
-  version = "1.0.1"
+  version = "2.0.0"
   context = module.this.context
 
   iam_policy_statements = {

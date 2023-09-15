@@ -166,7 +166,6 @@ export default {
       }));
     },
     totalRows() {
-      // console.log(this.totalInterestedGrants);
       return this.totalInterestedGrants;
     },
   },

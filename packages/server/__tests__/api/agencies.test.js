@@ -181,15 +181,15 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
     context('GET organizations/:organizationId/agencies/sendDigestEmail', () => {
         it('kicks off the digest email for usdr admin users', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'sendGrantDigestForAgency', sendFake);
+            sinon.replace(email, 'sendGrantDigest', sendFake);
             const response = await fetchApi('/agencies/sendDigestEmail', agencies.admin.own, fetchOptions.admin);
             expect(response.statusText).to.equal('OK');
-            expect(sendFake.getCalls()[0].firstArg.id).to.equal(agencies.admin.own);
+            expect(sendFake.getCalls()[0].firstArg.name).to.equal('USDR');
             expect(sendFake.calledOnce).to.equal(true);
         });
         it('is forbidden for non-usdr admin users', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'sendGrantDigestForAgency', sendFake);
+            sinon.replace(email, 'sendGrantDigest', sendFake);
             const response = await fetchApi('/agencies/sendDigestEmail', agencies.admin.own, fetchOptions.nonUSDRAdmin);
             expect(response.statusText).to.equal('Forbidden');
         });

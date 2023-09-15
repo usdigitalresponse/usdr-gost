@@ -42,6 +42,8 @@ function mapSourceDataToGrant(source) {
         award_ceiling: source.award && source.award.ceiling ? source.award.ceiling : undefined,
         award_floor: source.award && source.award.floor ? source.award.floor : undefined,
         raw_body: JSON.stringify(source),
+        bill: source.bill,
+        funding_instrument_codes: (source.funding_instrument_types || []).map((it) => it.code).join(' '),
     };
 
     const { milestones } = source.opportunity;

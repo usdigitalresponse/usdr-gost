@@ -1,0 +1,77 @@
+/**
+ * colors-base-tokens.scss
+ * 
+ * Color base token definition file, based on USDR style guide.
+ *
+ * Please refer to USDR style guide definition in Figma:
+ *   https://www.figma.com/file/HWu4iIjcoX2txuN543qzIB/USDR-Design-System?type=design&node-id=8%3A2&mode=design&t=8mml86X91f9FzVAE-1
+ */
+
+// USDR BRAND
+$usdr-brand-primary: #0066FF;
+$usdr-brand-secondary: #071A51;
+
+// BLUE
+$raw-blue-50: #EAF5FE;
+$raw-blue-100: #D8ECFE;
+$raw-blue-200: #B3DAFF;
+$raw-blue-300: #8EC5FF;
+$raw-blue-400: #61A6FF;
+$raw-blue-500: #3D80FB;
+$raw-blue-600: #305CE0;
+$raw-blue-700: #2348C2;
+$raw-blue-800: #0D2F81;
+$raw-blue-900: #0D2F81;
+
+// GRAY
+$raw-gray-50: #F4F7F9;
+$raw-gray-100: #ECF0F3;
+$raw-gray-200: #DAE0E5;
+$raw-gray-300: #B1B8BE;
+$raw-gray-400: #879097;
+$raw-gray-500: #6D7278;
+$raw-gray-600: #43464A;
+$raw-gray-700: #1F2123;
+$raw-gray-800: #121212;
+$raw-gray-900: #0A0A0A;
+$raw-black-alpha-600: rgba(0, 0, 0, 48);
+
+// GREEN
+$raw-green-50: #DAFCE4;
+$raw-green-100: #C5F6D4;
+$raw-green-200: #9FE6B7;
+$raw-green-300: #77D498;
+$raw-green-400: #43B874;
+$raw-green-500: #20975A;
+$raw-green-600: #107747;
+$raw-green-700: #15603F;
+$raw-green-800: #173D2B;
+$raw-green-900: #142B20;
+
+// YELLOW
+$raw-yellow-50: #FEF5CD;
+$raw-yellow-100: #FBEBA7;
+$raw-yellow-200: #F2D564;
+$raw-yellow-300: #E2BE3C;
+$raw-yellow-400: #C69F20;
+$raw-yellow-500: #A67F12;
+$raw-yellow-550: #956F0D;
+$raw-yellow-600: #85620B;
+$raw-yellow-700: #6F4F0B;
+$raw-yellow-800: #493109;
+$raw-yellow-900: #362305;
+
+// RED
+$raw-red-50: #FEF0EF;
+$raw-red-100: #FDE5E3;
+$raw-red-200: #FCCAC7;
+$raw-red-300: #F8AFA9;
+$raw-red-400: #ED8780;
+$raw-red-500: #DC5B56;
+$raw-red-600: #C22E31;
+$raw-red-700: #A8161E;
+$raw-red-800: #6D1210;
+$raw-red-900: #4C110B;
+
+// WHITE
+$raw-white: #FFFFFF;
