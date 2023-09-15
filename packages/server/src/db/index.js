@@ -381,64 +381,35 @@ async function buildPaginationParams(args) {
     return { currentPage, perPage, isLengthAware };
 }
 
-function orIncludeMap(keywords) {
-    return keywords.map((kw) => `(${kw})`).join(' | ');
-}
-
-function andExcludeMap(keywords) {
-    return keywords.map((kw) => `!(${kw})`).join(' & ');
-}
-
-function splitKeywords(keywords) {
-    const result = { phrases: [], words: [] };
-
-    if (!keywords) {
-        return result;
-    }
-
-    for (const keyword of keywords) {
-        if (keyword.indexOf(' ') > 0) {
-            result.phrases.push(keyword);
-        } else {
-            result.words.push(keyword);
-        }
-    }
-
-    return result;
-}
-
 function buildTsqExpression(includeKeywords, excludeKeywords) {
-    const keywords = {
-        include: { phrases: [], words: [] },
-        exclude: { phrases: [], words: [] },
-        expressions: { phrase: '', word: '' },
-    };
-
-    // filter out the keywords as words or phrases
-    keywords.include = splitKeywords(includeKeywords, keywords.include);
-    keywords.exclude = splitKeywords(excludeKeywords, keywords.exclude);
-
-    // For each type of keyword, build the relevant tsquery expression
-    if (keywords.include.phrases.length > 0) {
-        keywords.expressions.phrase = orIncludeMap(keywords.include.phrases);
-    }
-    if (keywords.include.words.length > 0) {
-        keywords.expressions.word = orIncludeMap(keywords.include.words);
-    }
-    if (keywords.exclude.phrases.length > 0) {
-        keywords.expressions.phrase = `${keywords.expressions.phrase}${keywords.expressions.phrase ? ' & ' : ''}${andExcludeMap(keywords.exclude.phrases)}`;
-    }
-    if (keywords.exclude.words.length > 0) {
-        keywords.expressions.word = `${keywords.expressions.word}${keywords.expressions.word ? ' & ' : ''}${andExcludeMap(keywords.exclude.words)}`;
+    if (includeKeywords.length === 0 && excludeKeywords.length === 0) {
+        return null;
     }
 
-    return keywords.expressions;
+    // wrap phrases in double quotes and ensure keywords have the correct operator
+    includeKeywords.forEach((ik, i, arr) => { if (ik.indexOf(' ') > 0) { arr[i] = `"${ik}"`; } });
+    excludeKeywords.forEach((ek, i, arr) => { if (ek.indexOf(' ') > 0) { arr[i] = `-"${ek}"`; } else { arr[i] = `-${ek}`; } });
+
+    const validExpressions = [];
+
+    const includeExpression = includeKeywords.join(' or ');
+    if (includeExpression.length > 0) {
+        validExpressions.push(includeExpression);
+    }
+    const excludeExpression = excludeKeywords.join(' ');
+    if (excludeExpression.length > 0) {
+        validExpressions.push(excludeExpression);
+    }
+
+    const phrase = validExpressions.join(' ');
+
+    return phrase;
 }
 
 function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, orderingParams) {
     const tsqExpression = buildTsqExpression(includeKeywords, excludeKeywords);
-    if (tsqExpression.phrase) {
-        queryBuilder.joinRaw(`cross join phraseto_tsquery('english', ?) as tsqp`, tsqExpression.phrase);
+    if (tsqExpression) {
+        queryBuilder.joinRaw(`cross join websearch_to_tsquery('english', ?) as tsqp`, tsqExpression);
         queryBuilder.andWhere((q) => {
             q.where('tsqp', '@@', knex.raw('title_ts'))
                 .orWhere('tsqp', '@@', knex.raw('description_ts'));
@@ -446,23 +417,10 @@ function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, order
         });
         if (orderingParams.orderBy !== undefined) {
             queryBuilder.select(
-                knex.raw(`ts_rank(title_ts, tsqp) as rank_title_phrase`),
-                knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description_phrase`),
+                knex.raw(`ts_rank(title_ts, tsqp) as rank_title`),
+                knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description`),
             );
-        }
-    }
-    if (tsqExpression.word) {
-        queryBuilder.joinRaw(`cross join to_tsquery('english', ?) as tsq`, tsqExpression.word);
-        queryBuilder.andWhere((q) => {
-            q.where('tsq', '@@', knex.raw('title_ts'))
-                .orWhere('tsq', '@@', knex.raw('description_ts'));
-            return q;
-        });
-        if (orderingParams.orderBy !== undefined) {
-            queryBuilder.select(
-                knex.raw(`ts_rank(title_ts, tsq) as rank_title_word`),
-                knex.raw(`ts_rank(grants.description_ts, tsq) as rank_description_word`),
-            );
+            queryBuilder.groupBy('rank_title', 'rank_description');
         }
     }
 }
@@ -543,25 +501,10 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
             queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
         } else if (orderingParams.orderBy.includes('rank')) {
-            const rankColumns = new Set();
-            for (const statement of queryBuilder._statements) { // eslint-disable-line no-underscore-dangle
-                if (statement.grouping === 'columns') {
-                    for (const val of statement.value) {
-                        if (val && val.sql) {
-                            if (val.sql.includes('rank_title_word')) {
-                                rankColumns.add({ column: 'rank_title_word', order: 'desc' });
-                            } else if (val.sql.includes('rank_description_word')) {
-                                rankColumns.add({ column: 'rank_description_word', order: 'desc' });
-                            } else if (val.sql.includes('rank_title_phrase')) {
-                                rankColumns.add({ column: 'rank_title_phrase', order: 'desc' });
-                            } else if (val.sql.includes('rank_description_phrase')) {
-                                rankColumns.add({ column: 'rank_description_phrase', order: 'desc' });
-                            }
-                        }
-                    }
-                }
-            }
-            queryBuilder.orderBy([...rankColumns]);
+            queryBuilder.orderBy([
+                { column: 'rank_title', order: 'desc' },
+                { column: 'rank_description', order: 'desc' },
+            ]);
         } else {
             const orderArgs = orderingParams.orderBy.split('|');
             const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
