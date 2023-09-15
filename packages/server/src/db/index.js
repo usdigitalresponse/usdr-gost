@@ -492,9 +492,6 @@ function buildFiltersQuery(queryBuilder, filters, agencyId) {
             if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
                 qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgencyId);
             }
-            if (filters.opportunityStatuses?.length) {
-                qb.whereIn(`${TABLES.grants}.opportunity_status`, filters.opportunityStatuses);
-            }
             if (filters.opportunityCategories?.length) {
                 qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
             }
@@ -575,6 +572,14 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
         }
     }
 
+    if (filters.opportunityStatuses?.length) {
+        queryBuilder.havingRaw(`
+            CASE
+            WHEN grants.archive_date <= now() THEN 'archived'
+            WHEN grants.close_date <= now() THEN 'closed'
+            ELSE 'posted'
+            END IN (${Array(filters.opportunityStatuses.length).fill('?').join(',')})`, filters.opportunityStatuses);
+    }
     if (paginationParams) {
         queryBuilder.limit(paginationParams.perPage);
         queryBuilder.offset((paginationParams.currentPage - 1) * paginationParams.perPage);
@@ -616,6 +621,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.cfda_list',
             'grants.open_date',
             'grants.close_date',
+            'grants.archive_date',
             'grants.reviewer_name',
             'grants.opportunity_category',
             'grants.search_terms',
@@ -640,11 +646,71 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             END as opportunity_status
         `))
         .distinct()
-        .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams));
+        .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams))
+        .groupBy(
+            'grants.grant_id',
+            'grants.grant_number',
+            'grants.title',
+            'grants.status',
+            'grants.agency_code',
+            'grants.award_ceiling',
+            'grants.cost_sharing',
+            'grants.cfda_list',
+            'grants.open_date',
+            'grants.close_date',
+            'grants.archive_date',
+            'grants.reviewer_name',
+            'grants.opportunity_category',
+            'grants.search_terms',
+            'grants.notes',
+            'grants.created_at',
+            'grants.updated_at',
+            'grants.description',
+            'grants.eligibility_codes',
+            'grants.raw_body',
+            'grants.award_floor',
+            'grants.revision_id',
+            'grants.title_ts',
+            'grants.description_ts',
+            'grants.funding_instrument_codes',
+            'grants.bill',
+            'grants.grant_number',
+            'grants.title',
+            'grants.status',
+            'grants.agency_code',
+            'grants.award_ceiling',
+            'grants.cost_sharing',
+            'grants.cfda_list',
+            'grants.open_date',
+            'grants.close_date',
+            'grants.reviewer_name',
+            'grants.opportunity_category',
+            'grants.search_terms',
+            'grants.notes',
+            'grants.created_at',
+            'grants.updated_at',
+            'grants.description',
+            'grants.eligibility_codes',
+            'grants.raw_body',
+            'grants.award_floor',
+            'grants.revision_id',
+            'grants.title_ts',
+            'grants.description_ts',
+            'grants.funding_instrument_codes',
+            'grants.bill',
+        );
 
-    const counts = await knex(TABLES.grants)
-        .modify((qb) => grantsQuery(qb, filters, agencyId, { orderBy: undefined }, null))
-        .countDistinct('grants.grant_id as total_grants');
+    const counts = await knex.with('filtered_grants', (qb) => {
+        qb.modify((q) => grantsQuery(q, filters, agencyId, { orderBy: undefined }, null))
+            .select([
+                'grants.grant_id',
+                'grants.open_date',
+                'grants.close_date',
+                'grants.archive_date',
+            ])
+            .from('grants')
+            .groupBy('grants.grant_id', 'grants.open_date', 'grants.close_date', 'grants.archive_date');
+    }).countDistinct('filtered_grants.grant_id as total_grants').from('filtered_grants');
 
     const pagination = {
         total: parseInt(counts[0].total_grants, 10),
