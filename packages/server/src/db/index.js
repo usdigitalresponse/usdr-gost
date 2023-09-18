@@ -449,6 +449,7 @@ function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, order
                 knex.raw(`ts_rank(title_ts, tsqp) as rank_title_phrase`),
                 knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description_phrase`),
             );
+            queryBuilder.groupBy('rank_title_phrase', 'rank_description_phrase');
         }
     }
     if (tsqExpression.word) {
@@ -463,6 +464,7 @@ function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, order
                 knex.raw(`ts_rank(title_ts, tsq) as rank_title_word`),
                 knex.raw(`ts_rank(grants.description_ts, tsq) as rank_description_word`),
             );
+            queryBuilder.groupBy('rank_title_word', 'rank_description_word');
         }
     }
 }
@@ -532,6 +534,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             if (!filters.reviewStatuses?.length) {
                 queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
                 queryBuilder.select(`${TABLES.grants_interested}.grant_id`);
+                queryBuilder.groupBy(`${TABLES.grants_interested}.grant_id`);
             }
             const orderArgs = orderingParams.orderBy.split('|');
             queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
@@ -645,7 +648,6 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             ELSE 'posted'
             END as opportunity_status
         `))
-        .distinct()
         .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams))
         .groupBy(
             'grants.grant_id',
