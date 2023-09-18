@@ -466,7 +466,7 @@ describe('`/api/grants` endpoint', () => {
     context('GET /api/grants/exportCSVNew', () => {
         it('produces correct column format', async () => {
             // We constrain the result to a single grant that's listed in seeds/dev/ref/grants.js
-            const query = '?criteria[includeKeywords]=Community';
+            const query = '?criteria[includeKeywords]=Community Health';
             const response = await fetchApi(`/grants/exportCSVNew${query}`, agencies.own, fetchOptions.staff);
             console.log(response);
 
