@@ -389,8 +389,12 @@ function buildTsqExpression(includeKeywords, excludeKeywords) {
     const signedKeywords = { include: [], exclude: [] };
 
     // wrap phrases in double quotes and ensure keywords have the correct operator
-    includeKeywords.forEach((ik) => { if (ik.indexOf(' ') > 0) { signedKeywords.include.push(`"${ik}"`); } else { signedKeywords.include.push(ik); } });
-    excludeKeywords.forEach((ek) => { if (ek.indexOf(' ') > 0) { signedKeywords.exclude.push(`-"${ek}"`); } else { signedKeywords.exclude.push(`-${ek}`); } });
+    if (includeKeywords.length > 0) {
+        includeKeywords.forEach((ik) => { if (ik.indexOf(' ') > 0) { signedKeywords.include.push(`"${ik}"`); } else { signedKeywords.include.push(ik); } });
+    }
+    if (excludeKeywords.length > 0) {
+        excludeKeywords.forEach((ek) => { if (ek.indexOf(' ') > 0) { signedKeywords.exclude.push(`-"${ek}"`); } else { signedKeywords.exclude.push(`-${ek}`); } });
+    }
 
     const validExpressions = [];
 
