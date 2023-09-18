@@ -382,7 +382,7 @@ async function buildPaginationParams(args) {
 }
 
 function buildTsqExpression(includeKeywords, excludeKeywords) {
-    if (includeKeywords.length === 0 && excludeKeywords.length === 0) {
+    if ((includeKeywords && includeKeywords.length === 0) && (excludeKeywords && excludeKeywords.length === 0)) {
         return null;
     }
 
