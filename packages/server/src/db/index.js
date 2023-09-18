@@ -386,17 +386,19 @@ function buildTsqExpression(includeKeywords, excludeKeywords) {
         return null;
     }
 
+    const signedKeywords = { include: [], exclude: [] };
+
     // wrap phrases in double quotes and ensure keywords have the correct operator
-    includeKeywords.forEach((ik, i, arr) => { if (ik.indexOf(' ') > 0) { arr[i] = `"${ik}"`; } });
-    excludeKeywords.forEach((ek, i, arr) => { if (ek.indexOf(' ') > 0) { arr[i] = `-"${ek}"`; } else { arr[i] = `-${ek}`; } });
+    includeKeywords.forEach((ik) => { if (ik.indexOf(' ') > 0) { signedKeywords.include.push(`"${ik}"`); } else { signedKeywords.include.push(ik); } });
+    excludeKeywords.forEach((ek) => { if (ek.indexOf(' ') > 0) { signedKeywords.exclude.push(`-"${ek}"`); } else { signedKeywords.exclude.push(`-${ek}`); } });
 
     const validExpressions = [];
 
-    const includeExpression = includeKeywords.join(' or ');
+    const includeExpression = signedKeywords.include.join(' or ');
     if (includeExpression.length > 0) {
         validExpressions.push(includeExpression);
     }
-    const excludeExpression = excludeKeywords.join(' ');
+    const excludeExpression = signedKeywords.exclude.join(' ');
     if (excludeExpression.length > 0) {
         validExpressions.push(excludeExpression);
     }
@@ -644,15 +646,14 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
         );
 
     const counts = await knex.with('filtered_grants', (qb) => {
-        qb.modify((q) => grantsQuery(q, filters, agencyId, { orderBy: undefined }, null))
-            .select([
-                'grants.grant_id',
-                'grants.open_date',
-                'grants.close_date',
-                'grants.archive_date',
-            ])
-            .from('grants')
+        qb.select([
+            'grants.grant_id',
+            'grants.open_date',
+            'grants.close_date',
+            'grants.archive_date',
+        ]).from('grants')
             .groupBy('grants.grant_id', 'grants.open_date', 'grants.close_date', 'grants.archive_date');
+        qb.modify((q) => grantsQuery(q, filters, agencyId, { orderBy: undefined }, null));
     }).countDistinct('filtered_grants.grant_id as total_grants').from('filtered_grants');
 
     const pagination = {
