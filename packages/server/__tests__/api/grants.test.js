@@ -466,9 +466,9 @@ describe('`/api/grants` endpoint', () => {
     context('GET /api/grants/exportCSVNew', () => {
         it('produces correct column format', async () => {
             // We constrain the result to a single grant that's listed in seeds/dev/ref/grants.js
-            const q2 = '?criteria[includeKeywords]=Community Health Aide Program:  Tribal';
-            const q3 = '?criteria[includeKeywords]=Community Health Aide Program:  Tribal Planning';
-            const q4 = '?criteria[includeKeywords]=Community Health Aide Program:  County';
+            const q2 = '?criteria[includeKeywords]=Community Health Aide Program:  Tribal'.replace(':', '');
+            const q3 = '?criteria[includeKeywords]=Community Health Aide Program:  Tribal Planning'.replace(':', '');
+            const q4 = '?criteria[includeKeywords]=Community Health Aide Program:  County'.replace(':', '');
             const res2 = await fetchApi(`/grants/exportCSVNew${q2}`, agencies.own, fetchOptions.staff);
             console.log(await res2.text());
             const res3 = await fetchApi(`/grants/exportCSVNew${q3}`, agencies.own, fetchOptions.staff);
