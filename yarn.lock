@@ -751,9 +751,9 @@
     tslib "^2.5.0"
 
 "@aws-sdk/rds-signer@^3.315.0":
-  version "3.414.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/rds-signer/-/rds-signer-3.414.0.tgz#c169120bc21bf1961c6045f3b16e1cfa81d76a5f"
-  integrity sha512-IGfxFelAirXyr3W0Cwti/SL3Ecy8/XwfFhb9o8lbCKgTJGKF93RZVij86RzMwJHi8TIVGH+0fHq7eWXgnn5b6g==
+  version "3.415.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/rds-signer/-/rds-signer-3.415.0.tgz#dc7d34a202a537a9a4696744bf5a5b46d349bc8c"
+  integrity sha512-jVe7tY4naUUNp3jo6f7FD8GVOajaI4mwkDLJ1VaXq7dP8As1fifDDz+HTk763PB88m1uIzfdGLaTnSuZlFkq8w==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
@@ -765,6 +765,7 @@
     "@smithy/node-config-provider" "^2.0.10"
     "@smithy/protocol-http" "^3.0.3"
     "@smithy/signature-v4" "^2.0.0"
+    "@smithy/types" "^2.3.1"
     tslib "^2.5.0"
 
 "@aws-sdk/region-config-resolver@3.413.0":
