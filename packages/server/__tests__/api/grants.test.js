@@ -468,6 +468,7 @@ describe('`/api/grants` endpoint', () => {
             // We constrain the result to a single grant that's listed in seeds/dev/ref/grants.js
             const query = '?criteria[includeKeywords]=Community%20Health%20Aide Program:%20%20Tribal%20Planning';
             const response = await fetchApi(`/grants/exportCSVNew${query}`, agencies.own, fetchOptions.staff);
+            console.log(response);
 
             expect(response.statusText).to.equal('OK');
             expect(response.headers.get('Content-Type')).to.include('text/csv');
@@ -490,6 +491,7 @@ describe('`/api/grants` endpoint', () => {
                 'URL',
             ];
             const txt = await response.text();
+            console.log(txt);
             expect(txt.split('\n')[0]).to.equal(expectedCsvHeaders.join(','));
             expect(txt.split('\n')[1]).to.contain('HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &');
         });
