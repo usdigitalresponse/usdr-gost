@@ -381,18 +381,22 @@ async function buildPaginationParams(args) {
     return { currentPage, perPage, isLengthAware };
 }
 
+function isValidArray(value) {
+    return Array.isArray(value) && value.length > 0;
+}
+
 function buildTsqExpression(includeKeywords, excludeKeywords) {
-    if (!(includeKeywords?.length && excludeKeywords?.length)) {
+    if (!isValidArray(includeKeywords) && !isValidArray(excludeKeywords)) {
         return null;
     }
 
     const signedKeywords = { include: [], exclude: [] };
 
     // wrap phrases in double quotes and ensure keywords have the correct operator
-    if (includeKeywords?.length > 0) {
+    if (isValidArray(includeKeywords)) {
         includeKeywords.forEach((ik) => { if (ik.indexOf(' ') > 0) { signedKeywords.include.push(`"${ik}"`); } else { signedKeywords.include.push(ik); } });
     }
-    if (excludeKeywords?.length > 0) {
+    if (isValidArray(excludeKeywords)) {
         excludeKeywords.forEach((ek) => { if (ek.indexOf(' ') > 0) { signedKeywords.exclude.push(`-"${ek}"`); } else { signedKeywords.exclude.push(`-${ek}`); } });
     }
 
