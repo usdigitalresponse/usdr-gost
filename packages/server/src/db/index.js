@@ -490,6 +490,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             if (!filters.reviewStatuses?.length) {
                 queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
                 queryBuilder.select(`${TABLES.grants_interested}.grant_id`);
+                queryBuilder.groupBy(`${TABLES.grants_interested}.grant_id`);
             }
             const orderArgs = orderingParams.orderBy.split('|');
             queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
@@ -588,7 +589,6 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             ELSE 'posted'
             END as opportunity_status
         `))
-        .distinct()
         .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams))
         .groupBy(
             'grants.grant_id',
