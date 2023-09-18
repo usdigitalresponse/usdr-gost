@@ -382,17 +382,17 @@ async function buildPaginationParams(args) {
 }
 
 function buildTsqExpression(includeKeywords, excludeKeywords) {
-    if ((includeKeywords && includeKeywords.length === 0) && (excludeKeywords && excludeKeywords.length === 0)) {
+    if (!(includeKeywords?.length && excludeKeywords?.length)) {
         return null;
     }
 
     const signedKeywords = { include: [], exclude: [] };
 
     // wrap phrases in double quotes and ensure keywords have the correct operator
-    if (includeKeywords.length > 0) {
+    if (includeKeywords?.length > 0) {
         includeKeywords.forEach((ik) => { if (ik.indexOf(' ') > 0) { signedKeywords.include.push(`"${ik}"`); } else { signedKeywords.include.push(ik); } });
     }
-    if (excludeKeywords.length > 0) {
+    if (excludeKeywords?.length > 0) {
         excludeKeywords.forEach((ek) => { if (ek.indexOf(' ') > 0) { signedKeywords.exclude.push(`-"${ek}"`); } else { signedKeywords.exclude.push(`-${ek}`); } });
     }
 
