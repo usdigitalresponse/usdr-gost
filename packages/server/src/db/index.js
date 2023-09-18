@@ -512,7 +512,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             if (orderArgs.length > 1) {
                 console.log(`Too many orderArgs: ${orderArgs}`);
             }
-            queryBuilder.orderBy(orderArgs[0], orderDirection);
+            queryBuilder.orderBy(orderArgs[0], knex.raw(`${orderDirection} NULLS LAST`));
         }
     }
 
