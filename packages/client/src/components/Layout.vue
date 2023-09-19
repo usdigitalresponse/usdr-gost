@@ -29,7 +29,7 @@
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-    <b-col cols="12" v-if="!hideTabs">
+    <b-col cols="12" v-if="showTabs">
       <b-nav tabs justified fill style="margin-top: 20px">
           <b-nav-item to="/my-grants" exact exact-active-class="active">My Grants</b-nav-item>
           <b-nav-item to="/grants" exact exact-active-class="active">Browse Grants</b-nav-item>
@@ -86,8 +86,8 @@ export default {
     useNewGrantsTable() {
       return useNewGrantsTable();
     },
-    hideTabs() {
-      return this.$route.meta.hideLayoutTabs === true;
+    showTabs() {
+      return !(this.$route.meta.hideLayoutTabs === true);
     },
   },
   methods: {
