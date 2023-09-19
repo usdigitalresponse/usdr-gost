@@ -87,8 +87,8 @@ export default {
       return useNewGrantsTable();
     },
     hideTabs() {
-      return this.$route.meta.hideLayoutTabs === true
-    }
+      return this.$route.meta.hideLayoutTabs === true;
+    },
   },
   methods: {
     logout(e) {
