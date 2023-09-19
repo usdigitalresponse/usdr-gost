@@ -197,8 +197,7 @@ jobs:
     if: |
       always() &&
       needs.build_api.result == 'success' &&
-      (needs.deploy_terraform.result == 'success' || needs.deploy_terraform.result == 'skipped') &&
-      needs.select_target_environment.outputs.selected == 'staging'
+      (needs.deploy_terraform.result == 'success' || needs.deploy_terraform.result == 'skipped')
     environment: ${{ needs.select_target_environment.outputs.selected }}
     steps:
       - name: Configure AWS Credentials
