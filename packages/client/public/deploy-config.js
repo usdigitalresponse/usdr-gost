@@ -21,4 +21,5 @@ window.APP_CONFIG.overrideFeatureFlag = (flagName, overrideValue) => {
 //  configuring the `website_feature_flags` input variable in Terraform (see `terraform/*.tfvars`).
 window.APP_CONFIG.featureFlags = {
   useNewTable: true,
+  myProfileEnabled: true
 };

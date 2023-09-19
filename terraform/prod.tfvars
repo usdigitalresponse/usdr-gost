@@ -32,6 +32,7 @@ website_managed_waf_rules = {
 }
 website_feature_flags = {
   useNewTable = false,
+  myProfileEnabled = false
 }
 
 // ECS Cluster
