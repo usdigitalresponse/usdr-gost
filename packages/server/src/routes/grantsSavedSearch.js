@@ -8,9 +8,9 @@ router.get('/', requireUser, async (req, res) => {
     const { user } = req.session;
 
     const paginationParams = {
-        currentPage: req.params.currentPage || 1,
-        perPage: req.params.perPage || 10,
-        isLengthAware: req.params.isLengthAware || true,
+        currentPage: req.query.currentPage || 1,
+        perPage: req.query.perPage || 10,
+        isLengthAware: req.query.isLengthAware || true,
     };
 
     const savedSearches = await db.getSavedSearches(user.id, paginationParams);
