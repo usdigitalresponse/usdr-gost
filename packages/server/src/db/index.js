@@ -381,64 +381,45 @@ async function buildPaginationParams(args) {
     return { currentPage, perPage, isLengthAware };
 }
 
-function orIncludeMap(keywords) {
-    return keywords.map((kw) => `(${kw})`).join(' | ');
-}
-
-function andExcludeMap(keywords) {
-    return keywords.map((kw) => `!(${kw})`).join(' & ');
-}
-
-function splitKeywords(keywords) {
-    const result = { phrases: [], words: [] };
-
-    if (!keywords) {
-        return result;
-    }
-
-    for (const keyword of keywords) {
-        if (keyword.indexOf(' ') > 0) {
-            result.phrases.push(keyword);
-        } else {
-            result.words.push(keyword);
-        }
-    }
-
-    return result;
+function isValidArray(value) {
+    return Array.isArray(value) && value.length > 0;
 }
 
 function buildTsqExpression(includeKeywords, excludeKeywords) {
-    const keywords = {
-        include: { phrases: [], words: [] },
-        exclude: { phrases: [], words: [] },
-        expressions: { phrase: '', word: '' },
-    };
-
-    // filter out the keywords as words or phrases
-    keywords.include = splitKeywords(includeKeywords, keywords.include);
-    keywords.exclude = splitKeywords(excludeKeywords, keywords.exclude);
-
-    // For each type of keyword, build the relevant tsquery expression
-    if (keywords.include.phrases.length > 0) {
-        keywords.expressions.phrase = orIncludeMap(keywords.include.phrases);
-    }
-    if (keywords.include.words.length > 0) {
-        keywords.expressions.word = orIncludeMap(keywords.include.words);
-    }
-    if (keywords.exclude.phrases.length > 0) {
-        keywords.expressions.phrase = `${keywords.expressions.phrase}${keywords.expressions.phrase ? ' & ' : ''}${andExcludeMap(keywords.exclude.phrases)}`;
-    }
-    if (keywords.exclude.words.length > 0) {
-        keywords.expressions.word = `${keywords.expressions.word}${keywords.expressions.word ? ' & ' : ''}${andExcludeMap(keywords.exclude.words)}`;
+    if (!isValidArray(includeKeywords) && !isValidArray(excludeKeywords)) {
+        return null;
     }
 
-    return keywords.expressions;
+    const signedKeywords = { include: [], exclude: [] };
+
+    // wrap phrases in double quotes and ensure keywords have the correct operator
+    if (isValidArray(includeKeywords)) {
+        includeKeywords.forEach((ik) => { if (ik.indexOf(' ') > 0) { signedKeywords.include.push(`"${ik}"`); } else { signedKeywords.include.push(ik); } });
+    }
+    if (isValidArray(excludeKeywords)) {
+        excludeKeywords.forEach((ek) => { if (ek.indexOf(' ') > 0) { signedKeywords.exclude.push(`-"${ek}"`); } else { signedKeywords.exclude.push(`-${ek}`); } });
+    }
+
+    const validExpressions = [];
+
+    const includeExpression = signedKeywords.include.join(' or ');
+    if (includeExpression.length > 0) {
+        validExpressions.push(includeExpression);
+    }
+    const excludeExpression = signedKeywords.exclude.join(' ');
+    if (excludeExpression.length > 0) {
+        validExpressions.push(excludeExpression);
+    }
+
+    const phrase = validExpressions.join(' ');
+
+    return phrase;
 }
 
 function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, orderingParams) {
     const tsqExpression = buildTsqExpression(includeKeywords, excludeKeywords);
-    if (tsqExpression.phrase) {
-        queryBuilder.joinRaw(`cross join phraseto_tsquery('english', ?) as tsqp`, tsqExpression.phrase);
+    if (tsqExpression) {
+        queryBuilder.joinRaw(`cross join websearch_to_tsquery('english', ?) as tsqp`, tsqExpression);
         queryBuilder.andWhere((q) => {
             q.where('tsqp', '@@', knex.raw('title_ts'))
                 .orWhere('tsqp', '@@', knex.raw('description_ts'));
@@ -446,25 +427,10 @@ function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, order
         });
         if (orderingParams.orderBy !== undefined) {
             queryBuilder.select(
-                knex.raw(`ts_rank(title_ts, tsqp) as rank_title_phrase`),
-                knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description_phrase`),
+                knex.raw(`ts_rank(title_ts, tsqp) as rank_title`),
+                knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description`),
             );
-            queryBuilder.groupBy('rank_title_phrase', 'rank_description_phrase');
-        }
-    }
-    if (tsqExpression.word) {
-        queryBuilder.joinRaw(`cross join to_tsquery('english', ?) as tsq`, tsqExpression.word);
-        queryBuilder.andWhere((q) => {
-            q.where('tsq', '@@', knex.raw('title_ts'))
-                .orWhere('tsq', '@@', knex.raw('description_ts'));
-            return q;
-        });
-        if (orderingParams.orderBy !== undefined) {
-            queryBuilder.select(
-                knex.raw(`ts_rank(title_ts, tsq) as rank_title_word`),
-                knex.raw(`ts_rank(grants.description_ts, tsq) as rank_description_word`),
-            );
-            queryBuilder.groupBy('rank_title_word', 'rank_description_word');
+            queryBuilder.groupBy('rank_title', 'rank_description');
         }
     }
 }
@@ -546,25 +512,10 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
             queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
         } else if (orderingParams.orderBy.includes('rank')) {
-            const rankColumns = new Set();
-            for (const statement of queryBuilder._statements) { // eslint-disable-line no-underscore-dangle
-                if (statement.grouping === 'columns') {
-                    for (const val of statement.value) {
-                        if (val && val.sql) {
-                            if (val.sql.includes('rank_title_word')) {
-                                rankColumns.add({ column: 'rank_title_word', order: 'desc' });
-                            } else if (val.sql.includes('rank_description_word')) {
-                                rankColumns.add({ column: 'rank_description_word', order: 'desc' });
-                            } else if (val.sql.includes('rank_title_phrase')) {
-                                rankColumns.add({ column: 'rank_title_phrase', order: 'desc' });
-                            } else if (val.sql.includes('rank_description_phrase')) {
-                                rankColumns.add({ column: 'rank_description_phrase', order: 'desc' });
-                            }
-                        }
-                    }
-                }
-            }
-            queryBuilder.orderBy([...rankColumns]);
+            queryBuilder.orderBy([
+                { column: 'rank_title', order: 'desc' },
+                { column: 'rank_description', order: 'desc' },
+            ]);
         } else {
             const orderArgs = orderingParams.orderBy.split('|');
             const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
@@ -676,42 +627,17 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.description_ts',
             'grants.funding_instrument_codes',
             'grants.bill',
-            'grants.grant_number',
-            'grants.title',
-            'grants.status',
-            'grants.agency_code',
-            'grants.award_ceiling',
-            'grants.cost_sharing',
-            'grants.cfda_list',
-            'grants.open_date',
-            'grants.close_date',
-            'grants.reviewer_name',
-            'grants.opportunity_category',
-            'grants.search_terms',
-            'grants.notes',
-            'grants.created_at',
-            'grants.updated_at',
-            'grants.description',
-            'grants.eligibility_codes',
-            'grants.raw_body',
-            'grants.award_floor',
-            'grants.revision_id',
-            'grants.title_ts',
-            'grants.description_ts',
-            'grants.funding_instrument_codes',
-            'grants.bill',
         );
 
     const counts = await knex.with('filtered_grants', (qb) => {
-        qb.modify((q) => grantsQuery(q, filters, agencyId, { orderBy: undefined }, null))
-            .select([
-                'grants.grant_id',
-                'grants.open_date',
-                'grants.close_date',
-                'grants.archive_date',
-            ])
-            .from('grants')
+        qb.select([
+            'grants.grant_id',
+            'grants.open_date',
+            'grants.close_date',
+            'grants.archive_date',
+        ]).from('grants')
             .groupBy('grants.grant_id', 'grants.open_date', 'grants.close_date', 'grants.archive_date');
+        qb.modify((q) => grantsQuery(q, filters, agencyId, { orderBy: undefined }, null));
     }).countDistinct('filtered_grants.grant_id as total_grants').from('filtered_grants');
 
     const pagination = {
