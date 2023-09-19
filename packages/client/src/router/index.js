@@ -122,6 +122,7 @@ const routes = [
         meta: {
           requiresAuth: true,
           requiresMyProfileEnabled: true,
+          hideLayoutTabs: true,
         },
       },
     ],
