@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import { useNewGrantsTable } from '@/helpers/featureFlags';
+import { myProfileEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
 import Login from '../views/Login.vue';
 import Layout from '../components/Layout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
@@ -115,6 +115,15 @@ const routes = [
           requiresAuth: true,
         },
       },
+      {
+        path: '/my-profile',
+        name: 'myProfile',
+        component: () => import('../views/MyProfile.vue'),
+        meta: {
+          requiresAuth: true,
+          requiresMyProfileEnabled: true,
+        },
+      },
     ],
   },
   {
@@ -143,7 +152,9 @@ router.beforeEach((to, from, next) => {
   } else if (to.name === 'login' && authenticated) {
     next({ name: 'grants' });
   } else if (to.name === 'not-found'
-  || (to.meta.enabledWithOldGrantsTableOnly && useNewGrantsTable())) {
+    || (to.meta.enabledWithOldGrantsTableOnly && useNewGrantsTable())
+    || (to.meta.requiresMyProfileEnabled && !myProfileEnabled())
+  ) {
     if (authenticated) {
       next({ name: 'grants' });
     } else {
