@@ -73,9 +73,10 @@ module "db" {
   iam_role_use_name_prefix      = true
   iam_role_permissions_boundary = var.permissions_boundary_arn
 
-  apply_immediately   = var.apply_changes_immediately
-  skip_final_snapshot = var.snapshot_before_destroy
-  deletion_protection = var.prevent_destroy
+  apply_immediately     = var.apply_changes_immediately
+  skip_final_snapshot   = var.snapshot_before_destroy
+  deletion_protection   = var.prevent_destroy
+  copy_tags_to_snapshot = true
 
   serverlessv2_scaling_configuration = {
     min_capacity = 0.5

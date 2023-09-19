@@ -56,8 +56,8 @@ function buildGrantsNextQuery({ filters, ordering, pagination }) {
   */
   const criteria = { ...filters };
   // Validate and fix the inputs into appropriate types.
-  criteria.includeKeywords = criteria.includeKeywords && criteria.includeKeywords.length > 0 ? criteria.includeKeywords.split(',').map((k) => k.trim()) : null;
-  criteria.excludeKeywords = criteria.excludeKeywords && criteria.excludeKeywords.length > 0 ? criteria.excludeKeywords.split(',').map((k) => k.trim()) : null;
+  criteria.includeKeywords = criteria.includeKeywords && criteria.includeKeywords.length > 0 ? criteria.includeKeywords.split(',').map((k) => k.trim().replace(/[^\w\s]/gi, '')) : null;
+  criteria.excludeKeywords = criteria.excludeKeywords && criteria.excludeKeywords.length > 0 ? criteria.excludeKeywords.split(',').map((k) => k.trim().replace(/[^\w\s]/gi, '')) : null;
   criteria.eligibility = criteria.eligibility?.map((e) => e.code);
   criteria.fundingTypes = criteria.fundingTypes?.map((f) => f.code);
   criteria.bill = criteria.bill === 'All Bills' ? null : criteria.bill;

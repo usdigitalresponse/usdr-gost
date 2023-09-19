@@ -5,6 +5,10 @@ env       = "sandbox"
 ssm_service_parameters_path_prefix    = "/gost/sandbox"
 ssm_deployment_parameters_path_prefix = "/gost/sandbox/deploy-config"
 
+// Datadog provider
+datadog_draft            = true
+datadog_monitors_enabled = false
+
 // Website
 website_enabled           = true
 website_domain_name       = "sandbox.grants.usdr.dev"
