@@ -1519,14 +1519,21 @@ async function getAllUserSavedSearches(userId) {
         `${TABLES.email_subscriptions}.notification_type as notification_type`,
         `${TABLES.users}.tenant_id as tenant_id`,
         `${TABLES.users}.email as email`,
-    ).from(`${TABLES.grants_saved_searches}`).join(TABLES.users, `${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.users}.id`)
-        .leftJoin(TABLES.email_subscriptions, (builder) => {
-            builder
-                .on(`${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.email_subscriptions}.user_id`)
-                .andOn(`${TABLES.email_subscriptions}.notification_type`, '=', knex.raw('?', [emailConstants.notificationType.grantDigest]));
-        })
-        .where(`${TABLES.email_subscriptions}.status`, `${emailConstants.emailSubscriptionStatus.subscribed}`)
-        .orWhereNull(`${TABLES.email_subscriptions}.status`);
+    )
+        .from(`${TABLES.grants_saved_searches}`)
+        .join(TABLES.users, `${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.users}.id`)
+        .leftJoin(
+            TABLES.email_subscriptions, (builder) => {
+                builder
+                    .on(`${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.email_subscriptions}.user_id`)
+                    .andOn(`${TABLES.email_subscriptions}.notification_type`, '=', knex.raw('?', [emailConstants.notificationType.grantDigest]));
+            },
+        )
+        .where((q) => {
+            q
+                .where(`${TABLES.email_subscriptions}.status`, `${emailConstants.emailSubscriptionStatus.subscribed}`)
+                .orWhereNull(`${TABLES.email_subscriptions}.status`);
+        });
     if (userId) {
         query.andWhere(`${TABLES.grants_saved_searches}.created_by`, '=', userId);
     }
