@@ -571,11 +571,11 @@ function formatSearchCriteriaToQueryFilters(criteria) {
         delete parsedCriteria.eligibility;
     }
     filters = { ...filters, ...parsedCriteria };
-    validateFilters(filters);
+    validateSearchFilters(filters);
     return filters;
 }
 
-function validateFilters(filters) {
+function validateSearchFilters(filters) {
     const filterOptionsByType = {
         reviewStatuses: { type: 'List', valueType: 'Enum', values: ['Applied', 'Not Applying', 'Interested'] },
         eligibilityCodes: { type: 'List', valueType: 'String' },
@@ -676,7 +676,7 @@ function validateFilters(filters) {
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
     console.log(JSON.stringify([filters, paginationParams, orderingParams, tenantId, agencyId]));
 
-    const errors = validateFilters(filters);
+    const errors = validateSearchFilters(filters);
     if (errors.length > 0) {
         throw new Error(`Invalid filters: ${errors.join(', ')}`);
     }
@@ -1774,4 +1774,5 @@ module.exports = {
     sync,
     getAllRows,
     close,
+    validateSearchFilters,
 };
