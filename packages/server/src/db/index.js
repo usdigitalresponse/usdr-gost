@@ -540,8 +540,85 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
     }
 }
 
+function validateFilters(filters) {
+    const filterOptionsByType = {
+        reviewStatuses: { type: 'List', valueType: 'Enum', values: ['Applied', 'Not Applying', 'Interested'] },
+        eligibilityCodes: { type: 'List', valueType: 'String' },
+        includeKeywords: { type: 'List', valueType: 'String' },
+        excludeKeywords: { type: 'List', valueType: 'String' },
+        opportunityNumber: { type: 'String', valueType: 'Any' },
+        fundingTypes: { type: 'List', valueType: 'Enum', values: ['CA', 'G', 'PC', 'O'] },
+        opportunityStatuses: { type: 'List', valueType: 'Enum', values: ['posted', 'forecasted', 'closed'] },
+        opportunityCategories: { type: 'List', valueType: 'Enum', values: ['Other', 'Discretionary', 'Mandatory', 'Continuation'] },
+        costSharing: { type: 'String', valueType: 'Enum', values: ['Yes', 'No'] },
+        agencyCode: { type: 'String', valueType: 'Any' },
+        postedWithinDays: { type: 'number', valueType: 'Any' },
+        assignedToAgencyId: { type: 'number', valueType: 'Any' },
+        bill: { type: 'String', valueType: 'Any' },
+        openDate: { type: 'Date', valueType: 'YYYY-MM-DD' },
+    };
+
+    const errors = [];
+    for (const [option, value] of Object.entries(filters)) {
+        if (!value || value.length === 0) {
+            // eslint-disable-next-line no-continue
+            continue;
+        }
+
+        if (!filterOptionsByType[option]) {
+            errors.push(`Received invalid filter ${option}, does not exist`);
+        } else if (filterOptionsByType[option].type === 'List') {
+            if (!Array.isArray(value)) {
+                errors.push(`Received invalid filter ${option}, expected List`);
+            } else if (filterOptionsByType[option].valueType && value.length > 0) {
+                if (filterOptionsByType[option].valueType === 'Enum') {
+                    for (const v of value) {
+                        if (!filterOptionsByType[option].values.includes(v)) {
+                            errors.push(`Received invalid filter ${option}, expected List of Enum, found value ${v} that is not in ${filterOptionsByType[option].values}`);
+                        }
+                    }
+                } else if (filterOptionsByType[option].valueType === 'String') {
+                    for (const v of value) {
+                        if (typeof v !== 'string') {
+                            errors.push(`Received invalid filter ${option}, expected List of String`);
+                        }
+                    }
+                }
+            }
+        } else if (filterOptionsByType[option].type === 'String') {
+            if (filterOptionsByType[option].valueType === 'Enum') {
+                if (!filterOptionsByType[option].values.includes(value)) {
+                    errors.push(`Received invalid filter ${option}, expected Enum, found value ${value} that is not in ${filterOptionsByType[option].values}`);
+                }
+            } else if (filterOptionsByType[option].valueType === 'Any') {
+                if (typeof value !== 'string') {
+                    errors.push(`Received invalid filter ${option}, expected String, received ${value}`);
+                }
+            }
+        } else if (filterOptionsByType[option].type === 'number') {
+            if (filterOptionsByType[option].valueType === 'Any') {
+                if (typeof value !== 'number') {
+                    errors.push(`Received invalid filter ${option}, expected number, received ${value}`);
+                }
+            } else {
+                errors.push(`Numbers with specific value types is not implemented`);
+            }
+        } else if (filterOptionsByType[option].type === 'Date') {
+            if (filterOptionsByType[option].valueType === 'YYYY-MM-DD') {
+                if (!moment(value, 'YYYY-MM-DD', true).isValid()) {
+                    errors.push(`Received invalid filter ${option}, expected YYYY-MM-DD, received ${value}`);
+                }
+            } else {
+                errors.push(`Dates without specific value-types/date-format is not implemented`);
+            }
+        }
+    }
+
+    return errors;
+}
+
 /*
-    filters: {
+   filters: {
         reviewStatuses: List[Enum['Applied', 'Not Applying', 'Interested']],
         eligibilityCodes: List[String],
         includeKeywords: List[String],
@@ -562,7 +639,13 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
     agencyId: number
 */
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
-    console.log(filters, paginationParams, orderingParams, tenantId, agencyId);
+    console.log(JSON.stringify([filters, paginationParams, orderingParams, tenantId, agencyId]));
+
+    const errors = validateFilters(filters);
+    if (errors.length > 0) {
+        throw new Error(`Invalid filters: ${errors.join(', ')}`);
+    }
+
     const data = await knex(TABLES.grants)
         .select([
             'grants.grant_id',
