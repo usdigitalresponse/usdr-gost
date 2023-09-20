@@ -92,6 +92,19 @@ describe('db', () => {
                 expect(() => { JSON.parse(row.criteria); }).not.to.throw();
             }
         });
+        it('get all user saved searches for a specific user', async () => {
+            await db.createSavedSearch({
+                name: 'Example search',
+                userId: fixtures.users.subStaffUser.id,
+                criteria: BASIC_SEARCH_CRITERIA,
+            });
+
+            const data = await db.getAllUserSavedSearches(fixtures.users.subStaffUser.id);
+            expect(data.length).to.equal(1);
+            for (const row of data) {
+                expect(() => { JSON.parse(row.criteria); }).not.to.throw();
+            }
+        });
     });
 
     context('getGrantsInterested', () => {
