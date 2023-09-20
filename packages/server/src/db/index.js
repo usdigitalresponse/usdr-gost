@@ -540,6 +540,41 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
     }
 }
 
+function formatSearchCriteriaToQueryFilters(criteria) {
+    const parsedCriteria = JSON.parse(criteria);
+    const postedWithinOptions = {
+        'All Time': 0, 'One Week': 7, '30 Days': 30, '60 Days': 60,
+    };
+    let filters = {};
+    if (parsedCriteria.includeKeywords) {
+        filters.includeKeywords = parsedCriteria.includeKeywords.split(',').map((s) => s.trim());
+        delete parsedCriteria.includeKeywords;
+    }
+    if (parsedCriteria.excludeKeywords) {
+        filters.excludeKeywords = parsedCriteria.excludeKeywords.split(',').map((s) => s.trim());
+        delete parsedCriteria.excludeKeywords;
+    }
+    if (parsedCriteria.fundingTypes) {
+        filters.fundingTypes = parsedCriteria.fundingTypes.map((ft) => ft.code);
+        delete parsedCriteria.fundingTypes;
+    }
+    if (parsedCriteria.agency) {
+        filters.agencyCode = filters.agency;
+        delete parsedCriteria.agency;
+    }
+    if (parsedCriteria.postedWithin) {
+        filters.postedWithinDays = postedWithinOptions[parsedCriteria.postedWithin] || 0;
+        delete parsedCriteria.postedWithin;
+    }
+    if (parsedCriteria.eligibility) {
+        filters.eligibilityCodes = parsedCriteria.eligibility.map((e) => e.code);
+        delete parsedCriteria.eligibility;
+    }
+    filters = { ...filters, ...parsedCriteria };
+    validateFilters(filters);
+    return filters;
+}
+
 function validateFilters(filters) {
     const filterOptionsByType = {
         reviewStatuses: { type: 'List', valueType: 'Enum', values: ['Applied', 'Not Applying', 'Interested'] },
@@ -1673,6 +1708,7 @@ module.exports = {
     deleteSavedSearch,
     updateSavedSearch,
     getAllUserSavedSearches,
+    formatSearchCriteriaToQueryFilters,
     getUsers,
     createUser,
     deleteUser,
