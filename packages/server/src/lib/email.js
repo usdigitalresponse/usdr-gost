@@ -283,7 +283,7 @@ async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
     if (!openDate) {
         openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
     }
-    console.log(`Building and sending Grants Digest email for ${userId} agencies on ${openDate}`);
+    console.log(`Building and sending Grants Digest email for user: ${userId} on ${openDate}`);
     /*
     1. get all saved searches mapped to each user
     2. call getAndSendGrantForSavedSearch to find new grants and send the digest

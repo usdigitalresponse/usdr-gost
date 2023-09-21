@@ -583,7 +583,7 @@ function validateSearchFilters(filters) {
         excludeKeywords: { type: 'List', valueType: 'String' },
         opportunityNumber: { type: 'String', valueType: 'Any' },
         fundingTypes: { type: 'List', valueType: 'Enum', values: ['CA', 'G', 'PC', 'O'] },
-        opportunityStatuses: { type: 'List', valueType: 'Enum', values: ['posted', 'forecasted', 'closed'] },
+        opportunityStatuses: { type: 'List', valueType: 'Enum', values: ['posted', 'forecasted', 'closed', 'archived'] },
         opportunityCategories: { type: 'List', valueType: 'Enum', values: ['Other', 'Discretionary', 'Mandatory', 'Continuation'] },
         costSharing: { type: 'String', valueType: 'Enum', values: ['Yes', 'No'] },
         agencyCode: { type: 'String', valueType: 'Any' },

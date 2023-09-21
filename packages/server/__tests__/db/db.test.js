@@ -53,7 +53,7 @@ describe('db', () => {
             expect(errors[2]).to.equal('Received invalid filter includeKeywords, expected List');
             expect(errors[3]).to.equal('Received invalid filter excludeKeywords, expected List of String');
             expect(errors[4]).to.equal('Received invalid filter fundingTypes, expected List');
-            expect(errors[5]).to.equal('Received invalid filter opportunityStatuses, expected List of Enum, found value invalid that is not in posted,forecasted,closed');
+            expect(errors[5]).to.equal('Received invalid filter opportunityStatuses, expected List of Enum, found value invalid that is not in posted,forecasted,closed,archived');
             expect(errors[6]).to.equal('Received invalid filter opportunityCategories, expected List');
         });
         it('throws an error when String filter-type is not a string or enum', async () => {
@@ -95,7 +95,7 @@ describe('db', () => {
                 includeKeywords: ['Grant', 'Wetlands Phrase'],
                 excludeKeywords: ['post Doctorate'],
                 opportunityNumber: null,
-                opportunityStatuses: [],
+                opportunityStatuses: ['archived'],
                 fundingTypes: ['CA', 'G', 'PC', 'O'],
                 opportunityCategories: ['Other', 'Discretionary', 'Mandatory', 'Continuation'],
                 costSharing: 'Yes',
