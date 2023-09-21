@@ -258,7 +258,7 @@ async function sendGrantDigest({
 async function getAndSendGrantForSavedSearch({
     userSavedSearch, openDate,
 }) {
-    const criteriaObj = JSON.parse(userSavedSearch.criteria);
+    const criteriaObj = db.formatSearchCriteriaToQueryFilters(userSavedSearch.criteria);
 
     // NOTE: can't pass this as a separate parameter as it exceeds the complexity limit of 5
     criteriaObj.openDate = openDate;
