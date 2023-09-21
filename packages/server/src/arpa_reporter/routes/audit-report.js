@@ -69,7 +69,7 @@ router.get('/', requireUser, async (req, res) => {
 
     let report;
     try {
-        const cache = true;
+        const cache = req.query.cache ?? true;
         report = await audit_report.generate(req.headers.host, cache);
         fs.writeFile(report.filename, Buffer.from(report.outputWorkBook, 'binary'), 'binary', (err) => {
             if (err) {
@@ -93,6 +93,24 @@ router.get('/', requireUser, async (req, res) => {
     );
     res.header('Content-Type', 'application/octet-stream');
     res.send(Buffer.from(report.outputWorkBook, 'binary'));
+});
+
+router.post('/refresh-cache', async (req, res) => {
+    console.log('/api/audit-report/refresh-cache GET');
+    try {
+        report = await audit_report.runCache(
+            req.headers.host ?? "",
+            req.body.tenantId);
+        console.log('Successfully cached report');
+    } catch (error) {
+    // In addition to sending the error message in the 500 response, log the full error stacktrace
+        console.log(`Could not cache report`, error);
+        res.status(500).send(error.message);
+        return;
+    }
+    res.json({
+        status: 'OK',
+    });
 });
 
 module.exports = router;

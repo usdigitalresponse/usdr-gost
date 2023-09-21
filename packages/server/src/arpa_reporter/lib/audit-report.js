@@ -156,7 +156,7 @@ async function getReportDataGroupedByProjectRow(data) {
         const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
         kpiRow['Number of Subawards'] += (r.type === 'awards50k');
         kpiRow['Number of Expenditures'] += (currentPeriodExpenditure > 0);
-        kpiRow['Evidence based total spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
+        kpiRow['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
     });
 
     return [projectSummaryV2Row, kpiRow];
@@ -228,6 +228,15 @@ async function createProjectSummariesGroupedByProject(periodId, calculatePriorPe
     return [projectSummaryGroupedByProject, KPIDataGroupedByProject];
 }
 
+function generateEmptySheets() {
+    return {
+        obligations: [],
+        projectSummaries: [],
+        projectSummaryGroupedByProject: [],
+        KPIDataGroupedByProject: [],
+    };
+}
+
 async function generateSheets(periodId, domain, calculatePriorPeriods = true) {
     const [
         obligations,
@@ -250,7 +259,32 @@ async function generateSheets(periodId, domain, calculatePriorPeriods = true) {
     };
 }
 
-async function getCache(periodId, domain, tenantId = null) {
+
+async function runCache(domain, reportingPeriod = null, tenantId = null) {
+    if (reportingPeriod == null) {
+        const reportingPeriods = await getPreviousReportingPeriods(periodId);
+        const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
+        reportingPeriod = previousReportingPeriods
+            .reduce((a, b) => (a.id > b.id ? a : b));
+    }
+    const cacheFilename = cacheFSName(reportingPeriod, tenantId);
+    data = await module.exports.generateSheets(reportingPeriod.id, domain, true);
+    const jsonData = JSON.stringify(data);
+    await fs.mkdir(path.dirname(cacheFilename), { recursive: true });
+    await fs.writeFile(cacheFilename, jsonData, { flag: 'wx' });
+    return data;
+}
+
+
+function reviveDate(key, value) {
+  // Matches strings like "2022-08-25T09:39:19.288Z"
+  const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+  return typeof value === 'string' && isoDateRegex.test(value) 
+    ? new Date(value) 
+    : value
+}
+
+async function getCache(periodId, domain, tenantId = null, force = false) {
     // check if the cache file exists. if not, let's generate it
     const reportingPeriods = await getPreviousReportingPeriods(periodId);
     const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
@@ -259,32 +293,37 @@ async function getCache(periodId, domain, tenantId = null) {
     const cacheFilename = cacheFSName(mostRecentPreviousReportingPeriod, tenantId);
     let data = { };
     try {
+        if (force) {
+          throw error('forcing the cache');
+        }
         const cacheData = await fs.readFile(cacheFilename, { encoding: 'utf-8' });
-        data = JSON.parse(cacheData);
+        data = JSON.parse(cacheData, reviveDate);
         log('cache hit');
     } catch (err) {
         log('cache miss');
-        data = await generateSheets(mostRecentPreviousReportingPeriod.id, domain, true);
-        const jsonData = JSON.stringify(data);
-        await fs.mkdir(path.dirname(cacheFilename), { recursive: true });
-        await fs.writeFile(cacheFilename, jsonData, { flag: 'wx' });
+        data = await runCache(domain, mostRecentPreviousReportingPeriod, tenantId);
     }
     return data;
 }
 
-async function generate(requestHost) {
+async function generate(requestHost, cache = true) {
     return tracer.trace('generate()', async () => {
         const periodId = await getCurrentReportingPeriodID();
         log(`generate(${periodId})`);
 
         const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
 
-        const dataBefore = await getCache(periodId, domain);
-        const dataAfter = await generateSheets(periodId, domain, false);
+        if (!cache) {
+
+        }
+        const dataBefore = cache
+          ? await module.exports.getCache(periodId, domain)
+          : generateEmptySheets();
+        const dataAfter = await module.exports.generateSheets(periodId, domain, !cache);
         const obligations = [...dataBefore.obligations, ...dataAfter.obligations];
-        const projectSummaries = [...dataBefore.projectSummaries, ...dataAfter.projectSummaries];
-        const projectSummaryGroupedByProject = [...dataBefore.projectSummaryGroupedByProject, ...dataAfter.projectSummaryGroupedByProject];
-        const KPIDataGroupedByProject = [...dataBefore.KPIDataGroupedByProject, ...dataAfter.KPIDataGroupedByProject];
+        const projectSummaries = [...dataBefore.projectSummaries, ...dataAfter.projectSummaries].sort((a, b) => a['Project ID'] - b['Project ID']);
+        const projectSummaryGroupedByProject = [...dataBefore.projectSummaryGroupedByProject, ...dataAfter.projectSummaryGroupedByProject].sort((a, b) => a['Project ID'] - b['Project ID']);
+        const KPIDataGroupedByProject = [...dataBefore.KPIDataGroupedByProject, ...dataAfter.KPIDataGroupedByProject].sort((a, b) => a['Project ID'] - b['Project ID']);
 
         const workbook = tracer.trace('compose-workbook', () => {
             // compose workbook
@@ -342,6 +381,9 @@ module.exports = {
     generate,
     generateAndSendEmail,
     sendEmailWithLink,
+    runCache,
+    generateSheets,
+    getCache,
 };
 
 // NOTE: This file was copied from src/server/lib/audit-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

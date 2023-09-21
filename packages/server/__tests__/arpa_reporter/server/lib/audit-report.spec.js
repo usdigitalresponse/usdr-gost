@@ -5,6 +5,7 @@ const email = require('../../../../src/lib/email');
 const audit_report = require('../../../../src/arpa_reporter/lib/audit-report');
 const aws = require('../../../../src/lib/gost-aws');
 const { withTenantId } = require('../helpers/with-tenant-id');
+const { response } = require('./response');
 
 function handleUploadFake(type) {
     if (type === 'success') {
@@ -24,6 +25,7 @@ describe('audit report generation', () => {
     afterEach(() => {
         sandbox.restore();
     });
+
     it('sendEmailWithLink creates a presigned url and sends email to recipient', async () => {
         const sendFake = sandbox.fake.returns('foo');
         sandbox.replace(email, 'sendAsyncReportEmail', sendFake);
@@ -74,6 +76,7 @@ describe('audit report generation', () => {
         expect(sendEmailFake.firstCall.firstArg).to.equal('0/99/example.xlsx');
         expect(sendEmailFake.firstCall.lastArg).to.equal('foo@example.com');
     });
+
     it('generateAndSendEmail does not send an email if upload fails', async () => {
         const sendFake = sandbox.fake.returns('foo');
         sandbox.replace(email, 'sendAsyncReportEmail', sendFake);
@@ -109,5 +112,19 @@ describe('audit report generation', () => {
 
         console.log('Asserting presigned and email function');
         expect(sendEmailFake.notCalled).to.equal(true);
+    });
+
+    it('generate audit report', async () => {
+      const stub = sandbox.stub(audit_report, 'generateSheets').returns(response);
+      const reportNoCache = await withTenantId(0, () => {
+        return audit_report.generate("test-host", false);
+      });
+
+      const reportCache = await withTenantId(0, () => {
+        sandbox.stub(audit_report, 'getCache').returns(Object.keys(response).reduce((x, y) => {x[y] = response[y].slice(0, -1); return x;}, {}));
+        stub.returns(Object.keys(response).reduce((x, y) => {x[y] = [response[y][response[y].length - 1]]; return x;}, {}));
+        return audit_report.generate("test-host", true);
+      });
+      expect(Buffer.compare(reportCache.outputWorkBook, reportNoCache.outputWorkBook)).to.equal(0);
     });
 });
