@@ -3,7 +3,6 @@ const moment = require('moment');
 const path = require('path');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
-const asyncBatch = require('async-batch').default;
 const fs = require('fs/promises');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const aws = require('../../lib/gost-aws');
@@ -35,6 +34,7 @@ function getUploadLink(domain, id, filename) {
     return { f: `=HYPERLINK("${domain}/uploads/${id}","${filename}")` };
 }
 
+<<<<<<< HEAD
 async function getAggregatePerUpload(data) {
     const {
         upload, period, domain, records,
@@ -184,8 +184,64 @@ async function createObligationSheet(periodId, domain, calculatePriorPeriods = t
     const inputs = [];
     reportingPeriods.forEach((r) => inputs.push({ period: r, domain }));
 
-    // collect aggregate obligations and expenditures by upload
-    const rows = await asyncBatch(inputs, getAggregatePeriodRow, 2);
+    const rows = await Promise.all(
+        reportingPeriods.map(async (period) => {
+            const uploads = await usedForTreasuryExport(period.id);
+            const records = await recordsForReportingPeriod(period.id);
+
+            return Promise.all(uploads.map((upload) => {
+                const emptyRow = {
+                    'Reporting Period': period.name,
+                    'Period End Date': new Date(period.end_date),
+                    Upload: getUploadLink(domain, upload.id, upload.filename),
+                    [COLUMN.EC_BUDGET]: 0,
+                    [COLUMN.EC_TCO]: 0,
+                    [COLUMN.EC_TCE]: 0,
+                    [COLUMN.EC_CPO]: 0,
+                    [COLUMN.EC_CPE]: 0,
+                    [COLUMN.E50K_OBLIGATION]: 0,
+                    [COLUMN.E50K_TEA]: 0,
+                    [COLUMN.E_CPO]: 0,
+                    [COLUMN.E_CPE]: 0,
+                };
+
+                const row = records
+                    .filter((record) => record.upload.id === upload.id)
+                    .reduce((newRow, record) => {
+                        switch (record.type) {
+                            case 'ec1':
+                            case 'ec2':
+                            case 'ec3':
+                            case 'ec4':
+                            case 'ec5':
+                            case 'ec7':
+                                newRow[COLUMN.EC_BUDGET] += record.content.Adopted_Budget__c;
+                                newRow[COLUMN.EC_TCO] += record.content.Total_Obligations__c;
+                                newRow[COLUMN.EC_TCE] += record.content.Total_Expenditures__c;
+                                newRow[COLUMN.EC_CPO] += record.content.Current_Period_Obligations__c;
+                                newRow[COLUMN.EC_CPE] += record.content.Current_Period_Expenditures__c;
+                                break;
+                            case 'awards50k':
+                                newRow[COLUMN.E50K_OBLIGATION] += record.content.Award_Amount__c;
+                                break;
+                            case 'expenditures50k':
+                                newRow[COLUMN.E50K_TEA] += record.content.Expenditure_Amount__c;
+                                break;
+                            case 'awards':
+                                newRow[COLUMN.E_CPO] += record.content.Quarterly_Obligation_Amt_Aggregates__c;
+                                newRow[COLUMN.E_CPE] += record.content.Quarterly_Expenditure_Amt_Aggregates__c;
+                                break;
+                            default:
+                                // pass
+                        }
+                        return newRow;
+                    }, emptyRow);
+
+                return row;
+            }));
+        }),
+    );
+
     return rows.flat();
 }
 
@@ -195,9 +251,24 @@ async function createProjectSummaries(periodId, domain, calculatePriorPeriods) {
     const inputs = [];
     records.forEach((r) => inputs.push({ record: r, domain }));
 
-    const rows = await asyncBatch(inputs, getProjectSummaryRow, 2);
+    const rows = records.map(async (record) => {
+        const reportingPeriod = await getReportingPeriod(record.upload.reporting_period_id);
 
-    return rows;
+        return {
+            'Project ID': record.content.Project_Identification_Number__c,
+            Upload: getUploadLink(domain, record.upload.id, record.upload.filename),
+            'Last Reported': reportingPeriod.name,
+            // TODO: consider also mapping project IDs to export templates?
+            'Adopted Budget': record.content.Adopted_Budget__c,
+            'Total Cumulative Obligations': record.content.Total_Obligations__c,
+            'Total Cumulative Expenditures': record.content.Total_Expenditures__c,
+            'Current Period Obligations': record.content.Current_Period_Obligations__c,
+            'Current Period Expenditures': record.content.Current_Period_Expenditures__c,
+            'Completion Status': record.content.Completion_Status__c,
+        };
+    });
+
+    return Promise.all(rows);
 }
 
 function getRecordsByProject(records) {
@@ -215,17 +286,69 @@ async function createProjectSummariesGroupedByProject(periodId, calculatePriorPe
     const recordsByProject = getRecordsByProject(records);
     const reportingPeriods = await getAllReportingPeriods();
 
-    const inputs = [];
+    return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
+        const record = projectRecords[0];
 
-    Object.entries(recordsByProject).forEach(([projectId, r]) => {
-        inputs.push({ projectId, records: r, reportingPeriods });
+        // set values for columns that are common across all records of projectId
+        const row = {
+            'Project ID': projectId,
+            'Project Description': record.content.Project_Description__c,
+            'Project Expenditure Category Group': ec(record.type),
+            'Project Expenditure Category': record.subcategory,
+        };
+
+        // get all reporting periods related to the project
+        const allReportingPeriods = Array.from(new Set(projectRecords.map((r) => r.upload.reporting_period_id)));
+
+        // initialize the columns in the row
+        allReportingPeriods.forEach((reportingPeriodId) => {
+            const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].end_date;
+            [
+                `${reportingPeriodEndDate} Total Aggregate Expenditures`,
+                `${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`,
+                `${reportingPeriodEndDate} Total Aggregate Obligations`,
+                `${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`,
+            ].forEach((columnName) => { row[columnName] = 0; });
+        });
+
+        row['Capital Expenditure Amount'] = 0;
+
+        // set values in each column
+        projectRecords.forEach((r) => {
+            // for project summaries v2 report
+            const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
+            row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += (r.content.Total_Expenditures__c || 0);
+            row[`${reportingPeriodEndDate} Total Aggregate Obligations`] += (r.content.Total_Obligations__c || 0);
+            row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += (r.content.Award_Amount__c || 0);
+            row[`${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`] += (r.content.Expenditure_Amount__c || 0);
+            row['Capital Expenditure Amount'] += (r.content.Total_Cost_Capital_Expenditure__c || 0);
+        });
+
+        return row;
     });
+}
 
-    const reportDataGroupedByProjectData = await asyncBatch(inputs, getReportDataGroupedByProjectRow, 2);
-    const projectSummaryGroupedByProject = reportDataGroupedByProjectData.map((row) => row[0]);
-    const KPIDataGroupedByProject = reportDataGroupedByProjectData.map((row) => row[1]);
+async function createKpiDataGroupedByProject(periodId) {
+    const records = await recordsForProject(periodId);
+    const recordsByProject = getRecordsByProject(records);
 
-    return [projectSummaryGroupedByProject, KPIDataGroupedByProject];
+    return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
+        const row = {
+            'Project ID': projectId,
+            'Number of Subawards': 0,
+            'Number of Expenditures': 0,
+            'Evidence Based Total Spend': 0,
+        };
+
+        projectRecords.forEach((r) => {
+            const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
+            row['Number of Subawards'] += (r.type === 'awards50k');
+            row['Number of Expenditures'] += (currentPeriodExpenditure > 0);
+            row['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
+        });
+
+        return row;
+    });
 }
 
 function generateEmptySheets() {

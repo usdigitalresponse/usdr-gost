@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.67.0"
     }
+    datadog = {
+      source  = "DataDog/datadog"
+      version = "~> 3.29.0"
+    }
   }
 
   backend "s3" {}
@@ -22,6 +26,12 @@ provider "aws" {
       usage      = "workload"
     }
   }
+}
+
+provider "datadog" {
+  validate = can(coalesce(var.datadog_api_key)) && can(coalesce(var.datadog_app_key))
+  api_key  = var.datadog_api_key
+  app_key  = var.datadog_app_key
 }
 
 data "aws_caller_identity" "current" {}
@@ -127,6 +137,7 @@ module "api" {
   autoscaling_desired_count_maximum = var.api_maximum_task_count
   enable_grants_scraper             = var.api_enable_grants_scraper
   enable_grants_digest              = var.api_enable_grants_digest
+  enable_saved_search_grants_digest = var.api_enable_saved_search_grants_digest
   unified_service_tags              = local.unified_service_tags
   datadog_environment_variables     = var.api_datadog_environment_variables
 

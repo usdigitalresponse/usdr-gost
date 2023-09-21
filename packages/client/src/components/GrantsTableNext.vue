@@ -2,29 +2,26 @@
   <section class="container-fluid grants-table-container">
     <b-row class="my-3" v-if="showSearchControls">
       <div class="ml-3">
-        <SavedSearchPanel @filters-applied="paginateGrants" />
+        <SavedSearchPanel />
       </div>
-      <div class="ml-3">
+      <div class="ml-2">
         <SearchPanel ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
       </div>
     </b-row>
     <b-row  class="grants-table-title-control">
       <b-col v-if="showSearchControls" >
-        <SearchFilter :filterKeys="searchFilters" @filter-removed="paginateGrants" />
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="clearSearch" />
       </b-col>
       <b-col align-self="end" v-if="!showSearchControls">
         <h4 class="mb-0">{{ searchTitle }}</h4>
       </b-col>
       <b-col align-self="end">
-        <a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0"
-          class="text-right text-nowrap">
-          <p class="mb-0">Export CSV</p>
-        </a>
+        <p class="mb-0 text-right text-nowrap"><a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0">Export CSV</a></p>
       </b-col>
     </b-row>
     <b-row align-v="center">
       <b-col cols="12">
-        <b-table fixed id="grants-table" sticky-header="450px" hover :items="formattedGrants" responsive
+        <b-table fixed id="grants-table" sticky-header="32rem" hover :items="formattedGrants" responsive
           :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
           @row-selected="onRowSelected" show-empty emptyText="No matches found">
@@ -57,8 +54,8 @@
         </b-table>
       </b-col>
     </b-row>
-    <b-row align-v="center">
-      <b-col cols="12" class="d-flex">
+    <b-row class="grants-table-pagination">
+      <b-col cols="11" class="grants-table-pagination-component">
         <b-pagination
           class="m-0"
           v-model="currentPage"
@@ -69,7 +66,7 @@
           next-text="Next"
           last-text="Last"
           aria-controls="grants-table" />
-        <div class="ml-2 rounded text-justify p-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
+          <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
       </b-col>
     </b-row>
     <GrantDetails :selected-grant.sync="selectedGrant" />
@@ -149,8 +146,8 @@ export default {
       ],
       selectedGrant: null,
       selectedGrantIndex: null,
-      orderBy: 'open_date',
-      orderDesc: true,
+      orderBy: '',
+      orderDesc: false,
       searchId: null,
     };
   },
@@ -219,12 +216,21 @@ export default {
       this.setup();
     },
     currentPage() {
+      if (this.loading) {
+        return;
+      }
       this.paginateGrants();
     },
     orderBy() {
+      if (this.loading) {
+        return;
+      }
       this.paginateGrants();
     },
     orderDesc() {
+      if (this.loading) {
+        return;
+      }
       this.paginateGrants();
     },
     selectedGrantIndex() {
@@ -235,7 +241,17 @@ export default {
       this.changeSelectedGrant();
     },
     selectedSearchId() {
+      this.loading = true;
       this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
+      const filterKeys = this.activeFilters.map((f) => f.key);
+      if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
+        // only if include/exclude keywords are selected
+        this.orderBy = 'rank';
+        this.orderDesc = false;
+      } else {
+        this.orderBy = 'open_date';
+        this.orderDesc = true;
+      }
       this.paginateGrants();
     },
   },
@@ -250,6 +266,11 @@ export default {
     setup() {
       this.clearSelectedSearch();
       this.paginateGrants();
+    },
+    clearSearch() {
+      this.loading = true;
+      this.orderBy = 'open_date';
+      this.orderDesc = true;
     },
     titleize,
     async paginateGrants() {
@@ -359,13 +380,14 @@ export default {
     },
     exportCSV() {
       this.navigateToExportCSV({
+        perPage: this.perPage,
+        currentPage: this.currentPage,
         orderBy: this.orderBy,
         orderDesc: this.orderDesc,
-        interestedByAgency: this.showInterested || this.showResult || this.showRejected,
+        showInterested: this.showInterested,
+        showResult: this.showResult,
+        showRejected: this.showRejected,
         assignedToAgency: this.showAssignedToAgency,
-        opportunityStatuses: this.parseOpportunityStatusFilters(),
-        opportunityCategories: this.opportunityCategoryFilters,
-        costSharing: this.costSharingFilter,
       });
     },
     formatMoney(value) {
@@ -396,5 +418,15 @@ export default {
 #grants-table th:nth-child(1) {
   width: 300px;
 }
-
+.grants-table-title-control {
+  padding-bottom: .75rem;
+}
+.grants-table-pagination {
+  padding-bottom: .75rem;
+}
+.grants-table-pagination-component {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
 </style>

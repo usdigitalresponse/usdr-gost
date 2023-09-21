@@ -8,9 +8,9 @@ router.get('/', requireUser, async (req, res) => {
     const { user } = req.session;
 
     const paginationParams = {
-        currentPage: req.params.currentPage || 1,
-        perPage: req.params.perPage || 10,
-        isLengthAware: req.params.isLengthAware || true,
+        currentPage: req.query.currentPage || 1,
+        perPage: req.query.perPage || 10,
+        isLengthAware: req.query.isLengthAware || true,
     };
 
     const savedSearches = await db.getSavedSearches(user.id, paginationParams);
@@ -30,6 +30,11 @@ router.post('/', requireUser, async (req, res) => {
 
         res.json(result);
     } catch (e) {
+        if (e.constraint && e.constraint.includes('grants_saved_searches_name_created_by_idx')) {
+            console.warn(e);
+            res.status(400).send(`Title '${req.body.name}' already exists`);
+            return;
+        }
         console.error(e);
         res.status(500).send('Unable to create saved search. Please reach out to grants-helpdesk@usdigitalresponse.org');
     }

@@ -66,28 +66,34 @@ router.get('/', requireUser, async (req, res) => {
     res.json(grants);
 });
 
-router.get('/next', requireUser, async (req, res) => {
-    const { user } = req.session;
+function criteriaToFiltersObj(criteria, agencyId) {
+    const filters = criteria || {};
     const postedWithinOptions = {
         'All Time': 0, 'One Week': 7, '30 Days': 30, '60 Days': 60,
     };
-    const filters = req.query.criteria || {};
+
+    return {
+        reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned').map((r) => r.trim()) || [],
+        eligibilityCodes: filters.eligibility?.split(',') || [],
+        includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
+        excludeKeywords: filters.excludeKeywords?.split(',').map((k) => k.trim()) || [],
+        opportunityNumber: filters.opportunityNumber || '',
+        fundingTypes: filters.fundingTypes?.split(',') || [],
+        opportunityStatuses: filters.opportunityStatuses?.split(',') || [],
+        opportunityCategories: filters.opportunityCategories?.split(',') || [],
+        costSharing: filters.costSharing || '',
+        agencyCode: filters.agency || '',
+        postedWithinDays: postedWithinOptions[filters.postedWithin] || 0,
+        assignedToAgencyId: filters.reviewStatus?.includes('Assigned') ? agencyId : null,
+        bill: filters.bill || null,
+    };
+}
+
+router.get('/next', requireUser, async (req, res) => {
+    const { user } = req.session;
+
     const grants = await db.getGrantsNew(
-        {
-            reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned').map((r) => r.trim()) || [],
-            eligibilityCodes: filters.eligibility?.split(',') || [],
-            includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
-            excludeKeywords: filters.excludeKeywords?.split(',').map((k) => k.trim()) || [],
-            opportunityNumber: filters.opportunityNumber || '',
-            fundingTypes: filters.fundingTypes?.split(',') || [],
-            opportunityStatuses: filters.opportunityStatuses?.split(',') || [],
-            opportunityCategories: filters.opportunityCategories?.split(',') || [],
-            costSharing: filters.costSharing || '',
-            agencyCode: filters.agency || '',
-            postedWithinDays: postedWithinOptions[filters.postedWithin] || 0,
-            assignedToAgencyId: filters.reviewStatus?.includes('Assigned') ? user.agency_id : null,
-            bill: filters.bill || null,
-        },
+        criteriaToFiltersObj(req.query.criteria, user.agency_id),
         await db.buildPaginationParams(req.query.pagination),
         await db.buildOrderingParams(req.query.ordering),
         user.tenant_id,
@@ -111,15 +117,78 @@ router.get('/closestGrants/:perPage/:currentPage', requireUser, async (req, res)
     res.json(rows);
 });
 
-router.get('/exportCSVNext', requireUser, async (req, res) => {
-    console.log(req, res);
-    // Make a CSV file and upload it to S3
-    // Send email to user with a signed link to download the file
+// For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
+// without the test having to insert 500 rows, which slows down the test.
+const MAX_CSV_EXPORT_ROWS = process.env.NODE_ENV !== 'test' ? 500 : 100;
+
+router.get('/exportCSVNew', requireUser, async (req, res) => {
+    const { user } = req.session;
+
+    const { data, pagination } = await db.getGrantsNew(
+        criteriaToFiltersObj(req.query.criteria, user.agency_id),
+        await db.buildPaginationParams({
+            currentPage: 1,
+            perPage: MAX_CSV_EXPORT_ROWS,
+        }),
+        await db.buildOrderingParams(req.query.ordering),
+        user.tenant_id,
+        user.agency_id,
+    );
+
+    // Generate CSV
+    const formattedData = data.map((grant) => ({
+        ...grant,
+        interested_agencies: grant.interested_agencies
+            .map((v) => v.agency_abbreviation)
+            .join(', '),
+        viewed_by: grant.viewed_by_agencies
+            .map((v) => v.agency_abbreviation)
+            .join(', '),
+        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
+        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
+        award_floor: getAwardFloor(grant),
+        url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
+    }));
+
+    if (data.length === 0) {
+        // If there are 0 rows, csv-stringify won't even emit the header, resulting in a totally
+        // empty file, which is confusing. This adds a single empty row below the header.
+        formattedData.push({});
+    } else if (pagination.total > data.length) {
+        formattedData.push({
+            title: `Error: only ${MAX_CSV_EXPORT_ROWS} rows supported for CSV export, but there `
+                + `are ${pagination.total} total.`,
+        });
+    }
+
+    const csv = csvStringify(formattedData, {
+        header: true,
+        columns: [
+            { key: 'grant_number', header: 'Opportunity Number' },
+            { key: 'title', header: 'Title' },
+            { key: 'viewed_by', header: 'Viewed By' },
+            { key: 'interested_agencies', header: 'Interested Agencies' },
+            { key: 'opportunity_status', header: 'Status' },
+            { key: 'opportunity_category', header: 'Opportunity Category' },
+            { key: 'cost_sharing', header: 'Cost Sharing' },
+            { key: 'award_floor', header: 'Award Floor' },
+            { key: 'award_ceiling', header: 'Award Ceiling' },
+            { key: 'open_date', header: 'Posted Date' },
+            { key: 'close_date', header: 'Close Date' },
+            { key: 'agency_code', header: 'Agency Code' },
+            { key: 'grant_id', header: 'Grant Id' },
+            { key: 'url', header: 'URL' },
+        ],
+    });
+
+    // Send to client as a downloadable file.
+    const filename = 'grants.csv';
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Length', csv.length);
+    res.send(csv);
 });
 
-// For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
-// without the test having to insert 10k rows, which slows down the test.
-const MAX_CSV_EXPORT_ROWS = process.env.NODE_ENV !== 'test' ? 10000 : 100;
 router.get('/exportCSV', requireUser, async (req, res) => {
     const { selectedAgency, user } = req.session;
     // First load the grants. This logic is intentionally identical to the endpoint above that

@@ -5,6 +5,14 @@ env       = "production"
 ssm_service_parameters_path_prefix    = "/gost/prod"
 ssm_deployment_parameters_path_prefix = "/gost/prod/deploy-config"
 
+// Datadog provider
+datadog_draft            = false
+datadog_monitors_enabled = true
+datadog_monitor_notification_handles = [
+  "thendrickson@usdigitalresponse.org",
+  "asridhar@usdigitalresponse.org",
+]
+
 // Website
 website_enabled     = true
 website_domain_name = "grants.usdigitalresponse.org"
@@ -38,14 +46,15 @@ website_feature_flags = {
 cluster_container_insights_enabled = true
 
 // API / Backend
-api_enabled                    = true
-api_container_image_tag        = "stable"
-api_default_desired_task_count = 3
-api_minumum_task_count         = 2
-api_maximum_task_count         = 5
-api_enable_grants_scraper      = true
-api_enable_grants_digest       = true
-api_log_retention_in_days      = 30
+api_enabled                           = true
+api_container_image_tag               = "stable"
+api_default_desired_task_count        = 3
+api_minumum_task_count                = 2
+api_maximum_task_count                = 5
+api_enable_grants_scraper             = true
+api_enable_grants_digest              = true
+api_enable_saved_search_grants_digest = false
+api_log_retention_in_days             = 30
 api_datadog_environment_variables = {
   DD_PROFILING_ENABLED = true,
 }
