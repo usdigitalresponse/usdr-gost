@@ -1,6 +1,5 @@
 const XLSX = require('xlsx');
 const { merge } = require('lodash');
-const asyncBatch = require('async-batch').default;
 
 const { workbookForUpload } = require('./persist-upload');
 const { getPreviousReportingPeriods } = require('../db/reporting-periods');
@@ -69,6 +68,8 @@ async function loadRecordsForUpload(upload) {
     const workbook = await workbookForUpload(upload, {
         cellDates: true,
         type: 'buffer',
+        cellHTML: false,
+        cellFormula: false,
         sheets: [CERTIFICATION_SHEET, COVER_SHEET, LOGIC_SHEET, ...Object.keys(DATA_SHEET_TYPES)],
     });
 
@@ -193,7 +194,7 @@ async function recordsForReportingPeriod(periodId) {
     requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod');
 
     const uploads = await usedForTreasuryExport(periodId);
-    const groupedRecords = await asyncBatch(uploads, recordsForUpload, 2);
+    const groupedRecords = await Promise.all(uploads.map(recordsForUpload));
     return groupedRecords.flat();
 }
 
@@ -207,9 +208,9 @@ async function mostRecentProjectRecords(periodId) {
 
     const reportingPeriods = await getPreviousReportingPeriods(periodId);
 
-    const inputs = [];
-    reportingPeriods.forEach((rp) => inputs.push(rp.id));
-    const allRecords = await asyncBatch(inputs, recordsForReportingPeriod, 2);
+    const allRecords = await Promise.all(
+        reportingPeriods.map(({ id }) => recordsForReportingPeriod(id)),
+    );
 
     const latestProjectRecords = allRecords
         .flat()
@@ -233,9 +234,9 @@ async function recordsForProject(periodId) {
 
     const reportingPeriods = await getPreviousReportingPeriods(periodId);
 
-    const inputs = [];
-    reportingPeriods.forEach((rp) => inputs.push(rp.id));
-    const allRecords = await asyncBatch(inputs, recordsForReportingPeriod, 2);
+    const allRecords = await Promise.all(
+        reportingPeriods.map(({ id }) => recordsForReportingPeriod(id)),
+    );
 
     const projectRecords = allRecords
         .flat()

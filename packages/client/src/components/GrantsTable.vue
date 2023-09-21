@@ -6,7 +6,7 @@
           <b-input-group-text>
             <b-icon icon="search" />
           </b-input-group-text>
-          <b-form-input type="sliders" @input="debounceSearchInput"></b-form-input>
+          <b-form-input type="text" @input="debounceSearchInput"></b-form-input>
         </b-input-group>
       </b-col>
       <b-col class="d-flex justify-content-end">
@@ -143,7 +143,7 @@ export default {
       searchInput: null,
       debouncedSearchInput: null,
       reviewStatusFilters: [],
-      opportunityStatusFilters: [],
+      opportunityStatusFilters: ['Forecasted', 'Posted'],
       opportunityCategoryFilters: [],
       costSharingFilter: null,
       reviewStatusOptions: ['interested', 'result', 'rejected'],

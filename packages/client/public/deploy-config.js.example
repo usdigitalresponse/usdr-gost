@@ -1,3 +1,0 @@
-window.APP_CONFIG = window.APP_CONFIG || {};
-window.APP_CONFIG.apiURLForGOST = "https://example.com/api";
-window.APP_CONFIG.UseNewTable = true;

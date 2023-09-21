@@ -2,7 +2,7 @@ import store from '@/store';
 import urlJoin from 'url-join';
 
 export function apiURL(endpointPath) {
-  const baseURL = window.apiURLForGOST || '/';
+  const baseURL = (window.APP_CONFIG || {}).apiURLForGOST || '/';
   return urlJoin(baseURL, endpointPath);
 }
 

@@ -278,4 +278,106 @@ describe('`/api/users` endpoint', () => {
             });
         });
     });
+
+    context('GET /users/:userId/sendDigestEmail (admin send digest email for a specific user)', () => {
+        beforeEach(async () => {
+            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            this.clock = this.clockFn('2021-08-06');
+        });
+        afterEach(async () => {
+            this.clock.restore();
+            sinon.restore();
+        });
+        context('by a user with admin role', () => {
+            it('Sends an email based on this user\'s saved searches', async () => {
+                const deliverEmailSpy = sinon.fake.returns('foo');
+                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const response = await fetchApi(
+                    `/users/2/sendDigestEmail`,
+                    agencies.own,
+                    { ...fetchOptions.admin },
+                );
+                expect(response.statusText).to.equal('OK');
+                expect(deliverEmailSpy.calledOnce).to.equal(true);
+            });
+            it('Sends an email based on this user\'s saved searches date specified', async () => {
+                const deliverEmailSpy = sinon.fake.returns('foo');
+                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const response = await fetchApi(
+                    `/users/2/sendDigestEmail?date=2021-08-05`,
+                    agencies.own,
+                    { ...fetchOptions.admin },
+                );
+                expect(response.statusText).to.equal('OK');
+                expect(deliverEmailSpy.calledOnce).to.equal(true);
+            });
+            it('Sends an email based on this user\'s saved searches at a time without grants', async () => {
+                const deliverEmailSpy = sinon.fake.returns('foo');
+                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const response = await fetchApi(
+                    `/users/2/sendDigestEmail?date=1985-08-06`,
+                    agencies.own,
+                    { ...fetchOptions.admin },
+                );
+                expect(response.statusText).to.equal('OK');
+                expect(deliverEmailSpy.calledOnce).to.equal(false);
+            });
+            it('Sends an email based on this user\'s saved searches without admin rights', async () => {
+                const deliverEmailSpy = sinon.fake.returns('foo');
+                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const response = await fetchApi(
+                    `/users/2/sendDigestEmail`,
+                    agencies.own,
+                    { ...fetchOptions.nonUSDRAdmin },
+                );
+                expect(response.statusText).to.equal('Forbidden');
+                expect(deliverEmailSpy.calledOnce).to.equal(false);
+            });
+        });
+        context('When the user is not subscribed', () => {
+            const newPrefs = JSON.stringify(
+                {
+                    preferences: {
+                        [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
+                        [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                        [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.subscribed,
+                    },
+                },
+            );
+            const oldPrefs = JSON.stringify(
+                {
+                    preferences: {
+                        [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
+                        [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
+                        [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                    },
+                },
+            );
+            before(async () => {
+                await fetchApi(
+                    `/users/2/email_subscription`,
+                    agencies.own,
+                    { ...fetchOptions.admin, method: 'put', body: newPrefs },
+                );
+            });
+            after(async () => {
+                await fetchApi(
+                    `/users/2/email_subscription`,
+                    agencies.own,
+                    { ...fetchOptions.admin, method: 'put', body: oldPrefs },
+                );
+            });
+            it('updates this user\'s own agency', async () => {
+                const deliverEmailSpy = sinon.fake.returns('foo');
+                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const response = await fetchApi(
+                    `/users/2/sendDigestEmail`,
+                    agencies.own,
+                    { ...fetchOptions.admin },
+                );
+                expect(response.statusText).to.equal('Bad Request');
+                expect(deliverEmailSpy.calledOnce).to.equal(false);
+            });
+        });
+    });
 });

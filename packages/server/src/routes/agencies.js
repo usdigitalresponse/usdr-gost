@@ -38,7 +38,11 @@ router.get('/sendDigestEmail', requireUSDRSuperAdminUser, async (req, res) => {
     const { user } = req.session;
     const agency = await getAgency(parseInt(req.params.organizationId, 10));
     try {
-        await email.sendGrantDigestForAgency(agency[0]);
+        await email.sendGrantDigest({
+            name: agency[0].name,
+            matchedGrants: agency[0].matched_grants,
+            recipients: agency[0].recipients,
+        });
     } catch (e) {
         console.error(`Unable to kick-off digest email for ${req.params.organizationId} by user ${user.id} due to error ${e}}`);
         res.sendStatus(500).json({ message: 'Something went wrong while kicking off the digest email. Please investigate the server logs.' });

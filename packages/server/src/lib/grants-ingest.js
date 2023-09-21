@@ -42,12 +42,15 @@ function mapSourceDataToGrant(source) {
         award_ceiling: source.award && source.award.ceiling ? source.award.ceiling : undefined,
         award_floor: source.award && source.award.floor ? source.award.floor : undefined,
         raw_body: JSON.stringify(source),
+        bill: source.bill,
+        funding_instrument_codes: (source.funding_instrument_types || []).map((it) => it.code).join(' '),
     };
 
     const { milestones } = source.opportunity;
     grant.open_date = milestones.post_date;
     grant.close_date = milestones.close && milestones.close.date
         ? milestones.close.date : '2100-01-01';
+    grant.archive_date = milestones.archive_date;
     const today = moment().startOf('day');
     if (milestones.archive_date && today.isSameOrAfter(moment(milestones.archive_date), 'date')) {
         grant.opportunity_status = 'archived';

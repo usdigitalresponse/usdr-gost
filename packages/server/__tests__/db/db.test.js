@@ -6,6 +6,19 @@ const { TABLES } = require('../../src/db/constants');
 const fixtures = require('./seeds/fixtures');
 const emailConstants = require('../../src/lib/email/constants');
 
+const BASIC_SEARCH_CRITERIA = JSON.stringify({
+    includeKeywords: 'Grant',
+    excludeKeywords: 'post',
+    opportunityNumber: null,
+    opportunityStatuses: [],
+    fundingType: null,
+    agency: null,
+    costSharing: false,
+    opportunityCategories: [],
+    reviewStatus: [],
+    postedWithin: [],
+});
+
 describe('db', () => {
     before(async () => {
         await fixtures.seed(db.knex);
@@ -19,38 +32,38 @@ describe('db', () => {
             const row = await db.createSavedSearch({
                 name: 'Example search 1',
                 userId: fixtures.users.adminUser.id,
-                criteria: 'test-search-text',
+                criteria: BASIC_SEARCH_CRITERIA,
             });
             expect(row.id).to.be.greaterThan(0);
             expect(row.createdAt).to.not.be.null;
             expect(row.createdBy).to.equal(fixtures.users.adminUser.id);
-            expect(row.criteria).to.equal('test-search-text');
+            expect(row.criteria).to.equal(BASIC_SEARCH_CRITERIA);
         });
         it('reads an existing saved search', async () => {
             // testing pagination
             const firstSearch = await db.createSavedSearch({
                 name: 'Example search 1',
                 userId: fixtures.users.staffUser.id,
-                criteria: 'test-search-text',
+                criteria: BASIC_SEARCH_CRITERIA,
             });
             await db.createSavedSearch({
                 name: 'Example search 2',
                 userId: fixtures.users.staffUser.id,
-                criteria: 'test-search-text',
+                criteria: BASIC_SEARCH_CRITERIA,
             });
             await db.createSavedSearch({
                 name: 'Example search 3',
                 userId: fixtures.users.staffUser.id,
-                criteria: 'test-search-text',
+                criteria: BASIC_SEARCH_CRITERIA,
             });
             const rows = await db.getSavedSearches(fixtures.users.staffUser.id, { perPage: 2, currentPage: 1 });
             expect(rows.data).to.have.lengthOf(2);
-            expect(rows.data[0].name).to.equal('Example search 1');
+            expect(rows.data[0].name).to.equal('Example search 3');
             expect(rows.data[1].name).to.equal('Example search 2');
 
             const rows2 = await db.getSavedSearches(fixtures.users.staffUser.id, { perPage: 2, currentPage: 2 });
             expect(rows2.data).to.have.lengthOf(1);
-            expect(rows2.data[0].name).to.equal('Example search 3');
+            expect(rows2.data[0].name).to.equal('Example search 1');
 
             const row = await db.getSavedSearch(firstSearch.id);
             expect(row.name).to.equal('Example search 1');
@@ -59,7 +72,7 @@ describe('db', () => {
             const row = await db.createSavedSearch({
                 name: 'Example search to Delete',
                 userId: fixtures.users.subStaffUser.id,
-                criteria: 'test-search-text',
+                criteria: BASIC_SEARCH_CRITERIA,
             });
 
             const result = await db.deleteSavedSearch(row.id, fixtures.users.subStaffUser.id);
@@ -68,6 +81,29 @@ describe('db', () => {
             // verify by attempting to get the searches as well
             const getRes = await db.getSavedSearches(fixtures.users.subStaffUser.id, { perPage: 10, currentPage: 1 });
             expect(getRes.data).to.have.lengthOf(0);
+        });
+    });
+
+    context('getAllUserSavedSearches', () => {
+        it('get all user saved searches', async () => {
+            const data = await db.getAllUserSavedSearches();
+            expect(data.length).to.equal(5);
+            for (const row of data) {
+                expect(() => { JSON.parse(row.criteria); }).not.to.throw();
+            }
+        });
+        it('get all user saved searches for a specific user', async () => {
+            await db.createSavedSearch({
+                name: 'Example search',
+                userId: fixtures.users.subStaffUser.id,
+                criteria: BASIC_SEARCH_CRITERIA,
+            });
+
+            const data = await db.getAllUserSavedSearches(fixtures.users.subStaffUser.id);
+            expect(data.length).to.equal(1);
+            for (const row of data) {
+                expect(() => { JSON.parse(row.criteria); }).not.to.throw();
+            }
         });
     });
 
@@ -209,6 +245,240 @@ describe('db', () => {
             expect(result).to.have.property('data').with.lengthOf(1);
             expect(result.data[0].grant_id)
                 .to.equal(fixtures.assignedAgencyGrants.earFellowshipAccountAssign.grant_id);
+        });
+    });
+
+    context('getGrants with various filters', () => {
+        /*
+            filters: {
+                reviewStatuses: List[Enum['Applied', 'Not Applying', 'Interested']],
+                eligibilityCodes: List[String],
+                includeKeywords: List[String],
+                excludeKeywords: List[String],
+                opportunityNumber: String,
+                fundingTypes: List[Enum['CA, 'G', 'PC' ,'O']]
+                opportunityStatuses: List[Enum['posted', 'forecasted', 'closed']],
+                opportunityCategories: List[Enum['Other', 'Discretionary', 'Mandatory', 'Continuation']],
+                costSharing: Enum['Yes', 'No'],
+                agencyCode: String,
+                postedWithinDays: number,
+                assignedToAgencyId: Optional[number],
+                bill: String,
+            },
+            paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
+            orderingParams: { orderBy: List[string], orderDesc: boolean}
+            tenantId: number
+            agencyId: number
+        */
+        it('gets grants that originate from specific bills', async () => {
+            const result = await db.getGrantsNew(
+                { bill: 'Infrastructure Investment and Jobs Act' },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(2);
+            result.data.forEach((grant) => { expect(grant.bill).to.contain('IIJA'); });
+            expect(result.pagination.total).to.equal(2);
+            expect(result.pagination.lastPage).to.equal(1);
+
+            const result2 = await db.getGrantsNew(
+                { bill: 'Inflation Reduction Act' },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result2).to.have.property('data').with.lengthOf(1);
+            expect(result2.data[0].bill).to.contain('Inflation Reduction Act');
+            expect(result2.pagination.total).to.equal(1);
+            expect(result2.pagination.lastPage).to.equal(1);
+        });
+        it('gets grants with agency codes', async () => {
+            const result = await db.getGrantsNew(
+                { agencyCode: 'HHS' },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(4);
+            result.data.forEach((grant) => { expect(grant.agency_code).to.contain('HHS'); });
+            expect(result.pagination.total).to.equal(4);
+            expect(result.pagination.lastPage).to.equal(1);
+
+            const result2 = await db.getGrantsNew(
+                { agencyCode: 'DOD-DARPA-TTO' },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result2).to.have.property('data').with.lengthOf(1);
+            expect(result2.data[0].agency_code).to.contain('DOD-DARPA-TTO');
+            expect(result2.pagination.total).to.equal(1);
+            expect(result2.pagination.lastPage).to.equal(1);
+        });
+        it('gets grants that either have or do not have cost sharing', async () => {
+            const result = await db.getGrantsNew(
+                { costSharing: 'Yes' },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(0);
+            expect(result.pagination.total).to.equal(0);
+            expect(result.pagination.lastPage).to.equal(0);
+
+            const result2 = await db.getGrantsNew(
+                { costSharing: 'No' },
+                { currentPage: 1, perPage: 3, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result2).to.have.property('data').with.lengthOf(3);
+            expect(result2.pagination.total).to.equal(6);
+            expect(result2.pagination.lastPage).to.equal(2);
+        });
+        it('gets grants with a specific opportunity categories', async () => {
+            const result = await db.getGrantsNew(
+                { opportunityCategories: ['Mandatory', 'Continuation'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(0);
+            expect(result.pagination.total).to.equal(0);
+            expect(result.pagination.lastPage).to.equal(0);
+
+            const result2 = await db.getGrantsNew(
+                { opportunityCategories: ['Discretionary', 'Other'] },
+                { currentPage: 1, perPage: 4, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result2).to.have.property('data').with.lengthOf(4);
+            expect(result2.pagination.total).to.equal(6);
+            expect(result2.pagination.lastPage).to.equal(2);
+        });
+        it('gets grants with a specific funding types aka funding instrument codes', async () => {
+            const result = await db.getGrantsNew(
+                { fundingTypes: ['CA'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(2);
+            expect(result.data[0].grant_id).to.equal(fixtures.grants.earFellowship.grant_id);
+            expect(result.data[1].grant_id).to.equal(fixtures.grants.resultGrant.grant_id);
+            expect(result.pagination.total).to.equal(2);
+            expect(result.pagination.lastPage).to.equal(1);
+        });
+        it('gets grants with a specific opportunity number', async () => {
+            const result = await db.getGrantsNew(
+                { opportunityNumber: 'HHS-2021-IHS-TPI-0001' },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(1);
+            expect(result.data[0].grant_id).to.equal(fixtures.grants.healthAide.grant_id);
+            expect(result.pagination.total).to.equal(1);
+            expect(result.pagination.lastPage).to.equal(1);
+        });
+        it('gets grants that have any of the eligibility codes', async () => {
+            const result = await db.getGrantsNew(
+                { eligibilityCodes: ['11', '07'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(2);
+            expect(result.data[0].grant_id).to.equal(fixtures.grants.redefiningPossible.grant_id);
+            expect(result.data[1].grant_id).to.equal(fixtures.grants.healthAide.grant_id);
+            expect(result.pagination.total).to.equal(2);
+            expect(result.pagination.lastPage).to.equal(1);
+        });
+        it('gets grants that are marked as interested', async () => {
+            const result = await db.getGrantsNew(
+                { reviewStatuses: ['Interested'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(1);
+            expect(result.data[0].grant_id).to.equal(fixtures.grants.interestedGrant.grant_id);
+            expect(result.pagination.total).to.equal(1);
+            expect(result.pagination.lastPage).to.equal(1);
+        });
+        it('gets grants that are marked as Result', async () => {
+            const result = await db.getGrantsNew(
+                { reviewStatuses: ['Applied'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(1);
+            expect(result.data[0].grant_id).to.equal(fixtures.grants.resultGrant.grant_id);
+            expect(result.pagination.total).to.equal(1);
+            expect(result.pagination.lastPage).to.equal(1);
+        });
+        it('gets grants that are marked as Rejected', async () => {
+            const result = await db.getGrantsNew(
+                { reviewStatuses: ['Not Applying'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(2);
+            expect(result.data[0].grant_id).to.equal(fixtures.grants.earFellowship.grant_id);
+            expect(result.data[1].grant_id).to.equal(fixtures.grants.healthAide.grant_id);
+            expect(result.pagination.total).to.equal(2);
+            expect(result.pagination.lastPage).to.equal(1);
+        });
+        it('gets grants that are Assigned', async () => {
+            const result = await db.getGrantsNew(
+                { assignedToAgencyId: fixtures.agencies.accountancy.id },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(1);
+            expect(result.data[0].grant_id).to.equal(fixtures.grants.earFellowship.grant_id);
+            expect(result.pagination.total).to.equal(1);
+            expect(result.pagination.lastPage).to.equal(1);
+        });
+        it('gets grants that match any include keywords', async () => {
+            const result = await db.getGrantsNew(
+                { includeKeywords: ['earth', 'sciences'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: true },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(1);
+        });
+        it('gets grants that match any include phrases', async () => {
+            const result = await db.getGrantsNew(
+                { includeKeywords: ['earth sciences'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: true },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(1);
         });
     });
 

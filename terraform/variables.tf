@@ -13,6 +13,52 @@ variable "version_identifier" {
   default     = "dev"
 }
 
+// Variables used by Terraform to provision resources with the Datadog provider
+// NOTE: Variables unrelated to the Datadog Terraform provider, like API keys and tags
+//  used at runtime, are configured outside of this section.
+variable "datadog_api_key" {
+  description = "API key to use when provisioning Datadog resources."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "datadog_app_key" {
+  description = "Application key to use when provisioning Datadog resources."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "datadog_monitors_enabled" {
+  description = "Whether to provision Datadog monitors."
+  type        = bool
+  default     = false
+}
+
+variable "datadog_monitor_notification_handles" {
+  description = "List of handles to notify on monitor alerts."
+  type        = list(string)
+  default     = []
+}
+
+variable "datadog_draft" {
+  description = "Marks Datadog resources as drafts. Set to false when deploying to Production."
+  type        = bool
+  default     = true
+}
+
+variable "datadog_metrics_metadata" {
+  description = "Map of metadata describing custom Datadog metrics, keyed by the metric name. All metrics are automatically prefixed with grants_ingest."
+  type = map(object({
+    short_name  = optional(string)
+    description = optional(string)
+    unit        = optional(string) # https://docs.datadoghq.com/metrics/units/
+    per_unit    = optional(string)
+  }))
+  default = {}
+}
+
 // Common
 variable "permissions_boundary_policy_name" {
   description = "Name of the permissions boundary for service roles"
@@ -66,6 +112,16 @@ variable "website_managed_waf_rules" {
   default = {}
 }
 
+variable "website_feature_flags" {
+  description = "Map of website feature flag names and their values."
+  type        = any
+  default     = {}
+  validation {
+    condition     = can(lookup(var.website_feature_flags, uuid(), "default"))
+    error_message = "Value must be an object."
+  }
+}
+
 // ECS cluster
 variable "cluster_container_insights_enabled" {
   type    = bool
@@ -92,6 +148,11 @@ variable "api_container_environment" {
   default = {}
 }
 
+variable "api_datadog_environment_variables" {
+  type    = map(string)
+  default = {}
+}
+
 variable "api_default_desired_task_count" {
   type = number
 }
@@ -101,6 +162,10 @@ variable "api_enable_grants_scraper" {
 }
 
 variable "api_enable_grants_digest" {
+  type = bool
+}
+
+variable "api_enable_saved_search_grants_digest" {
   type = bool
 }
 
@@ -136,4 +201,9 @@ variable "postgres_query_logging_enabled" {
 # Consume Grants
 variable "consume_grants_source_event_bus_name" {
   type = string
+}
+
+variable "consume_grants_datadog_environment_variables" {
+  type    = map(string)
+  default = {}
 }

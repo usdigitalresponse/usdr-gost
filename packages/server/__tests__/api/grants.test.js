@@ -463,6 +463,128 @@ describe('`/api/grants` endpoint', () => {
             });
         });
     });
+    context('GET /api/grants/exportCSVNew', () => {
+        it('produces correct column format', async () => {
+            // We constrain the result to a single grant that's listed in seeds/dev/ref/grants.js
+            const query = '?criteria[includeKeywords]=Community Health Aide Program  Tribal';
+            const response = await fetchApi(`/grants/exportCSVNew${query}`, agencies.own, fetchOptions.staff);
+
+            expect(response.statusText).to.equal('OK');
+            expect(response.headers.get('Content-Type')).to.include('text/csv');
+            expect(response.headers.get('Content-Disposition')).to.include('attachment');
+
+            const expectedCsvHeaders = [
+                'Opportunity Number',
+                'Title',
+                'Viewed By',
+                'Interested Agencies',
+                'Status',
+                'Opportunity Category',
+                'Cost Sharing',
+                'Award Floor',
+                'Award Ceiling',
+                'Posted Date',
+                'Close Date',
+                'Agency Code',
+                'Grant Id',
+                'URL',
+            ];
+            const txt = await response.text();
+
+            expect(txt.split('\n')[0]).to.equal(expectedCsvHeaders.join(','));
+            expect(txt.split('\n')[1]).to.contain('HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &');
+        });
+
+        it('produces same number of rows as grid', async () => {
+            let response = await fetchApi(`/grants/exportCSVNew`, agencies.own, fetchOptions.staff);
+            expect(response.statusText).to.equal('OK');
+            expect(response.headers.get('Content-Type')).to.include('text/csv');
+            expect(response.headers.get('Content-Disposition')).to.include('attachment');
+            const responseText = await response.text();
+            const exportedRows = responseText.split(/\r?\n/);
+            const rowsHash = {};
+            let skipFirst = true;
+            // eslint-disable-next-line no-restricted-syntax
+            for (const row of exportedRows) {
+                if (skipFirst) {
+                    skipFirst = false;
+                } else {
+                    const cells = row.split(',');
+                    if (cells[0]) {
+                        rowsHash[cells[0]] = row;
+                    }
+                }
+            }
+            let pageNumber = 1;
+            // eslint-disable-next-line no-constant-condition
+            while (true) {
+                // eslint-disable-next-line no-await-in-loop
+                response = await fetchApi(`/grants/next?pagination[currentPage]=${pageNumber}&pagination[perPage]=10&ordering[orderBy]=open_date&ordering[orderDesc]=true`, agencies.own, fetchOptions.staff);
+                expect(response.statusText).to.equal('OK');
+                // eslint-disable-next-line no-await-in-loop
+                const queryJson = await response.json();
+                if (queryJson.data.length === 0) {
+                    break;
+                }
+                for (let j = 0; j < queryJson.data.length; j += 1) {
+                    const opportunityNumber = queryJson.data[j].grant_number;
+                    if (rowsHash[opportunityNumber]) {
+                        delete rowsHash[opportunityNumber];
+                    }
+                }
+                pageNumber += 1;
+            }
+            const extraRowCount = Object.keys(rowsHash).length;
+            if (extraRowCount > 0) {
+                console.log(JSON.stringify(rowsHash, null, 2));
+                expect(extraRowCount).to.equal(0);
+            }
+        });
+
+        it('limits number of output rows', async function testExport() {
+            // First we insert 100 grants (in prod this limit it 10k but it is reduced in test
+            // via NODE_ENV=test environment variable so this test isn't so slow)
+            const numToInsert = 100;
+            const grantsToInsert = Array(numToInsert).fill(undefined).map((val, i, arr) => ({
+                status: 'inbox',
+                grant_id: String(-(i + 1)),
+                grant_number: String(-(i + 1)),
+                agency_code: 'fake',
+                cost_sharing: 'No',
+                title: `fake grant #${i + 1}/${arr.length} for test`,
+                cfda_list: 'fake',
+                open_date: '2022-04-22',
+                close_date: '2022-04-22',
+                notes: 'auto-inserted by test',
+                search_terms: '[in title/desc]+',
+                reviewer_name: 'none',
+                opportunity_category: 'Discretionary',
+                description: 'fake grant inserted by test',
+                eligibility_codes: '25',
+                opportunity_status: 'posted',
+                raw_body: 'raw body',
+            }));
+
+            try {
+                this.timeout(10000);
+                await knex.batchInsert(TABLES.grants, grantsToInsert);
+
+                const response = await fetchApi(`/grants/exportCSVNew`, agencies.own, fetchOptions.staff);
+                expect(response.statusText).to.equal('OK');
+
+                const csv = await response.text();
+                const lines = csv.split('\n');
+
+                // 10k rows + 1 header + 1 error message row + line break at EOF
+                expect(lines.length).to.equal(numToInsert + 3);
+
+                const lastRow = lines[lines.length - 2];
+                expect(lastRow).to.include('Error:');
+            } finally {
+                await knex(TABLES.grants).where(knex.raw('cast(grant_id as INTEGER) < 0')).delete();
+            }
+        });
+    });
     context('GET /api/grants/exportCSV', () => {
         it('produces correct column format', async () => {
             // We constrain the result to a single grant that's listed in seeds/dev/ref/grants.js
@@ -591,6 +713,36 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
                 while (moreRows) {
                     // eslint-disable-next-line no-await-in-loop
                     response = await fetchApi(`/grants?currentPage=${pageNumber}&perPage=10&orderBy=open_date&orderDesc=true`, agencies.own, fetchOptions.staff);
+                    expect(response.statusText).to.equal('OK');
+                    // eslint-disable-next-line no-await-in-loop
+                    queryJson = await response.json();
+                    if (queryJson.data.length === 0) {
+                        moreRows = false;
+                    } else {
+                        for (let j = 0; j < queryJson.data.length; j += 1) {
+                            const currentOpenDate = new Date(`${queryJson.data[j].open_date}T00:00:00`);
+                            if (previousOpenDate !== null) {
+                                expect(previousOpenDate).to.be.greaterThanOrEqual(currentOpenDate);
+                            }
+                            previousOpenDate = currentOpenDate;
+                        }
+                        pageNumber += 1;
+                    }
+                }
+            });
+        });
+    });
+    context('GET /api/organizations/:orgId/grants/next?currentPage=:pageNumber&perPage=:grantsPerPage', () => {
+        context('by a user with staff role', () => {
+            it('should return sorted rows', async () => {
+                let response;
+                let queryJson;
+                let previousOpenDate = null;
+                let pageNumber = 1;
+                let moreRows = true;
+                while (moreRows) {
+                    // eslint-disable-next-line no-await-in-loop
+                    response = await fetchApi(`/grants/next?pagination[currentPage]=${pageNumber}&pagination[perPage]=10&ordering[orderBy]=open_date&ordering[orderDesc]=true`, agencies.own, fetchOptions.staff);
                     expect(response.statusText).to.equal('OK');
                     // eslint-disable-next-line no-await-in-loop
                     queryJson = await response.json();

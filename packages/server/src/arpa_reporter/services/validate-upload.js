@@ -347,7 +347,7 @@ async function validateRecord({ upload, record, typeRules: rules }) {
 
             // make sure max length is not too long
             if (rule.maxLength) {
-                if (rule.dataType === 'String' && String(record[key]).length > rule.maxLength) {
+                if ((rule.dataType === 'String' || rule.dataType === 'String-Fixed') && String(record[key]).length > rule.maxLength) {
                     errors.push(new ValidationError(
                         `Value for ${key} cannot be longer than ${rule.maxLength} (currently, ${String(record[key]).length})`,
                         { col: rule.columnName, severity: 'err' },

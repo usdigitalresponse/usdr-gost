@@ -351,13 +351,337 @@ async function getNewGrantsForAgency(agency) {
 
     return rows;
 }
+async function buildOrderingParams(args) {
+    // default order by the most recently opened grant
+    const orderingParams = { orderBy: 'open_date', orderDesc: 'true' };
+
+    if (args) {
+        orderingParams.orderBy = args.orderBy;
+        orderingParams.orderDesc = args.orderDesc;
+    }
+
+    return orderingParams;
+}
+async function buildPaginationParams(args) {
+    const { currentPage, perPage } = args;
+    let { isLengthAware } = args;
+
+    if (!currentPage) {
+        throw Error('Missing current Page');
+    }
+
+    if (!perPage) {
+        throw Error('Missing per page');
+    }
+
+    if (isLengthAware === undefined || isLengthAware === null) {
+        isLengthAware = true;
+    }
+
+    return { currentPage, perPage, isLengthAware };
+}
+
+function isValidArray(value) {
+    return Array.isArray(value) && value.length > 0;
+}
+
+function buildTsqExpression(includeKeywords, excludeKeywords) {
+    if (!isValidArray(includeKeywords) && !isValidArray(excludeKeywords)) {
+        return null;
+    }
+
+    const signedKeywords = { include: [], exclude: [] };
+
+    // wrap phrases in double quotes and ensure keywords have the correct operator
+    if (isValidArray(includeKeywords)) {
+        includeKeywords.forEach((ik) => { if (ik.indexOf(' ') > 0) { signedKeywords.include.push(`"${ik}"`); } else { signedKeywords.include.push(ik); } });
+    }
+    if (isValidArray(excludeKeywords)) {
+        excludeKeywords.forEach((ek) => { if (ek.indexOf(' ') > 0) { signedKeywords.exclude.push(`-"${ek}"`); } else { signedKeywords.exclude.push(`-${ek}`); } });
+    }
+
+    const validExpressions = [];
+
+    const includeExpression = signedKeywords.include.join(' or ');
+    if (includeExpression.length > 0) {
+        validExpressions.push(includeExpression);
+    }
+    const excludeExpression = signedKeywords.exclude.join(' ');
+    if (excludeExpression.length > 0) {
+        validExpressions.push(excludeExpression);
+    }
+
+    const phrase = validExpressions.join(' ');
+
+    return phrase;
+}
+
+function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, orderingParams) {
+    const tsqExpression = buildTsqExpression(includeKeywords, excludeKeywords);
+    if (tsqExpression) {
+        queryBuilder.joinRaw(`cross join websearch_to_tsquery('english', ?) as tsqp`, tsqExpression);
+        queryBuilder.andWhere((q) => {
+            q.where('tsqp', '@@', knex.raw('title_ts'))
+                .orWhere('tsqp', '@@', knex.raw('description_ts'));
+            return q;
+        });
+        if (orderingParams.orderBy !== undefined) {
+            queryBuilder.select(
+                knex.raw(`ts_rank(title_ts, tsqp) as rank_title`),
+                knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description`),
+            );
+            queryBuilder.groupBy('rank_title', 'rank_description');
+        }
+    }
+}
+
+function buildFiltersQuery(queryBuilder, filters, agencyId) {
+    const statusMap = {
+        Applied: 'Result',
+        'Not Applying': 'Rejected',
+        Interested: 'Interested',
+    };
+    queryBuilder.andWhere(
+        (qb) => {
+            if (filters.eligibilityCodes?.length) {
+                qb.where('eligibility_codes', '~', filters.eligibilityCodes.join('|'));
+            }
+            if (filters.opportunityNumber) {
+                qb.where(`${TABLES.grants}.grant_number`, '=', filters.opportunityNumber);
+            }
+            if (filters.fundingTypes?.length) {
+                qb.where('funding_instrument_codes', '~', filters.fundingTypes.join('|'));
+            }
+            if (filters.reviewStatuses?.length) {
+                const statuses = filters.reviewStatuses.map((status) => statusMap[status]);
+                qb.whereIn(`${TABLES.interested_codes}.status_code`, statuses);
+                qb.where(`${TABLES.grants_interested}.agency_id`, '=', agencyId);
+            }
+            if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
+                qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgencyId);
+            }
+            if (filters.opportunityCategories?.length) {
+                qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
+            }
+            if (filters.costSharing) {
+                qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
+            }
+            if (filters.agencyCode) {
+                qb.where(`${TABLES.grants}.agency_code`, '~*', filters.agencyCode);
+            }
+            if (filters.bill) {
+                qb.where(`${TABLES.grants}.bill`, '~*', filters.bill);
+            }
+            if (filters.openDate) {
+                qb.where(`${TABLES.grants}.open_date`, '=', filters.openDate);
+            } else if (filters.postedWithinDays > 0) {
+                const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
+                qb.where(`${TABLES.grants}.open_date`, '>=', date);
+            }
+        },
+    );
+}
+
+function grantsQuery(queryBuilder, filters, agencyId, orderingParams, paginationParams) {
+    if (filters) {
+        if (filters.reviewStatuses?.length) {
+            queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
+                .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
+        }
+        if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
+            queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
+        }
+        buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords, orderingParams);
+        buildFiltersQuery(queryBuilder, filters, agencyId);
+    }
+    if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
+        if (orderingParams.orderBy.includes('interested_agencies')) {
+            // Only perform the join if it was not already performed above.
+            if (!filters.reviewStatuses?.length) {
+                queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
+                queryBuilder.select(`${TABLES.grants_interested}.grant_id`);
+                queryBuilder.groupBy(`${TABLES.grants_interested}.grant_id`);
+            }
+            const orderArgs = orderingParams.orderBy.split('|');
+            queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
+            queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
+        } else if (orderingParams.orderBy.includes('viewed_by')) {
+            const orderArgs = orderingParams.orderBy.split('|');
+            queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
+            queryBuilder.select(`${TABLES.grants_viewed}.grant_id`);
+            queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
+            queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
+        } else if (orderingParams.orderBy.includes('rank')) {
+            queryBuilder.orderBy([
+                { column: 'rank_title', order: 'desc' },
+                { column: 'rank_description', order: 'desc' },
+            ]);
+        } else {
+            const orderArgs = orderingParams.orderBy.split('|');
+            const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
+            if (orderArgs.length > 1) {
+                console.log(`Too many orderArgs: ${orderArgs}`);
+            }
+            queryBuilder.orderBy(orderArgs[0], knex.raw(`${orderDirection} NULLS LAST`));
+        }
+    }
+
+    if (filters.opportunityStatuses?.length) {
+        queryBuilder.havingRaw(`
+            CASE
+            WHEN grants.archive_date <= now() THEN 'archived'
+            WHEN grants.close_date <= now() THEN 'closed'
+            ELSE 'posted'
+            END IN (${Array(filters.opportunityStatuses.length).fill('?').join(',')})`, filters.opportunityStatuses);
+    }
+    if (paginationParams) {
+        queryBuilder.limit(paginationParams.perPage);
+        queryBuilder.offset((paginationParams.currentPage - 1) * paginationParams.perPage);
+    }
+}
+
+/*
+    filters: {
+        reviewStatuses: List[Enum['Applied', 'Not Applying', 'Interested']],
+        eligibilityCodes: List[String],
+        includeKeywords: List[String],
+        excludeKeywords: List[String],
+        opportunityNumber: String,
+        fundingTypes: List[Enum['CA, 'G', 'PC' ,'O']]
+        opportunityStatuses: List[Enum['posted', 'forecasted', 'closed']],
+        opportunityCategories: List[Enum['Other', 'Discretionary', 'Mandatory', 'Continuation']],
+        costSharing: Enum['Yes', 'No'],
+        agencyCode: String,
+        postedWithinDays: number,
+        assignedToAgencyId: Optional[number],
+        bill: String,
+    },
+    paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
+    orderingParams: { orderBy: List[string], orderDesc: boolean},
+    tenantId: number
+    agencyId: number
+*/
+async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
+    console.log(filters, paginationParams, orderingParams, tenantId, agencyId);
+    const data = await knex(TABLES.grants)
+        .select([
+            'grants.grant_id',
+            'grants.grant_number',
+            'grants.title',
+            'grants.status',
+            'grants.agency_code',
+            'grants.award_ceiling',
+            'grants.cost_sharing',
+            'grants.cfda_list',
+            'grants.open_date',
+            'grants.close_date',
+            'grants.archive_date',
+            'grants.reviewer_name',
+            'grants.opportunity_category',
+            'grants.search_terms',
+            'grants.notes',
+            'grants.created_at',
+            'grants.updated_at',
+            'grants.description',
+            'grants.eligibility_codes',
+            'grants.raw_body',
+            'grants.award_floor',
+            'grants.revision_id',
+            'grants.title_ts',
+            'grants.description_ts',
+            'grants.funding_instrument_codes',
+            'grants.bill',
+        ])
+        .select(knex.raw(`
+            CASE
+            WHEN grants.archive_date <= now() THEN 'archived'
+            WHEN grants.close_date <= now() THEN 'closed'
+            ELSE 'posted'
+            END as opportunity_status
+        `))
+        .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams))
+        .groupBy(
+            'grants.grant_id',
+            'grants.grant_number',
+            'grants.title',
+            'grants.status',
+            'grants.agency_code',
+            'grants.award_ceiling',
+            'grants.cost_sharing',
+            'grants.cfda_list',
+            'grants.open_date',
+            'grants.close_date',
+            'grants.archive_date',
+            'grants.reviewer_name',
+            'grants.opportunity_category',
+            'grants.search_terms',
+            'grants.notes',
+            'grants.created_at',
+            'grants.updated_at',
+            'grants.description',
+            'grants.eligibility_codes',
+            'grants.raw_body',
+            'grants.award_floor',
+            'grants.revision_id',
+            'grants.title_ts',
+            'grants.description_ts',
+            'grants.funding_instrument_codes',
+            'grants.bill',
+        );
+
+    const counts = await knex.with('filtered_grants', (qb) => {
+        qb.select([
+            'grants.grant_id',
+            'grants.open_date',
+            'grants.close_date',
+            'grants.archive_date',
+        ]).from('grants')
+            .groupBy('grants.grant_id', 'grants.open_date', 'grants.close_date', 'grants.archive_date');
+        qb.modify((q) => grantsQuery(q, filters, agencyId, { orderBy: undefined }, null));
+    }).countDistinct('filtered_grants.grant_id as total_grants').from('filtered_grants');
+
+    const pagination = {
+        total: parseInt(counts[0].total_grants, 10),
+        lastPage: Math.ceil(parseInt(counts[0].total_grants, 10) / parseInt(paginationParams.perPage, 10)),
+    };
+
+    const dataWithAgency = await enhanceGrantData(tenantId, data);
+
+    return { data: dataWithAgency, pagination };
+}
+
+async function enhanceGrantData(tenantId, data) {
+    const viewedByQuery = knex(TABLES.agencies)
+        .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
+        .whereIn('grant_id', data.map((grant) => grant.grant_id))
+        .andWhere('agencies.tenant_id', tenantId);
+
+    const viewedBy = await viewedByQuery.select(
+        `${TABLES.grants_viewed}.grant_id`,
+        `${TABLES.grants_viewed}.agency_id`,
+        `${TABLES.agencies}.name as agency_name`,
+        `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+    );
+    const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), tenantId });
+
+    const dataWithAgency = data.map((grant) => {
+        const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
+        const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
+        return {
+            ...grant,
+            etitle: decodeURIComponent(escape(grant.title)),
+            viewed_by_agencies: viewedByAgencies,
+            interested_agencies: agenciesInterested,
+        };
+    });
+
+    return dataWithAgency;
+}
 
 async function getGrants({
     currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
 } = {}) {
-    const { data, pagination } = await knex(TABLES.grants)
-        .select(`${TABLES.grants}.*`)
-        .distinct()
+    const data = await knex(TABLES.grants)
         .modify((queryBuilder) => {
             if (searchTerm && searchTerm !== 'null') {
                 queryBuilder.andWhere(
@@ -436,9 +760,76 @@ async function getGrants({
                     queryBuilder.orderBy(orderArgs[0], orderDirection);
                 }
             }
-        })
-        .paginate({ currentPage, perPage, isLengthAware: true });
+            queryBuilder.limit(perPage);
+            queryBuilder.offset((currentPage - 1) * perPage);
+        });
 
+    const counts = await knex(TABLES.grants)
+        .modify((queryBuilder) => {
+            if (searchTerm && searchTerm !== 'null') {
+                queryBuilder.andWhere(
+                    (qb) => qb.where(`${TABLES.grants}.grant_id`, '~*', searchTerm)
+                        .orWhere(`${TABLES.grants}.grant_number`, '~*', searchTerm)
+                        .orWhere(`${TABLES.grants}.title`, '~*', searchTerm),
+                );
+            }
+            if (filters) {
+                if (filters.interestedByUser || filters.positiveInterest || filters.result || filters.rejected || filters.interestedByAgency) {
+                    queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
+                        .join(TABLES.interested_codes, `${TABLES.interested_codes}.id`, `${TABLES.grants_interested}.interested_code_id`);
+                }
+                if (filters.assignedToAgency) {
+                    queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
+                }
+                queryBuilder.andWhere(
+                    (qb) => {
+                        const isMyGrantsQuery = filters.interestedByAgency !== null
+                                                || filters.assignedToAgency !== null
+                                                || filters.rejected !== null
+                                                || filters.result !== null;
+                        if (!isMyGrantsQuery) {
+                            helpers.whereAgencyCriteriaMatch(qb, filters.agencyCriteria);
+                        }
+
+                        if (filters.interestedByAgency != null) {
+                            qb.where('grants_interested.agency_id', filters.interestedByAgency);
+                        }
+                        if (filters.interestedByUser) {
+                            qb.where(`${TABLES.grants_interested}.user_id`, '=', filters.interestedByUser);
+                        }
+                        if (filters.assignedToAgency) {
+                            qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgency);
+                        }
+                        if (!(filters.positiveInterest && filters.result && filters.rejected)) {
+                            if (filters.positiveInterest) {
+                                qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Interested');
+                            }
+                            if (filters.result) {
+                                qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Result');
+                            }
+                            if (filters.rejected) {
+                                qb.where(`${TABLES.interested_codes}.status_code`, '=', 'Rejected');
+                            }
+                        }
+                        if (filters.opportunityStatuses?.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_status`, filters.opportunityStatuses);
+                        }
+                        if (filters.opportunityCategories?.length) {
+                            qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
+                        }
+                        if (filters.costSharing) {
+                            qb.where(`${TABLES.grants}.cost_sharing`, '=', filters.costSharing);
+                        }
+                    },
+                );
+            }
+        })
+        .countDistinct('grants.grant_id as total_grants');
+
+    const pagination = {
+        total: counts[0].total_grants,
+        lastPage: Math.ceil(parseInt(counts[0].total_grants, 10) / parseInt(perPage, 10)),
+    };
     const viewedByQuery = knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
@@ -1071,6 +1462,25 @@ async function createSavedSearch(searchItem) {
     };
 }
 
+async function updateSavedSearch(searchItem) {
+    const response = await knex('grants_saved_searches')
+        .where({ id: searchItem.id, created_by: searchItem.userId })
+        .update({
+            name: searchItem.name,
+            criteria: searchItem.criteria,
+        })
+        .returning('*');
+
+    return {
+        id: response[0].id,
+        name: response[0].name,
+        createdBy: response[0].created_by,
+        criteria: response[0].criteria,
+        createdAt: new Date(response[0].created_at).toISOString(),
+        updatedAt: new Date(response[0].updated_at).toISOString(),
+    };
+}
+
 /**
  * Retrieves saved searches
  * @param  int              userId
@@ -1080,7 +1490,7 @@ async function createSavedSearch(searchItem) {
 async function getSavedSearches(userId, paginationParams) {
     const response = await knex('grants_saved_searches')
         .where('created_by', userId)
-        .orderBy('id')
+        .orderBy('updated_at', 'desc')
         .paginate(paginationParams);
 
     response.data = response.data.map((r) => ({
@@ -1092,6 +1502,54 @@ async function getSavedSearches(userId, paginationParams) {
     }));
 
     return response;
+}
+
+/**
+ * Retrieves all saved searches joined with user and digest subscription information
+ * @param int                   userId (optional)
+ * @return Promise<boolean>
+ * */
+async function getAllUserSavedSearches(userId) {
+    const query = knex.select(
+        `${TABLES.grants_saved_searches}.id as id`,
+        `${TABLES.grants_saved_searches}.created_by as created_by`,
+        `${TABLES.grants_saved_searches}.criteria as criteria`,
+        `${TABLES.grants_saved_searches}.name as name`,
+        `${TABLES.email_subscriptions}.status as status`,
+        `${TABLES.email_subscriptions}.notification_type as notification_type`,
+        `${TABLES.users}.tenant_id as tenant_id`,
+        `${TABLES.users}.email as email`,
+    )
+        .from(`${TABLES.grants_saved_searches}`)
+        .join(TABLES.users, `${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.users}.id`)
+        .leftJoin(
+            TABLES.email_subscriptions, (builder) => {
+                builder
+                    .on(`${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.email_subscriptions}.user_id`)
+                    .andOn(`${TABLES.email_subscriptions}.notification_type`, '=', knex.raw('?', [emailConstants.notificationType.grantDigest]));
+            },
+        )
+        .where((q) => {
+            q
+                .where(`${TABLES.email_subscriptions}.status`, `${emailConstants.emailSubscriptionStatus.subscribed}`)
+                .orWhereNull(`${TABLES.email_subscriptions}.status`);
+        });
+    if (userId) {
+        query.andWhere(`${TABLES.grants_saved_searches}.created_by`, '=', userId);
+    }
+    const response = await query;
+
+    const data = response.map((r) => ({
+        id: r.id,
+        tenantId: r.tenant_id,
+        userId: r.created_by,
+        email: r.email,
+        status: r.status,
+        name: r.name,
+        criteria: r.criteria,
+    }));
+
+    return data;
 }
 
 /**
@@ -1137,6 +1595,8 @@ module.exports = {
     getSavedSearch,
     getSavedSearches,
     deleteSavedSearch,
+    updateSavedSearch,
+    getAllUserSavedSearches,
     getUsers,
     createUser,
     deleteUser,
@@ -1176,6 +1636,9 @@ module.exports = {
     createKeyword,
     deleteKeyword,
     getGrants,
+    getGrantsNew,
+    buildPaginationParams,
+    buildOrderingParams,
     getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,

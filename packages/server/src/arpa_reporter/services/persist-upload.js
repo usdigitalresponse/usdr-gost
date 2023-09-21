@@ -1,5 +1,6 @@
 /* eslint camelcase: 0 */
 
+const tracer = require('dd-trace');
 const path = require('path');
 const fs = require('fs/promises');
 const _ = require('lodash');
@@ -82,13 +83,15 @@ function createUploadRow(uploadData) {
  * @throws {ValidationError}
 */
 async function persistUploadToFS(upload, buffer) {
-    try {
-        const filename = uploadFSName(upload);
-        await fs.mkdir(path.dirname(filename), { recursive: true });
-        await fs.writeFile(filename, buffer, { flag: 'wx' });
-    } catch (e) {
-        throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
-    }
+    return tracer.trace('persistUploadToFS', async () => {
+        try {
+            const filename = uploadFSName(upload);
+            await fs.mkdir(path.dirname(filename), { recursive: true });
+            await fs.writeFile(filename, buffer, { flag: 'wx' });
+        } catch (e) {
+            throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
+        }
+    });
 }
 
 /**
@@ -152,46 +155,51 @@ async function ensureValidReportingPeriodId(reportingPeriodId) {
 async function persistUpload({
     filename, user, buffer, body,
 }) {
-    // Fetch reportingPeriodId, agencyId, and notes from the body
-    // and rename with 'supplied' prefix. These may be null.
-    const {
-        reportingPeriodId: suppliedReportingPeriodId,
-        agencyId: suppliedAgencyId,
-        notes: suppliedNotes,
-    } = body;
+    return tracer.trace(
+        'persistUpload',
+        async () => {
+            // Fetch reportingPeriodId, agencyId, and notes from the body
+            // and rename with 'supplied' prefix. These may be null.
+            const {
+                reportingPeriodId: suppliedReportingPeriodId,
+                agencyId: suppliedAgencyId,
+                notes: suppliedNotes,
+            } = body;
 
-    // Make sure we can actually read the supplied buffer (it's a valid spreadsheet)
-    await validateBuffer(buffer);
+            // Make sure we can actually read the supplied buffer (it's a valid spreadsheet)
+            await validateBuffer(buffer);
 
-    // Either use supplied reportingPeriodId,
-    // or fall back to the current reporting period ID if undefined
-    const validatedReportingPeriodId = await ensureValidReportingPeriodId(suppliedReportingPeriodId);
+            // Either use supplied reportingPeriodId,
+            // or fall back to the current reporting period ID if undefined
+            const validatedReportingPeriodId = await ensureValidReportingPeriodId(suppliedReportingPeriodId);
 
-    // Check if the user is affiliated with the given agency,
-    // or leave undefined (we'll derive it later from the spreadsheet)
-    const validatedAgencyId = await ensureValidAgencyId(suppliedAgencyId, user.id);
+            // Check if the user is affiliated with the given agency,
+            // or leave undefined (we'll derive it later from the spreadsheet)
+            const validatedAgencyId = await ensureValidAgencyId(suppliedAgencyId, user.id);
 
-    // Escape note text
-    const validatedNotes = ensureValidNotes(suppliedNotes);
+            // Escape note text
+            const validatedNotes = ensureValidNotes(suppliedNotes);
 
-    // Create the upload row
-    const uploadData = {
-        filename,
-        reportingPeriodId: validatedReportingPeriodId,
-        userId: user.id,
-        agencyId: validatedAgencyId,
-        notes: validatedNotes,
-    };
-    const uploadRow = createUploadRow(uploadData);
+            // Create the upload row
+            const uploadData = {
+                filename,
+                reportingPeriodId: validatedReportingPeriodId,
+                userId: user.id,
+                agencyId: validatedAgencyId,
+                notes: validatedNotes,
+            };
+            const uploadRow = createUploadRow(uploadData);
 
-    // Insert the upload row into the database
-    const upload = await createUpload(uploadRow);
+            // Insert the upload row into the database
+            const upload = await createUpload(uploadRow);
 
-    // Persist the upload to the filesystem
-    await persistUploadToFS(upload, buffer);
+            // Persist the upload to the filesystem
+            await persistUploadToFS(upload, buffer);
 
-    // Return the upload we created
-    return upload;
+            // Return the upload we created
+            return upload;
+        },
+    );
 }
 
 /**
@@ -202,13 +210,18 @@ async function persistUpload({
  * @throws {ValidationError}
 */
 async function persistJson(upload, workbook) {
-    try {
-        const filename = jsonFSName(upload);
-        await fs.mkdir(path.dirname(filename), { recursive: true });
-        await fs.writeFile(filename, Cryo.stringify(workbook), { flag: 'wx' });
-    } catch (e) {
-        throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
-    }
+    return tracer.trace(
+        'persistJson',
+        async () => {
+            try {
+                const filename = jsonFSName(upload);
+                await fs.mkdir(path.dirname(filename), { recursive: true });
+                await fs.writeFile(filename, Cryo.stringify(workbook), { flag: 'wx' });
+            } catch (e) {
+                throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
+            }
+        },
+    );
 }
 
 /**
@@ -217,7 +230,10 @@ async function persistJson(upload, workbook) {
  * @returns {Promise<Buffer>}
 */
 async function bufferForUpload(upload) {
-    return fs.readFile(uploadFSName(upload));
+    return tracer.trace(
+        'bufferForUpload',
+        () => fs.readFile(uploadFSName(upload)),
+    );
 }
 
 /**
@@ -226,7 +242,20 @@ async function bufferForUpload(upload) {
  * @returns {Promise<object>}
 */
 async function jsonForUpload(upload) {
-    return Cryo.parse(await fs.readFile(jsonFSName(upload), { encoding: 'utf-8' }));
+    return tracer.trace(
+        'jsonForUpload',
+        async () => {
+            const file = await tracer.trace('fs.readFile', async (span) => {
+                const f = await fs.readFile(jsonFSName(upload), { encoding: 'utf-8' });
+                const { size } = await fs.stat(jsonFSName(upload));
+                span.setTag('filesize-kb', Math.round(size / (2 ** 10)));
+                span.setTag('tenant-id', upload.tenant_id);
+                span.setTag('reporting-period-id', upload.reporting_period_id);
+                return f;
+            });
+            return tracer.trace('Cryo.parse', () => Cryo.parse(file));
+        },
+    );
 }
 
 /**
@@ -241,26 +270,31 @@ async function jsonForUpload(upload) {
  * @return {XLSX.Workbook}s The uploaded workbook, as parsed by XLSX.read.
  */
 async function workbookForUpload(upload, options) {
-    log(`workbookForUpload(${upload.id})`);
+    return tracer.trace(
+        'workbookForUpload',
+        async () => {
+            log(`workbookForUpload(${upload.id})`);
 
-    let workbook;
-    try {
-    // attempt to read pre-parsed JSON, if it exists
-        log(`attempting cache lookup for parsed workbook`);
-        workbook = await jsonForUpload(upload);
-    } catch (e) {
-    // fall back to reading the originally-uploaded .xlsm file and parsing it
-        log(`cache lookup failed, parsing originally uploaded .xlsm file`);
-        const buffer = await bufferForUpload(upload);
+            let workbook;
+            try {
+            // attempt to read pre-parsed JSON, if it exists
+                log(`attempting cache lookup for parsed workbook`);
+                workbook = await jsonForUpload(upload);
+            } catch (e) {
+            // fall back to reading the originally-uploaded .xlsm file and parsing it
+                log(`cache lookup failed, parsing originally uploaded .xlsm file`);
+                const buffer = await bufferForUpload(upload);
 
-        // NOTE: This is the slow line!
-        log(`XLSX.read(${upload.id})`);
-        workbook = XLSX.read(buffer, options);
+                // NOTE: This is the slow line!
+                log(`XLSX.read(${upload.id})`);
+                workbook = tracer.trace('XLSX.read()', () => XLSX.read(buffer, options));
 
-        persistJson(upload, workbook);
-    }
+                persistJson(upload, workbook);
+            }
 
-    return workbook;
+            return workbook;
+        },
+    );
 }
 
 module.exports = {

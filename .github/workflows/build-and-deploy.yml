@@ -85,6 +85,8 @@ jobs:
     env:
       TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
       TF_VAR_version_identifier: ${{ github.sha }}
+      TF_VAR_datadog_api_key: ${{ secrets.DATADOG_API_KEY }}
+      TF_VAR_datadog_app_key: ${{ secrets.DATADOG_APP_KEY }}
     steps:
       - uses: actions/checkout@v3
       - name: Get project TF version
@@ -210,6 +212,6 @@ jobs:
           withDecryption: "true"
           parameterPairs: |
             /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_CLUSTER_NAME,
-            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/cluster-name = ECS_SERVICE_NAME
+            /gost/${{ needs.select_target_environment.outputs.selected }}/deploy-config/consume-grants/service-name = ECS_SERVICE_NAME
       - name: Update ECS service
         run: aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --force-new-deployment > /dev/null

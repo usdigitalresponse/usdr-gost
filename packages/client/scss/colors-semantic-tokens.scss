@@ -1,0 +1,73 @@
+/**
+ * colors-semantic-tokens.scss
+ * 
+ * Semantic token definition for USDR style guide.
+ *
+ * Please refer to USDR style guide definition in Figma:
+ *   https://www.figma.com/file/HWu4iIjcoX2txuN543qzIB/USDR-Design-System?type=design&node-id=8%3A2&mode=design&t=8mml86X91f9FzVAE-1
+ */
+
+@import './colors-base-tokens.scss';
+
+// USDR BRAND
+$brand-primary: $usdr-brand-primary;
+$brand-default: $raw-blue-600;
+$brand-hover: $raw-blue-700;
+$brand-active: $raw-blue-800;
+$brand-content: $raw-white;
+$brand-accent: $raw-blue-100;
+$brand-accentContent: $raw-gray-700;
+
+// POSITIVE
+$positive-default: $raw-green-600;
+$positive-hover: $raw-green-700;
+$positive-active: $raw-green-800;
+$positive-content: $raw-white;
+$positive-accent: $raw-green-100;
+$positive-accentContent: $raw-gray-700;
+
+// NEGATIVE 
+$negative-default: $raw-red-600;
+$negative-hover: $raw-red-700;
+$negative-active: $raw-red-800;
+$negative-content: $raw-white;
+$negative-accent: $raw-red-100;
+$negative-accentContent: $raw-gray-700;
+
+// WARNING
+$warning-default: $raw-yellow-550;
+$warning-hover: $raw-yellow-600;
+$warning-active: $raw-yellow-700;
+$warning-content: $raw-white;
+$warning-accent: $raw-yellow-50;
+$warning-accentContent: $raw-gray-700;
+
+// INFO
+$info-default: $raw-blue-600;
+$info-hover: $raw-blue-700;
+$info-active: $raw-blue-800;
+$info-content: $raw-white;
+$info-accent: $raw-blue-100;
+$info-accentContent: $raw-gray-700;
+
+// SURFACE 
+$surface-foreground: $raw-white;
+$surface-background: $raw-white;
+$surface-accent: $raw-gray-50;
+$surface-canvas: $raw-gray-50;
+$surface-overlay: $raw-black-alpha-600;
+
+// BORDER
+$border: $raw-gray-300;
+$border-hover: $raw-gray-400;
+
+// ICON 
+$icon-default: $raw-gray-600;
+
+// INTERACTIVE
+$interactive-active: $raw-blue-50;
+
+// TEXT
+$text-primary: $raw-gray-700;
+$text-secondary: $raw-gray-600;
+$text-placeholder: $raw-gray-500;
