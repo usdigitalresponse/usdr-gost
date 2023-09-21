@@ -95,7 +95,7 @@ describe('db', () => {
                 includeKeywords: ['Grant', 'Wetlands Phrase'],
                 excludeKeywords: ['post Doctorate'],
                 opportunityNumber: null,
-                opportunityStatuses: [],
+                opportunityStatuses: ['archived'],
                 fundingTypes: ['CA', 'G', 'PC', 'O'],
                 opportunityCategories: ['Other', 'Discretionary', 'Mandatory', 'Continuation'],
                 costSharing: 'Yes',
