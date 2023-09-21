@@ -571,7 +571,7 @@ function formatSearchCriteriaToQueryFilters(criteria) {
         delete parsedCriteria.eligibility;
     }
     filters = { ...filters, ...parsedCriteria };
-    validateSearchFilters(filters);
+
     return filters;
 }
 
