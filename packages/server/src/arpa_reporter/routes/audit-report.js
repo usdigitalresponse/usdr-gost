@@ -98,9 +98,10 @@ router.get('/', requireUser, async (req, res) => {
 router.post('/refresh-cache', async (req, res) => {
     console.log('/api/audit-report/refresh-cache GET');
     try {
-        report = await audit_report.runCache(
-            req.headers.host ?? "",
-            req.body.tenantId);
+        await audit_report.runCache(
+            req.headers.host ?? '',
+            req.body.tenantId,
+        );
         console.log('Successfully cached report');
     } catch (error) {
     // In addition to sending the error message in the 500 response, log the full error stacktrace

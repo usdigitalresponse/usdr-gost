@@ -115,16 +115,14 @@ describe('audit report generation', () => {
     });
 
     it('generate audit report', async () => {
-      const stub = sandbox.stub(audit_report, 'generateSheets').returns(response);
-      const reportNoCache = await withTenantId(0, () => {
-        return audit_report.generate("test-host", false);
-      });
+        const stub = sandbox.stub(audit_report, 'generateSheets').returns(response);
+        const reportNoCache = await withTenantId(0, () => audit_report.generate('test-host', false));
 
-      const reportCache = await withTenantId(0, () => {
-        sandbox.stub(audit_report, 'getCache').returns(Object.keys(response).reduce((x, y) => {x[y] = response[y].slice(0, -1); return x;}, {}));
-        stub.returns(Object.keys(response).reduce((x, y) => {x[y] = [response[y][response[y].length - 1]]; return x;}, {}));
-        return audit_report.generate("test-host", true);
-      });
-      expect(Buffer.compare(reportCache.outputWorkBook, reportNoCache.outputWorkBook)).to.equal(0);
+        const reportCache = await withTenantId(0, () => {
+            sandbox.stub(audit_report, 'getCache').returns(Object.keys(response).reduce((x, y) => { x[y] = response[y].slice(0, -1); return x; }, {}));
+            stub.returns(Object.keys(response).reduce((x, y) => { x[y] = [response[y][response[y].length - 1]]; return x; }, {}));
+            return audit_report.generate('test-host', true);
+        });
+        expect(Buffer.compare(reportCache.outputWorkBook, reportNoCache.outputWorkBook)).to.equal(0);
     });
 });

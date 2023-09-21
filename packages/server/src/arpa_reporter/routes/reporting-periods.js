@@ -56,7 +56,7 @@ router.post('/close', requireAdminUser, async (req, res) => {
     }
 
     try {
-        runCache(req.headers.host ?? "", period);
+        runCache(req.headers.host ?? '', period);
     } catch (err) {
         res.status(500).json({ error: err.message });
         return;

@@ -259,8 +259,7 @@ async function generateSheets(periodId, domain, calculatePriorPeriods = true) {
     };
 }
 
-
-async function runCache(domain, reportingPeriod = null, tenantId = null) {
+async function runCache(domain, reportingPeriod = null, tenantId = null, periodId = null) {
     if (reportingPeriod == null) {
         const reportingPeriods = await getPreviousReportingPeriods(periodId);
         const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
@@ -268,20 +267,19 @@ async function runCache(domain, reportingPeriod = null, tenantId = null) {
             .reduce((a, b) => (a.id > b.id ? a : b));
     }
     const cacheFilename = cacheFSName(reportingPeriod, tenantId);
-    data = await module.exports.generateSheets(reportingPeriod.id, domain, true);
+    const data = await module.exports.generateSheets(reportingPeriod.id, domain, true);
     const jsonData = JSON.stringify(data);
     await fs.mkdir(path.dirname(cacheFilename), { recursive: true });
     await fs.writeFile(cacheFilename, jsonData, { flag: 'wx' });
     return data;
 }
 
-
 function reviveDate(key, value) {
-  // Matches strings like "2022-08-25T09:39:19.288Z"
-  const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
-  return typeof value === 'string' && isoDateRegex.test(value) 
-    ? new Date(value) 
-    : value
+    // Matches strings like "2022-08-25T09:39:19.288Z"
+    const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+    return typeof value === 'string' && isoDateRegex.test(value)
+        ? new Date(value)
+        : value;
 }
 
 async function getCache(periodId, domain, tenantId = null, force = false) {
@@ -294,7 +292,7 @@ async function getCache(periodId, domain, tenantId = null, force = false) {
     let data = { };
     try {
         if (force) {
-          throw error('forcing the cache');
+            throw new Error('forcing the cache');
         }
         const cacheData = await fs.readFile(cacheFilename, { encoding: 'utf-8' });
         data = JSON.parse(cacheData, reviveDate);
@@ -313,12 +311,9 @@ async function generate(requestHost, cache = true) {
 
         const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
 
-        if (!cache) {
-
-        }
         const dataBefore = cache
-          ? await module.exports.getCache(periodId, domain)
-          : generateEmptySheets();
+            ? await module.exports.getCache(periodId, domain)
+            : generateEmptySheets();
         const dataAfter = await module.exports.generateSheets(periodId, domain, !cache);
         const obligations = [...dataBefore.obligations, ...dataAfter.obligations];
         const projectSummaries = [...dataBefore.projectSummaries, ...dataAfter.projectSummaries].sort((a, b) => a['Project ID'] - b['Project ID']);
