@@ -19,3 +19,19 @@ output "ecs_cluster_name" {
 output "ecs_service_name" {
   value = join("", aws_ecs_service.default.*.name)
 }
+
+output "ecs_service_arn" {
+  value = join("", aws_ecs_service.default.*.id)
+}
+
+output "arpa_audit_reports_bucket_arn" {
+  value = module.arpa_audit_reports_bucket.bucket_arn
+}
+
+output "efs_data_volume_id" {
+  value = module.efs_data_volume.id
+}
+
+output "efs_data_volume_access_point_id" {
+  value = module.efs_data_volume.access_point_ids["data"]
+}
