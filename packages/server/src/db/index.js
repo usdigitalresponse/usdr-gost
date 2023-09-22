@@ -1586,6 +1586,7 @@ async function updateSavedSearch(searchItem) {
         .update({
             name: searchItem.name,
             criteria: searchItem.criteria,
+            updated_at: new Date(),
         })
         .returning('*');
 
