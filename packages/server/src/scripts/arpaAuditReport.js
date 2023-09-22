@@ -4,7 +4,6 @@ const { ReceiveMessageCommand, DeleteMessageCommand } = require('@aws-sdk/client
 const { getSQSClient } = require('../lib/gost-aws');
 const { processSQSMessageRequest } = require('../arpa_reporter/lib/audit-report');
 
-// eslint-disable-block no-await-in-loop
 async function main() {
     let shutDownRequested = false;
     const requestShutdown = (signal) => {
