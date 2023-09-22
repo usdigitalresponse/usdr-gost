@@ -135,7 +135,7 @@ resource "aws_ecs_task_definition" "consumer" {
 
   dynamic "volume" {
     for_each = var.consumer_task_efs_volume_mounts
-    iterator = "each"
+    iterator = each
 
     content {
       name = each.value.name

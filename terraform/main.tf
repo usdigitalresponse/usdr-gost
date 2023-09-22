@@ -135,7 +135,7 @@ module "api" {
   subnet_ids = local.private_subnet_ids
   security_group_ids = [
     module.consume_grants_to_postgres_security_group.id,
-    module.module.arpa_audit_report_to_postgres_security_group.id,
+    module.arpa_audit_report_to_postgres_security_group.id,
   ]
 
   # Cluster

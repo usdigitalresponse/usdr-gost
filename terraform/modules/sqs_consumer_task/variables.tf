@@ -47,7 +47,7 @@ variable "consumer_task_efs_volume_mounts" {
     container_path  = string
     read_only       = bool
     file_system_id  = string
-    access_point_id = list(string)
+    access_point_id = string
   }))
 }
 
