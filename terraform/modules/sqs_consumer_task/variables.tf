@@ -40,6 +40,17 @@ variable "consumer_task_command" {
   type        = list(string)
 }
 
+variable "consumer_task_efs_volume_mounts" {
+  description = "EFS volumes to mount in ECS task consumer containers."
+  type = list(object({
+    name            = string
+    container_path  = string
+    read_only       = bool
+    file_system_id  = string
+    access_point_id = list(string)
+  }))
+}
+
 variable "stop_timeout_seconds" {
   description = "Number of seconds to wait before the container is killed after initiating shutdown."
   type        = number

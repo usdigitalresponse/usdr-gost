@@ -70,6 +70,14 @@ module "consumer_container_definition" {
 
   docker_labels = local.datadog_docker_labels
 
+  mount_points = [
+    for mount in var.consumer_task_efs_volume_mounts : {
+      sourceVolume  = mount.name
+      containerPath = mount.container_path
+      readOnly      = mount.read_only
+    }
+  ]
+
   log_configuration = {
     logDriver = "awslogs"
     options = {
@@ -124,6 +132,22 @@ resource "aws_ecs_task_definition" "consumer" {
     module.consumer_container_definition.json_map_object,
     module.datadog_container_definition.json_map_object,
   ])
+
+  dynamic "volume" {
+    for_each = var.consumer_task_efs_volume_mounts
+    iterator = "each"
+
+    content {
+      name = each.value.name
+      efs_volume_configuration {
+        file_system_id     = each.value.file_system_id
+        transit_encryption = "ENABLED"
+        authorization_config {
+          access_point_id = each.value.access_point_id
+        }
+      }
+    }
+  }
 
   lifecycle {
     create_before_destroy = true
