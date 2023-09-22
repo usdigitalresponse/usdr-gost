@@ -254,12 +254,12 @@ resource "aws_appautoscaling_target" "desired_count" {
   resource_id        = "service/${data.aws_ecs_cluster.default.cluster_name}/${aws_ecs_service.default.name}"
 
   min_capacity = 0
-  max_capacity = length(var.autoscaling_message_thresholds) + 1
+  max_capacity = length(local.autoscaling_message_thresholds)
 }
 
 locals {
   autoscaling_message_thresholds = concat(
-    [for i in sort(var.autoscaling_message_thresholds) : tonumber(i)],
+    [for i in sort(formatlist("%010d", var.autoscaling_message_thresholds)) : tonumber(i)],
     [null]
   )
 }
