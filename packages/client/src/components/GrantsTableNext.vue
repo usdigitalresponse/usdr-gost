@@ -16,10 +16,7 @@
         <h4 class="mb-0">{{ searchTitle }}</h4>
       </b-col>
       <b-col align-self="end">
-        <a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0"
-          class="text-right text-nowrap">
-          <p class="mb-0">Export CSV</p>
-        </a>
+        <p class="mb-0 text-right text-nowrap"><a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0">Export CSV</a></p>
       </b-col>
     </b-row>
     <b-row align-v="center">

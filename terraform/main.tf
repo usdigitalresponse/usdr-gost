@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.67.0"
     }
+    datadog = {
+      source  = "DataDog/datadog"
+      version = "~> 3.29.0"
+    }
   }
 
   backend "s3" {}
@@ -22,6 +26,12 @@ provider "aws" {
       usage      = "workload"
     }
   }
+}
+
+provider "datadog" {
+  validate = can(coalesce(var.datadog_api_key)) && can(coalesce(var.datadog_app_key))
+  api_key  = var.datadog_api_key
+  app_key  = var.datadog_app_key
 }
 
 data "aws_caller_identity" "current" {}
