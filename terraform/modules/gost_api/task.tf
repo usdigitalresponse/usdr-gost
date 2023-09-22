@@ -157,8 +157,8 @@ resource "aws_ecs_task_definition" "default" {
 
   # Valid configurations here:
   # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-tasks-size
-  cpu    = 256
-  memory = 512
+  cpu    = 512
+  memory = 2048
 
   runtime_platform {
     operating_system_family = "LINUX"
