@@ -24,7 +24,7 @@ const PERIOD_TEMPLATES_DIR = join(UPLOAD_DIR, 'period_templates');
 const SERVER_CODE_DIR = __dirname;
 const SERVER_DATA_DIR = join(SERVER_CODE_DIR, 'data');
 
-const EMPTY_TEMPLATE_NAME = 'ARPA SFRF Reporting Workbook v20230718.xlsm';
+const EMPTY_TEMPLATE_NAME = 'ARPA SFRF Reporting Workbook v20230920.xlsm';
 
 const { COOKIE_SECRET } = process.env;
 
