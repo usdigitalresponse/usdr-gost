@@ -1,7 +1,7 @@
 {
   "logic": {
     "version": {
-      "version": "v:20230920",
+      "version": "v:20230923",
       "key": "version",
       "index": 0,
       "required": false,
