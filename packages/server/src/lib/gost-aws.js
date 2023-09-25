@@ -86,7 +86,7 @@ function sendEmail(message) {
     };
     const command = new SendEmailCommand(params);
     transport.send(command)
-        .then((data) => console.log('Success sending SES email:', data))
+        .then((data) => console.log('Success sending SES email:', JSON.stringify(data)))
         .catch((err) => console.error('Error sending SES email:', err, err.stack));
 }
 
