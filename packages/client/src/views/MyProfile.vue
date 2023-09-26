@@ -39,12 +39,10 @@ export default {
     },
     initials() {
       const fullNameArr = this.name.split(' ');
-      const firstName = fullNameArr.at(0)
+      const firstName = fullNameArr.at(0);
       const lastName = fullNameArr.at(-1);
       return (firstName[0] + lastName[0]).toUpperCase();
     },
   },
-}
-
-
+};
 </script>
