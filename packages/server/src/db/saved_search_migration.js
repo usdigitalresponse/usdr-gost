@@ -1,35 +1,34 @@
-const { getKeywords } = require('.');
 const knex = require('./connection');
+const db = require('./db');
 
 async function main() {
     await knex.transaction(async (trns) => {
         console.log(trns);
-        // get agencies with keywords
-        const allKeywords = await getKeywords();
-        const keywordsByAgency = {};
+        // get all agencies
+        const allAgencies = await knex('agencies');
 
-        for (const keyword of allKeywords) {
-            if (keywordsByAgency[keyword.agency_id] === undefined) {
-                keywordsByAgency[keyword.agency_id] = {
-                    user_ids: [],
-                    keywords: [],
-                };
-            } else {
-                keywordsByAgency[keyword.agency_id].keywords.push(keyword);
+        const agenciesToMigrate = {};
+
+        for (const agency of allAgencies) {
+            const criteria = await db.getAgencyCriteriaForAgency(agency.id); // eslint-disable-line no-await-in-loop
+            if (criteria.eligibilityCodes.length > 0 || criteria.includeKeywords.length > 0 || criteria.excludeKeywords.length > 0) {
+                agenciesToMigrate[agency.id] = { criteria, user_ids: [] };
             }
         }
 
         // get users for these agencies
         const allUsers = await knex('users');
         for (const user of allUsers) {
-            if (keywordsByAgency[user.agency_id] !== undefined) {
-                keywordsByAgency[user.agency_id].user_ids.push(user.id);
+            if (agenciesToMigrate[user.agency_id] !== undefined) {
+                agenciesToMigrate[user.agency_id].user_ids.push(user.id);
+            } else {
+                console.log(`No agency criteria to migrate for user ${user.id}`);
             }
         }
 
         const toInsert = [];
-        for (const [agency_id, details] of Object.entries(keywordsByAgency)) {
-            console.log(agency_id);
+        for (const [agency_id, details] of Object.entries(agenciesToMigrate)) {
+            console.log(agency_id, details);
             for (const keyword of details.keywords) {
                 for (const user_id of details.user_ids) {
                     toInsert.push(
