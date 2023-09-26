@@ -27,6 +27,87 @@ describe('db', () => {
     after(async () => {
         await db.knex.destroy();
     });
+    context('Validate Search Filters', () => {
+        it('throws an error when non-existent option is passed', async () => {
+            const badFilters = {
+                nonExistentFilter: 'non existent values',
+            };
+            const errors = db.validateSearchFilters(badFilters);
+            expect(errors.length).to.equal(1);
+            expect(errors[0]).to.equal('Received invalid filter nonExistentFilter, does not exist');
+        });
+        it('throws an error when List filter-type is not an array', async () => {
+            const badFilters = {
+                reviewStatuses: 'not an array',
+                eligibilityCodes: 99,
+                includeKeywords: { 'non existent values': 'not an array' },
+                excludeKeywords: [99],
+                fundingTypes: new Set('not an array'),
+                opportunityStatuses: ['invalid'],
+                opportunityCategories: 'not an array',
+            };
+            const errors = db.validateSearchFilters(badFilters);
+            expect(errors.length).to.equal(7);
+            expect(errors[0]).to.equal('Received invalid filter reviewStatuses, expected List');
+            expect(errors[1]).to.equal('Received invalid filter eligibilityCodes, expected List');
+            expect(errors[2]).to.equal('Received invalid filter includeKeywords, expected List');
+            expect(errors[3]).to.equal('Received invalid filter excludeKeywords, expected List of String');
+            expect(errors[4]).to.equal('Received invalid filter fundingTypes, expected List');
+            expect(errors[5]).to.equal('Received invalid filter opportunityStatuses, expected List of Enum, found value invalid that is not in posted,forecasted,closed,archived');
+            expect(errors[6]).to.equal('Received invalid filter opportunityCategories, expected List');
+        });
+        it('throws an error when String filter-type is not a string or enum', async () => {
+            const badFilters = {
+                opportunityNumber: 99,
+                costSharing: 'not a yes or no',
+                agencyCode: 99,
+                bill: 99,
+            };
+            const errors = db.validateSearchFilters(badFilters);
+            expect(errors.length).to.equal(4);
+            expect(errors[0]).to.equal('Received invalid filter opportunityNumber, expected String, received 99');
+            expect(errors[1]).to.equal('Received invalid filter costSharing, expected Enum, found value not a yes or no that is not in Yes,No');
+            expect(errors[2]).to.equal('Received invalid filter agencyCode, expected String, received 99');
+            expect(errors[3]).to.equal('Received invalid filter bill, expected String, received 99');
+        });
+        it('throws an error when Number filter-type is not a number', async () => {
+            const badFilters = {
+                postedWithinDays: 'not a number',
+                assignedToAgencyId: 'not a number',
+            };
+            const errors = db.validateSearchFilters(badFilters);
+            expect(errors.length).to.equal(2);
+            expect(errors[0]).to.equal('Received invalid filter postedWithinDays, expected number, received not a number');
+            expect(errors[1]).to.equal('Received invalid filter assignedToAgencyId, expected number, received not a number');
+        });
+        it('throws an error when Date filter-type is not a date', async () => {
+            const badFilters = {
+                openDate: 'not a date',
+            };
+            const errors = db.validateSearchFilters(badFilters);
+            expect(errors.length).to.equal(1);
+            expect(errors[0]).to.equal('Received invalid filter openDate, expected YYYY-MM-DD, received not a date');
+        });
+        it('returns no errors when all filters are valid', async () => {
+            const goodFilters = {
+                reviewStatuses: ['Applied', 'Not Applying', 'Interested'],
+                eligibilityCodes: ['11', '07'],
+                includeKeywords: ['Grant', 'Wetlands Phrase'],
+                excludeKeywords: ['post Doctorate'],
+                opportunityNumber: null,
+                opportunityStatuses: ['archived'],
+                fundingTypes: ['CA', 'G', 'PC', 'O'],
+                opportunityCategories: ['Other', 'Discretionary', 'Mandatory', 'Continuation'],
+                costSharing: 'Yes',
+                agencyCode: 'HHS',
+                postedWithinDays: 30,
+                assignedToAgencyId: 1,
+                bill: 'Infrastructure Investment and Jobs Act',
+            };
+            const errors = db.validateSearchFilters(goodFilters);
+            expect(errors.length).to.equal(0);
+        });
+    });
     context('CRUD Saved Search', () => {
         it('creates a new saved search', async () => {
             const row = await db.createSavedSearch({
@@ -88,6 +169,19 @@ describe('db', () => {
         it('get all user saved searches', async () => {
             const data = await db.getAllUserSavedSearches();
             expect(data.length).to.equal(5);
+            for (const row of data) {
+                expect(() => { JSON.parse(row.criteria); }).not.to.throw();
+            }
+        });
+        it('get all user saved searches for a specific user', async () => {
+            await db.createSavedSearch({
+                name: 'Example search',
+                userId: fixtures.users.subStaffUser.id,
+                criteria: BASIC_SEARCH_CRITERIA,
+            });
+
+            const data = await db.getAllUserSavedSearches(fixtures.users.subStaffUser.id);
+            expect(data.length).to.equal(1);
             for (const row of data) {
                 expect(() => { JSON.parse(row.criteria); }).not.to.throw();
             }
@@ -594,6 +688,22 @@ describe('db', () => {
             await knex(TABLES.grants).insert(Object.values([newGrant]));
             const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
             expect(result.length).to.equal(1);
+        });
+    });
+
+    context('getTotalInterestedGrantsByAgencies', () => {
+        it('returns total interested grants by agencies', async () => {
+            const agencyId = fixtures.users.staffUser.agency_id;
+            const result = await db.getTotalInterestedGrantsByAgencies(agencyId);
+            const agencyResult = result[0];
+            expect(agencyResult.agency_id).to.equal(fixtures.agencies.accountancy.id);
+            expect(agencyResult.interested).to.equal('1');
+            expect(agencyResult.rejections).to.equal('2');
+
+            expect(agencyResult.count).to.equal('4');
+            expect(agencyResult.total_grant_money).to.equal('1506500');
+            expect(agencyResult.total_interested_grant_money).to.equal('500000');
+            expect(agencyResult.total_rejected_grant_money).to.equal('506500');
         });
     });
 

@@ -24,6 +24,7 @@
             </template>
             <b-dropdown-item-button href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
             <b-dropdown-item-button href="#" @click="giveFeedback">Give Feedback</b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="trainingGuide">Training Guide</b-dropdown-item-button>
             <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -102,6 +103,9 @@ export default {
     },
     giveFeedback() {
       window.open('https://usdr.link/grants/feedback');
+    },
+    trainingGuide() {
+      window.open('https://go.usdigitalresponse.org/hubfs/Grants/USDR-Federal-Grants-Finder-User-Guide-Sep2023.pdf', '_blank');
     },
     dismissAlert(alertId) {
       this.$store.commit('alerts/dismissAlert', alertId);

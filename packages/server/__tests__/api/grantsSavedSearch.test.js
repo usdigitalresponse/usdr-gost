@@ -146,6 +146,55 @@ describe('`/api/grants-saved-search` endpoint', () => {
             });
         });
     });
+    context('PUT /grants-saved-search/:id (edit a saved search for an agency)', () => {
+        const savedSearch = {
+            name: `New Search`,
+            criteria: `Sample criteria`,
+        };
+        const idsToDelete = [];
+        before(async () => {
+            const response = await fetchApi(`/grants-saved-search`, agencies.admin.own, {
+                ...fetchOptions.admin,
+                method: 'post',
+                body: JSON.stringify({ ...savedSearch }),
+            });
+            expect(response.statusText).to.equal('OK');
+            const json = await response.json();
+            idsToDelete.push(json.id);
+        });
+        after(async () => {
+            await knex(TABLES.grants_saved_searches).whereIn('id', idsToDelete).del();
+        });
+        it('edit a saved search of this user', async () => {
+            const searchId = createdSearches[0].id;
+            const startTime = new Date();
+            const response = await fetchApi(`/grants-saved-search/${searchId}`, agencies.admin.own, {
+                ...fetchOptions.admin,
+                method: 'put',
+                body: JSON.stringify({
+                    name: 'New Name',
+                    criteria: 'New Criteria',
+                }),
+            });
+
+            expect(response.statusText).to.equal('OK');
+            const json = await response.json();
+            expect(json.name).to.equal('New Name');
+            expect(json.criteria).to.equal('New Criteria');
+            expect(json.id).to.greaterThanOrEqual(searchId);
+            expect(new Date(json.createdAt)).to.lessThanOrEqual(startTime);
+            expect(new Date(json.updatedAt)).to.greaterThanOrEqual(startTime);
+        });
+        it('is forbidden for a saved search of an agency outside this user\'s hierarchy', async () => {
+            const searchId = createdSearches[0].id;
+            const response = await fetchApi(`/grants-saved-search/${searchId}`, agencies.admin.offLimits, {
+                ...fetchOptions.admin,
+                method: 'put',
+                body: JSON.stringify({ ...savedSearch }),
+            });
+            expect(response.statusText).to.equal('Forbidden');
+        });
+    });
     context('DELETE /grants-saved-search/:id (delete a saved search for an agency)', () => {
         context('by an authorized user', () => {
             it('deletes a saved search of this user', async () => {
