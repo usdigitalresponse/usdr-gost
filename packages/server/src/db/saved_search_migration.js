@@ -1,5 +1,5 @@
 const knex = require('./connection');
-const db = require('./db');
+const db = require('.');
 
 async function main() {
     await knex.transaction(async (trns) => {
