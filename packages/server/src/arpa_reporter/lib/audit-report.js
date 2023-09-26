@@ -1,4 +1,5 @@
 const tracer = require('dd-trace');
+const ps = require('node:process');
 const moment = require('moment');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
@@ -13,6 +14,28 @@ const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
 const { useTenantId } = require('../use-request');
+
+const log = (() => {
+    const stickyData = {};
+    return (msg, extra, sticky, clear) => {
+        if (clear === true) {
+            for (const k in sticky) {
+                delete sticky[k];
+            }
+        }
+        extra = extra || {};
+        for (const k in sticky || {}) {
+            stickyData[k] = sticky[k];
+        }
+        for (const k in stickyData) {
+            extra[k] = stickyData[k];
+        }
+        const processStats = { memory: ps.memoryUsage(), cpu: ps.cpuUsage() };
+        console.log(JSON.stringify({
+            usage: 'ARPA investigation', level: 'debug', msg, extra, processStats,
+        }));
+    };
+})();
 
 const COLUMN = {
     EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -82,7 +105,7 @@ async function createObligationSheet(periodId, domain) {
                                 newRow[COLUMN.E_CPE] += record.content.Quarterly_Expenditure_Amt_Aggregates__c;
                                 break;
                             default:
-                                // pass
+                            // pass
                         }
                         return newRow;
                     }, emptyRow);
@@ -202,13 +225,17 @@ async function createKpiDataGroupedByProject(periodId) {
 }
 
 async function generate(requestHost) {
+    log('called generate()');
     return tracer.trace('generate()', async () => {
         const periodId = await getCurrentReportingPeriodID();
+        log('got reporting period ID', {}, { periodId });
         console.log(`generate(${periodId})`);
 
         const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
+        log('determined domain', {}, { domain });
 
         // generate sheets
+        log('generating sheets');
         const [
             obligations,
             projectSummaries,
@@ -220,25 +247,41 @@ async function generate(requestHost) {
             createReportsGroupedByProject(periodId),
             createKpiDataGroupedByProject(periodId),
         ]);
+        log('finished generating sheets');
+        log('composing workbook');
         const workbook = tracer.trace('compose-workbook', () => {
             // compose workbook
             const sheet1 = XLSX.utils.json_to_sheet(obligations, { dateNF: 'MM/DD/YYYY' });
+            log('sheet 1 complete');
             const sheet2 = XLSX.utils.json_to_sheet(projectSummaries, { dateNF: 'MM/DD/YYYY' });
+            log('sheet 2 complete');
             const sheet3 = XLSX.utils.json_to_sheet(projectSummaryGroupedByProject, { dateNF: 'MM/DD/YYYY' });
+            log('sheet 3 complete');
             const sheet4 = XLSX.utils.json_to_sheet(KPIDataGroupedByProject, { dateNF: 'MM/DD/YYYY' });
+            log('sheet 4 complete');
+            log('making new workbook');
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, sheet1, 'Obligations & Expenditures');
+            log('added sheet 1 to workbook');
             XLSX.utils.book_append_sheet(newWorkbook, sheet2, 'Project Summaries');
+            log('added sheet 2 to workbook');
             XLSX.utils.book_append_sheet(newWorkbook, sheet3, 'Project Summaries V2');
+            log('added sheet 3 to workbook');
             XLSX.utils.book_append_sheet(newWorkbook, sheet4, 'KPI');
+            log('added sheet 4 to workbook');
+            log('returning workbook');
             return newWorkbook;
         });
 
+        log('calling XLSX.write()');
         const outputWorkBook = tracer.trace('XLSX.write', () => XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' }));
+        log('XLSX.write() finished');
 
+        const filename = `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`;
+        log('generate() returning', {}, { generatedFilename: filename });
         return {
             periodId,
-            filename: `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`,
+            filename,
             outputWorkBook,
         };
     });
@@ -250,13 +293,18 @@ async function sendEmailWithLink(fileKey, recipientEmail) {
 }
 
 async function generateAndSendEmail(requestHost, recipientEmail) {
+    log('generateAndSendEmail() called', null, null, true);
     const tenantId = useTenantId();
     // Generate the report
+    log('Generating the report', {}, { tenantId });
     const report = await module.exports.generate(requestHost);
+    log('Report generation complete', {});
     // Upload to S3 and send email link
     const reportKey = `${tenantId}/${report.periodId}/${report.filename}`;
+    log('Created report key', null, { reportKey });
 
     const s3 = aws.getS3Client();
+    log('preparing upload');
     const uploadParams = {
         Bucket: process.env.AUDIT_REPORT_BUCKET,
         Key: reportKey,
@@ -265,11 +313,13 @@ async function generateAndSendEmail(requestHost, recipientEmail) {
     };
     try {
         console.log(uploadParams);
+        log('uploading report', { uploadParams });
         await s3.send(new PutObjectCommand(uploadParams));
         await module.exports.sendEmailWithLink(reportKey, recipientEmail);
     } catch (err) {
         console.log(`Failed to upload/email audit report ${err}`);
     }
+    log('generateAndSendEmail() complete', null, null, true);
 }
 
 module.exports = {
