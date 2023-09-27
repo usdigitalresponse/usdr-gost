@@ -717,10 +717,10 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             ELSE 'posted'
             END as opportunity_status
         `))
+        .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams))
         .select(knex.raw(`
             count(*) OVER() AS full_count
         `))
-        .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams))
         .groupBy(
             'grants.grant_id',
             'grants.grant_number',
@@ -750,10 +750,11 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.bill',
         );
 
-    const { full_count } = data[0];
+    const fullCount = data.length > 0 ? data[0].full_count : 0;
+
     const pagination = {
-        total: parseInt(full_count, 10),
-        lastPage: Math.ceil(parseInt(full_count, 10) / parseInt(paginationParams.perPage, 10)),
+        total: parseInt(fullCount, 10),
+        lastPage: Math.ceil(parseInt(fullCount, 10) / parseInt(paginationParams.perPage, 10)),
     };
 
     const dataWithAgency = await enhanceGrantData(tenantId, data);
