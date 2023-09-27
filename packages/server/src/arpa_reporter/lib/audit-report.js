@@ -54,15 +54,32 @@ function getUploadLink(domain, id, filename) {
 }
 
 async function createObligationSheet(periodId, domain) {
+    log('called createObligationSheet()', { periodId, domain, fn: 'createObligationSheet' });
     // select active reporting periods and sort by date
     const reportingPeriods = await getPreviousReportingPeriods(periodId);
+    log('retrieved previous reporting periods', {
+        periodId, domain, reportingPeriods, fn: 'createObligationSheet',
+    });
 
     const rows = await Promise.all(
         reportingPeriods.map(async (period) => {
+            log('creating row for reporting period', { period, fn: 'createObligationSheet' });
             const uploads = await usedForTreasuryExport(period.id);
+            log('retrived uploads for period', { period, fn: 'createObligationSheet' });
             const records = await recordsForReportingPeriod(period.id);
+            log('retrieved records', { period, fn: 'createObligationSheet' });
 
+            log('mapping uploads', { period, fn: 'createObligationSheet' });
             return Promise.all(uploads.map((upload) => {
+                log('initializing empty row', {
+                    period: {
+                        start: period.start_date,
+                        end: period.end_date,
+                        id: period.id,
+                        name: period.name,
+                    },
+                    fn: 'createObligationSheet',
+                });
                 const emptyRow = {
                     'Reporting Period': period.name,
                     'Period End Date': new Date(period.end_date),
@@ -78,9 +95,30 @@ async function createObligationSheet(periodId, domain) {
                     [COLUMN.E_CPE]: 0,
                 };
 
+                log('populating rows from records in upload', {
+                    period: {
+                        start: period.start_date,
+                        end: period.end_date,
+                        id: period.id,
+                        name: period.name,
+                    },
+                    upload: { id: upload.id },
+                    fn: 'createObligationSheet',
+                });
                 const row = records
                     .filter((record) => record.upload.id === upload.id)
                     .reduce((newRow, record) => {
+                        log('determining record type for upload row', {
+                            period: {
+                                start: period.start_date,
+                                end: period.end_date,
+                                id: period.id,
+                                name: period.name,
+                            },
+                            upload: { id: upload.id },
+                            record: { type: record.type },
+                            fn: 'createObligationSheet',
+                        });
                         switch (record.type) {
                             case 'ec1':
                             case 'ec2':
@@ -110,23 +148,63 @@ async function createObligationSheet(periodId, domain) {
                         return newRow;
                     }, emptyRow);
 
+                log('returning populated row', {
+                    period, upload: { id: upload.id }, fn: 'createObligationSheet',
+                });
                 return row;
             }));
         }),
     );
 
+    log('returning flattened rows for sheet', { fn: 'createObligationSheet' });
     return rows.flat();
 }
 
 async function createProjectSummaries(periodId, domain) {
+    log('called createProjectSummaries()', { periodId, domain });
     const records = await mostRecentProjectRecords(periodId);
+    log('retrieved most recent project records', {
+        fn: 'createProjectSummaries', periodId, domain, record_count: records.length,
+    });
 
+    // TODO: inputs does not appear to be used
     const inputs = [];
     records.forEach((r) => inputs.push({ record: r, domain }));
+    log('populated inputs[] for each record', {
+        fn: 'createProjectSummaries', input_count: inputs.length,
+    });
 
+    log('mapping rows from records', { fn: 'createProjectSummaries' });
     const rows = records.map(async (record) => {
+        log('mapping row from record', {
+            fn: 'createProjectSummaries',
+            record: {
+                upload: {
+                    id: record.upload.id,
+                    reporting_period_id: record.upload.reporting_period_id,
+                },
+            },
+        });
         const reportingPeriod = await getReportingPeriod(record.upload.reporting_period_id);
+        log('retrieved reporting period for row mapped from record', {
+            fn: 'createProjectSummaries',
+            record: {
+                upload: {
+                    id: record.upload.id,
+                    reporting_period_id: record.upload.reporting_period_id,
+                },
+            },
+        });
 
+        log('returning row mapped from record', {
+            fn: 'createProjectSummaries',
+            record: {
+                upload: {
+                    id: record.upload.id,
+                    reporting_period_id: record.upload.reporting_period_id,
+                },
+            },
+        });
         return {
             'Project ID': record.content.Project_Identification_Number__c,
             Upload: getUploadLink(domain, record.upload.id, record.upload.filename),
@@ -141,6 +219,7 @@ async function createProjectSummaries(periodId, domain) {
         };
     });
 
+    log('returning Promise.all(rows)', { periodId, domain });
     return Promise.all(rows);
 }
 
@@ -155,14 +234,22 @@ function getRecordsByProject(records) {
 }
 
 async function createReportsGroupedByProject(periodId) {
+    log('called createProjectSummaries()', { periodId });
     const records = await recordsForProject(periodId);
+    log('retrieved records for project', { fn: 'createReportsGroupedByProject', count: records.length });
     const recordsByProject = getRecordsByProject(records);
+    log('organized records by project', { fn: 'createReportsGroupedByProject', count: recordsByProject.length });
     const reportingPeriods = await getAllReportingPeriods();
+    log('retrieved all reporting periods', { fn: 'createReportsGroupedByProject', count: reportingPeriods.length });
 
+    log('mapping each recordsByProject', { fn: 'createReportsGroupedByProject' });
     return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
         const record = projectRecords[0];
 
         // set values for columns that are common across all records of projectId
+        log('setting values for columns that are common across all records of projectId', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
         const row = {
             'Project ID': projectId,
             'Project Description': record.content.Project_Description__c,
@@ -171,9 +258,18 @@ async function createReportsGroupedByProject(periodId) {
         };
 
         // get all reporting periods related to the project
+        log('getting all reporting periods related to the project', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
         const allReportingPeriods = Array.from(new Set(projectRecords.map((r) => r.upload.reporting_period_id)));
+        log('populated allReportingPeriods from projectRecords', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
 
         // initialize the columns in the row
+        log('initializing the columns in the row', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
         allReportingPeriods.forEach((reportingPeriodId) => {
             const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].end_date;
             [
@@ -187,6 +283,9 @@ async function createReportsGroupedByProject(periodId) {
         row['Capital Expenditure Amount'] = 0;
 
         // set values in each column
+        log('setting values in each column', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
         projectRecords.forEach((r) => {
             // for project summaries v2 report
             const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
@@ -197,15 +296,23 @@ async function createReportsGroupedByProject(periodId) {
             row['Capital Expenditure Amount'] += (r.content.Total_Cost_Capital_Expenditure__c || 0);
         });
 
+        log('returning populated row', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
         return row;
     });
 }
 
 async function createKpiDataGroupedByProject(periodId) {
+    log('called createKpiDataGroupedByProject()', { periodId });
     const records = await recordsForProject(periodId);
+    log('retrieved records for project', { fn: 'createKpiDataGroupedByProject', count: records.length });
     const recordsByProject = getRecordsByProject(records);
+    log('organized records by project', { fn: 'createKpiDataGroupedByProject', count: recordsByProject.length });
 
+    log('mapping each recordsByProject', { fn: 'createKpiDataGroupedByProject' });
     return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
+        log('initializing row for project', { fn: 'createKpiDataGroupedByProject', projectId, periodId });
         const row = {
             'Project ID': projectId,
             'Number of Subawards': 0,
@@ -213,6 +320,7 @@ async function createKpiDataGroupedByProject(periodId) {
             'Evidence Based Total Spend': 0,
         };
 
+        log('populating row values from each projectRecords', { fn: 'createKpiDataGroupedByProject', projectId, periodId });
         projectRecords.forEach((r) => {
             const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
             row['Number of Subawards'] += (r.type === 'awards50k');
@@ -220,6 +328,9 @@ async function createKpiDataGroupedByProject(periodId) {
             row['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
         });
 
+        log('returning populated row', {
+            fn: 'createKpiDataGroupedByProject', projectId, periodId,
+        });
         return row;
     });
 }
