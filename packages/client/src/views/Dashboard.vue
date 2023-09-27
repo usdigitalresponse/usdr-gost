@@ -413,7 +413,9 @@ export default {
       fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
     async setup() {
-      this.fetchDashboard();
+      if (this.showStats) {
+        this.fetchDashboard();
+      }
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
       this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
