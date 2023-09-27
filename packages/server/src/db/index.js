@@ -584,7 +584,7 @@ function validateSearchFilters(filters) {
         opportunityNumber: { type: 'String', valueType: 'Any' },
         fundingTypes: { type: 'List', valueType: 'Enum', values: ['CA', 'G', 'PC', 'O'] },
         opportunityStatuses: { type: 'List', valueType: 'Enum', values: ['posted', 'forecasted', 'closed', 'archived'] },
-        opportunityCategories: { type: 'List', valueType: 'Enum', values: ['Other', 'Discretionary', 'Mandatory', 'Continuation'] },
+        opportunityCategories: { type: 'List', valueType: 'Enum', values: ['Other', 'Discretionary', 'Mandatory', 'Continuation', 'Earmark'] },
         costSharing: { type: 'String', valueType: 'Enum', values: ['Yes', 'No'] },
         agencyCode: { type: 'String', valueType: 'Any' },
         postedWithinDays: { type: 'number', valueType: 'Any' },
