@@ -104,7 +104,7 @@
     </b-row>
     <br v-if="!showStats" />
 
-    <b-card title="Total Interested Grants by Agencies">
+    <b-card title="Total Interested Grants by Agencies" v-if="showStats" >
       <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
         <template #cell()="{field, value}">
           <div :style="field.style" v-text="value">

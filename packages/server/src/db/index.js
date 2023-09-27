@@ -717,6 +717,9 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             ELSE 'posted'
             END as opportunity_status
         `))
+        .select(knex.raw(`
+            count(*) OVER() AS full_count
+        `))
         .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams))
         .groupBy(
             'grants.grant_id',
@@ -747,20 +750,10 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.bill',
         );
 
-    const counts = await knex.with('filtered_grants', (qb) => {
-        qb.select([
-            'grants.grant_id',
-            'grants.open_date',
-            'grants.close_date',
-            'grants.archive_date',
-        ]).from('grants')
-            .groupBy('grants.grant_id', 'grants.open_date', 'grants.close_date', 'grants.archive_date');
-        qb.modify((q) => grantsQuery(q, filters, agencyId, { orderBy: undefined }, null));
-    }).countDistinct('filtered_grants.grant_id as total_grants').from('filtered_grants');
-
+    const { full_count } = data[0];
     const pagination = {
-        total: parseInt(counts[0].total_grants, 10),
-        lastPage: Math.ceil(parseInt(counts[0].total_grants, 10) / parseInt(paginationParams.perPage, 10)),
+        total: parseInt(full_count, 10),
+        lastPage: Math.ceil(parseInt(full_count, 10) / parseInt(paginationParams.perPage, 10)),
     };
 
     const dataWithAgency = await enhanceGrantData(tenantId, data);
