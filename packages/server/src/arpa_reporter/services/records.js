@@ -190,7 +190,7 @@ async function recordsForUpload(upload) {
 }
 
 async function recordsForReportingPeriod(periodId) {
-    console.log(`recordsForReportingPeriod(${periodId})`);
+    log(`recordsForReportingPeriod(${periodId})`);
     requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod');
 
     const uploads = await usedForTreasuryExport(periodId);

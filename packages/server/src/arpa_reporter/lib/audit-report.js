@@ -245,6 +245,9 @@ async function getCache(periodId, domain, tenantId = null, force = false) {
     // check if the cache file exists. if not, let's generate it
     const reportingPeriods = await getPreviousReportingPeriods(periodId);
     const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
+    if (previousReportingPeriods.length === 0) {
+        return { };
+    }
     const mostRecentPreviousReportingPeriod = previousReportingPeriods
         .reduce((a, b) => (a.id > b.id ? a : b));
     const cacheFilename = cacheFSName(mostRecentPreviousReportingPeriod, tenantId);
@@ -274,10 +277,22 @@ async function generate(requestHost, cache = true) {
             ? await module.exports.getCache(periodId, domain)
             : generateEmptySheets();
         const dataAfter = await module.exports.generateSheets(periodId, domain, !cache);
-        const obligations = [...dataBefore.obligations, ...dataAfter.obligations];
-        const projectSummaries = [...dataBefore.projectSummaries, ...dataAfter.projectSummaries].sort((a, b) => a['Project ID'] - b['Project ID']);
-        const projectSummaryGroupedByProject = [...dataBefore.projectSummaryGroupedByProject, ...dataAfter.projectSummaryGroupedByProject].sort((a, b) => a['Project ID'] - b['Project ID']);
-        const KPIDataGroupedByProject = [...dataBefore.KPIDataGroupedByProject, ...dataAfter.KPIDataGroupedByProject].sort((a, b) => a['Project ID'] - b['Project ID']);
+        const obligations = [
+            ...(dataBefore?.obligations ?? []),
+            ...dataAfter.obligations,
+        ];
+        const projectSummaries = [
+            ...(dataBefore?.projectSummaries ?? []),
+            ...(dataAfter?.projectSummaries ?? []),
+        ].sort((a, b) => a['Project ID'] - b['Project ID']);
+        const projectSummaryGroupedByProject = [
+            ...(dataBefore?.projectSummaryGroupedByProject ?? []),
+            ...(dataAfter?.projectSummaryGroupedByProject ?? []),
+        ].sort((a, b) => a['Project ID'] - b['Project ID']);
+        const KPIDataGroupedByProject = [
+            ...(dataBefore?.KPIDataGroupedByProject ?? []),
+            ...(dataAfter?.KPIDataGroupedByProject ?? []),
+        ].sort((a, b) => a['Project ID'] - b['Project ID']);
 
         const workbook = tracer.trace('compose-workbook', () => {
             // compose workbook
