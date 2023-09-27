@@ -691,6 +691,22 @@ describe('db', () => {
         });
     });
 
+    context('getTotalInterestedGrantsByAgencies', () => {
+        it('returns total interested grants by agencies', async () => {
+            const agencyId = fixtures.users.staffUser.agency_id;
+            const result = await db.getTotalInterestedGrantsByAgencies(agencyId);
+            const agencyResult = result[0];
+            expect(agencyResult.agency_id).to.equal(fixtures.agencies.accountancy.id);
+            expect(agencyResult.interested).to.equal('1');
+            expect(agencyResult.rejections).to.equal('2');
+
+            expect(agencyResult.count).to.equal('4');
+            expect(agencyResult.total_grant_money).to.equal('1506500');
+            expect(agencyResult.total_interested_grant_money).to.equal('500000');
+            expect(agencyResult.total_rejected_grant_money).to.equal('506500');
+        });
+    });
+
     context('createUser', () => {
         it('sets default email unsubuscribe when new users are created', async () => {
             const response = await db.createUser(
