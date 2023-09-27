@@ -62,13 +62,15 @@ describe('db', () => {
                 costSharing: 'not a yes or no',
                 agencyCode: 99,
                 bill: 99,
+                opportunityCategories: ['Earmark', 'foo'],
             };
             const errors = db.validateSearchFilters(badFilters);
-            expect(errors.length).to.equal(4);
+            expect(errors.length).to.equal(5);
             expect(errors[0]).to.equal('Received invalid filter opportunityNumber, expected String, received 99');
             expect(errors[1]).to.equal('Received invalid filter costSharing, expected Enum, found value not a yes or no that is not in Yes,No');
             expect(errors[2]).to.equal('Received invalid filter agencyCode, expected String, received 99');
             expect(errors[3]).to.equal('Received invalid filter bill, expected String, received 99');
+            expect(errors[4]).to.equal('Received invalid filter opportunityCategories, expected List of Enum, found value foo that is not in Other,Discretionary,Mandatory,Continuation,Earmark');
         });
         it('throws an error when Number filter-type is not a number', async () => {
             const badFilters = {
