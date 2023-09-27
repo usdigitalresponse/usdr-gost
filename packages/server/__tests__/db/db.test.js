@@ -5,6 +5,7 @@ const db = require('../../src/db');
 const { TABLES } = require('../../src/db/constants');
 const fixtures = require('./seeds/fixtures');
 const emailConstants = require('../../src/lib/email/constants');
+const { migrate_keywords_to_saved_search } = require('../../src/db/saved_search_migration');
 
 const BASIC_SEARCH_CRITERIA = JSON.stringify({
     includeKeywords: 'Grant',
@@ -26,6 +27,11 @@ describe('db', () => {
 
     after(async () => {
         await db.knex.destroy();
+    });
+    context('migrate keywords to saved search', () => {
+        it('migrates keywords to saved search', async () => {
+            await migrate_keywords_to_saved_search();
+        });
     });
     context('Validate Search Filters', () => {
         it('throws an error when non-existent option is passed', async () => {
