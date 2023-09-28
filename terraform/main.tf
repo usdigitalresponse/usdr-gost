@@ -236,13 +236,9 @@ module "arpa_audit_report" {
   unified_service_tags  = local.unified_service_tags
   stop_timeout_seconds  = 120
   consumer_task_command = ["node", "./src/scripts/arpaAuditReport.js"]
-  consumer_task_size = {
-    cpu    = 512
-    memory = 2048
-  }
   consumer_container_environment = {
     DATA_DIR            = "/var/data"
-    NODE_OPTIONS        = "--max_old_space_size=1024"
+    NODE_OPTIONS        = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
     NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
     WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
   }
@@ -255,6 +251,14 @@ module "arpa_audit_report" {
   }]
   additional_task_role_json_policies = {
     rw-audit-reports-bucket = data.aws_iam_policy_document.arpa_audit_report_rw_reports_bucket.json
+  }
+
+  # Task resource configuration
+  # TODO: Tune these values after observing usage in different environments.
+  #       See also: --max_old_space_size in NODE_OPTIONS env var.
+  consumer_task_size = {
+    cpu    = 1024 # 1 vCPU
+    memory = 4096 # 4 GB
   }
 
   # Messaging
