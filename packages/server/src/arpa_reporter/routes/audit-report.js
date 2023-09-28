@@ -50,9 +50,9 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
 router.get('/', requireUser, async (req, res) => {
     console.log('/api/audit-report GET');
 
-    if (req.query.async) {
-        // Special handling for async audit report generation and sending.
-        console.log('/api/audit-report?async=true GET');
+    if (req.query.queue) {
+        // Special handling for deferring audit report generation and sending to a task queue
+        console.log('/api/audit-report?queue=true GET');
         console.log('Generating Async audit report');
         try {
             const user = useUser();
@@ -61,6 +61,22 @@ router.get('/', requireUser, async (req, res) => {
                 QueueUrl: process.env.ARPA_AUDIT_REPORT_SQS_QUEUE_URL,
                 MessageBody: JSON.stringify({ userId: user.userId }),
             }));
+            res.json({ success: true });
+            return;
+        } catch (error) {
+            console.log(`Failed to generate and send audit report ${error}`);
+            res.status(500).json({ error: 'Unable to generate audit report and send email.' });
+            return;
+        }
+    }
+
+    if (req.query.async) {
+        // Special handling for async audit report generation and sending.
+        console.log('/api/audit-report?async=true GET');
+        console.log('Generating Async audit report');
+        try {
+            const user = useUser();
+            audit_report.generateAndSendEmail(req.headers.host, user.email);
             res.json({ success: true });
             return;
         } catch (error) {
