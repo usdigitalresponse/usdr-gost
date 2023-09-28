@@ -12,7 +12,7 @@ async function main() {
     module.exports.log(`${dryRunStr}Begin migrating legacy agency criteria to saved searches`);
 
     await knex.transaction(async (trns) => {
-        const allAgencies = await trns('agencies');
+        const allAgencies = await trns('agencies').orderBy('id');
         const allEligibilityCodesRes = await trns(`eligibility_codes`).orderBy('code');
         const allEligibilityCodesStr = allEligibilityCodesRes.map((ec) => ec.code).toString();
         const allEligibilityCodesByCode = {};
