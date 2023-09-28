@@ -80,7 +80,7 @@ async function main() {
         }
 
         // If agency belongs in the migration list, then populate its user_ids
-        const usersByAgencyId = await trns('users').select(knex.raw(`users.agency_id, array_agg(users.id) as user_ids`)).groupBy('users.agency_id');
+        const usersByAgencyId = await trns('users').select(knex.raw(`users.agency_id, array_agg(users.id) as user_ids`)).groupBy('users.agency_id').orderBy('users.agency_id');
         for (const { agency_id, user_ids } of usersByAgencyId) {
             if (agenciesToMigrate[agency_id] !== undefined) {
                 agenciesToMigrate[agency_id].user_ids = user_ids;
