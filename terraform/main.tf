@@ -268,6 +268,7 @@ module "arpa_audit_report" {
     principal_identifier = "ecs-tasks.amazonaws.com"
     source_arn           = module.api.ecs_service_arn
   }
+  sqs_max_receive_count = 2
 
   # Logging
   log_retention = var.api_log_retention_in_days
