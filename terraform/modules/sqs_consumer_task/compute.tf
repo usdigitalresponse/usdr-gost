@@ -37,6 +37,10 @@ module "consumer_container_definition" {
   stop_timeout             = var.stop_timeout_seconds
   command                  = var.consumer_task_command
 
+  container_cpu                = var.consumer_container_resources.cpu
+  container_memory             = var.consumer_container_resources.hard_memory_limit
+  container_memory_reservation = var.consumer_container_resources.memory_reservation
+
   container_depends_on = [{
     containerName = "datadog"
     condition     = "START"
@@ -97,6 +101,10 @@ module "datadog_container_definition" {
   essential                = false
   readonly_root_filesystem = "false"
   stop_timeout             = var.stop_timeout_seconds
+
+  container_cpu                = var.datadog_container_resources.cpu
+  container_memory             = var.datadog_container_resources.hard_memory_limit
+  container_memory_reservation = var.datadog_container_resources.memory_reservation
 
   map_environment = merge(
     {

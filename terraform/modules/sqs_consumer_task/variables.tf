@@ -76,6 +76,26 @@ variable "consumer_task_size" {
   }
 }
 
+variable "consumer_container_resources" {
+  description = "Compute resource limits and reservations for the consumer container. Use with caution."
+  type = object({
+    cpu                = optional(number)
+    hard_memory_limit  = optional(number)
+    memory_reservation = optional(number)
+  })
+  default = {}
+}
+
+variable "datadog_container_resources" {
+  description = "Compute resource limits and reservations for the Datadog container. Use with caution."
+  type = object({
+    cpu                = optional(number)
+    hard_memory_limit  = optional(number)
+    memory_reservation = optional(number)
+  })
+  default = {}
+}
+
 variable "additional_task_role_json_policies" {
   description = "Mapping of JSON-encoded IAM policy documents, keyed by policy name, to add as inline policies on the ECS task role."
   type        = map(string)
