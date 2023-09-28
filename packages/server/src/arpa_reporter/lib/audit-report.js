@@ -404,9 +404,9 @@ async function sendEmailWithLink(fileKey, recipientEmail) {
     email.sendAsyncReportEmail(recipientEmail, url, email.ASYNC_REPORT_TYPES.audit);
 }
 
-async function generateAndSendEmail(requestHost, recipientEmail) {
-    log('generateAndSendEmail() called', null, null, true);
-    const tenantId = useTenantId();
+async function generateAndSendEmail(requestHost, recipientEmail, tenantId) {
+    log('generateAndSendEmail() called', { tenantId }, null, true);
+    tenantId = tenantId ?? useTenantId();
     // Generate the report
     log('Generating the report', {}, { tenantId });
     const report = await module.exports.generate(requestHost);
@@ -445,7 +445,7 @@ async function processSQSMessageRequest(message) {
 
     try {
         const user = await getUser(requestData.userId);
-        generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email);
+        generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id);
     } catch (e) {
         console.error('Failed to generate and send audit report', e);
         return false;
