@@ -14,6 +14,7 @@ const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
 const { useTenantId } = require('../use-request');
+const { getUser } = require('../../db');
 
 const log = (() => {
     const stickyData = {};
@@ -433,9 +434,30 @@ async function generateAndSendEmail(requestHost, recipientEmail) {
     log('generateAndSendEmail() complete', null, null, true);
 }
 
+async function processSQSMessageRequest(message) {
+    let requestData;
+    try {
+        requestData = JSON.parse(message.Body).detail;
+    } catch (e) {
+        console.error('Error parsing request data from SQS message:', e);
+        return false;
+    }
+
+    try {
+        const user = await getUser(requestData.userId);
+        generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email);
+    } catch (e) {
+        console.error('Failed to generate and send audit report', e);
+        return false;
+    }
+
+    return true;
+}
+
 module.exports = {
     generate,
     generateAndSendEmail,
+    processSQSMessageRequest,
     sendEmailWithLink,
 };
 
