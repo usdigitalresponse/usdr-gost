@@ -258,7 +258,7 @@ async function sendGrantDigest({
 async function getAndSendGrantForSavedSearch({
     userSavedSearch, openDate,
 }) {
-    const criteriaObj = JSON.parse(userSavedSearch.criteria);
+    const criteriaObj = db.formatSearchCriteriaToQueryFilters(userSavedSearch.criteria);
 
     // NOTE: can't pass this as a separate parameter as it exceeds the complexity limit of 5
     criteriaObj.openDate = openDate;
@@ -283,7 +283,7 @@ async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
     if (!openDate) {
         openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
     }
-    console.log(`Building and sending Grants Digest email for ${userId} agencies on ${openDate}`);
+    console.log(`Building and sending Grants Digest email for user: ${userId} on ${openDate}`);
     /*
     1. get all saved searches mapped to each user
     2. call getAndSendGrantForSavedSearch to find new grants and send the digest

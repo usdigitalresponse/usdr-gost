@@ -35,16 +35,13 @@ function baseQuery(trns) {
         .leftJoin('users', 'reporting_periods.certified_by', 'users.id');
 }
 
-async function getAllReportingPeriods(trns = knex) {
-    const tenantId = useTenantId();
+async function getAllReportingPeriods(trns = knex, tenantId = useTenantId()) {
     return baseQuery(trns).where('reporting_periods.tenant_id', tenantId).orderBy('end_date', 'desc');
 }
 
 /* getReportingPeriod() returns a record from the reporting_periods table.
   */
-async function getReportingPeriod(period_id = undefined, trns = knex) {
-    const tenantId = useTenantId();
-
+async function getReportingPeriod(period_id = undefined, trns = knex, tenantId = useTenantId()) {
     if (period_id && Number(period_id)) {
         return baseQuery(trns)
             .where('reporting_periods.tenant_id', tenantId)
@@ -63,8 +60,8 @@ async function getReportingPeriod(period_id = undefined, trns = knex) {
 /*  getPeriodID() returns the argument unchanged unless it is falsy, in which
   case it returns the current reporting period ID.
   */
-async function getReportingPeriodID(periodID) {
-    return Number(periodID) || getCurrentReportingPeriodID();
+async function getReportingPeriodID(periodID, tenantId = useTenantId()) {
+    return Number(periodID) || getCurrentReportingPeriodID(undefined, tenantId);
 }
 
 /**
@@ -73,9 +70,9 @@ async function getReportingPeriodID(periodID) {
  *
  * @returns The matching reporting periods, sorted from oldest to newest by date
  */
-async function getPreviousReportingPeriods(period_id, trns = knex) {
-    const currentReportingPeriod = await getReportingPeriod(period_id, trns);
-    const allReportingPeriods = await getAllReportingPeriods(trns);
+async function getPreviousReportingPeriods(period_id, trns = knex, tenantId) {
+    const currentReportingPeriod = await getReportingPeriod(period_id, trns, tenantId);
+    const allReportingPeriods = await getAllReportingPeriods(trns, tenantId);
     const reportingPeriods = allReportingPeriods.filter(
         (period) => new Date(period.end_date) <= new Date(currentReportingPeriod.end_date),
     );
@@ -83,14 +80,12 @@ async function getPreviousReportingPeriods(period_id, trns = knex) {
     return reportingPeriods;
 }
 
-async function closeReportingPeriod(period, trns = knex) {
-    const { user } = useRequest().session;
-    const tenantId = useTenantId();
+async function closeReportingPeriod(period, trns = knex, user = useRequest().session.user) {
     if (user.tenant_id !== period.tenant_id) {
         throw new Error('user cannot close reporting period of a different tenant');
     }
 
-    const currentPeriodID = await getCurrentReportingPeriodID(trns);
+    const currentPeriodID = await getCurrentReportingPeriodID(trns, user.tenant_id);
 
     if (period.id !== currentPeriodID) {
         throw new Error(
@@ -105,7 +100,7 @@ async function closeReportingPeriod(period, trns = knex) {
     }
 
     const prior = await trns('reporting_periods')
-        .where('tenant_id', tenantId)
+        .where('tenant_id', user.tenant_id)
         .where('start_date', '<', period.start_date)
         .orderBy('start_date', 'desc')
         .limit(1)
@@ -134,18 +129,16 @@ async function closeReportingPeriod(period, trns = knex) {
         });
 
     const next = await trns('reporting_periods')
-        .where('tenant_id', tenantId)
+        .where('tenant_id', user.tenant_id)
         .where('start_date', '>', period.start_date)
         .orderBy('start_date', 'asc')
         .limit(1)
         .then((rows) => rows[0]);
 
-    await setCurrentReportingPeriod(next.id, trns);
+    await setCurrentReportingPeriod(next.id, trns, user.tenant_id);
 }
 
-async function createReportingPeriod(reportingPeriod, trns = knex) {
-    const tenantId = useTenantId();
-
+async function createReportingPeriod(reportingPeriod, trns = knex, tenantId = useTenantId()) {
     return trns
         .insert({ ...reportingPeriod, tenant_id: tenantId })
         .into('reporting_periods')

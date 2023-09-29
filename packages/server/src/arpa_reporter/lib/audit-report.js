@@ -1,4 +1,5 @@
 const tracer = require('dd-trace');
+const ps = require('node:process');
 const moment = require('moment');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
@@ -13,6 +14,29 @@ const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
 const { useTenantId } = require('../use-request');
+const { getUser } = require('../../db');
+
+const log = (() => {
+    const stickyData = {};
+    return (msg, extra, sticky, clear) => {
+        if (clear === true) {
+            for (const k in sticky) {
+                delete sticky[k];
+            }
+        }
+        extra = extra || {};
+        for (const k in sticky || {}) {
+            stickyData[k] = sticky[k];
+        }
+        for (const k in stickyData) {
+            extra[k] = stickyData[k];
+        }
+        const processStats = { memory: ps.memoryUsage(), cpu: ps.cpuUsage() };
+        console.log(JSON.stringify({
+            usage: 'ARPA investigation', level: 'debug', msg, extra, processStats,
+        }));
+    };
+})();
 
 const COLUMN = {
     EC_BUDGET: 'Adopted Budget (EC tabs)',
@@ -30,16 +54,33 @@ function getUploadLink(domain, id, filename) {
     return { f: `=HYPERLINK("${domain}/uploads/${id}","${filename}")` };
 }
 
-async function createObligationSheet(periodId, domain) {
+async function createObligationSheet(periodId, domain, tenantId) {
+    log('called createObligationSheet()', { periodId, domain, fn: 'createObligationSheet' });
     // select active reporting periods and sort by date
-    const reportingPeriods = await getPreviousReportingPeriods(periodId);
+    const reportingPeriods = await getPreviousReportingPeriods(periodId, undefined, tenantId);
+    log('retrieved previous reporting periods', {
+        periodId, domain, reportingPeriods, fn: 'createObligationSheet',
+    });
 
     const rows = await Promise.all(
         reportingPeriods.map(async (period) => {
-            const uploads = await usedForTreasuryExport(period.id);
-            const records = await recordsForReportingPeriod(period.id);
+            log('creating row for reporting period', { period, fn: 'createObligationSheet' });
+            const uploads = await usedForTreasuryExport(period.id, tenantId);
+            log('retrived uploads for period', { period, fn: 'createObligationSheet' });
+            const records = await recordsForReportingPeriod(period.id, tenantId);
+            log('retrieved records', { period, fn: 'createObligationSheet' });
 
+            log('mapping uploads', { period, fn: 'createObligationSheet' });
             return Promise.all(uploads.map((upload) => {
+                log('initializing empty row', {
+                    period: {
+                        start: period.start_date,
+                        end: period.end_date,
+                        id: period.id,
+                        name: period.name,
+                    },
+                    fn: 'createObligationSheet',
+                });
                 const emptyRow = {
                     'Reporting Period': period.name,
                     'Period End Date': new Date(period.end_date),
@@ -55,9 +96,30 @@ async function createObligationSheet(periodId, domain) {
                     [COLUMN.E_CPE]: 0,
                 };
 
+                log('populating rows from records in upload', {
+                    period: {
+                        start: period.start_date,
+                        end: period.end_date,
+                        id: period.id,
+                        name: period.name,
+                    },
+                    upload: { id: upload.id },
+                    fn: 'createObligationSheet',
+                });
                 const row = records
                     .filter((record) => record.upload.id === upload.id)
                     .reduce((newRow, record) => {
+                        log('determining record type for upload row', {
+                            period: {
+                                start: period.start_date,
+                                end: period.end_date,
+                                id: period.id,
+                                name: period.name,
+                            },
+                            upload: { id: upload.id },
+                            record: { type: record.type },
+                            fn: 'createObligationSheet',
+                        });
                         switch (record.type) {
                             case 'ec1':
                             case 'ec2':
@@ -82,28 +144,70 @@ async function createObligationSheet(periodId, domain) {
                                 newRow[COLUMN.E_CPE] += record.content.Quarterly_Expenditure_Amt_Aggregates__c;
                                 break;
                             default:
-                                // pass
+                            // pass
                         }
                         return newRow;
                     }, emptyRow);
 
+                log('returning populated row', {
+                    period, upload: { id: upload.id }, fn: 'createObligationSheet',
+                });
                 return row;
             }));
         }),
     );
 
+    log('returning flattened rows for sheet', { fn: 'createObligationSheet' });
     return rows.flat();
 }
 
-async function createProjectSummaries(periodId, domain) {
-    const records = await mostRecentProjectRecords(periodId);
+async function createProjectSummaries(periodId, domain, tenantId) {
+    log('called createProjectSummaries()', { periodId, domain });
+    const records = await mostRecentProjectRecords(periodId, tenantId);
+    log('retrieved most recent project records', {
+        fn: 'createProjectSummaries', periodId, domain, record_count: records.length,
+    });
 
+    // TODO: inputs does not appear to be used
     const inputs = [];
     records.forEach((r) => inputs.push({ record: r, domain }));
+    log('populated inputs[] for each record', {
+        fn: 'createProjectSummaries', input_count: inputs.length,
+    });
 
+    log('mapping rows from records', { fn: 'createProjectSummaries' });
     const rows = records.map(async (record) => {
-        const reportingPeriod = await getReportingPeriod(record.upload.reporting_period_id);
+        log('mapping row from record', {
+            fn: 'createProjectSummaries',
+            record: {
+                upload: {
+                    id: record.upload.id,
+                    reporting_period_id: record.upload.reporting_period_id,
+                },
+            },
+        });
+        const reportingPeriod = await getReportingPeriod(
+            record.upload.reporting_period_id, undefined, tenantId,
+        );
+        log('retrieved reporting period for row mapped from record', {
+            fn: 'createProjectSummaries',
+            record: {
+                upload: {
+                    id: record.upload.id,
+                    reporting_period_id: record.upload.reporting_period_id,
+                },
+            },
+        });
 
+        log('returning row mapped from record', {
+            fn: 'createProjectSummaries',
+            record: {
+                upload: {
+                    id: record.upload.id,
+                    reporting_period_id: record.upload.reporting_period_id,
+                },
+            },
+        });
         return {
             'Project ID': record.content.Project_Identification_Number__c,
             Upload: getUploadLink(domain, record.upload.id, record.upload.filename),
@@ -118,6 +222,7 @@ async function createProjectSummaries(periodId, domain) {
         };
     });
 
+    log('returning Promise.all(rows)', { periodId, domain });
     return Promise.all(rows);
 }
 
@@ -131,15 +236,23 @@ function getRecordsByProject(records) {
     }, {});
 }
 
-async function createReportsGroupedByProject(periodId) {
-    const records = await recordsForProject(periodId);
+async function createReportsGroupedByProject(periodId, tenantId) {
+    log('called createProjectSummaries()', { periodId });
+    const records = await recordsForProject(periodId, tenantId);
+    log('retrieved records for project', { fn: 'createReportsGroupedByProject', count: records.length });
     const recordsByProject = getRecordsByProject(records);
-    const reportingPeriods = await getAllReportingPeriods();
+    log('organized records by project', { fn: 'createReportsGroupedByProject', count: recordsByProject.length });
+    const reportingPeriods = await getAllReportingPeriods(undefined, tenantId);
+    log('retrieved all reporting periods', { fn: 'createReportsGroupedByProject', count: reportingPeriods.length });
 
+    log('mapping each recordsByProject', { fn: 'createReportsGroupedByProject' });
     return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
         const record = projectRecords[0];
 
         // set values for columns that are common across all records of projectId
+        log('setting values for columns that are common across all records of projectId', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
         const row = {
             'Project ID': projectId,
             'Project Description': record.content.Project_Description__c,
@@ -148,9 +261,18 @@ async function createReportsGroupedByProject(periodId) {
         };
 
         // get all reporting periods related to the project
+        log('getting all reporting periods related to the project', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
         const allReportingPeriods = Array.from(new Set(projectRecords.map((r) => r.upload.reporting_period_id)));
+        log('populated allReportingPeriods from projectRecords', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
 
         // initialize the columns in the row
+        log('initializing the columns in the row', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
         allReportingPeriods.forEach((reportingPeriodId) => {
             const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].end_date;
             [
@@ -164,6 +286,9 @@ async function createReportsGroupedByProject(periodId) {
         row['Capital Expenditure Amount'] = 0;
 
         // set values in each column
+        log('setting values in each column', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
         projectRecords.forEach((r) => {
             // for project summaries v2 report
             const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
@@ -174,15 +299,23 @@ async function createReportsGroupedByProject(periodId) {
             row['Capital Expenditure Amount'] += (r.content.Total_Cost_Capital_Expenditure__c || 0);
         });
 
+        log('returning populated row', {
+            fn: 'createReportsGroupedByProject', projectId,
+        });
         return row;
     });
 }
 
-async function createKpiDataGroupedByProject(periodId) {
-    const records = await recordsForProject(periodId);
+async function createKpiDataGroupedByProject(periodId, tenantId) {
+    log('called createKpiDataGroupedByProject()', { periodId });
+    const records = await recordsForProject(periodId, tenantId);
+    log('retrieved records for project', { fn: 'createKpiDataGroupedByProject', count: records.length });
     const recordsByProject = getRecordsByProject(records);
+    log('organized records by project', { fn: 'createKpiDataGroupedByProject', count: recordsByProject.length });
 
+    log('mapping each recordsByProject', { fn: 'createKpiDataGroupedByProject' });
     return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
+        log('initializing row for project', { fn: 'createKpiDataGroupedByProject', projectId, periodId });
         const row = {
             'Project ID': projectId,
             'Number of Subawards': 0,
@@ -190,6 +323,7 @@ async function createKpiDataGroupedByProject(periodId) {
             'Evidence Based Total Spend': 0,
         };
 
+        log('populating row values from each projectRecords', { fn: 'createKpiDataGroupedByProject', projectId, periodId });
         projectRecords.forEach((r) => {
             const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
             row['Number of Subawards'] += (r.type === 'awards50k');
@@ -197,48 +331,81 @@ async function createKpiDataGroupedByProject(periodId) {
             row['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
         });
 
+        log('returning populated row', {
+            fn: 'createKpiDataGroupedByProject', projectId, periodId,
+        });
         return row;
     });
 }
 
-async function generate(requestHost) {
+async function generate(requestHost, tenantId) {
+    log('called generate()');
     return tracer.trace('generate()', async () => {
-        const periodId = await getCurrentReportingPeriodID();
+        const periodId = await getCurrentReportingPeriodID(undefined, tenantId);
+        log('got reporting period ID', {}, { periodId });
         console.log(`generate(${periodId})`);
 
         const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
+        log('determined domain', {}, { domain });
 
         // generate sheets
+        log('generating sheets');
         const [
             obligations,
             projectSummaries,
             projectSummaryGroupedByProject,
             KPIDataGroupedByProject,
         ] = await Promise.all([
-            createObligationSheet(periodId, domain),
-            createProjectSummaries(periodId, domain),
-            createReportsGroupedByProject(periodId),
-            createKpiDataGroupedByProject(periodId),
+            createObligationSheet(periodId, domain, tenantId),
+            createProjectSummaries(periodId, domain, tenantId),
+            createReportsGroupedByProject(periodId, tenantId),
+            createKpiDataGroupedByProject(periodId, tenantId),
         ]);
+        log('finished generating sheets');
+        log('composing workbook');
         const workbook = tracer.trace('compose-workbook', () => {
             // compose workbook
-            const sheet1 = XLSX.utils.json_to_sheet(obligations, { dateNF: 'MM/DD/YYYY' });
-            const sheet2 = XLSX.utils.json_to_sheet(projectSummaries, { dateNF: 'MM/DD/YYYY' });
-            const sheet3 = XLSX.utils.json_to_sheet(projectSummaryGroupedByProject, { dateNF: 'MM/DD/YYYY' });
-            const sheet4 = XLSX.utils.json_to_sheet(KPIDataGroupedByProject, { dateNF: 'MM/DD/YYYY' });
+            const sheet1 = XLSX.utils.json_to_sheet(obligations, {
+                dateNF: 'MM/DD/YYYY',
+            });
+            log('sheet 1 complete');
+            const sheet2 = XLSX.utils.json_to_sheet(projectSummaries, {
+                dateNF: 'MM/DD/YYYY',
+            });
+            log('sheet 2 complete');
+            const sheet3 = XLSX.utils.json_to_sheet(projectSummaryGroupedByProject, {
+                dateNF: 'MM/DD/YYYY',
+            });
+            log('sheet 3 complete');
+            const sheet4 = XLSX.utils.json_to_sheet(KPIDataGroupedByProject, {
+                dateNF: 'MM/DD/YYYY',
+            });
+            log('sheet 4 complete');
+            log('making new workbook');
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, sheet1, 'Obligations & Expenditures');
+            log('added sheet 1 to workbook');
             XLSX.utils.book_append_sheet(newWorkbook, sheet2, 'Project Summaries');
+            log('added sheet 2 to workbook');
             XLSX.utils.book_append_sheet(newWorkbook, sheet3, 'Project Summaries V2');
+            log('added sheet 3 to workbook');
             XLSX.utils.book_append_sheet(newWorkbook, sheet4, 'KPI');
+            log('added sheet 4 to workbook');
+            log('returning workbook');
             return newWorkbook;
         });
 
-        const outputWorkBook = tracer.trace('XLSX.write', () => XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' }));
+        log('calling XLSX.write()');
+        const outputWorkBook = tracer.trace('XLSX.write', () => XLSX.write(workbook, {
+            bookType: 'xlsx', type: 'buffer',
+        }));
+        log('XLSX.write() finished');
 
+        const filename = `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`;
+        log('generate() returning', {}, { generatedFilename: filename });
         return {
             periodId,
-            filename: `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`,
+            filename,
             outputWorkBook,
         };
     });
@@ -249,14 +416,18 @@ async function sendEmailWithLink(fileKey, recipientEmail) {
     email.sendAsyncReportEmail(recipientEmail, url, email.ASYNC_REPORT_TYPES.audit);
 }
 
-async function generateAndSendEmail(requestHost, recipientEmail) {
-    const tenantId = useTenantId();
+async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useTenantId()) {
+    log('generateAndSendEmail() called', null, { tenantId }, true);
     // Generate the report
-    const report = await module.exports.generate(requestHost);
+    log('Generating the report');
+    const report = await module.exports.generate(requestHost, tenantId);
+    log('Report generation complete', {});
     // Upload to S3 and send email link
     const reportKey = `${tenantId}/${report.periodId}/${report.filename}`;
+    log('Created report key', null, { reportKey });
 
     const s3 = aws.getS3Client();
+    log('preparing upload');
     const uploadParams = {
         Bucket: process.env.AUDIT_REPORT_BUCKET,
         Key: reportKey,
@@ -265,16 +436,39 @@ async function generateAndSendEmail(requestHost, recipientEmail) {
     };
     try {
         console.log(uploadParams);
+        log('uploading report', { uploadParams });
         await s3.send(new PutObjectCommand(uploadParams));
         await module.exports.sendEmailWithLink(reportKey, recipientEmail);
     } catch (err) {
         console.log(`Failed to upload/email audit report ${err}`);
     }
+    log('generateAndSendEmail() complete', null, null, true);
+}
+
+async function processSQSMessageRequest(message) {
+    let requestData;
+    try {
+        requestData = JSON.parse(message.Body).detail;
+    } catch (e) {
+        console.error('Error parsing request data from SQS message:', e);
+        return false;
+    }
+
+    try {
+        const user = await getUser(requestData.userId);
+        generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id);
+    } catch (e) {
+        console.error('Failed to generate and send audit report', e);
+        return false;
+    }
+
+    return true;
 }
 
 module.exports = {
     generate,
     generateAndSendEmail,
+    processSQSMessageRequest,
     sendEmailWithLink,
 };
 

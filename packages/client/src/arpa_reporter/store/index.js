@@ -175,7 +175,7 @@ export default new Vuex.Store({
       ]);
     },
     async logout({ commit }) {
-      await get(apiURL('/api/sessions/logout'));
+      await get('/api/sessions/logout');
       commit('setUser', null);
     },
     setViewPeriodID({ commit }, period_id) {

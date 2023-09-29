@@ -37,6 +37,10 @@ module "consumer_container_definition" {
   stop_timeout             = var.stop_timeout_seconds
   command                  = var.consumer_task_command
 
+  container_cpu                = var.consumer_container_resources.cpu
+  container_memory             = var.consumer_container_resources.hard_memory_limit
+  container_memory_reservation = var.consumer_container_resources.memory_reservation
+
   container_depends_on = [{
     containerName = "datadog"
     condition     = "START"
@@ -70,6 +74,14 @@ module "consumer_container_definition" {
 
   docker_labels = local.datadog_docker_labels
 
+  mount_points = [
+    for mount in var.consumer_task_efs_volume_mounts : {
+      sourceVolume  = mount.name
+      containerPath = mount.container_path
+      readOnly      = mount.read_only
+    }
+  ]
+
   log_configuration = {
     logDriver = "awslogs"
     options = {
@@ -89,6 +101,10 @@ module "datadog_container_definition" {
   essential                = false
   readonly_root_filesystem = "false"
   stop_timeout             = var.stop_timeout_seconds
+
+  container_cpu                = var.datadog_container_resources.cpu
+  container_memory             = var.datadog_container_resources.hard_memory_limit
+  container_memory_reservation = var.datadog_container_resources.memory_reservation
 
   map_environment = merge(
     {
@@ -124,6 +140,22 @@ resource "aws_ecs_task_definition" "consumer" {
     module.consumer_container_definition.json_map_object,
     module.datadog_container_definition.json_map_object,
   ])
+
+  dynamic "volume" {
+    for_each = var.consumer_task_efs_volume_mounts
+    iterator = each
+
+    content {
+      name = each.value.name
+      efs_volume_configuration {
+        file_system_id     = each.value.file_system_id
+        transit_encryption = "ENABLED"
+        authorization_config {
+          access_point_id = each.value.access_point_id
+        }
+      }
+    }
+  }
 
   lifecycle {
     create_before_destroy = true
@@ -230,12 +262,12 @@ resource "aws_appautoscaling_target" "desired_count" {
   resource_id        = "service/${data.aws_ecs_cluster.default.cluster_name}/${aws_ecs_service.default.name}"
 
   min_capacity = 0
-  max_capacity = length(var.autoscaling_message_thresholds) + 1
+  max_capacity = length(local.autoscaling_message_thresholds)
 }
 
 locals {
   autoscaling_message_thresholds = concat(
-    [for i in sort(var.autoscaling_message_thresholds) : tonumber(i)],
+    [for i in sort(formatlist("%010d", var.autoscaling_message_thresholds)) : tonumber(i)],
     [null]
   )
 }

@@ -308,7 +308,7 @@ const grantsSavedSearches = [
         name: 'Simple 2 result search based on included keywords',
         created_by: users.adminUser.id,
         criteria: JSON.stringify({
-            includeKeywords: ['Community Health Aide Program'],
+            includeKeywords: 'Community Health Aide Program',
         }),
         created_at: '2023-08-10 16:26:25.555863+00',
         updated_at: '2023-08-10 16:26:25.555863+00',

@@ -7,7 +7,7 @@ resource "aws_cloudwatch_log_group" "default" {
 
 module "write_api_logs_policy" {
   source  = "cloudposse/iam-policy/aws"
-  version = "2.0.0"
+  version = "2.0.1"
   context = module.this.context
 
   name = "write-logs"
