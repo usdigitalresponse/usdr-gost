@@ -449,7 +449,7 @@ async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useT
 async function processSQSMessageRequest(message) {
     let requestData;
     try {
-        requestData = JSON.parse(message.Body).detail;
+        requestData = JSON.parse(message.Body);
     } catch (e) {
         console.error('Error parsing request data from SQS message:', e);
         return false;
@@ -457,6 +457,9 @@ async function processSQSMessageRequest(message) {
 
     try {
         const user = await getUser(requestData.userId);
+        if (!user) {
+            throw new Error(`user not found: ${requestData.userId}`);
+        }
         generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id);
     } catch (e) {
         console.error('Failed to generate and send audit report', e);
