@@ -163,7 +163,7 @@ resource "aws_ecs_task_definition" "consumer" {
 }
 
 resource "aws_iam_role" "execution" {
-  name_prefix          = "${var.namespace}-ECSExec-"
+  name_prefix          = "${var.namespace}-Exec-"
   permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
