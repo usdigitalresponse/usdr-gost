@@ -24,6 +24,10 @@ output "ecs_service_arn" {
   value = join("", aws_ecs_service.default.*.id)
 }
 
+output "ecs_task_role_name" {
+  value = join("", aws_iam_role.task.*.name)
+}
+
 output "arpa_audit_reports_bucket_arn" {
   value = module.arpa_audit_reports_bucket.bucket_arn
 }
