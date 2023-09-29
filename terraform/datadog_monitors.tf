@@ -66,7 +66,7 @@ resource "datadog_monitor" "arpa_audit_report-task_failed" {
   query = join("", [
     "min(last_1h):avg:",
     "aws.sqs.approximate_number_of_messages_visible",
-    "{env:${var.env},queuename:${module.arpa_audit_report.sqs_dead_letter_queue_name}}",
+    "{env:${var.env},queuename:${module.arpa_audit_report.sqs_dlq_name}}",
     " > 0"
   ])
 
