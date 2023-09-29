@@ -3,11 +3,6 @@ variable "namespace" {
   type        = string
 }
 
-variable "name" {
-  description = "Name prefix for resource names and identifiers"
-  type        = string
-}
-
 variable "tags" {
   type    = map(string)
   default = {}

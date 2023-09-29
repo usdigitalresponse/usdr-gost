@@ -222,8 +222,7 @@ data "aws_iam_policy_document" "arpa_audit_report_rw_reports_bucket" {
 
 module "arpa_audit_report" {
   source                   = "./modules/sqs_consumer_task"
-  namespace                = var.namespace
-  name                     = "arpa_audit_report"
+  namespace                = "${var.namespace}-arpa_audit_report"
   permissions_boundary_arn = local.permissions_boundary_arn
 
   # Networking
