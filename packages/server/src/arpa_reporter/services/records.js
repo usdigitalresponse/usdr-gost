@@ -168,10 +168,9 @@ async function loadRecordsForUpload(upload) {
  * @param {object} upload The upload to fetch records for.
  * @returns {Promise<object[]>} A list of records corresponding to the requested upload
  */
-async function recordsForUpload(upload) {
+async function recordsForUpload(upload, req = useRequest()) {
     log(`recordsForUpload(${upload.id})`);
 
-    const req = useRequest();
     if (!req.recordsForUpload) {
         req.recordsForUpload = {};
     }
@@ -189,11 +188,11 @@ async function recordsForUpload(upload) {
     return recordPromise;
 }
 
-async function recordsForReportingPeriod(periodId) {
+async function recordsForReportingPeriod(periodId, tenantId) {
     log(`recordsForReportingPeriod(${periodId})`);
     requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod');
 
-    const uploads = await usedForTreasuryExport(periodId);
+    const uploads = await usedForTreasuryExport(periodId, tenantId);
     const groupedRecords = await Promise.all(uploads.map(recordsForUpload));
     return groupedRecords.flat();
 }
@@ -202,14 +201,14 @@ async function recordsForReportingPeriod(periodId) {
  * Get the most recent, validated record for each unique project, as of the
  * specified reporting period.
 */
-async function mostRecentProjectRecords(periodId) {
+async function mostRecentProjectRecords(periodId, tenantId) {
     log(`mostRecentProjectRecords(${periodId})`);
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
-    const reportingPeriods = await getPreviousReportingPeriods(periodId);
+    const reportingPeriods = await getPreviousReportingPeriods(periodId, undefined, tenantId);
 
     const allRecords = await Promise.all(
-        reportingPeriods.map(({ id }) => recordsForReportingPeriod(id)),
+        reportingPeriods.map(({ id }) => recordsForReportingPeriod(id, tenantId)),
     );
 
     const latestProjectRecords = allRecords
@@ -228,11 +227,11 @@ async function mostRecentProjectRecords(periodId) {
     return Object.values(latestProjectRecords);
 }
 
-async function recordsForProject(periodId) {
+async function recordsForProject(periodId, tenantId) {
     log(`recordsForProject`);
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
-    const reportingPeriods = await getPreviousReportingPeriods(periodId);
+    const reportingPeriods = await getPreviousReportingPeriods(periodId, undefined, tenantId);
 
     const allRecords = await Promise.all(
         reportingPeriods.map(({ id }) => recordsForReportingPeriod(id)),
