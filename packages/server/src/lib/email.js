@@ -262,24 +262,60 @@ async function getAndSendGrantForSavedSearch({
 
     // NOTE: can't pass this as a separate parameter as it exceeds the complexity limit of 5
     criteriaObj.openDate = openDate;
+    let response;
 
     // Only 30 grants are shown on any given email and 31 will trigger a place to click to see more
-    const response = await db.getGrantsNew(
-        criteriaObj,
-        await db.buildPaginationParams({ currentPage: 1, perPage: 31 }),
-        {},
-        userSavedSearch.tenantId,
-    );
+    try {
+        response = await db.getGrantsNew(
+            criteriaObj,
+            await db.buildPaginationParams({ currentPage: 1, perPage: 31 }),
+            {},
+            userSavedSearch.tenantId,
+        );
+    } catch (err) {
+        console.error(`Error getting grants for ${userSavedSearch.name}: ${err}`);
+        return;
+    }
 
-    return sendGrantDigest({
-        name: userSavedSearch.name,
-        matchedGrants: response.data,
-        recipients: [userSavedSearch.email],
-        openDate,
-    });
+    try {
+        await sendGrantDigest({
+            name: userSavedSearch.name,
+            matchedGrants: response.data,
+            recipients: [userSavedSearch.email],
+            openDate,
+        });
+    } catch (err) {
+        console.error(`Error sending grant digest for ${userSavedSearch.name}, ${userSavedSearch.email}: ${err}`);
+    }
 }
 
 async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
+    const start = Date.now();
+    let str = 'ts | rss | heTot | heUs | ext | arrBuf\n';
+    fileSystem.appendFile('foobar.txt', str, () => {});
+    setInterval(() => {
+        const mu = process.memoryUsage();
+        const elapsedTimeInSecs = (Date.now() - start) / 1000;
+        const timeRounded = Math.round(elapsedTimeInSecs * 100) / 100;
+        str = `${timeRounded}`;
+        /*
+            1.27 rss 0.12
+            1.27 heapTotal 0.08
+            1.27 heapUsed 0.05
+            1.27 external 0.01
+            1.27 arrayBuffers 0
+        */
+        for (const field of Object.keys(mu)) {
+            // # bytes / KB / MB / GB
+            const gbNow = mu[field] / 1024 / 1024 / 1024;
+            const gbRounded = Math.round(gbNow * 100) / 100;
+            str += ` | ${gbRounded}`;
+        }
+        str += '\n';
+        fileSystem.appendFile('foobar.txt', str, () => {}); // eslint-disable-line
+        str = '';
+    }, 500);
+
     if (!openDate) {
         openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
     }
