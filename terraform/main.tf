@@ -284,6 +284,20 @@ module "arpa_audit_report" {
   postgres_db_name         = module.postgres.default_db_name
 }
 
+data "aws_iam_policy_document" "publish_to_arpa_audit_report_queue" {
+  statement {
+    sid       = "AllowPublishToQueue"
+    actions   = ["sqs:SendMessage"]
+    resources = [module.arpa_audit_report.sqs_queue_arn]
+  }
+}
+
+resource "aws_iam_role_policy" "api_task-publish_to_arpa_audit_report_queue" {
+  name_prefix = "send-arpa-audit-report-requests"
+  role        = module.api.ecs_task_role_name
+  policy      = data.aws_iam_policy_document.publish_to_arpa_audit_report_queue.json
+}
+
 module "postgres" {
   enabled                  = var.postgres_enabled
   source                   = "./modules/gost_postgres"
