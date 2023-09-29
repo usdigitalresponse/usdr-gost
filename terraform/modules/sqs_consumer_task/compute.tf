@@ -191,7 +191,7 @@ resource "aws_iam_role_policy" "execution" {
 }
 
 resource "aws_iam_role" "task" {
-  name_prefix          = "${var.namespace}-ECSTask-"
+  name_prefix          = "${var.namespace}-Task-"
   permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
