@@ -2,8 +2,7 @@ const knex = require('../../db/connection');
 const { requiredArgument } = require('../lib/preconditions');
 const { useTenantId } = require('../use-request');
 
-function setCurrentReportingPeriod(id, trns = knex) {
-    const tenantId = useTenantId();
+function setCurrentReportingPeriod(id, trns = knex, tenantId = useTenantId()) {
     requiredArgument(id, 'must specify id in setCurrentReportingPeriod');
 
     return trns('application_settings')
@@ -11,18 +10,14 @@ function setCurrentReportingPeriod(id, trns = knex) {
         .update('current_reporting_period_id', id);
 }
 
-async function getCurrentReportingPeriodID(trns = knex) {
-    const tenantId = useTenantId();
-
+async function getCurrentReportingPeriodID(trns = knex, tenantId = useTenantId()) {
     return trns('application_settings')
         .select('*')
         .where('tenant_id', tenantId)
         .then((r) => r[0].current_reporting_period_id);
 }
 
-async function applicationSettings(tenantId = undefined, trns = knex) {
-    tenantId = tenantId || useTenantId();
-
+async function applicationSettings(tenantId = useTenantId(), trns = knex) {
     return trns('application_settings')
         .join(
             'reporting_periods',
