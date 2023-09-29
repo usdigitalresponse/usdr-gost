@@ -59,18 +59,18 @@ async function createObligationSheet(periodId, domain, tenantId) {
     // select active reporting periods and sort by date
     const reportingPeriods = await getPreviousReportingPeriods(periodId, undefined, tenantId);
     log('retrieved previous reporting periods', {
-        periodId, domain, reportingPeriods, fn: 'createObligationSheet',
+        periodId, domain, fn: 'createObligationSheet', count: reportingPeriods.length,
     });
 
     const rows = await Promise.all(
         reportingPeriods.map(async (period) => {
-            log('creating row for reporting period', { period, fn: 'createObligationSheet' });
+            log('creating row for reporting period', { period: { id: period.id }, periodId, fn: 'createObligationSheet' });
             const uploads = await usedForTreasuryExport(period.id, tenantId);
-            log('retrived uploads for period', { period, fn: 'createObligationSheet' });
+            log('retrived uploads for period', { period: { id: period.id }, periodId, fn: 'createObligationSheet' });
             const records = await recordsForReportingPeriod(period.id, tenantId);
-            log('retrieved records', { period, fn: 'createObligationSheet' });
+            log('retrieved records', { period: { id: period.id }, periodId, fn: 'createObligationSheet' });
 
-            log('mapping uploads', { period, fn: 'createObligationSheet' });
+            log('mapping uploads', { period: { id: period.id }, periodId, fn: 'createObligationSheet' });
             return Promise.all(uploads.map((upload) => {
                 log('initializing empty row', {
                     period: {
@@ -162,7 +162,7 @@ async function createObligationSheet(periodId, domain, tenantId) {
 }
 
 async function createProjectSummaries(periodId, domain, tenantId) {
-    log('called createProjectSummaries()', { periodId, domain });
+    log('called createProjectSummaries()', { periodId, domain, fn: 'createProjectSummaries' });
     const records = await mostRecentProjectRecords(periodId, tenantId);
     log('retrieved most recent project records', {
         fn: 'createProjectSummaries', periodId, domain, record_count: records.length,
@@ -237,7 +237,7 @@ function getRecordsByProject(records) {
 }
 
 async function createReportsGroupedByProject(periodId, tenantId) {
-    log('called createProjectSummaries()', { periodId });
+    log('called createReportsGroupedByProject()', { periodId, fn: 'createReportsGroupedByProject' });
     const records = await recordsForProject(periodId, tenantId);
     log('retrieved records for project', { fn: 'createReportsGroupedByProject', count: records.length });
     const recordsByProject = getRecordsByProject(records);
@@ -307,7 +307,7 @@ async function createReportsGroupedByProject(periodId, tenantId) {
 }
 
 async function createKpiDataGroupedByProject(periodId, tenantId) {
-    log('called createKpiDataGroupedByProject()', { periodId });
+    log('called createKpiDataGroupedByProject()', { periodId, fn: 'createKpiDataGroupedByProject' });
     const records = await recordsForProject(periodId, tenantId);
     log('retrieved records for project', { fn: 'createKpiDataGroupedByProject', count: records.length });
     const recordsByProject = getRecordsByProject(records);
@@ -436,7 +436,8 @@ async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useT
     };
     try {
         console.log(uploadParams);
-        log('uploading report', { uploadParams });
+        console.log(uploadParams);
+        log('uploading report', { bucket: uploadParams.Bucket, key: uploadParams.Key });
         await s3.send(new PutObjectCommand(uploadParams));
         await module.exports.sendEmailWithLink(reportKey, recipientEmail);
     } catch (err) {
