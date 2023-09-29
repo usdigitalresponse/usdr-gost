@@ -25,7 +25,7 @@ output "ecs_service_arn" {
 }
 
 output "ecs_task_role_name" {
-  value = join("", aws_iam_role.task.name)
+  value = join("", aws_iam_role.task.*.name)
 }
 
 output "arpa_audit_reports_bucket_arn" {
