@@ -320,6 +320,15 @@ async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
         openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
     }
     console.log(`Building and sending Grants Digest email for user: ${userId} on ${openDate}`);
+
+    const usersByCriteria = await db.usersBySavedSearchCriteria();
+    console.log(usersByCriteria);
+    // const unsubscribedUsersWithSavedSearches = new Set(await db.getUnsubscribedUsersWithSavedSearches());
+
+    // for (const [criteria, user_ids] of Object.entries(usersByCriteria)) {
+    //     user_ids.filter((user_id) => !unsubscribedUsersWithSavedSearches.has(user_id));
+    // }
+
     /*
     1. get all saved searches mapped to each user
     2. call getAndSendGrantForSavedSearch to find new grants and send the digest

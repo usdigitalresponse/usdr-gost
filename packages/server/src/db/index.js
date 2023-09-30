@@ -1617,6 +1617,74 @@ async function getSavedSearches(userId, paginationParams) {
     return response;
 }
 
+async function usersBySavedSearchCriteria() {
+    const response = await knex('grants_saved_searches')
+        .select(knex.raw(`
+            criteria,
+            json_agg(
+                distinct jsonb_build_object(
+                    'id', ${TABLES.grants_saved_searches}.id,
+                    'created_by', ${TABLES.grants_saved_searches}.created_by,
+                    'name', ${TABLES.grants_saved_searches}.name,
+                    'status', ${TABLES.email_subscriptions}.status,
+                    'notification_type', ${TABLES.email_subscriptions}.notification_type,
+                    'tenant_id', ${TABLES.users}.tenant_id,
+                    'email', ${TABLES.users}.email
+                )
+            )`))
+        .join(TABLES.users, `${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.users}.id`)
+        .leftJoin(
+            TABLES.email_subscriptions, (builder) => {
+                builder
+                    .on(`${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.email_subscriptions}.user_id`)
+                    .andOn(`${TABLES.email_subscriptions}.notification_type`, '=', knex.raw('?', [emailConstants.notificationType.grantDigest]));
+            },
+        )
+        .where((q) => {
+            q
+                .where(`${TABLES.email_subscriptions}.status`, `${emailConstants.emailSubscriptionStatus.subscribed}`)
+                .orWhereNull(`${TABLES.email_subscriptions}.status`);
+        })
+        .groupBy('criteria');
+    
+    const query = knex('grants_saved_searches')
+        .select(knex.raw(`
+            criteria,
+            json_agg(
+                distinct jsonb_build_object(
+                    'id', ${TABLES.grants_saved_searches}.id,
+                    'created_by', ${TABLES.grants_saved_searches}.created_by,
+                    'name', ${TABLES.grants_saved_searches}.name,
+                    'status', ${TABLES.email_subscriptions}.status,
+                    'notification_type', ${TABLES.email_subscriptions}.notification_type,
+                    'tenant_id', ${TABLES.users}.tenant_id,
+                    'email', ${TABLES.users}.email
+                )
+            )`))
+        .join(TABLES.users, `${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.users}.id`)
+        .leftJoin(
+            TABLES.email_subscriptions, (builder) => {
+                builder
+                    .on(`${TABLES.grants_saved_searches}.created_by`, '=', `${TABLES.email_subscriptions}.user_id`)
+                    .andOn(`${TABLES.email_subscriptions}.notification_type`, '=', knex.raw('?', [emailConstants.notificationType.grantDigest]));
+            },
+        )
+        .where((q) => {
+            q
+                .where(`${TABLES.email_subscriptions}.status`, `${emailConstants.emailSubscriptionStatus.subscribed}`)
+                .orWhereNull(`${TABLES.email_subscriptions}.status`);
+        })
+        .groupBy('criteria')
+        .toSQL()
+        .toNative();
+    console.log(query);
+    return response.rows;
+}
+
+async function getUnsubscribedUsersWithSavedSearches() {
+    console.log('foo');
+}
+
 /**
  * Retrieves all saved searches joined with user and digest subscription information
  * @param int                   userId (optional)
@@ -1710,6 +1778,8 @@ module.exports = {
     deleteSavedSearch,
     updateSavedSearch,
     getAllUserSavedSearches,
+    usersBySavedSearchCriteria,
+    getUnsubscribedUsersWithSavedSearches,
     formatSearchCriteriaToQueryFilters,
     getUsers,
     createUser,
