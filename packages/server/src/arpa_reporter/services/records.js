@@ -171,6 +171,11 @@ async function loadRecordsForUpload(upload) {
 async function recordsForUpload(upload, req = useRequest()) {
     log(`recordsForUpload(${upload.id})`);
 
+    if (req === undefined) {
+        // Will not cache outside of a request
+        req = {};
+    }
+
     if (!req.recordsForUpload) {
         req.recordsForUpload = {};
     }
