@@ -234,7 +234,7 @@ async function recordsForProject(periodId, tenantId) {
     const reportingPeriods = await getPreviousReportingPeriods(periodId, undefined, tenantId);
 
     const allRecords = await Promise.all(
-        reportingPeriods.map(({ id }) => recordsForReportingPeriod(id)),
+        reportingPeriods.map(({ id }) => recordsForReportingPeriod(id, tenantId)),
     );
 
     const projectRecords = allRecords

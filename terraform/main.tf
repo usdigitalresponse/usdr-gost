@@ -89,13 +89,13 @@ module "consume_grants_to_postgres_security_group" {
   allow_all_egress = true
 }
 
-module "arpa_audit_report_to_postgres_security_group" {
+module "arpa_audit_report_security_group" {
   source  = "cloudposse/security-group/aws"
   version = "2.2.0"
 
   namespace        = var.namespace
   vpc_id           = data.aws_ssm_parameter.vpc_id.value
-  attributes       = ["arpa_audit_report", "postgres"]
+  attributes       = ["arpa_audit_report"]
   allow_all_egress = true
 }
 
@@ -135,7 +135,7 @@ module "api" {
   subnet_ids = local.private_subnet_ids
   security_group_ids = [
     module.consume_grants_to_postgres_security_group.id,
-    module.arpa_audit_report_to_postgres_security_group.id,
+    module.arpa_audit_report_security_group.id,
   ]
 
   # Cluster
@@ -227,7 +227,7 @@ module "arpa_audit_report" {
 
   # Networking
   subnet_ids         = local.private_subnet_ids
-  security_group_ids = [module.api_to_postgres_security_group.id]
+  security_group_ids = [module.arpa_audit_report_security_group.id]
 
   # Task configuration
   ecs_cluster_name      = join("", aws_ecs_cluster.default.*.name)
@@ -310,7 +310,7 @@ module "postgres" {
   ingress_security_groups = {
     from_api               = module.api_to_postgres_security_group.id
     from_consume_grants    = module.consume_grants_to_postgres_security_group.id
-    from_arpa_audit_report = module.arpa_audit_report_to_postgres_security_group.id
+    from_arpa_audit_report = module.arpa_audit_report_security_group.id
   }
 
   prevent_destroy           = var.postgres_prevent_destroy
