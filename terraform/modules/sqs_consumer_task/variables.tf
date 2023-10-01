@@ -3,11 +3,6 @@ variable "namespace" {
   type        = string
 }
 
-variable "name" {
-  description = "Name prefix for resource names and identifiers"
-  type        = string
-}
-
 variable "tags" {
   type    = map(string)
   default = {}
@@ -40,6 +35,17 @@ variable "consumer_task_command" {
   type        = list(string)
 }
 
+variable "consumer_task_efs_volume_mounts" {
+  description = "EFS volumes to mount in ECS task consumer containers."
+  type = list(object({
+    name            = string
+    container_path  = string
+    read_only       = bool
+    file_system_id  = string
+    access_point_id = string
+  }))
+}
+
 variable "stop_timeout_seconds" {
   description = "Number of seconds to wait before the container is killed after initiating shutdown."
   type        = number
@@ -63,6 +69,26 @@ variable "consumer_task_size" {
     cpu    = 256
     memory = 512
   }
+}
+
+variable "consumer_container_resources" {
+  description = "Compute resource limits and reservations for the consumer container. Use with caution."
+  type = object({
+    cpu                = optional(number)
+    hard_memory_limit  = optional(number)
+    memory_reservation = optional(number)
+  })
+  default = {}
+}
+
+variable "datadog_container_resources" {
+  description = "Compute resource limits and reservations for the Datadog container. Use with caution."
+  type = object({
+    cpu                = optional(number)
+    hard_memory_limit  = optional(number)
+    memory_reservation = optional(number)
+  })
+  default = {}
 }
 
 variable "additional_task_role_json_policies" {

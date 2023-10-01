@@ -42,3 +42,35 @@ resource "datadog_monitor" "consume_grants-event_failed" {
   evaluation_delay = local.dd_monitor_default_evaluation_delay
   tags             = local.dd_monitor_default_tags
 }
+
+resource "datadog_monitor" "arpa_audit_report-task_failed" {
+  count = var.datadog_monitors_enabled ? 1 : 0
+
+  name = "${local.dd_monitor_name_prefix}: Grant modification events failed to process"
+  type = "metric alert"
+  message = join("\n", [
+    "{{#is_alert}}",
+    "Alert: One or more ARPA audit report requests were received from the SQS source queue but several attempts to handle them have failed.",
+    "As a result, failing SQS messages have been redirected to the SQS dead-letter queue (DLQ).",
+    "Investigate the issue (especially by checking arpa_audit_report ECS task logs).",
+    "Once the issue is resolved, redrive the DLQ messages back to the source queue and/or delete DLQ messages if they are no longer needed.",
+    "This monitor will not return to normal while there are messages in the DLQ.",
+    "IMPORTANT: DLQ messages are not retained indefinitely; investigation and remediation is time-sensitive.",
+    "{{/is_alert}}",
+    "{{#is_recovery}}",
+    "Recovery: There are no longer messages in the DLQ.",
+    "{{/is_recovery}}",
+    "Notify: ${local.dd_monitor_default_notify}",
+  ])
+
+  query = join("", [
+    "min(last_1h):avg:",
+    "aws.sqs.approximate_number_of_messages_visible",
+    "{env:${var.env},queuename:${module.arpa_audit_report.sqs_dlq_name}}",
+    " > 0"
+  ])
+
+  notify_no_data   = false
+  evaluation_delay = local.dd_monitor_default_evaluation_delay
+  tags             = local.dd_monitor_default_tags
+}
