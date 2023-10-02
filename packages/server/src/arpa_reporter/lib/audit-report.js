@@ -530,7 +530,7 @@ async function processSQSMessageRequest(message) {
         if (!user) {
             throw new Error(`user not found: ${requestData.userId}`);
         }
-        generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id);
+        await generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id);
     } catch (e) {
         console.error('Failed to generate and send audit report', e);
         return false;
