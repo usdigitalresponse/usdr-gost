@@ -178,7 +178,7 @@ async function recordsForUpload(upload, req = useRequest()) {
     }
 
     if (!req.recordsForUpload) {
-        log(`initializing req.recordsForUpload cache`);
+        log(`recordsForUpload(${upload.id}) initializing req.recordsForUpload cache`);
         req.recordsForUpload = {};
     }
     console.log(`Check: (req === undefined) is ${req === undefined}`);
