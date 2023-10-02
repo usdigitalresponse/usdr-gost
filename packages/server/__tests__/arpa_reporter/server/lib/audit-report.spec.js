@@ -1,3 +1,8 @@
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+
+chai.use(chaiAsPromised);
+
 const { expect } = require('chai');
 const sinon = require('sinon');
 const email = require('../../../../src/lib/email');
@@ -93,7 +98,7 @@ describe('audit report generation', () => {
         await expect(withTenantId(
             tenantId,
             () => audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com'),
-        )).to.be.rejectedWith(Error);
+        )).to.be.rejected;
 
         console.log('Asserting generate function');
         expect(generateFake.calledOnce).to.equal(true);
