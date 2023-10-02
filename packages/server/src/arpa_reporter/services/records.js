@@ -181,6 +181,10 @@ async function recordsForUpload(upload, req = useRequest()) {
         log(`initializing req.recordsForUpload cache`);
         req.recordsForUpload = {};
     }
+    console.log(`Check: (req === undefined) is ${req === undefined}`);
+    console.log(`Check: (req === null) is ${req === null}`);
+    console.log(`Check: (req.recordsForUpload === null) is ${req.recordsForUpload === null}`);
+    console.log(`Check: (req.recordsForUpload === undefined) is ${req.recordsForUpload === undefined}`);
     if (req.recordsForUpload[upload.id]) {
         log(`recordsForUpload(${upload.id}): reading from cache`);
         return req.recordsForUpload[upload.id];
