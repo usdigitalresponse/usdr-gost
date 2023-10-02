@@ -90,7 +90,10 @@ describe('audit report generation', () => {
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
         const tenantId = 0;
-        await withTenantId(tenantId, () => audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com'));
+        await expect(withTenantId(
+            tenantId,
+            () => audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com'),
+        )).to.be.rejectedWith(Error);
 
         console.log('Asserting generate function');
         expect(generateFake.calledOnce).to.equal(true);
