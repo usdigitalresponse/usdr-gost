@@ -181,14 +181,12 @@ async function recordsForUpload(upload, req = useRequest()) {
         log(`recordsForUpload(${upload.id}) initializing req.recordsForUpload cache`);
         req.recordsForUpload = {};
     }
-    console.log(`Check: (req === undefined) is ${req === undefined}`);
-    console.log(`Check: (req === null) is ${req === null}`);
-    console.log(`Check: (req.recordsForUpload === null) is ${req.recordsForUpload === null}`);
-    console.log(`Check: (req.recordsForUpload === undefined) is ${req.recordsForUpload === undefined}`);
+
     if (req.recordsForUpload[upload.id]) {
         log(`recordsForUpload(${upload.id}): reading from cache`);
         return req.recordsForUpload[upload.id];
     }
+
     log(`recordsForUpload(${upload.id}): reading from disk`);
     const recordPromise = loadRecordsForUpload(upload);
 
@@ -224,9 +222,9 @@ async function mostRecentProjectRecords(periodId, tenantId) {
 
     const latestProjectRecords = allRecords
         .flat()
-    // exclude non-project records
+        // exclude non-project records
         .filter((record) => Object.values(EC_SHEET_TYPES).includes(record.type))
-    // collect the latest record for each project ID
+        // collect the latest record for each project ID
         .reduce(
             (accumulator, record) => {
                 accumulator[record.content.Project_Identification_Number__c] = record;
@@ -250,7 +248,7 @@ async function recordsForProject(periodId, tenantId) {
 
     const projectRecords = allRecords
         .flat()
-    // exclude non-project records
+        // exclude non-project records
         .filter((record) => Object.values(EC_SHEET_TYPES).includes(record.type));
 
     return Object.values(projectRecords);
