@@ -240,6 +240,7 @@ module "arpa_audit_report" {
     NODE_OPTIONS        = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
     NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
     WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
+    VERBOSE             = "true"
   }
   consumer_task_efs_volume_mounts = [{
     name            = "data"
