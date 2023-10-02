@@ -28,11 +28,14 @@ async function main() {
             // eslint-disable-next-line no-await-in-loop
             const processingSuccessful = await processSQSMessageRequest(message);
             if (processingSuccessful === true) {
+                console.log('Deleting successfully-processed SQS message');
                 // eslint-disable-next-line no-await-in-loop
                 await sqs.send(new DeleteMessageCommand({
                     QueueUrl: queueUrl,
                     ReceiptHandle: message.ReceiptHandle,
                 }));
+            } else {
+                console.log('SQS message was not processed successfully; will not delete');
             }
         } else {
             console.log('Empty messages batch received from SQS');
