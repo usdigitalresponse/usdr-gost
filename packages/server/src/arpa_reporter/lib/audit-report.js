@@ -506,12 +506,12 @@ async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useT
 
     try {
         console.log(uploadParams);
-        console.log(uploadParams);
         log('uploading report', { bucket: uploadParams.Bucket, key: uploadParams.Key });
         await s3.send(new PutObjectCommand(uploadParams));
         await module.exports.sendEmailWithLink(reportKey, recipientEmail);
     } catch (err) {
         console.log(`Failed to upload/email audit report ${err}`);
+        throw err;
     }
     log('generateAndSendEmail() complete', null, null, true);
 }
