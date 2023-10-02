@@ -173,10 +173,12 @@ async function recordsForUpload(upload, req = useRequest()) {
 
     if (req === undefined) {
         // Will not cache outside of a request
+        log(`recordsForUpload(${upload.id}) will not cache for subsequent calls`);
         req = {};
     }
 
     if (!req.recordsForUpload) {
+        log(`initializing req.recordsForUpload cache`);
         req.recordsForUpload = {};
     }
     if (req.recordsForUpload[upload.id]) {
