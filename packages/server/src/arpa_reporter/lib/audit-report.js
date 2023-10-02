@@ -16,6 +16,9 @@ const email = require('../../lib/email');
 const { useTenantId } = require('../use-request');
 const { getUser } = require('../../db');
 
+const REPORTING_DATE_FORMAT = 'MM-DD-yyyy';
+const REPORTING_DATE_REGEX = /^(\d{2}-\d{2}-\d{4}) /;
+
 const log = (() => {
     const stickyData = {};
     return (msg, extra, sticky, clear) => {
@@ -236,7 +239,7 @@ function getRecordsByProject(records) {
     }, {});
 }
 
-async function createReportsGroupedByProject(periodId, tenantId) {
+async function createReportsGroupedByProject(periodId, tenantId, dateFormat = REPORTING_DATE_FORMAT) {
     log('called createReportsGroupedByProject()', { periodId, fn: 'createReportsGroupedByProject' });
     const records = await recordsForProject(periodId, tenantId);
     log('retrieved records for project', { fn: 'createReportsGroupedByProject', count: records.length });
@@ -274,7 +277,10 @@ async function createReportsGroupedByProject(periodId, tenantId) {
             fn: 'createReportsGroupedByProject', projectId,
         });
         allReportingPeriods.forEach((reportingPeriodId) => {
-            const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].end_date;
+            const reportingPeriodEndDate = moment(
+                reportingPeriods.filter((reportingPeriod) => reportingPeriod.id === reportingPeriodId)[0].end_date,
+                'yyyy-MM-DD',
+            ).format(dateFormat);
             [
                 `${reportingPeriodEndDate} Total Aggregate Expenditures`,
                 `${reportingPeriodEndDate} Total Expenditures for Awards Greater or Equal to $50k`,
@@ -289,9 +295,13 @@ async function createReportsGroupedByProject(periodId, tenantId) {
         log('setting values in each column', {
             fn: 'createReportsGroupedByProject', projectId,
         });
+
         projectRecords.forEach((r) => {
             // for project summaries v2 report
-            const reportingPeriodEndDate = reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date;
+            const reportingPeriodEndDate = moment(
+                reportingPeriods.filter((reportingPeriod) => r.upload.reporting_period_id === reportingPeriod.id)[0].end_date,
+                'yyyy-MM-DD',
+            ).format(dateFormat);
             row[`${reportingPeriodEndDate} Total Aggregate Expenditures`] += (r.content.Total_Expenditures__c || 0);
             row[`${reportingPeriodEndDate} Total Aggregate Obligations`] += (r.content.Total_Obligations__c || 0);
             row[`${reportingPeriodEndDate} Total Obligations for Awards Greater or Equal to $50k`] += (r.content.Award_Amount__c || 0);
@@ -338,6 +348,61 @@ async function createKpiDataGroupedByProject(periodId, tenantId) {
     });
 }
 
+/*
+ * Function to format the headers for the project summaries.
+ * The headers are split into the date and non-date headers.
+ * The non-date headers come first with an ordering, then the date headers.
+ */
+function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
+    const keys = Array.from(new Set(projectSummaryGroupedByProject.map(Object.keys).flat()));
+    // split up by date and not date
+    const withDate = keys.filter((x) => REPORTING_DATE_REGEX.exec(x));
+    const withoutDate = keys.filter((x) => REPORTING_DATE_REGEX.exec(x) == null);
+
+    const dateOrder = withDate.reduce((x, y) => {
+        const key = y.replace(REPORTING_DATE_REGEX, '');
+        const value = y.match(REPORTING_DATE_REGEX)[1];
+        if (value == null) {
+            console.log('Could not find date in header');
+            return x;
+        }
+
+        if (!(key in x)) {
+            x[key] = [];
+        }
+        x[key].push(moment(value, REPORTING_DATE_FORMAT));
+        return x;
+    }, {});
+
+    const expectedOrderWithoutDate = [
+        'Project ID',
+        'Project Description',
+        'Project Expenditure Category Group',
+        'Project Expenditure Category',
+        'Capital Expenditure Amount',
+    ];
+
+    const expectedOrderWithDate = [
+        'Total Aggregate Obligations',
+        'Total Aggregate Expenditures',
+        'Total Obligations for Awards Greater or Equal to $50k',
+        'Total Expenditures for Awards Greater or Equal to $50k',
+    ];
+
+    // first add the properly ordered non-date headers,
+    // then add the headers sorted by the header group then the date
+    const headers = [
+        ...withoutDate.sort((p1, p2) => expectedOrderWithoutDate.indexOf(p1) - expectedOrderWithoutDate.indexOf(p2)),
+        ...Object.entries(dateOrder)
+            .sort((p1, p2) => expectedOrderWithDate.indexOf(p1[0]) - expectedOrderWithDate.indexOf(p2[0]))
+            .map((x) => x[1]
+                .sort((d1, d2) => d1.valueOf() - d2.valueOf())
+                .map((date) => `${date.format(REPORTING_DATE_FORMAT)} ${x[0]}`)).flat(),
+    ];
+
+    return headers;
+}
+
 async function generate(requestHost, tenantId) {
     log('called generate()');
     return tracer.trace('generate()', async () => {
@@ -365,22 +430,25 @@ async function generate(requestHost, tenantId) {
         log('composing workbook');
         const workbook = tracer.trace('compose-workbook', () => {
             // compose workbook
+
             const sheet1 = XLSX.utils.json_to_sheet(obligations, {
                 dateNF: 'MM/DD/YYYY',
             });
-            log('sheet 1 complete');
+            log('sheet 1 complete - Obligations & Expenditures');
             const sheet2 = XLSX.utils.json_to_sheet(projectSummaries, {
                 dateNF: 'MM/DD/YYYY',
             });
-            log('sheet 2 complete');
+            log('sheet 2 complete - Project Summaries');
+            const header = createHeadersProjectSummariesV2(projectSummaryGroupedByProject);
             const sheet3 = XLSX.utils.json_to_sheet(projectSummaryGroupedByProject, {
                 dateNF: 'MM/DD/YYYY',
+                header,
             });
-            log('sheet 3 complete');
+            log('sheet 3 complete - Project Summaries V2');
             const sheet4 = XLSX.utils.json_to_sheet(KPIDataGroupedByProject, {
                 dateNF: 'MM/DD/YYYY',
             });
-            log('sheet 4 complete');
+            log('sheet 4 complete - KPI');
             log('making new workbook');
             const newWorkbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(newWorkbook, sheet1, 'Obligations & Expenditures');
@@ -403,6 +471,7 @@ async function generate(requestHost, tenantId) {
 
         const filename = `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`;
         log('generate() returning', {}, { generatedFilename: filename });
+
         return {
             periodId,
             filename,
@@ -434,6 +503,7 @@ async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useT
         Body: report.outputWorkBook,
         ServerSideEncryption: 'AES256',
     };
+
     try {
         console.log(uploadParams);
         console.log(uploadParams);
@@ -474,6 +544,7 @@ module.exports = {
     generateAndSendEmail,
     processSQSMessageRequest,
     sendEmailWithLink,
+    createHeadersProjectSummariesV2,
 };
 
 // NOTE: This file was copied from src/server/lib/audit-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
