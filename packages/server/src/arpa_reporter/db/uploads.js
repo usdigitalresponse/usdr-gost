@@ -14,10 +14,9 @@ function baseQuery(trns) {
         .select('uploads.*', 'users.email AS created_by', 'agencies.code AS agency_code');
 }
 
-async function uploadsInPeriod(periodId, trns = knex) {
-    const tenantId = useTenantId();
+async function uploadsInPeriod(periodId, trns = knex, tenantId = useTenantId()) {
     if (periodId === undefined) {
-        periodId = await getCurrentReportingPeriodID(trns);
+        periodId = await getCurrentReportingPeriodID(trns, tenantId);
     }
 
     return baseQuery(trns)
@@ -45,8 +44,7 @@ function getUpload(id, trns = knex) {
         .then((r) => r[0]);
 }
 
-function usedForTreasuryExport(periodId, tenantId = undefined, trns = knex) {
-    tenantId = tenantId || useTenantId();
+function usedForTreasuryExport(periodId, tenantId = useTenantId(), trns = knex) {
     requiredArgument(periodId, 'periodId must be specified in validForReportingPeriod');
 
     return baseQuery(trns)
@@ -80,17 +78,14 @@ function usedForTreasuryExport(periodId, tenantId = undefined, trns = knex) {
       agency_id: 3,
     }
     */
-function getUploadSummaries(period_id, trns = knex) {
-    const tenantId = useTenantId();
+function getUploadSummaries(period_id, trns = knex, tenantId = useTenantId()) {
     // console.log(`period_id is ${period_id}`)
     return trns('uploads')
         .select('*')
         .where({ reporting_period_id: period_id, tenant_id: tenantId });
 }
 
-async function createUpload(upload, trns = knex) {
-    const tenantId = useTenantId();
-
+async function createUpload(upload, trns = knex, tenantId = useTenantId()) {
     const inserted = await trns('uploads')
         .insert({ ...upload, tenant_id: tenantId })
         .returning('*')
@@ -111,11 +106,9 @@ async function setEcCode(uploadId, ecCode, trns = knex) {
         .update({ ec_code: ecCode });
 }
 
-async function getPeriodUploadIDs(period_id, trns = knex) {
-    const tenantId = useTenantId();
-
+async function getPeriodUploadIDs(period_id, trns = knex, tenantId = useTenantId()) {
     if (!period_id) {
-        period_id = await getCurrentReportingPeriodID(trns);
+        period_id = await getCurrentReportingPeriodID(trns, tenantId);
     }
     let rv;
     try {

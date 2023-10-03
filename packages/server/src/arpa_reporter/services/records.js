@@ -168,17 +168,25 @@ async function loadRecordsForUpload(upload) {
  * @param {object} upload The upload to fetch records for.
  * @returns {Promise<object[]>} A list of records corresponding to the requested upload
  */
-async function recordsForUpload(upload) {
+async function recordsForUpload(upload, req = useRequest()) {
     log(`recordsForUpload(${upload.id})`);
 
-    const req = useRequest();
+    if (req === undefined) {
+        // Will not cache outside of a request
+        log(`recordsForUpload(${upload.id}) will not cache for subsequent calls`);
+        req = {};
+    }
+
     if (!req.recordsForUpload) {
+        log(`recordsForUpload(${upload.id}) initializing req.recordsForUpload cache`);
         req.recordsForUpload = {};
     }
+
     if (req.recordsForUpload[upload.id]) {
         log(`recordsForUpload(${upload.id}): reading from cache`);
         return req.recordsForUpload[upload.id];
     }
+
     log(`recordsForUpload(${upload.id}): reading from disk`);
     const recordPromise = loadRecordsForUpload(upload);
 
@@ -189,12 +197,12 @@ async function recordsForUpload(upload) {
     return recordPromise;
 }
 
-async function recordsForReportingPeriod(periodId) {
+async function recordsForReportingPeriod(periodId, tenantId) {
     log(`recordsForReportingPeriod(${periodId})`);
     requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod');
 
-    const uploads = await usedForTreasuryExport(periodId);
-    const groupedRecords = await Promise.all(uploads.map(recordsForUpload));
+    const uploads = await usedForTreasuryExport(periodId, tenantId);
+    const groupedRecords = await Promise.all(uploads.map((upload) => recordsForUpload(upload)));
     return groupedRecords.flat();
 }
 
@@ -202,23 +210,23 @@ async function recordsForReportingPeriod(periodId) {
  * Get the most recent, validated record for each unique project, as of the
  * specified reporting period.
 */
-async function mostRecentProjectRecords(periodId, calculatePriorPeriods) {
+async function mostRecentProjectRecords(periodId, tenantId, calculatePriorPeriods) {
     log(`mostRecentProjectRecords(${periodId})`);
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
     const reportingPeriods = calculatePriorPeriods
-        ? await getPreviousReportingPeriods(periodId)
-        : [await getReportingPeriod(periodId)];
+        ? await getPreviousReportingPeriods(periodId, undefined, tenantId)
+        : [await getReportingPeriod(periodId, undefined, tenantId)];
 
     const allRecords = await Promise.all(
-        reportingPeriods.map(({ id }) => recordsForReportingPeriod(id)),
+        reportingPeriods.map(({ id }) => recordsForReportingPeriod(id, tenantId)),
     );
 
     const latestProjectRecords = allRecords
         .flat()
-    // exclude non-project records
+        // exclude non-project records
         .filter((record) => Object.values(EC_SHEET_TYPES).includes(record.type))
-    // collect the latest record for each project ID
+        // collect the latest record for each project ID
         .reduce(
             (accumulator, record) => {
                 accumulator[record.content.Project_Identification_Number__c] = record;
@@ -230,21 +238,21 @@ async function mostRecentProjectRecords(periodId, calculatePriorPeriods) {
     return Object.values(latestProjectRecords);
 }
 
-async function recordsForProject(periodId, calculatePriorPeriods) {
+async function recordsForProject(periodId, tenantId, calculatePriorPeriods) {
     log(`recordsForProject`);
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
     const reportingPeriods = calculatePriorPeriods
-        ? await getPreviousReportingPeriods(periodId)
-        : [await getReportingPeriod(periodId)];
+        ? await getPreviousReportingPeriods(periodId, undefined, tenantId)
+        : [await getReportingPeriod(periodId, undefined, tenantId)];
 
     const allRecords = await Promise.all(
-        reportingPeriods.map(({ id }) => recordsForReportingPeriod(id)),
+        reportingPeriods.map(({ id }) => recordsForReportingPeriod(id, tenantId)),
     );
 
     const projectRecords = allRecords
         .flat()
-    // exclude non-project records
+        // exclude non-project records
         .filter((record) => Object.values(EC_SHEET_TYPES).includes(record.type));
 
     return Object.values(projectRecords);

@@ -1,3 +1,8 @@
+// const chai = require('chai');
+// const chaiAsPromised = require('chai-as-promised');
+
+// chai.use(chaiAsPromised);
+
 const { expect } = require('chai');
 const sinon = require('sinon');
 const email = require('../../../../src/lib/email');
@@ -93,7 +98,10 @@ describe('audit report generation', () => {
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
         const tenantId = 0;
-        await withTenantId(tenantId, () => audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com'));
+        await expect(withTenantId(
+            tenantId,
+            () => audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com'),
+        )).to.be.rejected;
 
         console.log('Asserting generate function');
         expect(generateFake.calledOnce).to.equal(true);
@@ -124,5 +132,60 @@ describe('audit report generation', () => {
             return audit_report.generate('test-host', true);
         });
         expect(Buffer.compare(reportCache.outputWorkBook, reportNoCache.outputWorkBook)).to.equal(0);
+    });
+
+    it('headers should be in the proper order', () => {
+        const projects = [{
+            '09-30-2021 Total Aggregate Expenditures': 150000,
+            '09-30-2022 Total Aggregate Obligations': 300000,
+            '09-30-2022 Total Expenditures for Awards Greater or Equal to $50k': 0,
+            '09-30-2022 Total Obligations for Awards Greater or Equal to $50k': 0,
+            'Capital Expenditure Amount': 0,
+            'Project Description': 'Sample description',
+            'Project Expenditure Category': '2.32-Business Incubators and Start-Up or Expansion Assistance',
+            'Project Expenditure Category Group': '2-Negative Economic Impacts',
+            'Project ID': '4',
+        }, {
+            '12-31-2022 Total Aggregate Expenditures': 150000,
+            '12-31-2022 Total Aggregate Obligations': 300000,
+            '12-31-2022 Total Expenditures for Awards Greater or Equal to $50k': 0,
+            '12-31-2022 Total Obligations for Awards Greater or Equal to $50k': 0,
+            'Capital Expenditure Amount': 0,
+            'Project Description': 'Sample description',
+            'Project Expenditure Category': '2.32-Business Incubators and Start-Up or Expansion Assistance',
+            'Project Expenditure Category Group': '2-Negative Economic Impacts',
+            'Project ID': '4',
+        }, {
+            '03-30-2023 Total Aggregate Expenditures': 150000,
+            '03-30-2023 Total Aggregate Obligations': 300000,
+            '03-30-2023 Total Expenditures for Awards Greater or Equal to $50k': 0,
+            '03-30-2023 Total Obligations for Awards Greater or Equal to $50k': 0,
+            'Capital Expenditure Amount': 0,
+            'Project Description': 'Sample description',
+            'Project Expenditure Category': '2.32-Business Incubators and Start-Up or Expansion Assistance',
+            'Project Expenditure Category Group': '2-Negative Economic Impacts',
+            'Project ID': '4',
+        }];
+        const headers = audit_report.createHeadersProjectSummariesV2(projects);
+        const headersExpected = [
+            'Project ID',
+            'Project Description',
+            'Project Expenditure Category Group',
+            'Project Expenditure Category',
+            'Capital Expenditure Amount',
+            '09-30-2021 Total Aggregate Obligations',
+            '12-31-2022 Total Aggregate Obligations',
+            '03-30-2023 Total Aggregate Obligations',
+            '09-30-2022 Total Aggregate Expenditures',
+            '12-31-2022 Total Aggregate Expenditures',
+            '03-30-2023 Total Aggregate Expenditures',
+            '09-30-2022 Total Obligations for Awards Greater or Equal to $50k',
+            '12-31-2022 Total Obligations for Awards Greater or Equal to $50k',
+            '03-30-2023 Total Obligations for Awards Greater or Equal to $50k',
+            '09-30-2022 Total Expenditures for Awards Greater or Equal to $50k',
+            '12-31-2022 Total Expenditures for Awards Greater or Equal to $50k',
+            '03-30-2023 Total Expenditures for Awards Greater or Equal to $50k',
+        ];
+        expect(headers[1]).to.equal(headersExpected[1]);
     });
 });

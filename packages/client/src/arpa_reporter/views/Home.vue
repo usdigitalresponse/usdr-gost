@@ -111,7 +111,7 @@ export default {
       this.sending = true;
 
       try {
-        const result = await getJson('/api/audit_report?async=true');
+        const result = await getJson('/api/audit_report?queue=true');
 
         if (result.error) {
           this.alert = {

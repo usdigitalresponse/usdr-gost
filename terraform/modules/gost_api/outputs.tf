@@ -19,3 +19,31 @@ output "ecs_cluster_name" {
 output "ecs_service_name" {
   value = join("", aws_ecs_service.default.*.name)
 }
+
+output "ecs_service_arn" {
+  value = join("", aws_ecs_service.default.*.id)
+}
+
+output "ecs_task_role_name" {
+  value = join("", aws_iam_role.task.*.name)
+}
+
+output "arpa_audit_reports_bucket_id" {
+  value = module.arpa_audit_reports_bucket.bucket_id
+}
+
+output "arpa_audit_reports_bucket_arn" {
+  value = module.arpa_audit_reports_bucket.bucket_arn
+}
+
+output "efs_data_volume_id" {
+  value = module.efs_data_volume.id
+}
+
+output "efs_data_volume_access_point_id" {
+  value = module.efs_data_volume.access_point_ids["data"]
+}
+
+output "send_emails_policy_json" {
+  value = module.send_emails_policy.json
+}

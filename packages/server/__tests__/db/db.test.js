@@ -5,6 +5,7 @@ const db = require('../../src/db');
 const { TABLES } = require('../../src/db/constants');
 const fixtures = require('./seeds/fixtures');
 const emailConstants = require('../../src/lib/email/constants');
+const keywordMigrationScript = require('../../src/db/saved_search_migration');
 
 const BASIC_SEARCH_CRITERIA = JSON.stringify({
     includeKeywords: 'Grant',
@@ -26,6 +27,102 @@ describe('db', () => {
 
     after(async () => {
         await db.knex.destroy();
+    });
+    context('migrate keywords to saved search', () => {
+        it('migrates keywords to saved search dry-run', async () => {
+            const fakeLog = sinon.fake.returns('foo');
+            keywordMigrationScript.log = fakeLog;
+            process.argv.push('--dry-run');
+            await keywordMigrationScript.migrate_keywords_to_saved_search();
+            process.argv.pop();
+
+            const expectedLogOutput = [
+                'DRY RUN :: Begin migrating legacy agency criteria to saved searches',
+                'DRY RUN :: Migrating agency criteria for agency 0',
+                'DRY RUN :: No agency criteria to migrate for agency 1',
+                'DRY RUN :: Migrating agency criteria for agency 4',
+                'DRY RUN :: Migrating agency criteria for users 1,2 belonging to agency 0',
+                'DRY RUN :: No agency criteria to migrate for users 3 belonging to agency 1',
+                'DRY RUN :: No users to migrate for agency 4',
+                'DRY RUN :: Would have inserted approximately 2 saved searches. Note: there may be duplicates.',
+                'DRY RUN :: Done migrating legacy agency criteria to saved searches',
+            ];
+            const actualLogOutput = [];
+            fakeLog.getCalls().forEach((call) => { actualLogOutput.push(call.firstArg); });
+            expect(actualLogOutput.join(',\n')).to.equal(expectedLogOutput.join(',\n'));
+        });
+        it('migrations keywords to saved search no duplicates', async () => {
+            const fakeLog = sinon.fake.returns('foo');
+            keywordMigrationScript.log = fakeLog;
+            await keywordMigrationScript.migrate_keywords_to_saved_search();
+            const rows = await knex('grants_saved_searches').where('name', 'Legacy - Saved Search');
+            await knex('grants_saved_searches')
+                .where('name', 'Legacy - Saved Search')
+                .delete();
+
+            const expectedLogOutput = [
+                'Begin migrating legacy agency criteria to saved searches',
+                'Migrating agency criteria for agency 0',
+                'No agency criteria to migrate for agency 1',
+                'Migrating agency criteria for agency 4',
+                'Migrating agency criteria for users 1,2 belonging to agency 0',
+                'No agency criteria to migrate for users 3 belonging to agency 1',
+                'No users to migrate for agency 4',
+                'Inserted 2 saved searches',
+                'Done migrating legacy agency criteria to saved searches',
+            ];
+            const actualLogOutput = [];
+            fakeLog.getCalls().forEach((call) => { actualLogOutput.push(call.firstArg); });
+            expect(actualLogOutput.join(',\n')).to.equal(expectedLogOutput.join(',\n'));
+            rows.forEach((row) => {
+                expect(db.validateSearchFilters(db.formatSearchCriteriaToQueryFilters(row.criteria))).to.have.lengthOf(0);
+            });
+        });
+        it('migrates keywords to saved search ignores duplicates', async () => {
+            const fakeLog = sinon.fake.returns('foo');
+            keywordMigrationScript.log = fakeLog;
+            await knex('grants_saved_searches')
+                .insert({
+                    created_by: 1,
+                    criteria: {
+                        opportunityStatuses: ['posted'],
+                        fundingTypes: null,
+                        agency: null,
+                        bill: null,
+                        costSharing: null,
+                        opportunityCategories: [],
+                        postedWithin: [],
+                        includeKeywords: 'Covid',
+                        excludeKeywords: 'Climate',
+                        eligibility: [],
+                    },
+                    name: 'Legacy - Saved Search',
+                })
+                .returning('id');
+            await keywordMigrationScript.migrate_keywords_to_saved_search();
+            const rows = await knex('grants_saved_searches').where('name', 'Legacy - Saved Search');
+            await knex('grants_saved_searches')
+                .where('name', 'Legacy - Saved Search')
+                .delete();
+
+            const expectedLogOutput = [
+                'Begin migrating legacy agency criteria to saved searches',
+                'Migrating agency criteria for agency 0',
+                'No agency criteria to migrate for agency 1',
+                'Migrating agency criteria for agency 4',
+                'Migrating agency criteria for users 1,2 belonging to agency 0',
+                'No agency criteria to migrate for users 3 belonging to agency 1',
+                'No users to migrate for agency 4',
+                'Inserted 1 saved searches', // This would have been 2 if not for the duplication mechanism.
+                'Done migrating legacy agency criteria to saved searches',
+            ];
+            const actualLogOutput = [];
+            fakeLog.getCalls().forEach((call) => { actualLogOutput.push(call.firstArg); });
+            expect(actualLogOutput.join(',\n')).to.equal(expectedLogOutput.join(',\n'));
+            rows.forEach((row) => {
+                expect(db.validateSearchFilters(db.formatSearchCriteriaToQueryFilters(row.criteria))).to.have.lengthOf(0);
+            });
+        });
     });
     context('Validate Search Filters', () => {
         it('throws an error when non-existent option is passed', async () => {
@@ -62,13 +159,15 @@ describe('db', () => {
                 costSharing: 'not a yes or no',
                 agencyCode: 99,
                 bill: 99,
+                opportunityCategories: ['Earmark', 'foo'],
             };
             const errors = db.validateSearchFilters(badFilters);
-            expect(errors.length).to.equal(4);
+            expect(errors.length).to.equal(5);
             expect(errors[0]).to.equal('Received invalid filter opportunityNumber, expected String, received 99');
             expect(errors[1]).to.equal('Received invalid filter costSharing, expected Enum, found value not a yes or no that is not in Yes,No');
             expect(errors[2]).to.equal('Received invalid filter agencyCode, expected String, received 99');
             expect(errors[3]).to.equal('Received invalid filter bill, expected String, received 99');
+            expect(errors[4]).to.equal('Received invalid filter opportunityCategories, expected List of Enum, found value foo that is not in Other,Discretionary,Mandatory,Continuation,Earmark');
         });
         it('throws an error when Number filter-type is not a number', async () => {
             const badFilters = {
