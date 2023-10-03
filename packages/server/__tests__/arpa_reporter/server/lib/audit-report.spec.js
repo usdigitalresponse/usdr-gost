@@ -1,7 +1,7 @@
-// const chai = require('chai');
-// const chaiAsPromised = require('chai-as-promised');
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
 
-// chai.use(chaiAsPromised);
+chai.use(chaiAsPromised);
 
 const { expect } = require('chai');
 const sinon = require('sinon');
@@ -122,16 +122,41 @@ describe('audit report generation', () => {
         expect(sendEmailFake.notCalled).to.equal(true);
     });
 
-    it('generate audit report', async () => {
-        const stub = sandbox.stub(audit_report, 'generateSheets').returns(response);
-        const reportNoCache = await withTenantId(0, () => audit_report.generate('test-host', false));
+    it('generate audit report components', async () => {
+        const allData = response;
+        const cachedData = Object.keys(response).reduce((x, y) => { x[y] = response[y].slice(0, -1); return x; }, {});
+        const dataWithCache = Object.keys(response).reduce((x, y) => { x[y] = [response[y][response[y].length - 1]]; return x; }, {});
+        const periodId = 1;
+        const tenantId = 0;
+        const domain = 'test';
 
-        const reportCache = await withTenantId(0, () => {
-            sandbox.stub(audit_report, 'getCache').returns(Object.keys(response).reduce((x, y) => { x[y] = response[y].slice(0, -1); return x; }, {}));
-            stub.returns(Object.keys(response).reduce((x, y) => { x[y] = [response[y][response[y].length - 1]]; return x; }, {}));
-            return audit_report.generate('test-host', true);
-        });
-        expect(Buffer.compare(reportCache.outputWorkBook, reportNoCache.outputWorkBook)).to.equal(0);
+        const obligationStub = sandbox.stub(audit_report, 'getObligationSheetData');
+        obligationStub.returns(allData.obligations);
+        const obligationsNoCache = await audit_report.createObligationSheet(periodId, domain, tenantId, true, null);
+        obligationStub.returns(dataWithCache.obligations);
+        const obligationsWithCache = await audit_report.createObligationSheet(periodId, domain, tenantId, false, cachedData.obligations);
+        expect(JSON.stringify(obligationsNoCache)).to.equal(JSON.stringify(obligationsWithCache));
+
+        const projectSummariesStub = sandbox.stub(audit_report, 'getProjectSummariesSheetData');
+        projectSummariesStub.returns(allData.projectSummaries);
+        const projectSummariesNoCache = await audit_report.createProjectSummariesSheet(periodId, domain, tenantId, true, null);
+        projectSummariesStub.returns(dataWithCache.projectSummaries);
+        const projectSummariesWithCache = await audit_report.createProjectSummariesSheet(periodId, domain, tenantId, false, cachedData.projectSummaries);
+        expect(JSON.stringify(projectSummariesNoCache)).to.equal(JSON.stringify(projectSummariesWithCache));
+
+        const projectSummaryGroupedByProjectStub = sandbox.stub(audit_report, 'getReportsGroupedByProjectData');
+        projectSummaryGroupedByProjectStub.returns(allData.projectSummaryGroupedByProject);
+        const projectSummaryGroupedByProjectNoCache = await audit_report.createReportsGroupedByProjectSheet(periodId, tenantId, true, null);
+        projectSummaryGroupedByProjectStub.returns(dataWithCache.projectSummaryGroupedByProject);
+        const projectSummaryGroupedByProjectWithCache = await audit_report.createReportsGroupedByProjectSheet(periodId, tenantId, false, cachedData.projectSummaryGroupedByProject);
+        expect(JSON.stringify(projectSummaryGroupedByProjectNoCache)).to.equal(JSON.stringify(projectSummaryGroupedByProjectWithCache));
+
+        const kpiDataStub = sandbox.stub(audit_report, 'getKpiDataGroupedByProjectData');
+        kpiDataStub.returns(allData.KPIDataGroupedByProject);
+        const kpiDataNoCache = await audit_report.createKpiDataGroupedByProjectSheet(periodId, tenantId, true, null);
+        kpiDataStub.returns(dataWithCache.KPIDataGroupedByProject);
+        const kpiDataWithCache = await audit_report.createKpiDataGroupedByProjectSheet(periodId, tenantId, false, cachedData.KPIDataGroupedByProject);
+        expect(JSON.stringify(kpiDataNoCache)).to.equal(JSON.stringify(kpiDataWithCache));
     });
 
     it('headers should be in the proper order', () => {

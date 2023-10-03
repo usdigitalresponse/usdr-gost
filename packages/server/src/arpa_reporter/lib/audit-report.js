@@ -61,6 +61,11 @@ function getUploadLink(domain, id, filename) {
 }
 
 async function createObligationSheet(periodId, domain, tenantId, calculatePriorPeriods = true, dataBefore = null) {
+    const data = await module.exports.getObligationSheetData(periodId, domain, tenantId, calculatePriorPeriods);
+    return [...data, ...(dataBefore ?? [])].sort((a, b) => (a['Period End Date'] - b['Period End Date']));
+}
+
+async function getObligationSheetData(periodId, domain, tenantId, calculatePriorPeriods = true) {
     log('called createObligationSheet()', { periodId, domain, fn: 'createObligationSheet' });
     // select active reporting periods and sort by date
     const reportingPeriods = calculatePriorPeriods
@@ -167,10 +172,15 @@ async function createObligationSheet(periodId, domain, tenantId, calculatePriorP
     );
 
     log('returning flattened rows for sheet', { fn: 'createObligationSheet' });
-    return [...rows.flat(), ...(dataBefore ?? [])];
+    return rows.flat();
 }
 
-async function createProjectSummaries(periodId, domain, tenantId, calculatePriorPeriods, dataBefore = null) {
+async function createProjectSummariesSheet(periodId, domain, tenantId, calculatePriorPeriods, dataBefore = null) {
+    const data = await module.exports.getProjectSummariesSheetData(periodId, domain, tenantId, calculatePriorPeriods);
+    return [...data, ...(dataBefore ?? [])].sort((a, b) => (a['Project ID'] - b['Project ID']));
+}
+
+async function getProjectSummariesSheetData(periodId, domain, tenantId, calculatePriorPeriods) {
     log('called createProjectSummaries()', { periodId, domain, fn: 'createProjectSummaries' });
     const records = await mostRecentProjectRecords(periodId, tenantId, calculatePriorPeriods);
     log('retrieved most recent project records', {
@@ -232,8 +242,7 @@ async function createProjectSummaries(periodId, domain, tenantId, calculatePrior
     });
 
     log('returning Promise.all(rows)', { periodId, domain });
-    const rowsAll = await Promise.all(rows);
-    return [...rowsAll, ...(dataBefore ?? [])];
+    return Promise.all(rows);
 }
 
 function getRecordsByProject(records) {
@@ -246,7 +255,32 @@ function getRecordsByProject(records) {
     }, {});
 }
 
-async function createReportsGroupedByProject(periodId, tenantId, calculatePriorPeriods, dataBefore = null, dateFormat = REPORTING_DATE_FORMAT) {
+async function createReportsGroupedByProjectSheet(periodId, tenantId, calculatePriorPeriods, dataBefore = null, dateFormat = REPORTING_DATE_FORMAT) {
+    const projects = await module.exports.getReportsGroupedByProjectData(periodId, tenantId, calculatePriorPeriods, dateFormat);
+    // go through each one and combine the columns
+    if (dataBefore !== null && dataBefore.length > 0) {
+        const dataBeforeRemaining = [...dataBefore];
+        for (let i = 0; i < projects.length; i += 1) {
+            // check if we have this elsewhere
+            const project = projects[i];
+            const index = dataBefore.findIndex((x) => x['Project ID'] === project['Project ID']);
+            if (index !== -1) {
+                for (let y = 0; y < dataBeforeRemaining.length; y += 1) {
+                    if (dataBeforeRemaining[y]['Project ID'] === project['Project ID']) {
+                        project['Capital Expenditure Amount'] += dataBeforeRemaining[y]['Capital Expenditure Amount'] ?? 0;
+                        projects[i] = { ...dataBeforeRemaining[y], ...project };
+                        delete dataBeforeRemaining[y];
+                    }
+                }
+            }
+        }
+        return [...projects, ...dataBeforeRemaining.filter((x) => x)].sort((a, b) => (a['Project ID'] - b['Project ID']));
+    }
+
+    return projects;
+}
+
+async function getReportsGroupedByProjectData(periodId, tenantId, calculatePriorPeriods, dateFormat = REPORTING_DATE_FORMAT) {
     log('called createReportsGroupedByProject()', { periodId, fn: 'createReportsGroupedByProject' });
     const records = await recordsForProject(periodId, tenantId, calculatePriorPeriods);
     log('retrieved records for project', { fn: 'createReportsGroupedByProject', count: records.length });
@@ -256,7 +290,7 @@ async function createReportsGroupedByProject(periodId, tenantId, calculatePriorP
     log('retrieved all reporting periods', { fn: 'createReportsGroupedByProject', count: reportingPeriods.length });
 
     log('mapping each recordsByProject', { fn: 'createReportsGroupedByProject' });
-    const projects = Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
+    return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
         const record = projectRecords[0];
 
         // set values for columns that are common across all records of projectId
@@ -321,64 +355,12 @@ async function createReportsGroupedByProject(periodId, tenantId, calculatePriorP
         });
         return row;
     });
-
-    // go through each one and combine the columns
-    if (dataBefore != null) {
-        const dataBeforeRemaining = [...dataBefore];
-        for (let i = 0; i < projects.length; i += 1) {
-            // check if we have this elsewhere
-            const project = projects[i];
-            const index = dataBefore.findIndex((x) => x['Project ID'] === project['Project ID']);
-            if (index !== -1) {
-                for (let y = 0; y < dataBeforeRemaining.length; y += 1) {
-                    if (dataBeforeRemaining[y]['Project ID'] === project['Project ID']) {
-                        project['Capital Expenditure Amount'] += dataBeforeRemaining[y]['Capital Expenditure Amount'] ?? 0;
-                        projects[i] = { ...dataBeforeRemaining[y], ...project };
-                        delete dataBeforeRemaining[y];
-                    }
-                }
-            }
-        }
-        return [...projects, ...dataBeforeRemaining.filter((x) => x)];
-    }
-
-    debugger;
-    return projects;
 }
 
-async function createKpiDataGroupedByProject(periodId, tenantId, calculatePriorPeriods, dataBefore = null) {
-    log('called createKpiDataGroupedByProject()', { periodId, fn: 'createKpiDataGroupedByProject' });
-    const records = await recordsForProject(periodId, tenantId);
-    log('retrieved records for project', { fn: 'createKpiDataGroupedByProject', count: records.length });
-    const recordsByProject = getRecordsByProject(records);
-    log('organized records by project', { fn: 'createKpiDataGroupedByProject', count: recordsByProject.length });
-
-    log('mapping each recordsByProject', { fn: 'createKpiDataGroupedByProject' });
-    const rows = Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
-        log('initializing row for project', { fn: 'createKpiDataGroupedByProject', projectId, periodId });
-        const row = {
-            'Project ID': projectId,
-            'Number of Subawards': 0,
-            'Number of Expenditures': 0,
-            'Evidence Based Total Spend': 0,
-        };
-
-        log('populating row values from each projectRecords', { fn: 'createKpiDataGroupedByProject', projectId, periodId });
-        projectRecords.forEach((r) => {
-            const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
-            row['Number of Subawards'] += (r.type === 'awards50k');
-            row['Number of Expenditures'] += (currentPeriodExpenditure > 0);
-            row['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
-        });
-
-        log('returning populated row', {
-            fn: 'createKpiDataGroupedByProject', projectId, periodId,
-        });
-        return row;
-    });
-
+async function createKpiDataGroupedByProjectSheet(periodId, tenantId, calculatePriorPeriods, dataBefore = null) {
+    const rows = await module.exports.getKpiDataGroupedByProjectData(periodId, tenantId, calculatePriorPeriods);
     // go through each one and combine the columns
-    if (dataBefore != null) {
+    if (dataBefore != null && dataBefore.length > 0) {
         const dataBeforeRemaining = [...dataBefore];
         for (let i = 0; i < rows.length; i += 1) {
             // check if we have this elsewhere
@@ -396,9 +378,41 @@ async function createKpiDataGroupedByProject(periodId, tenantId, calculatePriorP
                 }
             }
         }
-        return [...rows, ...dataBeforeRemaining.filter((x) => x)];
+        return [...rows, ...dataBeforeRemaining.filter((x) => x)].sort((a, b) => (a['Project ID'] - b['Project ID']));
     }
     return rows;
+}
+
+async function getKpiDataGroupedByProjectData(periodId, tenantId, calculatePriorPeriods) {
+    log('called createKpiDataGroupedByProjectSheet()', { periodId, fn: 'createKpiDataGroupedByProjectSheet' });
+    const records = await recordsForProject(periodId, tenantId, calculatePriorPeriods);
+    log('retrieved records for project', { fn: 'createKpiDataGroupedByProjectSheet', count: records.length });
+    const recordsByProject = getRecordsByProject(records);
+    log('organized records by project', { fn: 'createKpiDataGroupedByProjectSheet', count: recordsByProject.length });
+
+    log('mapping each recordsByProject', { fn: 'createKpiDataGroupedByProjectSheet' });
+    return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
+        log('initializing row for project', { fn: 'createKpiDataGroupedByProjectSheet', projectId, periodId });
+        const row = {
+            'Project ID': projectId,
+            'Number of Subawards': 0,
+            'Number of Expenditures': 0,
+            'Evidence Based Total Spend': 0,
+        };
+
+        log('populating row values from each projectRecords', { fn: 'createKpiDataGroupedByProjectSheet', projectId, periodId });
+        projectRecords.forEach((r) => {
+            const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
+            row['Number of Subawards'] += (r.type === 'awards50k');
+            row['Number of Expenditures'] += (currentPeriodExpenditure > 0);
+            row['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
+        });
+
+        log('returning populated row', {
+            fn: 'createKpiDataGroupedByProjectSheet', projectId, periodId,
+        });
+        return row;
+    });
 }
 
 function generateEmptySheets() {
@@ -418,9 +432,9 @@ async function generateSheets(periodId, domain, tenantId, calculatePriorPeriods 
         KPIDataGroupedByProject,
     ] = await Promise.all([
         createObligationSheet(periodId, domain, tenantId, calculatePriorPeriods, dataBefore?.obligations),
-        createProjectSummaries(periodId, domain, tenantId, calculatePriorPeriods, dataBefore?.projectSummaries),
-        createReportsGroupedByProject(periodId, tenantId, calculatePriorPeriods, dataBefore?.projectSummaryGroupedByProject),
-        createKpiDataGroupedByProject(periodId, tenantId, calculatePriorPeriods, dataBefore?.KPIDataGroupedByProject),
+        createProjectSummariesSheet(periodId, domain, tenantId, calculatePriorPeriods, dataBefore?.projectSummaries),
+        createReportsGroupedByProjectSheet(periodId, tenantId, calculatePriorPeriods, dataBefore?.projectSummaryGroupedByProject),
+        createKpiDataGroupedByProjectSheet(periodId, tenantId, calculatePriorPeriods, dataBefore?.KPIDataGroupedByProject),
     ]);
 
     return {
@@ -618,7 +632,7 @@ async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useT
     log('generateAndSendEmail() called', null, { tenantId }, true);
     // Generate the report
     log('Generating the report');
-    const report = await module.exports.generate(requestHost, tenantId);
+    const report = await module.exports.generate(requestHost, tenantId, true);
     log('Report generation complete', {});
     // Upload to S3 and send email link
     const reportKey = `${tenantId}/${report.periodId}/${report.filename}`;
@@ -677,6 +691,15 @@ module.exports = {
     generateSheets,
     getCache,
     createHeadersProjectSummariesV2,
+
+    createObligationSheet,
+    getObligationSheetData,
+    createProjectSummariesSheet,
+    getProjectSummariesSheetData,
+    createReportsGroupedByProjectSheet,
+    getReportsGroupedByProjectData,
+    createKpiDataGroupedByProjectSheet,
+    getKpiDataGroupedByProjectData,
 };
 
 // NOTE: This file was copied from src/server/lib/audit-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
