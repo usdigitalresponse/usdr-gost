@@ -252,6 +252,7 @@ module "arpa_audit_report" {
   }]
   additional_task_role_json_policies = {
     rw-audit-reports-bucket = data.aws_iam_policy_document.arpa_audit_report_rw_reports_bucket.json
+    send-emails             = module.api.send_emails_policy_json
   }
 
   # Task resource configuration

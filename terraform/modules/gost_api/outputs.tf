@@ -43,3 +43,7 @@ output "efs_data_volume_id" {
 output "efs_data_volume_access_point_id" {
   value = module.efs_data_volume.access_point_ids["data"]
 }
+
+output "send_emails_policy_json" {
+  value = module.send_emails_policy.json
+}
