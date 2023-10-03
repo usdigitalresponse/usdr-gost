@@ -298,10 +298,20 @@ export default {
           assignedToAgency: this.showAssignedToAgency,
         });
       } catch (e) {
+        this.notifyError();
         console.log(e);
       } finally {
         this.loading = false;
       }
+    },
+    notifyError() {
+      this.$bvToast.toast('We encountered an error while retriving grants data. For the most accurate results please refresh the page and try again.', {
+        title: 'Something went wrong',
+        variant: 'danger',
+        solid: true,
+        noAutoHide: true,
+        toaster: 'b-toaster-top-center',
+      });
     },
     getAwardFloor(grant) {
       let body;
