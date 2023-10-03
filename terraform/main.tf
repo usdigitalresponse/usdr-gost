@@ -236,6 +236,8 @@ module "arpa_audit_report" {
   stop_timeout_seconds  = 120
   consumer_task_command = ["node", "./src/scripts/arpaAuditReport.js"]
   consumer_container_environment = {
+    API_DOMAIN          = local.api_domain_name
+    AUDIT_REPORT_BUCKET = module.api.arpa_audit_reports_bucket_id
     DATA_DIR            = "/var/data"
     NODE_OPTIONS        = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
     NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
