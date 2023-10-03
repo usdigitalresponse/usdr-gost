@@ -458,7 +458,13 @@ module "digest_email_get_grants" {
     NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
     WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
   }
-
+  consumer_task_efs_volume_mounts = [{
+    name            = "data"
+    container_path  = "/var/data"
+    read_only       = false
+    file_system_id  = module.api.efs_data_volume_id
+    access_point_id = module.api.efs_data_volume_access_point_id
+  }]
   # Task resource configuration
   # TODO: Tune these values after observing usage in different environments.
   #       See also: --max_old_space_size in NODE_OPTIONS env var.
@@ -527,6 +533,13 @@ module "digest_email_send" {
     NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
     WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
   }
+  consumer_task_efs_volume_mounts = [{
+    name            = "data"
+    container_path  = "/var/data"
+    read_only       = false
+    file_system_id  = module.api.efs_data_volume_id
+    access_point_id = module.api.efs_data_volume_access_point_id
+  }]
   additional_task_role_json_policies = {
     send-emails = module.api.send_emails_policy_json
   }
