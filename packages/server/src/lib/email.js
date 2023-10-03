@@ -329,6 +329,7 @@ async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
     //     user_ids.filter((user_id) => !unsubscribedUsersWithSavedSearches.has(user_id));
     // }
 
+    // There's a limit to dd spans. Start a new-span per user or criteria.
     /*
     1. get all saved searches mapped to each user
     2. call getAndSendGrantForSavedSearch to find new grants and send the digest
