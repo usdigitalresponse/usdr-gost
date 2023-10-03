@@ -67,6 +67,17 @@ This module configures the primary SQS queue policy to grant access for a publis
 the queue. If a DLQ is created, it may only receive messages from the primary queue (see above).
 The publisher is configured via the `sqs_publisher` input variable.
 
+**Note:** This module only configures the *SQS queue policy* to *accept* messages sent by
+a publisher principal; depending on how permissions are managed, additional permissions may
+need to be granted in order for the publisher to *send* messages to the module's SQS queue.
+In other words, even if an SQS queue policy states that messages may be accepted from a particular
+source, that source may not have permissions in its own right to send messages out to the queue
+in the first place. For example, in cases where an ECS task or Lambda function is acting as
+the publisher, the execution role of that task/function may also need to be updated to give
+permission for the task/function to perform `sqs:SendMessage` and/or `sqs:SendMessageBatch`
+actions, with the ARN of this module's SQS queue (which can be obtained via the `sqs_queue_arn`
+output) specified as a resource of that policy.
+
 ##### Examples <a name="sqs-permissions-management-examples"></a>
 
 - Allow a specific IAM role to publish messages:
@@ -122,6 +133,29 @@ The publisher is configured via the `sqs_publisher` input variable.
       principal_identifier = "events.amazonaws.com"
       source_arn           = "arn:aws:events:us-west-2:123456789876:rule/my-publisher-rule-name"
     }
+  }
+  ```
+- Attach a policy to a publisher's execution role that allows it to send messages to the queue.
+  - *Update the module source path, AWS account ID, and IAM role name according to your use-case!*
+  ```terraform
+  module "my_worker" {
+    source = "/path/to/sqs_consumer_task"
+    # ...
+    sqs_publisher = {
+      principal_type       = "AWS"
+      principal_identifier = "arn:aws:iam::123456789876:role/my-publisher-role-name"
+    }
+  }
+  data "aws_iam_policy_document" "publish_to_my_worker_queue" {
+    statement {
+      sid       = "AllowPublishToQueue"
+      actions   = ["sqs:SendMessage", "sqs:SendMessageBatch"]
+      resources = [module.my_worker.sqs_queue_arn]
+    }
+  }
+  resource "aws_iam_role_policy" "my_publisher-publish_to_my_worker_queue" {
+    role   = "my-publisher-role-name" # Must already exist
+    policy = data.aws_iam_policy_document.publish_to_my_worker_queue.json
   }
   ```
 

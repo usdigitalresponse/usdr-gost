@@ -104,7 +104,7 @@
     </b-row>
     <br v-if="!showStats" />
 
-    <b-card title="Total Interested Grants by Agencies">
+    <b-card title="Total Interested Grants by Agencies" v-if="showStats" >
       <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
         <template #cell()="{field, value}">
           <div :style="field.style" v-text="value">
@@ -413,7 +413,9 @@ export default {
       fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
     async setup() {
-      this.fetchDashboard();
+      if (this.showStats) {
+        this.fetchDashboard();
+      }
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
       this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },

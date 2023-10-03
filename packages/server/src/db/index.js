@@ -584,7 +584,7 @@ function validateSearchFilters(filters) {
         opportunityNumber: { type: 'String', valueType: 'Any' },
         fundingTypes: { type: 'List', valueType: 'Enum', values: ['CA', 'G', 'PC', 'O'] },
         opportunityStatuses: { type: 'List', valueType: 'Enum', values: ['posted', 'forecasted', 'closed', 'archived'] },
-        opportunityCategories: { type: 'List', valueType: 'Enum', values: ['Other', 'Discretionary', 'Mandatory', 'Continuation'] },
+        opportunityCategories: { type: 'List', valueType: 'Enum', values: ['Other', 'Discretionary', 'Mandatory', 'Continuation', 'Earmark'] },
         costSharing: { type: 'String', valueType: 'Enum', values: ['Yes', 'No'] },
         agencyCode: { type: 'String', valueType: 'Any' },
         postedWithinDays: { type: 'number', valueType: 'Any' },
@@ -718,6 +718,9 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             END as opportunity_status
         `))
         .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams))
+        .select(knex.raw(`
+            count(*) OVER() AS full_count
+        `))
         .groupBy(
             'grants.grant_id',
             'grants.grant_number',
@@ -747,20 +750,11 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.bill',
         );
 
-    const counts = await knex.with('filtered_grants', (qb) => {
-        qb.select([
-            'grants.grant_id',
-            'grants.open_date',
-            'grants.close_date',
-            'grants.archive_date',
-        ]).from('grants')
-            .groupBy('grants.grant_id', 'grants.open_date', 'grants.close_date', 'grants.archive_date');
-        qb.modify((q) => grantsQuery(q, filters, agencyId, { orderBy: undefined }, null));
-    }).countDistinct('filtered_grants.grant_id as total_grants').from('filtered_grants');
+    const fullCount = data.length > 0 ? data[0].full_count : 0;
 
     const pagination = {
-        total: parseInt(counts[0].total_grants, 10),
-        lastPage: Math.ceil(parseInt(counts[0].total_grants, 10) / parseInt(paginationParams.perPage, 10)),
+        total: parseInt(fullCount, 10),
+        lastPage: Math.ceil(parseInt(fullCount, 10) / parseInt(paginationParams.perPage, 10)),
     };
 
     const dataWithAgency = await enhanceGrantData(tenantId, data);
