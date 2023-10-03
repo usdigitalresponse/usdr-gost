@@ -528,7 +528,7 @@ module "digest_email_send" {
     WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
   }
   additional_task_role_json_policies = {
-    send-emails             = module.api.send_emails_policy_json
+    send-emails = module.api.send_emails_policy_json
   }
 
   # Task resource configuration
