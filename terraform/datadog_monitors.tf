@@ -46,7 +46,7 @@ resource "datadog_monitor" "consume_grants-event_failed" {
 resource "datadog_monitor" "arpa_audit_report-task_failed" {
   count = var.datadog_monitors_enabled ? 1 : 0
 
-  name = "${local.dd_monitor_name_prefix}: Grant modification events failed to process"
+  name = "${local.dd_monitor_name_prefix}: ARPA audit report job failed"
   type = "metric alert"
   message = join("\n", [
     "{{#is_alert}}",
