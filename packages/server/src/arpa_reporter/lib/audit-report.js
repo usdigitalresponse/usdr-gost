@@ -61,30 +61,30 @@ function getUploadLink(domain, id, filename) {
 }
 
 async function createObligationSheet(periodId, domain, tenantId, calculatePriorPeriods = true, dataBefore = null) {
-    const data = await module.exports.getObligationSheetData(periodId, domain, tenantId, calculatePriorPeriods);
+    const data = await module.exports.getObligationData(periodId, domain, tenantId, calculatePriorPeriods);
     return [...data, ...(dataBefore ?? [])].sort((a, b) => (a['Period End Date'] - b['Period End Date']));
 }
 
-async function getObligationSheetData(periodId, domain, tenantId, calculatePriorPeriods = true) {
-    log('called createObligationSheet()', { periodId, domain, fn: 'createObligationSheet' });
+async function getObligationData(periodId, domain, tenantId, calculatePriorPeriods = true) {
+    log('called getObligationData()', { periodId, domain, fn: 'getObligationSheetData' });
     // select active reporting periods and sort by date
     const reportingPeriods = calculatePriorPeriods
         ? await getPreviousReportingPeriods(periodId, undefined, tenantId)
         : [await getReportingPeriod(periodId, undefined, tenantId)];
     // only use the most recent one if we already
     log('retrieved previous reporting periods', {
-        periodId, domain, fn: 'createObligationSheet', count: reportingPeriods.length,
+        periodId, domain, fn: 'getObligationData', count: reportingPeriods.length,
     });
 
     const rows = await Promise.all(
         reportingPeriods.map(async (period) => {
-            log('creating row for reporting period', { period: { id: period.id }, periodId, fn: 'createObligationSheet' });
+            log('creating row for reporting period', { period: { id: period.id }, periodId, fn: 'getObligationData' });
             const uploads = await usedForTreasuryExport(period.id, tenantId);
-            log('retrived uploads for period', { period: { id: period.id }, periodId, fn: 'createObligationSheet' });
+            log('retrived uploads for period', { period: { id: period.id }, periodId, fn: 'getObligationData' });
             const records = await recordsForReportingPeriod(period.id, tenantId);
-            log('retrieved records', { period: { id: period.id }, periodId, fn: 'createObligationSheet' });
+            log('retrieved records', { period: { id: period.id }, periodId, fn: 'getObligationData' });
 
-            log('mapping uploads', { period: { id: period.id }, periodId, fn: 'createObligationSheet' });
+            log('mapping uploads', { period: { id: period.id }, periodId, fn: 'getObligationData' });
             return Promise.all(uploads.map((upload) => {
                 log('initializing empty row', {
                     period: {
@@ -93,7 +93,7 @@ async function getObligationSheetData(periodId, domain, tenantId, calculatePrior
                         id: period.id,
                         name: period.name,
                     },
-                    fn: 'createObligationSheet',
+                    fn: 'getObligationData',
                 });
                 const emptyRow = {
                     'Reporting Period': period.name,
@@ -118,7 +118,7 @@ async function getObligationSheetData(periodId, domain, tenantId, calculatePrior
                         name: period.name,
                     },
                     upload: { id: upload.id },
-                    fn: 'createObligationSheet',
+                    fn: 'getObligationData',
                 });
                 const row = records
                     .filter((record) => record.upload.id === upload.id)
@@ -132,7 +132,7 @@ async function getObligationSheetData(periodId, domain, tenantId, calculatePrior
                             },
                             upload: { id: upload.id },
                             record: { type: record.type },
-                            fn: 'createObligationSheet',
+                            fn: 'getObligationData',
                         });
                         switch (record.type) {
                             case 'ec1':
@@ -164,40 +164,40 @@ async function getObligationSheetData(periodId, domain, tenantId, calculatePrior
                     }, emptyRow);
 
                 log('returning populated row', {
-                    period, upload: { id: upload.id }, fn: 'createObligationSheet',
+                    period, upload: { id: upload.id }, fn: 'getObligationData',
                 });
                 return row;
             }));
         }),
     );
 
-    log('returning flattened rows for sheet', { fn: 'createObligationSheet' });
+    log('returning flattened rows for sheet', { fn: 'getObligationData' });
     return rows.flat();
 }
 
 async function createProjectSummariesSheet(periodId, domain, tenantId, calculatePriorPeriods, dataBefore = null) {
-    const data = await module.exports.getProjectSummariesSheetData(periodId, domain, tenantId, calculatePriorPeriods);
+    const data = await module.exports.getProjectSummariesData(periodId, domain, tenantId, calculatePriorPeriods);
     return [...data, ...(dataBefore ?? [])].sort((a, b) => (a['Project ID'] - b['Project ID']));
 }
 
-async function getProjectSummariesSheetData(periodId, domain, tenantId, calculatePriorPeriods) {
-    log('called createProjectSummaries()', { periodId, domain, fn: 'createProjectSummaries' });
+async function getProjectSummariesData(periodId, domain, tenantId, calculatePriorPeriods) {
+    log('called getProjectSummariesData()', { periodId, domain, fn: 'getProjectSummariesData' });
     const records = await mostRecentProjectRecords(periodId, tenantId, calculatePriorPeriods);
     log('retrieved most recent project records', {
-        fn: 'createProjectSummaries', periodId, domain, record_count: records.length,
+        fn: 'getProjectSummariesData', periodId, domain, record_count: records.length,
     });
 
     // TODO: inputs does not appear to be used
     const inputs = [];
     records.forEach((r) => inputs.push({ record: r, domain }));
     log('populated inputs[] for each record', {
-        fn: 'createProjectSummaries', input_count: inputs.length,
+        fn: 'getProjectSummariesData', input_count: inputs.length,
     });
 
-    log('mapping rows from records', { fn: 'createProjectSummaries' });
+    log('mapping rows from records', { fn: 'getProjectSummariesData' });
     const rows = records.map(async (record) => {
         log('mapping row from record', {
-            fn: 'createProjectSummaries',
+            fn: 'getProjectSummariesData',
             record: {
                 upload: {
                     id: record.upload.id,
@@ -209,7 +209,7 @@ async function getProjectSummariesSheetData(periodId, domain, tenantId, calculat
             record.upload.reporting_period_id, undefined, tenantId,
         );
         log('retrieved reporting period for row mapped from record', {
-            fn: 'createProjectSummaries',
+            fn: 'getProjectSummariesData',
             record: {
                 upload: {
                     id: record.upload.id,
@@ -219,7 +219,7 @@ async function getProjectSummariesSheetData(periodId, domain, tenantId, calculat
         });
 
         log('returning row mapped from record', {
-            fn: 'createProjectSummaries',
+            fn: 'getProjectSummariesData',
             record: {
                 upload: {
                     id: record.upload.id,
@@ -264,13 +264,11 @@ async function createReportsGroupedByProjectSheet(periodId, tenantId, calculateP
             // check if we have this elsewhere
             const project = projects[i];
             const index = dataBefore.findIndex((x) => x['Project ID'] === project['Project ID']);
-            if (index !== -1) {
-                for (let y = 0; y < dataBeforeRemaining.length; y += 1) {
-                    if (dataBeforeRemaining[y]['Project ID'] === project['Project ID']) {
-                        project['Capital Expenditure Amount'] += dataBeforeRemaining[y]['Capital Expenditure Amount'] ?? 0;
-                        projects[i] = { ...dataBeforeRemaining[y], ...project };
-                        delete dataBeforeRemaining[y];
-                    }
+            for (let y = 0; (index !== -1) && (y < dataBeforeRemaining.length); y += 1) {
+                if (dataBeforeRemaining[y]['Project ID'] === project['Project ID']) {
+                    project['Capital Expenditure Amount'] += dataBeforeRemaining[y]['Capital Expenditure Amount'] ?? 0;
+                    projects[i] = { ...dataBeforeRemaining[y], ...project };
+                    delete dataBeforeRemaining[y];
                 }
             }
         }
@@ -281,21 +279,21 @@ async function createReportsGroupedByProjectSheet(periodId, tenantId, calculateP
 }
 
 async function getReportsGroupedByProjectData(periodId, tenantId, calculatePriorPeriods, dateFormat = REPORTING_DATE_FORMAT) {
-    log('called createReportsGroupedByProject()', { periodId, fn: 'createReportsGroupedByProject' });
+    log('called getReportsGroupedByProjectData()', { periodId, fn: 'getReportsGroupedByProjectData' });
     const records = await recordsForProject(periodId, tenantId, calculatePriorPeriods);
-    log('retrieved records for project', { fn: 'createReportsGroupedByProject', count: records.length });
+    log('retrieved records for project', { fn: 'getReportsGroupedByProjectData', count: records.length });
     const recordsByProject = getRecordsByProject(records);
-    log('organized records by project', { fn: 'createReportsGroupedByProject', count: recordsByProject.length });
+    log('organized records by project', { fn: 'getReportsGroupedByProjectData', count: recordsByProject.length });
     const reportingPeriods = await getAllReportingPeriods(undefined, tenantId);
-    log('retrieved all reporting periods', { fn: 'createReportsGroupedByProject', count: reportingPeriods.length });
+    log('retrieved all reporting periods', { fn: 'getReportsGroupedByProjectData', count: reportingPeriods.length });
 
-    log('mapping each recordsByProject', { fn: 'createReportsGroupedByProject' });
+    log('mapping each recordsByProject', { fn: 'getReportsGroupedByProjectData' });
     return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
         const record = projectRecords[0];
 
         // set values for columns that are common across all records of projectId
         log('setting values for columns that are common across all records of projectId', {
-            fn: 'createReportsGroupedByProject', projectId,
+            fn: 'getReportsGroupedByProjectData', projectId,
         });
         const row = {
             'Project ID': projectId,
@@ -306,16 +304,16 @@ async function getReportsGroupedByProjectData(periodId, tenantId, calculatePrior
 
         // get all reporting periods related to the project
         log('getting all reporting periods related to the project', {
-            fn: 'createReportsGroupedByProject', projectId,
+            fn: 'getReportsGroupedByProjectData', projectId,
         });
         const allReportingPeriods = Array.from(new Set(projectRecords.map((r) => r.upload.reporting_period_id)));
         log('populated allReportingPeriods from projectRecords', {
-            fn: 'createReportsGroupedByProject', projectId,
+            fn: 'getReportsGroupedByProjectData', projectId,
         });
 
         // initialize the columns in the row
         log('initializing the columns in the row', {
-            fn: 'createReportsGroupedByProject', projectId,
+            fn: 'getReportsGroupedByProjectData', projectId,
         });
         allReportingPeriods.forEach((reportingPeriodId) => {
             const reportingPeriodEndDate = moment(
@@ -334,7 +332,7 @@ async function getReportsGroupedByProjectData(periodId, tenantId, calculatePrior
 
         // set values in each column
         log('setting values in each column', {
-            fn: 'createReportsGroupedByProject', projectId,
+            fn: 'getReportsGroupedByProjectData', projectId,
         });
 
         projectRecords.forEach((r) => {
@@ -351,7 +349,7 @@ async function getReportsGroupedByProjectData(periodId, tenantId, calculatePrior
         });
 
         log('returning populated row', {
-            fn: 'createReportsGroupedByProject', projectId,
+            fn: 'getReportsGroupedByProjectData', projectId,
         });
         return row;
     });
@@ -366,15 +364,13 @@ async function createKpiDataGroupedByProjectSheet(periodId, tenantId, calculateP
             // check if we have this elsewhere
             const row = rows[i];
             const index = dataBefore.findIndex((x) => x['Project ID'] === row['Project ID']);
-            if (index !== -1) {
-                for (let y = 0; y < dataBeforeRemaining.length; y += 1) {
-                    if (dataBeforeRemaining[y]['Project ID'] === row['Project ID']) {
-                        const rowBefore = dataBeforeRemaining[y];
-                        row['Number of Subawards'] += rowBefore['Number of Subawards'];
-                        row['Number of Expenditures'] += rowBefore['Number of Expenditures'];
-                        row['Evidence Based Total Spend'] += rowBefore['Evidence Based Total Spend'];
-                        delete dataBeforeRemaining[y];
-                    }
+            for (let y = 0; (index !== -1) && (y < dataBeforeRemaining.length); y += 1) {
+                if (dataBeforeRemaining[y]['Project ID'] === row['Project ID']) {
+                    const rowBefore = dataBeforeRemaining[y];
+                    row['Number of Subawards'] += rowBefore['Number of Subawards'];
+                    row['Number of Expenditures'] += rowBefore['Number of Expenditures'];
+                    row['Evidence Based Total Spend'] += rowBefore['Evidence Based Total Spend'];
+                    delete dataBeforeRemaining[y];
                 }
             }
         }
@@ -384,15 +380,15 @@ async function createKpiDataGroupedByProjectSheet(periodId, tenantId, calculateP
 }
 
 async function getKpiDataGroupedByProjectData(periodId, tenantId, calculatePriorPeriods) {
-    log('called createKpiDataGroupedByProjectSheet()', { periodId, fn: 'createKpiDataGroupedByProjectSheet' });
+    log('called getKpiDataGroupedByProjectData()', { periodId, fn: 'getKpiDataGroupedByProjectData' });
     const records = await recordsForProject(periodId, tenantId, calculatePriorPeriods);
-    log('retrieved records for project', { fn: 'createKpiDataGroupedByProjectSheet', count: records.length });
+    log('retrieved records for project', { fn: 'getKpiDataGroupedByProjectData', count: records.length });
     const recordsByProject = getRecordsByProject(records);
-    log('organized records by project', { fn: 'createKpiDataGroupedByProjectSheet', count: recordsByProject.length });
+    log('organized records by project', { fn: 'getKpiDataGroupedByProjectData', count: recordsByProject.length });
 
-    log('mapping each recordsByProject', { fn: 'createKpiDataGroupedByProjectSheet' });
+    log('mapping each recordsByProject', { fn: 'getKpiDataGroupedByProjectData' });
     return Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
-        log('initializing row for project', { fn: 'createKpiDataGroupedByProjectSheet', projectId, periodId });
+        log('initializing row for project', { fn: 'getKpiDataGroupedByProjectData', projectId, periodId });
         const row = {
             'Project ID': projectId,
             'Number of Subawards': 0,
@@ -400,7 +396,7 @@ async function getKpiDataGroupedByProjectData(periodId, tenantId, calculatePrior
             'Evidence Based Total Spend': 0,
         };
 
-        log('populating row values from each projectRecords', { fn: 'createKpiDataGroupedByProjectSheet', projectId, periodId });
+        log('populating row values from each projectRecords', { fn: 'getKpiDataGroupedByProjectData', projectId, periodId });
         projectRecords.forEach((r) => {
             const currentPeriodExpenditure = r.content.Current_Period_Expenditures__c || 0;
             row['Number of Subawards'] += (r.type === 'awards50k');
@@ -409,22 +405,14 @@ async function getKpiDataGroupedByProjectData(periodId, tenantId, calculatePrior
         });
 
         log('returning populated row', {
-            fn: 'createKpiDataGroupedByProjectSheet', projectId, periodId,
+            fn: 'getKpiDataGroupedByProjectData', projectId, periodId,
         });
         return row;
     });
 }
 
-function generateEmptySheets() {
-    return {
-        obligations: [],
-        projectSummaries: [],
-        projectSummaryGroupedByProject: [],
-        KPIDataGroupedByProject: [],
-    };
-}
-
-async function generateSheets(periodId, domain, tenantId, calculatePriorPeriods = true, dataBefore = null) {
+async function generateSheets(periodId, domain, tenantId, dataBefore = null) {
+    const calculatePriorPeriods = dataBefore == null;
     const [
         obligations,
         projectSummaries,
@@ -453,7 +441,7 @@ async function runCache(domain, reportingPeriod = null, tenantId = null, periodI
             .reduce((a, b) => (a.id > b.id ? a : b));
     }
     const cacheFilename = cacheFSName(reportingPeriod, tenantId);
-    const data = await module.exports.generateSheets(reportingPeriod.id, domain, tenantId, true);
+    const data = await module.exports.generateSheets(reportingPeriod.id, domain, tenantId, null);
     const jsonData = JSON.stringify(data);
     await fs.mkdir(path.dirname(cacheFilename), { recursive: true });
     await fs.writeFile(cacheFilename, jsonData, { flag: 'wx' });
@@ -560,7 +548,7 @@ async function generate(requestHost, tenantId, cache = true) {
 
         const dataBefore = cache
             ? await module.exports.getCache(periodId, domain, tenantId)
-            : generateEmptySheets();
+            : null;
         // generate sheets
         log('generating sheets');
         const {
@@ -568,7 +556,7 @@ async function generate(requestHost, tenantId, cache = true) {
             projectSummaries,
             projectSummaryGroupedByProject,
             KPIDataGroupedByProject,
-        } = await module.exports.generateSheets(periodId, domain, tenantId, !cache, dataBefore);
+        } = await module.exports.generateSheets(periodId, domain, tenantId, dataBefore);
         log('finished generating sheets');
         log('composing workbook');
         const workbook = tracer.trace('compose-workbook', () => {
@@ -693,9 +681,9 @@ module.exports = {
     createHeadersProjectSummariesV2,
 
     createObligationSheet,
-    getObligationSheetData,
+    getObligationData,
     createProjectSummariesSheet,
-    getProjectSummariesSheetData,
+    getProjectSummariesData,
     createReportsGroupedByProjectSheet,
     getReportsGroupedByProjectData,
     createKpiDataGroupedByProjectSheet,

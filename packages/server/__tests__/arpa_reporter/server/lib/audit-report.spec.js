@@ -130,14 +130,14 @@ describe('audit report generation', () => {
         const tenantId = 0;
         const domain = 'test';
 
-        const obligationStub = sandbox.stub(audit_report, 'getObligationSheetData');
+        const obligationStub = sandbox.stub(audit_report, 'getObligationData');
         obligationStub.returns(allData.obligations);
         const obligationsNoCache = await audit_report.createObligationSheet(periodId, domain, tenantId, true, null);
         obligationStub.returns(dataWithCache.obligations);
         const obligationsWithCache = await audit_report.createObligationSheet(periodId, domain, tenantId, false, cachedData.obligations);
         expect(JSON.stringify(obligationsNoCache)).to.equal(JSON.stringify(obligationsWithCache));
 
-        const projectSummariesStub = sandbox.stub(audit_report, 'getProjectSummariesSheetData');
+        const projectSummariesStub = sandbox.stub(audit_report, 'getProjectSummariesData');
         projectSummariesStub.returns(allData.projectSummaries);
         const projectSummariesNoCache = await audit_report.createProjectSummariesSheet(periodId, domain, tenantId, true, null);
         projectSummariesStub.returns(dataWithCache.projectSummaries);
