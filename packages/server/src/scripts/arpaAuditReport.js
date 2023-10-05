@@ -16,30 +16,44 @@ async function main() {
     const queueUrl = process.env.TASK_QUEUE_URL;
     const sqs = getSQSClient();
     while (shutDownRequested === false) {
-        console.log(`Long-polling next SQS message batch from ${queueUrl}`);
         // eslint-disable-next-line no-await-in-loop
-        const receiveResp = await sqs.send(new ReceiveMessageCommand({
-            QueueUrl: queueUrl,
-            WaitTimeSeconds: 20,
-            MaxNumberOfMessages: 1,
-        }));
-        const message = (receiveResp?.Messages || [])[0];
-        if (message !== undefined) {
-            // eslint-disable-next-line no-await-in-loop
-            const processingSuccessful = await processSQSMessageRequest(message);
-            if (processingSuccessful === true) {
-                console.log('Deleting successfully-processed SQS message');
-                // eslint-disable-next-line no-await-in-loop
-                await sqs.send(new DeleteMessageCommand({
-                    QueueUrl: queueUrl,
-                    ReceiptHandle: message.ReceiptHandle,
-                }));
+        await tracer.trace('arpaAuditReport', async () => {
+            console.log(`Long-polling next SQS message batch from ${queueUrl}`);
+            const receiveResp = await sqs.send(new ReceiveMessageCommand({
+                QueueUrl: process.env.TASK_QUEUE_URL, WaitTimeSeconds: 20, MaxNumberOfMessages: 1,
+            }));
+            const message = (receiveResp?.Messages || [])[0];
+            if (message !== undefined) {
+                tracer.scope().active().setTag('message_received', 'true');
+                const processingSuccessful = await tracer.trace('processSQSMessageRequest',
+                    async (span) => {
+                        try {
+                            return await processSQSMessageRequest(message);
+                        } catch (e) {
+                            console.error(
+                                'Error processing SQS message request for ARPA audit report:', e,
+                            );
+                            span.setTag('error', e);
+                        }
+                        return false;
+                    });
+                if (processingSuccessful === true) {
+                    console.log('Deleting successfully-processed SQS message');
+                    tracer.scope().active().setTag('processing_successful', 'true');
+                    // eslint-disable-next-line no-await-in-loop
+                    await sqs.send(new DeleteMessageCommand({
+                        QueueUrl: queueUrl,
+                        ReceiptHandle: message.ReceiptHandle,
+                    }));
+                } else {
+                    console.log('SQS message was not processed successfully; will not delete');
+                    tracer.scope().active().setTag('processing_successful', 'false');
+                }
             } else {
-                console.log('SQS message was not processed successfully; will not delete');
+                tracer.scope().active().setTag('message_received', 'false');
+                console.log('Empty messages batch received from SQS');
             }
-        } else {
-            console.log('Empty messages batch received from SQS');
-        }
+        });
     }
     console.log('Shutting down');
 }
