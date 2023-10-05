@@ -413,24 +413,35 @@ async function generate(requestHost, tenantId) {
         const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
         log('determined domain', {}, { domain });
 
-        // generate sheets
-        log('generating sheets');
-        const [
-            obligations,
-            projectSummaries,
-            projectSummaryGroupedByProject,
-            KPIDataGroupedByProject,
-        ] = await Promise.all([
-            createObligationSheet(periodId, domain, tenantId),
-            createProjectSummaries(periodId, domain, tenantId),
-            createReportsGroupedByProject(periodId, tenantId),
-            createKpiDataGroupedByProject(periodId, tenantId),
-        ]);
-        log('finished generating sheets');
-        log('composing workbook');
-        const workbook = tracer.trace('compose-workbook', () => {
-            // compose workbook
+        // generate sheets data
+        const obligations = await tracer.trace('createObligationSheet', async () => {
+            log('building spreadsheet data', { destinationSheet: 'Obligations & Expenditures' });
+            const data = await createObligationSheet(periodId, domain, tenantId);
+            log('finished building spreadsheet data', { destinationSheet: 'Obligations & Expenditures' });
+            return data;
+        });
+        const projectSummaries = await tracer.trace('createProjectSummaries', async () => {
+            log('building spreadsheet data', { destinationSheet: 'Project Summaries' });
+            const data = await createProjectSummaries(periodId, domain, tenantId);
+            log('finished building spreadsheet data', { destinationSheet: 'Project Summaries' });
+            return data;
+        });
+        const projectSummaryGroupedByProject = await tracer.trace('createReportsGroupedByProject', async () => {
+            log('building spreadsheet data', { destinationSheet: 'Project Summaries V2' });
+            const data = await createReportsGroupedByProject(periodId, tenantId);
+            log('finished building spreadsheet data', { destinationSheet: 'Project Summaries V2' });
+            return data;
+        });
+        const KPIDataGroupedByProject = await tracer.trace('createKpiDataGroupedByProject', async () => {
+            log('building spreadsheet data', { destinationSheet: 'KPI' });
+            const data = createKpiDataGroupedByProject(periodId, tenantId);
+            log('finished building spreadsheet data', { destinationSheet: 'KPI' });
+            return data;
+        });
 
+        // compose workbook
+        const workbook = tracer.trace('compose-workbook', () => {
+            log('composing workbook');
             const sheet1 = XLSX.utils.json_to_sheet(obligations, {
                 dateNF: 'MM/DD/YYYY',
             });
