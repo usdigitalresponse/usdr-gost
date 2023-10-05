@@ -2,15 +2,15 @@
   <section class="container-fluid grants-table-container">
     <b-row class="my-3" v-if="showSearchControls">
       <div class="ml-3">
-        <SavedSearchPanel :isDisabled="loading" />
+        <SavedSearchPanel />
       </div>
       <div class="ml-2">
-        <SearchPanel :isDisabled="loading" ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
+        <SearchPanel ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
       </div>
     </b-row>
     <b-row  class="grants-table-title-control">
       <b-col v-if="showSearchControls" >
-        <SearchFilter :isDisabled="loading" :filterKeys="searchFilters" @filter-removed="clearSearch" />
+        <SearchFilter :filterKeys="searchFilters" @filter-removed="clearSearch" />
       </b-col>
       <b-col align-self="end" v-if="!showSearchControls">
         <h4 class="mb-0">{{ searchTitle }}</h4>
