@@ -4,8 +4,7 @@
       <div class="align-self-end">
         <h4 class="mb-0">{{ selectedSearch === null ? "All Grants" : searchName }} </h4>
         <span v-if="selectedSearch !== null">
-          <a href="#" :class="{ inactiveLink: isDisabled }" v-on:click.prevent="editFilter">Edit</a> |
-          <a href="#" :class="{ inactiveLink: isDisabled }" v-on:click.prevent="clearAll" >Clear</a>
+          <a href="#" v-on:click.prevent="editFilter">Edit</a> | <a href="#" v-on:click.prevent="clearAll" >Clear</a>
         </span>
       </div>
       <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">
@@ -19,7 +18,6 @@ import { mapActions, mapGetters } from 'vuex';
 
 export default {
   props: {
-    isDisabled: Boolean,
     filterKeys: {
       type: Array,
       required: true,
@@ -43,15 +41,9 @@ export default {
       return value;
     },
     editFilter() {
-      if (!this.isDisabled) {
-        return;
-      }
       this.initEditSearch(this.selectedSearch.id);
     },
     clearAll() {
-      if (!this.isDisabled) {
-        return;
-      }
       this.clearSelectedSearch();
       this.$emit('filter-removed');
     },
@@ -71,9 +63,3 @@ export default {
 };
 
 </script>
-<style>
-.inactiveLink {
-  pointer-events: none;
-  color: grey;
-}
-</style>

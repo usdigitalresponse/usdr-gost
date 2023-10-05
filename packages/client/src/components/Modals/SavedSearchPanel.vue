@@ -1,6 +1,6 @@
 <template>
   <div class="saved-search-panel">
-    <b-button @click="initManageSearches" variant="primary" size="sm" :disabled="isDisabled">
+    <b-button @click="initManageSearches" variant="primary" size="sm">
       My Saved Searches
     </b-button>
     <b-sidebar
@@ -89,7 +89,6 @@ import { formatFilterDisplay } from '@/helpers/filters';
 export default {
   props: {
     showModal: Boolean,
-    isDisabled: Boolean,
   },
   directives: {
     'v-b-toggle': VBToggle,
