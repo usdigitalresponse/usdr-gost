@@ -271,6 +271,7 @@ module "arpa_audit_report" {
     source_arn           = module.api.ecs_service_arn
   }
   sqs_max_receive_count             = 2
+  sqs_visibility_timeout_seconds    = 900     # 15 minutes, in seconds
   sqs_dlq_message_retention_seconds = 1209600 # 14 days, in seconds
 
   # Logging
