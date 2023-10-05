@@ -243,6 +243,10 @@ module "arpa_audit_report" {
     NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
     WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
   }
+  datadog_environment_variables = {
+    DD_LOGS_INJECTION    = "true"
+    DD_PROFILING_ENABLED = "true"
+  }
   consumer_task_efs_volume_mounts = [{
     name            = "data"
     container_path  = "/var/data"
