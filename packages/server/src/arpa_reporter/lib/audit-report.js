@@ -388,6 +388,7 @@ async function generate(requestHost, tenantId) {
             async () => createReportsGroupedByProject(
                 periodId,
                 tenantId,
+                REPORTING_DATE_FORMAT,
                 logger.child({ sheet: { name: 'Project Summaries V2' } }),
             ));
         const KPIDataGroupedByProject = await tracer.trace('createKpiDataGroupedByProject',
