@@ -43,13 +43,13 @@ export default {
       return value;
     },
     editFilter() {
-      if (!this.isDisabled) {
+      if (this.isDisabled) {
         return;
       }
       this.initEditSearch(this.selectedSearch.id);
     },
     clearAll() {
-      if (!this.isDisabled) {
+      if (this.isDisabled) {
         return;
       }
       this.clearSelectedSearch();
