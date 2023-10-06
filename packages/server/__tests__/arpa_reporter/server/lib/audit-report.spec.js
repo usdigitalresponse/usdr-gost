@@ -77,7 +77,7 @@ describe('audit report generation', () => {
         console.log('Asserting presigned and email function');
         expect(sendEmailFake.calledOnce).to.equal(true);
         expect(sendEmailFake.firstCall.firstArg).to.equal('0/99/example.xlsx');
-        expect(sendEmailFake.firstCall.lastArg).to.equal('foo@example.com');
+        expect(sendEmailFake.firstCall.args[1]).to.equal('foo@example.com');
     });
     it('generateAndSendEmail does not send an email if upload fails', async () => {
         const sendFake = sandbox.fake.returns('foo');
