@@ -451,7 +451,7 @@ async function generate(requestHost, tenantId) {
     });
 }
 
-async function sendEmailWithLink(fileKey, recipientEmail, logger = log()) {
+async function sendEmailWithLink(fileKey, recipientEmail, logger = log) {
     const url = `${process.env.API_DOMAIN}/api/audit_report/${fileKey}`;
     await email.sendAsyncReportEmail(recipientEmail, url, email.ASYNC_REPORT_TYPES.audit);
     logger.info({ downloadUrl: url }, 'emailed workbook download link to requesting user');
