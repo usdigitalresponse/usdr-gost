@@ -58,7 +58,7 @@ function getSESClient() {
     return new SESClient(sesOptions);
 }
 
-function sendEmail(message) {
+async function sendEmail(message) {
     if (process.env.SUPPRESS_EMAIL) return;
 
     const transport = getSESClient();
@@ -85,9 +85,13 @@ function sendEmail(message) {
         },
     };
     const command = new SendEmailCommand(params);
-    transport.send(command)
-        .then((data) => console.log('Success sending SES email:', JSON.stringify(data)))
-        .catch((err) => console.error('Error sending SES email:', err, err.stack));
+    try {
+        await transport.send(command)
+            .then((data) => console.log('Success sending SES email:', JSON.stringify(data)));
+    } catch (err) {
+        console.error('Error sending SES email:', err, err.stack);
+        throw err;
+    }
 }
 
 /*
