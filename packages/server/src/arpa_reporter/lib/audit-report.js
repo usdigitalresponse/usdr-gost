@@ -320,7 +320,7 @@ function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
         const key = y.replace(REPORTING_DATE_REGEX, '');
         const value = y.match(REPORTING_DATE_REGEX)[1];
         if (value == null) {
-            console.log('Could not find date in header');
+            log.warn({ reportingDateRegex: REPORTING_DATE_REGEX }, 'could not find reporting date in header');
             return x;
         }
 
@@ -503,7 +503,7 @@ async function processSQSMessageRequest(message) {
         }
         await generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id);
     } catch (err) {
-        console.error({ err }, 'failed to generate and send audit report');
+        log.error({ err }, 'failed to generate and send audit report');
         return false;
     }
 
