@@ -8,14 +8,16 @@ const { log } = require('../../lib/logging');
 const aws = require('../../lib/gost-aws');
 const { ec } = require('./format');
 
-const { getPreviousReportingPeriods, getReportingPeriod, getAllReportingPeriods } = require('../db/reporting-periods');
+const { getPreviousReportingPeriods, getAllReportingPeriods } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
-const { recordsForProject, recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records');
+const {
+    recordsForProject, recordsForReportingPeriod, recordsForUpload, EC_SHEET_TYPES,
+} = require('../services/records');
 const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
 const { useTenantId } = require('../use-request');
-const { getUser } = require('../../db');
+const { getUser, knex } = require('../../db');
 
 const REPORTING_DATE_FORMAT = 'MM-DD-yyyy';
 const REPORTING_DATE_REGEX = /^(\d{2}-\d{2}-\d{4}) /;
@@ -139,11 +141,45 @@ async function createObligationSheet(periodId, domain, tenantId, logger = log) {
 
 async function createProjectSummaries(periodId, domain, tenantId, logger = log) {
     logger.info('building rows for spreadsheet');
-    const records = await mostRecentProjectRecords(periodId, tenantId);
+    const uploads = await knex('uploads')
+        .with('include_reporting_periods', knex('reporting_periods')
+            .select('id')
+            .where({ tenant_id: tenantId })
+            .where('end_date', '<=', knex('reporting_periods').select('end_date').where({ id: periodId })))
+        .with('agency_max_val', knex('uploads')
+            .select('agency_id', 'ec_code', 'reporting_period_id').max('created_at as most_recent')
+            .join('include_reporting_periods', { reporting_period_id: 'include_reporting_periods.id' })
+            .where({ tenant_id: tenantId, invalidated_at: null })
+            .whereNotNull('validated_at')
+            .groupBy('agency_id', 'ec_code', 'reporting_period_id'))
+        .select('uploads.*')
+        .innerJoin('agency_max_val', {
+            'uploads.created_at': 'agency_max_val.most_recent',
+            'uploads.ec_code': 'agency_max_val.ec_code',
+            'uploads.reporting_period_id': 'agency_max_val.reporting_period_id',
+        })
+        .where({ tenant_id: tenantId, invalidated_at: null }); // TODO: .pipe()?
+
+    // TODO
+    // const records = await mostRecentProjectRecords(periodId, tenantId);
+    const records = await uploads
+        .map((upload) => recordsForUpload(upload))
+        .flat()
+        .filter((record) => Object.values(EC_SHEET_TYPES).includes(record.type))
+        .reduce((accumulator, record) => {
+            accumulator[record.content.Project_Identification_Number__c] = record;
+            return accumulator;
+        }, {});
+
     logger.fields.sheet.totalRecentRecords = records.length;
     logger.info('retrieved most recent project records');
+    const reportingPeriodNames = new Map(await knex('reporting_periods')
+        .select('id', 'name').whereIn('id', records.map((r) => r.upload.reporting_period_id))
+        .then((rs) => rs.map((row) => [row.id, row.name])));
+    logger.info({ totalReportingPeriods: reportingPeriodNames.size },
+        'mapped reporting period ids to names');
 
-    const rows = await Promise.all(records.map(async (record) => {
+    const rows = records.map((record) => {
         const recordLogger = logger.child({
             record: {
                 upload: {
@@ -156,15 +192,12 @@ async function createProjectSummaries(periodId, domain, tenantId, logger = log) 
             },
         });
         recordLogger.debug('populating row from record');
-        const reportingPeriod = await getReportingPeriod(
-            record.upload.reporting_period_id, undefined, tenantId,
-        );
         recordLogger.info('retrieved reporting period for project record');
 
         const rowData = {
             'Project ID': record.content.Project_Identification_Number__c,
             Upload: getUploadLink(domain, record.upload.id, record.upload.filename),
-            'Last Reported': reportingPeriod.name,
+            'Last Reported': reportingPeriodNames.get(record.upload.reporting_period_id),
             // TODO: consider also mapping project IDs to export templates?
             'Adopted Budget': record.content.Adopted_Budget__c,
             'Total Cumulative Obligations': record.content.Total_Obligations__c,
@@ -175,7 +208,7 @@ async function createProjectSummaries(periodId, domain, tenantId, logger = log) 
         };
         recordLogger.info('finished populating row');
         return rowData;
-    }));
+    });
 
     logger.fields.sheet.rowCount = rows.length;
     logger.info('finished building rows for spreadsheet');
