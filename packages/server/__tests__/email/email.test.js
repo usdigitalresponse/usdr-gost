@@ -111,6 +111,9 @@ describe('Email module', () => {
         });
         it('Fails when NODEMAILER_PORT is missing', async () => {
             delete process.env.NODEMAILER_PORT;
+            if (!process.env.NODEMAILER_HOST) {
+                process.env.NODEMAILER_HOST = 'example.org';
+            }
             const expects = 'Missing environment variable NODEMAILER_PORT!';
             let err = { message: 'No error' };
 
@@ -123,6 +126,9 @@ describe('Email module', () => {
         });
         it('Fails when NODEMAILER_EMAIL is missing', async () => {
             delete process.env.NODEMAILER_EMAIL;
+            if (!process.env.NODEMAILER_HOST) {
+                process.env.NODEMAILER_HOST = 'example.org';
+            }
             const expects = 'Missing environment variable NODEMAILER_EMAIL!';
             let err = { message: 'No error' };
 
@@ -135,6 +141,9 @@ describe('Email module', () => {
         });
         it('Fails when NODEMAILER_EMAIL_PW is missing', async () => {
             delete process.env.NODEMAILER_EMAIL_PW;
+            if (!process.env.NODEMAILER_HOST) {
+                process.env.NODEMAILER_HOST = 'example.org';
+            }
             const expects = 'Missing environment variable NODEMAILER_EMAIL_PW!';
             let err = { message: 'No error' };
 
