@@ -78,9 +78,6 @@ describe('Email module', () => {
         });
 
         it('Fails when NOTIFICATIONS_EMAIL is missing', async () => {
-            // 'send' will throw no error, but will log an error to the console.
-            // However, without returning the result of the promise in 'send',
-            // we can't capture it here
             delete process.env.NOTIFICATIONS_EMAIL;
             let err = { message: 'No error' };
 
@@ -89,7 +86,10 @@ describe('Email module', () => {
             } catch (e) {
                 err = e;
             }
-            expect(err.message).to.equal('No error');
+            // expect(err.message).to.equal('No error');
+            expect(err.message).to.be.a('string').and.satisfy(
+                (msg) => msg.startsWith('exception while calling ses.SendEmail'),
+            );
         });
         xit('Works when AWS credentials are valid but expect email to be unverified', async () => {
             const expects = 'Email address is not verified.';
