@@ -142,6 +142,14 @@ async function createObligationSheet(periodId, domain, tenantId, logger = log) {
 async function createProjectSummaries(periodId, domain, tenantId, logger = log) {
     logger.info('building rows for spreadsheet');
     const uploads = await knex('uploads')
+        .select({
+            id: 'uploads.id',
+            filename: 'uploads.filename',
+            tenant_id: 'uploads.tenant_id',
+            reporting_period_id: 'uploads.reporting_period_id',
+            reporting_period_name: 'reporting_periods.name',
+            reporting_period_end_date: 'reporting_periods.end_date',
+        })
         .with('include_reporting_periods', knex('reporting_periods')
             .select('id')
             .where({ tenant_id: tenantId })
@@ -152,67 +160,74 @@ async function createProjectSummaries(periodId, domain, tenantId, logger = log) 
             .where({ tenant_id: tenantId, invalidated_at: null })
             .whereNotNull('validated_at')
             .groupBy('agency_id', 'ec_code', 'reporting_period_id'))
-        .select('uploads.*')
         .innerJoin('agency_max_val', {
             'uploads.created_at': 'agency_max_val.most_recent',
             'uploads.ec_code': 'agency_max_val.ec_code',
             'uploads.reporting_period_id': 'agency_max_val.reporting_period_id',
         })
-        .where({ tenant_id: tenantId, invalidated_at: null }); // TODO: .pipe()?
+        .join('reporting_periods', { 'reporting_periods.id': 'uploads.reporting_period_id' })
+        .where({ 'uploads.tenant_id': tenantId, 'uploads.invalidated_at': null })
+        .orderBy([
+            { column: 'reporting_periods.end_date', order: 'asc' },
+            { column: 'uploads.created_at', order: 'asc' },
+        ]);
 
-    // TODO
-    // const records = await mostRecentProjectRecords(periodId, tenantId);
-    const records = await uploads
-        .map((upload) => recordsForUpload(upload))
-        .flat()
-        .filter((record) => Object.values(EC_SHEET_TYPES).includes(record.type))
-        .reduce((accumulator, record) => {
-            accumulator[record.content.Project_Identification_Number__c] = record;
-            return accumulator;
-        }, {});
+    logger.fields.sheet.totalUploads = uploads.length;
+    logger.info('retrieved uploads for periods in report');
 
-    logger.fields.sheet.totalRecentRecords = records.length;
-    logger.info('retrieved most recent project records');
-    const reportingPeriodNames = new Map(await knex('reporting_periods')
-        .select('id', 'name').whereIn('id', records.map((r) => r.upload.reporting_period_id))
-        .then((rs) => rs.map((row) => [row.id, row.name])));
-    logger.info({ totalReportingPeriods: reportingPeriodNames.size },
-        'mapped reporting period ids to names');
+    // Track counts of all & EC-type (which will be filtered and used to populate rows) records
+    let allrecordsCounter = 0;
+    let ecRecordsCounter = 0;
 
-    const rows = records.map((record) => {
-        const recordLogger = logger.child({
-            record: {
-                upload: {
-                    id: record.upload.id,
-                    reportingPeriod: { id: record.upload.reporting_period_id },
-                },
-                project: {
-                    id: record.content.Project_Identification_Number__c,
-                },
-            },
+    // Across all records in all fetched uploads in the reporting period,
+    // retain only the rows derived from the latest record pertaining to each unique project.
+    const rowsByProject = new Map();
+
+    // This loop must be executed synchronously for two reasons:
+    //  1. Order of fetched `uploads` is important for finding the "latest" record.
+    //  2. We want to avoid loading and parsing more than one upload file at a time.
+    for (const upload of uploads) {
+        const uploadLogger = logger.child(
+            { upload: { id: upload.id, reportingPeriod: { id: upload.reporting_period_id } } },
+        );
+        uploadLogger.info('updating rows from records in upload');
+
+        // eslint-disable-next-line no-await-in-loop
+        let records = await recordsForUpload(upload);
+        allrecordsCounter += records.length;
+        uploadLogger.fields.upload.totalRecords = { all: records.length };
+        uploadLogger.debug('loaded all records in upload');
+
+        records = records.filter((rec) => Object.values(EC_SHEET_TYPES).includes(rec.type));
+        ecRecordsCounter += records.length;
+        uploadLogger.fields.upload.totalRecords.ecRecords = records.length;
+        uploadLogger.debug('filtered to usable EC records in upload');
+
+        records.forEach((rec) => {
+            const projectId = rec.content.Project_Identification_Number__c;
+            const projectLogger = uploadLogger.child({ project: { id: projectId } });
+            projectLogger.debug(rowsByProject.has(projectId)
+                ? 'replacing existing row for project with data from newer record'
+                : 'creating row for project');
+            rowsByProject.set(projectId, {
+                'Project ID': rec.content.Project_Identification_Number__c,
+                Upload: getUploadLink(domain, rec.upload.id, rec.upload.filename),
+                'Last Reported': rec.upload.reporting_period_name,
+                'Adopted Budget': rec.content.Adopted_Budget__c,
+                'Total Cumulative Obligations': rec.content.Total_Obligations__c,
+                'Total Cumulative Expenditures': rec.content.Total_Expenditures__c,
+                'Current Period Obligations': rec.content.Current_Period_Obligations__c,
+                'Current Period Expenditures': rec.content.Current_Period_Expenditures__c,
+                'Completion Status': rec.content.Completion_Status__c,
+            });
         });
-        recordLogger.debug('populating row from record');
-        recordLogger.info('retrieved reporting period for project record');
+        uploadLogger.debug({ currentRowCount: rowsByProject.size }, 'updated rows from records in upload');
+    }
 
-        const rowData = {
-            'Project ID': record.content.Project_Identification_Number__c,
-            Upload: getUploadLink(domain, record.upload.id, record.upload.filename),
-            'Last Reported': reportingPeriodNames.get(record.upload.reporting_period_id),
-            // TODO: consider also mapping project IDs to export templates?
-            'Adopted Budget': record.content.Adopted_Budget__c,
-            'Total Cumulative Obligations': record.content.Total_Obligations__c,
-            'Total Cumulative Expenditures': record.content.Total_Expenditures__c,
-            'Current Period Obligations': record.content.Current_Period_Obligations__c,
-            'Current Period Expenditures': record.content.Current_Period_Expenditures__c,
-            'Completion Status': record.content.Completion_Status__c,
-        };
-        recordLogger.info('finished populating row');
-        return rowData;
-    });
-
-    logger.fields.sheet.rowCount = rows.length;
+    logger.fields.sheet.rowCount = rowsByProject.size;
+    logger.fields.sheet.totalRecords = { all: allrecordsCounter, ecRecords: ecRecordsCounter };
     logger.info('finished building rows for spreadsheet');
-    return rows;
+    return Array.from(rowsByProject.values());
 }
 
 function getRecordsByProject(records) {
