@@ -8,14 +8,16 @@ const { log } = require('../../lib/logging');
 const aws = require('../../lib/gost-aws');
 const { ec } = require('./format');
 
-const { getPreviousReportingPeriods, getReportingPeriod, getAllReportingPeriods } = require('../db/reporting-periods');
+const { getPreviousReportingPeriods, getAllReportingPeriods } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
-const { recordsForProject, recordsForReportingPeriod, mostRecentProjectRecords } = require('../services/records');
+const {
+    recordsForProject, recordsForReportingPeriod, recordsForUpload, EC_SHEET_TYPES,
+} = require('../services/records');
 const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
 const { useTenantId } = require('../use-request');
-const { getUser } = require('../../db');
+const { getUser, knex } = require('../../db');
 
 const REPORTING_DATE_FORMAT = 'MM-DD-yyyy';
 const REPORTING_DATE_REGEX = /^(\d{2}-\d{2}-\d{4}) /;
@@ -139,47 +141,93 @@ async function createObligationSheet(periodId, domain, tenantId, logger = log) {
 
 async function createProjectSummaries(periodId, domain, tenantId, logger = log) {
     logger.info('building rows for spreadsheet');
-    const records = await mostRecentProjectRecords(periodId, tenantId);
-    logger.fields.sheet.totalRecentRecords = records.length;
-    logger.info('retrieved most recent project records');
+    const uploads = await knex('uploads')
+        .select({
+            id: 'uploads.id',
+            filename: 'uploads.filename',
+            tenant_id: 'uploads.tenant_id',
+            reporting_period_id: 'uploads.reporting_period_id',
+            reporting_period_name: 'reporting_periods.name',
+            reporting_period_end_date: 'reporting_periods.end_date',
+        })
+        .with('include_reporting_periods', knex('reporting_periods')
+            .select('id')
+            .where({ tenant_id: tenantId })
+            .where('end_date', '<=', knex('reporting_periods').select('end_date').where({ id: periodId })))
+        .with('agency_max_val', knex('uploads')
+            .select('agency_id', 'ec_code', 'reporting_period_id').max('created_at as most_recent')
+            .join('include_reporting_periods', { reporting_period_id: 'include_reporting_periods.id' })
+            .where({ tenant_id: tenantId, invalidated_at: null })
+            .whereNotNull('validated_at')
+            .groupBy('agency_id', 'ec_code', 'reporting_period_id'))
+        .innerJoin('agency_max_val', {
+            'uploads.created_at': 'agency_max_val.most_recent',
+            'uploads.ec_code': 'agency_max_val.ec_code',
+            'uploads.reporting_period_id': 'agency_max_val.reporting_period_id',
+        })
+        .join('reporting_periods', { 'reporting_periods.id': 'uploads.reporting_period_id' })
+        .where({ 'uploads.tenant_id': tenantId, 'uploads.invalidated_at': null })
+        .orderBy([
+            { column: 'reporting_periods.end_date', order: 'asc' },
+            { column: 'uploads.created_at', order: 'asc' },
+        ]);
 
-    const rows = await Promise.all(records.map(async (record) => {
-        const recordLogger = logger.child({
-            record: {
-                upload: {
-                    id: record.upload.id,
-                    reportingPeriod: { id: record.upload.reporting_period_id },
-                },
-                project: {
-                    id: record.content.Project_Identification_Number__c,
-                },
-            },
-        });
-        recordLogger.debug('populating row from record');
-        const reportingPeriod = await getReportingPeriod(
-            record.upload.reporting_period_id, undefined, tenantId,
+    logger.fields.sheet.totalUploads = uploads.length;
+    logger.info('retrieved uploads for periods in report');
+
+    // Track counts of all & EC-type (which will be filtered and used to populate rows) records
+    let allrecordsCounter = 0;
+    let ecRecordsCounter = 0;
+
+    // Across all records in all fetched uploads in the reporting period,
+    // retain only the rows derived from the latest record pertaining to each unique project.
+    const rowsByProject = new Map();
+
+    // This loop must be executed synchronously for two reasons:
+    //  1. Order of fetched `uploads` is important for finding the "latest" record.
+    //  2. We want to avoid loading and parsing more than one upload file at a time.
+    for (const upload of uploads) {
+        const uploadLogger = logger.child(
+            { upload: { id: upload.id, reportingPeriod: { id: upload.reporting_period_id } } },
         );
-        recordLogger.info('retrieved reporting period for project record');
+        uploadLogger.info('updating rows from records in upload');
 
-        const rowData = {
-            'Project ID': record.content.Project_Identification_Number__c,
-            Upload: getUploadLink(domain, record.upload.id, record.upload.filename),
-            'Last Reported': reportingPeriod.name,
-            // TODO: consider also mapping project IDs to export templates?
-            'Adopted Budget': record.content.Adopted_Budget__c,
-            'Total Cumulative Obligations': record.content.Total_Obligations__c,
-            'Total Cumulative Expenditures': record.content.Total_Expenditures__c,
-            'Current Period Obligations': record.content.Current_Period_Obligations__c,
-            'Current Period Expenditures': record.content.Current_Period_Expenditures__c,
-            'Completion Status': record.content.Completion_Status__c,
-        };
-        recordLogger.info('finished populating row');
-        return rowData;
-    }));
+        // eslint-disable-next-line no-await-in-loop
+        let records = await recordsForUpload(upload);
+        allrecordsCounter += records.length;
+        uploadLogger.fields.upload.totalRecords = { all: records.length };
+        uploadLogger.debug('loaded all records in upload');
 
-    logger.fields.sheet.rowCount = rows.length;
+        records = records.filter((rec) => Object.values(EC_SHEET_TYPES).includes(rec.type));
+        ecRecordsCounter += records.length;
+        uploadLogger.fields.upload.totalRecords.ecRecords = records.length;
+        uploadLogger.debug('filtered to usable EC records in upload');
+
+        records.forEach((rec) => {
+            const projectId = rec.content.Project_Identification_Number__c;
+            const projectLogger = uploadLogger.child({ project: { id: projectId } });
+            projectLogger.debug(rowsByProject.has(projectId)
+                ? 'replacing existing row for project with data from newer record'
+                : 'creating row for project');
+            rowsByProject.set(projectId, {
+                'Project ID': rec.content.Project_Identification_Number__c,
+                Upload: getUploadLink(domain, rec.upload.id, rec.upload.filename),
+                'Last Reported': rec.upload.reporting_period_name,
+                'Adopted Budget': rec.content.Adopted_Budget__c,
+                'Total Cumulative Obligations': rec.content.Total_Obligations__c,
+                'Total Cumulative Expenditures': rec.content.Total_Expenditures__c,
+                'Current Period Obligations': rec.content.Current_Period_Obligations__c,
+                'Current Period Expenditures': rec.content.Current_Period_Expenditures__c,
+                'Completion Status': rec.content.Completion_Status__c,
+            });
+        });
+        uploadLogger.debug({ currentRowCount: rowsByProject.size }, 'updated rows from records in upload');
+    }
+
+    logger.fields.sheet.rowCount = rowsByProject.size;
+    logger.fields.sheet.totalRecords = { all: allrecordsCounter, ecRecords: ecRecordsCounter };
     logger.info('finished building rows for spreadsheet');
-    return rows;
+    return Array.from(rowsByProject.values());
 }
 
 function getRecordsByProject(records) {
@@ -207,7 +255,7 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
 
     // index project end dates by project ID
     const endDatesByReportingPeriodId = Object.fromEntries(allReportingPeriods.map((reportingPeriod) => [
-        reportingPeriod.id, moment(reportingPeriod.endDate, 'yyyy-MM-DD').format(dateFormat),
+        reportingPeriod.id, moment(reportingPeriod.end_date, 'yyyy-MM-DD').format(dateFormat),
     ]));
 
     // create a row for each project, populated from the records related to that project

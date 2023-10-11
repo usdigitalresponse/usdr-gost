@@ -12,9 +12,12 @@ describe('processMessages', async () => {
 
     const serlializeGrantEvent = (newData = {}, prevData = {}) => {
         const eventData = { detail: { versions: { new: newData, previous: prevData } } };
-        if (newData !== {} && prevData !== {}) {
+        const newDataJSON = JSON.stringify(newData);
+        const prevDataJSON = JSON.stringify(prevData);
+        const emptyObjectJSON = JSON.stringify({});
+        if (newDataJSON !== emptyObjectJSON && prevDataJSON !== emptyObjectJSON) {
             eventData.detail.type = 'update';
-        } else if (newData !== {}) {
+        } else if (newDataJSON !== emptyObjectJSON) {
             eventData.detail.type = 'create';
         } else {
             eventData.detail.type = 'delete';

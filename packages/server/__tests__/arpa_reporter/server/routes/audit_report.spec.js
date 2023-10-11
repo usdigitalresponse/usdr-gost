@@ -3,6 +3,7 @@ const sinon = require('sinon');
 const { makeTestServer, getSessionCookie } = require('./route_test_helpers');
 const audit_report = require('../../../../src/arpa_reporter/lib/audit-report');
 const aws = require('../../../../src/lib/gost-aws');
+const { ARPA_REPORTER_BASE_URL } = require('../../../../src/arpa_reporter/environment');
 
 function headObjectFake(type, callback) {
     if (type === 'error') {
@@ -62,7 +63,7 @@ describe('/api/audit_report', () => {
             .get('/api/audit_report/0/99/example.xlsx');
 
         expect(response.status).to.equal(302);
-        expect(response.headers.location).to.equal('http://localhost:8080/arpa_reporter/login?redirect_to=/api/audit_report/0/99/example.xlsx&message=Please%20login%20to%20visit%20the%20link.');
+        expect(response.headers.location).to.equal(`${ARPA_REPORTER_BASE_URL}/login?redirect_to=/api/audit_report/0/99/example.xlsx&message=Please%20login%20to%20visit%20the%20link.`);
     });
     it('Signed URL - redirects when object is not found', async () => {
         const s3InstanceFake = sandbox.fake.returns('just s3');
@@ -77,7 +78,7 @@ describe('/api/audit_report', () => {
             .set('Cookie', tenantACookie);
 
         expect(response.status).to.equal(302);
-        expect(response.headers.location).to.equal(`http://localhost:8080/arpa_reporter?alert_text=The%20audit%20report%20you%20requested%20has%20expired.%20Please%20try%20again%20by%20clicking%20the%20'Send%20Audit%20Report%20By%20Email'.&alert_level=err`);
+        expect(response.headers.location).to.equal(`${ARPA_REPORTER_BASE_URL}?alert_text=The%20audit%20report%20you%20requested%20has%20expired.%20Please%20try%20again%20by%20clicking%20the%20'Send%20Audit%20Report%20By%20Email'.&alert_level=err`);
     });
     it('Signed URL - redirects to login page when user is accessing wrong tenant', async () => {
         const s3InstanceFake = sandbox.fake.returns('just s3');
@@ -92,7 +93,7 @@ describe('/api/audit_report', () => {
             .set('Cookie', tenantACookie);
 
         expect(response.status).to.equal(302);
-        expect(response.headers.location).to.equal(`http://localhost:8080/arpa_reporter/login?redirect_to=/api/audit_report/1/99/example.xlsx&message=Please%20login%20to%20visit%20the%20link.`);
+        expect(response.headers.location).to.equal(`${ARPA_REPORTER_BASE_URL}/login?redirect_to=/api/audit_report/1/99/example.xlsx&message=Please%20login%20to%20visit%20the%20link.`);
     });
     it('Signed URL - returns redirect with message when there is an issue generating URL', async () => {
         const s3InstanceFake = sandbox.fake.returns('just s3');
@@ -109,7 +110,7 @@ describe('/api/audit_report', () => {
             .set('Cookie', tenantACookie);
 
         expect(response.status).to.equal(302);
-        expect(response.headers.location).to.equal(`http://localhost:8080/arpa_reporter?alert_text=Something%20went%20wrong.%20Please%20reach%20out%20to%20grants-helpdesk@usdigitalresponse.org.&alert_level=err`);
+        expect(response.headers.location).to.equal(`${ARPA_REPORTER_BASE_URL}?alert_text=Something%20went%20wrong.%20Please%20reach%20out%20to%20grants-helpdesk@usdigitalresponse.org.&alert_level=err`);
     });
     it('Signed URL - Success response', async () => {
         const s3InstanceFake = sandbox.fake.returns('just s3');
