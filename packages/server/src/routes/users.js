@@ -66,7 +66,6 @@ router.put('/:userId', requireUser, async (req, res) => {
     try {
         const result = await db.updateUser(user);
         res.json({ user: result });
-            
     } catch (err) {
         console.error(`Unable to update name for user: ${user.id}, error: ${err}`);
         res.status(500).json({ message: 'Something went wrong while updating. Please try again or reach out to support.' });

@@ -88,11 +88,13 @@ async function createUser(user) {
 async function updateUser(user) {
     const { id, name } = user;
 
-    return await knex('users')
+    const response = await knex('users')
         .where('id', id)
-        .update({name})
+        .update({ name })
         .returning('*')
         .then((rows) => rows[0]);
+
+    return response;
 }
 
 async function getUsersByAgency(agencyId) {
