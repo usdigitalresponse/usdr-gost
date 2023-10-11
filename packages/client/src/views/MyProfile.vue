@@ -11,19 +11,24 @@
         <p class="mb-2">{{ agency }}</p>
       </b-col>
       <b-col class="text-end">
-        <b-button variant="primary" size="md">
+        <b-button variant="primary" size="md" @click="$bvModal.show('edit-user-modal')">
           <b-icon icon="pencil-fill" scale="0.8"></b-icon>
           <span class="ml-1">Edit</span>
         </b-button>
       </b-col>
     </b-row>
+    <EditUserModal/>
   </section>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
+import EditUserModal from '@/components/Modals/EditUser.vue';
 
 export default {
+  components: {
+    EditUserModal,
+  },
   computed: {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
