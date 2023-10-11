@@ -207,7 +207,7 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
 
     // index project end dates by project ID
     const endDatesByReportingPeriodId = Object.fromEntries(allReportingPeriods.map((reportingPeriod) => [
-        reportingPeriod.id, moment(reportingPeriod.endDate, 'yyyy-MM-DD').format(dateFormat),
+        reportingPeriod.id, moment(reportingPeriod.end_date, 'yyyy-MM-DD').format(dateFormat),
     ]));
 
     // create a row for each project, populated from the records related to that project
