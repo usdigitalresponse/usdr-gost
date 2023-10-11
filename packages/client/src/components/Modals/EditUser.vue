@@ -24,6 +24,7 @@
           @keydown.enter.native="handleSubmit"
           required
           trim
+          autofocus
         ></b-form-input>
       </b-form-group>
     </b-form>
