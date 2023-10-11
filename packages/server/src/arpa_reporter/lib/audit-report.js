@@ -248,7 +248,7 @@ async function getReportsGroupedByProjectData(periodId, tenantId, calculatePrior
 
     // index project end dates by project ID
     const endDatesByReportingPeriodId = Object.fromEntries(allReportingPeriods.map((reportingPeriod) => [
-        reportingPeriod.id, moment(reportingPeriod.endDate, 'yyyy-MM-DD').format(dateFormat),
+        reportingPeriod.id, moment(reportingPeriod.end_date, 'yyyy-MM-DD').format(dateFormat),
     ]));
 
     // create a row for each project, populated from the records related to that project
@@ -449,7 +449,7 @@ function reviveDate(key, value) {
         : value;
 }
 
-async function getCache(periodId, domain, tenantId = null, force = false) {
+async function getCache(periodId, domain, tenantId = null, force = false, logger = log) {
     // check if the cache file exists. if not, let's generate it
     const reportingPeriods = await getPreviousReportingPeriods(periodId);
     const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
@@ -466,9 +466,9 @@ async function getCache(periodId, domain, tenantId = null, force = false) {
         }
         const cacheData = await fs.readFile(cacheFilename, { encoding: 'utf-8' });
         data = JSON.parse(cacheData, reviveDate);
-        log('cache hit');
+        logger.info(`Cache hit for ${tenantId}`);
     } catch (err) {
-        log('cache miss');
+        logger.info(`Cache miss for ${tenantId}`);
         data = await runCache(domain, mostRecentPreviousReportingPeriod, tenantId);
     }
     return data;
@@ -481,7 +481,7 @@ async function generateSheets(periodId, domain, tenantId, dataBefore = null, log
             periodId,
             domain,
             tenantId,
-            dataBefore,
+            dataBefore?.obligations,
             logger.child({ sheet: { name: 'Obligations & Expenditures' } }),
         ));
     const projectSummaries = await tracer.trace('createProjectSummariesSheet',
@@ -489,22 +489,22 @@ async function generateSheets(periodId, domain, tenantId, dataBefore = null, log
             periodId,
             domain,
             tenantId,
-            dataBefore,
+            dataBefore?.projectSummaries,
             logger.child({ sheet: { name: 'Project Summaries' } }),
         ));
     const projectSummaryGroupedByProject = await tracer.trace('createReportsGroupedByProjectSheet',
         async () => createReportsGroupedByProjectSheet(
             periodId,
             tenantId,
+            dataBefore?.projectSummaryGroupedByProject,
             REPORTING_DATE_FORMAT,
-            dataBefore,
             logger.child({ sheet: { name: 'Project Summaries V2' } }),
         ));
     const KPIDataGroupedByProject = await tracer.trace('createKpiDataGroupedByProject',
         async () => createKpiDataGroupedByProjectSheet(
             periodId,
             tenantId,
-            dataBefore,
+            dataBefore?.KPIDataGroupedByProject,
             logger.child({ sheet: { name: 'KPI' } }),
         ));
 
@@ -526,7 +526,7 @@ async function generate(requestHost, tenantId, cache = true) {
         logger.info('determined current reporting period ID for workbook');
 
         const dataBefore = cache
-            ? await module.exports.getCache(periodId, domain, tenantId)
+            ? await module.exports.getCache(periodId, domain, tenantId, false, logger)
             : null;
         const {
             obligations,

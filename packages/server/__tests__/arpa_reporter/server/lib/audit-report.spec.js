@@ -132,30 +132,30 @@ describe('audit report generation', () => {
 
         const obligationStub = sandbox.stub(audit_report, 'getObligationData');
         obligationStub.returns(allData.obligations);
-        const obligationsNoCache = await audit_report.createObligationSheet(periodId, domain, tenantId, true, null);
+        const obligationsNoCache = await audit_report.createObligationSheet(periodId, domain, tenantId, null);
         obligationStub.returns(dataWithCache.obligations);
-        const obligationsWithCache = await audit_report.createObligationSheet(periodId, domain, tenantId, false, cachedData.obligations);
+        const obligationsWithCache = await audit_report.createObligationSheet(periodId, domain, tenantId, cachedData.obligations);
         expect(JSON.stringify(obligationsNoCache)).to.equal(JSON.stringify(obligationsWithCache));
 
         const projectSummariesStub = sandbox.stub(audit_report, 'getProjectSummariesData');
         projectSummariesStub.returns(allData.projectSummaries);
-        const projectSummariesNoCache = await audit_report.createProjectSummariesSheet(periodId, domain, tenantId, true, null);
+        const projectSummariesNoCache = await audit_report.createProjectSummariesSheet(periodId, domain, tenantId, null);
         projectSummariesStub.returns(dataWithCache.projectSummaries);
-        const projectSummariesWithCache = await audit_report.createProjectSummariesSheet(periodId, domain, tenantId, false, cachedData.projectSummaries);
+        const projectSummariesWithCache = await audit_report.createProjectSummariesSheet(periodId, domain, tenantId, cachedData.projectSummaries);
         expect(JSON.stringify(projectSummariesNoCache)).to.equal(JSON.stringify(projectSummariesWithCache));
 
         const projectSummaryGroupedByProjectStub = sandbox.stub(audit_report, 'getReportsGroupedByProjectData');
         projectSummaryGroupedByProjectStub.returns(allData.projectSummaryGroupedByProject);
-        const projectSummaryGroupedByProjectNoCache = await audit_report.createReportsGroupedByProjectSheet(periodId, tenantId, true, null);
+        const projectSummaryGroupedByProjectNoCache = await audit_report.createReportsGroupedByProjectSheet(periodId, tenantId, null);
         projectSummaryGroupedByProjectStub.returns(dataWithCache.projectSummaryGroupedByProject);
-        const projectSummaryGroupedByProjectWithCache = await audit_report.createReportsGroupedByProjectSheet(periodId, tenantId, false, cachedData.projectSummaryGroupedByProject);
+        const projectSummaryGroupedByProjectWithCache = await audit_report.createReportsGroupedByProjectSheet(periodId, tenantId, cachedData.projectSummaryGroupedByProject);
         expect(JSON.stringify(projectSummaryGroupedByProjectNoCache)).to.equal(JSON.stringify(projectSummaryGroupedByProjectWithCache));
 
         const kpiDataStub = sandbox.stub(audit_report, 'getKpiDataGroupedByProjectData');
         kpiDataStub.returns(allData.KPIDataGroupedByProject);
-        const kpiDataNoCache = await audit_report.createKpiDataGroupedByProjectSheet(periodId, tenantId, true, null);
+        const kpiDataNoCache = await audit_report.createKpiDataGroupedByProjectSheet(periodId, tenantId, null);
         kpiDataStub.returns(dataWithCache.KPIDataGroupedByProject);
-        const kpiDataWithCache = await audit_report.createKpiDataGroupedByProjectSheet(periodId, tenantId, false, cachedData.KPIDataGroupedByProject);
+        const kpiDataWithCache = await audit_report.createKpiDataGroupedByProjectSheet(periodId, tenantId, cachedData.KPIDataGroupedByProject);
         expect(JSON.stringify(kpiDataNoCache)).to.equal(JSON.stringify(kpiDataWithCache));
     });
 
