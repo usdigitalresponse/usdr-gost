@@ -17,6 +17,7 @@ const {
 
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
+    AWS_DEFAULT_REGION,
     NOTIFICATIONS_EMAIL,
 
     NODEMAILER_HOST,
@@ -36,6 +37,7 @@ describe('Email module', () => {
         process.env.TEST_EMAIL_RECIPIENT = TEST_EMAIL_RECIPIENT;
         process.env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID;
         process.env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY;
+        process.env.AWS_DEFAULT_REGION = AWS_DEFAULT_REGION;
         process.env.NOTIFICATIONS_EMAIL = NOTIFICATIONS_EMAIL;
         process.env.NODEMAILER_HOST = NODEMAILER_HOST;
         process.env.NODEMAILER_PORT = NODEMAILER_PORT;
@@ -53,6 +55,7 @@ describe('Email module', () => {
     function clearSESEnvironmentVariables() {
         delete process.env.AWS_ACCESS_KEY_ID;
         delete process.env.AWS_SECRET_ACCESS_KEY;
+        delete process.env.AWS_DEFAULT_REGION;
         delete process.env.NOTIFICATIONS_EMAIL;
     }
 
@@ -75,6 +78,10 @@ describe('Email module', () => {
     context('AWS SES', () => {
         beforeEach(() => {
             clearNodemailerEnvironmentVariables();
+            process.env.AWS_ACCESS_KEY_ID = 'testing';
+            process.env.AWS_SECRET_ACCESS_KEY = 'testing';
+            process.env.AWS_DEFAULT_REGION = 'us-west-2';
+            process.env.NOTIFICATIONS_EMAIL = 'fake@example.org';
         });
 
         it('Fails when NOTIFICATIONS_EMAIL is missing', async () => {
