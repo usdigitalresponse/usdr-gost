@@ -60,6 +60,7 @@ function getSESClient() {
 
 async function sendEmail(message) {
     if (process.env.SUPPRESS_EMAIL) return;
+    if (!process.env.NOTIFICATIONS_EMAIL) throw new Error('NOTIFICATIONS_EMAIL is not set');
 
     const transport = getSESClient();
     const params = {
