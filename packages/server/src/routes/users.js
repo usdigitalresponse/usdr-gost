@@ -60,6 +60,19 @@ router.post('/', requireAdminUser, async (req, res, next) => {
     }
 });
 
+router.put('/:userId', requireUser, async (req, res) => {
+    const user = req.body;
+
+    try {
+        const result = await db.updateUser(user);
+        res.json({ user: result });
+            
+    } catch (err) {
+        console.error(`Unable to update name for user: ${user.id}, error: ${err}`);
+        res.status(500).json({ message: 'Something went wrong while updating. Please try again or reach out to support.' });
+    }
+});
+
 router.put('/:userId/email_subscription', requireUser, async (req, res) => {
     const agencyId = parseInt(req.params.organizationId, 10);
     const userId = parseInt(req.params.userId, 10);

@@ -61,6 +61,11 @@ export default {
       await fetchApi.post('/api/organizations/:organizationId/users', user);
       await dispatch('fetchUsers');
     },
+    async updateUser({ commit }, user) {
+      await fetchApi.put(`/api/organizations/:organizationId/users/${user.id}`, user);
+      const data = await fetchApi.get('api/sessions');
+      commit('SET_LOGGED_IN_USER', data.user);
+    },
     async deleteUser({ dispatch }, userId) {
       await fetchApi.deleteRequest(`/api/organizations/:organizationId/users/${userId}`);
       await dispatch('fetchUsers');
