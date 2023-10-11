@@ -21,6 +21,7 @@
           type="text"
           id="name-input"
           v-model="formData.name"
+          @keydown.enter.native="handleSubmit"
           required
           trim
         ></b-form-input>
