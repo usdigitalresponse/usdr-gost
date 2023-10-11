@@ -102,18 +102,6 @@ describe('Email module', () => {
                 (msg) => msg.startsWith('NOTIFICATIONS_EMAIL is not set'),
             );
         });
-        xit('Works when AWS credentials are valid but expect email to be unverified', async () => {
-            const expects = 'Email address is not verified.';
-            let err;
-            let result;
-            try {
-                result = await emailService.getTransport().sendEmail(testEmail);
-            } catch (e) {
-                err = e;
-            }
-            expect(err.message).to.contain(expects);
-            expect(typeof result.MessageId).to.equal('string');
-        });
     });
     context('Nodemailer', () => {
         beforeEach(() => {
