@@ -6,3 +6,7 @@ import { getFeatureFlags } from './utils';
 export function useNewGrantsTable() {
   return getFeatureFlags().useNewTable === true;
 }
+
+export function myProfileEnabled() {
+  return getFeatureFlags().myProfileEnabled === true;
+}

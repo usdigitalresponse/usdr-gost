@@ -39,7 +39,8 @@ website_managed_waf_rules = {
   }
 }
 website_feature_flags = {
-  useNewTable = true,
+  useNewTable      = true,
+  myProfileEnabled = false
 }
 
 // ECS Cluster
