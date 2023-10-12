@@ -204,7 +204,9 @@ async function createProjectSummaries(periodId, domain, tenantId, logger = log) 
         uploadLogger.debug('filtered to usable EC records in upload');
 
         records.forEach((rec) => {
-            const projectId = rec.content.Project_Identification_Number__c;
+            // Sometimes project IDs are represented as a numeric value;
+            // always treat as string to avoid errant "duplicate" map keys
+            const projectId = rec.content.Project_Identification_Number__c.toString();
             const projectLogger = uploadLogger.child({ project: { id: projectId } });
             projectLogger.debug(rowsByProject.has(projectId)
                 ? 'replacing existing row for project with data from newer record'
