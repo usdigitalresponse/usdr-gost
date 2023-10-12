@@ -1,6 +1,6 @@
 <template>
     <div class="search-panel">
-      <b-button @click="initNewSearch" variant="outline-primary" size="sm">
+      <b-button @click="initNewSearch" variant="outline-primary" size="sm" :disabled="isDisabled">
         New Search
       </b-button>
 
@@ -241,6 +241,7 @@ export default {
     SearchType: String,
     showModal: Boolean,
     searchId: Number,
+    isDisabled: Boolean,
   },
   directives: {
     'v-b-toggle': VBToggle,
