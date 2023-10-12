@@ -236,12 +236,18 @@ module "arpa_audit_report" {
   stop_timeout_seconds  = 120
   consumer_task_command = ["node", "./src/scripts/arpaAuditReport.js"]
   consumer_container_environment = {
-    API_DOMAIN          = local.api_domain_name
+    API_DOMAIN          = "https://${local.api_domain_name}"
     AUDIT_REPORT_BUCKET = module.api.arpa_audit_reports_bucket_id
     DATA_DIR            = "/var/data"
+    LOG_LEVEL           = "DEBUG"
+    LOG_SRC_ENABLED     = "false"
     NODE_OPTIONS        = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
     NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
     WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
+  }
+  datadog_environment_variables = {
+    DD_LOGS_INJECTION    = "true"
+    DD_PROFILING_ENABLED = "true"
   }
   consumer_task_efs_volume_mounts = [{
     name            = "data"
@@ -271,6 +277,7 @@ module "arpa_audit_report" {
     source_arn           = module.api.ecs_service_arn
   }
   sqs_max_receive_count             = 2
+  sqs_visibility_timeout_seconds    = 900     # 15 minutes, in seconds
   sqs_dlq_message_retention_seconds = 1209600 # 14 days, in seconds
 
   # Logging

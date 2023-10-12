@@ -760,6 +760,14 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
                     }
                 }
             });
+            it('with empty includeKeywords', async () => {
+                const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=rank&criteria[includeKeywords]=&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
+                expect(response.statusText).to.equal('OK');
+            });
+            it('with empty excludeKeywords', async () => {
+                const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=rank&criteria[excludeKeywords]=&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
+                expect(response.statusText).to.equal('OK');
+            });
         });
     });
 });

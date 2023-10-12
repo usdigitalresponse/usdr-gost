@@ -48,6 +48,7 @@
     "adm-zip": "0.5.9",
     "async-batch": "1.1.2",
     "body-parser": "^1.20.0",
+    "bunyan": "^1.8.15",
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
     "cron": "^1.8.2",

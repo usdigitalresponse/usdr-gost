@@ -148,7 +148,7 @@ export default {
           filterDropdownItems: [
             { value: true, text: 'Show only validated' },
           ],
-          filterFn: (validatedAt) => validatedAt,
+          filterFn: ({ validatedAt }) => validatedAt,
         },
         // x - row1 value for column
         // y - row2 value for column

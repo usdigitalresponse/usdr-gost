@@ -216,7 +216,7 @@ async function persistJson(upload, workbook) {
             try {
                 const filename = jsonFSName(upload);
                 await fs.mkdir(path.dirname(filename), { recursive: true });
-                await fs.writeFile(filename, Cryo.stringify(workbook), { flag: 'wx' });
+                await fs.writeFile(filename, Cryo.stringify(workbook), { flag: 'w' });
             } catch (e) {
                 throw new ValidationError(`Cannot persist ${upload.filename} to filesystem: ${e}`);
             }

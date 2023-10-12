@@ -433,6 +433,7 @@ function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, order
             queryBuilder.groupBy('rank_title', 'rank_description');
         }
     }
+    return Boolean(tsqExpression);
 }
 
 function buildFiltersQuery(queryBuilder, filters, agencyId) {
@@ -483,6 +484,7 @@ function buildFiltersQuery(queryBuilder, filters, agencyId) {
 }
 
 function grantsQuery(queryBuilder, filters, agencyId, orderingParams, paginationParams) {
+    let hasRankColumns = false;
     if (filters) {
         if (filters.reviewStatuses?.length) {
             queryBuilder.join(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`)
@@ -491,7 +493,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
         if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
             queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
         }
-        buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords, orderingParams);
+        hasRankColumns = buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords, orderingParams);
         buildFiltersQuery(queryBuilder, filters, agencyId);
     }
     if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
@@ -512,10 +514,12 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
             queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
         } else if (orderingParams.orderBy.includes('rank')) {
-            queryBuilder.orderBy([
-                { column: 'rank_title', order: 'desc' },
-                { column: 'rank_description', order: 'desc' },
-            ]);
+            if (hasRankColumns) {
+                queryBuilder.orderBy([
+                    { column: 'rank_title', order: 'desc' },
+                    { column: 'rank_description', order: 'desc' },
+                ]);
+            }
         } else {
             const orderArgs = orderingParams.orderBy.split('|');
             const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
