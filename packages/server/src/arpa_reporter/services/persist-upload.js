@@ -49,8 +49,8 @@ const jsonFSName = (upload) => {
  * @param {int} tenantId
  * @returns {string}
 */
-const cacheFSName = (reportingPeriod, tenantId = null) => {
-    const filename = `${tenantId || useTenantId()}.${reportingPeriod.id}.json`;
+const cacheFSName = (reportingPeriod, tenantId = useTenantId()) => {
+    const filename = `${tenantId}.${reportingPeriod.id}.json`;
     return path.join(TEMP_DIR, filename);
 };
 

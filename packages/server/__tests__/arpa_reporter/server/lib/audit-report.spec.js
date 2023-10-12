@@ -10,7 +10,7 @@ const email = require('../../../../src/lib/email');
 const audit_report = require('../../../../src/arpa_reporter/lib/audit-report');
 const aws = require('../../../../src/lib/gost-aws');
 const { withTenantId } = require('../helpers/with-tenant-id');
-const { response } = require('./response');
+const { audit_report_data } = require('../fixtures/fixtures');
 
 function handleUploadFake(type) {
     if (type === 'success') {
@@ -123,9 +123,9 @@ describe('audit report generation', () => {
     });
 
     it('generate audit report components', async () => {
-        const allData = response;
-        const cachedData = Object.keys(response).reduce((x, y) => { x[y] = response[y].slice(0, -1); return x; }, {});
-        const dataWithCache = Object.keys(response).reduce((x, y) => { x[y] = [response[y][response[y].length - 1]]; return x; }, {});
+        const allData = audit_report_data;
+        const cachedData = Object.keys(audit_report_data).reduce((x, y) => { x[y] = audit_report_data[y].slice(0, -1); return x; }, {});
+        const dataWithCache = Object.keys(audit_report_data).reduce((x, y) => { x[y] = [audit_report_data[y][audit_report_data[y].length - 1]]; return x; }, {});
         const periodId = 1;
         const tenantId = 0;
         const domain = 'test';

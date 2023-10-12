@@ -457,7 +457,7 @@ async function getCache(periodId, domain, tenantId = null, force = false, logger
         return { };
     }
     const mostRecentPreviousReportingPeriod = previousReportingPeriods
-        .reduce((a, b) => (a.id > b.id ? a : b));
+        .reduce((a, b) => (moment(a.start_date) > moment(b.start_date) ? a : b));
     const cacheFilename = cacheFSName(mostRecentPreviousReportingPeriod, tenantId);
     let data = { };
     try {

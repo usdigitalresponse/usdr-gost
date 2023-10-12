@@ -106,7 +106,7 @@ router.get('/', requireUser, async (req, res) => {
 });
 
 router.post('/refresh-cache', async (req, res) => {
-    console.log('/api/audit-report/refresh-cache GET');
+    console.log('/api/audit-report/refresh-cache POST');
     try {
         await audit_report.runCache(
             req.headers.host ?? '',
