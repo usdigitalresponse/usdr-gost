@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { HeadObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 const _ = require('lodash');
+const { SendMessageCommand } = require('@aws-sdk/client-sqs');
 
 const aws = require('../../lib/gost-aws');
 const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
@@ -54,6 +55,26 @@ router.get('/', requireUser, async (req, res) => {
         return;
     }
     const tenantId = useTenantId();
+
+    if (req.query.queue) {
+        // Special handling for deferring audit report generation and sending to a task queue
+        console.log('/api/exports?queue=true GET');
+        console.log('Generating Async treasury report via task queue');
+        try {
+            const user = useUser();
+            const sqs = aws.getSQSClient();
+            await sqs.send(new SendMessageCommand({
+                QueueUrl: process.env.ARPA_TREASURY_REPORT_SQS_QUEUE_URL,
+                MessageBody: JSON.stringify({ userId: user.userId }),
+            }));
+            res.json({ success: true });
+            return;
+        } catch (error) {
+            console.log(`Failed to generate and send audit report ${error}`);
+            res.status(500).json({ error: 'Unable to generate audit report and send email.' });
+            return;
+        }
+    }
 
     if (req.query.async) {
         // Special handling for async treasury report generation and sending.
