@@ -692,7 +692,6 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.title',
             'grants.status',
             'grants.agency_code',
-            'grants.award_ceiling',
             'grants.cost_sharing',
             'grants.cfda_list',
             'grants.open_date',
@@ -721,6 +720,9 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             ELSE 'posted'
             END as opportunity_status
         `))
+        .select(knex.raw(`
+            COALESCE(grants.award_ceiling, 0) as award_ceiling
+        `))
         .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams))
         .select(knex.raw(`
             count(*) OVER() AS full_count
@@ -731,7 +733,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.title',
             'grants.status',
             'grants.agency_code',
-            'grants.award_ceiling',
+            'award_ceiling',
             'grants.cost_sharing',
             'grants.cfda_list',
             'grants.open_date',
