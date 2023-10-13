@@ -1,6 +1,6 @@
 <template>
     <div class="search-panel">
-      <b-button @click="initNewSearch" variant="outline-primary" size="sm">
+      <b-button @click="initNewSearch" variant="outline-primary" size="sm" :disabled="isDisabled">
         New Search
       </b-button>
 
@@ -241,6 +241,7 @@ export default {
     SearchType: String,
     showModal: Boolean,
     searchId: Number,
+    isDisabled: Boolean,
   },
   directives: {
     'v-b-toggle': VBToggle,
@@ -265,7 +266,9 @@ export default {
       ],
       opportunityStatusOptions: [
         { text: 'Posted', value: 'posted' },
-        { text: 'Closed / Archived', value: ['closed', 'archived'] },
+        // b-form-checkbox-group doesn't handle multiple values well 'archived' is added
+        // whenever 'closed' is checked, but as post processing step. See apply()
+        { text: 'Closed / Archived', value: 'closed' },
       ],
     };
   },
@@ -341,6 +344,11 @@ export default {
     },
     apply() {
       const formDataCopy = { ...this.formData.criteria };
+      // b-form-checkbox-group doesn't handle multiple values well. To include 'achived' whenever
+      // we click 'closed', we add 'archived' when it comes off of the form. See also initFormState()
+      if (formDataCopy?.opportunityStatuses.find((e) => e === 'closed')) {
+        formDataCopy.opportunityStatuses.push('archived');
+      }
       this.applyFilters(formDataCopy);
       this.initViewResults();
     },
@@ -357,6 +365,9 @@ export default {
         this.formData.searchId = search.id;
         this.formData.searchTitle = search.name;
         const criteria = JSON.parse(search.criteria);
+        // b-form-checkbox-group doesn't handle multiple values well. 'archive' will be stored
+        // when we display 'closed' as checked. We remove it here for consistency. See also apply()
+        criteria.opportunityStatuses = criteria.opportunityStatuses.filter((item) => item !== 'archived');
         this.formData.criteria = { ...criteria };
       } else {
         this.formData.searchId = null;

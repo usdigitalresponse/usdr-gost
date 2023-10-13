@@ -239,6 +239,8 @@ module "arpa_audit_report" {
     API_DOMAIN          = "https://${local.api_domain_name}"
     AUDIT_REPORT_BUCKET = module.api.arpa_audit_reports_bucket_id
     DATA_DIR            = "/var/data"
+    LOG_LEVEL           = "DEBUG"
+    LOG_SRC_ENABLED     = "false"
     NODE_OPTIONS        = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
     NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
     WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
