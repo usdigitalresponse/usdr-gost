@@ -669,8 +669,8 @@ describe('db', () => {
                 fixtures.agencies.accountancy.id,
             );
             expect(result).to.have.property('data').with.lengthOf(6);
-            expect(result.data[4].award_ceiling).to.equal('0');
-            expect(result.data[5].award_ceiling).to.equal('0');
+            expect(result.data[4].award_ceiling).to.be.null;
+            expect(result.data[5].award_ceiling).to.be.null;
         });
         it('check award_ceiling ordering is correct for blank and zero award ceiling asc', async () => {
             const result = await db.getGrantsNew(
@@ -681,8 +681,8 @@ describe('db', () => {
                 fixtures.agencies.accountancy.id,
             );
             expect(result).to.have.property('data').with.lengthOf(6);
-            expect(result.data[0].award_ceiling).to.equal('0');
-            expect(result.data[1].award_ceiling).to.equal('0');
+            expect(result.data[4].award_ceiling).to.be.null;
+            expect(result.data[5].award_ceiling).to.be.null;
         });
     });
 

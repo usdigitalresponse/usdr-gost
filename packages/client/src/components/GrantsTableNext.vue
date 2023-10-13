@@ -401,7 +401,7 @@ export default {
       });
     },
     formatMoney(value) {
-      if (value === undefined) {
+      if (value === undefined || value === null) {
         return '';
       }
       const res = Number(value).toLocaleString('en-US', {
