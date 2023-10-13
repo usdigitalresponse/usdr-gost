@@ -164,7 +164,7 @@ module "api" {
   unified_service_tags              = local.unified_service_tags
   datadog_environment_variables     = var.api_datadog_environment_variables
   api_container_environment = merge(var.api_container_environment, {
-    ARPA_AUDIT_REPORT_SQS_QUEUE_URL = module.arpa_audit_report.sqs_queue_url
+    ARPA_AUDIT_REPORT_SQS_QUEUE_URL    = module.arpa_audit_report.sqs_queue_url
     ARPA_TREASURY_REPORT_SQS_QUEUE_URL = module.arpa_treasury_report.sqs_queue_url
   })
 
@@ -418,9 +418,9 @@ module "postgres" {
   vpc_id          = data.aws_ssm_parameter.vpc_id.value
   subnet_ids      = local.private_subnet_ids
   ingress_security_groups = {
-    from_api               = module.api_to_postgres_security_group.id
-    from_consume_grants    = module.consume_grants_to_postgres_security_group.id
-    from_arpa_audit_report = module.arpa_audit_report_security_group.id
+    from_api                  = module.api_to_postgres_security_group.id
+    from_consume_grants       = module.consume_grants_to_postgres_security_group.id
+    from_arpa_audit_report    = module.arpa_audit_report_security_group.id
     from_arpa_treasury_report = module.arpa_treasury_report_security_group.id
   }
 
