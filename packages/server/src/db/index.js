@@ -721,7 +721,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             END as opportunity_status
         `))
         .select(knex.raw(`
-            COALESCE(grants.award_ceiling, 0) as award_ceiling
+            NULLIF(grants.award_ceiling, 0) as award_ceiling
         `))
         .modify((qb) => grantsQuery(qb, filters, agencyId, orderingParams, paginationParams))
         .select(knex.raw(`
