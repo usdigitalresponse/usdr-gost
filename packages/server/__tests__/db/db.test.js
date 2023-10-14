@@ -314,7 +314,7 @@ describe('db', () => {
     context('getTotalGrants', () => {
         it('gets total grant count with no parameters', async () => {
             const result = await db.getTotalGrants();
-            expect(result).to.equal('6');
+            expect(result).to.equal('8');
         });
 
         it('gets total grant count matching agency criteria', async () => {
@@ -351,7 +351,7 @@ describe('db', () => {
         it('gets total grant count with updated fromTs', async () => {
             const updatedTsBounds = { fromTs: new Date(2021, 7, 9) };
             const result = await db.getTotalGrants({ updatedTsBounds });
-            expect(result).to.equal('6');
+            expect(result).to.equal('8');
         });
 
         it('gets total grant count with updated fromTs and matching agency criteria', async () => {
@@ -483,9 +483,9 @@ describe('db', () => {
                 fixtures.tenants.SBA.id,
                 fixtures.agencies.accountancy.id,
             );
-            expect(result).to.have.property('data').with.lengthOf(4);
+            expect(result).to.have.property('data').with.lengthOf(6);
             result.data.forEach((grant) => { expect(grant.agency_code).to.contain('HHS'); });
-            expect(result.pagination.total).to.equal(4);
+            expect(result.pagination.total).to.equal(6);
             expect(result.pagination.lastPage).to.equal(1);
 
             const result2 = await db.getGrantsNew(
@@ -520,8 +520,8 @@ describe('db', () => {
                 fixtures.agencies.accountancy.id,
             );
             expect(result2).to.have.property('data').with.lengthOf(3);
-            expect(result2.pagination.total).to.equal(6);
-            expect(result2.pagination.lastPage).to.equal(2);
+            expect(result2.pagination.total).to.equal(8);
+            expect(result2.pagination.lastPage).to.equal(3);
         });
         it('gets grants with a specific opportunity categories', async () => {
             const result = await db.getGrantsNew(
@@ -543,7 +543,7 @@ describe('db', () => {
                 fixtures.agencies.accountancy.id,
             );
             expect(result2).to.have.property('data').with.lengthOf(4);
-            expect(result2.pagination.total).to.equal(6);
+            expect(result2.pagination.total).to.equal(8);
             expect(result2.pagination.lastPage).to.equal(2);
         });
         it('gets grants with a specific funding types aka funding instrument codes', async () => {
@@ -659,6 +659,30 @@ describe('db', () => {
                 fixtures.agencies.accountancy.id,
             );
             expect(result).to.have.property('data').with.lengthOf(1);
+        });
+        it('check award_ceiling ordering is correct for blank and zero award ceiling desc', async () => {
+            const result = await db.getGrantsNew(
+                { agencyCode: 'HHS' },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'award_ceiling', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(6);
+            expect(result.data[4].award_ceiling).to.be.null;
+            expect(result.data[5].award_ceiling).to.be.null;
+        });
+        it('check award_ceiling ordering is correct for blank and zero award ceiling asc', async () => {
+            const result = await db.getGrantsNew(
+                { agencyCode: 'HHS' },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'award_ceiling', orderDesc: 'false' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(6);
+            expect(result.data[4].award_ceiling).to.be.null;
+            expect(result.data[5].award_ceiling).to.be.null;
         });
     });
 
