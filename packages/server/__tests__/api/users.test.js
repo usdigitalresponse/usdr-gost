@@ -165,6 +165,17 @@ describe('`/api/users` endpoint', () => {
         });
     });
 
+    context('PUT /api/users/:id', () => {
+        it('updates a user\'s name', async () => {
+            const response = await fetchApi('/users/4', agencies.own, {
+                ...fetchOptions.nonUSDRAdmin,
+                method: 'put',
+                body: JSON.stringify({ id: 4, name: 'Test Name' })
+            });
+            expect(response.statusText).to.equal('OK');
+        });
+    })
+
     context('DELETE /api/users/:id', () => {
         context('by a user with admin role', () => {
             it('deletes a user in this user\'s tenant', async () => {

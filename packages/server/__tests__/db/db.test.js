@@ -826,6 +826,25 @@ describe('db', () => {
         });
     });
 
+    context('updateUser', () => {
+        it('Updates user\'s name', async () => {
+            const user = await db.createUser(
+                {
+                    email: 'foo@example.com',
+                    name: 'sample name',
+                    role_id: fixtures.roles.adminRole.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    tenant_id: fixtures.tenants.SBA.id,
+                    id: 99991,
+                },
+            );
+            const NAME = 'new name';
+            const updatedUser = await db.updateUser({ id: user.id, name: NAME });
+            expect(updatedUser.name).to.equal(NAME);
+            await db.deleteUser(user.id);
+        });
+    })
+
     context('deleteUser', () => {
         it('deletes email subscriptions when users are deleted', async () => {
             const response = await db.createUser(
