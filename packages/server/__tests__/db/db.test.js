@@ -843,7 +843,7 @@ describe('db', () => {
             expect(updatedUser.name).to.equal(NAME);
             await db.deleteUser(user.id);
         });
-    })
+    });
 
     context('deleteUser', () => {
         it('deletes email subscriptions when users are deleted', async () => {
