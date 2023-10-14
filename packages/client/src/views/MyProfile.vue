@@ -86,6 +86,6 @@ export default {
 <style>
   .pref-description {
     font-size: 12px;
-    margin-bottom: 1.25rem;
+    margin-bottom: 2rem;
   }
 </style>
