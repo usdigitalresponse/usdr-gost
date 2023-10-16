@@ -158,6 +158,7 @@ async function createProjectSummariesSheet(periodId, domain, tenantId, dataBefor
 
 async function getProjectSummariesData(periodId, domain, tenantId, calculatePriorPeriods, logger = log) {
     logger.info('building rows for spreadsheet');
+    debugger;
     const uploads = await knex('uploads')
         .select({
             id: 'uploads.id',
@@ -476,7 +477,7 @@ function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
     return headers;
 }
 
-async function runCache(domain, reportingPeriod = null, tenantId = null, periodId = null) {
+async function runCache(domain, tenantId, reportingPeriod, periodId = null) {
     if (reportingPeriod == null) {
         const reportingPeriods = await getPreviousReportingPeriods(periodId);
         const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
@@ -499,7 +500,7 @@ function reviveDate(key, value) {
         : value;
 }
 
-async function getCache(periodId, domain, tenantId = null, force = false, logger = log) {
+async function getCache(periodId, domain, tenantId, force = false, logger = log) {
     // check if the cache file exists. if not, let's generate it
     const reportingPeriods = await getPreviousReportingPeriods(periodId);
     const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
@@ -519,7 +520,7 @@ async function getCache(periodId, domain, tenantId = null, force = false, logger
         logger.info(`Cache hit for ${tenantId}`);
     } catch (err) {
         logger.info(`Cache miss for ${tenantId}`);
-        data = await runCache(domain, mostRecentPreviousReportingPeriod, tenantId);
+        data = await runCache(domain, tenantId, mostRecentPreviousReportingPeriod);
     }
     return data;
 }
