@@ -934,14 +934,14 @@
     tslib "^2.5.0"
 
 "@aws-sdk/s3-request-presigner@^3.312.0":
-  version "3.428.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.428.0.tgz#ee50a2f2c054087ce1f52e1abeecaf9a117e8e15"
-  integrity sha512-Jup4vrMm4Xk/5aEitktjtFmFW21PQsqA4MXvhxEaUh6yk9CgLKKGIk4UvyazaNrCEqo/G/EsnMGandXN5wYnpw==
+  version "3.429.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.429.0.tgz#fd2e0c41010bb5cc0b55ec4c6a43d4ae4c933100"
+  integrity sha512-PZF5dLiIltc7cczNGcLp044e86e2FuOyFO43lPJxVRLPgbKeyddTmDlOpf/clgT+D/s4LX7UA3EV7DSG32RDeA==
   dependencies:
     "@aws-sdk/signature-v4-multi-region" "3.428.0"
     "@aws-sdk/types" "3.428.0"
     "@aws-sdk/util-format-url" "3.428.0"
-    "@smithy/middleware-endpoint" "^2.1.0"
+    "@smithy/middleware-endpoint" "^2.1.1"
     "@smithy/protocol-http" "^3.0.7"
     "@smithy/smithy-client" "^2.1.11"
     "@smithy/types" "^2.3.5"
