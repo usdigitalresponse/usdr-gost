@@ -14,14 +14,14 @@ async function main() {
     process.on('SIGTERM', requestShutdown);
     process.on('SIGINT', requestShutdown);
 
-    const queueUrl = process.env.TREASURY_REPORT_TASK_QUEUE_URL;
+    const queueUrl = process.env.TASK_QUEUE_URL;
     const sqs = getSQSClient();
     while (shutDownRequested === false) {
         // eslint-disable-next-line no-await-in-loop
-        await tracer.trace('arpaAuditReport', async () => {
+        await tracer.trace('arpaTreasuryReport', async () => {
             log.info({ queueUrl }, 'Long-polling next SQS message batch');
             const receiveResp = await sqs.send(new ReceiveMessageCommand({
-                QueueUrl: process.env.TREASURY_REPORT_TASK_QUEUE_URL, WaitTimeSeconds: 20, MaxNumberOfMessages: 1,
+                QueueUrl: process.env.TASK_QUEUE_URL, WaitTimeSeconds: 20, MaxNumberOfMessages: 1,
             }));
             const message = (receiveResp?.Messages || [])[0];
             if (message !== undefined) {
@@ -32,7 +32,7 @@ async function main() {
                         try {
                             return await processSQSMessageRequest(message);
                         } catch (e) {
-                            msgLog.error(e, 'Error processing SQS message request for ARPA audit report');
+                            msgLog.error(e, 'Error processing SQS message request for ARPA treasury report');
                             span.setTag('error', e);
                         }
                         return false;

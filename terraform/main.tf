@@ -322,7 +322,7 @@ resource "aws_iam_role_policy" "api_task-publish_to_arpa_audit_report_queue" {
 
 module "arpa_treasury_report" {
   source                   = "./modules/sqs_consumer_task"
-  namespace                = "${var.namespace}-arpa_treasury_report"
+  namespace                = "${var.namespace}-treasury_report"
   permissions_boundary_arn = local.permissions_boundary_arn
 
   # Networking

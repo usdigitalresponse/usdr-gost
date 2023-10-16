@@ -57,7 +57,7 @@ router.get('/', requireUser, async (req, res) => {
     const tenantId = useTenantId();
 
     if (req.query.queue) {
-        // Special handling for deferring audit report generation and sending to a task queue
+        // Special handling for deferring treasury report generation and sending to a task queue
         console.log('/api/exports?queue=true GET');
         console.log('Generating Async treasury report via task queue');
         try {
@@ -70,8 +70,8 @@ router.get('/', requireUser, async (req, res) => {
             res.json({ success: true });
             return;
         } catch (error) {
-            console.log(`Failed to generate and send audit report ${error}`);
-            res.status(500).json({ error: 'Unable to generate audit report and send email.' });
+            console.log(`Failed to generate and send treasury report ${error}`);
+            res.status(500).json({ error: 'Unable to generate treasury report and send email.' });
             return;
         }
     }
