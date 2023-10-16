@@ -158,7 +158,6 @@ async function createProjectSummariesSheet(periodId, domain, tenantId, dataBefor
 
 async function getProjectSummariesData(periodId, domain, tenantId, calculatePriorPeriods, logger = log) {
     logger.info('building rows for spreadsheet');
-    debugger;
     const uploads = await knex('uploads')
         .select({
             id: 'uploads.id',
@@ -525,7 +524,7 @@ async function getCache(periodId, domain, tenantId, force = false, logger = log)
     return data;
 }
 
-async function generateSheets(periodId, domain, tenantId, dataBefore = null, logger = log) {
+async function generateSheets(periodId, domain, tenantId = useTenantId(), dataBefore = null, logger = log) {
     // generate sheets data
     const obligations = await tracer.trace('createObligationSheet',
         async () => createObligationSheet(
