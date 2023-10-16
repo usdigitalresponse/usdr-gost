@@ -265,23 +265,23 @@
     tslib "^2.5.0"
 
 "@aws-sdk/client-s3@^3.312.0":
-  version "3.428.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.428.0.tgz#e16ccd17fbed77de784c0d1baddfd9e2b77d0bdd"
-  integrity sha512-qz4SV0sjeKC/m573Ox0wWhVABhN35cy0zBOvYixtEQNBzQbWefk8luHkNxntyybuLPZz6ChDzU98+EBac5RuRg==
+  version "3.429.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.429.0.tgz#a563f8face03ada34d32a3b51f2327c86c3f59e8"
+  integrity sha512-ZSEBABgfFLcT1F3u/CRTsvAPezZw13H4uVa4GuQB/2Qn5uVkhxNL6Ff7RYVbSrCPkXk4F0Bwk2h5HjBDDHFZYA==
   dependencies:
     "@aws-crypto/sha1-browser" "3.0.0"
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.428.0"
-    "@aws-sdk/credential-provider-node" "3.428.0"
+    "@aws-sdk/client-sts" "3.429.0"
+    "@aws-sdk/credential-provider-node" "3.429.0"
     "@aws-sdk/middleware-bucket-endpoint" "3.428.0"
     "@aws-sdk/middleware-expect-continue" "3.428.0"
     "@aws-sdk/middleware-flexible-checksums" "3.428.0"
-    "@aws-sdk/middleware-host-header" "3.428.0"
+    "@aws-sdk/middleware-host-header" "3.429.0"
     "@aws-sdk/middleware-location-constraint" "3.428.0"
     "@aws-sdk/middleware-logger" "3.428.0"
     "@aws-sdk/middleware-recursion-detection" "3.428.0"
-    "@aws-sdk/middleware-sdk-s3" "3.428.0"
+    "@aws-sdk/middleware-sdk-s3" "3.429.0"
     "@aws-sdk/middleware-signing" "3.428.0"
     "@aws-sdk/middleware-ssec" "3.428.0"
     "@aws-sdk/middleware-user-agent" "3.428.0"
@@ -303,7 +303,7 @@
     "@smithy/invalid-dependency" "^2.0.11"
     "@smithy/md5-js" "^2.0.11"
     "@smithy/middleware-content-length" "^2.0.13"
-    "@smithy/middleware-endpoint" "^2.1.0"
+    "@smithy/middleware-endpoint" "^2.1.1"
     "@smithy/middleware-retry" "^2.0.16"
     "@smithy/middleware-serde" "^2.0.11"
     "@smithy/middleware-stack" "^2.0.5"
@@ -838,10 +838,10 @@
     "@smithy/types" "^2.3.5"
     tslib "^2.5.0"
 
-"@aws-sdk/middleware-sdk-s3@3.428.0":
-  version "3.428.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-sdk-s3/-/middleware-sdk-s3-3.428.0.tgz#b3546fa0ed22411acd13a6aadbc7dbd23562cffc"
-  integrity sha512-C9hJlzMGlDeVNn91TvC6lsTplnH4hFPM2kiuMha5A/EXPPOg9c5vFH5awL3ubEiIUPwwDu3d583hvsPd6G3qxA==
+"@aws-sdk/middleware-sdk-s3@3.429.0":
+  version "3.429.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-sdk-s3/-/middleware-sdk-s3-3.429.0.tgz#596afef2319c7e609e7c77500eb0f6af48ca64cc"
+  integrity sha512-wCT5GoExncHUzUbW8b9q/PN3uPsbxit4PUAHw/hkrIHDKOxd9H/ClM37ZeJHNEOml5hnJOPy+rOaF9jRqo8dGg==
   dependencies:
     "@aws-sdk/types" "3.428.0"
     "@aws-sdk/util-arn-parser" "3.310.0"
@@ -3293,20 +3293,7 @@
     "@smithy/types" "^2.3.5"
     tslib "^2.5.0"
 
-"@smithy/middleware-endpoint@^2.1.0":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@smithy/middleware-endpoint/-/middleware-endpoint-2.1.1.tgz#6eec29c380a8f0f9cadc9b28bf8b453c5b671985"
-  integrity sha512-YAqGagBvHqDEew4EGz9BrQ7M+f+u7ck9EL4zzYirOhIcXeBS/+q4A5+ObHDDwEp38lD6t88YUtFy3OptqEaDQg==
-  dependencies:
-    "@smithy/middleware-serde" "^2.0.11"
-    "@smithy/node-config-provider" "^2.1.1"
-    "@smithy/shared-ini-file-loader" "^2.2.0"
-    "@smithy/types" "^2.3.5"
-    "@smithy/url-parser" "^2.0.11"
-    "@smithy/util-middleware" "^2.0.4"
-    tslib "^2.5.0"
-
-"@smithy/middleware-endpoint@^2.1.1":
+"@smithy/middleware-endpoint@^2.1.0", "@smithy/middleware-endpoint@^2.1.1":
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/@smithy/middleware-endpoint/-/middleware-endpoint-2.1.2.tgz#c6610f17b3c5773e4f272eb4de5c18a878607fe0"
   integrity sha512-dua4r2EbSTRzNefz72snz+KDuXN73RCe1K+rGeemzUyYemxuh1jujFbLQbTU6DVlTgHkhtrbH0+kdOFY/SV4Qg==
@@ -3424,14 +3411,6 @@
   integrity sha512-NO6dHqho6APbVR0DxPtYoL4KXBqUeSM3Slsd103MOgL50YbzzsQmMLtDMZ87W8MlvvCN0tuiq+OrAO/rM7hTQg==
   dependencies:
     "@smithy/types" "^2.2.2"
-    tslib "^2.5.0"
-
-"@smithy/shared-ini-file-loader@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@smithy/shared-ini-file-loader/-/shared-ini-file-loader-2.2.0.tgz#9e4a90a29fe3f109875c26e6127802ed0953f43d"
-  integrity sha512-xFXqs4vAb5BdkzHSRrTapFoaqS4/3m/CGZzdw46fBjYZ0paYuLAoMY60ICCn1FfGirG+PiJ3eWcqJNe4/SkfyA==
-  dependencies:
-    "@smithy/types" "^2.3.5"
     tslib "^2.5.0"
 
 "@smithy/shared-ini-file-loader@^2.2.1":
