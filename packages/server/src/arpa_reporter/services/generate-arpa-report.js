@@ -5,7 +5,9 @@ const asyncBatch = require('async-batch').default;
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const aws = require('../../lib/gost-aws');
 
+const { getUser } = require('../../db');
 const { applicationSettings } = require('../db/settings');
+const { log } = require('../../lib/logging');
 const { listRecipientsForReportingPeriod } = require('../db/arpa-subrecipients');
 const { getTemplate } = require('./get-template');
 const email = require('../../lib/email');
@@ -1024,10 +1026,35 @@ async function generateAndSendEmail(recipientEmail, periodId, tenantId) {
     }
 }
 
+async function processSQSMessageRequest(message) {
+    let requestData;
+    try {
+        requestData = JSON.parse(message.Body);
+    } catch (err) {
+        log.error({ err }, 'error parsing request data from SQS message');
+        return false;
+    }
+
+    try {
+        const user = await getUser(requestData.userId);
+        if (!user) {
+            throw new Error(`user not found: ${requestData.userId}`);
+        }
+        await generateAndSendEmail(user.email, user.tenant_id);
+    } catch (err) {
+        log.error({ err }, 'failed to generate and send audit report');
+        return false;
+    }
+
+    log.info('successfully completed SQS message request');
+    return true;
+}
+
 module.exports = {
     generateReport,
     sendEmailWithLink,
     generateAndSendEmail,
+    processSQSMessageRequest,
 };
 
 // NOTE: This file was copied from src/server/services/generate-arpa-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
