@@ -326,15 +326,15 @@
     tslib "^2.5.0"
 
 "@aws-sdk/client-ses@^3.312.0":
-  version "3.428.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ses/-/client-ses-3.428.0.tgz#bcf288a0e8c4719ab01997d805736529877352a8"
-  integrity sha512-DfihJSz6U9RcauZXuokqxIFYSIBNcoxksmfcvUH8D3FkT2O5E4M6M6Ycuyw37UMoRz7JXOSWUI2rCHvlB6kwVg==
+  version "3.429.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ses/-/client-ses-3.429.0.tgz#2f8398abdf5980793fc68b46b4ea538981d77bae"
+  integrity sha512-Gz80yiZMz5nEuKSfJYWiE6EGLSGmNx8riQ1pOgimyY3H2mEwYxDa9vF/TyQTjo1eqtCcRn80uFmpKuKs0ywJlA==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.428.0"
-    "@aws-sdk/credential-provider-node" "3.428.0"
-    "@aws-sdk/middleware-host-header" "3.428.0"
+    "@aws-sdk/client-sts" "3.429.0"
+    "@aws-sdk/credential-provider-node" "3.429.0"
+    "@aws-sdk/middleware-host-header" "3.429.0"
     "@aws-sdk/middleware-logger" "3.428.0"
     "@aws-sdk/middleware-recursion-detection" "3.428.0"
     "@aws-sdk/middleware-signing" "3.428.0"
@@ -349,7 +349,7 @@
     "@smithy/hash-node" "^2.0.11"
     "@smithy/invalid-dependency" "^2.0.11"
     "@smithy/middleware-content-length" "^2.0.13"
-    "@smithy/middleware-endpoint" "^2.1.0"
+    "@smithy/middleware-endpoint" "^2.1.1"
     "@smithy/middleware-retry" "^2.0.16"
     "@smithy/middleware-serde" "^2.0.11"
     "@smithy/middleware-stack" "^2.0.5"
