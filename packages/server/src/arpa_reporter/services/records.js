@@ -262,6 +262,7 @@ module.exports = {
     recordsForReportingPeriod,
     recordsForUpload,
     mostRecentProjectRecords,
+    EC_SHEET_TYPES,
     DATA_SHEET_TYPES,
     TYPE_TO_SHEET_NAME,
     readVersionRecord,

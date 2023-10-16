@@ -17,6 +17,8 @@ const {
 
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
+    AWS_DEFAULT_REGION,
+    AWS_REGION,
     NOTIFICATIONS_EMAIL,
 
     NODEMAILER_HOST,
@@ -36,6 +38,8 @@ describe('Email module', () => {
         process.env.TEST_EMAIL_RECIPIENT = TEST_EMAIL_RECIPIENT;
         process.env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID;
         process.env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY;
+        process.env.AWS_DEFAULT_REGION = AWS_DEFAULT_REGION;
+        process.env.AWS_REGION = AWS_REGION;
         process.env.NOTIFICATIONS_EMAIL = NOTIFICATIONS_EMAIL;
         process.env.NODEMAILER_HOST = NODEMAILER_HOST;
         process.env.NODEMAILER_PORT = NODEMAILER_PORT;
@@ -53,6 +57,8 @@ describe('Email module', () => {
     function clearSESEnvironmentVariables() {
         delete process.env.AWS_ACCESS_KEY_ID;
         delete process.env.AWS_SECRET_ACCESS_KEY;
+        delete process.env.AWS_REGION;
+        delete process.env.AWS_DEFAULT_REGION;
         delete process.env.NOTIFICATIONS_EMAIL;
     }
 
@@ -75,12 +81,14 @@ describe('Email module', () => {
     context('AWS SES', () => {
         beforeEach(() => {
             clearNodemailerEnvironmentVariables();
+            process.env.AWS_ACCESS_KEY_ID = 'testing';
+            process.env.AWS_SECRET_ACCESS_KEY = 'testing';
+            process.env.AWS_DEFAULT_REGION = 'us-west-2';
+            process.env.AWS_REGION = 'us-west-2';
+            process.env.NOTIFICATIONS_EMAIL = 'fake@example.org';
         });
 
         it('Fails when NOTIFICATIONS_EMAIL is missing', async () => {
-            // 'send' will throw no error, but will log an error to the console.
-            // However, without returning the result of the promise in 'send',
-            // we can't capture it here
             delete process.env.NOTIFICATIONS_EMAIL;
             let err = { message: 'No error' };
 
@@ -89,19 +97,10 @@ describe('Email module', () => {
             } catch (e) {
                 err = e;
             }
-            expect(err.message).to.equal('No error');
-        });
-        xit('Works when AWS credentials are valid but expect email to be unverified', async () => {
-            const expects = 'Email address is not verified.';
-            let err;
-            let result;
-            try {
-                result = await emailService.getTransport().sendEmail(testEmail);
-            } catch (e) {
-                err = e;
-            }
-            expect(err.message).to.contain(expects);
-            expect(typeof result.MessageId).to.equal('string');
+            // expect(err.message).to.equal('No error');
+            expect(err.message).to.be.a('string').and.satisfy(
+                (msg) => msg.startsWith('NOTIFICATIONS_EMAIL is not set'),
+            );
         });
     });
     context('Nodemailer', () => {
@@ -111,6 +110,9 @@ describe('Email module', () => {
         });
         it('Fails when NODEMAILER_PORT is missing', async () => {
             delete process.env.NODEMAILER_PORT;
+            if (!process.env.NODEMAILER_HOST) {
+                process.env.NODEMAILER_HOST = 'example.org';
+            }
             const expects = 'Missing environment variable NODEMAILER_PORT!';
             let err = { message: 'No error' };
 
@@ -123,6 +125,9 @@ describe('Email module', () => {
         });
         it('Fails when NODEMAILER_EMAIL is missing', async () => {
             delete process.env.NODEMAILER_EMAIL;
+            if (!process.env.NODEMAILER_HOST) {
+                process.env.NODEMAILER_HOST = 'example.org';
+            }
             const expects = 'Missing environment variable NODEMAILER_EMAIL!';
             let err = { message: 'No error' };
 
@@ -135,6 +140,9 @@ describe('Email module', () => {
         });
         it('Fails when NODEMAILER_EMAIL_PW is missing', async () => {
             delete process.env.NODEMAILER_EMAIL_PW;
+            if (!process.env.NODEMAILER_HOST) {
+                process.env.NODEMAILER_HOST = 'example.org';
+            }
             const expects = 'Missing environment variable NODEMAILER_EMAIL_PW!';
             let err = { message: 'No error' };
 
