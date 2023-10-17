@@ -379,10 +379,6 @@ export default {
     onShown() {
       this.initFormState();
     },
-    getNextSearchId() {
-      const searchIds = this.savedSearches.data.map((s) => s.id);
-      return Math.max(...searchIds, 0) + 1;
-    },
     async onEnter() {
       if (this.saveEnabled) {
         await this.onSubmit();
