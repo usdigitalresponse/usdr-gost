@@ -220,6 +220,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
+import moment from 'moment';
 import { billOptions } from '@/helpers/constants';
 
 const defaultCriteria = {
@@ -371,7 +372,7 @@ export default {
         this.formData.criteria = { ...criteria };
       } else {
         this.formData.searchId = null;
-        this.formData.searchTitle = `My Saved Search ${this.getNextSearchId()}`;
+        this.formData.searchTitle = `${moment(new Date()).format('M/D/YYYY - h:mma')}`;
         this.formData.criteria = { ...defaultCriteria };
       }
     },
