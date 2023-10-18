@@ -1,11 +1,14 @@
 const moment = require('moment');
 const AdmZip = require('adm-zip');
+const tracer = require('dd-trace');
+const ps = require('node:process');
 const XLSX = require('xlsx');
-const asyncBatch = require('async-batch').default;
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const aws = require('../../lib/gost-aws');
 
+const { getUser } = require('../../db');
 const { applicationSettings } = require('../db/settings');
+const { log } = require('../../lib/logging');
 const { listRecipientsForReportingPeriod } = require('../db/arpa-subrecipients');
 const { getTemplate } = require('./get-template');
 const email = require('../../lib/email');
@@ -28,6 +31,26 @@ const EC_CODE_REGEX = /^(\d.\d\d?)/;
 
 // dropdown value used to differentiate payments under 50k
 const PAYMENTS_TO_INDIVIDUALS = 'Payments to Individuals';
+
+/**
+ * Modifies logger and returns a new child that injects a processStats object into all logs
+ * by default. Individual logging calls (or child loggers of the returned logger) can disable
+ * this behavior by passing an options object with { processStats: false }.
+ *
+ * Note that the returned logger will always overwrite a log with "processStats" in the options,
+ * so don't plan on using that field name for anything else.
+ */
+const processStatsLogger = (logger = log.child(), options = {}) => {
+    logger.addSerializers({
+        processStats: (enabled) => {
+            if (enabled) {
+                return { memory: ps.memoryUsage(), cpu: ps.cpuUsage() };
+            }
+            return undefined;
+        },
+    });
+    return logger.child({ processStats: true, ...options });
+};
 
 /**
  * Extract the Detailed Expenditure Category code from a record.
@@ -909,7 +932,7 @@ async function generateSubRecipient(records, periodId) {
     });
 }
 
-async function setCSVData(data) {
+async function setCSVData(data, logger = log) {
     const {
         csvObject, admZip, records, periodId,
     } = data;
@@ -923,6 +946,7 @@ async function setCSVData(data) {
 
     // ignore empty CSV files
     if (csvData.length === 0) {
+        logger.info('no data for csv');
         return;
     }
 
@@ -943,58 +967,73 @@ async function setCSVData(data) {
 }
 
 async function generateReport(periodId, tenantId) {
-    tenantId = tenantId || useTenantId();
-    requiredArgument(periodId, 'must specify periodId');
-    const records = await recordsForReportingPeriod(periodId, tenantId);
+    return tracer.trace('generateReport()', async () => {
+        tenantId = tenantId || useTenantId();
+        requiredArgument(periodId, 'must specify periodId');
+        const logger = processStatsLogger(log, {
+            workbook: { period: { id: periodId }, tenant: { id: tenantId } },
+        });
+        logger.info('Verified all necessary arguments are present.');
 
-    // generate every csv file for the report
-    const csvObjects = [
-        { name: 'project111210BulkUpload', func: generateProject111210 },
-        { name: 'project18_229233BulkUpload', func: generateProject18 },
-        { name: 'project19_234BulkUpload', func: generateProject19 },
-        { name: 'project211214BulkUpload', func: generateProject211214 },
-        { name: 'project2128BulkUpload', func: generateProject2128 },
-        { name: 'project215218BulkUpload', func: generateProject215218 },
-        { name: 'project224227BulkUpload', func: generateProject224227 },
-        { name: 'project236BulkUpload', func: generateProject236 },
-        { name: 'project31BulkUpload', func: generateProject31 },
-        { name: 'project32BulkUpload', func: generateProject32 },
-        { name: 'project4142BulkUpload', func: generateProject4142 },
-        { name: 'project51518BulkUpload', func: generateProject51518 },
-        { name: 'project519521BulkUpload', func: generateProject519521 },
-        { name: 'projectBaselineBulkUploadTemplate', func: generateProjectBaseline },
-        {
-            name: 'expendituresGT50000BulkUpload',
-            func: generateExpendituresGT50000,
-        },
-        {
-            name: 'expendituresLT50000BulkUpload',
-            func: generateExpendituresLT50000,
-        },
-        {
-            name: 'paymentsIndividualsLT50000BulkUpload',
-            func: generatePaymentsIndividualsLT50000,
-        },
-        { name: 'subawardBulkUpload', func: generateSubaward },
-        { name: 'subRecipientBulkUpload', func: generateSubRecipient },
-    ];
+        const records = await recordsForReportingPeriod(periodId, tenantId);
 
-    const admZip = new AdmZip();
+        // generate every csv file for the report
+        const csvObjects = [
+            { name: 'project111210BulkUpload', func: generateProject111210 },
+            { name: 'project18_229233BulkUpload', func: generateProject18 },
+            { name: 'project19_234BulkUpload', func: generateProject19 },
+            { name: 'project211214BulkUpload', func: generateProject211214 },
+            { name: 'project2128BulkUpload', func: generateProject2128 },
+            { name: 'project215218BulkUpload', func: generateProject215218 },
+            { name: 'project224227BulkUpload', func: generateProject224227 },
+            { name: 'project236BulkUpload', func: generateProject236 },
+            { name: 'project31BulkUpload', func: generateProject31 },
+            { name: 'project32BulkUpload', func: generateProject32 },
+            { name: 'project4142BulkUpload', func: generateProject4142 },
+            { name: 'project51518BulkUpload', func: generateProject51518 },
+            { name: 'project519521BulkUpload', func: generateProject519521 },
+            { name: 'projectBaselineBulkUploadTemplate', func: generateProjectBaseline },
+            {
+                name: 'expendituresGT50000BulkUpload',
+                func: generateExpendituresGT50000,
+            },
+            {
+                name: 'expendituresLT50000BulkUpload',
+                func: generateExpendituresLT50000,
+            },
+            {
+                name: 'paymentsIndividualsLT50000BulkUpload',
+                func: generatePaymentsIndividualsLT50000,
+            },
+            { name: 'subawardBulkUpload', func: generateSubaward },
+            { name: 'subRecipientBulkUpload', func: generateSubRecipient },
+        ];
 
-    const reportName = await generateReportName(periodId, tenantId);
+        const admZip = new AdmZip();
 
-    // compute the CSV data for each file, and write it into the zip container
-    const inputs = [];
-    csvObjects.forEach((c) => inputs.push({
-        csvObject: c, admZip, records, periodId,
-    }));
-    await asyncBatch(inputs, setCSVData, 2);
+        const reportName = await generateReportName(periodId, tenantId);
 
-    // return the correct format
-    return {
-        filename: `${reportName}.zip`,
-        content: admZip.toBuffer(),
-    };
+        // compute the CSV data for each file, and write it into the zip container
+        await tracer.trace('setCSVData', async () => {
+            for (const csvObject of csvObjects) {
+                /* here we want to evaluate each csvObject in series */
+                // eslint-disable-next-line no-await-in-loop
+                await tracer.trace(csvObject.name, async () => {
+                    const csvLogger = logger.child({ csvObject: { name: csvObject.name } });
+                    csvLogger.info('generating csv');
+                    await setCSVData({
+                        csvObject, admZip, records, periodId,
+                    }, csvLogger);
+                });
+            }
+        });
+
+        // return the correct format
+        return {
+            filename: `${reportName}.zip`,
+            content: admZip.toBuffer(),
+        };
+    });
 }
 
 async function sendEmailWithLink(fileKey, recipientEmail) {
@@ -1002,9 +1041,12 @@ async function sendEmailWithLink(fileKey, recipientEmail) {
     email.sendAsyncReportEmail(recipientEmail, url, email.ASYNC_REPORT_TYPES.treasury);
 }
 
-async function generateAndSendEmail(recipientEmail, periodId, tenantId) {
+async function generateAndSendEmail(recipientEmail, periodId, tenantId, logger = log) {
+    logger = logger.child({ tenant: { id: tenantId } });
     // Generate the report
+    logger.info('generating ARPA treasury report');
     const report = await module.exports.generateReport(periodId, tenantId);
+    logger.info('finished generating ARPA treasury report');
     // Upload to S3 and send email link
     const reportKey = `${tenantId}/${periodId}/${report.filename}`;
 
@@ -1015,19 +1057,53 @@ async function generateAndSendEmail(recipientEmail, periodId, tenantId) {
         Body: report.content,
         ServerSideEncryption: 'AES256',
     };
+
     try {
-        console.log(uploadParams);
+        logger.info('uploading ARPA treasury report to S3');
         await s3.send(new PutObjectCommand(uploadParams));
+    } catch (err) {
+        logger.error({ err }, 'failed to upload ARPA Treasury report');
+        throw err;
+    }
+
+    try {
+        logger.info('sending ARPA treasury report email');
         await module.exports.sendEmailWithLink(reportKey, recipientEmail);
     } catch (err) {
-        console.log(`Failed to upload/email treasury report ${err}`);
+        logger.error({ err }, 'failed to send ARPA Treasury report email');
+        throw err;
     }
+}
+
+async function processSQSMessageRequest(message) {
+    let requestData;
+    try {
+        requestData = JSON.parse(message.Body);
+    } catch (err) {
+        log.error({ err }, 'error parsing request data from SQS message');
+        return false;
+    }
+
+    try {
+        const user = await getUser(requestData.userId);
+        if (!user) {
+            throw new Error(`user not found: ${requestData.userId}`);
+        }
+        await generateAndSendEmail(user.email, requestData.periodId, requestData.tenantId);
+    } catch (err) {
+        log.error({ err }, 'failed to generate and send treasury report');
+        return false;
+    }
+
+    log.info('successfully completed SQS message request');
+    return true;
 }
 
 module.exports = {
     generateReport,
     sendEmailWithLink,
     generateAndSendEmail,
+    processSQSMessageRequest,
 };
 
 // NOTE: This file was copied from src/server/services/generate-arpa-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
