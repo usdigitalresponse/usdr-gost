@@ -967,7 +967,7 @@ async function setCSVData(data, logger = log) {
 }
 
 async function generateReport(periodId, tenantId) {
-    return tracer.tracer('generateReport()', async () => {
+    return tracer.trace('generateReport()', async () => {
         tenantId = tenantId || useTenantId();
         requiredArgument(periodId, 'must specify periodId');
         const logger = processStatsLogger(log, {
@@ -1017,7 +1017,7 @@ async function generateReport(periodId, tenantId) {
         for (const csvObject of csvObjects) {
             /* here we want to evaluate each csvObject in series */
             // eslint-disable-next-line no-await-in-loop
-            tracer.tracer('setCSVData()', async () => {
+            tracer.trace('setCSVData()', async () => {
                 logger.info(`Generating ${csvObject.name} CSV`);
                 await setCSVData({
                     csvObject, admZip, records, periodId,
