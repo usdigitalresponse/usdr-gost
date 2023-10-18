@@ -1040,9 +1040,9 @@ async function processSQSMessageRequest(message) {
         if (!user) {
             throw new Error(`user not found: ${requestData.userId}`);
         }
-        await generateAndSendEmail(user.email, user.tenant_id);
+        await generateAndSendEmail(user.email, requestData.periodId, requestData.tenantId);
     } catch (err) {
-        log.error({ err }, 'failed to generate and send audit report');
+        log.error({ err }, 'failed to generate and send treasury report');
         return false;
     }
 
