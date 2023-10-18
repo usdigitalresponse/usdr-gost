@@ -1043,7 +1043,7 @@ async function generateAndSendEmail(recipientEmail, periodId, tenantId, logger =
     // Generate the report
     logger.info('generating ARPA treasury report');
     const report = await module.exports.generateReport(periodId, tenantId);
-    logger.info('Finished generating ARPA treasury report');
+    logger.info('finished generating ARPA treasury report');
     // Upload to S3 and send email link
     const reportKey = `${tenantId}/${periodId}/${report.filename}`;
 
