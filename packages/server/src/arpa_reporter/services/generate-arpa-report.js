@@ -1014,16 +1014,19 @@ async function generateReport(periodId, tenantId) {
         const reportName = await generateReportName(periodId, tenantId);
 
         // compute the CSV data for each file, and write it into the zip container
-        for (const csvObject of csvObjects) {
-            /* here we want to evaluate each csvObject in series */
-            // eslint-disable-next-line no-await-in-loop
-            tracer.trace('setCSVData()', async () => {
-                logger.info({ csv: { name: csvObject.name } }, 'generating csv');
-                await setCSVData({
-                    csvObject, admZip, records, periodId,
-                }, logger.child({ csvObject: { name: csvObject.name } }));
-            });
-        }
+        await tracer.trace('setCSVData', async () => {
+            for (const csvObject of csvObjects) {
+                /* here we want to evaluate each csvObject in series */
+                // eslint-disable-next-line no-await-in-loop
+                await tracer.trace(csvObject.name, async () => {
+                    const csvLogger = logger.child({ csvObject: { name: csvObject.name } });
+                    csvLogger.info('generating csv');
+                    await setCSVData({
+                        csvObject, admZip, records, periodId,
+                    }, csvLogger);
+                });
+            }
+        });
 
         // return the correct format
         return {
