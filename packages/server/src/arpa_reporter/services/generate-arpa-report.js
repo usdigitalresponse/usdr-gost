@@ -946,7 +946,7 @@ async function setCSVData(data, logger = log) {
 
     // ignore empty CSV files
     if (csvData.length === 0) {
-        logger.info(`No data for ${name} CSV`);
+        logger.info('no data for csv');
         return;
     }
 
