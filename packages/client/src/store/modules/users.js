@@ -62,8 +62,8 @@ export default {
       await dispatch('fetchUsers');
     },
     async updateUser({ commit }, user) {
-      await fetchApi.put(`/api/organizations/:organizationId/users/${user.id}`, user);
-      const data = await fetchApi.get('api/sessions');
+      const { id, name } = user;
+      const data = await fetchApi.patch(`/api/organizations/:organizationId/users/${id}`, { name });
       commit('SET_LOGGED_IN_USER', data.user);
     },
     async deleteUser({ dispatch }, userId) {

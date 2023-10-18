@@ -165,12 +165,12 @@ describe('`/api/users` endpoint', () => {
         });
     });
 
-    context('PUT /api/users/:id', () => {
+    context('PATCH /api/users/:id', () => {
         it('updates a user\'s name', async () => {
             const response = await fetchApi('/users/4', agencies.own, {
                 ...fetchOptions.nonUSDRAdmin,
-                method: 'put',
-                body: JSON.stringify({ id: 4, name: 'Test Name' }),
+                method: 'patch',
+                body: JSON.stringify({ name: 'Test Name' }),
             });
             expect(response.statusText).to.equal('OK');
         });

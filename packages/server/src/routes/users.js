@@ -60,14 +60,24 @@ router.post('/', requireAdminUser, async (req, res, next) => {
     }
 });
 
-router.put('/:userId', requireUser, async (req, res) => {
-    const user = req.body;
+router.patch('/:userId', requireUser, async (req, res) => {
+    const id = parseInt(req.params.userId, 10);
+    const allowedFields = new Set(['name']);
+
+    for (const key of Object.keys(req.body)) {
+        if (!allowedFields.has(key)) {
+            res.status(400).json({ message: `Request body contains unsupported field: ${key}` });
+            return;
+        }
+    }
+
+    const { name } = req.body;
 
     try {
-        const result = await db.updateUser(user);
+        const result = await db.updateUser({ id, name });
         res.status(200).json({ user: result });
     } catch (err) {
-        console.error(`Unable to update name for user: ${user.id}, error: ${err}`);
+        console.error(`Unable to update name for user: ${id}, error: ${err}`);
         res.status(500).json({ message: 'Something went wrong while updating. Please try again or reach out to support.' });
     }
 });
