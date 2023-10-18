@@ -202,7 +202,6 @@ async function recordsForReportingPeriod(periodId, tenantId) {
     requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod');
 
     const uploads = await usedForTreasuryExport(periodId, tenantId);
-    // const groupedRecords = await Promise.all(uploads.map(recordsForUpload));
     const groupedRecords = await Promise.all(uploads.map((upload) => recordsForUpload(upload)));
     return groupedRecords.flat();
 }
