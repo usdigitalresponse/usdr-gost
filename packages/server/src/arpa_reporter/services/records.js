@@ -202,6 +202,7 @@ async function recordsForReportingPeriod(periodId, tenantId) {
     requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod');
 
     const uploads = await usedForTreasuryExport(periodId, tenantId);
+    // const groupedRecords = await Promise.all(uploads.map(recordsForUpload));
     const groupedRecords = await Promise.all(uploads.map((upload) => recordsForUpload(upload)));
     return groupedRecords.flat();
 }
@@ -249,7 +250,7 @@ async function recordsForProject(periodId, tenantId) {
     const projectRecords = allRecords
         .flat()
         // exclude non-project records
-        .filter((record) => Object.values(EC_SHEET_TYPES).includes(record.type));
+        .filter((record) => ([...Object.values(EC_SHEET_TYPES), 'awards50k', 'expenditures50k']).includes(record.type));
 
     return Object.values(projectRecords);
 }
