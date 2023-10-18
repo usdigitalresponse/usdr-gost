@@ -1018,7 +1018,7 @@ async function generateReport(periodId, tenantId) {
             /* here we want to evaluate each csvObject in series */
             // eslint-disable-next-line no-await-in-loop
             tracer.trace('setCSVData()', async () => {
-                logger.info(`Generating ${csvObject.name} CSV`);
+                logger.info({ csv: { name: csvObject.name } }, 'generating csv');
                 await setCSVData({
                     csvObject, admZip, records, periodId,
                 }, logger.child({ csvObject: { name: csvObject.name } }));
