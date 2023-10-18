@@ -265,19 +265,19 @@
     tslib "^2.5.0"
 
 "@aws-sdk/client-s3@^3.312.0":
-  version "3.430.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.430.0.tgz#56b1eeffe36d66134cdc6a58e304becd47baf856"
-  integrity sha512-KpK6mZsLyxfHTPfXA3Bnuu5li15QhhWCzhSPx6moH6XGPH0hVNHFy05DM9T/1exf6tEAQhi5FJrek9dM/sOdeA==
+  version "3.431.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.431.0.tgz#08cd7015db60459017b96d3059bec1558ca5af26"
+  integrity sha512-Kh9GAKdhWfW//Q4HvH7yPO+2emN0h4PLoVk9rin1cCg78mkirnhJ5ffng6fRZDGDCvo7rDwrAqK/WrbcojMH9A==
   dependencies:
     "@aws-crypto/sha1-browser" "3.0.0"
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.430.0"
-    "@aws-sdk/credential-provider-node" "3.430.0"
+    "@aws-sdk/client-sts" "3.431.0"
+    "@aws-sdk/credential-provider-node" "3.431.0"
     "@aws-sdk/middleware-bucket-endpoint" "3.430.0"
     "@aws-sdk/middleware-expect-continue" "3.428.0"
     "@aws-sdk/middleware-flexible-checksums" "3.428.0"
-    "@aws-sdk/middleware-host-header" "3.429.0"
+    "@aws-sdk/middleware-host-header" "3.431.0"
     "@aws-sdk/middleware-location-constraint" "3.428.0"
     "@aws-sdk/middleware-logger" "3.428.0"
     "@aws-sdk/middleware-recursion-detection" "3.428.0"
