@@ -220,8 +220,8 @@
 import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
-import moment from 'moment';
 import { billOptions } from '@/helpers/constants';
+import { DateTime } from 'luxon';
 
 const defaultCriteria = {
   includeKeywords: null,
@@ -372,7 +372,8 @@ export default {
         this.formData.criteria = { ...criteria };
       } else {
         this.formData.searchId = null;
-        this.formData.searchTitle = `${moment(new Date()).format('M/D/YYYY - h:mma')}`;
+        const now = DateTime.now();
+        this.formData.searchTitle = `${now.toLocaleString(DateTime.DATE_SHORT)} - ${now.toLocaleString(DateTime.TIME_WITH_SECONDS)}`;
         this.formData.criteria = { ...defaultCriteria };
       }
     },
