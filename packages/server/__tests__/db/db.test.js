@@ -650,6 +650,32 @@ describe('db', () => {
             );
             expect(result).to.have.property('data').with.lengthOf(1);
         });
+        it('gets grants that match any include keywords in title but are excluded based description', async () => {
+            let result = await db.getGrantsNew(
+                {
+                    includeKeywords: ['community', 'health'],
+                },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: true },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(1);
+            expect(result.data[0].title).to.contain('Community');
+            expect(result.data[0].description).to.contain('Covid');
+
+            result = await db.getGrantsNew(
+                {
+                    includeKeywords: ['community', 'health'],
+                    excludeKeywords: ['covid'],
+                },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: true },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(0);
+        });
         it('gets grants that match any include phrases', async () => {
             const result = await db.getGrantsNew(
                 { includeKeywords: ['earth sciences'] },

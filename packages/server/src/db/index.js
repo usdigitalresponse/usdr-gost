@@ -410,40 +410,46 @@ function buildTsqExpression(includeKeywords, excludeKeywords) {
         excludeKeywords.forEach((ek) => { if (ek.indexOf(' ') > 0) { signedKeywords.exclude.push(`-"${ek}"`); } else { signedKeywords.exclude.push(`-${ek}`); } });
     }
 
-    const validExpressions = [];
-
     const includeExpression = signedKeywords.include.join(' or ');
-    if (includeExpression.length > 0) {
-        validExpressions.push(includeExpression);
-    }
     const excludeExpression = signedKeywords.exclude.join(' ');
-    if (excludeExpression.length > 0) {
-        validExpressions.push(excludeExpression);
-    }
 
-    const phrase = validExpressions.join(' ');
-
-    return phrase;
+    return { includeExpression, excludeExpression };
 }
 
 function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, orderingParams) {
-    const tsqExpression = buildTsqExpression(includeKeywords, excludeKeywords);
-    if (tsqExpression) {
-        queryBuilder.joinRaw(`cross join websearch_to_tsquery('english', ?) as tsqp`, tsqExpression);
+    const expression = buildTsqExpression(includeKeywords, excludeKeywords);
+    const includeExpression = expression?.includeExpression;
+    const excludeExpression = expression?.excludeExpression;
+    if (!includeExpression && !excludeExpression) {
+        return false;
+    }
+    if (includeExpression) {
+        queryBuilder.joinRaw(`cross join websearch_to_tsquery('english', ?) as tsqp`, includeExpression);
+    }
+    if (excludeExpression) {
+        queryBuilder.joinRaw(`cross join websearch_to_tsquery('english', ?) as ntsqp`, excludeExpression);
+    }
+    if (includeExpression) {
         queryBuilder.andWhere((q) => {
             q.where('tsqp', '@@', knex.raw('title_ts'))
                 .orWhere('tsqp', '@@', knex.raw('description_ts'));
             return q;
         });
-        if (orderingParams.orderBy !== undefined) {
-            queryBuilder.select(
-                knex.raw(`ts_rank(title_ts, tsqp) as rank_title`),
-                knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description`),
-            );
-            queryBuilder.groupBy('rank_title', 'rank_description');
-        }
     }
-    return Boolean(tsqExpression);
+    if (excludeExpression) {
+        queryBuilder.andWhere((q) => {
+            q.where('ntsqp', '@@', knex.raw('title_ts'))
+                .andWhere('ntsqp', '@@', knex.raw('description_ts'));
+        });
+    }
+    if (includeExpression && orderingParams.orderBy !== undefined) {
+        queryBuilder.select(
+            knex.raw(`ts_rank(title_ts, tsqp) as rank_title`),
+            knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description`),
+        );
+        queryBuilder.groupBy('rank_title', 'rank_description');
+    }
+    return Boolean(includeExpression);
 }
 
 function buildFiltersQuery(queryBuilder, filters, agencyId) {
