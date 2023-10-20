@@ -3,16 +3,13 @@
     <div class="row">
       <AlertBox v-if="alert" :text="alert.text" :level="alert.level" v-on:dismiss="clearAlert" />
     </div>
-    <div class="row" v-if="isAdmin">
-      <AlertBox text="Service Interruption - Please reach out to grants-helpdesk@usdigitalresponse.org for treasury report generation." level="err" />
-    </div>
     <div class="row mt-5 mb-5" v-if="viewingOpenPeriod">
       <div class="col" v-if="this.$route.query.sync_treasury_download && isAdmin">
         <DownloadButton :href="downloadTreasuryReportURL()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
       </div>
 
       <div class="col" v-if="isAdmin">
-        <button disabled title="Please reach out to grants-helpdesk@usdigitalresponse.org for the treasury report." class="btn btn-primary btn-block" @click="sendTreasuryReport">
+        <button class="btn btn-primary btn-block" @click="sendTreasuryReport" :disabled="sending">
           <span v-if="sending">Sending...</span>
           <span v-else>Send Treasury Report by Email</span>
         </button>
