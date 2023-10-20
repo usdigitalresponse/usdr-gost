@@ -140,7 +140,7 @@ export default {
       this.sending = true;
 
       try {
-        const result = await getJson('/api/exports?async=true');
+        const result = await getJson('/api/exports?queue=true');
 
         if (result.error) {
           this.alert = {
