@@ -85,6 +85,16 @@ async function createUser(user) {
     };
 }
 
+async function updateUser(user) {
+    const { id, name } = user;
+
+    await knex('users')
+        .where('id', id)
+        .update({ name });
+
+    return getUser(id);
+}
+
 async function getUsersByAgency(agencyId) {
     const users = await knex('users').where('users.agency_id', agencyId);
 
@@ -1725,6 +1735,7 @@ module.exports = {
     formatSearchCriteriaToQueryFilters,
     getUsers,
     createUser,
+    updateUser,
     deleteUser,
     getUsersByAgency,
     getSubscribersForNotification,

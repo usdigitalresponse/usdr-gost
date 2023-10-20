@@ -65,7 +65,7 @@ router.get('/', requireUser, async (req, res) => {
             const sqs = aws.getSQSClient();
             await sqs.send(new SendMessageCommand({
                 QueueUrl: process.env.ARPA_TREASURY_REPORT_SQS_QUEUE_URL,
-                MessageBody: JSON.stringify({ userId: user.userId }),
+                MessageBody: JSON.stringify({ userId: user.id, periodId, tenantId }),
             }));
             res.json({ success: true });
             return;
