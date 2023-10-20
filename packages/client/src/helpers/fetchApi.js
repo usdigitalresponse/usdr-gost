@@ -84,3 +84,21 @@ export function put(url, body) {
         .then((text) => Promise.reject(new Error(text || r.statusText)));
     });
 }
+
+export function patch(url, body) {
+  const options = {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: getDefaultHeaders(),
+    body: JSON.stringify(body),
+  };
+  return fetch(addOrganizationId(apiURL(url)), options)
+    .then((r) => {
+      if (r.ok) {
+        return r.json();
+      }
+      return r
+        .text()
+        .then((text) => Promise.reject(new Error(text || r.statusText)));
+    });
+}

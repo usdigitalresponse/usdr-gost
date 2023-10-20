@@ -165,6 +165,28 @@ describe('`/api/users` endpoint', () => {
         });
     });
 
+    context('PATCH /api/users/:id', () => {
+        context('with allowed fields', () => {
+            it('updates a user\'s name', async () => {
+                const response = await fetchApi('/users/4', agencies.own, {
+                    ...fetchOptions.nonUSDRAdmin,
+                    method: 'patch',
+                    body: JSON.stringify({ name: 'Test Name' }),
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+
+            it('does not update a user\'s email', async () => {
+                const response = await fetchApi('/users/4', agencies.own, {
+                    ...fetchOptions.nonUSDRAdmin,
+                    method: 'patch',
+                    body: JSON.stringify({ email: 'test@abc.com' }),
+                });
+                expect(response.statusText).to.equal('Bad Request');
+            });
+        });
+    });
+
     context('DELETE /api/users/:id', () => {
         context('by a user with admin role', () => {
             it('deletes a user in this user\'s tenant', async () => {
