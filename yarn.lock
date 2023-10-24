@@ -265,15 +265,15 @@
     tslib "^2.5.0"
 
 "@aws-sdk/client-s3@^3.312.0":
-  version "3.433.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.433.0.tgz#1cb6790d1b1622f034c1bb4f0f3713ab7f00e461"
-  integrity sha512-gCuV4kmmHPFrQIl53VxddIylqItarwyX9+ykNIxMoMcEcBVmJhmshV6M9Re+wzS8eUPB6maqurOKGu83YUMpIA==
+  version "3.435.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.435.0.tgz#c83462d6aff91f08606ddf91b3d9845623a9bf2d"
+  integrity sha512-jyuv0SLLwc7Wa0s0eWHs1G4V0EJB2+4Nl/yn/LhEUrcDPrCI2FHd/lLudSmrEW+s7Rty0KTx5ZzeTn6YZ6ohTQ==
   dependencies:
     "@aws-crypto/sha1-browser" "3.0.0"
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.433.0"
-    "@aws-sdk/credential-provider-node" "3.433.0"
+    "@aws-sdk/client-sts" "3.435.0"
+    "@aws-sdk/credential-provider-node" "3.435.0"
     "@aws-sdk/middleware-bucket-endpoint" "3.433.0"
     "@aws-sdk/middleware-expect-continue" "3.433.0"
     "@aws-sdk/middleware-flexible-checksums" "3.433.0"
