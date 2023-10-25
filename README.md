@@ -21,6 +21,34 @@ There are two main parts to the application:
 
 ## Getting started
 
+### Prerequisites
+You will need docker and docker-compose installed on your machine.
+
+### Starting Up
+
+1. clone this repository
+2. change into the `usdr-gost` directory
+3. run `./start.sh`
+
+Starting up the first time takes a few minutes, as it installs dependencies and builds images.
+
+### Watching the Logs
+
+There will be four services running: `app`, `frontend`, `postgres`, and `localstack`.
+To watch the logs of a specific service, run `docker-compose logs -f <service name>`.
+When you log in, the link to access the application will appear in the `app` logs.
+
+### Seed the Database
+
+The first time you start up, populate the database with some sample data:
+
+    docker-compose exec app yarn db:seed
+
+### Logging In
+
+Browse http://localhost:8080 and use `grant-admin@usdigitalresponse.org` to log in.
+The link to access the application will appear in the `app` logs (see Watching the Logs above).
+
 Read more about how to get started developing [here](./docs/getting-started.md).
 
 ## Decisions
