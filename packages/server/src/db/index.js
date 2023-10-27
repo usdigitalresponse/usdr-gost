@@ -2,6 +2,8 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
+const { _ } = require('lodash');
+
 let v4;
 try {
     // eslint-disable-next-line global-require
@@ -513,23 +515,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
         buildFiltersQuery(queryBuilder, filters, agencyId);
     }
     if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
-        if (orderingParams.orderBy.includes('interested_agencies')) {
-            // Only perform the join if it was not already performed above.
-            if (!filters.reviewStatuses?.length) {
-                queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
-                queryBuilder.select(`${TABLES.grants_interested}.grant_id`);
-                queryBuilder.groupBy(`${TABLES.grants_interested}.grant_id`);
-            }
-            const orderArgs = orderingParams.orderBy.split('|');
-            queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
-            queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
-        } else if (orderingParams.orderBy.includes('viewed_by')) {
-            const orderArgs = orderingParams.orderBy.split('|');
-            queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
-            queryBuilder.select(`${TABLES.grants_viewed}.grant_id`);
-            queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
-            queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
-        } else if (orderingParams.orderBy.includes('rank')) {
+        if (orderingParams.orderBy.includes('rank')) {
             if (hasRankColumns) {
                 queryBuilder.orderBy([
                     { column: 'rank_title', order: 'desc' },
@@ -537,12 +523,15 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
                 ]);
             }
         } else {
-            const orderArgs = orderingParams.orderBy.split('|');
-            const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
-            if (orderArgs.length > 1) {
-                console.log(`Too many orderArgs: ${orderArgs}`);
+            const orderArgs = _.filter(orderingParams.orderBy.split('|'),
+                (orderArg) => /^(award_ceiling|open_date|close_date)$/.test(orderArg));
+            if (orderArgs.length > 0) {
+                const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
+                if (orderArgs.length > 1) {
+                    console.log(`Too many orderArgs: ${orderArgs}`);
+                }
+                queryBuilder.orderBy(orderArgs[0], knex.raw(`${orderDirection} NULLS LAST`));
             }
-            queryBuilder.orderBy(orderArgs[0], knex.raw(`${orderDirection} NULLS LAST`));
         }
     }
 
@@ -875,23 +864,14 @@ async function getGrants({
                 );
             }
             if (orderBy && orderBy !== 'undefined') {
-                if (orderBy.includes('interested_agencies')) {
-                    queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
-                    const orderArgs = orderBy.split('|');
-                    queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
-                    queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
-                } else if (orderBy.includes('viewed_by')) {
-                    const orderArgs = orderBy.split('|');
-                    queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
-                    queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
-                    queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
-                } else {
-                    const orderArgs = orderBy.split('|');
+                const orderArgs = _.filter(orderBy.split('|'),
+                    (orderArg) => /^(award_ceiling|open_date|close_date)$/.test(orderArg));
+                if (orderArgs.length > 0) {
                     const orderDirection = ((orderDesc === 'true') ? 'desc' : 'asc');
                     if (orderArgs.length > 1) {
                         console.log(`Too many orderArgs: ${orderArgs}`);
                     }
-                    queryBuilder.orderBy(orderArgs[0], orderDirection);
+                    queryBuilder.orderBy(orderArgs[0], knex.raw(`${orderDirection} NULLS LAST`));
                 }
             }
             queryBuilder.limit(perPage);
