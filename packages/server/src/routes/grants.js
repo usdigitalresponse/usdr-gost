@@ -8,30 +8,6 @@ const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 
 const router = express.Router({ mergeParams: true });
 
-// Award floor field was requested for CSV export but is not stored as a dedicated column,
-// so we have to extract it from raw_body
-function getAwardFloor(grant) {
-    let body;
-    try {
-        body = JSON.parse(grant.raw_body);
-    } catch (err) {
-        // Some seeded test data has invalid JSON in raw_body field
-        return undefined;
-    }
-
-    // For some reason, some grants rows have null raw_body.
-    // TODO: investigate how this can happen
-    if (!body) {
-        return undefined;
-    }
-
-    const floor = parseInt(body.synopsis && body.synopsis.awardFloor, 10);
-    if (Number.isNaN(floor)) {
-        return undefined;
-    }
-    return floor;
-}
-
 function parseCollectionQueryParam(req, param) {
     const value = req.query[param];
     return (value && value.split(',')) || [];
@@ -146,7 +122,6 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             .join(', '),
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        award_floor: getAwardFloor(grant),
         url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
     }));
 
@@ -171,7 +146,6 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             { key: 'opportunity_status', header: 'Status' },
             { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },
-            { key: 'award_floor', header: 'Award Floor' },
             { key: 'award_ceiling', header: 'Award Ceiling' },
             { key: 'open_date', header: 'Posted Date' },
             { key: 'close_date', header: 'Close Date' },
@@ -228,7 +202,6 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             .join(', '),
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        award_floor: getAwardFloor(grant),
         url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
     }));
 
@@ -253,7 +226,6 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             { key: 'opportunity_status', header: 'Status' },
             { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },
-            { key: 'award_floor', header: 'Award Floor' },
             { key: 'award_ceiling', header: 'Award Ceiling' },
             { key: 'open_date', header: 'Posted Date' },
             { key: 'close_date', header: 'Close Date' },
