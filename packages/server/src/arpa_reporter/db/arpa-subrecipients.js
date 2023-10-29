@@ -85,7 +85,7 @@ async function listRecipients(trns = knex) {
 }
 
 async function listRecipientsForReportingPeriod(periodId, trns = knex) {
-    return baseQuery(trns).where('reporting_period_id', periodId);
+    return baseQuery(trns).where('reporting_period_id', periodId).where('is_archived', false);
 }
 
 module.exports = {
