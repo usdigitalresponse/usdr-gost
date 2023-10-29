@@ -14,6 +14,21 @@ function baseQuery(trns) {
         .leftJoin('users AS users2', 'arpa_subrecipients.updated_by', 'users2.id');
 }
 
+async function archiveRecipient(id, { updatedByUser }, trns = knex) {
+    const query = trns('arpa_subrecipients')
+        .where('id', id)
+        .returning('*');
+
+    if (updatedByUser) {
+        query.update('updated_by', updatedByUser.id);
+        query.update('updated_at', knex.fn.now());
+    }
+
+    query.update('is_archived', knex.raw('NOT ??', ['is_archived']));
+
+    return query.then((rows) => rows[0]);
+}
+
 async function createRecipient(recipient, trns = knex) {
     const tenantId = useTenantId();
     if (!(recipient.uei || recipient.tin)) {
@@ -74,6 +89,7 @@ async function listRecipientsForReportingPeriod(periodId, trns = knex) {
 }
 
 module.exports = {
+    archiveRecipient,
     createRecipient,
     getRecipient,
     findRecipient,
