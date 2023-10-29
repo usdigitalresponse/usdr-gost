@@ -3,7 +3,9 @@ const express = require('express');
 const router = express.Router();
 const { requireUser } = require('../../lib/access-helpers');
 
-const { listRecipients, getRecipient, updateRecipient } = require('../db/arpa-subrecipients');
+const {
+    listRecipients, getRecipient, updateRecipient, archiveRecipient,
+} = require('../db/arpa-subrecipients');
 const { getRules } = require('../services/validation-rules');
 
 router.get('/', requireUser, async (req, res) => {
@@ -43,6 +45,21 @@ router.post('/:id', requireUser, async (req, res) => {
     }
 
     const updatedRecipient = await updateRecipient(recipient.id, { record, updatedByUser: user });
+    res.json({ recipient: updatedRecipient });
+});
+
+router.post('/archive/:id', requireUser, async (req, res) => {
+    const id = Number(req.params.id);
+    const { user } = req.session;
+
+    const recipient = await getRecipient(id);
+    if (!recipient || recipient.tenant_id !== req.session.user.tenant_id) {
+        res.sendStatus(404);
+        res.end();
+        return;
+    }
+
+    const updatedRecipient = await archiveRecipient(recipient.id, { updatedByUser: user });
     res.json({ recipient: updatedRecipient });
 });
 
