@@ -131,12 +131,12 @@ module "logs_bucket" {
       }
       noncurrent_version_transition = [
         {
-          days          = 30
+          noncurrent_days          = 30
           storage_class = "GLACIER"
         },
       ]
       noncurrent_version_expiration = {
-        days = 90
+        noncurrent_days = 90
       }
     }
   ]
