@@ -50,8 +50,8 @@
 
           <span class="d-flex flex-column" v-else-if="props.column.field === 'edit'" >
             <router-link v-if="!props.row.is_archived" tag="button" class="btn btn-sm btn-secondary mb-2" :to="`/subrecipients/${props.row.id}`">Edit</router-link>
-            <button v-if="props.row.is_archived" class="btn btn-sm btn-primary" @click="archiveSubrecipient(props.row.id)">Restore</button>
-            <button v-else class="btn btn-sm btn-outline-danger" @click="archiveSubrecipient(props.row.id)">Archive</button>
+            <button v-if="props.row.is_archived" class="btn btn-sm btn-primary" @click="archiveOrRestoreSubrecipient(props.row.id)">Restore</button>
+            <button v-else class="btn btn-sm btn-outline-danger" @click="archiveOrRestoreSubrecipient(props.row.id)">Archive</button>
           </span>
 
           <span v-else>
@@ -136,13 +136,21 @@ export default {
       this.$refs.recipientsTable.changeSort([]);
     },
 
-    async archiveSubrecipient(id) {
+    /**
+     * Archive or restore a subrecipient.
+     *
+     * Call this method to taggle the `is_archived` flag for a subrecipient record.
+     *
+     * @param {*} id
+     * The ID of the subrecipient to archive or restore.
+     */
+    async archiveOrRestoreSubrecipient(id) {
       this.loading = true;
 
       const result = await post(`/api/subrecipients/archive/${id}`);
       if (result.error) {
         this.$store.commit('addAlert', {
-          text: `archiveSubrecipient Error (${result.status}): ${result.error}`,
+          text: `archiveOrRestoreSubrecipient Error (${result.status}): ${result.error}`,
           level: 'err',
         });
       } else {

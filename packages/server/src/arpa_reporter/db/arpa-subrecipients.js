@@ -14,7 +14,12 @@ function baseQuery(trns) {
         .leftJoin('users AS users2', 'arpa_subrecipients.updated_by', 'users2.id');
 }
 
-async function archiveRecipient(id, { updatedByUser }, trns = knex) {
+/**
+ * Archive or restore a subrecipient.
+ *
+ * Call t his method to toggle the `is_archived` column in the arpa_subrecipients table.
+ */
+async function archiveOrRestoreRecipient(id, { updatedByUser }, trns = knex) {
     const query = trns('arpa_subrecipients')
         .where('id', id)
         .returning('*');
@@ -89,7 +94,7 @@ async function listRecipientsForReportingPeriod(periodId, trns = knex) {
 }
 
 module.exports = {
-    archiveRecipient,
+    archiveOrRestoreRecipient,
     createRecipient,
     getRecipient,
     findRecipient,
