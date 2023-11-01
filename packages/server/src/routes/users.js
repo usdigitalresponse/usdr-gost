@@ -149,7 +149,7 @@ router.delete('/:userId', requireAdminUser, async (req, res) => {
     // Is this admin user able to delete a user in their agency
     const authorized = isAuthorizedForAgency(req.session.user, userToDelete.agency_id);
     if (!authorized) {
-        res.sendStatus(403);
+        res.status(403).send('Cannot delete a user from a parent agency or agency outside of the tenant');
         return;
     }
 
