@@ -5,34 +5,31 @@
     <b-col></b-col>
     <b-col class="d-flex justify-content-end" v-if="userRole === 'admin'">
       <div>
-        <b-button variant="success" @click="openUploadAgenciesModal" class="mr-1">Bulk Import</b-button>
+        <b-button id="bulkAgencyImportButton" variant="success" @click="openUploadAgenciesModal" class="mr-1">Bulk Import</b-button>
       </div>
       <div>
-        <b-button variant="success" @click="openAddAgencyModal">Add</b-button>
+        <b-button id="addAgencyButton" variant="success" @click="openAddAgencyModal">Add</b-button>
       </div>
     </b-col>
   </b-row>
   <b-table sticky-header="600px" hover :items="formattedAgencies" :fields="fields">
     <template #cell(name)="row">
-        {{row.item.name}}
-      </template>
-      <template #cell(warning_threshold)="row">
-        {{row.item.warning_threshold}} days
-      </template>
-      <template #cell(danger_threshold)="row">
-        {{row.item.danger_threshold}} days
-      </template>
-      <template #cell(actions)="row">
+      {{row.item.name}}
+    </template>
+    <template #cell(warning_threshold)="row">
+      {{row.item.warning_threshold}} days
+    </template>
+    <template #cell(danger_threshold)="row">
+      {{row.item.danger_threshold}} days
+    </template>
+    <template #cell(actions)="row">
       <b-button v-if="userRole === 'admin'" class="mr-1" size="sm" @click="openEditAgencyModal(row.item)">
         <b-icon icon="pencil-fill" aria-hidden="true"></b-icon>
       </b-button>
     </template>
   </b-table>
-  <EditAgencyModal
-     :agency.sync="editingAgency"
-  />
-  <AddAgencyModal
-  :showDialog.sync="showAddAgencyModal"/>
+  <EditAgencyModal :agency.sync="editingAgency"/>
+  <AddAgencyModal :showDialog.sync="showAddAgencyModal"/>
   <ImportAgenciesModal :showUploadModal.sync="showUploadAgenciesModal" :importStatus="'Nothing imported yet.'"/>
 </section>
 </template>
