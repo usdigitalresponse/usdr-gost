@@ -1,7 +1,7 @@
 const express = require('express');
 
 const router = express.Router({ mergeParams: true });
-const { requireUser, isAuthorized } = require('../lib/access-helpers');
+const { requireUser, isAuthorizedForAgency } = require('../lib/access-helpers');
 const db = require('../db');
 
 router.post('/', requireUser, async (req, res) => {
@@ -21,7 +21,7 @@ router.delete('/:keywordId', requireUser, async (req, res) => {
     const { agency_id } = await db.getKeyword(req.params.keywordId);
 
     // Is this admin user authorized for that agency?
-    const authorized = await isAuthorized(req.signedCookies.userId, agency_id);
+    const authorized = isAuthorizedForAgency(req.session.user, agency_id);
     if (!authorized) {
         res.sendStatus(403);
         return;
