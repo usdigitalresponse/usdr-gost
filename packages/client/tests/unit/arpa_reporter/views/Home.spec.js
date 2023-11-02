@@ -1,30 +1,138 @@
 import { expect } from 'chai';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import Home from '../../../../src/arpa_reporter/views/Home.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-describe('Home.vue', () => {
-  it('renders', () => {
-    const store = new Vuex.Store({
-      state: {
-        viewPeriodID: 0,
-      },
-      getters: {
-        user: () => ({ email: 'admin@example.com', role: 'admin' }),
-        periodNames: () => ['September, 2020', 'December, 2020'],
-      },
-    });
-    const wrapper = mount(Home, {
-      store,
-      localVue,
-      stubs: ['router-link', 'router-view'],
-    });
-    const r = wrapper.find('p');
-    expect(r.text()).to.include('Welcome');
-  });
+let store;
+let wrapper;
+let route;
+
+afterEach(() => {
+  store = undefined;
+  wrapper = undefined;
+  route = { query: { } };
 });
 
-// NOTE: This file was copied from tests/unit/views/Home.spec.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
+describe('Home.vue', () => {
+  describe('when a non-admin loads the home page', () => {
+    describe('outside the reporting period', () => {
+      beforeEach(() => {
+        store = new Vuex.Store({
+          state: { },
+          getters: {
+            user: () => ({ role: { name: 'not an admin' } }),
+          },
+        });
+        wrapper = shallowMount(Home, {
+          store,
+          localVue,
+        });
+      });
+      it('should show the Welcome text', () => {
+        const welcomeToArpaReporter = wrapper.get('#welcomeToArpaReporter');
+        expect(welcomeToArpaReporter.text()).to.include('Welcome to the ARPA reporter');
+      });
+      it('should show the reporting period as closed', () => {
+        const reportingPeriodClosed = wrapper.get('#closedReportingPeriodMessage');
+        expect(reportingPeriodClosed.text()).to.include('This reporting period is closed.');
+      });
+    });
+    describe('during the reporting period', () => {
+      beforeEach(() => {
+        store = new Vuex.Store({
+          state: { },
+          getters: {
+            user: () => ({ role: { name: 'non-admin' } }),
+            viewPeriodIsCurrent: () => true,
+          },
+        });
+        wrapper = shallowMount(Home, {
+          store,
+          localVue,
+          mocks: { $route: route },
+        });
+      });
+      it('should show the submit workbook button', () => {
+        const submitWorkbookButton = wrapper.get('#submitWorkbookButton');
+        expect(submitWorkbookButton.text()).to.include('Submit Workbook');
+      });
+    });
+  });
+  describe('when an admin loads the home page during the reporting period', () => {
+    describe('without query params', () => {
+      beforeEach(() => {
+        store = new Vuex.Store({
+          state: { },
+          getters: {
+            user: () => ({ role: { name: 'admin' } }),
+            viewPeriodIsCurrent: () => true,
+          },
+        });
+        route = { query: { } };
+        wrapper = shallowMount(Home, {
+          store,
+          localVue,
+          mocks: { $route: route },
+        });
+      });
+      it('should show the submit workbook button', () => {
+        const submitWorkbookButton = wrapper.get('#submitWorkbookButton');
+        expect(submitWorkbookButton.text()).to.include('Submit Workbook');
+      });
+      it('should show the Send Treasury Report by Email Button', () => {
+        const sendTreasuryReportButton = wrapper.get('#sendTreasuryReportButton');
+        expect(sendTreasuryReportButton.text()).to.include('Send Treasury Report by Email');
+      });
+      it('should show the DownloadTemplateBtn', () => {
+        const sendAuditReportButton = wrapper.getComponent({ name: 'DownloadTemplateBtn' });
+        expect(sendAuditReportButton).not.to.be.undefined;
+      });
+    });
+    describe('with the sync_treasury_download param', () => {
+      beforeEach(() => {
+        store = new Vuex.Store({
+          state: { },
+          getters: {
+            user: () => ({ role: { name: 'admin' } }),
+            viewPeriodIsCurrent: () => true,
+            viewPeriod: () => ({}),
+          },
+        });
+        route = { query: { sync_treasury_download: true } };
+        wrapper = shallowMount(Home, {
+          store,
+          localVue,
+          mocks: { $route: route },
+        });
+      });
+      it('should show the Download Treasury Report button', () => {
+        const downloadButton = wrapper.getComponent({ name: 'DownloadButton' });
+        expect(downloadButton.text()).to.include('Download Treasury Report');
+      });
+    });
+    describe('with the sync_audit_download param', () => {
+      beforeEach(() => {
+        store = new Vuex.Store({
+          state: { },
+          getters: {
+            user: () => ({ role: { name: 'admin' } }),
+            viewPeriodIsCurrent: () => true,
+          },
+        });
+        route = { query: { sync_audit_download: true } };
+        wrapper = shallowMount(Home, {
+          store,
+          localVue,
+          mocks: { $route: route },
+        });
+      });
+      it('should show the Download Treasury Report button', () => {
+        const downloadAuditButton = wrapper.getComponent({ name: 'DownloadButton' });
+        expect(downloadAuditButton.text()).to.include('Download Audit Report');
+      });
+    });
+  });
+});
