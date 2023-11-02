@@ -1,8 +1,8 @@
 <template>
   <div>
-    <b-navbar type="dark" variant="dark">
+    <b-navbar type="light" variant="white">
       <b-navbar-brand href="/#/grants" class="d-flex align-items-center">
-      <b-img :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo in white" />
+      <b-img :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo" />
       <h3 class="ml-3 mb-0">Federal Grant Finder</h3>
     </b-navbar-brand>
       <!-- <b-navbar-brand href="/#/grants">
