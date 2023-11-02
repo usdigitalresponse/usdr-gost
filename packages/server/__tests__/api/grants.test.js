@@ -481,7 +481,6 @@ describe('`/api/grants` endpoint', () => {
                 'Status',
                 'Opportunity Category',
                 'Cost Sharing',
-                'Award Floor',
                 'Award Ceiling',
                 'Posted Date',
                 'Close Date',
@@ -591,7 +590,7 @@ describe('`/api/grants` endpoint', () => {
             const query = '?searchTerm=333816';
             const response = await fetchApi(`/grants/exportCSV${query}`, agencies.own, fetchOptions.staff);
 
-            const expectedCsv = `Opportunity Number,Title,Viewed By,Interested Agencies,Status,Opportunity Category,Cost Sharing,Award Floor,Award Ceiling,Posted Date,Close Date,Agency Code,Grant Id,URL
+            const expectedCsv = `Opportunity Number,Title,Viewed By,Interested Agencies,Status,Opportunity Category,Cost Sharing,Award Ceiling,Posted Date,Close Date,Agency Code,Grant Id,URL
 HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
 
             expect(response.statusText).to.equal('OK');

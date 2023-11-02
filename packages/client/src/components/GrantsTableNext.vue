@@ -127,9 +127,6 @@ export default {
           key: 'cost_sharing',
         },
         {
-          key: 'award_floor',
-        },
-        {
           key: 'award_ceiling',
           sortable: true,
         },
