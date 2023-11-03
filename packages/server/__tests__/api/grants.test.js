@@ -767,13 +767,13 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
                 const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=rank&criteria[excludeKeywords]=&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
                 expect(response.statusText).to.equal('OK');
             });
-            it('orderBy viewed_by is ignored', async () => {
+            it('orderBy viewed_by is a 400 error', async () => {
                 const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=viewed_by&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
-                expect(response.statusText).to.equal('OK');
+                expect(response.status).to.equal(400);
             });
-            it('orderBy interested_agencies is ignored', async () => {
+            it('orderBy interested_agencies is a 400 error', async () => {
                 const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=interested_agencies&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
-                expect(response.statusText).to.equal('OK');
+                expect(response.status).to.equal(400);
             });
         });
     });

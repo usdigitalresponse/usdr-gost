@@ -2,7 +2,6 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
-const { _ } = require('lodash');
 
 let v4;
 try {
@@ -368,6 +367,20 @@ async function buildOrderingParams(args) {
     const orderingParams = { orderBy: 'open_date', orderDesc: 'true' };
 
     if (args) {
+        if (args.orderBy) {
+            const orderArgs = args.orderBy.split('|');
+            if (orderArgs.length !== 1) {
+                throw new Error('The number of orderBy arguments must be 1');
+            } else if (!/^(rank|award_ceiling|open_date|close_date)$/.test(orderArgs[0])) {
+                console.error('Wat', orderArgs[0]);
+                throw new Error('orderBy must be one of rank|award_ceiling|open_date|close_date');
+            }
+        }
+        // we treat undefined order direction as descending === true
+        const orderDesc = args.orderDesc || 'true';
+        if (!/^(true|false)$/.test(orderDesc)) {
+            throw new Error('orderDesc must be true or false');
+        }
         orderingParams.orderBy = args.orderBy;
         orderingParams.orderDesc = args.orderDesc;
     }
@@ -515,6 +528,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
         buildFiltersQuery(queryBuilder, filters, agencyId);
     }
     if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
+        // we assume orderingParams is a valid construction of buildOrderingParams
         if (orderingParams.orderBy.includes('rank')) {
             if (hasRankColumns) {
                 queryBuilder.orderBy([
@@ -523,15 +537,8 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
                 ]);
             }
         } else {
-            const orderArgs = _.filter(orderingParams.orderBy.split('|'),
-                (orderArg) => /^(award_ceiling|open_date|close_date)$/.test(orderArg));
-            if (orderArgs.length > 0) {
-                const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
-                if (orderArgs.length > 1) {
-                    console.log(`Too many orderArgs: ${orderArgs}`);
-                }
-                queryBuilder.orderBy(orderArgs[0], knex.raw(`${orderDirection} NULLS LAST`));
-            }
+            const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
+            queryBuilder.orderBy(orderingParams.orderBy, knex.raw(`${orderDirection} NULLS LAST`));
         }
     }
 
@@ -864,15 +871,9 @@ async function getGrants({
                 );
             }
             if (orderBy && orderBy !== 'undefined') {
-                const orderArgs = _.filter(orderBy.split('|'),
-                    (orderArg) => /^(award_ceiling|open_date|close_date)$/.test(orderArg));
-                if (orderArgs.length > 0) {
-                    const orderDirection = ((orderDesc === 'true') ? 'desc' : 'asc');
-                    if (orderArgs.length > 1) {
-                        console.log(`Too many orderArgs: ${orderArgs}`);
-                    }
-                    queryBuilder.orderBy(orderArgs[0], knex.raw(`${orderDirection} NULLS LAST`));
-                }
+                // we assume orderBy is a valid construction of buildOrderingParams
+                const orderDirection = ((orderDesc === 'true') ? 'desc' : 'asc');
+                queryBuilder.orderBy(orderBy, knex.raw(`${orderDirection} NULLS LAST`));
             }
             queryBuilder.limit(perPage);
             queryBuilder.offset((currentPage - 1) * perPage);

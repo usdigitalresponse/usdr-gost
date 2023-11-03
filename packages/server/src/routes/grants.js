@@ -68,15 +68,21 @@ function criteriaToFiltersObj(criteria, agencyId) {
 router.get('/next', requireUser, async (req, res) => {
     const { user } = req.session;
 
+    let orderingParams;
+    try {
+        orderingParams = await db.buildOrderingParams(req.query.ordering);
+    } catch {
+        return res.status(400).send('Invalid ordering parameter');
+    }
     const grants = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         await db.buildPaginationParams(req.query.pagination),
-        await db.buildOrderingParams(req.query.ordering),
+        orderingParams,
         user.tenant_id,
         user.agency_id,
     );
 
-    res.json(grants);
+    return res.json(grants);
 });
 
 // get a single grant details
@@ -100,13 +106,19 @@ const MAX_CSV_EXPORT_ROWS = process.env.NODE_ENV !== 'test' ? 500 : 100;
 router.get('/exportCSVNew', requireUser, async (req, res) => {
     const { user } = req.session;
 
+    let orderingParams;
+    try {
+        orderingParams = await db.buildOrderingParams(req.query.ordering);
+    } catch {
+        return res.status(400).send('Invalid ordering parameter');
+    }
     const { data, pagination } = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         await db.buildPaginationParams({
             currentPage: 1,
             perPage: MAX_CSV_EXPORT_ROWS,
         }),
-        await db.buildOrderingParams(req.query.ordering),
+        orderingParams,
         user.tenant_id,
         user.agency_id,
     );
@@ -160,7 +172,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Length', csv.length);
-    res.send(csv);
+    return res.send(csv);
 });
 
 router.get('/exportCSV', requireUser, async (req, res) => {
