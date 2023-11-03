@@ -488,9 +488,9 @@ describe('`/api/grants` endpoint', () => {
                 'Grant Id',
                 'URL',
                 'Funding Type',
-                'Eligibility',
                 'Appropriations Bill',
                 'Agency Code',
+                'Eligibility',
             ];
 
             const txt = await response.text();
