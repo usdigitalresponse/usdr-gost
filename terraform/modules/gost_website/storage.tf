@@ -96,6 +96,19 @@ module "origin_bucket" {
   source_policy_documents = [
     module.cloudfront_to_origin_bucket_access_policy.json,
   ]
+
+  lifecycle_configuration_rules = [
+    {
+      enabled                                = true
+      id                                     = "rule-1"
+      filter_and                             = null
+      abort_incomplete_multipart_upload_days = 1
+      expiration                             = null
+      transition                             = null
+      noncurrent_version_expiration          = { noncurrent_days = 7 }
+      noncurrent_version_transition          = null
+    }
+  ]
 }
 
 module "logs_bucket" {
@@ -131,12 +144,12 @@ module "logs_bucket" {
       }
       noncurrent_version_transition = [
         {
-          days          = 30
-          storage_class = "GLACIER"
+          noncurrent_days = 30
+          storage_class   = "GLACIER"
         },
       ]
       noncurrent_version_expiration = {
-        days = 90
+        noncurrent_days = 90
       }
     }
   ]
