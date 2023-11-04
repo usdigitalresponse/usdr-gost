@@ -1,18 +1,18 @@
 <template>
 <section class="container-fluid">
   <b-row>
-    <b-col><h2>Agencies</h2></b-col>
+    <b-col><h2>Teams</h2></b-col>
     <b-col></b-col>
     <b-col class="d-flex justify-content-end" v-if="userRole === 'admin'">
       <div>
-        <b-button id="bulkAgencyImportButton" variant="success" @click="openUploadAgenciesModal" class="mr-1">Bulk Import</b-button>
+        <b-button id="bulkTeamImportButton" variant="success" @click="openUploadTeamsModal" class="mr-1">Bulk Import</b-button>
       </div>
       <div>
-        <b-button id="addAgencyButton" variant="success" @click="openAddAgencyModal">Add</b-button>
+        <b-button id="addTeamButton" variant="success" @click="openAddTeamModal">Add</b-button>
       </div>
     </b-col>
   </b-row>
-  <b-table sticky-header="600px" hover :items="formattedAgencies" :fields="fields">
+  <b-table sticky-header="600px" hover :items="formattedTeams" :fields="fields">
     <template #cell(name)="row">
       {{row.item.name}}
     </template>
@@ -23,14 +23,14 @@
       {{row.item.danger_threshold}} days
     </template>
     <template #cell(actions)="row">
-      <b-button v-if="userRole === 'admin'" class="mr-1" size="sm" @click="openEditAgencyModal(row.item)">
+      <b-button v-if="userRole === 'admin'" class="mr-1" size="sm" @click="openEditTeamModal(row.item)">
         <b-icon icon="pencil-fill" aria-hidden="true"></b-icon>
       </b-button>
     </template>
   </b-table>
-  <EditAgencyModal :agency.sync="editingAgency"/>
-  <AddAgencyModal :showDialog.sync="showAddAgencyModal"/>
-  <ImportAgenciesModal :showUploadModal.sync="showUploadAgenciesModal" :importStatus="'Nothing imported yet.'"/>
+  <EditAgencyModal :agency.sync="editingTeam"/>
+  <AddAgencyModal :showDialog.sync="showAddTeamModal"/>
+  <ImportAgenciesModal :showUploadModal.sync="showUploadTeamsModal" :importStatus="'Nothing imported yet.'"/>
 </section>
 </template>
 
@@ -78,10 +78,10 @@ export default {
           label: 'Actions',
         },
       ],
-      showAddAgencyModal: false,
-      showEditAgencyModal: false,
-      showUploadAgenciesModal: false,
-      editingAgency: null,
+      showAddTeamModal: false,
+      showEditTeamModal: false,
+      showUploadTeamsModal: false,
+      editingTeam: null,
     };
   },
   mounted() {
@@ -89,37 +89,37 @@ export default {
   },
   computed: {
     ...mapGetters({
-      agencies: 'agencies/agencies',
+      teams: 'agencies/agencies',
       userRole: 'users/userRole',
-      selectedAgency: 'users/selectedAgency',
+      selectedTeam: 'users/selectedAgency',
     }),
-    formattedAgencies() {
-      return this.agencies.map((agency) => ({
-        ...agency,
+    formattedTeams() {
+      return this.teams.map((team) => ({
+        ...team,
       }));
     },
   },
   watch: {
-    selectedAgency() {
+    selectedTeam() {
       this.setup();
     },
   },
   methods: {
     ...mapActions({
-      fetchAgencies: 'agencies/fetchAgencies',
+      fetchTeams: 'agencies/fetchAgencies',
     }),
     setup() {
-      this.fetchAgencies();
+      this.fetchTeams();
     },
-    openEditAgencyModal(agency) {
-      this.editingAgency = agency;
-      this.showEditAgencyModal = true;
+    openEditTeamModal(team) {
+      this.editingTeam = team;
+      this.showEditTeamModal = true;
     },
-    openAddAgencyModal() {
-      this.showAddAgencyModal = true;
+    openAddTeamModal() {
+      this.showAddTeamModal = true;
     },
-    openUploadAgenciesModal() {
-      this.showUploadAgenciesModal = true;
+    openUploadTeamsModal() {
+      this.showUploadTeamsModal = true;
     },
   },
 };

@@ -110,7 +110,7 @@ const routes = [
       {
         path: '/agencies',
         name: 'agencies',
-        component: () => import('../views/Agencies.vue'),
+        component: () => import('../views/Teams.vue'),
         meta: {
           requiresAuth: true,
         },
