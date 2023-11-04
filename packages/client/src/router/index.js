@@ -94,7 +94,7 @@ const routes = [
       {
         path: '/tenants',
         name: 'tenants',
-        component: () => import('../views/Tenants.vue'),
+        component: () => import('../views/Organizations.vue'),
         meta: {
           requiresAuth: true,
         },

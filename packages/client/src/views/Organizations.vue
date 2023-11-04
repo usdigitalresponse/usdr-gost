@@ -1,28 +1,26 @@
 <template>
 <section class="container-fluid">
   <b-row>
-    <b-col><h2>Tenants</h2></b-col>
+    <b-col><h2>Organizations</h2></b-col>
     <b-col></b-col>
     <b-col class="d-flex justify-content-end">
       <div>
-        <b-button variant="success" @click="openAddTenantModal">Add</b-button>
+        <b-button variant="success" @click="openAddOrganizationModal">Add</b-button>
       </div>
     </b-col>
   </b-row>
-  <b-table sticky-header="600px" hover :items="formattedTenants" :fields="fields">
+  <b-table sticky-header="600px" hover :items="formattedOrganizations" :fields="fields">
       <template #cell(display_name)="row">
         {{row.item.display_name}}
       </template>
       <template #cell(actions)="row">
-      <b-button class="mr-1" size="sm" @click="openEditTenantModal(row.item)">
+      <b-button class="mr-1" size="sm" @click="openEditOrganizationModal(row.item)">
         <b-icon icon="pencil-fill" aria-hidden="true"></b-icon>
       </b-button>
     </template>
   </b-table>
-  <EditTenantModal
-     :tenant.sync="editingTenant"
-  />
-  <AddTenantModal :showModal.sync="showAddTenantModal"/>
+  <EditTenantModal :tenant.sync="editingOrganization"/>
+  <AddTenantModal :showModal.sync="showAddOrganizationModal"/>
 </section>
 </template>
 
@@ -48,9 +46,9 @@ export default {
         },
         { key: 'actions', label: 'Actions' },
       ],
-      showEditTenantModal: false,
-      showAddTenantModal: false,
-      editingTenant: null,
+      showEditOrganizationModal: false,
+      showAddOrganizationModal: false,
+      editingOrganization: null,
     };
   },
   mounted() {
@@ -58,18 +56,17 @@ export default {
   },
   computed: {
     ...mapGetters({
-      tenants: 'tenants/tenants',
-      userRole: 'users/userRole',
-      selectedAgency: 'users/selectedAgency',
+      organizations: 'tenants/tenants',
+      selectedTeam: 'users/selectedAgency',
     }),
-    formattedTenants() {
-      return this.tenants.map((tenant) => ({
-        ...tenant,
+    formattedOrganizations() {
+      return this.organizations?.map((organization) => ({
+        ...organization,
       }));
     },
   },
   watch: {
-    selectedAgency() {
+    selectedTeam() {
       this.setup();
     },
     showModal() {
@@ -78,17 +75,17 @@ export default {
   },
   methods: {
     ...mapActions({
-      fetchTenants: 'tenants/fetchTenants',
+      fetchOrganizations: 'tenants/fetchTenants',
     }),
     setup() {
-      this.fetchTenants();
+      this.fetchOrganizations();
     },
-    openEditTenantModal(tenant) {
-      this.editingTenant = tenant;
-      this.showEditTenantModal = true;
+    openEditOrganizationModal(tenant) {
+      this.editingOrganization = tenant;
+      this.showEditOrganizationModal = true;
     },
-    openAddTenantModal() {
-      this.showAddTenantModal = true;
+    openAddOrganizationModal() {
+      this.showAddOrganizationModal = true;
     },
   },
 };
