@@ -9,7 +9,7 @@
             <b-card>
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title1 row">Recent Activity</h4>
-                <span class="gutter-title1 row" v-if="activityItems.length === 0">Your agency has no recent activity.</span>
+                <span id="noRecentActivityMessage" class="gutter-title1 row" v-if="!activityItems?.length">Your team has no recent activity.</span>
               </div>
               <b-table sticky-header='500px' hover :items='activityItems' :fields='activityFields'
                 :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none"
@@ -50,7 +50,7 @@
             <b-card>
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
-                <span class="gutter-title2 row" v-if="grantsAndIntAgens.length === 0">Your agency has no upcoming close dates.</span>
+                <span id="noUpcomingCloseDates" class="gutter-title2 row" v-if="!grantsAndIntAgens?.length">Your team has no upcoming close dates.</span>
               </div>
               <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none"
@@ -58,11 +58,11 @@
                 select-mode="single"
                 @row-selected="onRowSelected">
                 <template #cell()="{ field, value, index }">
-                  <div v-if="field.key == 'title'">{{value}}</div>
-                  <div v-if="field.key == 'close_date' && yellowDate == true" :style="field.trStyle" v-text="value"></div>
-                  <div v-if="field.key == 'close_date' && redDate == true" :style="field.tdStyle" v-text="value"></div>
-                  <div v-if="field.key == 'close_date' && blackDate == true" :style="field.tlStyle" v-text="value"></div>
-                  <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
+                  <div v-if="field.key === 'title'">{{value}}</div>
+                  <div v-if="field.key === 'close_date' && yellowDate === true" :style="field.trStyle" v-text="value"></div>
+                  <div v-if="field.key === 'close_date' && redDate === true" :style="field.tdStyle" v-text="value"></div>
+                  <div v-if="field.key === 'close_date' && blackDate === true" :style="field.tlStyle" v-text="value"></div>
+                  <div v-if="(grantsAndIntAgens[index]) && (field.key === 'title') && (value === grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
               <div v-if="totalUpcomingGrants > 3">
@@ -193,13 +193,11 @@ export default {
       ],
       upcomingFields: [
         {
-          // col for Grants and interested agencies
           key: 'title',
           label: '',
           thStyle: { width: '80%' },
         },
         {
-          // col for when the grant will be closing
           key: 'close_date',
           label: '',
           formatter: 'formatDate',
@@ -333,11 +331,11 @@ export default {
       grantsUpdatedInTimeframe: 'dashboard/grantsUpdatedInTimeframe',
       grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
       totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
-      selectedAgency: 'users/selectedAgency',
+      selectedTeam: 'users/selectedAgency',
       closestGrants: 'grants/closestGrants',
       grants: 'grants/grants',
       grantsInterested: 'grants/grantsInterested',
-      agency: 'users/agency',
+      team: 'users/agency',
       currentGrant: 'grants/currentGrant',
     }),
     showStats() {
@@ -348,8 +346,8 @@ export default {
         numeric: 'auto',
       });
       const oneDayInMs = 1000 * 60 * 60 * 24;
-      return this.grantsInterested.map((grantsInterested) => ({
-        agency: grantsInterested.name,
+      return this.grantsInterested?.map((grantsInterested) => ({
+        team: grantsInterested.name,
         grant: grantsInterested.title,
         grant_id: grantsInterested.grant_id,
         interested: (() => {
@@ -383,7 +381,7 @@ export default {
     },
   },
   watch: {
-    async selectedAgency() {
+    async selectedTeam() {
       await this.setup();
     },
     upcomingItems() {
@@ -406,8 +404,8 @@ export default {
     ...mapActions({
       fetchDashboard: 'dashboard/fetchDashboard',
       getInterestedAgenciesAction: 'grants/getInterestedAgencies',
-      getAgency: 'agencies/getAgency',
-      fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
+      // getAgency: 'agencies/getAgency',
+      // fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
       fetchGrantDetails: 'grants/fetchGrantDetails',
       fetchClosestGrants: 'grants/fetchClosestGrants',
@@ -428,24 +426,19 @@ export default {
       });
       return (`(${res})`);
     },
-    formatDate(value) {
-      // value is the close date of grant
-      //                  get threshold of agency
+    formatDate(grantCloseDate) {
       const warn = this.agency.warning_threshold;
       const danger = this.agency.danger_threshold;
-      //                grant close date + danger thresh
-      const dangerDate = new Date(new Date().setDate(new Date().getDate() + danger));
-      //                grant close date + warn thresh
-      const warnDate = new Date(new Date().setDate(new Date().getDate() + warn));
+      const closeDatePlusDangerThreshold = new Date(new Date().setDate(new Date().getDate() + danger));
+      const closeDatePlusWarningThreshold = new Date(new Date().setDate(new Date().getDate() + warn));
       //          if the grant close date is <= danger date---------------
       const days = (aa, bb) => {
         const difference = aa.getTime() - bb.getTime();
-        const TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
-        return TotalDays;
+        return Math.ceil(difference / (1000 * 3600 * 24));
       };
-      const daysTillDanger = days(dangerDate, new Date());
-      const daysTillWarn = days(warnDate, new Date());
-      const daysTillClose = days(new Date(value), new Date());
+      const daysTillDanger = days(closeDatePlusDangerThreshold, new Date());
+      const daysTillWarn = days(closeDatePlusWarningThreshold, new Date());
+      const daysTillClose = days(new Date(grantCloseDate), new Date());
       //                      ---assigning correct colors---
       this.yellowDate = null;
       this.redDate = null;
@@ -466,9 +459,9 @@ export default {
         }
       }
       //                      format date in MM/DD/YY
-      const year = value.slice(2, 4);
-      const month = value.slice(5, 7);
-      const day = value.slice(8, 10);
+      const year = grantCloseDate.slice(2, 4);
+      const month = grantCloseDate.slice(5, 7);
+      const day = grantCloseDate.slice(8, 10);
       const finalDate = [month, day, year].join('/');
       return (`${finalDate}`);
     },
@@ -479,7 +472,7 @@ export default {
         const arr = await this.getInterestedAgenciesAction({ grantId: grant.grant_id });
         const updateGrant = {
           ...grant,
-          interested_agencies: arr.map((agency) => agency.agency_abbreviation).join(', '),
+          interested_agencies: arr.map((team) => team.agency_abbreviation).join(', '),
         };
         // https://v2.vuejs.org/v2/guide/reactivity.html#For-Arrays
         // https://stackoverflow.com/a/45336400
