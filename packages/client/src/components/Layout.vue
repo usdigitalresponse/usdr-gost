@@ -14,7 +14,7 @@
         <b-navbar-nav class="ml-auto">
 
           <b-nav-text>
-            <b-badge>{{selectedAgency ? selectedAgency.name : ''}}</b-badge>
+            <b-badge>{{selectedTeam ? selectedTeam.name : ''}}</b-badge>
           </b-nav-text>
 
           <b-nav-item-dropdown right v-if="loggedInUser">
@@ -38,8 +38,8 @@
           <b-nav-item v-if="!useNewGrantsTable" to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
           <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
           <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
-          <b-nav-item to="/Agencies" exact exact-active-class="active">Agencies</b-nav-item>
-          <b-nav-item v-if="canSeeTenantsTab" to="/tenants" exact exact-active-class="active">Tenants</b-nav-item>
+          <b-nav-item to="/teams" exact exact-active-class="active">Teams</b-nav-item>
+          <b-nav-item v-if="canSeeOrganizationsTab" to="/organizations" exact exact-active-class="active">Organizations</b-nav-item>
       </b-nav>
     </b-col>
 
@@ -50,8 +50,7 @@
 
       <router-view />
     </div>
-    <ProfileSettingsModal
-    :showModal.sync="showProfileSettingModal"/>
+    <ProfileSettingsModal :showModal.sync="showProfileSettingModal"/>
   </div>
 </template>
 
@@ -75,13 +74,12 @@ export default {
   },
   computed: {
     ...mapGetters({
-      agency: 'users/agency',
       loggedInUser: 'users/loggedInUser',
       userRole: 'users/userRole',
-      selectedAgency: 'users/selectedAgency',
+      selectedTeam: 'users/selectedAgency',
       alerts: 'alerts/alerts',
     }),
-    canSeeTenantsTab() {
+    canSeeOrganizationsTab() {
       return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
     },
     useNewGrantsTable() {

@@ -92,8 +92,8 @@ const routes = [
         },
       },
       {
-        path: '/tenants',
-        name: 'tenants',
+        path: '/organizations',
+        name: 'organizations',
         component: () => import('../views/Organizations.vue'),
         meta: {
           requiresAuth: true,
@@ -108,8 +108,8 @@ const routes = [
         },
       },
       {
-        path: '/agencies',
-        name: 'agencies',
+        path: '/teams',
+        name: 'teams',
         component: () => import('../views/Teams.vue'),
         meta: {
           requiresAuth: true,
