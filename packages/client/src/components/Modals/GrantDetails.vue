@@ -29,7 +29,7 @@
       </div>
       <br />
       <b-row style="padding: 16px;">
-        <h4>Agency Status</h4>
+        <h4>Team Status</h4>
         <b-col class="text-right">
           <b-row v-if="!interested">
             <b-col cols="9">
@@ -70,9 +70,9 @@
       </b-table>
       <br />
       <b-row style="padding: 16px;">
-        <h4>Assigned Agencies</h4>
+        <h4>Assigned Teams</h4>
           <multiselect v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
-            :clear-on-select="false" placeholder="Select agencies" label="name" track-by="id"
+            :clear-on-select="false" placeholder="Select teams" label="name" track-by="id"
             style="width: 300px; margin: 0 16px;" :show-labels="false"
           >
           </multiselect>
@@ -108,7 +108,7 @@ export default {
       interestedAgenciesFields: [
         {
           key: 'agency_name',
-          label: 'Agency',
+          label: 'Team',
         },
         {
           key: 'agency_abbreviation',
