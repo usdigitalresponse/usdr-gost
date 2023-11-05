@@ -56,10 +56,12 @@ export default {
         {
           key: 'agency_name',
           sortable: true,
+          label: 'Team Name',
         },
         {
           key: 'agency_abbrv',
           sortable: true,
+          label: 'Team Abbrv',
         },
         {
           key: 'created_at',

@@ -115,6 +115,7 @@ export default {
         {
           key: 'interested_agencies',
           sortable: true,
+          label: 'Interested Teams',
         },
         {
           // opportunity_status
