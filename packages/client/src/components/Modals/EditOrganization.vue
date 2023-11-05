@@ -5,7 +5,7 @@
       id="edit-tenant-modal"
       v-model="showDialog"
       ref="modal"
-      title="Edit Tenant"
+      title="Edit Organization"
       @hidden="resetModal"
       @ok="handleOk"
     >

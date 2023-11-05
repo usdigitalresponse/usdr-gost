@@ -40,7 +40,7 @@ export default {
       return [
         { label: 'ID', field: 'id', readonly: true },
         { label: 'Agency Code', field: 'code', required: true },
-        { label: 'Agency Name', field: 'name', required: true },
+        { label: 'Team Name', field: 'name', required: true },
       ];
     },
   },

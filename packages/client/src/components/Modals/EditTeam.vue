@@ -5,7 +5,7 @@
       id="edit-agency-modal"
       v-model="showDialog"
       ref="modal"
-      title="Edit Agency"
+      title="Edit Team"
       @hidden="resetModal"
       @ok="handleOk"
       :ok-disabled="$v.formData.$invalid"
@@ -43,7 +43,7 @@
           label-for="code-input"
         >
           <template slot="label">Code</template>
-          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across agencies.</template>
+          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across teams.</template>
           <b-form-input
               id="code-input"
               type="text"
@@ -55,7 +55,7 @@
         <b-form-group
           label-for="agency-input"
         >
-          <template slot="label">Parent Agency</template>
+          <template slot="label">Parent Team</template>
           <v-select :options="agencies" label="name" :value="this.formData.parentAgency" v-model="formData.parentAgency">
             <template #search="{attributes, events}">
               <input
@@ -101,11 +101,11 @@
         <form ref="form" @click="handleDelete">
           <span id="disabled-wrapper" class="d-inline-block" tabindex="0">
             <b-button v-bind:disabled="userRole !== 'admin'" style="pointer-events: none;" variant="danger">
-              Admin Delete Agency
+              Admin Delete Team
             </b-button>
           </span>
           <b-tooltip v-if="userRole !== 'admin'" target="disabled-wrapper" triggers="hover">
-            You cannot delete an agency with children. Reassign child agencies to continue deletion.
+            You cannot delete an team with children. Reassign child agencies to continue deletion.
           </b-tooltip>
         </form>
       </form>
@@ -195,9 +195,9 @@ export default {
         return;
       }
       const msgBoxConfirmResult = await this.$bvModal.msgBoxConfirm(
-        'Are you sure you want to delete this agency? This cannot be undone. '
-      + 'If the agency has children, reassign child agencies to continue deletion.',
-        { okTitle: 'Delete', okVariant: 'danger', title: 'Delete Agency' },
+        'Are you sure you want to delete this team? This cannot be undone. '
+      + 'If the team has children, reassign child teams to continue deletion.',
+        { okTitle: 'Delete', okVariant: 'danger', title: 'Delete Team' },
       );
       if (msgBoxConfirmResult === true) {
         await this.deleteAgency({
@@ -210,7 +210,7 @@ export default {
         }).then(() => {
           this.resetModal();
         }).catch(async (e) => {
-          await this.$bvModal.msgBoxOk(`Could not delete agency: ${e.message}`, {
+          await this.$bvModal.msgBoxOk(`Could not delete team: ${e.message}`, {
             title: 'Error',
             bodyTextVariant: 'danger',
           });
@@ -244,7 +244,7 @@ export default {
         if ((this.formData.parentAgency.id !== this.agency.id) && (this.formData.parentAgency.parent !== this.agency.id)) {
           this.updateAgencyParent({ agencyId: this.agency.id, parentId: this.formData.parentAgency.id });
         } else {
-          await this.$bvModal.msgBoxOk('Agency cannot be its own parent.');
+          await this.$bvModal.msgBoxOk('Team cannot be its own parent.');
           ok = false;
         }
       }

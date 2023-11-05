@@ -19,8 +19,8 @@
       </b-button>
     </template>
   </b-table>
-  <EditTenantModal :tenant.sync="editingOrganization"/>
-  <AddTenantModal :showModal.sync="showAddOrganizationModal"/>
+  <EditOrganizationModal :tenant.sync="editingOrganization"/>
+  <AddOrganizationModal :showModal.sync="showAddOrganizationModal"/>
 </section>
 </template>
 
@@ -28,13 +28,13 @@
 
 import { mapActions, mapGetters } from 'vuex';
 
-import EditTenantModal from '@/components/Modals/EditTenant.vue';
-import AddTenantModal from '@/components/Modals/AddTenants.vue';
+import EditOrganizationModal from '@/components/Modals/EditOrganization.vue';
+import AddOrganizationModal from '@/components/Modals/AddOrganization.vue';
 
 export default {
   components: {
-    EditTenantModal,
-    AddTenantModal,
+    EditOrganizationModal,
+    AddOrganizationModal,
   },
   data() {
     return {

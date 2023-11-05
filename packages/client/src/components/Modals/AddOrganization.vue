@@ -3,7 +3,7 @@
       <b-modal
         id="add-tenant-modal"
         ref="modal"
-        title="Add Tenant"
+        title="Add Organization"
         @show="resetModal"
         @hidden="resetModal"
         @ok="handleOk"
@@ -12,9 +12,9 @@
         <form ref="form" @submit.stop.prevent="handleSubmit">
           <b-form-group
             :state="!$v.formData.tenantName.$invalid"
-            label="Tenant Name"
+            label="Organization Name"
             label-for="tenantName-input"
-            invalid-feedback="Tenant name is invalid"
+            invalid-feedback="Organization name is invalid"
           >
             <b-form-input
               id="tenantName-input"
@@ -25,9 +25,9 @@
           </b-form-group>
           <b-form-group
             :state="!$v.formData.agencyName.$invalid"
-            label="Agency Name"
+            label="Team Name"
             label-for="agencyName-input"
-            invalid-feedback="Agency name is invalid"
+            invalid-feedback="Team name is invalid"
           >
             <b-form-input
               id="agencyName-input"
@@ -38,7 +38,7 @@
           </b-form-group>
           <b-form-group
             :state="!$v.formData.agencyAbbreviation"
-            label="Agency Abbreviation"
+            label="Team Abbreviation"
             label-for="agencyAbbreviation-input"
             invalid-feedback="Agency abbreviation is invalid"
           >

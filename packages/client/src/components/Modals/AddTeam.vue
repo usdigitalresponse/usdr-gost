@@ -5,7 +5,7 @@
       id="add-agency-modal"
       v-model="showDialog"
       ref="modal"
-      title="Add Agency"
+      title="Add Team"
       @hidden="resetModal"
       @ok="handleOk"
       :ok-disabled="$v.formData.$invalid"
@@ -47,7 +47,7 @@
           invalid-feedback="Required"
         >
           <template slot="label">Code</template>
-          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across agencies.</template>
+          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across teams.</template>
           <b-form-input
               id="code-input"
               type="text"
@@ -62,7 +62,7 @@
           label-for="agency-input"
           invalid-feedback="Must select a parent agency"
         >
-          <template slot="label">Parent Agency</template>
+          <template slot="label">Parent Team</template>
           <v-select :options="agencies" label="name" :value="formData.parentAgency" v-model="formData.parentAgency">
             <template #search="{attributes, events}">
               <input

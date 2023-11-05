@@ -28,9 +28,9 @@
       </b-button>
     </template>
   </b-table>
-  <EditAgencyModal :agency.sync="editingTeam"/>
-  <AddAgencyModal :showDialog.sync="showAddTeamModal"/>
-  <ImportAgenciesModal :showUploadModal.sync="showUploadTeamsModal" :importStatus="'Nothing imported yet.'"/>
+  <EditTeamModal :agency.sync="editingTeam"/>
+  <AddTeamModal :showDialog.sync="showAddTeamModal"/>
+  <ImportTeamsModal :showUploadModal.sync="showUploadTeamsModal" :importStatus="'Nothing imported yet.'"/>
 </section>
 </template>
 
@@ -38,15 +38,15 @@
 
 import { mapActions, mapGetters } from 'vuex';
 
-import EditAgencyModal from '@/components/Modals/EditAgency.vue';
-import AddAgencyModal from '@/components/Modals/AddAgency.vue';
-import ImportAgenciesModal from '@/components/Modals/ImportAgencies.vue';
+import EditTeamModal from '@/components/Modals/EditTeam.vue';
+import AddTeamModal from '@/components/Modals/AddTeam.vue';
+import ImportTeamsModal from '@/components/Modals/ImportTeams.vue';
 
 export default {
   components: {
-    EditAgencyModal,
-    AddAgencyModal,
-    ImportAgenciesModal,
+    EditTeamModal,
+    AddTeamModal,
+    ImportTeamsModal,
   },
   data() {
     return {
