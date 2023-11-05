@@ -4,7 +4,7 @@
  */
 exports.up = function (knex) {
     return knex.schema.table('arpa_subrecipients', (table) => {
-        table.boolean('is_archived').notNullable().defaultTo(false);
+        table.timestamp('archived_at');
     });
 };
 
@@ -14,6 +14,6 @@ exports.up = function (knex) {
  */
 exports.down = function (knex) {
     return knex.schema.table('arpa_subrecipients', (table) => {
-        table.dropColumn('is_archived');
+        table.dropColumn('archived_at');
     });
 };

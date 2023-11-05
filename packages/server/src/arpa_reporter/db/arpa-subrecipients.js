@@ -17,7 +17,7 @@ function baseQuery(trns) {
 /**
  * Archive or restore a subrecipient.
  *
- * Call t his method to toggle the `is_archived` column in the arpa_subrecipients table.
+ * Call t his method to archive or restore an arpa_subrecipients table.
  */
 async function archiveOrRestoreRecipient(id, { updatedByUser }, trns = knex) {
     const query = trns('arpa_subrecipients')
@@ -29,7 +29,10 @@ async function archiveOrRestoreRecipient(id, { updatedByUser }, trns = knex) {
         query.update('updated_at', knex.fn.now());
     }
 
-    query.update('is_archived', knex.raw('NOT ??', ['is_archived']));
+    query.update(
+        'archived_at',
+        knex.raw('CASE WHEN archived_at IS NULL THEN ?? ELSE NULL END', [knex.fn.now()]),
+    );
 
     return query.then((rows) => rows[0]);
 }

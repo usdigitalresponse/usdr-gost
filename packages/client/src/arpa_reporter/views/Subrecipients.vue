@@ -29,7 +29,7 @@
       </div>
 
       <template slot="table-row" slot-scope="props">
-        <div :class="{strikethrough: props.row.is_archived && props.column.field !== 'edit'}">
+        <div :class="{strikethrough: props.row.archived_at && props.column.field !== 'edit'}">
           <span v-if="props.column.field === 'upload_id'">
             <router-link :to="`/uploads/${props.row.upload_id}`">
               {{ props.row.upload_id }}
@@ -49,8 +49,8 @@
           </ul>
 
           <span class="d-flex flex-column" v-else-if="props.column.field === 'edit'" >
-            <router-link v-if="!props.row.is_archived" tag="button" class="btn btn-sm btn-secondary mb-2" :to="`/subrecipients/${props.row.id}`">Edit</router-link>
-            <button v-if="props.row.is_archived" class="btn btn-sm btn-primary" @click="archiveOrRestoreSubrecipient(props.row.id)">Restore</button>
+            <router-link v-if="!props.row.archived_at" tag="button" class="btn btn-sm btn-secondary mb-2" :to="`/subrecipients/${props.row.id}`">Edit</router-link>
+            <button v-if="props.row.archived_at" class="btn btn-sm btn-primary" @click="archiveOrRestoreSubrecipient(props.row.id)">Restore</button>
             <button v-else class="btn btn-sm btn-outline-danger" @click="archiveOrRestoreSubrecipient(props.row.id)">Archive</button>
           </span>
 
@@ -139,7 +139,7 @@ export default {
     /**
      * Archive or restore a subrecipient.
      *
-     * Call this method to taggle the `is_archived` flag for a subrecipient record.
+     * Call this method to archive or unarchive a subrecipient record.
      *
      * @param {*} id
      * The ID of the subrecipient to archive or restore.
