@@ -9,7 +9,15 @@ localVue.use(Vuex);
 
 let store;
 let wrapper;
-
+const stubs = ['b-row', 'b-col', 'b-button', 'b-table', 'b-icon'];
+const noOpGetters = {
+  'agencies/agencies': () => [],
+  'users/userRole': () => undefined,
+  'users/selectedAgency': () => undefined,
+};
+const noOpActions = {
+  'agencies/fetchAgencies': () => {},
+};
 afterEach(() => {
   store = undefined;
   wrapper = undefined;
@@ -20,16 +28,17 @@ describe('Teams.vue', () => {
     beforeEach(() => {
       store = new Vuex.Store({
         getters: {
+          ...noOpGetters,
           'users/userRole': () => 'not an admin',
-          'agencies/agencies': () => [],
-          'users/selectedAgency': () => undefined,
-          'agencies/fetchAgencies': () => [],
+        },
+        actions: {
+          ...noOpActions,
         },
       });
       wrapper = shallowMount(Teams, {
         store,
         localVue,
-        stubs: ['b-row', 'b-col', 'b-button', 'b-table', 'b-icon'],
+        stubs,
       });
     });
     it('should show the Teams heading', () => {
@@ -54,15 +63,18 @@ describe('Teams.vue', () => {
       beforeEach(() => {
         store = new Vuex.Store({
           getters: {
+            ...noOpGetters,
             'users/userRole': () => 'admin',
-            'agencies/agencies': () => [],
             'users/selectedAgency': () => undefined,
-            'agencies/fetchAgencies': () => [],
+          },
+          actions: {
+            ...noOpActions,
           },
         });
         wrapper = shallowMount(Teams, {
           store,
           localVue,
+          stubs,
         });
       });
       it('should allow user to import teams', () => {
@@ -87,15 +99,19 @@ describe('Teams.vue', () => {
         ];
         store = new Vuex.Store({
           getters: {
+            ...noOpGetters,
             'users/userRole': () => 'admin',
             'agencies/agencies': () => teams,
             'users/selectedAgency': () => undefined,
-            'agencies/fetchAgencies': () => teams,
+          },
+          actions: {
+            ...noOpActions,
           },
         });
         wrapper = shallowMount(Teams, {
           store,
           localVue,
+          stubs,
         });
       });
       it.skip('should allow user to edit an team', () => {

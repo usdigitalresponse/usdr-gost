@@ -9,7 +9,30 @@ localVue.use(Vuex);
 
 let store;
 let wrapper;
-
+const stubs = ['b-row', 'b-col', 'b-table', 'b-button', 'b-card', 'b-link', 'b-container'];
+const noOpGetters = {
+  'dashboard/totalGrants': () => [],
+  'dashboard/totalGrantsMatchingAgencyCriteria': () => [],
+  'dashboard/totalViewedGrants': () => [],
+  'grants/totalInterestedGrants': () => [],
+  'grants/totalUpcomingGrants': () => [],
+  'dashboard/grantsCreatedInTimeframe': () => [],
+  'dashboard/grantsCreatedInTimeframeMatchingCriteria': () => [],
+  'dashboard/grantsUpdatedInTimeframe': () => [],
+  'dashboard/grantsUpdatedInTimeframeMatchingCriteria': () => [],
+  'dashboard/totalInterestedGrantsByAgencies': () => [],
+  'users/selectedAgency': () => undefined,
+  'grants/closestGrants': () => [],
+  'grants/grants': () => [],
+  'grants/grantsInterested': () => [],
+  'users/agency': () => undefined,
+  'grants/currentGrant': () => undefined,
+};
+const noOpActions = {
+  'dashboard/fetchDashboard': () => {},
+  'grants/fetchGrantsInterested': () => {},
+  'grants/fetchClosestGrants': () => {},
+};
 afterEach(() => {
   store = undefined;
   wrapper = undefined;
@@ -20,13 +43,16 @@ describe('Dashboard.vue', () => {
     beforeEach(() => {
       store = new Vuex.Store({
         getters: {
-          'grants/fetchGrantsInterested': () => [],
-          'grants/closestGrants': () => [],
+          ...noOpGetters,
+        },
+        actions: {
+          ...noOpActions,
         },
       });
       wrapper = shallowMount(Dashboard, {
         store,
         localVue,
+        stubs,
       });
     });
     it('should show the no recent activity message', () => {

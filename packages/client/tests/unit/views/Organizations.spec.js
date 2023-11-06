@@ -9,7 +9,14 @@ localVue.use(Vuex);
 
 let store;
 let wrapper;
-
+const stubs = ['b-row', 'b-col', 'b-button', 'b-table', 'b-icon'];
+const noOpGetters = {
+  'users/selectedAgency': () => {},
+  'tenants/tenants': () => [],
+};
+const noOpActions = {
+  'tenants/fetchTenants': () => {},
+};
 afterEach(() => {
   store = undefined;
   wrapper = undefined;
@@ -20,14 +27,16 @@ describe('Organizations.vue', () => {
     beforeEach(() => {
       store = new Vuex.Store({
         getters: {
-          'users/userRole': () => 'admin',
-          'users/selectedAgency': () => undefined,
-          'agencies/fetchAgencies': () => [],
+          ...noOpGetters,
+        },
+        actions: {
+          ...noOpActions,
         },
       });
       wrapper = shallowMount(Organizations, {
         store,
         localVue,
+        stubs,
       });
     });
     it('should show the Organizations heading', () => {
