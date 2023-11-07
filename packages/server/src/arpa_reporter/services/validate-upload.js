@@ -119,14 +119,14 @@ async function validateVersion({ records, rules }) {
  * @param {object} trns - the transaction to use for db queries
  * @returns {Promise<object>} - the existing recipient record
  */
-async function findRecipientInDatabase({ recipient, trns }) {
+async function findRecipientInDatabase(tenantId, { recipient, trns }) {
     // There are two types of identifiers, UEI and TIN.
     // A given recipient may have either or both of these identifiers.
     const byUei = recipient.Unique_Entity_Identifier__c
-        ? await findRecipient(recipient.Unique_Entity_Identifier__c, null, trns)
+        ? await findRecipient(tenantId, recipient.Unique_Entity_Identifier__c, null, trns)
         : null;
     const byTin = recipient.EIN__c
-        ? await findRecipient(null, recipient.EIN__c, trns)
+        ? await findRecipient(tenantId, null, recipient.EIN__c, trns)
         : null;
 
     return byUei || byTin;
@@ -181,7 +181,7 @@ function recipientBelongsToUpload(existingRecipient, upload) {
  * @param {object} upload - the upload record
  * @returns
  */
-async function updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload) {
+async function updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload, tenantId) {
     // TODO: what if the same upload specifies the same recipient multiple times,
     // but different?
 
@@ -196,7 +196,7 @@ async function updateOrCreateRecipient(existingRecipient, newRecipient, trns, up
             tin: newRecipient.EIN__c,
             record: newRecipient,
             upload_id: upload.id,
-        }, trns);
+        }, trns, tenantId);
     }
 }
 
@@ -579,14 +579,14 @@ async function validateReferences({ records }) {
     return errors;
 }
 
-async function validateUpload(upload, user, trns = null) {
+async function validateUpload(upload, user, req, trns = null) {
     // holder for our validation errors
     const errors = [];
 
     // holder for post-validation functions
 
     // grab the records
-    const records = await recordsForUpload(upload);
+    const records = await recordsForUpload(upload, req);
 
     // grab the rules
     const rules = await getRules();

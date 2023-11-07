@@ -48,13 +48,13 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
 });
 
 router.get('/', requireUser, async (req, res) => {
-    const periodId = await getReportingPeriodID(req.query.period_id);
-    const period = await getReportingPeriod(periodId);
+    const tenantId = useTenantId();
+    const periodId = await getReportingPeriodID(tenantId, req.query.period_id);
+    const period = await getReportingPeriod(tenantId, periodId);
     if (!period) {
         res.status(404).json({ error: 'invalid reporting period' });
         return;
     }
-    const tenantId = useTenantId();
 
     if (req.query.queue) {
         // Special handling for deferring treasury report generation and sending to a task queue

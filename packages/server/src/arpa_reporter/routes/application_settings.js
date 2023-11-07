@@ -5,9 +5,10 @@ const express = require('express');
 const router = express.Router();
 const { applicationSettings } = require('../db/settings');
 const { requireUser } = require('../../lib/access-helpers');
+const { useTenantId } = require('../use-request');
 
 router.get('/', requireUser, async (req, res) => {
-    const application_settings = await applicationSettings();
+    const application_settings = await applicationSettings(useTenantId());
     res.json({ application_settings });
 });
 

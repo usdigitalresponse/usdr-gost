@@ -8,7 +8,7 @@ const { SendMessageCommand } = require('@aws-sdk/client-sqs');
 
 const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
 const audit_report = require('../lib/audit-report');
-const { useUser } = require('../use-request');
+const { useUser, useTenantId, useRequest } = require('../use-request');
 const aws = require('../../lib/gost-aws');
 
 router.get('/:tenantId/:periodId/:filename', async (req, res) => {
@@ -88,7 +88,7 @@ router.get('/', requireUser, async (req, res) => {
 
     let report;
     try {
-        report = await audit_report.generate(req.headers.host);
+        report = await audit_report.generate(req.headers.host, useTenantId(), useRequest());
         console.log('Successfully generated report');
     } catch (error) {
     // In addition to sending the error message in the 500 response, log the full error stacktrace

@@ -17,11 +17,12 @@ const { recordsForUpload } = require('../services/records');
 const { persistUpload, bufferForUpload } = require('../services/persist-upload');
 const { invalidateUpload, validateUpload } = require('../services/validate-upload');
 const { ensureAsyncContext } = require('../lib/ensure-async-context');
+const { useTenantId, useRequest } = require('../use-request');
 const ValidationError = require('../lib/validation-error');
 
 router.get('/', requireUser, async (req, res) => {
-    const periodId = await getReportingPeriodID(req.query.period_id);
-    const uploads = await uploadsInPeriod(periodId);
+    const periodId = await getReportingPeriodID(useTenantId(), req.query.period_id);
+    const uploads = await uploadsInPeriod(periodId, undefined, useTenantId());
     return res.json({ uploads });
 });
 
@@ -41,6 +42,7 @@ router.post(
             const upload = await persistUpload({
                 user: req.session.user,
                 filename: req.file.originalname,
+                tenantId: req.session.user.tenant_id,
                 buffer: req.file.buffer,
                 body: req.body,
             });
@@ -82,7 +84,7 @@ router.get('/:id/series', requireUser, async (req, res) => {
         series = [upload];
     }
 
-    const allExported = await usedForTreasuryExport(upload.reporting_period_id);
+    const allExported = await usedForTreasuryExport(upload.reporting_period_id, useTenantId());
     const seriesExported = allExported.find((upl) => (upl.agency_id === upload.agency_id && upl.ec_code === upload.ec_code));
 
     res.json({
@@ -102,7 +104,7 @@ router.get('/:id/records', requireUser, async (req, res) => {
         return;
     }
 
-    const records = await recordsForUpload(upload);
+    const records = await recordsForUpload(upload, useRequest());
     res.json({
         upload,
         records,
@@ -141,7 +143,7 @@ router.post('/:id/validate', requireUser, async (req, res) => {
     }
 
     try {
-        const errors = await validateUpload(upload, user);
+        const errors = await validateUpload(upload, user, useRequest());
 
         res.json({
             errors: errors.map((e) => e.toObject()),

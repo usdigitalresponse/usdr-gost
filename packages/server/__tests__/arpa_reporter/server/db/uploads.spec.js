@@ -1,7 +1,6 @@
 const uploads = requireSrc(__filename);
 const assert = require('assert');
 const fixtures = require('../fixtures/fixtures');
-const { withTenantId } = require('../helpers/with-tenant-id');
 const { knex } = require('../mocha_init');
 
 const TENANT_ID = 0;
@@ -25,37 +24,35 @@ describe('db/uploads.js', () => {
         });
 
         it('Returns the resulting row', async () => {
-            const inserted = await withTenantId(TENANT_ID, () => uploads.createUpload(upload));
+            const inserted = await uploads.createUpload(upload, undefined, TENANT_ID);
             assert.ok(inserted);
             assert.equal(inserted.filename, 'filename');
         });
 
         it('Requires a filename', async () => {
             upload.filename = null;
-            assert.rejects(async () => withTenantId(TENANT_ID, () => uploads.createUpload(upload)));
+            assert.rejects(async () => uploads.createUpload(upload, undefined, TENANT_ID));
         });
 
         describe('when there is invalid user id', () => {
             it('throws an error', async () => {
                 upload.user_id = 12345;
-                assert.rejects(async () => withTenantId(TENANT_ID, uploads.createUpload(upload)));
+                assert.rejects(async () => uploads.createUpload(upload, undefined, TENANT_ID));
             });
         });
 
         describe('when there is invalid reporting period', () => {
             it('throws an error', async () => {
                 upload.reporting_period_id = 12345;
-                assert.rejects(async () => withTenantId(TENANT_ID, uploads.createUpload(upload)));
+                assert.rejects(async () => uploads.createUpload(upload, undefined, TENANT_ID));
             });
         });
     });
 
     describe('usedForTreasuryExport', () => {
         it('should only have two results', async () => {
-            const rows = await withTenantId(fixtures.TENANT_ID, async () => {
-                const r = await uploads.usedForTreasuryExport(fixtures.reportingPeriods.q1_2021.id);
-                return r;
-            });
+            const rows = await uploads.usedForTreasuryExport(fixtures.reportingPeriods.q1_2021.id, fixtures.TENANT_ID);
+
             const uploadsFiltered = Object.values(fixtures.uploads)
                 .filter((f) => f.tenant_id === fixtures.TENANT_ID)
                 .filter((f) => f.invalidated_at === null)

@@ -31,9 +31,10 @@ const { usedForTreasuryExport } = require('../db/uploads');
 const { ensureAsyncContext } = require('../lib/ensure-async-context');
 
 const { revalidateUploads } = require('../services/revalidate-uploads');
+const { useTenantId, useUser, useRequest } = require('../use-request');
 
 router.get('/', requireUser, async (req, res) => {
-    const periods = await getAllReportingPeriods();
+    const periods = await getAllReportingPeriods(useTenantId());
     return res.json({ reportingPeriods: periods });
 });
 
@@ -46,7 +47,7 @@ router.post('/close', requireAdminUser, async (req, res) => {
 
     const trns = await knex.transaction();
     try {
-        await closeReportingPeriod(period, trns);
+        await closeReportingPeriod(useUser(), period, trns);
         trns.commit();
     } catch (err) {
         if (!trns.isCompleted()) trns.rollback();
@@ -73,7 +74,7 @@ router.post('/', requireAdminUser, async (req, res) => {
             const period = await updateReportingPeriod(updatedPeriod);
             res.json({ reportingPeriod: period });
         } else {
-            const period = await createReportingPeriod(updatedPeriod);
+            const period = await createReportingPeriod(useTenantId(), updatedPeriod);
             res.json({ reportingPeriod: period });
         }
     } catch (e) {
@@ -143,7 +144,7 @@ router.get('/:id/exported_uploads', requireUser, async (req, res) => {
     const periodId = req.params.id;
 
     try {
-        const exportedUploads = await usedForTreasuryExport(periodId);
+        const exportedUploads = await usedForTreasuryExport(periodId, useTenantId());
         res.json({ exportedUploads });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -164,7 +165,7 @@ router.post('/:id/revalidate', requireAdminUser, async (req, res) => {
 
     const trns = await knex.transaction();
     try {
-        const updates = await revalidateUploads(reportingPeriod, user, trns);
+        const updates = await revalidateUploads(reportingPeriod, user, useRequest(), trns, useTenantId());
         if (commit) {
             trns.commit();
         } else {

@@ -4,6 +4,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const rewire = require('rewire');
 const XLSX = require('xlsx');
+const fixtures = require('../fixtures/fixtures');
 const ValidationError = require('../../../../src/arpa_reporter/lib/validation-error');
 const { UPLOAD_DIR } = require('../../../../src/arpa_reporter/environment');
 
@@ -71,7 +72,7 @@ describe('persist-upload', () => {
                 agencyId: 2,
                 notes: 'notes',
             };
-            const uploadRow = await createUploadRow(uploadData);
+            const uploadRow = await createUploadRow(uploadData, undefined, fixtures.TENANT_ID);
             expect(uploadRow).to.deep.equal({
                 filename: 'test.xlsx',
                 reporting_period_id: 2,

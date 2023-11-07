@@ -153,7 +153,7 @@ async function ensureValidReportingPeriodId(reportingPeriodId) {
  * @throws {ValidationError}
 */
 async function persistUpload({
-    filename, user, buffer, body,
+    filename, user, tenantId, buffer, body,
 }) {
     return tracer.trace(
         'persistUpload',
@@ -191,7 +191,7 @@ async function persistUpload({
             const uploadRow = createUploadRow(uploadData);
 
             // Insert the upload row into the database
-            const upload = await createUpload(uploadRow);
+            const upload = await createUpload(uploadRow, undefined, tenantId);
 
             // Persist the upload to the filesystem
             await persistUploadToFS(upload, buffer);

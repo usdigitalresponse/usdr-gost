@@ -24,7 +24,6 @@ const {
     zip4,
 } = require('../lib/format');
 const { requiredArgument } = require('../lib/preconditions');
-const { useTenantId } = require('../use-request');
 
 const BOM = '\ufeff'; // UTF-8 byte order mark
 const EC_CODE_REGEX = /^(\d.\d\d?)/;
@@ -968,8 +967,8 @@ async function setCSVData(data, logger = log) {
 
 async function generateReport(periodId, tenantId) {
     return tracer.trace('generateReport()', async () => {
-        tenantId = tenantId || useTenantId();
-        requiredArgument(periodId, 'must specify periodId');
+        requiredArgument(periodId, 'must specify periodId generateReport');
+        requiredArgument(tenantId, 'must specify tenantId for generateReport');
         const logger = processStatsLogger(log, {
             workbook: { period: { id: periodId }, tenant: { id: tenantId } },
         });

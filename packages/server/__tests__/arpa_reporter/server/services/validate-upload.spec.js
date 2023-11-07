@@ -195,21 +195,21 @@ describe('findRecipientInDatabase', () => {
     it('should return the recipient found by UEI', async () => {
         const mockFindRecipient = sinon.stub().withArgs('UEI123', null, trns).resolves({ name: 'John' });
         validateUploadModule.__set__('findRecipient', mockFindRecipient);
-        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
+        const result = await findRecipientInDatabase(fixtures.TENANT_ID, { recipient, trns }, mockFindRecipient);
         expect(result).to.deep.equal({ name: 'John' });
     });
 
     it('should return the recipient found by EIN', async () => {
         const mockFindRecipient = sinon.stub().withArgs(null, 'EIN123', trns).resolves({ name: 'Jane' });
         validateUploadModule.__set__('findRecipient', mockFindRecipient);
-        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
+        const result = await findRecipientInDatabase(fixtures.TENANT_ID, { recipient, trns }, mockFindRecipient);
         expect(result).to.deep.equal({ name: 'Jane' });
     });
 
     it('should return null if recipient is not found', async () => {
         const mockFindRecipient = sinon.stub().resolves(null);
         validateUploadModule.__set__('findRecipient', mockFindRecipient);
-        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
+        const result = await findRecipientInDatabase(fixtures.TENANT_ID, { recipient, trns }, mockFindRecipient);
         expect(result).to.be.null;
     });
 });
@@ -353,7 +353,7 @@ describe('updateOrCreateRecipient', () => {
         const upload = { id: 1 };
         const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
 
-        await updateOrCreateRecipient(null, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
+        await updateOrCreateRecipient(null, newRecipient, trns, upload, createRecipientStub, updateRecipientStub, fixtures.TENANT_ID);
 
         sinon.assert.calledWith(createRecipientStub, {
             uei: 'UEI1',
@@ -370,7 +370,7 @@ describe('updateOrCreateRecipient', () => {
         const existingRecipient = { id: 1, upload_id: 1, updated_at: null };
         const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
 
-        await updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
+        await updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload, createRecipientStub, updateRecipientStub, fixtures.TENANT_ID);
 
         sinon.assert.calledWith(updateRecipientStub, 1, { record: newRecipient }, trns);
         sinon.assert.notCalled(createRecipientStub);
@@ -382,7 +382,7 @@ describe('updateOrCreateRecipient', () => {
         const existingRecipient = { id: 1, upload_id: 2, updated_at: null };
         const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
 
-        await updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
+        await updateOrCreateRecipient(existingRecipient, newRecipient, trns, upload, createRecipientStub, updateRecipientStub, fixtures.TENANT_ID);
 
         sinon.assert.notCalled(createRecipientStub);
         sinon.assert.notCalled(updateRecipientStub);
@@ -436,7 +436,7 @@ describe('invalidate', () => {
     it('should invalidate', async () => {
         const { upload1 } = fixtures.uploads;
         const user = fixtures.users.staffUser;
-        await validateUploadModule.invalidateUpload(upload1, user);
+        await validateUploadModule.invalidateUpload(upload1, user, undefined);
         const rows = await knex('uploads')
             .where('id', upload1.id)
             .select('uploads.*');

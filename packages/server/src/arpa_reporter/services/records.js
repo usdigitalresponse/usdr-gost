@@ -7,7 +7,6 @@ const { usedForTreasuryExport } = require('../db/uploads');
 const { log } = require('../lib/log');
 const { requiredArgument } = require('../lib/preconditions');
 const { getRules } = require('./validation-rules');
-const { useRequest } = require('../use-request');
 
 const CERTIFICATION_SHEET = 'Certification';
 const COVER_SHEET = 'Cover';
@@ -168,7 +167,7 @@ async function loadRecordsForUpload(upload) {
  * @param {object} upload The upload to fetch records for.
  * @returns {Promise<object[]>} A list of records corresponding to the requested upload
  */
-async function recordsForUpload(upload, req = useRequest()) {
+async function recordsForUpload(upload, req) {
     log(`recordsForUpload(${upload.id})`);
 
     if (req === undefined) {
@@ -200,6 +199,7 @@ async function recordsForUpload(upload, req = useRequest()) {
 async function recordsForReportingPeriod(periodId, tenantId) {
     log(`recordsForReportingPeriod(${periodId})`);
     requiredArgument(periodId, 'must specify periodId in recordsForReportingPeriod');
+    requiredArgument(tenantId, 'must specify tenantId in recordsForReportingPeriod');
 
     const uploads = await usedForTreasuryExport(periodId, tenantId);
     const groupedRecords = await Promise.all(uploads.map((upload) => recordsForUpload(upload)));
@@ -214,7 +214,7 @@ async function mostRecentProjectRecords(periodId, tenantId) {
     log(`mostRecentProjectRecords(${periodId})`);
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
-    const reportingPeriods = await getPreviousReportingPeriods(periodId, undefined, tenantId);
+    const reportingPeriods = await getPreviousReportingPeriods(tenantId, periodId);
 
     const allRecords = await Promise.all(
         reportingPeriods.map(({ id }) => recordsForReportingPeriod(id, tenantId)),
@@ -240,7 +240,7 @@ async function recordsForProject(periodId, tenantId) {
     log(`recordsForProject`);
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
-    const reportingPeriods = await getPreviousReportingPeriods(periodId, undefined, tenantId);
+    const reportingPeriods = await getPreviousReportingPeriods(tenantId, periodId);
 
     const allRecords = await Promise.all(
         reportingPeriods.map(({ id }) => recordsForReportingPeriod(id, tenantId)),

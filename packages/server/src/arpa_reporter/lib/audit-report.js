@@ -16,7 +16,6 @@ const {
 const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
-const { useTenantId } = require('../use-request');
 const { getUser, knex } = require('../../db');
 
 const REPORTING_DATE_FORMAT = 'MM-DD-yyyy';
@@ -61,7 +60,7 @@ function getUploadLink(domain, id, filename) {
 async function createObligationSheet(periodId, domain, tenantId, logger = log) {
     logger.info('building rows for spreadsheet');
     // select active reporting periods and sort by date
-    const reportingPeriods = await getPreviousReportingPeriods(periodId, undefined, tenantId);
+    const reportingPeriods = await getPreviousReportingPeriods(tenantId, periodId);
     logger.fields.sheet.totalReportingPeriods = reportingPeriods.length;
     logger.info('retrieved previous reporting periods');
 
@@ -139,7 +138,7 @@ async function createObligationSheet(periodId, domain, tenantId, logger = log) {
     return rows;
 }
 
-async function createProjectSummaries(periodId, domain, tenantId, logger = log) {
+async function createProjectSummaries(periodId, domain, req, tenantId, logger = log) {
     logger.info('building rows for spreadsheet');
     const uploads = await knex('uploads')
         .select({
@@ -193,7 +192,7 @@ async function createProjectSummaries(periodId, domain, tenantId, logger = log) 
         uploadLogger.info('updating rows from records in upload');
 
         // eslint-disable-next-line no-await-in-loop
-        let records = await recordsForUpload(upload);
+        let records = await recordsForUpload(upload, req);
         allrecordsCounter += records.length;
         uploadLogger.fields.upload.totalRecords = { all: records.length };
         uploadLogger.debug('loaded all records in upload');
@@ -251,7 +250,7 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
     logger.fields.sheet.totalProjects = Object.keys(recordsByProject).length;
     logger.info('grouped records by project');
 
-    const allReportingPeriods = await getAllReportingPeriods(undefined, tenantId);
+    const allReportingPeriods = await getAllReportingPeriods(tenantId);
     logger.fields.sheet.totalReportingPeriods = allReportingPeriods.length;
     logger.info('retrieved all reporting periods for tenant');
 
@@ -410,7 +409,7 @@ function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
     return headers;
 }
 
-async function generate(requestHost, tenantId) {
+async function generate(requestHost, tenantId, req) {
     const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
     return tracer.trace('generate()', async () => {
         const periodId = await getCurrentReportingPeriodID(undefined, tenantId);
@@ -431,6 +430,7 @@ async function generate(requestHost, tenantId) {
             async () => createProjectSummaries(
                 periodId,
                 domain,
+                req,
                 tenantId,
                 logger.child({ sheet: { name: 'Project Summaries' } }),
             ));
@@ -508,7 +508,7 @@ async function sendEmailWithLink(fileKey, recipientEmail, logger = log) {
     logger.info({ downloadUrl: url }, 'emailed workbook download link to requesting user');
 }
 
-async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useTenantId(), logger = log) {
+async function generateAndSendEmail(requestHost, recipientEmail, tenantId, logger = log) {
     logger = logger.child({ tenant: { id: tenantId } });
     // Generate the report
     logger.info('generating ARPA audit report');

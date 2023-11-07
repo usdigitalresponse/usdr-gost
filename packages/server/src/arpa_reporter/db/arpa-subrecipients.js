@@ -1,5 +1,4 @@
 const knex = require('../../db/connection');
-const { useTenantId } = require('../use-request');
 
 function baseQuery(trns) {
     return trns('arpa_subrecipients')
@@ -14,8 +13,7 @@ function baseQuery(trns) {
         .leftJoin('users AS users2', 'arpa_subrecipients.updated_by', 'users2.id');
 }
 
-async function createRecipient(recipient, trns = knex) {
-    const tenantId = useTenantId();
+async function createRecipient(recipient, trns = knex, tenantId) {
     if (!(recipient.uei || recipient.tin)) {
         throw new Error('recipient row must include a `uei` or a `tin` field');
     }
@@ -49,8 +47,7 @@ async function getRecipient(id, trns = knex) {
         .then((rows) => rows[0]);
 }
 
-async function findRecipient(uei = null, tin = null, trns = knex) {
-    const tenantId = useTenantId();
+async function findRecipient(tenantId, uei = null, tin = null, trns = knex) {
     const query = baseQuery(trns).where('arpa_subrecipients.tenant_id', tenantId);
 
     if (uei) {
@@ -64,8 +61,7 @@ async function findRecipient(uei = null, tin = null, trns = knex) {
     return query.then((rows) => rows[0]);
 }
 
-async function listRecipients(trns = knex) {
-    const tenantId = useTenantId();
+async function listRecipients(trns = knex, tenantId) {
     return baseQuery(trns).where('arpa_subrecipients.tenant_id', tenantId);
 }
 

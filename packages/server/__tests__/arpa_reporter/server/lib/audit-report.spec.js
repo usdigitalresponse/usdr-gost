@@ -9,7 +9,6 @@ const email = require('../../../../src/lib/email');
 
 const audit_report = require('../../../../src/arpa_reporter/lib/audit-report');
 const aws = require('../../../../src/lib/gost-aws');
-const { withTenantId } = require('../helpers/with-tenant-id');
 
 function handleUploadFake(type) {
     if (type === 'success') {
@@ -56,7 +55,7 @@ describe('audit report generation', () => {
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
         const tenantId = 0;
-        await withTenantId(tenantId, () => audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com'));
+        await audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com', tenantId);
 
         console.log('Asserting generate function');
         expect(generateFake.calledOnce).to.equal(true);
@@ -95,10 +94,7 @@ describe('audit report generation', () => {
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
         const tenantId = 0;
-        await expect(withTenantId(
-            tenantId,
-            () => audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com'),
-        )).to.be.rejected;
+        await expect(audit_report.generateAndSendEmail('usdigitalresponse.org', 'foo@example.com', tenantId)).to.be.rejected;
 
         console.log('Asserting generate function');
         expect(generateFake.calledOnce).to.equal(true);
