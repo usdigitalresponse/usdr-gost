@@ -2,7 +2,7 @@
   <div class="filter-container d-flex">
     <div class="align-self-end">
       <div class="align-self-end">
-        <h4 class="mb-0">{{ selectedSearch === null ? "All Grants" : searchName }} </h4>
+        <h2 class="mb-0">{{ selectedSearch === null ? "All Grants" : searchName }} </h2>
         <span v-if="selectedSearch !== null">
           <a href="#" :class="{ inactiveLink: isDisabled }" v-on:click.prevent="editFilter">Edit</a> |
           <a href="#" :class="{ inactiveLink: isDisabled }" v-on:click.prevent="clearAll" >Clear</a>

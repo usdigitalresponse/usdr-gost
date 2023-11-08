@@ -5,13 +5,13 @@
     body-text-variant="dark" footer-bg-variant="dark" footer-text-variant="light">
     <div v-if="selectedGrant">
       <b-row>
-        <b-col cols="9">
+        <b-col cols="8">
           <h3>Grant Number: {{ selectedGrant.grant_number }}</h3>
         </b-col>
-        <b-col cols="3" class="text-right">
+        <b-col cols="4" class="text-right">
           <b-button :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
             target="_blank" rel="noopener noreferrer" variant="primary">
-            Grants.Gov <b-icon icon="link" aria-hidden="true"></b-icon>
+            <b-icon icon="box-arrow-up-right" aria-hidden="true"></b-icon>View on Grants.gov
           </b-button>
         </b-col>
       </b-row>

@@ -7,10 +7,8 @@
       <b-col></b-col>
       <b-col class="d-flex justify-content-end">
         <div>
-          <b-button variant="success" @click="openUploadUsersModal" class="mr-1">Bulk Import</b-button>
-        </div>
-        <div>
-          <b-button variant="success" @click="openAddUserModal" class="mr-1">Add</b-button>
+          <b-button variant="success" size="sm" class="mr-1" @click="openAddUserModal">Add</b-button>
+          <b-button variant="success" size="sm" @click="openUploadUsersModal">Bulk Import</b-button>
         </div>
       </b-col>
     </b-row>
