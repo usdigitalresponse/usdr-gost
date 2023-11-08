@@ -110,8 +110,8 @@ router.put('/:userId/email_subscription', requireUser, async (req, res) => {
     const { preferences } = req.body;
 
     try {
-        await db.setUserEmailSubscriptionPreference(userId, agencyId, preferences);
-        res.status(200).json({ message: 'Successfully updated preferences.' });
+        const result = await db.setUserEmailSubscriptionPreference(userId, agencyId, preferences);
+        res.status(200).json({ user: result });
     } catch (e) {
         console.error(`Unable to update agency email preferences for user: ${userId} agency: ${agencyId} preferences: ${preferences} error: ${e}`);
         res.status(500).json({ message: 'Something went wrong while updating preferences. Please try again or reach out to support.' });
