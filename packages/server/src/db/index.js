@@ -1431,6 +1431,8 @@ async function setUserEmailSubscriptionPreference(userId, agencyId, preferences)
         .insert(insertValues)
         .onConflict(['user_id', 'agency_id', 'notification_type'])
         .merge(['user_id', 'agency_id', 'status', 'updated_at']);
+
+    return getUser(userId);
 }
 
 async function getUserEmailSubscriptionPreference(userId, agencyId) {

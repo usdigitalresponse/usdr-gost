@@ -271,6 +271,7 @@ describe('`/api/users` endpoint', () => {
                 preferences: {
                     [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
                     [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantFinderUpdates]: emailConstants.emailSubscriptionStatus.subscribed,
                     [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.unsubscribed,
                 },
             },
