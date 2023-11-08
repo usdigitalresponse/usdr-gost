@@ -102,8 +102,8 @@ export default {
       });
     },
   },
-  created() {
-    this.preferences.forEach((pref) => {
+  beforeMount() {
+    this.prefs.forEach((pref) => {
       // eslint-disable-next-line no-param-reassign
       pref.checked = this.emailPreferences[pref.key] === 'SUBSCRIBED';
     });
