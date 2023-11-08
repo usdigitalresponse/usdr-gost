@@ -13,8 +13,7 @@
     ></b-card-img>
 
     <b-card-text class="pt-5">
-      <h1 v-if="myProfileEnabled">Federal Grant Finder</h1>
-      <h1 v-else>Grants Identification Tool</h1>
+      <h1>Grants Identification Tool</h1>
       <form @submit="login" class="mt-3">
         <div class="form-group">
           <input
@@ -53,7 +52,6 @@
 /* eslint-disable import/no-unresolved */
 import { apiURL } from '@/helpers/fetchApi';
 import _ from 'lodash-checkit';
-import { myProfileEnabled } from '@/helpers/featureFlags';
 
 export default {
   name: 'Login',
@@ -67,11 +65,6 @@ export default {
       messageClass,
       redirectTo,
     };
-  },
-  computed: {
-    myProfileEnabled() {
-      return myProfileEnabled();
-    },
   },
   methods: {
     login(e) {

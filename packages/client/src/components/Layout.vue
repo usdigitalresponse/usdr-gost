@@ -4,8 +4,7 @@
       <b-navbar-brand href="/#/grants" class="d-flex align-items-center">
       <b-img v-if="myProfileEnabled" :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo" />
       <b-img v-else :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo in white" />
-      <h3 class="ml-3 mb-0" v-if="myProfileEnabled">Federal Grant Finder</h3>
-      <h3 class="ml-3 mb-0" v-else>Grants Identification Tool</h3>
+      <h3 class="ml-3 mb-0">Grants Identification Tool</h3>
     </b-navbar-brand>
       <b-collapse id="nav-collapse" is-nav>
 
