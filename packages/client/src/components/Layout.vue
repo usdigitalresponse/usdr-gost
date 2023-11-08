@@ -1,13 +1,11 @@
 <template>
   <div>
-    <b-navbar type="dark" variant="dark">
+    <b-navbar :type="navBarType" :variant="navBarVariant">
       <b-navbar-brand href="/#/grants" class="d-flex align-items-center">
-      <b-img :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo in white" />
+      <b-img v-if="myProfileEnabled" :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo" />
+      <b-img v-else :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo in white" />
       <h3 class="ml-3 mb-0">Grants Identification Tool</h3>
     </b-navbar-brand>
-      <!-- <b-navbar-brand href="/#/grants">
-      Grants Identification Tool</b-navbar-brand> -->
-
       <b-collapse id="nav-collapse" is-nav>
 
         <!-- Right aligned nav items -->
@@ -57,7 +55,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { useNewGrantsTable } from '@/helpers/featureFlags';
+import { myProfileEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
 import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
 import AlertBox from '../arpa_reporter/components/AlertBox.vue';
 
@@ -84,11 +82,20 @@ export default {
     canSeeTenantsTab() {
       return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
     },
+    myProfileEnabled() {
+      return myProfileEnabled();
+    },
     useNewGrantsTable() {
       return useNewGrantsTable();
     },
     showTabs() {
       return !(this.$route.meta.hideLayoutTabs === true);
+    },
+    navBarType() {
+      return myProfileEnabled() ? 'light' : 'dark';
+    },
+    navBarVariant() {
+      return myProfileEnabled() ? 'white' : 'dark';
     },
   },
   methods: {
