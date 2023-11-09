@@ -47,3 +47,11 @@ output "efs_data_volume_access_point_id" {
 output "send_emails_policy_json" {
   value = module.send_emails_policy.json
 }
+
+output "digest_email_kickoff_cron_security_group_id" {
+  value = module.digest_email_kickoff_cron_security_group.id
+}
+
+output "digest_email_kickoff_cron_ecs_task_role_name" {
+  value = module.digest_email_kickoff_cron.ecs_task_role_name
+}

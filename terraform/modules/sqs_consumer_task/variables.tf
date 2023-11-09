@@ -44,6 +44,7 @@ variable "consumer_task_efs_volume_mounts" {
     file_system_id  = string
     access_point_id = string
   }))
+  default = []
 }
 
 variable "stop_timeout_seconds" {

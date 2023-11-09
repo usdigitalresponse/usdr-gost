@@ -186,6 +186,12 @@ variable "enable_saved_search_grants_digest" {
   default     = false
 }
 
+variable "enable_digest_email_criteria_cron" {
+  description = "When true, sets the ENABLE_DIGEST_EMAIL_CRITERIA_CRON environment variable to true in the API container."
+  type        = bool
+  default     = false
+}
+
 variable "unified_service_tags" {
   description = "Datadog unified service tags to apply to runtime environments."
   type = object({
