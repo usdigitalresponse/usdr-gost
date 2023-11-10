@@ -102,7 +102,7 @@ Follow these steps to start contributing:
 
    ```bash
    $ git fetch origin
-   $ git rebase origin/master
+   $ git rebase origin/_staging
    ```
 
    Push the changes to your account using:
