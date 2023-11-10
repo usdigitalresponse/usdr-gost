@@ -79,10 +79,14 @@ export default {
       }
       await dispatch('fetchUsers');
     },
-    async updateEmailSubscriptionPreferences({ dispatch }, { userId, preferences }) {
-      await fetchApi.put(`/api/organizations/:organizationId/users/${userId}/email_subscription`, {
-        preferences,
-      });
+    async updateEmailSubscriptionPreferences({ dispatch, commit }, { userId, preferences }) {
+      const data = await fetchApi.put(
+        `/api/organizations/:organizationId/users/${userId}/email_subscription`,
+        {
+          preferences,
+        },
+      );
+      commit('SET_LOGGED_IN_USER', data.user);
       dispatch('fetchUsers');
     },
   },
