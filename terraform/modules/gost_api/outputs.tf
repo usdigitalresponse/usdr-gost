@@ -51,7 +51,3 @@ output "send_emails_policy_json" {
 output "digest_email_kickoff_cron_security_group_id" {
   value = module.digest_email_kickoff_cron_security_group.id
 }
-
-output "digest_email_kickoff_cron_ecs_task_role_name" {
-  value = module.digest_email_kickoff_cron.ecs_task_role_name
-}

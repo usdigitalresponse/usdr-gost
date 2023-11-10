@@ -369,7 +369,7 @@ data "aws_iam_policy_document" "publish_to_digest_email_get_grants" {
 
 resource "aws_iam_role_policy" "digest_email_kickoff_cron-publish_to_digest_email_get_grants_queue" {
   name_prefix = "send-digest-email-get-grants-requests"
-  role        = module.api.digest_email_kickoff_cron_ecs_task_role_name
+  role        = module.api.ecs_task_role_name
   policy      = data.aws_iam_policy_document.publish_to_digest_email_send_queue.json
 }
 
@@ -438,7 +438,7 @@ data "aws_iam_policy_document" "publish_to_digest_email_send_queue" {
 
 resource "aws_iam_role_policy" "digest_email_get_grants-publish_to_digest_email_send_queue" {
   name_prefix = "send-digest-email-send-requests"
-  role        = module.digest_email_get_grants.ecs_task_role_name
+  role        = module.digest_email_get_grants.iam_task_role_name
   policy      = data.aws_iam_policy_document.publish_to_digest_email_send_queue.json
 }
 
@@ -599,12 +599,12 @@ module "postgres" {
   vpc_id          = data.aws_ssm_parameter.vpc_id.value
   subnet_ids      = local.private_subnet_ids
   ingress_security_groups = {
-    from_api               = module.api_to_postgres_security_group.id
-    from_consume_grants    = module.consume_grants_to_postgres_security_group.id
-    from_arpa_audit_report = module.arpa_audit_report_security_group.id
-    from_digest_kickoff    = module.api.digest_email_kickoff_cron_security_group_id
-    from_digest_get_grants = module.digest_email_get_grants_for_criteria_security_group.id
-    from_digest_send_email = module.digest_email_send_security_group.id
+    from_api                  = module.api_to_postgres_security_group.id
+    from_consume_grants       = module.consume_grants_to_postgres_security_group.id
+    from_arpa_audit_report    = module.arpa_audit_report_security_group.id
+    from_digest_kickoff       = module.api.digest_email_kickoff_cron_security_group_id
+    from_digest_get_grants    = module.digest_email_get_grants_for_criteria_security_group.id
+    from_digest_send_email    = module.digest_email_send_security_group.id
     from_arpa_treasury_report = module.arpa_treasury_report_security_group.id
   }
 
