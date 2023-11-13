@@ -404,8 +404,6 @@ export default {
     ...mapActions({
       fetchDashboard: 'dashboard/fetchDashboard',
       getInterestedAgenciesAction: 'grants/getInterestedAgencies',
-      // getAgency: 'agencies/getAgency',
-      // fetchInterestedAgencies: 'grants/fetchInterestedAgencies',
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
       fetchGrantDetails: 'grants/fetchGrantDetails',
       fetchClosestGrants: 'grants/fetchClosestGrants',

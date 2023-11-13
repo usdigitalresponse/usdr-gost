@@ -105,7 +105,7 @@
             </b-button>
           </span>
           <b-tooltip v-if="userRole !== 'admin'" target="disabled-wrapper" triggers="hover">
-            You cannot delete an team with children. Reassign child agencies to continue deletion.
+            You cannot delete a team with children. Reassign child agencies to continue deletion.
           </b-tooltip>
         </form>
       </form>

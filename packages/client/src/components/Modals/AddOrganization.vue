@@ -40,7 +40,7 @@
             :state="!$v.formData.agencyAbbreviation"
             label="Team Abbreviation"
             label-for="agencyAbbreviation-input"
-            invalid-feedback="Agency abbreviation is invalid"
+            invalid-feedback="Team abbreviation is invalid"
           >
             <b-form-input
               id="agencyAbbreviation-input"

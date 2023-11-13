@@ -49,11 +49,11 @@ describe('Teams.vue', () => {
       const bulkImportButtons = wrapper.findAll('#bulkTeamImportButton');
       expect(bulkImportButtons.length).to.eql(0);
     });
-    it('should not allow user to add an team', () => {
+    it('should not allow user to add a team', () => {
       const addButtons = wrapper.findAll('#addTeamButton');
       expect(addButtons.length).to.eql(0);
     });
-    it('should not allow user to edit an team', () => {
+    it('should not allow user to edit a team', () => {
       const editButtons = wrapper.findAll('[icon="pencil-fill"]');
       expect(editButtons.length).to.eql(0);
     });
@@ -81,7 +81,7 @@ describe('Teams.vue', () => {
         const bulkImportButton = wrapper.get('#bulkTeamImportButton');
         expect(bulkImportButton.text()).to.include('Bulk Import');
       });
-      it('should allow user to add an team', () => {
+      it('should allow user to add a team', () => {
         const addButton = wrapper.get('#addTeamButton');
         expect(addButton.text()).to.include('Add');
       });
@@ -114,7 +114,7 @@ describe('Teams.vue', () => {
           stubs,
         });
       });
-      it.skip('should allow user to edit an team', () => {
+      it.skip('should allow user to edit a team', () => {
         const editButtons = wrapper.findAll('[icon="pencil-fill"]');
         expect(editButtons.length).to.eql(1);
       });
