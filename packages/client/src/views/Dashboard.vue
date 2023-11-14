@@ -112,6 +112,7 @@
         </template>
       </b-table>
     </b-card>
+
     <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
 </template>
@@ -145,7 +146,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
 import GrantDetails from '@/components/Modals/GrantDetails.vue';
-import { newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   components: { GrantDetails },
@@ -325,9 +326,6 @@ export default {
       team: 'users/agency',
       currentGrant: 'grants/currentGrant',
     }),
-    showStats() {
-      return !useNewGrantsTable();
-    },
     activityItems() {
       const rtf = new Intl.RelativeTimeFormat('en', {
         numeric: 'auto',
@@ -399,9 +397,6 @@ export default {
       fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
     async setup() {
-      if (this.showStats) {
-        this.fetchDashboard();
-      }
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
       this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
