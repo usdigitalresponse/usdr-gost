@@ -14,8 +14,8 @@ website_enabled           = true
 website_domain_name       = "sandbox.grants.usdr.dev"
 website_managed_waf_rules = {}
 website_feature_flags = {
-  useNewTable      = true,
-  myProfileEnabled = true,
+  useNewTable           = true,
+  myProfileEnabled      = true,
   newTerminologyEnabled = false
 }
 
