@@ -33,6 +33,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import AddUserModal from '@/components/Modals/AddUser.vue';
 import ImportUsersModal from '@/components/Modals/ImportUsers.vue';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   components: {
@@ -56,12 +57,12 @@ export default {
         {
           key: 'agency_name',
           sortable: true,
-          label: 'Team Name',
+          label: `${newTerminologyEnabled ? 'Team' : 'Agency'} Name`,
         },
         {
           key: 'agency_abbrv',
           sortable: true,
-          label: 'Team Abbrv',
+          label: `${newTerminologyEnabled ? 'Team' : 'Agency'} Abbrv`,
         },
         {
           key: 'created_at',
@@ -89,6 +90,9 @@ export default {
         agency_abbrv: user.agency.abbreviation,
         role: user.role.name,
       }));
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
     },
   },
   watch: {

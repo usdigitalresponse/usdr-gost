@@ -5,7 +5,7 @@
       id="edit-agency-modal"
       v-model="showDialog"
       ref="modal"
-      title="Edit Team"
+      :title="newTerminologyEnabled ? 'Edit Team' : 'Edit Agency'"
       @hidden="resetModal"
       @ok="handleOk"
       :ok-disabled="$v.formData.$invalid"
@@ -29,7 +29,7 @@
           label-for="abbreviation-input"
         >
           <template slot="label">Abbreviation</template>
-          <template slot="description">This is used for displaying lists of agencies in compact form (e.g. in a table).</template>
+          <template slot="description">This is used for displaying lists of {{newTerminologyEnabled ? 'teams' : 'agencies'}} in compact form (e.g. in a table).</template>
           <b-form-input
               id="abbreviation-input"
               type="text"
@@ -43,7 +43,7 @@
           label-for="code-input"
         >
           <template slot="label">Code</template>
-          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across teams.</template>
+          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across {{newTerminologyEnabled ? 'teams' : 'agencies'}}.</template>
           <b-form-input
               id="code-input"
               type="text"
@@ -55,7 +55,7 @@
         <b-form-group
           label-for="agency-input"
         >
-          <template slot="label">Parent Team</template>
+          <template slot="label">Parent {{newTerminologyEnabled ? 'Team' : 'Agency'}}</template>
           <v-select :options="agencies" label="name" :value="this.formData.parentAgency" v-model="formData.parentAgency">
             <template #search="{attributes, events}">
               <input
@@ -101,11 +101,11 @@
         <form ref="form" @click="handleDelete">
           <span id="disabled-wrapper" class="d-inline-block" tabindex="0">
             <b-button v-bind:disabled="userRole !== 'admin'" style="pointer-events: none;" variant="danger">
-              Admin Delete Team
+              Admin Delete {{newTerminologyEnabled ? 'Team' : 'Agency'}}
             </b-button>
           </span>
           <b-tooltip v-if="userRole !== 'admin'" target="disabled-wrapper" triggers="hover">
-            You cannot delete a team with children. Reassign child agencies to continue deletion.
+            You cannot delete a {{newTerminologyEnabled ? 'team' : 'agency'}} with children. Reassign child {{newTerminologyEnabled ? 'teams' : 'agencies'}} to continue deletion.
           </b-tooltip>
         </form>
       </form>
@@ -118,6 +118,7 @@ import { mapActions, mapGetters } from 'vuex';
 import {
   required, numeric, minValue,
 } from 'vuelidate/lib/validators';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
@@ -171,6 +172,9 @@ export default {
       agencies: 'agencies/agencies',
       userRole: 'users/userRole',
     }),
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
+    },
   },
   mounted() {
   },
@@ -195,9 +199,13 @@ export default {
         return;
       }
       const msgBoxConfirmResult = await this.$bvModal.msgBoxConfirm(
-        'Are you sure you want to delete this team? This cannot be undone. '
-      + 'If the team has children, reassign child teams to continue deletion.',
-        { okTitle: 'Delete', okVariant: 'danger', title: 'Delete Team' },
+        `Are you sure you want to delete this ${this.newTerminologyEnabled ? 'team' : 'agency'}? This cannot be undone. `
+      + `If the ${this.newTerminologyEnabled ? 'team' : 'agency'} has children, reassign child ${this.newTerminologyEnabled ? 'teams' : 'agencies'} to continue deletion.`,
+        {
+          okTitle: 'Delete',
+          okVariant: 'danger',
+          title: `Delete ${this.newTerminologyEnabled ? 'Team' : 'Agency'}`,
+        },
       );
       if (msgBoxConfirmResult === true) {
         await this.deleteAgency({
@@ -210,7 +218,7 @@ export default {
         }).then(() => {
           this.resetModal();
         }).catch(async (e) => {
-          await this.$bvModal.msgBoxOk(`Could not delete team: ${e.message}`, {
+          await this.$bvModal.msgBoxOk(`Could not delete ${this.newTerminologyEnabled ? 'team' : 'agency'}: ${e.message}`, {
             title: 'Error',
             bodyTextVariant: 'danger',
           });
@@ -244,7 +252,7 @@ export default {
         if ((this.formData.parentAgency.id !== this.agency.id) && (this.formData.parentAgency.parent !== this.agency.id)) {
           this.updateAgencyParent({ agencyId: this.agency.id, parentId: this.formData.parentAgency.id });
         } else {
-          await this.$bvModal.msgBoxOk('Team cannot be its own parent.');
+          await this.$bvModal.msgBoxOk(`${this.newTerminologyEnabled ? 'Team' : 'Agency'} cannot be its own parent.`);
           ok = false;
         }
       }

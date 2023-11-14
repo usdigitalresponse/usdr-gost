@@ -21,6 +21,9 @@ describe('EditOrganization.vue', () => {
       wrapper = shallowMount(EditOrganization, {
         localVue,
         stubs,
+        computed: {
+          newTerminologyEnabled: () => true,
+        },
       });
     });
     it('should have the title Edit Organization', () => {

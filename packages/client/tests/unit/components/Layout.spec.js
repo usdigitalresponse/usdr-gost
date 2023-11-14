@@ -40,6 +40,9 @@ describe('Layout.vue', () => {
           $route: defaultRoute,
         },
         stubs,
+        computed: {
+          newTerminologyEnabled: () => true,
+        },
       });
     });
     it('should show the Grants heading', () => {
@@ -130,6 +133,9 @@ describe('Layout.vue', () => {
           $route: defaultRoute,
         },
         stubs,
+        computed: {
+          newTerminologyEnabled: () => true,
+        },
       });
     });
 

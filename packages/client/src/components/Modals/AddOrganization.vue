@@ -3,7 +3,7 @@
       <b-modal
         id="add-tenant-modal"
         ref="modal"
-        title="Add Organization"
+        :title="newTerminologyEnabled ? 'Add Organization' : 'Add Tenant'"
         @show="resetModal"
         @hidden="resetModal"
         @ok="handleOk"
@@ -12,9 +12,9 @@
         <form ref="form" @submit.stop.prevent="handleSubmit">
           <b-form-group
             :state="!$v.formData.tenantName.$invalid"
-            label="Organization Name"
+            :label="newTerminologyEnabled ? 'Organization Name' : 'Tenant Name'"
             label-for="tenantName-input"
-            invalid-feedback="Organization name is invalid"
+            :invalid-feedback="newTerminologyEnabled ? 'Organization name is invalid' : 'Tenant name is invalid'"
           >
             <b-form-input
               id="tenantName-input"
@@ -25,9 +25,9 @@
           </b-form-group>
           <b-form-group
             :state="!$v.formData.agencyName.$invalid"
-            label="Team Name"
+            :label="newTerminologyEnabled ? 'Team Name' : 'Agency Name'"
             label-for="agencyName-input"
-            invalid-feedback="Team name is invalid"
+            :invalid-feedback="newTerminologyEnabled ? 'Team name is invalid' : 'Agency name is invalid'"
           >
             <b-form-input
               id="agencyName-input"
@@ -38,9 +38,9 @@
           </b-form-group>
           <b-form-group
             :state="!$v.formData.agencyAbbreviation"
-            label="Team Abbreviation"
+            :label="newTerminologyEnabled ? 'Team Abbreviation' : 'Agency Abbreviation'"
             label-for="agencyAbbreviation-input"
-            invalid-feedback="Team abbreviation is invalid"
+            :invalid-feedback="newTerminologyEnabled ? 'Team abbreviation is invalid' : 'Agency abbreviation is invalid'"
           >
             <b-form-input
               id="agencyAbbreviation-input"
@@ -93,6 +93,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { required, email } from 'vuelidate/lib/validators';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
@@ -138,6 +139,9 @@ export default {
   computed: {
     ...mapGetters({
     }),
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
+    },
   },
   mounted() {
   },

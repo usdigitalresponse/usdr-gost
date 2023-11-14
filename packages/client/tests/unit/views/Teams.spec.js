@@ -39,6 +39,9 @@ describe('Teams.vue', () => {
         store,
         localVue,
         stubs,
+        computed: {
+          newTerminologyEnabled: () => true,
+        },
       });
     });
     it('should show the Teams heading', () => {

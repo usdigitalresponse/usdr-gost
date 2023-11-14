@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import { myProfileEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
+import { myProfileEnabled, newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
 import Login from '../views/Login.vue';
 import Layout from '../components/Layout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
@@ -92,11 +92,20 @@ const routes = [
         },
       },
       {
+        path: '/tenants',
+        name: 'tenants',
+        component: () => import('../views/Organizations.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
         path: '/organizations',
         name: 'organizations',
         component: () => import('../views/Organizations.vue'),
         meta: {
           requiresAuth: true,
+          requiresNewTerminologyEnabled: true,
         },
       },
       {
@@ -108,11 +117,20 @@ const routes = [
         },
       },
       {
+        path: '/agencies',
+        name: 'agencies',
+        component: () => import('../views/Teams.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
         path: '/teams',
         name: 'teams',
         component: () => import('../views/Teams.vue'),
         meta: {
           requiresAuth: true,
+          requiresNewTerminologyEnabled: true,
         },
       },
       {
@@ -155,6 +173,7 @@ router.beforeEach((to, from, next) => {
   } else if (to.name === 'not-found'
     || (to.meta.enabledWithOldGrantsTableOnly && useNewGrantsTable())
     || (to.meta.requiresMyProfileEnabled && !myProfileEnabled())
+    || (to.meta.requiresNewTerminologyEnabled && !newTerminologyEnabled())
   ) {
     if (authenticated) {
       next({ name: 'grants' });

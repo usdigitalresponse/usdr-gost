@@ -37,6 +37,9 @@ describe('Organizations.vue', () => {
         store,
         localVue,
         stubs,
+        computed: {
+          newTerminologyEnabled: () => true,
+        },
       });
     });
     it('should show the Organizations heading', () => {

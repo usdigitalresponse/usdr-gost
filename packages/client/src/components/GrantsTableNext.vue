@@ -75,6 +75,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { titleize } from '../helpers/form-helpers';
 import GrantDetails from './Modals/GrantDetails.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
@@ -113,7 +114,7 @@ export default {
         },
         {
           key: 'interested_agencies',
-          label: 'Interested Teams',
+          label: `Interested ${newTerminologyEnabled() ? 'Team' : 'Agency'}`,
         },
         {
           // opportunity_status

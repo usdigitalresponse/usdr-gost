@@ -36,8 +36,8 @@
           <b-nav-item v-if="!useNewGrantsTable" to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
           <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
           <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
-          <b-nav-item to="/teams" exact exact-active-class="active">Teams</b-nav-item>
-          <b-nav-item v-if="canSeeOrganizationsTab" to="/organizations" exact exact-active-class="active">Organizations</b-nav-item>
+          <b-nav-item :to="newTerminologyEnabled ? '/teams' : '/agencies'" exact exact-active-class="active">{{newTerminologyEnabled ? 'Teams' : 'Agencies'}}</b-nav-item>
+          <b-nav-item v-if="canSeeOrganizationsTab" :to="newTerminologyEnabled ? '/organizations' : '/tenants'" exact exact-active-class="active">{{newTerminologyEnabled ? 'Organizations' : 'Tenants'}}</b-nav-item>
       </b-nav>
     </b-col>
 
@@ -54,7 +54,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { myProfileEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
+import { myProfileEnabled, newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
 import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
 import AlertBox from '../arpa_reporter/components/AlertBox.vue';
 
@@ -78,7 +78,10 @@ export default {
       alerts: 'alerts/alerts',
     }),
     canSeeOrganizationsTab() {
-      return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
+      return true;
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
     },
     myProfileEnabled() {
       return myProfileEnabled();

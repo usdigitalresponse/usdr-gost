@@ -9,7 +9,7 @@
             <b-card>
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title1 row">Recent Activity</h4>
-                <span id="noRecentActivityMessage" class="gutter-title1 row" v-if="!activityItems?.length">Your team has no recent activity.</span>
+                <span id="noRecentActivityMessage" class="gutter-title1 row" v-if="!activityItems?.length">Your {{newTerminologyEnabled ? 'team' : 'agency'}} has no recent activity.</span>
               </div>
               <b-table sticky-header='500px' hover :items='activityItems' :fields='activityFields'
                 :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none"
@@ -50,7 +50,7 @@
             <b-card>
               <div class="card-block text-left">
                 <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
-                <span id="noUpcomingCloseDates" class="gutter-title2 row" v-if="!grantsAndIntAgens?.length">Your team has no upcoming close dates.</span>
+                <span id="noUpcomingCloseDates" class="gutter-title2 row" v-if="!grantsAndIntAgens?.length">Your {{newTerminologyEnabled ? 'team' : 'agency'}} has no upcoming close dates.</span>
               </div>
               <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none"
@@ -104,7 +104,7 @@
     </b-row>
     <br v-if="!showStats" />
 
-    <b-card title="Total Interested Grants by Teams" v-if="showStats" >
+    <b-card :title="newTerminologyEnabled ? 'Total Interested Grants by Team' : 'Total Interested Grants by Agency'" v-if="showStats" >
       <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
         <template #cell()="{field, value}">
           <div :style="field.style" v-text="value">
@@ -158,7 +158,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
 import GrantDetails from '@/components/Modals/GrantDetails.vue';
-import { useNewGrantsTable } from '@/helpers/featureFlags';
+import { newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
 
 export default {
   components: { GrantDetails },
@@ -378,6 +378,9 @@ export default {
     upcomingItems() {
       // https://stackoverflow.com/a/48643055
       return this.closestGrants;
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
     },
   },
   watch: {

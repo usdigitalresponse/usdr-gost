@@ -53,6 +53,9 @@ describe('Dashboard.vue', () => {
         store,
         localVue,
         stubs,
+        computed: {
+          newTerminologyEnabled: () => true,
+        },
       });
     });
     it('should show the no recent activity message', () => {

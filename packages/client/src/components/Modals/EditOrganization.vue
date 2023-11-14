@@ -5,7 +5,7 @@
       id="edit-tenant-modal"
       v-model="showDialog"
       ref="modal"
-      title="Edit Organization"
+      :title="newTerminologyEnabled ? 'Edit Organization' : 'Edit Tenant'"
       @hidden="resetModal"
       @ok="handleOk"
     >
@@ -31,6 +31,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
@@ -66,6 +67,9 @@ export default {
     handleOk(bvModalEvt) {
       bvModalEvt.preventDefault();
       this.handleSubmit();
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
     },
     async handleSubmit() {
       await this.updateDisplayName({ tenantId: this.tenant.id, ...this.formData });

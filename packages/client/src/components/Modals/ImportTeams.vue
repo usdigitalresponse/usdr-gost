@@ -3,7 +3,7 @@
     <b-modal
       id="import-agencies-modal"
       ref="modal"
-      title="Bulk Import teams"
+      :title="`Bulk Import ${newTerminologyEnabled ? 'Teams' : 'Agencies'}`"
       @show="resetModal"
       @hidden="resetModal"
       ok-only="true"
@@ -11,7 +11,7 @@
       <div>
         <ul>
           <li>Download the bulk import Excel template file by clicking <a href="./agencyImportTemplate.xlsx">here.</a></li>
-          <li>Add new teams to the Excel file and save it. Make sure that parent team rows are above all their children team rows.</li>
+          <li>Add new {{newTerminologyEnabled ? 'teams' : 'agencies'}} to the Excel file and save it. Make sure that parent {{newTerminologyEnabled ? 'team' : 'agency'}} rows are above all their children {{newTerminologyEnabled ? 'team' : 'agency'}} rows.</li>
           <li>Select your newly edited bulk import file using the <i>Choose File</i> button below, and click <i>Upload</i>.</li>
           <li>When the import is finished, the status of the import, including any errors, will be displayed below.</li>
         </ul>
@@ -29,6 +29,7 @@
 <script>
 import { mapActions } from 'vuex';
 import Uploader from '@/components/Uploader.vue';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
@@ -43,14 +44,19 @@ export default {
       this.$bvModal.show('import-agencies-modal');
     },
   },
+  computed: {
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
+    },
+  },
   methods: {
     ...mapActions({
       fetchAgencies: 'agencies/fetchAgencies',
     }),
     setStatus(theStatus) {
       const statusObj = theStatus.ret.status;
-      const added = `Successful: ${statusObj.agencies.added} teams added`;
-      const notAdded = `Unsuccessful: ${statusObj.agencies.errored} teams not added`;
+      const added = `Successful: ${statusObj.agencies.added} ${this.newTerminologyEnabled ? 'teams' : 'agencies'} added`;
+      const notAdded = `Unsuccessful: ${statusObj.agencies.errored} ${this.newTerminologyEnabled ? 'teams' : 'agencies'} not added`;
       let errs = '';
       if (statusObj.errors.length > 0) {
         errs = '<ul>';

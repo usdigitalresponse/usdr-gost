@@ -1,7 +1,7 @@
 <template>
 <section class="container-fluid">
   <b-row>
-    <b-col><h2>Teams</h2></b-col>
+    <b-col><h2>{{newTerminologyEnabled ? 'Teams' : 'Agencies'}}</h2></b-col>
     <b-col></b-col>
     <b-col class="d-flex justify-content-end" v-if="userRole === 'admin'">
       <div>
@@ -41,6 +41,7 @@ import { mapActions, mapGetters } from 'vuex';
 import EditTeamModal from '@/components/Modals/EditTeam.vue';
 import AddTeamModal from '@/components/Modals/AddTeam.vue';
 import ImportTeamsModal from '@/components/Modals/ImportTeams.vue';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   components: {
@@ -93,6 +94,9 @@ export default {
       userRole: 'users/userRole',
       selectedTeam: 'users/selectedAgency',
     }),
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
+    },
     formattedTeams() {
       return this.teams.map((team) => ({
         ...team,

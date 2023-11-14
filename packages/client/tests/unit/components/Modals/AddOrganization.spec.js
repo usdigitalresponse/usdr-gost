@@ -21,6 +21,9 @@ describe('AddOrganization.vue', () => {
       wrapper = shallowMount(AddOrganization, {
         localVue,
         stubs,
+        computed: {
+          newTerminologyEnabled: () => true,
+        },
       });
     });
     it('should have the title Add Organization', () => {

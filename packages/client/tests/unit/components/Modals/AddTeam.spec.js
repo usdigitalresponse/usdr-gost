@@ -29,6 +29,9 @@ describe('AddTeam.vue', () => {
         localVue,
         store,
         stubs,
+        computed: {
+          newTerminologyEnabled: () => true,
+        },
       });
     });
     it('should have the title Add Team', () => {

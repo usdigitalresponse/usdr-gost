@@ -29,7 +29,7 @@
       </div>
       <br />
       <b-row style="padding: 16px;">
-        <h4>Team Status</h4>
+        <h4>{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h4>
         <b-col class="text-right">
           <b-row v-if="!interested">
             <b-col cols="9">
@@ -70,9 +70,9 @@
       </b-table>
       <br />
       <b-row style="padding: 16px;">
-        <h4>Assigned Teams</h4>
+        <h4>Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h4>
           <multiselect v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
-            :clear-on-select="false" placeholder="Select teams" label="name" track-by="id"
+            :clear-on-select="false" :placeholder="`Select ${newTerminologyEnabled ? 'teams': 'agencies'}`" label="name" track-by="id"
             style="width: 300px; margin: 0 16px;" :show-labels="false"
           >
           </multiselect>
@@ -93,6 +93,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import { debounce } from 'lodash';
 import Multiselect from 'vue-multiselect';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { titleize } from '../../helpers/form-helpers';
 
 export default {
@@ -108,7 +109,7 @@ export default {
       interestedAgenciesFields: [
         {
           key: 'agency_name',
-          label: 'Team',
+          label: `${newTerminologyEnabled ? 'Team' : 'Agency'}`,
         },
         {
           key: 'agency_abbreviation',
@@ -185,6 +186,9 @@ export default {
       return this.selectedGrant.interested_agencies.find(
         (interested) => interested.agency_id.toString() === this.selectedAgencyId,
       );
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
     },
   },
   watch: {

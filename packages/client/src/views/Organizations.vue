@@ -1,7 +1,7 @@
 <template>
 <section class="container-fluid">
   <b-row>
-    <b-col><h2>Organizations</h2></b-col>
+    <b-col><h2>{{newTerminologyEnabled ? 'Organizations' : 'Tenants'}}</h2></b-col>
     <b-col></b-col>
     <b-col class="d-flex justify-content-end">
       <div>
@@ -30,6 +30,7 @@ import { mapActions, mapGetters } from 'vuex';
 
 import EditOrganizationModal from '@/components/Modals/EditOrganization.vue';
 import AddOrganizationModal from '@/components/Modals/AddOrganization.vue';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   components: {
@@ -59,6 +60,9 @@ export default {
       organizations: 'tenants/tenants',
       selectedTeam: 'users/selectedAgency',
     }),
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
+    },
     formattedOrganizations() {
       return this.organizations?.map((organization) => ({
         ...organization,
