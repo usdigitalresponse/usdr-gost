@@ -4,7 +4,7 @@
 
 <script>
 
-import GrantsTableNext from '@/components/GrantsTable.vue';
+import GrantsTable from '@/components/GrantsTable.vue';
 
 export default {
   data() {
@@ -15,7 +15,7 @@ export default {
   methods: {},
   computed: {
     tableComponent() {
-      return GrantsTableNext;
+      return GrantsTable;
     },
   },
 };

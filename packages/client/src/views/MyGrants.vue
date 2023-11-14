@@ -20,7 +20,7 @@
 <script>
 import { mapGetters } from 'vuex';
 
-import GrantsTableNext from '@/components/GrantsTable.vue';
+import GrantsTable from '@/components/GrantsTable.vue';
 
 export default {
   data() {
@@ -33,7 +33,7 @@ export default {
       selectedAgencyId: 'users/selectedAgencyId',
     }),
     tableComponent() {
-      return GrantsTableNext;
+      return GrantsTable;
     },
   },
   methods: {},
