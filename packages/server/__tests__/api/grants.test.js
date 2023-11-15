@@ -592,9 +592,9 @@ describe('`/api/grants` endpoint', () => {
 
             const expectedCsv = process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true'
                 ? `Opportunity Number,Title,Viewed By,Interested Teams,Status,Opportunity Category,Cost Sharing,Award Ceiling,Posted Date,Close Date,Agency Code,Grant Id,URL
-                    HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`
+HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`
                 : `Opportunity Number,Title,Viewed By,Interested Agencies,Status,Opportunity Category,Cost Sharing,Award Ceiling,Posted Date,Close Date,Agency Code,Grant Id,URL
-                    HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
+HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
 
             expect(response.statusText).to.equal('OK');
             expect(response.headers.get('Content-Type')).to.include('text/csv');
