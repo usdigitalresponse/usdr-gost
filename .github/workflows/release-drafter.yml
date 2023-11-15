@@ -1,0 +1,36 @@
+name: Release Drafter
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  update_release_draft:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: "Determine next version"
+        id: next_version
+        run: |
+          chmod +x .github/next_release_version.bash
+          echo "result=$(bash .github/next_release_version.bash)" >> $GITHUB_OUTPUT
+      - uses: release-drafter/release-drafter@09c613e259eb8d4e7c81c2cb00618eb5fc4575a7 # v5.25.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: ${{ steps.next_version.outputs.result }}
