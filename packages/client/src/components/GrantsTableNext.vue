@@ -21,7 +21,7 @@
     </b-row>
     <b-row align-v="center">
       <b-col cols="12">
-        <b-table id="grants-table" sticky-header="70vh" hover no-border-collapse :items="formattedGrants"
+        <b-table id="grants-table" sticky-header="70vh" hover :items="formattedGrants"
           :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
           @row-selected="onRowSelected" show-empty emptyText="No matches found">
@@ -434,7 +434,10 @@ export default {
   justify-content: left;
   align-items: center;
 }
+
+/* Fix for disappearing table borders when Vue collapses table borders */
 .b-table-sticky-header {
+  border-top: 1px solid #dee2e6;
   border-bottom: 1px solid #dee2e6;
 }
 </style>
