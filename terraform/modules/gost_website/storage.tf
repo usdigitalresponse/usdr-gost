@@ -111,6 +111,24 @@ module "origin_bucket" {
   ]
 }
 
+locals {
+  origin_artifacts_dist_path       = trimsuffix(var.origin_artifacts_dist_path, "/")
+  origin_artifacts_dist_key_prefix = trim(var.origin_bucket_dist_path, "/")
+}
+
+resource "aws_s3_object" "origin_dist_artifact" {
+  for_each = sort(fileset(local.origin_artifacts_dist_path, "**"))
+
+  bucket                 = module.origin_bucket.bucket_id
+  key                    = "${local.origin_artifacts_dist_key_prefix}/${each.value}"
+  source                 = "${local.origin_artifacts_dist_path}/${each.value}"
+  source_hash            = filemd5("${local.origin_artifacts_dist_path}/${each.value}")
+  etag                   = filemd5("${local.origin_artifacts_dist_path}/${each.value}")
+  server_side_encryption = "AES256"
+
+  depends_on = [module.module.origin_bucket]
+}
+
 module "logs_bucket" {
   source  = "cloudposse/s3-bucket/aws"
   version = "4.0.0"
