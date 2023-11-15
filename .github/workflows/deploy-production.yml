@@ -1,0 +1,147 @@
+name: Deploy to Production
+
+on:
+  push:
+    tags:
+      - 'release/**'
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+    name: Build deployment artifacts
+    uses: ./.github/workflows/build.yml
+    with:
+      ref: ${{ github.sha }}
+      build-server-image: true
+      server-image-push: true
+      server-image-args-ref: ${{ github.ref }}
+      server-image-version: ${{ github.ref_name }}
+      server-image-tag-latest: false
+      server-image-tag-release: ${{ github.ref_name }}
+      build-website: true
+      website-artifact-retention-days: 90
+
+  aws-auth:
+    name: Configure AWS Credentials
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/aws-auth.yml
+    with:
+      aws-region: us-west-2
+    secrets:
+      gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}
+      role-to-assume: ${{ secrets.PRODUCTION_ROLE_ARN }}
+
+  tf-plan:
+    name: Plan Terraform
+    permissions:
+      contents: read
+    needs:
+      - aws-auth
+      - build
+    uses: ./.github/workflows/terraform-plan.yml
+    with:
+      ref: ${{ github.sha }}
+      concurrency-group: run_terraform-production
+      server-image-tag: ${{ github.sha }}
+      server-image-digest: ${{ needs.build.outputs.server-image-digest }}
+      website-artifacts-key: ${{ needs.build.outputs.website-artifacts-key }}
+      website-artifacts-path: ${{ needs.build.outputs.website-artifacts-path }}
+      aws-region: us-west-2
+      environment-key: production
+      tf-backend-config-file: prod.s3.tfbackend
+      tf-var-file: prod.tfvars
+      upload-artifacts: true
+      artifacts-retention-days: 90
+    secrets:
+      aws-access-key-id: ${{ needs.aws-auth.outputs.aws-access-key-id }}
+      aws-secret-access-key: ${{ needs.aws-auth.outputs.aws-secret-access-key }}
+      aws-session-token: ${{ needs.aws-auth.outputs.aws-session-token }}
+      datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
+      datadog-app-key: ${{ secrets.DATADOG_APP_KEY }}
+      gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}
+
+  publish-tf-plan:
+    name: Publish Terraform Plan
+    permissions:
+      contents: read
+      pull-requests: write
+    if: needs.tf-plan.result != 'skipped' || needs.tf-plan.result != 'cancelled'
+    needs:
+      - tf-plan
+    uses: ./.github/workflows/publish-terraform-plan.yml
+    with:
+      write-summary: true
+      write-comment: false
+      tf-fmt-outcome: ${{ needs.tf-plan.outputs.fmt-outcome }}
+      tf-init-outcome: ${{ needs.tf-plan.outputs.init-outcome }}
+      tf-plan-outcome: ${{ needs.tf-plan.outputs.plan-outcome }}
+      tf-plan-output: ${{ needs.tf-plan.outputs.plan-output }}
+      tf-validate-outcome: ${{ needs.tf-plan.outputs.validate-outcome }}
+      tf-validate-output: ${{ needs.tf-plan.outputs.validate-output }}
+
+  tf-apply:
+    name: Deploy to Production
+    needs:
+      - build
+      - aws-auth
+      - tf-plan
+    if: needs.tf-plan.outputs.plan-exitcode == 2
+    uses: ./.github/workflows/terraform-apply.yml
+    with:
+      website-artifacts-key: ${{ needs.build.outputs.website-artifacts-key }}
+      website-artifacts-path: ${{ needs.build.outputs.website-artifacts-path }}
+      tf-plan-artifacts-key: ${{ needs.tf-plan.outputs.artifacts-key }}
+      aws-region: us-west-2
+      concurrency-group: run_terraform-production
+      tf-backend-config-file: prod.s3.tfbackend
+      environment-name: production
+    secrets:
+      aws-access-key-id: ${{ needs.aws-auth.outputs.aws-access-key-id }}
+      aws-secret-access-key: ${{ needs.aws-auth.outputs.aws-secret-access-key }}
+      aws-session-token: ${{ needs.aws-auth.outputs.aws-session-token }}
+      datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
+      datadog-app-key: ${{ secrets.DATADOG_APP_KEY }}
+      gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}
+
+  update-release:
+    name: Update release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - tf-apply
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Get release notes
+        id: get
+        continue-on-error: true
+        run: gh release view $RELEASE_TAG --json body --jq .body > release_notes.md
+      - name: Add deployment history to release notes
+        if: always() && steps.get.outcome == 'success'
+        run: printf "\n- Deployed at $(date --iso-8601=seconds)\n" >> release_notes.md
+      - name: Update release notes and status
+        if: always() && steps.get.outcome == 'success'
+        run: gh release edit $RELEASE_TAG --draft=false --prerelease=false --latest --verify-tag -F release_notes.md
