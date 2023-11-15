@@ -1,0 +1,236 @@
+name: Build
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
+      build-server-image:
+        description: Whether to build a `usdr-gost-api` Docker image using the `production-api.Dockerfile`.
+        type: boolean
+        default: true
+      build-website:
+        description: Whether to build website distribution artifacts for the client package.
+        type: boolean
+        default: true
+      server-image-args-ref:
+        description: Ref name for the build commit, like refs/heads/my-feature-branch-1.
+        type: string
+        required: true
+      server-image-push:
+        description: Whether to push Docker images to the registry after building.
+        type: boolean
+        default: true
+      server-image-name:
+        description: Name of the docker image. Use caution when setting a non-default value.
+        type: string
+        default: usdr-gost-api
+      server-image-registry:
+        description: The Docker image registry. Use caution when setting a non-default value.
+        type: string
+        default: ghcr.io
+      server-image-tag-latest:
+        description: Tags image builds with `latest`.
+        type: boolean
+        default: false
+      server-image-tag-production:
+        description: Tags image builds with `production`.
+        type: boolean
+        required: false
+      server-image-tag-pr:
+        description: A PR number to add as a Docker image tag (as `pr-<value>`) when building for a pull request.
+        type: string
+        required: false
+      server-image-tag-release:
+        description: A tag value that, if provided, signifies the release version associated with the Docker image.
+        type: string
+        required: false
+      server-image-version:
+        description: Value to set for the `org.opencontainers.image.version label`.
+        type: string
+        default: ""
+      website-artifact-retention-days:
+        description: Number of days to retain website build artifacts.
+        type: number
+        default: 90
+    outputs:
+      build-server-image-result:
+        value: ${{ jobs.server-docker-image.result }}
+      build-website-result:
+        value: ${{ jobs.website-bundle.result }}
+      server-image-commit-tag:
+        value:  ${{ jobs.server-docker-image.outputs.commit-tag }}
+      server-image-digest:
+        value: ${{ jobs.server-docker-image.outputs.digest }}
+      website-artifacts-key:
+        value: ${{ jobs.website-bundle.outputs.artifacts-key }}
+      website-artifacts-path:
+        value: ${{ jobs.website-bundle.outputs.artifacts-path }}
+      website-checksums-sha256:
+        value: ${{ jobs.website-bundle.outputs.checksums-sha256 }}
+
+jobs:
+  server-docker-image:
+    name: Build server Docker image
+    if: inputs.build-server-image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      commit-tag: ${{ inputs.ref }}
+      digest: ${{ steps.build-push.outputs.digest }}
+    steps:
+      - uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          ref: ${{ inputs.ref }}
+          show-progress: 'false'
+          persist-credentials: 'false'
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+      - name: Authenticate docker
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set date/time-based version string as env var
+        run: echo "DATETIME_VERSION=$(TZ=UTC date +'%Y%m%d.%H%M')" >> $GITHUB_ENV
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        with:
+          images: ${{ inputs.server-image-registry }}/${{ inputs.server-image-name }}
+          tags: |
+            type=sha,enable=true,priority=100,format=long
+            type=raw,enable=${{ inputs.server-image-tag-release != '' }},priority=200,value=${{ inputs.server-image-tag-release }}
+            type=raw,enable=${{ inputs.server-image-tag-latest }},priority=300,value=latest
+            type=raw,enable=${{ inputs.server-image-tag-pr != '' }},priority=600,prefix=pr-,value=${{ inputs.server-image-tag-pr }}
+          labels: |
+            org.opencontainers.image.title=${{ inputs.server-image-name }}
+            org.opencontainers.image.version=${{ inputs.server-image-version }}
+            com.datadoghq.tags.service=gost
+            com.datadoghq.tags.version=${{ inputs.ref }}
+      - name: Set bake file definition as step output
+        id: bakefile
+        run: |
+          $BAKFILE_CONTENTS=$(cat ${{ steps.meta.outputs.bake-file }})
+          echo "result=$BAKFILE_CONTENTS" >> $GITHUB_OUTPUT
+      - name: Build and push Docker image
+        id: build-push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: ${{ inputs.server-image-push }}
+          file: docker/production-api.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            GIT_COMMIT=${{ inputs.ref }}
+            GIT_REF=${{ inputs.server-image-args-ref }}
+            TIMESTAMP=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+      - name: Publish build results
+        run: |
+          BAKE_FILE=$(cat ${{ steps.meta.outputs.bake-file }})
+          REPORT_FILE=$(mktemp -t summary.md.XXXXX)
+          cat >> $REPORT_FILE << 'ENDOFREPORT'
+          ## Docker Build Summary
+
+          **Image ID:** `${{ steps.build-push.outputs.imageid }}`
+          **Image Digest:** `${{ steps.build-push.outputs.digest }}`
+
+          <details>
+          <summary>Bake File</summary>
+
+          ```json
+          ${{ steps.bakefile.outputs.result }}
+          ```
+
+          </details>
+          <details>
+          <summary>Build Metadata</summary>
+
+          ```json
+          ${{ steps.build-push.outputs.metadata }}
+          ```
+
+          </details>
+          ENDOFREPORT
+          cat "$REPORT_FILE" >> $GITHUB_STEP_SUMMARY
+
+  website-bundle:
+    name: Build website deployment artifact
+    if: inputs.build-website
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: none
+    env:
+      ARTIFACTS_KEY: website-${{ inputs.ref }}
+      ARTIFACTS_PATH: ${{ github.workspace }}/packages/client/dist
+    outputs:
+      artifacts-key: ${{ env.ARTIFACTS_KEY }}
+      artifacts-path: ${{ env.ARTIFACTS_PATH }}
+      checksums-sha256: ${{ steps.checksums.outputs.sha256 }}
+    steps:
+      - uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          ref: ${{ inputs.ref }}
+          show-progress: 'false'
+          persist-credentials: 'false'
+      - name: Setup Node
+        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Install dependencies
+        run: yarn workspace client install --frozen-lockfile
+      - name: Build the website
+        run: yarn workspace client build
+      - name: Compute build artifact checksums
+        id: checksums
+        run: |
+          DIST_CHECKSUMS=$(find "$ARTIFACTS_PATH" -type f -exec sha256sum {} \;)
+          echo "sha256<<EOF" >> $GITHUB_OUTPUT
+          echo "$DIST_CHECKSUMS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Publish build results
+        run: |
+          REPORT_FILE=$(mktemp -t summary.md.XXXXX)
+          cat >> $REPORT_FILE << 'ENDOFREPORT'
+          ## Build Website Summary
+
+          <details>
+          <summary>Checksums</summary>
+
+          ```
+          ${{ steps.checksums.outputs.sha256 }}
+          ```
+
+          </details>
+          ENDOFREPORT
+          cat "$REPORT_FILE" >> $GITHUB_STEP_SUMMARY
+      - name: Upload build artifact
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        with:
+          name: ${{ env.ARTIFACTS_KEY }}
+          path: ${{ env.ARTIFACTS_PATH }}
+          if-no-files-found: error
+          retention-days: ${{ inputs.website-artifact-retention-days }}
