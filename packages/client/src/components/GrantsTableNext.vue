@@ -436,7 +436,7 @@ export default {
 }
 
 /* Fix for disappearing table borders when Vue collapses table borders */
-.b-table-sticky-header {
+.grants-table-container > .b-table-sticky-header {
   border-top: 1px solid #dee2e6;
   border-bottom: 1px solid #dee2e6;
 }
