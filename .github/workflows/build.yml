@@ -125,7 +125,10 @@ jobs:
       - name: Set bake file definition as step output
         id: bakefile
         run: |
-          $BAKFILE_CONTENTS=$(cat ${{ steps.meta.outputs.bake-file }})
+          BAKFILE_CONTENTS=$(cat ${{ steps.meta.outputs.bake-file }})
+          echo "result<<ENDOFBAKEFILE" >> $GITHUB_OUTPUT
+          echo "$BAKEFILE_CONTENTS" >> $GITHUB_OUTPUT
+          echo "ENDOFBAKEFILE" >> $GITHUB_OUTPUT
           echo "result=$BAKFILE_CONTENTS" >> $GITHUB_OUTPUT
       - name: Build and push Docker image
         id: build-push
