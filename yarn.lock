@@ -330,13 +330,13 @@
     tslib "^2.5.0"
 
 "@aws-sdk/client-ses@^3.312.0":
-  version "3.451.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ses/-/client-ses-3.451.0.tgz#09dd13cef7662b7a9ce0281417c16c3c7ed5ed0a"
-  integrity sha512-pkWL95Ao9rAlT5cBsLFRfLaucCB4w7G2MSocWlw4OW+9+XCSCgXtrH8AZsQ31kjxw2TqxIhbWVTXCMejmK08Zg==
+  version "3.454.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ses/-/client-ses-3.454.0.tgz#138411357dce5c25a75b946868171c7e97e0d203"
+  integrity sha512-6rLwDHHwjLv3gYL68V8sZeDlgiO60e/pIWmu2H7POoDTTFlQdcmS/ARdFzdIgAuA2yMAYFZvsFcrZTYxLl1q8g==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.451.0"
+    "@aws-sdk/client-sts" "3.454.0"
     "@aws-sdk/core" "3.451.0"
     "@aws-sdk/credential-provider-node" "3.451.0"
     "@aws-sdk/middleware-host-header" "3.451.0"
