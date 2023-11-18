@@ -22,5 +22,5 @@ window.APP_CONFIG.overrideFeatureFlag = (flagName, overrideValue) => {
 window.APP_CONFIG.featureFlags = {
   useNewTable: true,
   myProfileEnabled: true,
-  newTerminologyEnabled: false,
+  newTerminologyEnabled: true,
 };
