@@ -10,29 +10,6 @@ import store from '../store';
 
 Vue.use(VueRouter);
 
-const tenantRoute = {
-  path: '/tenants',
-  name: 'tenants',
-  component: () => import('../views/Organizations.vue'),
-  meta: {
-    requiresAuth: true,
-  },
-};
-
-const agenciesRoute = {
-  path: '/agencies',
-  name: 'agencies',
-  component: () => import('../views/Teams.vue'),
-  meta: {
-    requiresAuth: true,
-  },
-};
-
-if (newTerminologyEnabled()) {
-  tenantRoute.redirect = '/organizations';
-  agenciesRoute.redirect = '/teams';
-}
-
 const routes = [
   {
     path: '/login',
@@ -114,7 +91,15 @@ const routes = [
           enabledWithOldGrantsTableOnly: true,
         },
       },
-      tenantRoute,
+      {
+        path: '/tenants',
+        name: 'tenants',
+        redirect: newTerminologyEnabled() ? '/organizations' : undefined,
+        component: () => import('../views/Organizations.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
       {
         path: '/organizations',
         name: 'organizations',
@@ -132,7 +117,15 @@ const routes = [
           requiresAuth: true,
         },
       },
-      agenciesRoute,
+      {
+        path: '/agencies',
+        name: 'agencies',
+        redirect: newTerminologyEnabled() ? '/teams' : undefined,
+        component: () => import('../views/Teams.vue'),
+        meta: {
+          requiresAuth: true,
+        },
+      },
       {
         path: '/teams',
         name: 'teams',
