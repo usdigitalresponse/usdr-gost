@@ -4,7 +4,7 @@
     <section style="margin-top: 4rem;">
       <b-row>
         <b-col>
-          <b-avatar :text="initials" size="5rem"></b-avatar>
+          <b-avatar :text="initials" size="5rem" v-bind:style="avatarStyles"></b-avatar>
         </b-col>
         <b-col cols="7">
           <p class="mb-2 h6"><b>{{ name }}</b></p>
@@ -86,6 +86,12 @@ export default {
     emailPreferences() {
       return this.loggedInUser.emailPreferences;
     },
+    avatarStyles() {
+      return {
+        backgroundColor: this.loggedInUser.avatar.bgColor,
+        color: this.loggedInUser.avatar.text
+      }
+    }
   },
   methods: {
     ...mapActions({

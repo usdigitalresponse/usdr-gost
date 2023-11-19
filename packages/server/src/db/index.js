@@ -20,7 +20,7 @@ try {
 
 const moment = require('moment');
 const knex = require('./connection');
-const { TABLES } = require('./constants');
+const { TABLES, userAvatarStyles } = require('./constants');
 const emailConstants = require('../lib/email/constants');
 const helpers = require('./helpers');
 
@@ -72,6 +72,7 @@ async function createUser(user) {
         .into('users')
         .returning(['id', 'created_at']);
 
+    setUserAvatar(response[0].id)
     const emailUnsubscribePreference = Object.assign(
         ...Object.values(emailConstants.notificationType).map(
             (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
@@ -131,6 +132,7 @@ async function getUser(id) {
             'users.email',
             'users.name',
             'users.role_id',
+            'users.avatar',
             'roles.name as role_name',
             'roles.rules as role_rules',
             'users.agency_id',
@@ -1411,6 +1413,14 @@ function setAgencyParent(id, agen_parent) {
             id,
         })
         .update({ parent: agen_parent });
+}
+
+function setUserAvatar(userId) {
+    return knex(TABLES.users)
+        .where({
+            id: userId,
+        })
+        .update({ avatar: JSON.stringify(userAvatarStyles[helpers.selectRandomIndex(userAvatarStyles)]) });
 }
 
 async function setUserEmailSubscriptionPreference(userId, agencyId, preferences) {

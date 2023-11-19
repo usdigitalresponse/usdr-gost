@@ -22,7 +22,12 @@ async function hasOutstandingMigrations() {
     return newMigrations.length > 0;
 }
 
+function selectRandomIndex(arr) {
+    return Math.floor(Math.random() * arr.length);
+}
+
 module.exports = {
     whereAgencyCriteriaMatch,
     hasOutstandingMigrations,
+    selectRandomIndex
 };
