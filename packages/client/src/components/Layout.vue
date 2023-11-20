@@ -15,7 +15,7 @@
             <b-badge>{{selectedAgency ? selectedAgency.name : ''}}</b-badge>
           </b-nav-text>
 
-          <b-nav-item-dropdown right v-if="loggedInUser">
+          <b-nav-item-dropdown right v-if="loggedInUser" menu-class="w-100">
             <!-- Using 'button-content' slot -->
             <template #button-content>
               <em>{{loggedInUser.email}}</em>
