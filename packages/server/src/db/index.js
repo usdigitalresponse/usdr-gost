@@ -88,11 +88,12 @@ async function createUser(user) {
 }
 
 async function updateUser(user) {
-    const { id, name } = user;
+    const { id, name, avatar } = user;
 
+    
     await knex('users')
         .where('id', id)
-        .update({ name });
+        .update({ name, avatar });
 
     return getUser(id);
 }

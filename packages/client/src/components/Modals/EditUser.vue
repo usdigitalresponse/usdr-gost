@@ -11,7 +11,7 @@
     :ok-disabled="$v.formData.$invalid"
     >
     <div class="text-center my-3">
-      <UserAvatar badge />
+      <UserAvatar badge @changeColor="handleChangeColor"/>
     </div>
     <b-form>
        <b-form-group
@@ -47,6 +47,7 @@ export default {
     return {
       formData: {
         name: null,
+        avatar: null,
       },
     };
   },
@@ -69,11 +70,15 @@ export default {
     }),
     resetModal() {
       this.formData.name = this.loggedInUser.name;
+      this.formData.avatar = this.loggedInUser.avatar;
     },
     handleOk(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
       this.handleSubmit();
+    },
+    handleChangeColor(colorData) {
+      this.formData.avatar = colorData;
     },
     async handleSubmit() {
       this.formData.id = this.loggedInUser.id;
