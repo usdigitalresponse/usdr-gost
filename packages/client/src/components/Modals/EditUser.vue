@@ -10,6 +10,9 @@
     @ok="handleOk"
     :ok-disabled="$v.formData.$invalid"
     >
+    <div class="text-center my-3">
+      <UserAvatar badge />
+    </div>
     <b-form>
        <b-form-group
           :state="!$v.formData.name.$invalid"
@@ -34,8 +37,12 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { required, minLength } from 'vuelidate/lib/validators';
+import UserAvatar from '../UserAvatar.vue';
 
 export default {
+  components: {
+    UserAvatar
+  },
   data() {
     return {
       formData: {
