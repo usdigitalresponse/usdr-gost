@@ -21,22 +21,22 @@
               <em>{{loggedInUser.email}}</em>
             </template>
             <b-dropdown-item v-if="myProfileEnabled" href="#/my-profile">
-              <b-icon icon="person-circle" scale="1"></b-icon>
+              <b-icon icon="person-circle" scale="1" class="dropdown-icon"></b-icon>
               My profile
             </b-dropdown-item>
             <b-dropdown-item-button v-else href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
             <b-dropdown-item-button v-if="myProfileEnabled" href="#" @click="giveFeedback">
-              <b-icon icon="chat-square-text" scale="1"></b-icon>
+              <b-icon icon="chat-square-text" scale="1" class="dropdown-icon"></b-icon>
               Give feedback
             </b-dropdown-item-button>
             <b-dropdown-item-button v-else href="#" @click="giveFeedback">Give Feedback</b-dropdown-item-button>
             <b-dropdown-item-button v-if="myProfileEnabled" href="#" @click="trainingGuide">
-              <b-icon icon="book" scale="1"></b-icon>
+              <b-icon icon="book" scale="1" class="dropdown-icon"></b-icon>
               Training guide
             </b-dropdown-item-button>
             <b-dropdown-item-button v-else href="#" @click="trainingGuide">Training Guide</b-dropdown-item-button>
             <b-dropdown-item-button v-if="myProfileEnabled" href="#" @click="logout">
-              <b-icon icon="box-arrow-right" scale="1"></b-icon>
+              <b-icon icon="box-arrow-right" scale="1" class="dropdown-icon"></b-icon>
               Sign out
             </b-dropdown-item-button>
             <b-dropdown-item-button v-else href="#" @click="logout">Sign Out</b-dropdown-item-button>
@@ -138,4 +138,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.dropdown-icon {
+  margin-right: 0.5rem;
+}
 </style>
