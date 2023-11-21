@@ -14,11 +14,22 @@ permissions:
   id-token: write
 
 jobs:
+  validate:
+    name: Validate commits for deployment
+    permissions:
+      contents: read
+    uses: ./.github/workflows/validate-deployment.yml
+    with:
+      protected-ref: ${{ github.event.repository.default_branch }}
+      deployment-ref: ${{ github.ref }}
+
   build:
+    name: Build deployment artifacts
     permissions:
       contents: read
       packages: write
-    name: Build deployment artifacts
+    needs:
+      - validate
     uses: ./.github/workflows/build.yml
     with:
       ref: ${{ github.sha }}
@@ -35,6 +46,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    needs:
+      - validate
     uses: ./.github/workflows/aws-auth.yml
     with:
       aws-region: us-west-2
@@ -47,6 +60,7 @@ jobs:
     permissions:
       contents: read
     needs:
+      - validate
       - aws-auth
       - build
     uses: ./.github/workflows/terraform-plan.yml
