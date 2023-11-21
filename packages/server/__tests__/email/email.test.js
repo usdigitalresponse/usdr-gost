@@ -364,13 +364,15 @@ describe('Email sender', () => {
             const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
             const agency = agencies[0];
             agency.matched_grants = [fixtures.grants.healthAide];
-            const body = await email.buildDigestBody(agency.matched_grants);
+            const body = await email.buildDigestBody({ name: 'Saved search test', openDate: '2021-08-05', matchedGrants: agency.matched_grants });
             expect(body).to.include(fixtures.grants.healthAide.description);
         });
         it('builds only first 3 grants if >3 available', async () => {
             const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
             const agency = agencies[0];
             const ignoredGrant = { ...fixtures.grants.healthAide };
+            const name = 'Saved search test';
+            const openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
             ignoredGrant.description = 'Added a brand new description';
 
             const updateFn = (int) => {
@@ -380,7 +382,7 @@ describe('Email sender', () => {
             };
             const additionalGrants = [...Array(30).keys()].map(updateFn);
             agency.matched_grants = [...additionalGrants, ...[fixtures.grants.healthAide, fixtures.grants.earFellowship, fixtures.grants.redefiningPossible]];
-            const body = await email.buildDigestBody(agency.matched_grants);
+            const body = await email.buildDigestBody({ name, openDate, matchedGrants: agency.matched_grants });
 
             /* the last 3 grants should not be included in the email */
             expect(body).to.not.include(fixtures.grants.healthAide.description);
@@ -389,6 +391,8 @@ describe('Email sender', () => {
 
             /* the first 30 grants should be included in the email */
             additionalGrants.forEach((grant) => expect(body).to.include(grant.description));
+            expect(body).to.include(name);
+            expect(body).to.include(moment(openDate).format('MMMM Do YYYY'));
         });
     });
     context('getAndSendGrantForSavedSearch', () => {

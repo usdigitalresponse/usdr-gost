@@ -117,10 +117,14 @@ function sendWelcomeEmail(email, httpOrigin) {
 
 function getGrantDetail(grant, emailNotificationType) {
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
+
+    const shortDescription = grant.description?.length > 380 ? grant.description.substring(0, 380) : grant.description;
+    const description = shortDescription.replace(/<\/?p[^>]*>/g, '');
+
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
             title: grant.title,
-            description: grant.description && grant.description.length > 400 ? `${grant.description.substring(0, 400)}...` : grant.description,
+            description,
             status: grant.opportunity_status,
             show_date_range: grant.open_date && grant.close_date,
             open_date: grant.open_date ? new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
@@ -193,7 +197,7 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
     agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
 }
 
-async function buildDigestBody(matchedGrants) {
+async function buildDigestBody({ name, openDate, matchedGrants }) {
     const grantDetails = [];
     matchedGrants.slice(0, 30).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
 
@@ -201,14 +205,14 @@ async function buildDigestBody(matchedGrants) {
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
     const contentSpacerStr = contentSpacerTemplate.toString();
 
-    let additionalBody = grantDetails.join(contentSpacerStr);
+    let additionalBody = grantDetails.join(contentSpacerStr).concat(contentSpacerStr);
 
     const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
     additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
-        body_title: 'New grants have been posted',
-        body_detail: `There are ${matchedGrants.length} new grants matching your keywords and settings.`,
+        body_title: `${name} - ${matchedGrants.length} NEW GRANTS`,
+        body_detail: moment(openDate).format('MMMM Do YYYY'),
         additional_body: additionalBody,
     });
 
@@ -230,10 +234,10 @@ async function sendGrantDigest({
         return;
     }
 
-    const formattedBody = await buildDigestBody(matchedGrants);
+    const formattedBody = await buildDigestBody({ name, openDate, matchedGrants });
 
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
-        tool_name: 'Grants Identification Tool',
+        tool_name: 'Federal Grant Finder',
         title: 'New Grants Digest',
         notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
     });
