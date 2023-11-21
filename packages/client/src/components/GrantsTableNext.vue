@@ -114,7 +114,7 @@ export default {
         },
         {
           key: 'interested_agencies',
-          label: `Interested ${newTerminologyEnabled() ? 'Team' : 'Agency'}`,
+          label: `Interested ${newTerminologyEnabled() ? 'Teams' : 'Agencies'}`,
         },
         {
           // opportunity_status
