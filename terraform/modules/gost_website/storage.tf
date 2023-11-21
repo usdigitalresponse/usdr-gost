@@ -84,7 +84,7 @@ module "github_deploy_to_origin_bucket_policy" {
 
 module "origin_bucket" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "4.0.0"
+  version = "4.0.1"
   context = module.s3_label.context
   name    = "origin"
 
@@ -131,7 +131,7 @@ resource "aws_s3_object" "origin_dist_artifact" {
 
 module "logs_bucket" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "4.0.0"
+  version = "4.0.1"
   context = module.s3_label.context
   name    = "logs"
 
