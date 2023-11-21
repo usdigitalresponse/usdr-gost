@@ -11,7 +11,7 @@
     :ok-disabled="$v.formData.$invalid"
     >
     <div class="text-center my-3">
-      <UserAvatar badge @changeColor="handleChangeColor"/>
+      <UserAvatar editable @changeColor="handleChangeColor" :userName="formData.name"/>
     </div>
     <b-form>
        <b-form-group

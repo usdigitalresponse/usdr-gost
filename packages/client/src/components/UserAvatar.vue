@@ -1,25 +1,21 @@
 <template>
   <div>
-    <!-- Clickable avatar with badge, activated by passing badge prop 
-        style attribute is bound to avatarStyles so changes from the color picker will be reflected
+   <!-- Default avatar w/o badge: style attribute is bound to computed property avatar from the user session.
     -->
-    <b-avatar v-if="badge" id="user-avatar" :text="initials" :size="avatarSize" v-bind:style="avatarStyles" badge-variant="light" button>
-      <template #badge><b-icon icon="pencil-fill" scale="0.8"></b-icon></template>
+    <b-avatar v-if="!editable" :text="initials" :size="avatarSize" v-bind:style="avatar" badge-variant="light">
     </b-avatar>
-
-    <!-- Default avatar w/o badge. Style attribute is bound to computed property avatar because
-      it should always reflect value from the user session.
-    -->
-    <b-avatar v-else :text="initials" :size="avatarSize" v-bind:style="avatar" badge-variant="light">
-    </b-avatar>
-
-    <!-- TODO: Tabbing from avatar should go here next -->
-    <b-popover v-if="badge" target="user-avatar" triggers="click blur" placement="bottom">
-     <div class="color-picker">
-        <b-button v-for="(color, index) in allColors" :key="index" :style="{ backgroundColor: color }" @click="handleColorSelection(color)"></b-button>
-     </div>
-    </b-popover>
-
+    
+    <div v-if="editable">
+      <!-- Editable avatar:style attribute is bound to avatarStyles so changes from the color picker will be reflected -->
+      <b-avatar :text="toInitials(userName)" :size="avatarSize" v-bind:style="avatarStyles" badge-variant="light">
+      </b-avatar>
+      <div class="my-4">
+        <p class="text-left">Avatar color</p>
+        <div class="color-picker">
+          <b-button v-for="(color, index) in allColors" :key="index" :style="{ backgroundColor: color }" @click="handleColorSelection(color)"></b-button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -33,9 +29,13 @@ export default {
       type: String,
       default: '5rem'
     },
-    badge: {
+    editable: {
       type: Boolean,
       default: false,
+    },
+    userName: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -49,10 +49,7 @@ export default {
       loggedInUser: 'users/loggedInUser',
     }),
     initials() {
-      const fullNameArr = this.loggedInUser.name.split(' ');
-      const firstName = fullNameArr.at(0);
-      const lastName = fullNameArr.at(-1);
-      return (firstName[0] + lastName[0]).toUpperCase();
+      return this.toInitials(this.loggedInUser.name);
     },
     avatarSize() { 
       return this.size;
@@ -73,28 +70,33 @@ export default {
       }
       this.avatarStyles = updatedStyles;
       this.$emit('changeColor', updatedStyles);
+    },
+    toInitials(name) {
+      if (!name) return;
+      const fullNameArr = name.split(' ');
+
+      if (fullNameArr.length < 2) return fullNameArr[0][0].toUpperCase();
+      
+      const firstName = fullNameArr.at(0);
+      const lastName = fullNameArr.at(-1);
+      return (firstName[0] + lastName[0]).toUpperCase();
     }
   }
 }
 </script>
 
 <style>
-#user-avatar .b-avatar-badge {
-  font-size: 0.9rem !important;
-  cursor: pointer;
-}
-
 .color-picker {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 5px;
-
+  grid-template-columns: repeat(9, 1fr);
+  justify-items: center;
+  row-gap: 10px;
 }
 
 .color-picker button {
   border: none;
   border-radius: 5px;
-  height: 30px;
-  width: 30px;
+  height: 35px;
+  width: 35px;
 }
 </style>
