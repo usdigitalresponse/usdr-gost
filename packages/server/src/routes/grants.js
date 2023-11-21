@@ -278,7 +278,7 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
     const formattedData = data.map((grant) => ({
         ...grant,
         date: new Date(grant.created_at).toLocaleDateString('en-US'),
-        agency: grant.name,
+        team: grant.name,
         grant: grant.title,
         status_code: grant.status_code,
         name: users[grant.assigned_by]?.name,
@@ -293,7 +293,7 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
         header: true,
         columns: [
             { key: 'date', header: 'Date' },
-            { key: 'agency', header: 'Agency' },
+            { key: 'team', header: 'Team' },
             { key: 'grant', header: 'Grant' },
             { key: 'status_code', header: 'Status Code' },
             { key: 'name', header: 'Grant Assigned By' },

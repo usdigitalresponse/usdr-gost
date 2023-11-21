@@ -12,7 +12,7 @@
         <b-navbar-nav class="ml-auto">
 
           <b-nav-text>
-            <b-badge>{{selectedAgency ? selectedAgency.name : ''}}</b-badge>
+            <b-badge>{{selectedTeam ? selectedTeam.name : ''}}</b-badge>
           </b-nav-text>
 
           <b-nav-item-dropdown right v-if="loggedInUser">
@@ -36,8 +36,8 @@
           <b-nav-item v-if="!useNewGrantsTable" to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
           <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
           <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
-          <b-nav-item to="/Agencies" exact exact-active-class="active">Agencies</b-nav-item>
-          <b-nav-item v-if="canSeeTenantsTab" to="/tenants" exact exact-active-class="active">Tenants</b-nav-item>
+          <b-nav-item :to="newTerminologyEnabled ? '/teams' : '/agencies'" exact exact-active-class="active">{{newTerminologyEnabled ? 'Teams' : 'Agencies'}}</b-nav-item>
+          <b-nav-item v-if="canSeeOrganizationsTab" :to="newTerminologyEnabled ? '/organizations' : '/tenants'" exact exact-active-class="active">{{newTerminologyEnabled ? 'Organizations' : 'Tenants'}}</b-nav-item>
       </b-nav>
     </b-col>
 
@@ -48,14 +48,13 @@
 
       <router-view />
     </div>
-    <ProfileSettingsModal
-    :showModal.sync="showProfileSettingModal"/>
+    <ProfileSettingsModal :showModal.sync="showProfileSettingModal"/>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-import { myProfileEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
+import { myProfileEnabled, newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
 import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
 import AlertBox from '../arpa_reporter/components/AlertBox.vue';
 
@@ -73,14 +72,16 @@ export default {
   },
   computed: {
     ...mapGetters({
-      agency: 'users/agency',
       loggedInUser: 'users/loggedInUser',
       userRole: 'users/userRole',
-      selectedAgency: 'users/selectedAgency',
+      selectedTeam: 'users/selectedAgency',
       alerts: 'alerts/alerts',
     }),
-    canSeeTenantsTab() {
-      return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
+    canSeeOrganizationsTab() {
+      return true;
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
     },
     myProfileEnabled() {
       return myProfileEnabled();
