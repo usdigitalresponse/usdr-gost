@@ -4,12 +4,53 @@ on:
   push:
     branches:
       - main
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  workflow_dispatch:
+    inputs:
+      inspect_latest_release:
+        description: >-
+          Determines what may be used as the current/starting release version from which the next release version will be computed.
+          If true, attempts to find the latest release tag to use as the starting point.
+          If false (or no latest release tag exists), uses the most-recent release tag on `main`.
+          If no sources are able to provide a starting release version, assumes this is the first release.
+        type: boolean
+        default: true
 
 permissions:
   contents: read
 
 jobs:
-  update_release_draft:
+  label_pull_requests:
+    name: "Label pull requests"
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+      - name: "Run auto-labeler"
+        uses: release-drafter/release-drafter@09c613e259eb8d4e7c81c2cb00618eb5fc4575a7 # v5.25.0
+        with:
+          disable-releaser: true
+          disable-autolabeler: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  draft_release:
+    name: Create or update next release draft
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
       pull-requests: write
@@ -24,13 +65,28 @@ jobs:
             api.github.com:443
             github.com:443
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - name: "Determine next version"
-        id: next_version
+        with:
+          show-progress: false
+          persist-credentials: 'false'
+      - name: Get tag of "latest" release
+        id: latest_release
+        if: github.event_name != 'workflow_dispatch' || inputs.inspect_latest_release
+        run: echo "tag=$(gh release view --json tagName --jq .tagName)" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Determine next release version"
+        id: next_release
         run: |
           chmod +x .github/next_release_version.bash
-          echo "result=$(bash .github/next_release_version.bash)" >> $GITHUB_OUTPUT
-      - uses: release-drafter/release-drafter@09c613e259eb8d4e7c81c2cb00618eb5fc4575a7 # v5.25.0
+          echo "version=$(bash .github/next_release_version.bash $LATEST_TAG)" >> $GITHUB_OUTPUT
+        env:
+          LATEST_TAG: ${{ steps.latest_release.outputs.tag || '' }}
+      - name: "Generate release notes and label pull requests"
+        uses: release-drafter/release-drafter@09c613e259eb8d4e7c81c2cb00618eb5fc4575a7 # v5.25.0
+        with:
+          version: ${{ steps.next_release.outputs.version }}
+          publish: false
+          disable-releaser: false
+          disable-autolabeler: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          version: ${{ steps.next_version.outputs.result }}
