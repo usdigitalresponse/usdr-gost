@@ -10,6 +10,7 @@ const email = require('../../../../src/lib/email');
 const audit_report = require('../../../../src/arpa_reporter/lib/audit-report');
 const aws = require('../../../../src/lib/gost-aws');
 const { withTenantId } = require('../helpers/with-tenant-id');
+const { audit_report_data } = require('../fixtures/fixtures');
 
 function handleUploadFake(type) {
     if (type === 'success') {
@@ -29,6 +30,7 @@ describe('audit report generation', () => {
     afterEach(() => {
         sandbox.restore();
     });
+
     it('sendEmailWithLink creates a presigned url and sends email to recipient', async () => {
         const sendFake = sandbox.fake.returns('foo');
         sandbox.replace(email, 'sendAsyncReportEmail', sendFake);
@@ -79,6 +81,7 @@ describe('audit report generation', () => {
         expect(sendEmailFake.firstCall.firstArg).to.equal('0/99/example.xlsx');
         expect(sendEmailFake.firstCall.args[1]).to.equal('foo@example.com');
     });
+
     it('generateAndSendEmail does not send an email if upload fails', async () => {
         const sendFake = sandbox.fake.returns('foo');
         sandbox.replace(email, 'sendAsyncReportEmail', sendFake);
@@ -117,6 +120,43 @@ describe('audit report generation', () => {
 
         console.log('Asserting presigned and email function');
         expect(sendEmailFake.notCalled).to.equal(true);
+    });
+
+    it('generate audit report components', async () => {
+        const allData = audit_report_data;
+        const cachedData = Object.keys(audit_report_data).reduce((x, y) => { x[y] = audit_report_data[y].slice(0, -1); return x; }, {});
+        const dataWithCache = Object.keys(audit_report_data).reduce((x, y) => { x[y] = [audit_report_data[y][audit_report_data[y].length - 1]]; return x; }, {});
+        const periodId = 1;
+        const tenantId = 0;
+        const domain = 'test';
+
+        const obligationStub = sandbox.stub(audit_report, 'getObligationData');
+        obligationStub.returns(allData.obligations);
+        const obligationsNoCache = await audit_report.createObligationSheet(periodId, domain, tenantId, null);
+        obligationStub.returns(dataWithCache.obligations);
+        const obligationsWithCache = await audit_report.createObligationSheet(periodId, domain, tenantId, cachedData.obligations);
+        expect(JSON.stringify(obligationsNoCache)).to.equal(JSON.stringify(obligationsWithCache));
+
+        const projectSummariesStub = sandbox.stub(audit_report, 'getProjectSummariesData');
+        projectSummariesStub.returns(allData.projectSummaries);
+        const projectSummariesNoCache = await audit_report.createProjectSummariesSheet(periodId, domain, tenantId, null);
+        projectSummariesStub.returns(dataWithCache.projectSummaries);
+        const projectSummariesWithCache = await audit_report.createProjectSummariesSheet(periodId, domain, tenantId, cachedData.projectSummaries);
+        expect(JSON.stringify(projectSummariesNoCache)).to.equal(JSON.stringify(projectSummariesWithCache));
+
+        const projectSummaryGroupedByProjectStub = sandbox.stub(audit_report, 'getReportsGroupedByProjectData');
+        projectSummaryGroupedByProjectStub.returns(allData.projectSummaryGroupedByProject);
+        const projectSummaryGroupedByProjectNoCache = await audit_report.createReportsGroupedByProjectSheet(periodId, tenantId, null);
+        projectSummaryGroupedByProjectStub.returns(dataWithCache.projectSummaryGroupedByProject);
+        const projectSummaryGroupedByProjectWithCache = await audit_report.createReportsGroupedByProjectSheet(periodId, tenantId, cachedData.projectSummaryGroupedByProject);
+        expect(JSON.stringify(projectSummaryGroupedByProjectNoCache)).to.equal(JSON.stringify(projectSummaryGroupedByProjectWithCache));
+
+        const kpiDataStub = sandbox.stub(audit_report, 'getKpiDataGroupedByProjectData');
+        kpiDataStub.returns(allData.KPIDataGroupedByProject);
+        const kpiDataNoCache = await audit_report.createKpiDataGroupedByProjectSheet(periodId, tenantId, null);
+        kpiDataStub.returns(dataWithCache.KPIDataGroupedByProject);
+        const kpiDataWithCache = await audit_report.createKpiDataGroupedByProjectSheet(periodId, tenantId, cachedData.KPIDataGroupedByProject);
+        expect(JSON.stringify(kpiDataNoCache)).to.equal(JSON.stringify(kpiDataWithCache));
     });
 
     it('headers should be in the proper order', () => {
