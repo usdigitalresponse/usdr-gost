@@ -22,19 +22,19 @@
             </template>
             <b-dropdown-item href="#/my-profile">
               <b-icon icon="person-circle" scale="1" class="dropdown-icon"></b-icon>
-              My profile
+              <p class="dropdown-item-text">My profile</p>
             </b-dropdown-item>
             <b-dropdown-item-button href="#" @click="giveFeedback">
               <b-icon icon="chat-square-text" scale="1" class="dropdown-icon"></b-icon>
-              Give feedback
+              <p class="dropdown-item-text">Give feedback</p>
             </b-dropdown-item-button>
             <b-dropdown-item-button href="#" @click="trainingGuide">
               <b-icon icon="book" scale="1" class="dropdown-icon"></b-icon>
-              Training guide
+              <p class="dropdown-item-text">Training guide</p>
             </b-dropdown-item-button>
             <b-dropdown-item-button href="#" @click="logout">
               <b-icon icon="box-arrow-right" scale="1" class="dropdown-icon"></b-icon>
-              Sign out
+              <p class="dropdown-item-text">Sign out</p>
             </b-dropdown-item-button>
           </b-nav-item-dropdown>
           <b-nav-item-dropdown right v-if="loggedInUser && !myProfileEnabled">
@@ -145,6 +145,13 @@ export default {
 
 <style scoped lang="scss">
 .dropdown-icon {
-  margin-right: 0.5rem;
+  margin-right: 1rem;
+}
+
+.dropdown-item-text {
+  font-size: 14px;
+  display: inline;
+  text-align: left;
+  padding: 0;
 }
 </style>
