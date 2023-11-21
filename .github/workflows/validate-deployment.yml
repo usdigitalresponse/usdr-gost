@@ -1,0 +1,75 @@
+name: Validate commits for deployment
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      protected-ref:
+        type: string
+        required: true
+      deployment-ref:
+        type: string
+        required: true
+    outputs:
+      valid:
+        value: ${{ jobs.validate.result == 'skipped' || jobs.validate.result == 'success' }}
+  workflow_dispatch:
+    inputs:
+      protected-ref:
+        type: string
+        required: true
+      deployment-ref:
+        type: string
+        required: true
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    if: inputs.deployment-ref != inputs.protected-ref
+    env:
+      PROTECTED_REF: ${{ inputs.protected-ref }}
+      DEPLOYMENT_REF: ${{ inputs.deployment-ref }}
+    steps:
+      - uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          ref: ${{ env.PROTECTED_REF }}
+          show-progress: 'false'
+          persist-credentials: 'false'
+      - name: Count commits in candidate ref that are not in protected ref
+        id: all-cherries
+        run: |
+          $CHERRY_FILE=$(mktemp -t cherries.XXXXX)
+          git cherry -v "$PROTECTED_REF" "$DEPLOYMENT_REF" > $CHERRY_FILE
+          echo "count=$(cat $CHERRY_FILE | wc -l)" >> $GITHUB_OUTPUT
+          echo "file=$CHERRY_FILE" >> $GITHUB_OUTPUT
+      - name: Count commits that were not cherry-picked from protected ref
+        id: missing-cherries
+        run: echo "count=$(cat $CHERRY_FILE | grep -E '^[+]' | wc -l)" >> $GITHUB_OUTPUT
+        env:
+          CHERRY_FILE: ${{ steps.all-cherries.outputs.file }}
+      - name: Report outcome to step summary
+        run: |
+          echo "Result: $VALIDATION_RESULT" >> $GITHUB_STEP_SUMMARY
+          echo "Found $TOTAL_CHERRY_COUNT commits in $DEPLOYMENT_REF not in $PROTECTED_REF." >> $GITHUB_STEP_SUMMARY
+          echo "Of these, $INVALID_CHERRY_COUNT were not cherry-picked from $PROTECTED_REF." >> $GITHUB_STEP_SUMMARY
+          echo "Only commits from pull requests that were approved and merged to $PROTECTED_REF are eligible for deployment." >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat "$CHERRY_FILE" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+        env:
+          VALIDATION_RESULT: ${{ fromJson(steps.missing-cherries.outputs.count) == 0 && 'SUCCESS' || 'FAIL' }}
+          TOTAL_CHERRY_COUNT: ${{ steps.all-cherries.outputs.count }}
+          INVALID_CHERRY_COUNT: ${{ steps.missing-cherries.outputs.count }}
+      - name: Fail validation
+        if: fromJson(steps.missing-cherries.outputs.count) > 0
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            core.setFailed('Invalid commits detected')
