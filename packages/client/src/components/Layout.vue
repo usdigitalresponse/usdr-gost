@@ -15,31 +15,37 @@
             <b-badge>{{selectedAgency ? selectedAgency.name : ''}}</b-badge>
           </b-nav-text>
 
-          <b-nav-item-dropdown right v-if="loggedInUser" menu-class="w-100">
+          <b-nav-item-dropdown right v-if="loggedInUser && myProfileEnabled" menu-class="w-100">
             <!-- Using 'button-content' slot -->
             <template #button-content>
               <em>{{loggedInUser.email}}</em>
             </template>
-            <b-dropdown-item v-if="myProfileEnabled" href="#/my-profile">
+            <b-dropdown-item href="#/my-profile">
               <b-icon icon="person-circle" scale="1" class="dropdown-icon"></b-icon>
               My profile
             </b-dropdown-item>
-            <b-dropdown-item-button v-else href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
-            <b-dropdown-item-button v-if="myProfileEnabled" href="#" @click="giveFeedback">
+            <b-dropdown-item-button href="#" @click="giveFeedback">
               <b-icon icon="chat-square-text" scale="1" class="dropdown-icon"></b-icon>
               Give feedback
             </b-dropdown-item-button>
-            <b-dropdown-item-button v-else href="#" @click="giveFeedback">Give Feedback</b-dropdown-item-button>
-            <b-dropdown-item-button v-if="myProfileEnabled" href="#" @click="trainingGuide">
+            <b-dropdown-item-button href="#" @click="trainingGuide">
               <b-icon icon="book" scale="1" class="dropdown-icon"></b-icon>
               Training guide
             </b-dropdown-item-button>
-            <b-dropdown-item-button v-else href="#" @click="trainingGuide">Training Guide</b-dropdown-item-button>
-            <b-dropdown-item-button v-if="myProfileEnabled" href="#" @click="logout">
+            <b-dropdown-item-button href="#" @click="logout">
               <b-icon icon="box-arrow-right" scale="1" class="dropdown-icon"></b-icon>
               Sign out
             </b-dropdown-item-button>
-            <b-dropdown-item-button v-else href="#" @click="logout">Sign Out</b-dropdown-item-button>
+          </b-nav-item-dropdown>
+          <b-nav-item-dropdown right v-if="loggedInUser && !myProfileEnabled">
+            <!-- Using 'button-content' slot -->
+            <template #button-content>
+              <em>{{loggedInUser.email}}</em>
+            </template>
+            <b-dropdown-item-button href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="giveFeedback">Give Feedback</b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="trainingGuide">Training Guide</b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
