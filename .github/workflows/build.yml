@@ -136,6 +136,7 @@ jobs:
         uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         with:
           context: .
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           push: ${{ inputs.server-image-push }}
           file: docker/production-api.Dockerfile
           platforms: linux/amd64,linux/arm64
