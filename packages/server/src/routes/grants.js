@@ -80,6 +80,7 @@ router.get('/next', requireUser, async (req, res) => {
         orderingParams,
         user.tenant_id,
         user.agency_id,
+        false,
     );
 
     return res.json(grants);
@@ -121,6 +122,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
         orderingParams,
         user.tenant_id,
         user.agency_id,
+        true,
     );
 
     // Generate CSV
@@ -155,7 +157,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             { key: 'title', header: 'Title' },
             { key: 'viewed_by', header: 'Viewed By' },
             { key: 'interested_agencies', header: 'Interested Teams' },
-            { key: 'opportunity_status', header: 'Status' },
+            { key: 'opportunity_status', header: 'Opportunity Status' },
             { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },
             { key: 'award_ceiling', header: 'Award Ceiling' },
@@ -164,6 +166,10 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             { key: 'agency_code', header: 'Agency Code' },
             { key: 'grant_id', header: 'Grant Id' },
             { key: 'url', header: 'URL' },
+            { key: 'funding_type', header: 'Funding Type' },
+            { key: 'bill', header: 'Appropriations Bill' },
+            { key: 'agency_code', header: 'Agency Code' },
+            { key: 'eligibility', header: 'Eligibility' },
         ],
     });
 
