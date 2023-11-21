@@ -34,15 +34,6 @@
   </section>
 </template>
 <style scoped>
-.color-gray {
-  color: #757575
-}
-.color-red {
-  color: #ae1818;
-}
-.color-green {
-  color: green;
-}
 .gutter-icon.row {
     margin-right: -8px;
     margin-left: -8px;
@@ -85,11 +76,11 @@ export default {
           formatter: 'formatDate',
           thStyle: { width: '20%' },
           tdStyle: {
-            color: '#ae1818',
+            color: '#C22E31',
             fontWeight: 'bold',
           },
           trStyle: {
-            color: '#aa8866',
+            color: '#956F0D',
             fontWeight: 'bold',
           },
           tlStyle: {

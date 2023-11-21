@@ -1,10 +1,7 @@
 <template>
   <section class="container-fluid">
     <b-row>
-      <b-col>
-        <h2>Users</h2>
-      </b-col>
-      <b-col></b-col>
+      <b-col class="m-2"><h2 class="h4">Users</h2></b-col>
       <b-col class="d-flex justify-content-end">
         <div>
           <b-button variant="success" size="sm" class="mr-1" @click="openAddUserModal">Add</b-button>

@@ -62,7 +62,7 @@
                   <div v-if="field.key === 'close_date' && yellowDate === true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="field.key === 'close_date' && redDate === true" :style="field.tdStyle" v-text="value"></div>
                   <div v-if="field.key === 'close_date' && blackDate === true" :style="field.tlStyle" v-text="value"></div>
-                  <div v-if="(grantsAndIntAgens[index]) && (field.key === 'title') && (value === grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
+                  <div v-if="(grantsAndIntAgens[index]) && (field.key === 'title') && (value === grantsAndIntAgens[index].title)" :style="{color:'#6D7278'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
               <div v-if="totalUpcomingGrants > 3">
@@ -117,19 +117,6 @@
 </template>
 
 <style scoped>
-.color-gray{
-  color: #757575;
-}
-.color-yellow{
-  color: #aa8866;
-}
-.color-red{
-  color: #ae1818;
-}
-
-.color-green {
-  color: green;
-}
 .gutter-icon.row {
     margin-right: -8px;
     margin-left: -8px;
@@ -203,14 +190,14 @@ export default {
           formatter: 'formatDate',
           thStyle: { width: '20%' },
           tdStyle: {
-            color: '#ae1818',
+            color: '#C22E31',
             fontWeight: 'bold',
           },
           tlStyle: {
             color: 'black',
           },
           trStyle: {
-            color: '#aa8866',
+            color: '#956F0D',
             fontWeight: 'bold',
           },
           fontWeight: 'bold',
@@ -247,7 +234,7 @@ export default {
           sortByFormatted: false,
           formatter: 'formatMoney',
           style: {
-            color: '#757575',
+            color: '#6D7278',
           },
           class: 'text-right',
         },

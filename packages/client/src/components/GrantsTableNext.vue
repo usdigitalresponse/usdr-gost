@@ -303,7 +303,7 @@ export default {
       }
     },
     notifyError() {
-      this.$bvToast.toast('We encountered an error while retriving grants data. For the most accurate results please refresh the page and try again.', {
+      this.$bvToast.toast('We encountered an error while retrieving grants data. For the most accurate results please refresh the page and try again.', {
         title: 'Something went wrong',
         variant: 'danger',
         solid: true,

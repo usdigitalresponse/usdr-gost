@@ -59,18 +59,6 @@
   </section>
 </template>
 <style scoped>
-.color-gray {
-  color: #757575
-}
-.color-red {
-  color: #ae1818;
-}
-.color-green {
-  color: green;
-}
-.color-yellow{
-  color: #aa8866;
-}
 .gutter-icon.row {
     margin-right: -8px;
     margin-left: -8px;

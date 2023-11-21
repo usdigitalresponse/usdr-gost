@@ -71,9 +71,11 @@ export default {
 };
 
 </script>
-<style>
+<style lang="scss">
+@import '../../scss/colors-semantic-tokens.scss';
+
 .inactiveLink {
   pointer-events: none;
-  color: grey;
+  color: $text-placeholder;
 }
 </style>

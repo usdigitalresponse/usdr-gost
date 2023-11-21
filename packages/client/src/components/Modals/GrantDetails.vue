@@ -1,12 +1,11 @@
 <!-- eslint-disable max-len -->
 <template>
-  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.title" @hide="resetSelectedGrant"
-    scrollable size="lg" header-bg-variant="primary" header-text-variant="light" body-bg-variant="light"
-    body-text-variant="dark" footer-bg-variant="dark" footer-text-variant="light">
+  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.grant_number" @hide="resetSelectedGrant"
+    scrollable size="xl">
     <div v-if="selectedGrant">
       <b-row>
         <b-col cols="8">
-          <h3>Grant Number: {{ selectedGrant.grant_number }}</h3>
+          <h1 class="mb-0 h2">{{ selectedGrant.title }}</h1>
         </b-col>
         <b-col cols="4" class="text-right">
           <b-button :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
@@ -15,15 +14,15 @@
           </b-button>
         </b-col>
       </b-row>
-      <p><span style="font-weight:bold">Valid from:</span> {{ new
+      <p><span class="data-label">Valid from:</span> {{ new
           Date(selectedGrant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
       }}-{{ new
     Date(selectedGrant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
 }}</p>
       <div v-for="field in dialogFields" :key="field">
-        <p><span style="font-weight:bold">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
+        <p><span class="data-label">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
       </div>
-      <h6>Description</h6>
+      <p class="data-label">Description:</p>
       <div style="max-height: 170px; overflow-y: scroll">
         <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
       </div>
