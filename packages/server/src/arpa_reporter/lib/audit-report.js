@@ -1,16 +1,14 @@
 const tracer = require('dd-trace');
 const ps = require('node:process');
-const path = require('path');
 const moment = require('moment');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
-const fs = require('fs/promises');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const { log } = require('../../lib/logging');
 const aws = require('../../lib/gost-aws');
 const { ec } = require('./format');
 
-const { getPreviousReportingPeriods, getAllReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
+const { getPreviousReportingPeriods, getAllReportingPeriods } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
 const {
     recordsForProject, recordsForReportingPeriod, recordsForUpload, EC_SHEET_TYPES,
@@ -19,7 +17,6 @@ const { usedForTreasuryExport } = require('../db/uploads');
 const { ARPA_REPORTER_BASE_URL } = require('../environment');
 const email = require('../../lib/email');
 const { useTenantId } = require('../use-request');
-const { cacheFSName } = require('../services/persist-upload');
 const { getUser, knex } = require('../../db');
 
 const REPORTING_DATE_FORMAT = 'MM-DD-yyyy';
@@ -61,18 +58,10 @@ function getUploadLink(domain, id, filename) {
     return { f: `=HYPERLINK("${domain}/uploads/${id}","${filename}")` };
 }
 
-async function createObligationSheet(periodId, domain, tenantId, dataBefore = null, logger = log) {
-    const calculatePriorPeriods = dataBefore == null;
-    const data = await module.exports.getObligationData(periodId, domain, tenantId, calculatePriorPeriods, logger);
-    return [...data, ...(dataBefore ?? [])].sort((a, b) => (a['Period End Date'] - b['Period End Date']));
-}
-
-async function getObligationData(periodId, domain, tenantId, calculatePriorPeriods = true, logger = log) {
+async function createObligationSheet(periodId, domain, tenantId, logger = log) {
     logger.info('building rows for spreadsheet');
     // select active reporting periods and sort by date
-    const reportingPeriods = calculatePriorPeriods
-        ? await getPreviousReportingPeriods(periodId, undefined, tenantId)
-        : [await getReportingPeriod(periodId, undefined, tenantId)];
+    const reportingPeriods = await getPreviousReportingPeriods(periodId, undefined, tenantId);
     logger.fields.sheet.totalReportingPeriods = reportingPeriods.length;
     logger.info('retrieved previous reporting periods');
 
@@ -150,13 +139,7 @@ async function getObligationData(periodId, domain, tenantId, calculatePriorPerio
     return rows;
 }
 
-async function createProjectSummariesSheet(periodId, domain, tenantId, dataBefore = null, logger = log) {
-    const calculatePriorPeriods = dataBefore == null;
-    const data = await module.exports.getProjectSummariesData(periodId, domain, tenantId, calculatePriorPeriods, logger);
-    return [...data, ...(dataBefore ?? [])].sort((a, b) => (a['Project ID'] - b['Project ID']));
-}
-
-async function getProjectSummariesData(periodId, domain, tenantId, calculatePriorPeriods, logger = log) {
+async function createProjectSummaries(periodId, domain, tenantId, logger = log) {
     logger.info('building rows for spreadsheet');
     const uploads = await knex('uploads')
         .select({
@@ -259,33 +242,9 @@ function getRecordsByProject(records) {
     }, {});
 }
 
-async function createReportsGroupedByProjectSheet(periodId, tenantId, dataBefore = null, dateFormat = REPORTING_DATE_FORMAT, logger = log) {
-    const calculatePriorPeriods = dataBefore == null;
-    const projects = await module.exports.getReportsGroupedByProjectData(periodId, tenantId, calculatePriorPeriods, dateFormat, logger);
-    // go through each one and combine the columns
-    if (dataBefore !== null && dataBefore.length > 0) {
-        const dataBeforeRemaining = [...dataBefore];
-        for (let i = 0; i < projects.length; i += 1) {
-            // check if we have this elsewhere
-            const project = projects[i];
-            const index = dataBefore.findIndex((x) => x['Project ID'] === project['Project ID']);
-            for (let y = 0; (index !== -1) && (y < dataBeforeRemaining.length); y += 1) {
-                if (dataBeforeRemaining[y]['Project ID'] === project['Project ID']) {
-                    project['Capital Expenditure Amount'] += dataBeforeRemaining[y]['Capital Expenditure Amount'] ?? 0;
-                    projects[i] = { ...dataBeforeRemaining[y], ...project };
-                    delete dataBeforeRemaining[y];
-                }
-            }
-        }
-        return [...projects, ...dataBeforeRemaining.filter((x) => x)].sort((a, b) => (a['Project ID'] - b['Project ID']));
-    }
-
-    return projects;
-}
-
-async function getReportsGroupedByProjectData(periodId, tenantId, calculatePriorPeriods, dateFormat = REPORTING_DATE_FORMAT, logger = log) {
+async function createReportsGroupedByProject(periodId, tenantId, dateFormat = REPORTING_DATE_FORMAT, logger = log) {
     logger.info('building rows for spreadsheet');
-    const records = await recordsForProject(periodId, tenantId, calculatePriorPeriods);
+    const records = await recordsForProject(periodId, tenantId);
     logger.fields.sheet.totalRecords = records.length;
     logger.info('retrieved records for projects');
     const recordsByProject = getRecordsByProject(records);
@@ -356,34 +315,9 @@ async function getReportsGroupedByProjectData(periodId, tenantId, calculatePrior
     return rows;
 }
 
-async function createKpiDataGroupedByProjectSheet(periodId, tenantId, dataBefore = null, logger = log) {
-    const calculatePriorPeriods = dataBefore == null;
-    const rows = await module.exports.getKpiDataGroupedByProjectData(periodId, tenantId, calculatePriorPeriods, logger);
-    // go through each one and combine the columns
-    if (dataBefore != null && dataBefore.length > 0) {
-        const dataBeforeRemaining = [...dataBefore];
-        for (let i = 0; i < rows.length; i += 1) {
-            // check if we have this elsewhere
-            const row = rows[i];
-            const index = dataBefore.findIndex((x) => x['Project ID'] === row['Project ID']);
-            for (let y = 0; (index !== -1) && (y < dataBeforeRemaining.length); y += 1) {
-                if (dataBeforeRemaining[y]['Project ID'] === row['Project ID']) {
-                    const rowBefore = dataBeforeRemaining[y];
-                    row['Number of Subawards'] += rowBefore['Number of Subawards'];
-                    row['Number of Expenditures'] += rowBefore['Number of Expenditures'];
-                    row['Evidence Based Total Spend'] += rowBefore['Evidence Based Total Spend'];
-                    delete dataBeforeRemaining[y];
-                }
-            }
-        }
-        return [...rows, ...dataBeforeRemaining.filter((x) => x)].sort((a, b) => (a['Project ID'] - b['Project ID']));
-    }
-    return rows;
-}
-
-async function getKpiDataGroupedByProjectData(periodId, tenantId, calculatePriorPeriods, logger = log) {
+async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
     logger.info('building rows for spreadsheet');
-    const records = await recordsForProject(periodId, tenantId, calculatePriorPeriods);
+    const records = await recordsForProject(periodId, tenantId);
     logger.fields.sheet.totalRecords = records.length;
     logger.info('retrieved records for project');
     const recordsByProject = getRecordsByProject(records);
@@ -476,97 +410,7 @@ function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
     return headers;
 }
 
-async function runCache(domain, tenantId, reportingPeriod, periodId = null) {
-    if (reportingPeriod == null) {
-        const reportingPeriods = await getPreviousReportingPeriods(periodId);
-        const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
-        reportingPeriod = previousReportingPeriods
-            .reduce((a, b) => (a.id > b.id ? a : b));
-    }
-    const cacheFilename = cacheFSName(reportingPeriod, tenantId);
-    const data = await module.exports.generateSheets(reportingPeriod.id, domain, tenantId, null);
-    const jsonData = JSON.stringify(data);
-    await fs.mkdir(path.dirname(cacheFilename), { recursive: true });
-    await fs.writeFile(cacheFilename, jsonData, { flag: 'wx' });
-    return data;
-}
-
-function reviveDate(key, value) {
-    // Matches strings like "2022-08-25T09:39:19.288Z"
-    const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
-    return typeof value === 'string' && isoDateRegex.test(value)
-        ? new Date(value)
-        : value;
-}
-
-async function getCache(periodId, domain, tenantId, force = false, logger = log) {
-    // check if the cache file exists. if not, let's generate it
-    const reportingPeriods = await getPreviousReportingPeriods(periodId);
-    const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
-    if (previousReportingPeriods.length === 0) {
-        return { };
-    }
-    const mostRecentPreviousReportingPeriod = previousReportingPeriods
-        .reduce((a, b) => (moment(a.start_date) > moment(b.start_date) ? a : b));
-    const cacheFilename = cacheFSName(mostRecentPreviousReportingPeriod, tenantId);
-    let data = { };
-    try {
-        if (force) {
-            throw new Error('forcing the cache');
-        }
-        const cacheData = await fs.readFile(cacheFilename, { encoding: 'utf-8' });
-        data = JSON.parse(cacheData, reviveDate);
-        logger.info(`Cache hit for ${tenantId}`);
-    } catch (err) {
-        logger.info(`Cache miss for ${tenantId}`);
-        data = await runCache(domain, tenantId, mostRecentPreviousReportingPeriod);
-    }
-    return data;
-}
-
-async function generateSheets(periodId, domain, tenantId = useTenantId(), dataBefore = null, logger = log) {
-    // generate sheets data
-    const obligations = await tracer.trace('createObligationSheet',
-        async () => createObligationSheet(
-            periodId,
-            domain,
-            tenantId,
-            dataBefore?.obligations,
-            logger.child({ sheet: { name: 'Obligations & Expenditures' } }),
-        ));
-    const projectSummaries = await tracer.trace('createProjectSummariesSheet',
-        async () => createProjectSummariesSheet(
-            periodId,
-            domain,
-            tenantId,
-            dataBefore?.projectSummaries,
-            logger.child({ sheet: { name: 'Project Summaries' } }),
-        ));
-    const projectSummaryGroupedByProject = await tracer.trace('createReportsGroupedByProjectSheet',
-        async () => createReportsGroupedByProjectSheet(
-            periodId,
-            tenantId,
-            dataBefore?.projectSummaryGroupedByProject,
-            REPORTING_DATE_FORMAT,
-            logger.child({ sheet: { name: 'Project Summaries V2' } }),
-        ));
-    const KPIDataGroupedByProject = await tracer.trace('createKpiDataGroupedByProject',
-        async () => createKpiDataGroupedByProjectSheet(
-            periodId,
-            tenantId,
-            dataBefore?.KPIDataGroupedByProject,
-            logger.child({ sheet: { name: 'KPI' } }),
-        ));
-
-    return {
-        obligations,
-        projectSummaries,
-        projectSummaryGroupedByProject,
-        KPIDataGroupedByProject,
-    };
-}
-
-async function generate(requestHost, tenantId, cache = true) {
+async function generate(requestHost, tenantId) {
     const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
     return tracer.trace('generate()', async () => {
         const periodId = await getCurrentReportingPeriodID(undefined, tenantId);
@@ -575,15 +419,34 @@ async function generate(requestHost, tenantId, cache = true) {
         });
         logger.info('determined current reporting period ID for workbook');
 
-        const dataBefore = cache
-            ? await module.exports.getCache(periodId, domain, tenantId, false, logger)
-            : null;
-        const {
-            obligations,
-            projectSummaries,
-            projectSummaryGroupedByProject,
-            KPIDataGroupedByProject,
-        } = await module.exports.generateSheets(periodId, domain, tenantId, dataBefore);
+        // generate sheets data
+        const obligations = await tracer.trace('createObligationSheet',
+            async () => createObligationSheet(
+                periodId,
+                domain,
+                tenantId,
+                logger.child({ sheet: { name: 'Obligations & Expenditures' } }),
+            ));
+        const projectSummaries = await tracer.trace('createProjectSummaries',
+            async () => createProjectSummaries(
+                periodId,
+                domain,
+                tenantId,
+                logger.child({ sheet: { name: 'Project Summaries' } }),
+            ));
+        const projectSummaryGroupedByProject = await tracer.trace('createReportsGroupedByProject',
+            async () => createReportsGroupedByProject(
+                periodId,
+                tenantId,
+                REPORTING_DATE_FORMAT,
+                logger.child({ sheet: { name: 'Project Summaries V2' } }),
+            ));
+        const KPIDataGroupedByProject = await tracer.trace('createKpiDataGroupedByProject',
+            async () => createKpiDataGroupedByProject(
+                periodId,
+                tenantId,
+                logger.child({ sheet: { name: 'KPI' } }),
+            ));
 
         // compose workbook
         const workbook = tracer.trace('compose-workbook', () => {
@@ -705,17 +568,6 @@ module.exports = {
     processSQSMessageRequest,
     sendEmailWithLink,
     createHeadersProjectSummariesV2,
-    generateSheets,
-    getCache,
-
-    createObligationSheet,
-    getObligationData,
-    createProjectSummariesSheet,
-    getProjectSummariesData,
-    createReportsGroupedByProjectSheet,
-    getReportsGroupedByProjectData,
-    createKpiDataGroupedByProjectSheet,
-    getKpiDataGroupedByProjectData,
 };
 
 // NOTE: This file was copied from src/server/lib/audit-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
