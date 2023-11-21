@@ -221,6 +221,7 @@ import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
 import Multiselect from 'vue-multiselect';
 import { billOptions } from '@/helpers/constants';
+import { DateTime } from 'luxon';
 
 const defaultCriteria = {
   includeKeywords: null,
@@ -371,16 +372,13 @@ export default {
         this.formData.criteria = { ...criteria };
       } else {
         this.formData.searchId = null;
-        this.formData.searchTitle = `My Saved Search ${this.getNextSearchId()}`;
+        const now = DateTime.now();
+        this.formData.searchTitle = `${now.toLocaleString(DateTime.DATE_SHORT)} - ${now.toLocaleString(DateTime.TIME_WITH_SECONDS)}`;
         this.formData.criteria = { ...defaultCriteria };
       }
     },
     onShown() {
       this.initFormState();
-    },
-    getNextSearchId() {
-      const searchIds = this.savedSearches.data.map((s) => s.id);
-      return Math.max(...searchIds, 0) + 1;
     },
     async onEnter() {
       if (this.saveEnabled) {

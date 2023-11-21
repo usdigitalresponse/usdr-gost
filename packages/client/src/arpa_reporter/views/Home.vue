@@ -3,16 +3,13 @@
     <div class="row">
       <AlertBox v-if="alert" :text="alert.text" :level="alert.level" v-on:dismiss="clearAlert" />
     </div>
-    <div class="row" v-if="isAdmin">
-      <AlertBox text="Service Interruption - Please reach out to grants-helpdesk@usdigitalresponse.org for treasury report generation." level="err" />
-    </div>
     <div class="row mt-5 mb-5" v-if="viewingOpenPeriod">
       <div class="col" v-if="this.$route.query.sync_treasury_download && isAdmin">
         <DownloadButton :href="downloadTreasuryReportURL()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
       </div>
 
       <div class="col" v-if="isAdmin">
-        <button disabled title="Please reach out to grants-helpdesk@usdigitalresponse.org for the treasury report." class="btn btn-primary btn-block" @click="sendTreasuryReport">
+        <button class="btn btn-primary btn-block" @click="sendTreasuryReport" :disabled="sending" id="sendTreasuryReportButton">
           <span v-if="sending">Sending...</span>
           <span v-else>Send Treasury Report by Email</span>
         </button>
@@ -23,14 +20,14 @@
       </div>
 
       <div class="col" v-if="isAdmin">
-        <button class="btn btn-info btn-block" @click="sendAuditReport" :disabled="sending">
+        <button class="btn btn-info btn-block" @click="sendAuditReport" :disabled="sending" id="sendAuditReportButton">
           <span v-if="sending">Sending...</span>
           <span v-else>Send Audit Report by Email</span>
         </button>
       </div>
 
       <div class="col">
-        <button @click.prevent="startUpload" class="btn btn-primary btn-block">Submit Workbook</button>
+        <button @click.prevent="startUpload" class="btn btn-primary btn-block" id="submitWorkbookButton">Submit Workbook</button>
       </div>
 
       <div class="col">
@@ -39,12 +36,12 @@
     </div>
 
     <div class="row border border-danger rounded m-3 mb-3 p-3" v-else>
-      <div class="col">
+      <div class="col" id="closedReportingPeriodMessage">
         This reporting period is closed.
       </div>
     </div>
 
-    <p>
+    <p id="welcomeToArpaReporter">
       Welcome to the ARPA reporter.
       To get started, click the "Download Empty Template" button, above, to get a copy of an empty template for reporting.
     </p>
@@ -80,9 +77,6 @@ export default {
     },
     viewingOpenPeriod() {
       return this.$store.getters.viewPeriodIsCurrent;
-    },
-    isClosed() {
-      return !(this.$store.getters.viewPeriodIsCurrent);
     },
   },
   data() {
@@ -143,7 +137,7 @@ export default {
       this.sending = true;
 
       try {
-        const result = await getJson('/api/exports?async=true');
+        const result = await getJson('/api/exports?queue=true');
 
         if (result.error) {
           this.alert = {

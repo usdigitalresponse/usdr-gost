@@ -102,11 +102,9 @@ export default {
         },
         {
           key: 'viewed_by',
-          sortable: true,
         },
         {
           key: 'interested_agencies',
-          sortable: true,
         },
         {
           // opportunity_status

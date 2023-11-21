@@ -477,11 +477,10 @@ describe('`/api/grants` endpoint', () => {
                 'Opportunity Number',
                 'Title',
                 'Viewed By',
-                'Interested Agencies',
+                'Interested Teams',
                 'Status',
                 'Opportunity Category',
                 'Cost Sharing',
-                'Award Floor',
                 'Award Ceiling',
                 'Posted Date',
                 'Close Date',
@@ -591,7 +590,7 @@ describe('`/api/grants` endpoint', () => {
             const query = '?searchTerm=333816';
             const response = await fetchApi(`/grants/exportCSV${query}`, agencies.own, fetchOptions.staff);
 
-            const expectedCsv = `Opportunity Number,Title,Viewed By,Interested Agencies,Status,Opportunity Category,Cost Sharing,Award Floor,Award Ceiling,Posted Date,Close Date,Agency Code,Grant Id,URL
+            const expectedCsv = `Opportunity Number,Title,Viewed By,Interested Teams,Status,Opportunity Category,Cost Sharing,Award Ceiling,Posted Date,Close Date,Agency Code,Grant Id,URL
 HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
 
             expect(response.statusText).to.equal('OK');
@@ -767,6 +766,14 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             it('with empty excludeKeywords', async () => {
                 const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=rank&criteria[excludeKeywords]=&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
                 expect(response.statusText).to.equal('OK');
+            });
+            it('orderBy viewed_by is a 400 error', async () => {
+                const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=viewed_by&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
+                expect(response.status).to.equal(400);
+            });
+            it('orderBy interested_agencies is a 400 error', async () => {
+                const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=interested_agencies&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
+                expect(response.status).to.equal(400);
             });
         });
     });

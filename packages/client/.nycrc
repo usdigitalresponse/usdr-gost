@@ -1,0 +1,4 @@
+{
+    "include": "src/**",
+    "extension": [".js", ".vue"]
+}

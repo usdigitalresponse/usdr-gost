@@ -1,29 +1,69 @@
 <template>
-  <section style="max-width: 516px;" class="mx-auto my-5 px-2">
+  <main style="max-width: 516px;" class="mx-auto my-5 px-2">
     <h2>My Profile</h2>
-    <b-row style="margin-top: 4rem;">
-      <b-col>
-        <b-avatar :text="initials" size="5rem"></b-avatar>
-      </b-col>
-      <b-col cols="7">
-        <p class="mb-2 h6"><b>{{ name }}</b></p>
-        <p class="mb-2">{{ email }}</p>
-        <p class="mb-2">{{ agency }}</p>
-      </b-col>
-      <b-col class="text-end">
-        <b-button variant="primary" size="md">
-          <b-icon icon="pencil-fill" scale="0.8"></b-icon>
-          <span class="ml-1">Edit</span>
-        </b-button>
-      </b-col>
-    </b-row>
-  </section>
+    <section style="margin-top: 4rem;">
+      <b-row>
+        <b-col>
+          <b-avatar :text="initials" size="5rem"></b-avatar>
+        </b-col>
+        <b-col cols="7">
+          <p class="mb-2 h6"><b>{{ name }}</b></p>
+          <p class="mb-2">{{ email }}</p>
+          <p class="mb-2">{{ agency }}</p>
+        </b-col>
+        <b-col class="text-end">
+          <b-button variant="primary" size="md" @click="$bvModal.show('edit-user-modal')">
+            <b-icon icon="pencil-fill" scale="0.8"></b-icon>
+            <span class="ml-1">Edit</span>
+          </b-button>
+        </b-col>
+      </b-row>
+    </section>
+    <section style="margin-top: 3.5rem;">
+      <h3 style="margin-bottom: 1.5rem;">Email Notifications</h3>
+      <b-row  v-for="pref in prefs" :key="pref.key" >
+        <b-col cols="11">
+          <p class="mb-0">{{ pref.name }}</p>
+          <p class="pref-description">{{ pref.description }}</p>
+        </b-col>
+        <b-col cols="1">
+          <b-form-checkbox switch v-model="pref.checked" @change="onUpdateEmailPreference(pref)"></b-form-checkbox>
+        </b-col>
+      </b-row>
+    </section>
+    <EditUserModal/>
+  </main>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
+import EditUserModal from '@/components/Modals/EditUser.vue';
 
 export default {
+  components: {
+    EditUserModal,
+  },
+  data() {
+    return {
+      prefs: [
+        {
+          name: 'New Grant Digest',
+          key: 'GRANT_DIGEST',
+          description: 'Send me a daily email if new grants match my saved search(es).',
+        },
+        {
+          name: 'Grants Assignment',
+          key: 'GRANT_ASSIGNMENT',
+          description: 'Send me notifications if a grant has been assigned to my USDR Grants team.',
+        },
+        {
+          name: 'Occasional Updates',
+          key: 'GRANT_FINDER_UPDATES',
+          description: 'Send me occasional emails about feature releases, surveys, and other updates.',
+        },
+      ],
+    };
+  },
   computed: {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
@@ -43,6 +83,36 @@ export default {
       const lastName = fullNameArr.at(-1);
       return (firstName[0] + lastName[0]).toUpperCase();
     },
+    emailPreferences() {
+      return this.loggedInUser.emailPreferences;
+    },
+  },
+  methods: {
+    ...mapActions({
+      updateEmailSubscriptionPreferences: 'users/updateEmailSubscriptionPreferences',
+    }),
+    onUpdateEmailPreference(pref) {
+      const updatedPreferences = {
+        ...this.emailPreferences,
+        [pref.key]: pref.checked ? 'SUBSCRIBED' : 'UNSUBSCRIBED',
+      };
+      this.updateEmailSubscriptionPreferences({
+        userId: this.loggedInUser.id,
+        preferences: updatedPreferences,
+      });
+    },
+  },
+  beforeMount() {
+    this.prefs.forEach((pref) => {
+      // eslint-disable-next-line no-param-reassign
+      pref.checked = this.emailPreferences[pref.key] === 'SUBSCRIBED';
+    });
   },
 };
 </script>
+<style>
+  .pref-description {
+    font-size: 12px;
+    margin-bottom: 2rem;
+  }
+</style>

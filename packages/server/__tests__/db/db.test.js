@@ -650,6 +650,32 @@ describe('db', () => {
             );
             expect(result).to.have.property('data').with.lengthOf(1);
         });
+        it('gets grants that match any include keywords in title but are excluded based description', async () => {
+            let result = await db.getGrantsNew(
+                {
+                    includeKeywords: ['community', 'health'],
+                },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: true },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(1);
+            expect(result.data[0].title).to.contain('Community');
+            expect(result.data[0].description).to.contain('Covid');
+
+            result = await db.getGrantsNew(
+                {
+                    includeKeywords: ['community', 'health'],
+                    excludeKeywords: ['covid'],
+                },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: true },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(0);
+        });
         it('gets grants that match any include phrases', async () => {
             const result = await db.getGrantsNew(
                 { includeKeywords: ['earth sciences'] },
@@ -847,6 +873,25 @@ describe('db', () => {
             expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
             expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
             await db.deleteUser(response.id);
+        });
+    });
+
+    context('updateUser', () => {
+        it('Updates user\'s name', async () => {
+            const user = await db.createUser(
+                {
+                    email: 'foo@example.com',
+                    name: 'sample name',
+                    role_id: fixtures.roles.adminRole.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    tenant_id: fixtures.tenants.SBA.id,
+                    id: 99991,
+                },
+            );
+            const NAME = 'new name';
+            const updatedUser = await db.updateUser({ id: user.id, name: NAME });
+            expect(updatedUser.name).to.equal(NAME);
+            await db.deleteUser(user.id);
         });
     });
 
