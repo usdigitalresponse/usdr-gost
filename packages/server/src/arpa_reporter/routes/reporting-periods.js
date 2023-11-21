@@ -31,7 +31,6 @@ const { usedForTreasuryExport } = require('../db/uploads');
 const { ensureAsyncContext } = require('../lib/ensure-async-context');
 
 const { revalidateUploads } = require('../services/revalidate-uploads');
-const { runCache } = require('../lib/audit-report');
 
 router.get('/', requireUser, async (req, res) => {
     const periods = await getAllReportingPeriods();
@@ -51,13 +50,6 @@ router.post('/close', requireAdminUser, async (req, res) => {
         trns.commit();
     } catch (err) {
         if (!trns.isCompleted()) trns.rollback();
-        res.status(500).json({ error: err.message });
-        return;
-    }
-
-    try {
-        runCache(req.headers.host ?? '', period);
-    } catch (err) {
         res.status(500).json({ error: err.message });
         return;
     }
