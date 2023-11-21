@@ -105,6 +105,25 @@ router.get('/', requireUser, async (req, res) => {
     res.send(Buffer.from(report.outputWorkBook, 'binary'));
 });
 
+router.post('/refresh-cache', async (req, res) => {
+    console.log('/api/audit-report/refresh-cache POST');
+    try {
+        await audit_report.runCache(
+            req.headers.host ?? '',
+            req.body.tenantId,
+        );
+        console.log('Successfully cached report');
+    } catch (error) {
+    // In addition to sending the error message in the 500 response, log the full error stacktrace
+        console.log(`Could not cache report`, error);
+        res.status(500).send(error.message);
+        return;
+    }
+    res.json({
+        status: 'OK',
+    });
+});
+
 module.exports = router;
 
 /*                                  *  *  *                                   */

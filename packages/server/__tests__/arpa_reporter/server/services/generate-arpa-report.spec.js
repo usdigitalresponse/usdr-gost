@@ -1,12 +1,21 @@
 const assert = require('assert');
 
 const { generateReport } = require('../../../../src/arpa_reporter/services/generate-arpa-report');
+const { generate } = require('../../../../src/arpa_reporter/lib/audit-report');
 const { withTenantId } = require('../helpers/with-tenant-id');
 
 describe('arpa report generation', () => {
     it('generates a report', async () => {
         const tenantId = 0;
         const report = await withTenantId(tenantId, () => generateReport(1));
+        assert.ok(report);
+    });
+});
+
+describe('audit report generation', () => {
+    it('generates a report', async () => {
+        const tenantId = 0;
+        const report = await withTenantId(tenantId, () => generate('http://localhost'));
         assert.ok(report);
     });
 });
