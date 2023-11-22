@@ -59,7 +59,7 @@ router.get('/', requireUser, async (req, res) => {
             const sqs = aws.getSQSClient();
             await sqs.send(new SendMessageCommand({
                 QueueUrl: process.env.ARPA_AUDIT_REPORT_SQS_QUEUE_URL,
-                MessageBody: JSON.stringify({ userId: user.id }),
+                MessageBody: JSON.stringify({ userId: user.id, ...(req.query.period_id && { periodId: req.query.period_id }) }),
             }));
             res.json({ success: true });
             return;
@@ -76,7 +76,7 @@ router.get('/', requireUser, async (req, res) => {
         console.log('Generating Async audit report');
         try {
             const user = useUser();
-            audit_report.generateAndSendEmail(req.headers.host, user.email);
+            audit_report.generateAndSendEmail(req.headers.host, user.email, req.query.period_id);
             res.json({ success: true });
             return;
         } catch (error) {
@@ -88,7 +88,7 @@ router.get('/', requireUser, async (req, res) => {
 
     let report;
     try {
-        report = await audit_report.generate(req.headers.host);
+        report = await audit_report.generate(req.headers.host, req.query.period_id);
         console.log('Successfully generated report');
     } catch (error) {
     // In addition to sending the error message in the 500 response, log the full error stacktrace

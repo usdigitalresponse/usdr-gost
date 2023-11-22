@@ -260,6 +260,7 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
         reportingPeriod.id, moment(reportingPeriod.end_date, 'yyyy-MM-DD').format(dateFormat),
     ]));
 
+    debugger;
     // create a row for each project, populated from the records related to that project
     const rows = Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
         const projectLogger = logger.child({
@@ -410,10 +411,12 @@ function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
     return headers;
 }
 
-async function generate(requestHost, tenantId) {
+async function generate(requestHost, tenantId, periodId = null) {
     const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
     return tracer.trace('generate()', async () => {
-        const periodId = await getCurrentReportingPeriodID(undefined, tenantId);
+        if (periodId == null) {
+            periodId = await getCurrentReportingPeriodID(undefined, tenantId);
+        }
         const logger = processStatsLogger(log, {
             workbook: { period: { id: periodId }, tenant: { id: tenantId } },
         });
@@ -491,6 +494,7 @@ async function generate(requestHost, tenantId) {
             return buffer;
         });
 
+        // FIXME add period id as part of the name
         const filename = `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`;
         log.info({ generatedFilename: filename }, 'generated filename for workbook');
 
@@ -508,11 +512,11 @@ async function sendEmailWithLink(fileKey, recipientEmail, logger = log) {
     logger.info({ downloadUrl: url }, 'emailed workbook download link to requesting user');
 }
 
-async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useTenantId(), logger = log) {
+async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useTenantId(), periodId = null, logger = log) {
     logger = logger.child({ tenant: { id: tenantId } });
     // Generate the report
     logger.info('generating ARPA audit report');
-    const report = await module.exports.generate(requestHost, tenantId);
+    const report = await module.exports.generate(requestHost, tenantId, periodId);
     logger.info('finished generating ARPA audit report');
     // Upload to S3 and send email link
     const reportKey = `${tenantId}/${report.periodId}/${report.filename}`;
@@ -552,7 +556,7 @@ async function processSQSMessageRequest(message) {
         if (!user) {
             throw new Error(`user not found: ${requestData.userId}`);
         }
-        await generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id);
+        await generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id, message.periodId);
     } catch (err) {
         log.error({ err }, 'failed to generate and send audit report');
         return false;

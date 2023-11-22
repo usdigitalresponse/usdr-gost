@@ -92,6 +92,11 @@ async function loadRecordsForUpload(upload) {
             ({ name }) => name === sheetName,
         );
 
+        if (sheetAttributes == null) {
+            // eslint-disable-next-line no-continue
+            continue;
+        }
+
         // ignore hidden sheets
         if (sheetAttributes.Hidden !== 0) {
             // eslint-disable-next-line no-continue
@@ -251,7 +256,20 @@ async function recordsForProject(periodId, tenantId) {
         // exclude non-project records
         .filter((record) => ([...Object.values(EC_SHEET_TYPES), 'awards50k', 'expenditures50k']).includes(record.type));
 
-    return Object.values(projectRecords);
+    // expenditures do not have projects on them, but awards do under Project_Identification_Number__c
+    // we can map the two by Subawards
+    const subawardProjectMapping = projectRecords.filter((record) => record.type === 'awards50k').reduce((accumulator, record) => {
+        accumulator[record.content.Award_No__c] = record.content.Project_Identification_Number__c;
+        return accumulator;
+    }, {});
+
+    const records = Object.values(projectRecords).map((record) => {
+        if (record.type !== 'expenditures50k') {
+            return record;
+        }
+        return { ...record, content: { ...record.content, Project_Identification_Number__c: subawardProjectMapping[record.content.Sub_Award_Lookup__c] } };
+    });
+    return records;
 }
 
 module.exports = {

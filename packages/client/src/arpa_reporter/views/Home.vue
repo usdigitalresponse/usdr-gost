@@ -3,7 +3,14 @@
     <div class="row">
       <AlertBox v-if="alert" :text="alert.text" :level="alert.level" v-on:dismiss="clearAlert" />
     </div>
-    <div class="row mt-5 mb-5" v-if="viewingOpenPeriod">
+
+    <div class="row border border-danger rounded m-3 mb-3 p-3" v-if="!viewingOpenPeriod">
+      <div class="col" id="closedReportingPeriodMessage">
+        This reporting period is closed.
+      </div>
+    </div>
+
+    <div class="row mt-5 mb-5">
       <div class="col" v-if="this.$route.query.sync_treasury_download && isAdmin">
         <DownloadButton :href="downloadTreasuryReportURL()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
       </div>
@@ -16,7 +23,7 @@
       </div>
 
       <div class="col" v-if="this.$route.query.sync_audit_download && isAdmin">
-        <DownloadButton :href="downloadAuditReportURL()" class="btn btn-info btn-block">Download Audit Report</DownloadButton>
+        <DownloadButton :href="downloadAuditReport()" class="btn btn-info btn-block">Download Audit Report</DownloadButton>
       </div>
 
       <div class="col" v-if="isAdmin">
@@ -26,18 +33,19 @@
         </button>
       </div>
 
+      <div class="col" v-if="isAdmin">
+        <button class="btn btn-info btn-block" @click="downloadAuditReport" :disabled="sending">
+          <span v-if="sending">Sending...</span>
+          <span v-else>Download Audit Report</span>
+        </button>
+      </div>
+
       <div class="col">
-        <button @click.prevent="startUpload" class="btn btn-primary btn-block" id="submitWorkbookButton">Submit Workbook</button>
+        <button @click.prevent="startUpload" class="btn btn-primary btn-block" id="submitWorkbookButton"  :disabled="!viewingOpenPeriod">Submit Workbook</button>
       </div>
 
       <div class="col">
         <DownloadTemplateBtn :block="true" />
-      </div>
-    </div>
-
-    <div class="row border border-danger rounded m-3 mb-3 p-3" v-else>
-      <div class="col" id="closedReportingPeriodMessage">
-        This reporting period is closed.
       </div>
     </div>
 
@@ -106,6 +114,38 @@ export default {
 
       try {
         const result = await getJson('/api/audit_report?queue=true');
+
+        if (result.error) {
+          this.alert = {
+            text: 'Something went wrong. Unable to send an email containing the audit report. Reach out to grants-helpdesk@usdigitalresponse.org if this happens again.',
+            level: 'err',
+          };
+          console.log(result.error);
+        } else {
+          this.alert = {
+            text: 'Sent. Please note, it could take up to 1 hour for this email to arrive.',
+            level: 'ok',
+          };
+        }
+      } catch (error) {
+        // we got an error from the backend, but the backend didn't send reasons
+        this.alert = {
+          text: 'Something went wrong. Unable to send an email containing the audit report. Reach out to grants-helpdesk@usdigitalresponse.org if this happens again.',
+          level: 'err',
+        };
+      }
+
+      this.sending = false;
+    },
+    async downloadAuditReport() {
+      this.sending = true;
+
+      try {
+        const periodId = this.$store.getters.viewPeriod.id || 0;
+        const periodIdQuery = periodId ? `period_id=${periodId}` : '';
+        const url = `/api/audit_report?async=false${periodIdQuery}`;
+        const result = await getJson(url);
+        // const result = await getJson('/api/audit_report?async=false');
 
         if (result.error) {
           this.alert = {
