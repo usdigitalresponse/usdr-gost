@@ -17,7 +17,7 @@
                 <UserAvatar size="2.5rem"/>
                 <div class="ml-2 mr-5 text-black">
                   <p class="m-0 font-weight-bold">{{ loggedInUser.name }}</p>
-                  <p class="m-0">{{ selectedAgency ? selectedAgency.name : '' }}</p>
+                  <p class="m-0">{{ selectedTeam ? selectedTeam.name : '' }}</p>
                 </div>
                 <p class="text-black m-0 ml-auto"><b-icon icon="caret-down-fill" scale="0.8"></b-icon></p>
               </div>
@@ -32,7 +32,7 @@
           </b-nav-item-dropdown>
 
           <b-nav-text v-if="!myProfileEnabled">
-            <b-badge>{{selectedAgency ? selectedAgency.name : ''}}</b-badge>
+            <b-badge>{{selectedTeam ? selectedTeam.name : ''}}</b-badge>
           </b-nav-text>
 
           <b-nav-item-dropdown right v-if="loggedInUser && !myProfileEnabled">
