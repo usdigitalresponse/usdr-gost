@@ -41,13 +41,13 @@ import UserAvatar from '../UserAvatar.vue';
 
 export default {
   components: {
-    UserAvatar
+    UserAvatar,
   },
   data() {
     return {
       formData: {
         name: null,
-        avatar_color: null,
+        avatarColor: null,
       },
     };
   },
@@ -70,7 +70,7 @@ export default {
     }),
     resetModal() {
       this.formData.name = this.loggedInUser.name;
-      this.formData.avatar_color = this.loggedInUser.avatar_color;
+      this.formData.avatarColor = this.loggedInUser.avatar_color;
     },
     handleOk(bvModalEvt) {
       // Prevent modal from closing
@@ -78,7 +78,7 @@ export default {
       this.handleSubmit();
     },
     handleChangeColor(bgColor) {
-      this.formData.avatar_color = bgColor;
+      this.formData.avatarColor = bgColor;
     },
     async handleSubmit() {
       this.formData.id = this.loggedInUser.id;

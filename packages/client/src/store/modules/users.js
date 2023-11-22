@@ -62,8 +62,8 @@ export default {
       await dispatch('fetchUsers');
     },
     async updateUser({ commit }, user) {
-      const { id, name, avatar_color } = user;
-      const data = await fetchApi.patch(`/api/organizations/:organizationId/users/${id}`, { name, avatar_color });
+      const { id, name, avatarColor } = user;
+      const data = await fetchApi.patch(`/api/organizations/:organizationId/users/${id}`, { name, avatar_color: avatarColor });
       commit('SET_LOGGED_IN_USER', data.user);
     },
     async deleteUser({ dispatch, commit }, userId) {

@@ -43,7 +43,7 @@ import UserAvatar from '@/components/UserAvatar.vue';
 export default {
   components: {
     EditUserModal,
-    UserAvatar
+    UserAvatar,
   },
   data() {
     return {

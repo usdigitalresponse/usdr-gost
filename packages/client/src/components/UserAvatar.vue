@@ -1,13 +1,13 @@
 <template>
   <div>
-   <!-- Default avatar w/o badge: style attribute is bound to computed 
+   <!-- Default avatar w/o badge: style attribute is bound to computed
     property fixedAvatarStyles which is derived from user session data.
     -->
     <b-avatar v-if="!editable" :text="initials" :size="avatarSize" v-bind:style="fixedAvatarStyles" badge-variant="light">
     </b-avatar>
-    
+
     <div v-if="editable">
-      <!-- Editable avatar:style attribute is bound to editableAvatarStyles 
+      <!-- Editable avatar:style attribute is bound to editableAvatarStyles
         so changes from the color picker will be reflected -->
       <b-avatar :text="toInitials(userName)" :size="avatarSize" v-bind:style="editableAvatarStyles" badge-variant="light">
       </b-avatar>
@@ -29,7 +29,7 @@ export default {
   props: {
     size: {
       type: String,
-      default: '5rem'
+      default: '5rem',
     },
     editable: {
       type: Boolean,
@@ -37,14 +37,14 @@ export default {
     },
     userName: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   data() {
     return {
       allColors: Object.keys(avatarColors),
       editableAvatarStyles: null,
-    }
+    };
   },
   computed: {
     ...mapGetters({
@@ -53,20 +53,20 @@ export default {
     initials() {
       return this.toInitials(this.loggedInUser.name);
     },
-    avatarSize() { 
+    avatarSize() {
       return this.size;
     },
     fixedAvatarStyles() {
       return {
         backgroundColor: this.loggedInUser.avatar_color,
-        color: avatarColors[this.loggedInUser.avatar_color]
-      }
+        color: avatarColors[this.loggedInUser.avatar_color],
+      };
     },
   },
   created() {
     this.editableAvatarStyles = {
       backgroundColor: this.loggedInUser.avatar_color,
-      color: avatarColors[this.loggedInUser.avatar_color]
+      color: avatarColors[this.loggedInUser.avatar_color],
     };
   },
   methods: {
@@ -74,22 +74,23 @@ export default {
       this.editableAvatarStyles = {
         backgroundColor: bgColor,
         color: avatarColors[bgColor],
-      }
+      };
 
-      this.$emit('changeColor', bgColor); // passes bgColor to EditUser form
+      this.$emit('changeColor', bgColor); // passes background color to EditUser form
     },
     toInitials(name) {
-      if (!name) return;
+      if (!name) return '';
+
       const fullNameArr = name.split(' ');
 
       if (fullNameArr.length < 2) return fullNameArr[0][0].toUpperCase();
-      
+
       const firstName = fullNameArr.at(0);
       const lastName = fullNameArr.at(-1);
       return (firstName[0] + lastName[0]).toUpperCase();
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style>
