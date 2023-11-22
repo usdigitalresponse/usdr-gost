@@ -13,9 +13,9 @@
           <b-nav-item-dropdown right v-if="loggedInUser && myProfileEnabled" no-caret>
             <!-- Using 'button-content' slot -->
             <template v-if="myProfileEnabled" #button-content>
-              <div class="d-inline-flex justify-content-start align-items-center" style="max-width: 242px">
+              <div class="d-inline-flex justify-content-start align-items-center" style="width: 242px">
                 <UserAvatar size="2.5rem"/>
-                <div class="ml-2 mr-5 text-black user-info">
+                <div class="ml-2 mr-5 text-black">
                   <p class="m-0 font-weight-bold">{{ loggedInUser.name }}</p>
                   <p class="m-0">{{ selectedAgency ? selectedAgency.name : '' }}</p>
                 </div>
