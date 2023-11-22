@@ -20,7 +20,7 @@ try {
 
 const moment = require('moment');
 const knex = require('./connection');
-const { TABLES, userAvatarStyles } = require('./constants');
+const { TABLES } = require('./constants');
 const emailConstants = require('../lib/email/constants');
 const helpers = require('./helpers');
 
@@ -88,12 +88,12 @@ async function createUser(user) {
 }
 
 async function updateUser(user) {
-    const { id, name, avatar } = user;
+    const { id, name, avatar_color } = user;
 
     
     await knex('users')
         .where('id', id)
-        .update({ name, avatar });
+        .update({ name, avatar_color });
 
     return getUser(id);
 }
@@ -133,7 +133,7 @@ async function getUser(id) {
             'users.email',
             'users.name',
             'users.role_id',
-            'users.avatar',
+            'users.avatar_color',
             'roles.name as role_name',
             'roles.rules as role_rules',
             'users.agency_id',
@@ -1435,14 +1435,6 @@ function setAgencyParent(id, agen_parent) {
             id,
         })
         .update({ parent: agen_parent });
-}
-
-function setUserAvatar(userId) {
-    return knex(TABLES.users)
-        .where({
-            id: userId,
-        })
-        .update({ avatar: JSON.stringify(userAvatarStyles[helpers.selectRandomIndex(userAvatarStyles)]) });
 }
 
 async function setUserEmailSubscriptionPreference(userId, agencyId, preferences) {
