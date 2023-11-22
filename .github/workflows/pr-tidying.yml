@@ -7,7 +7,10 @@ on:
   #     - opened
   #     - reopened
   #     - ready_for_review
-  pull_request: { types: [ opened, reopened, ready_for_review ] } # REMOVE BEFORE MERGING!
+  #     - unassigned
+  #     - edited
+  #     - unlocked
+  pull_request: { types: [ opened, reopened, ready_for_review, unassigned, edited, unlocked ] } # REMOVE BEFORE MERGING!
   # ====== 👆 WORKAROUND FOR TESTING 👆 (DO NOT MERGE OR APPROVE) ======
 
 permissions:
@@ -24,14 +27,30 @@ jobs:
     outputs:
       check-passed: ${{ steps.check.outputs.result == 'passed' }}
       fixed: ${{ steps.fix.outputs.result == 'fixed' }}
+    env:
+      DEFAULT_ASSIGNEE: ${{ github.actor }}
     steps:
       - name: Check if PR already has assignee
         id: check
-        run: ([[ -n $CURRENT_ASSIGNEE ]] && echo "result=passed") >> $GITHUB_OUTPUT
+        run: |
+          if [[ -n $CURRENT_ASSIGNEE ]]; then
+            echo "result=passed" >> $GITHUB_OUTPUT
+          fi
         env:
           CURRENT_ASSIGNEE: ${{ github.event.pull_request.assignee || '' }}
+      - id: skip-edited-event
+        if: github.event.action == 'edited'
+        run: |
+          echo "Fix will be skipped because the triggering action is an edit event"
+          exit 1
+      - id: prevent-reassignment
+        if: github.event.action == 'unassigned' && env.DEFAULT_ASSIGNEE == github.event.assignee.login
+        run: |
+          echo "Fix will be skipped to avoid reassigning the unassigned user"
+          exit 1
       - name: Add assignee
         id: fix
+        if: steps.check.outputs.result != 'passed'
         run: |
           level=$(gh api /repos/$REPO/collaborators/$AUTHOR/permission --jq .permission)
           if [[ $level = "write" || $level = "admin" ]]; then
@@ -40,7 +59,7 @@ jobs:
           fi
         env:
           REPO: ${{ github.repository }}
-          AUTHOR: ${{ github.actor }}
+          AUTHOR: ${{ env.DEFAULT_ASSIGNEE }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -58,12 +77,20 @@ jobs:
           regex='\s\([#][0-9]+\s?\)$'
           if [[ $PR_TITLE =~ $regex ]]; then
             echo "result=passed" >> $GITHUB_OUTPUT
-          else
-            echo "result=failed" >> $GITHUB_OUTPUT
           fi
+      - id: skip-unassigned-event
+        if: github.event.action == 'unassigned'
+        run: |
+          echo "Fix will be skipped because the triggering action is an unassignment event"
+          exit 1
+      - id: skip-non-title-edits
+        if: github.event.action == 'edited' && github.event.changes.title.from == github.event.pull_request.title
+        run: |
+          echo "Fix will be skipped because the triggering edit action did not modify the PR title"
+          exit 1
       - name: Parse issue(s) from Ticket heading
         id: parse
-        continue-on-error: true
+        if: steps.check.outputs.result != 'passed'
         run: |
           regex='^[#][#][#] Ticket (([#][0-9]+\s?)+)'
           line=$(gh pr view "$PR_NUMBER" --json body --jq .body | head -n 1)
@@ -71,14 +98,29 @@ jobs:
           if [[ $line =~ $regex ]]; then
             issues="${BASH_REMATCH[1]}"
           fi
-          echo "issue-numbers=$(echo $ISSUES | tr -d '[:blank:]')" >> $GITHUB_OUTPUT
+          echo "issue-numbers=$(tr -s '[:blank:]' <<< $issues)" >> $GITHUB_OUTPUT
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - id: skip-empty-issues
+        if: steps.parse.outputs.issue-numbers == ''
+        run: |
+          echo "Fix will be skipped because no issue numbers were parsed"
+          exit 1
+      - name: Format the new title
+        id: new-title
+        run: echo result="$ORIGINAL_TITLE (issue $ISSUE_NUMBERS)" >> $GITHUB_OUTPUT
+        env:
+          ORIGINAL_TITLE: ${{ github.event.pull_request.title }}
+          ISSUE_NUMBERS: ${{ steps.parse.outputs.issue-numbers }}
+      - id: skip-prevent-revert
+        if: github.event.action == 'edited' && github.event.changes.title.from == steps.new-title.outputs.result
+        run: |
+          echo "Fix will be skipped to avoid setting the title back to its previous value"
+          exit 1
       - name: Update PR title
         id: fix
-        if: steps.parse.outputs.issue-numbers != ''
-        continue-on-error: true
+        if: steps.check.outputs.result != 'passed' && steps.parse.outputs.issue-numbers != ''
         run: |
           gh pr edit "$PR_NUMBER" --title "$ORIGINAL_TITLE (issue $ISSUE_NUMBERS)"
           echo "result=fixed" >> $GITHUB_OUTPUT
@@ -90,7 +132,7 @@ jobs:
 
   comment:
     name: Create/update PR comment
-    if: github.actor != 'dependabot[bot]'
+    if: always() && github.actor != 'dependabot[bot]'
     needs:
       - default-assignee
       - issue-in-title
@@ -106,8 +148,6 @@ jobs:
           **Thanks for your pull request!**
           My job is to check for any missing conventions and automatically tidy things up (if I can).
           You'll find the results below, along with any suggested actions for you to take.
-
-          *These checks normally only run once, so you won't see any updates after you make changes.*
 
           <details>
           <summary>Result key</summary>
