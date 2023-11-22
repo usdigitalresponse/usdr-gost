@@ -47,7 +47,7 @@ export default {
     return {
       formData: {
         name: null,
-        avatar: null,
+        avatar_color: null,
       },
     };
   },
@@ -70,19 +70,18 @@ export default {
     }),
     resetModal() {
       this.formData.name = this.loggedInUser.name;
-      this.formData.avatar = this.loggedInUser.avatar;
+      this.formData.avatar_color = this.loggedInUser.avatar_color;
     },
     handleOk(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
       this.handleSubmit();
     },
-    handleChangeColor(colorData) {
-      this.formData.avatar = colorData;
+    handleChangeColor(bgColor) {
+      this.formData.avatar_color = bgColor;
     },
     async handleSubmit() {
       this.formData.id = this.loggedInUser.id;
-
       // Exit when the form isn't valid
       if (this.$v.formData.$invalid) {
         return;

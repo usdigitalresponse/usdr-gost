@@ -1,13 +1,15 @@
 <template>
   <div>
-   <!-- Default avatar w/o badge: style attribute is bound to computed property avatar from the user session.
+   <!-- Default avatar w/o badge: style attribute is bound to computed 
+    property fixedAvatarStyles which is derived from user session data.
     -->
-    <b-avatar v-if="!editable" :text="initials" :size="avatarSize" v-bind:style="avatar" badge-variant="light">
+    <b-avatar v-if="!editable" :text="initials" :size="avatarSize" v-bind:style="fixedAvatarStyles" badge-variant="light">
     </b-avatar>
     
     <div v-if="editable">
-      <!-- Editable avatar:style attribute is bound to avatarStyles so changes from the color picker will be reflected -->
-      <b-avatar :text="toInitials(userName)" :size="avatarSize" v-bind:style="avatarStyles" badge-variant="light">
+      <!-- Editable avatar:style attribute is bound to editableAvatarStyles 
+        so changes from the color picker will be reflected -->
+      <b-avatar :text="toInitials(userName)" :size="avatarSize" v-bind:style="editableAvatarStyles" badge-variant="light">
       </b-avatar>
       <div class="my-4">
         <p class="text-left">Avatar color</p>
@@ -41,7 +43,7 @@ export default {
   data() {
     return {
       allColors: Object.keys(avatarColors),
-      avatarStyles: null,
+      editableAvatarStyles: null,
     }
   },
   computed: {
@@ -54,22 +56,27 @@ export default {
     avatarSize() { 
       return this.size;
     },
-    avatar() {
-      return this.loggedInUser.avatar;
-    }
+    fixedAvatarStyles() {
+      return {
+        backgroundColor: this.loggedInUser.avatar_color,
+        color: avatarColors[this.loggedInUser.avatar_color]
+      }
+    },
   },
   created() {
-    this.avatarStyles = this.avatar;
+    this.editableAvatarStyles = {
+      backgroundColor: this.loggedInUser.avatar_color,
+      color: avatarColors[this.loggedInUser.avatar_color]
+    };
   },
   methods: {
     handleColorSelection(bgColor) {
-      const textColor = avatarColors[bgColor];
-      const updatedStyles= {
+      this.editableAvatarStyles = {
         backgroundColor: bgColor,
-        color: textColor
+        color: avatarColors[bgColor],
       }
-      this.avatarStyles = updatedStyles;
-      this.$emit('changeColor', updatedStyles);
+
+      this.$emit('changeColor', bgColor); // passes bgColor to EditUser form
     },
     toInitials(name) {
       if (!name) return;
