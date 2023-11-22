@@ -2,7 +2,7 @@
   <section class="container">
     <b-card class="border-0">
     <div class="d-flex">
-      <h4 class="card-title gutter-title1 row">Recent Activity</h4>
+      <h2 class="card-title gutter-title1 row h4">Recent Activity</h2>
       <div class="justify-content-end left-margin">
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
         <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />

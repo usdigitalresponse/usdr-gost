@@ -49,7 +49,7 @@
           <b-col>
             <b-card>
               <div class="card-block text-left">
-                <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
+                <h2 class="card-title gutter-title2 row h4">Upcoming Closing Dates</h2>
                 <span id="noUpcomingCloseDates" class="gutter-title2 row" v-if="!grantsAndIntAgens?.length">Your {{newTerminologyEnabled ? 'team' : 'agency'}} has no upcoming close dates.</span>
               </div>
               <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
@@ -62,7 +62,7 @@
                   <div v-if="field.key === 'close_date' && yellowDate === true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="field.key === 'close_date' && redDate === true" :style="field.tdStyle" v-text="value"></div>
                   <div v-if="field.key === 'close_date' && blackDate === true" :style="field.tlStyle" v-text="value"></div>
-                  <div v-if="(grantsAndIntAgens[index]) && (field.key === 'title') && (value === grantsAndIntAgens[index].title)" :style="{color:'#6D7278'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
+                  <div v-if="(grantsAndIntAgens[index]) && (field.key === 'title') && (value === grantsAndIntAgens[index].title)" class="color-gray">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
               <div v-if="totalUpcomingGrants > 3">
