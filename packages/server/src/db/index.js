@@ -89,7 +89,6 @@ async function createUser(user) {
 async function updateUser(user) {
     const { id, name, avatar_color } = user;
 
-    
     await knex('users')
         .where('id', id)
         .update({ name, avatar_color });
