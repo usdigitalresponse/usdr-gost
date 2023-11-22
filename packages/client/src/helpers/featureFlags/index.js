@@ -10,3 +10,7 @@ export function useNewGrantsTable() {
 export function myProfileEnabled() {
   return getFeatureFlags().myProfileEnabled === true;
 }
+
+export function newTerminologyEnabled() {
+  return getFeatureFlags().newTerminologyEnabled === true;
+}

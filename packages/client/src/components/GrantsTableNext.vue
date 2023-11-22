@@ -21,7 +21,7 @@
     </b-row>
     <b-row align-v="center">
       <b-col cols="12">
-        <b-table fixed id="grants-table" sticky-header="32rem" hover :items="formattedGrants" responsive
+        <b-table id="grants-table" sticky-header="70vh" hover :items="formattedGrants"
           :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
           @row-selected="onRowSelected" show-empty emptyText="No matches found">
@@ -75,6 +75,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { titleize } from '../helpers/form-helpers';
 import GrantDetails from './Modals/GrantDetails.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
@@ -110,11 +111,10 @@ export default {
         },
         {
           key: 'viewed_by',
-          sortable: true,
         },
         {
           key: 'interested_agencies',
-          sortable: true,
+          label: `Interested ${newTerminologyEnabled() ? 'Teams' : 'Agencies'}`,
         },
         {
           // opportunity_status
@@ -127,9 +127,6 @@ export default {
         },
         {
           key: 'cost_sharing',
-        },
-        {
-          key: 'award_floor',
         },
         {
           key: 'award_ceiling',

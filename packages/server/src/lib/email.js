@@ -269,6 +269,7 @@ async function getAndSendGrantForSavedSearch({
         await db.buildPaginationParams({ currentPage: 1, perPage: 31 }),
         {},
         userSavedSearch.tenantId,
+        false,
     );
 
     return sendGrantDigest({

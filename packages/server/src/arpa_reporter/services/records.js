@@ -253,7 +253,7 @@ async function recordsForProject(periodId, tenantId, calculatePriorPeriods) {
     const projectRecords = allRecords
         .flat()
         // exclude non-project records
-        .filter((record) => Object.values(EC_SHEET_TYPES).includes(record.type));
+        .filter((record) => ([...Object.values(EC_SHEET_TYPES), 'awards50k', 'expenditures50k']).includes(record.type));
 
     return Object.values(projectRecords);
 }

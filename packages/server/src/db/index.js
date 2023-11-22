@@ -2,6 +2,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
+
 let v4;
 try {
     // eslint-disable-next-line global-require
@@ -83,6 +84,16 @@ async function createUser(user) {
         id: response[0].id,
         created_at: response[0].created_at,
     };
+}
+
+async function updateUser(user) {
+    const { id, name } = user;
+
+    await knex('users')
+        .where('id', id)
+        .update({ name });
+
+    return getUser(id);
 }
 
 async function getUsersByAgency(agencyId) {
@@ -356,6 +367,20 @@ async function buildOrderingParams(args) {
     const orderingParams = { orderBy: 'open_date', orderDesc: 'true' };
 
     if (args) {
+        if (args.orderBy) {
+            const orderArgs = args.orderBy.split('|');
+            if (orderArgs.length !== 1) {
+                throw new Error('The number of orderBy arguments must be 1');
+            } else if (!/^(rank|award_ceiling|open_date|close_date)$/.test(orderArgs[0])) {
+                console.error('Wat', orderArgs[0]);
+                throw new Error('orderBy must be one of rank|award_ceiling|open_date|close_date');
+            }
+        }
+        // we treat undefined order direction as descending === true
+        const orderDesc = args.orderDesc || 'true';
+        if (!/^(true|false)$/.test(orderDesc)) {
+            throw new Error('orderDesc must be true or false');
+        }
         orderingParams.orderBy = args.orderBy;
         orderingParams.orderDesc = args.orderDesc;
     }
@@ -400,40 +425,46 @@ function buildTsqExpression(includeKeywords, excludeKeywords) {
         excludeKeywords.forEach((ek) => { if (ek.indexOf(' ') > 0) { signedKeywords.exclude.push(`-"${ek}"`); } else { signedKeywords.exclude.push(`-${ek}`); } });
     }
 
-    const validExpressions = [];
-
     const includeExpression = signedKeywords.include.join(' or ');
-    if (includeExpression.length > 0) {
-        validExpressions.push(includeExpression);
-    }
     const excludeExpression = signedKeywords.exclude.join(' ');
-    if (excludeExpression.length > 0) {
-        validExpressions.push(excludeExpression);
-    }
 
-    const phrase = validExpressions.join(' ');
-
-    return phrase;
+    return { includeExpression, excludeExpression };
 }
 
 function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, orderingParams) {
-    const tsqExpression = buildTsqExpression(includeKeywords, excludeKeywords);
-    if (tsqExpression) {
-        queryBuilder.joinRaw(`cross join websearch_to_tsquery('english', ?) as tsqp`, tsqExpression);
+    const expression = buildTsqExpression(includeKeywords, excludeKeywords);
+    const includeExpression = expression?.includeExpression;
+    const excludeExpression = expression?.excludeExpression;
+    if (!includeExpression && !excludeExpression) {
+        return false;
+    }
+    if (includeExpression) {
+        queryBuilder.joinRaw(`cross join websearch_to_tsquery('english', ?) as tsqp`, includeExpression);
+    }
+    if (excludeExpression) {
+        queryBuilder.joinRaw(`cross join websearch_to_tsquery('english', ?) as ntsqp`, excludeExpression);
+    }
+    if (includeExpression) {
         queryBuilder.andWhere((q) => {
             q.where('tsqp', '@@', knex.raw('title_ts'))
                 .orWhere('tsqp', '@@', knex.raw('description_ts'));
             return q;
         });
-        if (orderingParams.orderBy !== undefined) {
-            queryBuilder.select(
-                knex.raw(`ts_rank(title_ts, tsqp) as rank_title`),
-                knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description`),
-            );
-            queryBuilder.groupBy('rank_title', 'rank_description');
-        }
     }
-    return Boolean(tsqExpression);
+    if (excludeExpression) {
+        queryBuilder.andWhere((q) => {
+            q.where('ntsqp', '@@', knex.raw('title_ts'))
+                .andWhere('ntsqp', '@@', knex.raw('description_ts'));
+        });
+    }
+    if (includeExpression && orderingParams.orderBy !== undefined) {
+        queryBuilder.select(
+            knex.raw(`ts_rank(title_ts, tsqp) as rank_title`),
+            knex.raw(`ts_rank(grants.description_ts, tsqp) as rank_description`),
+        );
+        queryBuilder.groupBy('rank_title', 'rank_description');
+    }
+    return Boolean(includeExpression);
 }
 
 function buildFiltersQuery(queryBuilder, filters, agencyId) {
@@ -497,23 +528,8 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
         buildFiltersQuery(queryBuilder, filters, agencyId);
     }
     if (orderingParams.orderBy && orderingParams.orderBy !== 'undefined') {
-        if (orderingParams.orderBy.includes('interested_agencies')) {
-            // Only perform the join if it was not already performed above.
-            if (!filters.reviewStatuses?.length) {
-                queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
-                queryBuilder.select(`${TABLES.grants_interested}.grant_id`);
-                queryBuilder.groupBy(`${TABLES.grants_interested}.grant_id`);
-            }
-            const orderArgs = orderingParams.orderBy.split('|');
-            queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
-            queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
-        } else if (orderingParams.orderBy.includes('viewed_by')) {
-            const orderArgs = orderingParams.orderBy.split('|');
-            queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
-            queryBuilder.select(`${TABLES.grants_viewed}.grant_id`);
-            queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
-            queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
-        } else if (orderingParams.orderBy.includes('rank')) {
+        // we assume orderingParams is a valid construction of buildOrderingParams
+        if (orderingParams.orderBy.includes('rank')) {
             if (hasRankColumns) {
                 queryBuilder.orderBy([
                     { column: 'rank_title', order: 'desc' },
@@ -521,12 +537,8 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
                 ]);
             }
         } else {
-            const orderArgs = orderingParams.orderBy.split('|');
             const orderDirection = ((orderingParams.orderDesc === 'true') ? 'desc' : 'asc');
-            if (orderArgs.length > 1) {
-                console.log(`Too many orderArgs: ${orderArgs}`);
-            }
-            queryBuilder.orderBy(orderArgs[0], knex.raw(`${orderDirection} NULLS LAST`));
+            queryBuilder.orderBy(orderingParams.orderBy, knex.raw(`${orderDirection} NULLS LAST`));
         }
     }
 
@@ -656,6 +668,23 @@ function validateSearchFilters(filters) {
     return errors;
 }
 
+function addCsvData(qb) {
+    qb
+        .select(knex.raw(`
+            CASE
+            WHEN grants.funding_instrument_codes = 'G' THEN 'Grant'
+            WHEN grants.funding_instrument_codes = 'CA' THEN 'Cooperative Agreement'
+            WHEN grants.funding_instrument_codes = 'PC' THEN 'Procurement Contract'
+            ELSE 'Other'
+            END as funding_type
+        `))
+        .select(knex.raw(`array_to_string(array_agg(${TABLES.eligibility_codes}.label), '|') AS eligibility`))
+        .leftJoin(
+            `${TABLES.eligibility_codes}`,
+            `${TABLES.eligibility_codes}.code`, '=', knex.raw(`ANY(string_to_array(${TABLES.grants}.eligibility_codes, ' '))`),
+        );
+}
+
 /*
    filters: {
         reviewStatuses: List[Enum['Applied', 'Not Applying', 'Interested']],
@@ -677,15 +706,15 @@ function validateSearchFilters(filters) {
     tenantId: number
     agencyId: number
 */
-async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
-    console.log(JSON.stringify([filters, paginationParams, orderingParams, tenantId, agencyId]));
+async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId, toCsv) {
+    console.log(JSON.stringify([filters, paginationParams, orderingParams, tenantId, agencyId, toCsv]));
 
     const errors = validateSearchFilters(filters);
     if (errors.length > 0) {
         throw new Error(`Invalid filters: ${errors.join(', ')}`);
     }
 
-    const data = await knex(TABLES.grants)
+    const query = knex(TABLES.grants)
         .select([
             'grants.grant_id',
             'grants.grant_number',
@@ -755,6 +784,10 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.funding_instrument_codes',
             'grants.bill',
         );
+    if (toCsv) {
+        query.modify(addCsvData);
+    }
+    const data = await query;
 
     const fullCount = data.length > 0 ? data[0].full_count : 0;
 
@@ -859,24 +892,9 @@ async function getGrants({
                 );
             }
             if (orderBy && orderBy !== 'undefined') {
-                if (orderBy.includes('interested_agencies')) {
-                    queryBuilder.leftJoin(TABLES.grants_interested, `${TABLES.grants}.grant_id`, `${TABLES.grants_interested}.grant_id`);
-                    const orderArgs = orderBy.split('|');
-                    queryBuilder.orderBy(`${TABLES.grants_interested}.grant_id`, orderArgs[1]);
-                    queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
-                } else if (orderBy.includes('viewed_by')) {
-                    const orderArgs = orderBy.split('|');
-                    queryBuilder.leftJoin(TABLES.grants_viewed, `${TABLES.grants}.grant_id`, `${TABLES.grants_viewed}.grant_id`);
-                    queryBuilder.orderBy(`${TABLES.grants_viewed}.grant_id`, orderArgs[1]);
-                    queryBuilder.orderBy(`${TABLES.grants}.grant_id`, orderArgs[1]);
-                } else {
-                    const orderArgs = orderBy.split('|');
-                    const orderDirection = ((orderDesc === 'true') ? 'desc' : 'asc');
-                    if (orderArgs.length > 1) {
-                        console.log(`Too many orderArgs: ${orderArgs}`);
-                    }
-                    queryBuilder.orderBy(orderArgs[0], orderDirection);
-                }
+                // we assume orderBy is a valid construction of buildOrderingParams
+                const orderDirection = ((orderDesc === 'true') ? 'desc' : 'asc');
+                queryBuilder.orderBy(orderBy, knex.raw(`${orderDirection} NULLS LAST`));
             }
             queryBuilder.limit(perPage);
             queryBuilder.offset((currentPage - 1) * perPage);
@@ -1434,6 +1452,8 @@ async function setUserEmailSubscriptionPreference(userId, agencyId, preferences)
         .insert(insertValues)
         .onConflict(['user_id', 'agency_id', 'notification_type'])
         .merge(['user_id', 'agency_id', 'status', 'updated_at']);
+
+    return getUser(userId);
 }
 
 async function getUserEmailSubscriptionPreference(userId, agencyId) {
@@ -1719,6 +1739,7 @@ module.exports = {
     formatSearchCriteriaToQueryFilters,
     getUsers,
     createUser,
+    updateUser,
     deleteUser,
     getUsersByAgency,
     getSubscribersForNotification,

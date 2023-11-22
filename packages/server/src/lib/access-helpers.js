@@ -17,6 +17,25 @@ function isUSDRSuperAdmin(user) {
 }
 
 /**
+ * Determine if the user's agency or subagencies includes the given agency.
+ *
+ * @param {Object} user
+ * @param {Number} agencyId
+ * @returns {Boolean} true if the agency is a subagency or same agency of the user
+ * */
+function isAuthorizedForAgency(user, agencyId) {
+    const subagency = user.agency.subagencies.find(
+        (agency) => agency.id === agencyId,
+    );
+
+    if (subagency) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Determine if a user is authorized for an agency.
  *
  * @param {Object} user
@@ -25,11 +44,6 @@ function isUSDRSuperAdmin(user) {
  * */
 async function isUserAuthorized(user, ...agencyIds) {
     return inTenant(user.tenant_id, agencyIds);
-}
-
-async function isAuthorized(userId, agencyId) {
-    const user = await getUser(userId);
-    return isUserAuthorized(user, agencyId);
 }
 
 async function getAdminAuthInfo(req) {
@@ -111,5 +125,5 @@ async function requireUSDRSuperAdminUser(req, res, next) {
 }
 
 module.exports = {
-    requireAdminUser, requireUser, isAuthorized, isUserAuthorized, isUSDRSuperAdmin, requireUSDRSuperAdminUser, getAdminAuthInfo,
+    requireAdminUser, requireUser, isAuthorizedForAgency, isUserAuthorized, isUSDRSuperAdmin, requireUSDRSuperAdminUser, getAdminAuthInfo,
 };
