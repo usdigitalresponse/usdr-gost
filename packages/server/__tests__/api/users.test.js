@@ -25,6 +25,12 @@ describe('`/api/users` endpoint', () => {
                 cookie: undefined,
             },
         },
+        subagencyAdmin: {
+            headers: {
+                'Content-Type': 'application/json',
+                cookie: undefined,
+            },
+        },
         staff: {
             headers: {
                 'Content-Type': 'application/json',
@@ -40,6 +46,7 @@ describe('`/api/users` endpoint', () => {
         fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
         fetchOptions.nonUSDRAdmin.headers.cookie = await getSessionCookie('joecomeau01@gmail.com');
         fetchOptions.staff.headers.cookie = await getSessionCookie('mindy+testsub@usdigitalresponse.org');
+        fetchOptions.subagencyAdmin.headers.cookie = await getSessionCookie('nat.hillard.usdr@gmail.com');
 
         testServer = await makeTestServer();
         fetchApi = testServer.fetchApi;
@@ -78,11 +85,20 @@ describe('`/api/users` endpoint', () => {
                 });
                 expect(response.statusText).to.equal('OK');
             });
-            it('is forbidden for an agency outside this user\'s hierarchy', async () => {
+            it('is forbidden for an agency outside this user\'s tenant', async () => {
                 const response = await fetchApi(`/users`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'post',
                     body: JSON.stringify({ ...user, email: `3${user.email}` }),
+                });
+                expect(response.statusText).to.equal('Forbidden');
+            });
+            it('is forbidden for an agency that is a parent to this user\'s agency', async () => {
+                const parentAgency = agencies.own;
+                const response = await fetchApi(`/users`, parentAgency, {
+                    ...fetchOptions.subagencyAdmin,
+                    method: 'post',
+                    body: JSON.stringify({ ...user, agency: parentAgency, email: `4${user.email}` }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
             });
@@ -142,7 +158,7 @@ describe('`/api/users` endpoint', () => {
                 const response = await fetchApi(`/users`, agencies.own, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(11);
+                expect(json.length).to.equal(12);
             });
             it('lists users for an agency outside this user\'s hierarchy but in the same tenant', async () => {
                 const response = await fetchApi(`/users`, agencies.offLimits, fetchOptions.admin);
@@ -185,12 +201,38 @@ describe('`/api/users` endpoint', () => {
                 expect(response.statusText).to.equal('Bad Request');
             });
         });
+        context('by a user with admin role', () => {
+            it('updates a user in this user\'s tenant and a subagency', async () => {
+                const response = await fetchApi(`/users/16`, agencies.staffOwn, {
+                    ...fetchOptions.admin,
+                    method: 'patch',
+                    body: JSON.stringify({ name: 'Test Name' }),
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+            it('is forbidden for a user in this user\'s tenant and a parent agency', async () => {
+                const parentAgency = agencies.own;
+                const response = await fetchApi(`/users/2`, parentAgency, {
+                    ...fetchOptions.subagencyAdmin,
+                    method: 'patch',
+                    body: JSON.stringify({ name: 'Test Name' }),
+                });
+                expect(response.statusText).to.equal('Forbidden');
+            });
+        });
     });
 
     context('DELETE /api/users/:id', () => {
         context('by a user with admin role', () => {
-            it('deletes a user in this user\'s tenant', async () => {
+            it('deletes a user in this user\'s tenant and agency', async () => {
                 const response = await fetchApi(`/users/4`, agencies.own, {
+                    ...fetchOptions.admin,
+                    method: 'delete',
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+            it('deletes a user in this user\'s tenant and a subagency', async () => {
+                const response = await fetchApi(`/users/16`, agencies.staffOwn, {
                     ...fetchOptions.admin,
                     method: 'delete',
                 });
@@ -199,6 +241,14 @@ describe('`/api/users` endpoint', () => {
             it('is forbidden for a user in an agency outside this user\'s tenant', async () => {
                 const response = await fetchApi(`/users/8`, agencies.offLimits, {
                     ...fetchOptions.admin,
+                    method: 'delete',
+                });
+                expect(response.statusText).to.equal('Forbidden');
+            });
+            it('is forbidden for a user in this user\'s tenant and a parent agency', async () => {
+                const parentAgency = agencies.own;
+                const response = await fetchApi(`/users/2`, parentAgency, {
+                    ...fetchOptions.subagencyAdmin,
                     method: 'delete',
                 });
                 expect(response.statusText).to.equal('Forbidden');
@@ -221,6 +271,7 @@ describe('`/api/users` endpoint', () => {
                 preferences: {
                     [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
                     [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.subscribed,
+                    [emailConstants.notificationType.grantFinderUpdates]: emailConstants.emailSubscriptionStatus.subscribed,
                     [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.unsubscribed,
                 },
             },

@@ -8,30 +8,6 @@ const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 
 const router = express.Router({ mergeParams: true });
 
-// Award floor field was requested for CSV export but is not stored as a dedicated column,
-// so we have to extract it from raw_body
-function getAwardFloor(grant) {
-    let body;
-    try {
-        body = JSON.parse(grant.raw_body);
-    } catch (err) {
-        // Some seeded test data has invalid JSON in raw_body field
-        return undefined;
-    }
-
-    // For some reason, some grants rows have null raw_body.
-    // TODO: investigate how this can happen
-    if (!body) {
-        return undefined;
-    }
-
-    const floor = parseInt(body.synopsis && body.synopsis.awardFloor, 10);
-    if (Number.isNaN(floor)) {
-        return undefined;
-    }
-    return floor;
-}
-
 function parseCollectionQueryParam(req, param) {
     const value = req.query[param];
     return (value && value.split(',')) || [];
@@ -92,15 +68,22 @@ function criteriaToFiltersObj(criteria, agencyId) {
 router.get('/next', requireUser, async (req, res) => {
     const { user } = req.session;
 
+    let orderingParams;
+    try {
+        orderingParams = await db.buildOrderingParams(req.query.ordering);
+    } catch {
+        return res.status(400).send('Invalid ordering parameter');
+    }
     const grants = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         await db.buildPaginationParams(req.query.pagination),
-        await db.buildOrderingParams(req.query.ordering),
+        orderingParams,
         user.tenant_id,
         user.agency_id,
+        false,
     );
 
-    res.json(grants);
+    return res.json(grants);
 });
 
 // get a single grant details
@@ -124,15 +107,22 @@ const MAX_CSV_EXPORT_ROWS = process.env.NODE_ENV !== 'test' ? 500 : 100;
 router.get('/exportCSVNew', requireUser, async (req, res) => {
     const { user } = req.session;
 
+    let orderingParams;
+    try {
+        orderingParams = await db.buildOrderingParams(req.query.ordering);
+    } catch {
+        return res.status(400).send('Invalid ordering parameter');
+    }
     const { data, pagination } = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         await db.buildPaginationParams({
             currentPage: 1,
             perPage: MAX_CSV_EXPORT_ROWS,
         }),
-        await db.buildOrderingParams(req.query.ordering),
+        orderingParams,
         user.tenant_id,
         user.agency_id,
+        true,
     );
 
     // Generate CSV
@@ -146,7 +136,6 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             .join(', '),
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        award_floor: getAwardFloor(grant),
         url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
     }));
 
@@ -167,17 +156,20 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             { key: 'grant_number', header: 'Opportunity Number' },
             { key: 'title', header: 'Title' },
             { key: 'viewed_by', header: 'Viewed By' },
-            { key: 'interested_agencies', header: 'Interested Agencies' },
-            { key: 'opportunity_status', header: 'Status' },
+            { key: 'interested_agencies', header: 'Interested Teams' },
+            { key: 'opportunity_status', header: 'Opportunity Status' },
             { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },
-            { key: 'award_floor', header: 'Award Floor' },
             { key: 'award_ceiling', header: 'Award Ceiling' },
             { key: 'open_date', header: 'Posted Date' },
             { key: 'close_date', header: 'Close Date' },
             { key: 'agency_code', header: 'Agency Code' },
             { key: 'grant_id', header: 'Grant Id' },
             { key: 'url', header: 'URL' },
+            { key: 'funding_type', header: 'Funding Type' },
+            { key: 'bill', header: 'Appropriations Bill' },
+            { key: 'agency_code', header: 'Agency Code' },
+            { key: 'eligibility', header: 'Eligibility' },
         ],
     });
 
@@ -186,7 +178,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Length', csv.length);
-    res.send(csv);
+    return res.send(csv);
 });
 
 router.get('/exportCSV', requireUser, async (req, res) => {
@@ -228,7 +220,6 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             .join(', '),
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        award_floor: getAwardFloor(grant),
         url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
     }));
 
@@ -249,11 +240,10 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             { key: 'grant_number', header: 'Opportunity Number' },
             { key: 'title', header: 'Title' },
             { key: 'viewed_by', header: 'Viewed By' },
-            { key: 'interested_agencies', header: 'Interested Agencies' },
+            { key: 'interested_agencies', header: 'Interested Teams' },
             { key: 'opportunity_status', header: 'Status' },
             { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },
-            { key: 'award_floor', header: 'Award Floor' },
             { key: 'award_ceiling', header: 'Award Ceiling' },
             { key: 'open_date', header: 'Posted Date' },
             { key: 'close_date', header: 'Close Date' },
@@ -288,7 +278,7 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
     const formattedData = data.map((grant) => ({
         ...grant,
         date: new Date(grant.created_at).toLocaleDateString('en-US'),
-        agency: grant.name,
+        team: grant.name,
         grant: grant.title,
         status_code: grant.status_code,
         name: users[grant.assigned_by]?.name,
@@ -303,7 +293,7 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
         header: true,
         columns: [
             { key: 'date', header: 'Date' },
-            { key: 'agency', header: 'Agency' },
+            { key: 'team', header: 'Team' },
             { key: 'grant', header: 'Grant' },
             { key: 'status_code', header: 'Status Code' },
             { key: 'name', header: 'Grant Assigned By' },

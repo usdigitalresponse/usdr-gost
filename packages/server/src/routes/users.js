@@ -10,8 +10,7 @@ const { ensureAsyncContext } = require('../arpa_reporter/lib/ensure-async-contex
 const {
     requireAdminUser,
     requireUser,
-    isAuthorized,
-    isUserAuthorized,
+    isAuthorizedForAgency,
     isUSDRSuperAdmin,
     requireUSDRSuperAdminUser,
 } = require('../lib/access-helpers');
@@ -33,9 +32,9 @@ router.post('/', requireAdminUser, async (req, res, next) => {
     }
 
     try {
-        const allowed = await isUserAuthorized(user, agencyId);
+        const allowed = isAuthorizedForAgency(user, agencyId);
         if (!allowed) {
-            res.status(403).send('Cannot assign user to agency outside of the tenant');
+            res.status(403).send('Cannot assign user to a parent agency or agency outside of the tenant');
             return;
         }
         const newUser = {
@@ -62,8 +61,16 @@ router.post('/', requireAdminUser, async (req, res, next) => {
 
 router.patch('/:userId', requireUser, async (req, res) => {
     const id = parseInt(req.params.userId, 10);
-    const allowedFields = new Set(['name']);
+    const { user } = req.session;
 
+    const userToEdit = user.id === id ? user : await db.getUser(id);
+    const allowed = isAuthorizedForAgency(user, userToEdit.agency_id);
+    if (!allowed) {
+        res.sendStatus(403);
+        return;
+    }
+
+    const allowedFields = new Set(['name']);
     for (const key of Object.keys(req.body)) {
         if (!allowedFields.has(key)) {
             res.status(400).json({ message: `Request body contains unsupported field: ${key}` });
@@ -103,8 +110,8 @@ router.put('/:userId/email_subscription', requireUser, async (req, res) => {
     const { preferences } = req.body;
 
     try {
-        await db.setUserEmailSubscriptionPreference(userId, agencyId, preferences);
-        res.status(200).json({ message: 'Successfully updated preferences.' });
+        const result = await db.setUserEmailSubscriptionPreference(userId, agencyId, preferences);
+        res.status(200).json({ user: result });
     } catch (e) {
         console.error(`Unable to update agency email preferences for user: ${userId} agency: ${agencyId} preferences: ${preferences} error: ${e}`);
         res.status(500).json({ message: 'Something went wrong while updating preferences. Please try again or reach out to support.' });
@@ -140,9 +147,9 @@ router.delete('/:userId', requireAdminUser, async (req, res) => {
     const userToDelete = await db.getUser(req.params.userId);
 
     // Is this admin user able to delete a user in their agency
-    const authorized = await isAuthorized(req.signedCookies.userId, userToDelete.agency_id);
+    const authorized = isAuthorizedForAgency(req.session.user, userToDelete.agency_id);
     if (!authorized) {
-        res.sendStatus(403);
+        res.status(403).send('Cannot delete a user from a parent agency or agency outside of the tenant');
         return;
     }
 

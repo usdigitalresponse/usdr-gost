@@ -66,14 +66,27 @@ export default {
       const data = await fetchApi.patch(`/api/organizations/:organizationId/users/${id}`, { name });
       commit('SET_LOGGED_IN_USER', data.user);
     },
-    async deleteUser({ dispatch }, userId) {
-      await fetchApi.deleteRequest(`/api/organizations/:organizationId/users/${userId}`);
+    async deleteUser({ dispatch, commit }, userId) {
+      try {
+        await fetchApi.deleteRequest(
+          `/api/organizations/:organizationId/users/${userId}`,
+        );
+      } catch (error) {
+        commit('alerts/addAlert', {
+          text: `Error deleting user: ${error.message}`,
+          level: 'err',
+        }, { root: true });
+      }
       await dispatch('fetchUsers');
     },
-    async updateEmailSubscriptionPreferences({ dispatch }, { userId, preferences }) {
-      await fetchApi.put(`/api/organizations/:organizationId/users/${userId}/email_subscription`, {
-        preferences,
-      });
+    async updateEmailSubscriptionPreferences({ dispatch, commit }, { userId, preferences }) {
+      const data = await fetchApi.put(
+        `/api/organizations/:organizationId/users/${userId}/email_subscription`,
+        {
+          preferences,
+        },
+      );
+      commit('SET_LOGGED_IN_USER', data.user);
       dispatch('fetchUsers');
     },
   },
