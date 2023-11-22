@@ -72,10 +72,9 @@ async function createUser(user) {
         .into('users')
         .returning(['id', 'created_at']);
 
-    setUserAvatar(response[0].id)
     const emailUnsubscribePreference = Object.assign(
         ...Object.values(emailConstants.notificationType).map(
-            (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
+            (k) => ({ [k]: emailConstants.emailSubscriptionStatus.subscribed }),
         ),
     );
     module.exports.setUserEmailSubscriptionPreference(response[0].id, user.agency_id, emailUnsubscribePreference);
