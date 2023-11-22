@@ -478,7 +478,7 @@ describe('`/api/grants` endpoint', () => {
                 'Title',
                 'Viewed By',
                 'Interested Teams',
-                'Status',
+                'Opportunity Status',
                 'Opportunity Category',
                 'Cost Sharing',
                 'Award Ceiling',
@@ -487,11 +487,24 @@ describe('`/api/grants` endpoint', () => {
                 'Agency Code',
                 'Grant Id',
                 'URL',
+                'Funding Type',
+                'Appropriations Bill',
+                'Agency Code',
+                'Eligibility',
             ];
-            const txt = await response.text();
 
-            expect(txt.split('\n')[0]).to.equal(expectedCsvHeaders.join(','));
-            expect(txt.split('\n')[1]).to.contain('HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &');
+            const txt = await response.text();
+            const rows = txt.split('\n');
+            expect(rows[0]).to.equal(expectedCsvHeaders.join(','));
+
+            const cells = rows[1].split(',');
+            const valMap = new Map([...Array(cells.length).keys()].map((i) => [expectedCsvHeaders[i], cells[i]]));
+
+            expect(valMap.get('Opportunity Number')).to.equal('HHS-2021-IHS-TPI-0001');
+            expect(valMap.get('Title')).to.equal('Community Health Aide Program:  Tribal Planning & Implementation');
+            expect(valMap.get('Funding Type')).to.equal('Other');
+            expect(valMap.get('Agency Code')).to.equal('HHS-IHS');
+            expect(valMap.get('Eligibility')).to.equal('"Native American tribal organizations (other than Federally recognized tribal governments)|Others(see text field entitled ""Additional Information on Eligibility"" for clarification)|Native American tribal governments(Federally recognized)"');
         });
 
         it('produces same number of rows as grid', async () => {
@@ -688,7 +701,7 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
     });
     context('GET /exportCSVRecentActivities', () => {
         it('produces the expected column headers', async () => {
-            const expectedCsvHeaders = 'Date,Agency,Grant,Status Code,Grant Assigned By,Email';
+            const expectedCsvHeaders = 'Date,Team,Grant,Status Code,Grant Assigned By,Email';
             const agencyId = agencies.own;
             const role = fetchOptions.staff;
 

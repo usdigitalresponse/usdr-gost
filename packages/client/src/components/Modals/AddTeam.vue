@@ -5,7 +5,7 @@
       id="add-agency-modal"
       v-model="showDialog"
       ref="modal"
-      title="Add Agency"
+      :title="newTerminologyEnabled ? 'Add Team' : 'Add Agency'"
       @hidden="resetModal"
       @ok="handleOk"
       :ok-disabled="$v.formData.$invalid"
@@ -31,7 +31,7 @@
           invalid-feedback="Required"
         >
           <template slot="label">Abbreviation</template>
-          <template slot="description">This is used for displaying lists of agencies in compact form (e.g. in a table).</template>
+          <template slot="description">This is used for displaying lists of {{newTerminologyEnabled ? 'teams' : 'agencies'}} in compact form (e.g. in a table).</template>
           <b-form-input
               id="abbreviation-input"
               type="text"
@@ -47,7 +47,7 @@
           invalid-feedback="Required"
         >
           <template slot="label">Code</template>
-          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across agencies.</template>
+          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across {{newTerminologyEnabled ? 'teams' : 'agencies'}}.</template>
           <b-form-input
               id="code-input"
               type="text"
@@ -60,9 +60,9 @@
         <b-form-group
           :state="!$v.formData.parentAgency.$invalid"
           label-for="agency-input"
-          invalid-feedback="Must select a parent agency"
+          :invalid-feedback="newTerminologyEnabled ? 'Must select a parent team' : 'Must select a parent agency'"
         >
-          <template slot="label">Parent Agency</template>
+          <template slot="label">Parent {{newTerminologyEnabled ? 'Team' : 'Agency'}}</template>
           <v-select :options="agencies" label="name" :value="formData.parentAgency" v-model="formData.parentAgency">
             <template #search="{attributes, events}">
               <input
@@ -117,6 +117,7 @@ import {
   numeric,
   minValue,
 } from 'vuelidate/lib/validators';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
@@ -178,6 +179,9 @@ export default {
     },
     canDefaultCodeToAbbreviation() {
       return Boolean(this.formData.abbreviation && this.formData.abbreviation.trim().length > 0);
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
     },
   },
   mounted() {
