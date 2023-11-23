@@ -30,6 +30,10 @@ jobs:
     env:
       DEFAULT_ASSIGNEE: ${{ github.actor }}
     steps:
+      - uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
       - name: Check if PR already has assignee
         id: check
         run: |
@@ -71,6 +75,10 @@ jobs:
       check-passed: ${{ steps.check.outputs.result == 'passed' }}
       fixed: ${{ steps.fix.outputs.result == 'fixed' }}
     steps:
+      - uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
       - name: Check the current PR title
         id: check
         run: |
@@ -138,6 +146,10 @@ jobs:
       - issue-in-title
     runs-on: ubuntu-latest
     steps:
+      - uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
       - name: Create comment file
         run: |
           COMMENT_FILE=$(mktemp -t comment.md.XXXXX)
@@ -172,6 +184,8 @@ jobs:
           GH_SERVER: ${{ github.server_url }}
           GH_REPO: ${{ github.repository }}
           GH_RUN_ID: ${{ github.run_id }}
+      - name: Output comment body to step summary
+        run: cat $COMMENT_FILE >> $GITHUB_STEP_SUMMARY
       - name: Write the comment body
         id: comment-body
         run: |
