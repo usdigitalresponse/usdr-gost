@@ -29,7 +29,7 @@ on:
       server-image-name:
         description: Name of the docker image. Use caution when setting a non-default value.
         type: string
-        default: usdr-gost-api
+        default: ${{ github.repository }}-api
       server-image-registry:
         description: The Docker image registry. Use caution when setting a non-default value.
         type: string
