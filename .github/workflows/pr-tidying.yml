@@ -41,7 +41,7 @@ jobs:
             echo "result=passed" >> $GITHUB_OUTPUT
           fi
         env:
-          CURRENT_ASSIGNEE: ${{ github.event.pull_request.assignee || '' }}
+          CURRENT_ASSIGNEE: ${{ github.event.pull_request.assignee.login || '' }}
       - id: skip-edited-event
         if: github.event.action == 'edited'
         run: |
