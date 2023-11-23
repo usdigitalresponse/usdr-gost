@@ -166,7 +166,7 @@ jobs:
           ✅ = Already passing
           🛠️ = Fixed (now passing)
           ⚠️  = Consider fixing
-          </summary>
+          </details>
 
           | Convention                           | Result |
           |:-------------------------------------|:------:|
