@@ -10,12 +10,32 @@
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
+          <b-nav-item-dropdown right v-if="loggedInUser && myProfileEnabled" no-caret>
+            <!-- Using 'button-content' slot -->
+            <template v-if="myProfileEnabled" #button-content>
+              <div class="d-inline-flex justify-content-start align-items-center" style="width: 242px">
+                <UserAvatar size="2.5rem"/>
+                <div class="ml-2 mr-5 text-black">
+                  <p class="m-0 font-weight-bold">{{ loggedInUser.name }}</p>
+                  <p class="m-0">{{ selectedTeam ? selectedTeam.name : '' }}</p>
+                </div>
+                <p class="text-black m-0 ml-auto"><b-icon icon="caret-down-fill" scale="0.8"></b-icon></p>
+              </div>
+            </template>
+            <template v-else #button-content>
+              <em>{{loggedInUser.email}}</em>
+            </template>
+            <b-dropdown-item-button href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="giveFeedback">Give Feedback</b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="trainingGuide">Training Guide</b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
+          </b-nav-item-dropdown>
 
-          <b-nav-text>
+          <b-nav-text v-if="!myProfileEnabled">
             <b-badge>{{selectedTeam ? selectedTeam.name : ''}}</b-badge>
           </b-nav-text>
 
-          <b-nav-item-dropdown right v-if="loggedInUser">
+          <b-nav-item-dropdown right v-if="loggedInUser && !myProfileEnabled">
             <!-- Using 'button-content' slot -->
             <template #button-content>
               <em>{{loggedInUser.email}}</em>
@@ -57,12 +77,14 @@ import { mapGetters } from 'vuex';
 import { myProfileEnabled, newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
 import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
 import AlertBox from '../arpa_reporter/components/AlertBox.vue';
+import UserAvatar from './UserAvatar.vue';
 
 export default {
   name: 'Layout',
   components: {
     AlertBox,
     ProfileSettingsModal,
+    UserAvatar,
   },
   data() {
     return {
@@ -123,4 +145,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.text-black {
+  color: #000;
+}
 </style>

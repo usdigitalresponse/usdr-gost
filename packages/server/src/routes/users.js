@@ -70,7 +70,7 @@ router.patch('/:userId', requireUser, async (req, res) => {
         return;
     }
 
-    const allowedFields = new Set(['name']);
+    const allowedFields = new Set(['name', 'avatar_color']);
     for (const key of Object.keys(req.body)) {
         if (!allowedFields.has(key)) {
             res.status(400).json({ message: `Request body contains unsupported field: ${key}` });
@@ -78,10 +78,10 @@ router.patch('/:userId', requireUser, async (req, res) => {
         }
     }
 
-    const { name } = req.body;
+    const { name, avatar_color } = req.body;
 
     try {
-        const result = await db.updateUser({ id, name });
+        const result = await db.updateUser({ id, name, avatar_color });
         res.status(200).json({ user: result });
     } catch (err) {
         console.error(`Unable to update name for user: ${id}, error: ${err}`);
