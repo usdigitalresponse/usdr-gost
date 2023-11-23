@@ -927,7 +927,7 @@ describe('db', () => {
             const updatedUser = await db.updateUser({ id: user.id, name: NAME }); // only changing name
             expect(updatedUser.avatar_color).to.include('#'); // avatar_color is a hex color starting with #
             await db.deleteUser(user.id);
-        })
+        });
     });
 
     context('deleteUser', () => {
