@@ -40,7 +40,7 @@ permissions:
 
 jobs:
   publish:
-    name: Publish Terraform Plan
+    name: Publish QA Results
     runs-on: ubuntu-latest
     permissions:
       contents: read
