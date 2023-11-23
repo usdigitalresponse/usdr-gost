@@ -126,7 +126,7 @@ resource "aws_s3_object" "origin_dist_artifact" {
   etag                   = filemd5("${local.origin_artifacts_dist_path}/${each.value}")
   server_side_encryption = "AES256"
 
-  depends_on = [module.module.origin_bucket]
+  depends_on = [module.origin_bucket]
 }
 
 module "logs_bucket" {
