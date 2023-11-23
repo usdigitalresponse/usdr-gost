@@ -857,7 +857,7 @@ describe('db', () => {
     });
 
     context('createUser', () => {
-        it('sets default email unsubuscribe when new users are created', async () => {
+        it('sets default email to subscribed when new users are created', async () => {
             const response = await db.createUser(
                 {
                     email: 'foo@example.com',
@@ -869,9 +869,10 @@ describe('db', () => {
                 },
             );
             const createdUser = await db.getUser(response.id);
-            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
-            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
-            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
+            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
+            expect(createdUser.emailPreferences.GRANT_FINDER_UPDATES).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
+            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
             await db.deleteUser(response.id);
         });
     });
@@ -893,6 +894,40 @@ describe('db', () => {
             expect(updatedUser.name).to.equal(NAME);
             await db.deleteUser(user.id);
         });
+
+        it('Updates user\'s avatar', async () => {
+            const user = await db.createUser(
+                {
+                    email: 'foo@example.com',
+                    name: 'sample name',
+                    role_id: fixtures.roles.adminRole.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    tenant_id: fixtures.tenants.SBA.id,
+                    id: 99991,
+                },
+            );
+            const HEX_COLOR = '#44337A';
+            const updatedUser = await db.updateUser({ id: user.id, avatar_color: HEX_COLOR });
+            expect(updatedUser.avatar_color).to.equal(HEX_COLOR);
+            await db.deleteUser(user.id);
+        });
+
+        it('Updates fields independently', async () => {
+            const user = await db.createUser(
+                {
+                    email: 'foo@example.com',
+                    name: 'sample name',
+                    role_id: fixtures.roles.adminRole.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    tenant_id: fixtures.tenants.SBA.id,
+                    id: 99991,
+                },
+            );
+            const NAME = 'new name';
+            const updatedUser = await db.updateUser({ id: user.id, name: NAME }); // only changing name
+            expect(updatedUser.avatar_color).to.include('#'); // avatar_color is a hex color starting with #
+            await db.deleteUser(user.id);
+        })
     });
 
     context('deleteUser', () => {
@@ -908,9 +943,10 @@ describe('db', () => {
                 },
             );
             const createdUser = await db.getUser(response.id);
-            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
-            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
-            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.unsubscribed);
+            expect(createdUser.emailPreferences.GRANT_ASSIGNMENT).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
+            expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
+            expect(createdUser.emailPreferences.GRANT_FINDER_UPDATES).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
+            expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
             await db.deleteUser(response.id);
 
             const existingSubscriptions = await knex('email_subscriptions').where('user_id', response.id);
@@ -951,6 +987,12 @@ describe('db', () => {
                     user_id: fixtures.users.adminUser.id,
                     agency_id: fixtures.agencies.accountancy.id,
                     notification_type: emailConstants.notificationType.grantInterest,
+                    status: emailConstants.emailSubscriptionStatus.subscribed,
+                },
+                {
+                    user_id: fixtures.users.adminUser.id,
+                    agency_id: fixtures.agencies.accountancy.id,
+                    notification_type: emailConstants.notificationType.grantFinderUpdates,
                     status: emailConstants.emailSubscriptionStatus.subscribed,
                 },
             ];
@@ -1039,6 +1081,8 @@ describe('db', () => {
             const digestSubscribers = digestResult.map((r) => r.email);
             const interestResult = await db.getSubscribersForNotification(fixtures.agencies.accountancy.id, emailConstants.notificationType.grantInterest);
             const interestSubscribers = interestResult.map((r) => r.email);
+            const finderUpdatesResult = await db.getSubscribersForNotification(fixtures.agencies.accountancy.id, emailConstants.notificationType.grantFinderUpdates);
+            const finderUpdatesSubscribers = finderUpdatesResult.map((r) => r.email);
 
             expect(assignmentResult.length).to.equal(2);
             expect(assignmentSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
@@ -1051,6 +1095,10 @@ describe('db', () => {
             expect(interestResult.length).to.equal(2);
             expect(interestSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
             expect(interestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
+
+            expect(finderUpdatesResult.length).to.equal(2);
+            expect(finderUpdatesSubscribers.includes(fixtures.users.staffUser.email)).to.equal(true);
+            expect(finderUpdatesSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
         });
         it('gets subscribed users for an agency', async () => {
             await db.setUserEmailSubscriptionPreference(
@@ -1068,6 +1116,7 @@ describe('db', () => {
                 {
                     [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
                     [emailConstants.notificationType.grantDigest]: emailConstants.emailSubscriptionStatus.unsubscribed,
+                    [emailConstants.notificationType.grantFinderUpdates]: emailConstants.emailSubscriptionStatus.subscribed,
                     [emailConstants.notificationType.grantInterest]: emailConstants.emailSubscriptionStatus.unsubscribed,
                 },
             );
