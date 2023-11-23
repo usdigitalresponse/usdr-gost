@@ -1,17 +1,14 @@
 name: Pull Request Tidying
 
 on:
-  # ====== 👇 WORKAROUND FOR TESTING 👇 (DO NOT MERGE OR APPROVE) ======
-  # pull_request_target:
-  #   types:
-  #     - opened
-  #     - reopened
-  #     - ready_for_review
-  #     - unassigned
-  #     - edited
-  #     - unlocked
-  pull_request: { types: [ opened, reopened, ready_for_review, unassigned, edited, unlocked ] } # REMOVE BEFORE MERGING!
-  # ====== 👆 WORKAROUND FOR TESTING 👆 (DO NOT MERGE OR APPROVE) ======
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - unassigned
+      - edited
+      - unlocked
 
 permissions:
   contents: read
@@ -19,6 +16,8 @@ permissions:
 
 jobs:
   default-assignee:
+    # Disabled for now
+    if: false
     name: Assign contributor
     continue-on-error: true
     permissions:
@@ -68,6 +67,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   issue-in-title:
+    # Disabled for now
+    if: false
     name: Add issue references to title
     continue-on-error: true
     runs-on: ubuntu-latest
@@ -140,7 +141,8 @@ jobs:
 
   comment:
     name: Create/update PR comment
-    if: always() && github.actor != 'dependabot[bot]'
+    # Disabled for now
+    if: always() && github.actor != 'dependabot[bot]' && false
     needs:
       - default-assignee
       - issue-in-title
