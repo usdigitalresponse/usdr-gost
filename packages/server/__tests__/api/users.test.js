@@ -192,6 +192,15 @@ describe('`/api/users` endpoint', () => {
                 expect(response.statusText).to.equal('OK');
             });
 
+            it('updates a user\'s avatar color', async () => {
+                const response = await fetchApi('/users/4', agencies.own, {
+                    ...fetchOptions.nonUSDRAdmin,
+                    method: 'patch',
+                    body: JSON.stringify({ avatar_color: '#44337A' }),
+                });
+                expect(response.statusText).to.equal('OK');
+            });
+
             it('does not update a user\'s email', async () => {
                 const response = await fetchApi('/users/4', agencies.own, {
                     ...fetchOptions.nonUSDRAdmin,
