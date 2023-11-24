@@ -117,7 +117,7 @@ locals {
 }
 
 resource "aws_s3_object" "origin_dist_artifact" {
-  for_each = sort(fileset(join("/", local.origin_artifacts_dist_path, "**")))
+  for_each = fileset(local.origin_artifacts_dist_path, "**")
 
   bucket                 = module.origin_bucket.bucket_id
   key                    = "${local.origin_artifacts_dist_key_prefix}/${each.value}"
