@@ -93,7 +93,7 @@ async function loadRecordsForUpload(upload) {
         );
 
         // ignore hidden sheets
-        if (sheetAttributes.Hidden !== 0) {
+        if ((sheetAttributes?.Hidden ?? -1) !== 0) {
             // eslint-disable-next-line no-continue
             continue;
         }
@@ -215,8 +215,8 @@ async function mostRecentProjectRecords(periodId, tenantId, calculatePriorPeriod
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
     const reportingPeriods = calculatePriorPeriods
-        ? await getPreviousReportingPeriods(periodId, undefined, tenantId)
-        : [await getReportingPeriod(periodId, undefined, tenantId)];
+        ? await getPreviousReportingPeriods(periodId, tenantId, undefined)
+        : [await getReportingPeriod(periodId, tenantId, undefined)];
 
     const allRecords = await Promise.all(
         reportingPeriods.map(({ id }) => recordsForReportingPeriod(id, tenantId)),
@@ -243,8 +243,8 @@ async function recordsForProject(periodId, tenantId, calculatePriorPeriods) {
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
     const reportingPeriods = calculatePriorPeriods
-        ? await getPreviousReportingPeriods(periodId, undefined, tenantId)
-        : [await getReportingPeriod(periodId, undefined, tenantId)];
+        ? await getPreviousReportingPeriods(periodId, tenantId, undefined)
+        : [await getReportingPeriod(periodId, tenantId, undefined)];
 
     const allRecords = await Promise.all(
         reportingPeriods.map(({ id }) => recordsForReportingPeriod(id, tenantId)),

@@ -41,7 +41,7 @@ async function getAllReportingPeriods(trns = knex, tenantId = useTenantId()) {
 
 /* getReportingPeriod() returns a record from the reporting_periods table.
   */
-async function getReportingPeriod(period_id = undefined, trns = knex, tenantId = useTenantId()) {
+async function getReportingPeriod(period_id = undefined, tenantId = useTenantId(), trns = knex) {
     if (period_id && Number(period_id)) {
         return baseQuery(trns)
             .where('reporting_periods.tenant_id', tenantId)
@@ -70,8 +70,8 @@ async function getReportingPeriodID(periodID, tenantId = useTenantId()) {
  *
  * @returns The matching reporting periods, sorted from oldest to newest by date
  */
-async function getPreviousReportingPeriods(period_id, trns = knex, tenantId) {
-    const currentReportingPeriod = await getReportingPeriod(period_id, trns, tenantId);
+async function getPreviousReportingPeriods(period_id, tenantId, trns = knex) {
+    const currentReportingPeriod = await getReportingPeriod(period_id, tenantId, trns);
     const allReportingPeriods = await getAllReportingPeriods(trns, tenantId);
     const reportingPeriods = allReportingPeriods.filter(
         (period) => new Date(period.end_date) <= new Date(currentReportingPeriod.end_date),

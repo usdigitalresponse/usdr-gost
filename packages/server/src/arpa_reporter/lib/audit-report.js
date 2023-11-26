@@ -71,8 +71,8 @@ async function getObligationData(periodId, domain, tenantId, calculatePriorPerio
     logger.info('building rows for spreadsheet');
     // select active reporting periods and sort by date
     const reportingPeriods = calculatePriorPeriods
-        ? await getPreviousReportingPeriods(periodId, undefined, tenantId)
-        : [await getReportingPeriod(periodId, undefined, tenantId)];
+        ? await getPreviousReportingPeriods(periodId, tenantId, undefined)
+        : [await getReportingPeriod(periodId, tenantId, undefined)];
     logger.fields.sheet.totalReportingPeriods = reportingPeriods.length;
     logger.info('retrieved previous reporting periods');
 
@@ -273,7 +273,7 @@ async function createReportsGroupedByProjectSheet(periodId, tenantId, dataBefore
                 if (dataBeforeRemaining[y]['Project ID'] === project['Project ID']) {
                     project['Capital Expenditure Amount'] += dataBeforeRemaining[y]['Capital Expenditure Amount'] ?? 0;
                     projects[i] = { ...dataBeforeRemaining[y], ...project };
-                    delete dataBeforeRemaining[y];
+                    dataBeforeRemaining.splice(y, 1);
                 }
             }
         }
@@ -372,7 +372,7 @@ async function createKpiDataGroupedByProjectSheet(periodId, tenantId, dataBefore
                     row['Number of Subawards'] += rowBefore['Number of Subawards'];
                     row['Number of Expenditures'] += rowBefore['Number of Expenditures'];
                     row['Evidence Based Total Spend'] += rowBefore['Evidence Based Total Spend'];
-                    delete dataBeforeRemaining[y];
+                    dataBeforeRemaining.splice(y, 1);
                 }
             }
         }
@@ -501,7 +501,7 @@ function reviveDate(key, value) {
 
 async function getCache(periodId, domain, tenantId, force = false, logger = log) {
     // check if the cache file exists. if not, let's generate it
-    const reportingPeriods = await getPreviousReportingPeriods(periodId);
+    const reportingPeriods = await getPreviousReportingPeriods(periodId, tenantId);
     const previousReportingPeriods = reportingPeriods.filter((p) => p.id !== periodId);
     if (previousReportingPeriods.length === 0) {
         return { };
