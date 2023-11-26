@@ -113,7 +113,10 @@ export default {
       this.sending = true;
 
       try {
-        const result = await getJson('/api/audit_report?queue=true');
+        const periodId = this.$store.getters.viewPeriod.id || 0;
+        const periodIdQuery = (periodId && !this.viewingOpenPeriod) ? `&period_id=${periodId}` : '';
+        const url = `/api/audit_report?queue=true${periodIdQuery}`;
+        const result = await getJson(url);
 
         if (result.error) {
           this.alert = {
@@ -142,7 +145,7 @@ export default {
 
       try {
         const periodId = this.$store.getters.viewPeriod.id || 0;
-        const periodIdQuery = periodId ? `period_id=${periodId}` : '';
+        const periodIdQuery = (periodId && !this.viewingOpenPeriod) ? `&period_id=${periodId}` : '';
         const url = `/api/audit_report?async=false${periodIdQuery}`;
         const result = await getJson(url);
         // const result = await getJson('/api/audit_report?async=false');
@@ -171,13 +174,18 @@ export default {
     },
     downloadTreasuryReportURL() {
       const periodId = this.$store.getters.viewPeriod.id || 0;
-      return apiURL(`/api/exports?period_id=${periodId}`);
+      const periodIdQuery = (periodId && !this.viewingOpenPeriod) ? `?period_id=${periodId}` : '';
+      const url = `/api/exports${periodIdQuery}`;
+      return apiURL(url);
     },
     async sendTreasuryReport() {
       this.sending = true;
 
       try {
-        const result = await getJson('/api/exports?queue=true');
+        const periodId = this.$store.getters.viewPeriod.id || 0;
+        const periodIdQuery = (periodId && !this.viewingOpenPeriod) ? `&period_id=${periodId}` : '';
+        const url = `/api/exports?queue=true${periodIdQuery}`;
+        const result = await getJson(url);
 
         if (result.error) {
           this.alert = {

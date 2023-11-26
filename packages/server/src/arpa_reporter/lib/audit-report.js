@@ -260,7 +260,6 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
         reportingPeriod.id, moment(reportingPeriod.end_date, 'yyyy-MM-DD').format(dateFormat),
     ]));
 
-    debugger;
     // create a row for each project, populated from the records related to that project
     const rows = Object.entries(recordsByProject).map(([projectId, projectRecords]) => {
         const projectLogger = logger.child({
@@ -556,7 +555,7 @@ async function processSQSMessageRequest(message) {
         if (!user) {
             throw new Error(`user not found: ${requestData.userId}`);
         }
-        await generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id, message.periodId);
+        await generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id, requestData.periodId);
     } catch (err) {
         log.error({ err }, 'failed to generate and send audit report');
         return false;

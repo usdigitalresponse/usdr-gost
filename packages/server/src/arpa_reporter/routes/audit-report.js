@@ -10,6 +10,7 @@ const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
 const audit_report = require('../lib/audit-report');
 const { useUser } = require('../use-request');
 const aws = require('../../lib/gost-aws');
+const { getReportingPeriod } = require('../db/reporting-periods');
 
 router.get('/:tenantId/:periodId/:filename', async (req, res) => {
     let user;
@@ -49,6 +50,14 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
 
 router.get('/', requireUser, async (req, res) => {
     console.log('/api/audit-report GET');
+    const periodId = req.query.period_id;
+    if (periodId !== undefined) {
+        const period = await getReportingPeriod(periodId);
+        if (!period) {
+            res.status(404).json({ error: 'invalid reporting period' });
+            return;
+        }
+    }
 
     if (req.query.queue) {
         // Special handling for deferring audit report generation and sending to a task queue
@@ -59,7 +68,7 @@ router.get('/', requireUser, async (req, res) => {
             const sqs = aws.getSQSClient();
             await sqs.send(new SendMessageCommand({
                 QueueUrl: process.env.ARPA_AUDIT_REPORT_SQS_QUEUE_URL,
-                MessageBody: JSON.stringify({ userId: user.id, ...(req.query.period_id && { periodId: req.query.period_id }) }),
+                MessageBody: JSON.stringify({ userId: user.id, ...(periodId && { periodId }) }),
             }));
             res.json({ success: true });
             return;

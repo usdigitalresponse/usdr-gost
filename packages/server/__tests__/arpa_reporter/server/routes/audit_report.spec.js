@@ -46,6 +46,14 @@ describe('/api/audit_report', () => {
             .set('Cookie', tenantACookie)
             .expect(200);
     });
+    it('Ensures async audit report generation with period id returns 200', async () => {
+        audit_report.generateAndSendEmail = () => 'success';
+
+        await server
+            .get('/api/audit_report?async=true&period_id=1')
+            .set('Cookie', tenantACookie)
+            .expect(200);
+    });
     it('Ensures it returns an error property when there is an issue', async () => {
         audit_report.generateAndSendEmail = () => {
             throw new Error('Some error message');
