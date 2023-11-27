@@ -96,7 +96,7 @@ jobs:
           persist-credentials: 'false'
       - name: Set build info for the checked-out commit
         id: commit-sha
-        run: echo "long=$(git rev-parse --long HEAD)" >> $GITHUB_OUTPUT
+        run: echo "long=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       - name: Set up QEMU
         uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
         with:
