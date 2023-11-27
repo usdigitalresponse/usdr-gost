@@ -63,8 +63,6 @@ on:
         value: ${{ jobs.server-docker-image.result }}
       build-website-result:
         value: ${{ jobs.website-bundle.result }}
-      server-image-commit-tag:
-        value:  ${{ jobs.server-docker-image.outputs.commit-tag }}
       server-image-digest:
         value: ${{ jobs.server-docker-image.outputs.digest }}
       website-artifacts-key:
@@ -91,10 +89,14 @@ jobs:
           disable-sudo: true
           egress-policy: audit
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        id: checkout
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
           persist-credentials: 'false'
+      - name: Set build info for the checked-out commit
+        id: commit-sha
+        run: echo "long=$(git rev-parse --long HEAD)" >> $GITHUB_OUTPUT
       - name: Set up QEMU
         uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
         with:
@@ -109,23 +111,22 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set date/time-based version string as env var
-        run: echo "DATETIME_VERSION=$(TZ=UTC date +'%Y%m%d.%H%M')" >> $GITHUB_ENV
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
         with:
           images: ${{ inputs.server-image-registry }}/${{ inputs.server-image-name }}
           tags: |
-            type=sha,enable=true,priority=100,format=long
+            type=raw,enable=true,priority=100,prefix=sha-,value=${{ steps.commit-sha.outputs.long }}
             type=raw,enable=${{ inputs.server-image-tag-release != '' }},priority=200,value=${{ inputs.server-image-tag-release }}
             type=raw,enable=${{ inputs.server-image-tag-latest }},priority=300,value=latest
             type=raw,enable=${{ inputs.server-image-tag-pr != '' }},priority=600,prefix=pr-,value=${{ inputs.server-image-tag-pr }}
           labels: |
             org.opencontainers.image.title=${{ inputs.server-image-name }}
             org.opencontainers.image.version=${{ inputs.server-image-version }}
+            org.opencontainers.image.revision=${{ steps.commit-sha.outputs.long }}
             com.datadoghq.tags.service=gost
-            com.datadoghq.tags.version=${{ inputs.ref }}
+            com.datadoghq.tags.version=${{ steps.commit-sha.outputs.long }}
       - name: Set bake file definition as step output
         id: bakefile
         run: |
