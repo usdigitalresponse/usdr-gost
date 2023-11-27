@@ -125,7 +125,7 @@ async function getUsersEmailAndName(ids) {
 }
 
 async function getUser(id) {
-    // Temporary check for avatar_column until migration is applied in prod
+    // Temporary check for avatar_column until migration is applied in prod. Clean up ticket: #2259
     const avatarColorExists = await knex.schema.hasColumn('users', 'avatar_color');
 
     const [user] = avatarColorExists ? await knex('users')
