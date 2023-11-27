@@ -128,7 +128,7 @@ async function getUser(id) {
     // Temporary check for avatar_column until migration is applied in prod
     const avatarColorExists = await knex.schema.hasColumn('users', 'avatar_color');
 
-    const [user] = avatarColorExists ?  await knex('users')
+    const [user] = avatarColorExists ? await knex('users')
         .select(
             'users.id',
             'users.email',
@@ -153,8 +153,7 @@ async function getUser(id) {
         .leftJoin('roles', 'roles.id', 'users.role_id')
         .leftJoin('agencies', 'agencies.id', 'users.agency_id')
         .leftJoin('tenants', 'tenants.id', 'users.tenant_id')
-        .where('users.id', id)
-        : await knex('users')
+        .where('users.id', id) : await knex('users')
         .select(
             'users.id',
             'users.email',
