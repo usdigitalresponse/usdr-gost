@@ -66,6 +66,27 @@ export default {
       ],
     };
   },
+  data() {
+    return {
+      prefs: [
+        {
+          name: 'New Grant Digest',
+          key: 'GRANT_DIGEST',
+          description: 'Send me a daily email if new grants match my saved search(es).',
+        },
+        {
+          name: 'Grants Assignment',
+          key: 'GRANT_ASSIGNMENT',
+          description: 'Send me notifications if a grant has been assigned to my USDR Grants team.',
+        },
+        {
+          name: 'Occasional Updates',
+          key: 'GRANT_FINDER_UPDATES',
+          description: 'Send me occasional emails about feature releases, surveys, and other updates.',
+        },
+      ],
+    };
+  },
   computed: {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
@@ -82,6 +103,30 @@ export default {
     emailPreferences() {
       return this.loggedInUser.emailPreferences;
     },
+    emailPreferences() {
+      return this.loggedInUser.emailPreferences;
+    },
+  },
+  methods: {
+    ...mapActions({
+      updateEmailSubscriptionPreferences: 'users/updateEmailSubscriptionPreferences',
+    }),
+    onUpdateEmailPreference(pref) {
+      const updatedPreferences = {
+        ...this.emailPreferences,
+        [pref.key]: pref.checked ? 'SUBSCRIBED' : 'UNSUBSCRIBED',
+      };
+      this.updateEmailSubscriptionPreferences({
+        userId: this.loggedInUser.id,
+        preferences: updatedPreferences,
+      });
+    },
+  },
+  beforeMount() {
+    this.prefs.forEach((pref) => {
+      // eslint-disable-next-line no-param-reassign
+      pref.checked = this.emailPreferences[pref.key] === 'SUBSCRIBED';
+    });
   },
   methods: {
     ...mapActions({
