@@ -80,6 +80,7 @@ router.get('/next', requireUser, async (req, res) => {
         orderingParams,
         user.tenant_id,
         user.agency_id,
+        false,
     );
 
     return res.json(grants);
@@ -121,6 +122,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
         orderingParams,
         user.tenant_id,
         user.agency_id,
+        true,
     );
 
     // Generate CSV
@@ -155,7 +157,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             { key: 'title', header: 'Title' },
             { key: 'viewed_by', header: 'Viewed By' },
             { key: 'interested_agencies', header: process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies' },
-            { key: 'opportunity_status', header: 'Status' },
+            { key: 'opportunity_status', header: 'Opportunity Status' },
             { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },
             { key: 'award_ceiling', header: 'Award Ceiling' },
@@ -164,6 +166,10 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             { key: 'agency_code', header: 'Agency Code' },
             { key: 'grant_id', header: 'Grant Id' },
             { key: 'url', header: 'URL' },
+            { key: 'funding_type', header: 'Funding Type' },
+            { key: 'bill', header: 'Appropriations Bill' },
+            { key: 'agency_code', header: 'Agency Code' },
+            { key: 'eligibility', header: 'Eligibility' },
         ],
     });
 
@@ -272,7 +278,7 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
     const formattedData = data.map((grant) => ({
         ...grant,
         date: new Date(grant.created_at).toLocaleDateString('en-US'),
-        agency: grant.name,
+        team: grant.name,
         grant: grant.title,
         status_code: grant.status_code,
         name: users[grant.assigned_by]?.name,
@@ -287,7 +293,7 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
         header: true,
         columns: [
             { key: 'date', header: 'Date' },
-            { key: 'agency', header: 'Agency' },
+            { key: 'team', header: 'Team' },
             { key: 'grant', header: 'Grant' },
             { key: 'status_code', header: 'Status Code' },
             { key: 'name', header: 'Grant Assigned By' },

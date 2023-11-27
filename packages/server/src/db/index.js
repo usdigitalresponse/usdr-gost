@@ -74,7 +74,7 @@ async function createUser(user) {
 
     const emailUnsubscribePreference = Object.assign(
         ...Object.values(emailConstants.notificationType).map(
-            (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
+            (k) => ({ [k]: emailConstants.emailSubscriptionStatus.subscribed }),
         ),
     );
     module.exports.setUserEmailSubscriptionPreference(response[0].id, user.agency_id, emailUnsubscribePreference);
@@ -87,11 +87,11 @@ async function createUser(user) {
 }
 
 async function updateUser(user) {
-    const { id, name } = user;
+    const { id, name, avatar_color } = user;
 
     await knex('users')
         .where('id', id)
-        .update({ name });
+        .update({ name, avatar_color });
 
     return getUser(id);
 }
@@ -131,6 +131,7 @@ async function getUser(id) {
             'users.email',
             'users.name',
             'users.role_id',
+            'users.avatar_color',
             'roles.name as role_name',
             'roles.rules as role_rules',
             'users.agency_id',
@@ -668,6 +669,23 @@ function validateSearchFilters(filters) {
     return errors;
 }
 
+function addCsvData(qb) {
+    qb
+        .select(knex.raw(`
+            CASE
+            WHEN grants.funding_instrument_codes = 'G' THEN 'Grant'
+            WHEN grants.funding_instrument_codes = 'CA' THEN 'Cooperative Agreement'
+            WHEN grants.funding_instrument_codes = 'PC' THEN 'Procurement Contract'
+            ELSE 'Other'
+            END as funding_type
+        `))
+        .select(knex.raw(`array_to_string(array_agg(${TABLES.eligibility_codes}.label), '|') AS eligibility`))
+        .leftJoin(
+            `${TABLES.eligibility_codes}`,
+            `${TABLES.eligibility_codes}.code`, '=', knex.raw(`ANY(string_to_array(${TABLES.grants}.eligibility_codes, ' '))`),
+        );
+}
+
 /*
    filters: {
         reviewStatuses: List[Enum['Applied', 'Not Applying', 'Interested']],
@@ -689,15 +707,15 @@ function validateSearchFilters(filters) {
     tenantId: number
     agencyId: number
 */
-async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId) {
-    console.log(JSON.stringify([filters, paginationParams, orderingParams, tenantId, agencyId]));
+async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId, toCsv) {
+    console.log(JSON.stringify([filters, paginationParams, orderingParams, tenantId, agencyId, toCsv]));
 
     const errors = validateSearchFilters(filters);
     if (errors.length > 0) {
         throw new Error(`Invalid filters: ${errors.join(', ')}`);
     }
 
-    const data = await knex(TABLES.grants)
+    const query = knex(TABLES.grants)
         .select([
             'grants.grant_id',
             'grants.grant_number',
@@ -767,6 +785,10 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.funding_instrument_codes',
             'grants.bill',
         );
+    if (toCsv) {
+        query.modify(addCsvData);
+    }
+    const data = await query;
 
     const fullCount = data.length > 0 ? data[0].full_count : 0;
 

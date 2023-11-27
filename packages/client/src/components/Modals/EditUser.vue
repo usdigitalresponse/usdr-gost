@@ -10,6 +10,9 @@
     @ok="handleOk"
     :ok-disabled="$v.formData.$invalid"
     >
+    <div class="text-center my-3">
+      <UserAvatar editable @changeColor="handleChangeColor" :userName="formData.name"/>
+    </div>
     <b-form>
        <b-form-group
           :state="!$v.formData.name.$invalid"
@@ -34,12 +37,17 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { required, minLength } from 'vuelidate/lib/validators';
+import UserAvatar from '../UserAvatar.vue';
 
 export default {
+  components: {
+    UserAvatar,
+  },
   data() {
     return {
       formData: {
         name: null,
+        avatarColor: null,
       },
     };
   },
@@ -62,15 +70,18 @@ export default {
     }),
     resetModal() {
       this.formData.name = this.loggedInUser.name;
+      this.formData.avatarColor = this.loggedInUser.avatar_color;
     },
     handleOk(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
       this.handleSubmit();
     },
+    handleChangeColor(bgColor) {
+      this.formData.avatarColor = bgColor;
+    },
     async handleSubmit() {
       this.formData.id = this.loggedInUser.id;
-
       // Exit when the form isn't valid
       if (this.$v.formData.$invalid) {
         return;
