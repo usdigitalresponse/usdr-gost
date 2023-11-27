@@ -155,7 +155,6 @@ jobs:
             TIMESTAMP=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
       - name: Publish build results
         run: |
-          BAKE_FILE=$(cat ${{ steps.meta.outputs.bake-file }})
           REPORT_FILE=$(mktemp -t summary.md.XXXXX)
           cat >> $REPORT_FILE << 'ENDOFREPORT'
           ## Docker Build Summary
