@@ -149,12 +149,18 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          provenance: true
           sbom: true
           build-args: |
             GIT_COMMIT=${{ inputs.ref }}
             GIT_REF=${{ inputs.server-image-args-ref }}
             TIMESTAMP=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+      - name: Inspect the SBOM
+        run: |
+          SBOM_FILE=$(mktemp -t sbom.spdx.json.XXXXX)
+          docker buildx imagetools inspect "$INSPECT_TARGET" --format "{{ json .SBOM }}" > $SBOM_FILE
+          cat $SBOM_FILE
+        env:
+          INSPECT_TARGET: ${{ inputs.server-image-registry }}/${{ inputs.server-image-name }}@${{ steps.build-push.outputs.digest }}
       - name: Publish build results
         run: |
           REPORT_FILE=$(mktemp -t summary.md.XXXXX)
