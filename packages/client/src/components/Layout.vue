@@ -10,12 +10,44 @@
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
+          <b-nav-item-dropdown right v-if="loggedInUser && myProfileEnabled" no-caret menu-class="w-100">
+            <!-- Using 'button-content' slot -->
+            <template v-if="myProfileEnabled" #button-content>
+              <div class="d-inline-flex justify-content-start align-items-center" style="width: 242px">
+                <UserAvatar size="2.5rem"/>
+                <div class="ml-2 mr-5 text-black">
+                  <p class="m-0 font-weight-bold">{{ loggedInUser.name }}</p>
+                  <p class="m-0">{{ selectedTeam ? selectedTeam.name : '' }}</p>
+                </div>
+                <p class="text-black m-0 ml-auto"><b-icon icon="caret-down-fill" scale="0.8"></b-icon></p>
+              </div>
+            </template>
+            <template v-else #button-content>
+              <em>{{loggedInUser.email}}</em>
+            </template>
+            <b-dropdown-item href="#/my-profile">
+              <b-icon icon="person-circle" scale="1" class="dropdown-icon"></b-icon>
+              <p class="dropdown-item-text">My profile</p>
+            </b-dropdown-item>
+            <b-dropdown-item-button href="#" @click="giveFeedback">
+              <b-icon icon="chat-square-text" scale="1" class="dropdown-icon"></b-icon>
+              <p class="dropdown-item-text">Give feedback</p>
+            </b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="trainingGuide">
+              <b-icon icon="book" scale="1" class="dropdown-icon"></b-icon>
+              <p class="dropdown-item-text">Training guide</p>
+            </b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="logout">
+              <b-icon icon="box-arrow-right" scale="1" class="dropdown-icon"></b-icon>
+              <p class="dropdown-item-text">Sign out</p>
+            </b-dropdown-item-button>
+          </b-nav-item-dropdown>
 
-          <b-nav-text>
-            <b-badge>{{selectedAgency ? selectedAgency.name : ''}}</b-badge>
+          <b-nav-text v-if="!myProfileEnabled">
+            <b-badge>{{selectedTeam ? selectedTeam.name : ''}}</b-badge>
           </b-nav-text>
 
-          <b-nav-item-dropdown right v-if="loggedInUser">
+          <b-nav-item-dropdown right v-if="loggedInUser && !myProfileEnabled">
             <!-- Using 'button-content' slot -->
             <template #button-content>
               <em>{{loggedInUser.email}}</em>
@@ -36,8 +68,8 @@
           <b-nav-item v-if="!useNewGrantsTable" to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
           <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
           <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
-          <b-nav-item to="/Agencies" exact exact-active-class="active">Agencies</b-nav-item>
-          <b-nav-item v-if="canSeeTenantsTab" to="/tenants" exact exact-active-class="active">Tenants</b-nav-item>
+          <b-nav-item :to="newTerminologyEnabled ? '/teams' : '/agencies'" exact exact-active-class="active">{{newTerminologyEnabled ? 'Teams' : 'Agencies'}}</b-nav-item>
+          <b-nav-item v-if="canSeeOrganizationsTab" :to="newTerminologyEnabled ? '/organizations' : '/tenants'" exact exact-active-class="active">{{newTerminologyEnabled ? 'Organizations' : 'Tenants'}}</b-nav-item>
       </b-nav>
     </b-col>
 
@@ -48,22 +80,23 @@
 
       <router-view />
     </div>
-    <ProfileSettingsModal
-    :showModal.sync="showProfileSettingModal"/>
+    <ProfileSettingsModal :showModal.sync="showProfileSettingModal"/>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-import { myProfileEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
+import { myProfileEnabled, newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
 import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
 import AlertBox from '../arpa_reporter/components/AlertBox.vue';
+import UserAvatar from './UserAvatar.vue';
 
 export default {
   name: 'Layout',
   components: {
     AlertBox,
     ProfileSettingsModal,
+    UserAvatar,
   },
   data() {
     return {
@@ -73,14 +106,16 @@ export default {
   },
   computed: {
     ...mapGetters({
-      agency: 'users/agency',
       loggedInUser: 'users/loggedInUser',
       userRole: 'users/userRole',
-      selectedAgency: 'users/selectedAgency',
+      selectedTeam: 'users/selectedAgency',
       alerts: 'alerts/alerts',
     }),
-    canSeeTenantsTab() {
-      return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
+    canSeeOrganizationsTab() {
+      return true;
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
     },
     myProfileEnabled() {
       return myProfileEnabled();
@@ -122,4 +157,17 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.dropdown-icon {
+  margin-right: 1rem;
+}
+
+.dropdown-item-text {
+  font-size: 14px;
+  display: inline;
+  text-align: left;
+  padding: 0;
+}
+.text-black {
+  color: #000;
+}
 </style>

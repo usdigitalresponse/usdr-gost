@@ -74,7 +74,7 @@ async function createUser(user) {
 
     const emailUnsubscribePreference = Object.assign(
         ...Object.values(emailConstants.notificationType).map(
-            (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
+            (k) => ({ [k]: emailConstants.emailSubscriptionStatus.subscribed }),
         ),
     );
     module.exports.setUserEmailSubscriptionPreference(response[0].id, user.agency_id, emailUnsubscribePreference);
@@ -87,11 +87,11 @@ async function createUser(user) {
 }
 
 async function updateUser(user) {
-    const { id, name } = user;
+    const { id, name, avatar_color } = user;
 
     await knex('users')
         .where('id', id)
-        .update({ name });
+        .update({ name, avatar_color });
 
     return getUser(id);
 }
@@ -131,6 +131,7 @@ async function getUser(id) {
             'users.email',
             'users.name',
             'users.role_id',
+            'users.avatar_color',
             'roles.name as role_name',
             'roles.rules as role_rules',
             'users.agency_id',

@@ -39,8 +39,9 @@ website_managed_waf_rules = {
   }
 }
 website_feature_flags = {
-  useNewTable      = true,
-  myProfileEnabled = false
+  useNewTable           = true,
+  myProfileEnabled      = false,
+  newTerminologyEnabled = false
 }
 
 // ECS Cluster
@@ -54,6 +55,7 @@ api_minumum_task_count                = 2
 api_maximum_task_count                = 5
 api_enable_grants_scraper             = false
 api_enable_grants_digest              = false
+api_enable_new_team_terminology       = false
 api_enable_saved_search_grants_digest = true
 api_log_retention_in_days             = 30
 api_datadog_environment_variables = {

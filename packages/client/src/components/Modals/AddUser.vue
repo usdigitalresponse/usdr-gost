@@ -46,9 +46,9 @@
         </b-form-group>
         <b-form-group
           :state="!$v.formData.agency.$invalid"
-          label="Agency"
+          :label="newTerminologyEnabled ? 'Team' : 'Agency'"
           label-for="agency-select"
-          invalid-feedback="Please select your agency"
+          :invalid-feedback="`Please select your ${newTerminologyEnabled ? 'team' : 'agency'}`"
         >
           <b-form-select
           id="agency-select"
@@ -62,6 +62,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { required, minLength, email } from 'vuelidate/lib/validators';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
@@ -116,6 +117,9 @@ export default {
         value: agency.id,
         text: agency.name,
       }));
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
     },
   },
   mounted() {
