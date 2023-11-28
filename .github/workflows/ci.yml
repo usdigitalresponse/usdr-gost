@@ -1,10 +1,7 @@
 name: Continuous Integration
 
 on:
-  # ====== 👇 WORKAROUND FOR TESTING 👇 (DO NOT MERGE OR APPROVE) ======
-  # pull_request_target: {} # ENABLE BEFORE MERGING!
-  pull_request: {} # REMOVE BEFORE MERGING!
-  # ====== 👆 WORKAROUND FOR TESTING 👆 (DO NOT MERGE OR APPROVE) ======
+  pull_request_target: {}
 
 permissions:
   contents: read
