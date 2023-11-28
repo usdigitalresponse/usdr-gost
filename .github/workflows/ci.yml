@@ -52,6 +52,8 @@ jobs:
       server-image-tag-latest: false
       server-image-tag-pr: "${{ github.event.pull_request.number }}"
       server-image-version: "rc-pr-${{ github.event.pull_request.number }}"
+      server-image-upload-attestations: true
+      server-image-artifacts-retention-days: 14
       build-website: true
       website-artifact-retention-days: 14
 
