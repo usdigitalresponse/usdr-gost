@@ -160,6 +160,7 @@ module "api" {
   autoscaling_desired_count_maximum = var.api_maximum_task_count
   enable_grants_scraper             = var.api_enable_grants_scraper
   enable_grants_digest              = var.api_enable_grants_digest
+  enable_new_team_terminology       = var.api_enable_new_team_terminology
   enable_saved_search_grants_digest = var.api_enable_saved_search_grants_digest
   unified_service_tags              = local.unified_service_tags
   datadog_environment_variables     = var.api_datadog_environment_variables
