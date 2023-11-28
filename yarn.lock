@@ -267,16 +267,16 @@
     tslib "^2.5.0"
 
 "@aws-sdk/client-s3@^3.312.0":
-  version "3.456.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.456.0.tgz#5bb5093545ab203bff2144c4bd9c6adc800b212e"
-  integrity sha512-987Mls+9w+mpdq4Vpc/OEQ93afkM12H7l97lIejcidZySuLVo5tdOM9ErekmgjAuotFzBgu2ExL83XtYIMgA0g==
+  version "3.458.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.458.0.tgz#3e60c0c790398cf4ca6862254fff5a2aaf102873"
+  integrity sha512-MTRhiBLGjCd3x3fPpDpXf6fjBsaX+jvh9vSv1S5ulgOR+z2vbUOViXHNTpuHcgOJ3TnnSP5/voHr7K8NJHUksg==
   dependencies:
     "@aws-crypto/sha1-browser" "3.0.0"
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.454.0"
+    "@aws-sdk/client-sts" "3.458.0"
     "@aws-sdk/core" "3.451.0"
-    "@aws-sdk/credential-provider-node" "3.451.0"
+    "@aws-sdk/credential-provider-node" "3.458.0"
     "@aws-sdk/middleware-bucket-endpoint" "3.451.0"
     "@aws-sdk/middleware-expect-continue" "3.451.0"
     "@aws-sdk/middleware-flexible-checksums" "3.451.0"
@@ -377,15 +377,15 @@
     tslib "^2.5.0"
 
 "@aws-sdk/client-sqs@^3.345.0":
-  version "3.454.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sqs/-/client-sqs-3.454.0.tgz#c772faf558ff4b4851843df9b23e1b0822d638b5"
-  integrity sha512-eBviLavFxmXAbqL/wPlVqYnmS/hYUPj63ilQvFuj8zM3WYy0DX7GgvYXz5AUWswGsEk/4F88QFjlBM7N5miepw==
+  version "3.458.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sqs/-/client-sqs-3.458.0.tgz#aaa198c64a81c14cfaddabbde7896a2d31f2bc5e"
+  integrity sha512-Ewval0ijLPckW/WGzRXHx+tclgy7vTWHBVZIjZbfmNGRuvXXgQxbyFfavaxqjzGCeb+z7lAasS6dlUdGVvh27A==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.454.0"
+    "@aws-sdk/client-sts" "3.458.0"
     "@aws-sdk/core" "3.451.0"
-    "@aws-sdk/credential-provider-node" "3.451.0"
+    "@aws-sdk/credential-provider-node" "3.458.0"
     "@aws-sdk/middleware-host-header" "3.451.0"
     "@aws-sdk/middleware-logger" "3.451.0"
     "@aws-sdk/middleware-recursion-detection" "3.451.0"
