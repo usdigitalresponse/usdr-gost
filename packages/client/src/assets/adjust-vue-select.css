@@ -1,0 +1,7 @@
+/* Make vue-select dropdowns match the height for other form controls */
+.vs__dropdown-toggle {
+  padding-top: 4px;
+  padding-bottom: 7px;
+  padding-left: 4px;
+  padding-right: 4px;
+}

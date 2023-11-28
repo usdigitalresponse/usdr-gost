@@ -71,11 +71,11 @@
       <br />
       <b-row style="padding: 16px;">
         <h4>Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h4>
-          <multiselect v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
+          <v-select v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
             :clear-on-select="false" :placeholder="`Select ${newTerminologyEnabled ? 'teams': 'agencies'}`" label="name" track-by="id"
             style="width: 300px; margin: 0 16px;" :show-labels="false"
           >
-          </multiselect>
+          </v-select>
           <b-button variant="outline-success" @click="assignAgenciesToGrant">Assign</b-button>
       </b-row>
       <b-table :items="assignedAgencies" :fields="assignedAgenciesFields">
@@ -92,12 +92,10 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { debounce } from 'lodash';
-import Multiselect from 'vue-multiselect';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { titleize } from '../../helpers/form-helpers';
 
 export default {
-  components: { Multiselect },
   props: {
     selectedGrant: Object,
   },
