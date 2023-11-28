@@ -41,6 +41,8 @@ jobs:
       server-image-version: ${{ github.ref_name }}
       server-image-tag-latest: false
       server-image-tag-release: ${{ github.ref_name }}
+      server-image-upload-attestations: true
+      server-image-artifacts-retention-days: 90
       build-website: true
       website-artifact-retention-days: 90
 
@@ -138,6 +140,7 @@ jobs:
     permissions:
       contents: write
     needs:
+      - build
       - tf-apply
     env:
       GH_TOKEN: ${{ github.token }}
@@ -152,13 +155,35 @@ jobs:
             api.github.com:443
             github.com:443
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Download website build artifacts
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        with:
+          name: ${{ needs.build.outputs.website-artifacts-key }}
+          path: ${{ needs.build.outputs.website-artifacts-path }}
+      - name: Download docker build attestation artifacts
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        with:
+          name: ${{ needs.build.outputs.server-attestation-artifacts-key }}
+          path: ${{ needs.build.outputs.server-attestation-artifacts-path }}
+      - name: Upload release assets
+        run: |
+          WEBSITE_TAR_FILE="client-dist.tar.gz"
+          tar -czf "$WEBSITE_TAR_FILE" -C $(dirname "$WEBSITE_DIST_PATH") .
+          gh release upload --clobber "$RELEASE_TAG" \
+            "$WEBSITE_TAR_FILE#Client website bundle" \
+            "$PROVENANCE_FILE#Server Docker image provenance attestations" \
+            "$SBOM_FILE#Server Docker image SBOM attestations"
+        env:
+          WEBSITE_DIST_PATH: ${{ needs.build.outputs.website-artifacts-path }}
+          PROVENANCE_FILE: ${{ needs.build.outputs.server-attestation-artifacts-path }}/provenance.json
+          SBOM_FILE: ${{ needs.build.outputs.server-attestation-artifacts-path }}/sbom.sdpx.json
       - name: Get release notes
         id: get
         continue-on-error: true
-        run: gh release view $RELEASE_TAG --json body --jq .body > release_notes.md
+        run: gh release view "$RELEASE_TAG" --json body --jq .body > release_notes.md
       - name: Add deployment history to release notes
         if: always() && steps.get.outcome == 'success'
         run: printf "\n- Deployed at $(date --iso-8601=seconds)\n" >> release_notes.md
       - name: Update release notes and status
         if: always() && steps.get.outcome == 'success'
-        run: gh release edit $RELEASE_TAG --draft=false --prerelease=false --latest --verify-tag -F release_notes.md
+        run: gh release edit "$RELEASE_TAG" --draft=false --prerelease=false --latest --verify-tag -F release_notes.md
