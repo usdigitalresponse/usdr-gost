@@ -19,7 +19,6 @@ body {
 
 // Setting the same styles for heading elements and heading classes so there's flexibility in separating semantic headings from visual heading style
 h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
-  font-family: Inter, Helvetica, Arial, sans-serif;
   font-weight: 700;
   line-height: 120%;
 }
