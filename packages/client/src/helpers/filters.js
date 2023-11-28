@@ -12,6 +12,7 @@ const FILTER_FIELD_NAME_MAP = {
   postedWithin: 'Posted Within',
   eligibility: 'Eligibility',
   bill: 'Bill',
+  fundingActivityCategories: 'Category of Funding Activity',
 };
 
 export function formatFilterDisplay(criteria) {
@@ -34,6 +35,8 @@ export function formatFilterDisplay(criteria) {
       } else if (key === 'eligibility') {
         newVal = value.map((i) => i.label).join(' or ');
       } else if (key === 'fundingTypes') {
+        newVal = value.map((i) => i.name).join(' or ');
+      } else if (key === 'fundingActivityCategories') {
         newVal = value.map((i) => i.name).join(' or ');
       }
 

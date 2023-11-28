@@ -51,6 +51,7 @@ function criteriaToFiltersObj(criteria, agencyId) {
     return {
         reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned').map((r) => r.trim()) || [],
         eligibilityCodes: filters.eligibility?.split(',') || [],
+        fundingActivityCategories: filters.fundingActivityCategories?.split(',') || [],
         includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
         excludeKeywords: filters.excludeKeywords?.split(',').map((k) => k.trim()) || [],
         opportunityNumber: filters.opportunityNumber || '',
@@ -128,6 +129,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
     // Generate CSV
     const formattedData = data.map((grant) => ({
         ...grant,
+        funding_activity_categories: grant.funding_activity_categories.join('|'),
         interested_agencies: grant.interested_agencies
             .map((v) => v.agency_abbreviation)
             .join(', '),
@@ -170,6 +172,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             { key: 'bill', header: 'Appropriations Bill' },
             { key: 'agency_code', header: 'Agency Code' },
             { key: 'eligibility', header: 'Eligibility' },
+            { key: 'funding_activity_categories', header: 'Category of Funding Activity' },
         ],
     });
 

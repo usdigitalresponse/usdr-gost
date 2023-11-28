@@ -39,6 +39,7 @@ function mapSourceDataToGrant(source) {
         opportunity_category: source.opportunity.category.name,
         cfda_list: (source.cfda_numbers || []).join(', '),
         eligibility_codes: (source.eligible_applicants || []).map((it) => it.code).join(' '),
+        funding_activity_category_codes: (source.funding_activity?.categories || []).map((it) => it.code).join(' '),
         award_ceiling: source.award && source.award.ceiling ? source.award.ceiling : undefined,
         award_floor: source.award && source.award.floor ? source.award.floor : undefined,
         raw_body: JSON.stringify(source),

@@ -157,6 +157,23 @@
               />
             </b-form-group>
             <b-form-group
+              id="category-of-funding-activity-group"
+              label="Category of Funding Activity"
+              label-for="category-of-funding-activity"
+            >
+              <multiselect
+                id="category-of-funding-activity"
+                v-model="formData.criteria.fundingActivityCategories"
+                :options="fundingActivityCategories"
+                :multiple="true"
+                :close-on-select="false"
+                label="name"
+                track-by="code"
+                :limit="3"
+                selectLabel=""
+              />
+            </b-form-group>
+            <b-form-group
               id="agency-group"
               label="Agency Code"
               label-for="agency"
@@ -234,6 +251,7 @@ const defaultCriteria = {
   bill: null,
   costSharing: null,
   opportunityCategories: [],
+  fundingActivityCategories: [],
   postedWithin: [],
 };
 
@@ -295,6 +313,7 @@ export default {
   computed: {
     ...mapGetters({
       eligibilityCodes: 'grants/eligibilityCodes',
+      fundingActivityCategories: 'grants/fundingActivityCategories',
       savedSearches: 'grants/savedSearches',
       displaySearchPanel: 'grants/displaySearchPanel',
     }),
@@ -320,13 +339,13 @@ export default {
       updateSavedSearch: 'grants/updateSavedSearch',
       fetchSavedSearches: 'grants/fetchSavedSearches',
       applyFilters: 'grants/applyFilters',
-      fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+      fetchSearchConfig: 'grants/fetchSearchConfig',
       changeSelectedSearchId: 'grants/changeSelectedSearchId',
       initNewSearch: 'grants/initNewSearch',
       initViewResults: 'grants/initViewResults',
     }),
     setup() {
-      this.fetchEligibilityCodes();
+      this.fetchSearchConfig();
       if (this.displaySearchPanel) {
         this.showSideBar();
       }
