@@ -142,7 +142,11 @@ A push to any tag prefixed with `release/` will trigger the "Deploy to Productio
 3. Generates a deployment plan for the changes associated with the release.
 4. Once a deployment plan has been generated and is ready to ship, repository administrators will be notified with a request to review and approve the deployment plan.
 5. Once approved, the pipeline execution will proceed with deploying the changes to Production.
-6. Following successful deployment, the deployment pipeline will update the release to remove its "Draft" label, add a "Latest" label, and append the date and time of deployment under the "Release History" heading of the release notes.
+6. Following successful deployment, the deployment pipeline will update the release to:
+    - Remove its "Pre-release" label
+    - Add the "Latest" label
+    - Append the date and time of deployment under the "Release History" heading of the release notes.
+    - Upload build artifacts as release assets.
 
 ## Useful Information
 
