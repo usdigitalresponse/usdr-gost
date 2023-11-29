@@ -8,7 +8,7 @@ const { log } = require('../../lib/logging');
 const aws = require('../../lib/gost-aws');
 const { ec } = require('./format');
 
-const { getPreviousReportingPeriods, getAllReportingPeriods } = require('../db/reporting-periods');
+const { getPreviousReportingPeriods, getAllReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
 const {
     recordsForProject, recordsForReportingPeriod, recordsForUpload, EC_SHEET_TYPES,
@@ -412,6 +412,7 @@ function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
 
 async function generate(requestHost, tenantId, periodId = null) {
     const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
+    const isCustomPeriod = periodId != null;
     return tracer.trace('generate()', async () => {
         if (periodId == null) {
             periodId = await getCurrentReportingPeriodID(undefined, tenantId);
@@ -493,8 +494,15 @@ async function generate(requestHost, tenantId, periodId = null) {
             return buffer;
         });
 
-        // FIXME add period id as part of the name
-        const filename = `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`;
+        let filename = '';
+        // for custom periods, add the period name to the filename
+        if (isCustomPeriod) {
+            const reportingPeriod = await getReportingPeriod(periodId, null, tenantId);
+            const reportingPeriodName = reportingPeriod.name.replace(' ', '_').toLowerCase();
+            filename = `audit-report-${moment().format('yy-MM-DD')}-${reportingPeriodName}-${v4()}.xlsx`;
+        } else {
+            filename = `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`;
+        }
         log.info({ generatedFilename: filename }, 'generated filename for workbook');
 
         return {
