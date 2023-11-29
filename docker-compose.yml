@@ -29,7 +29,8 @@ services:
     container_name: "gost-localstack_main"
     image: localstack/localstack
     ports:
-      - 4566:4566           # LocalStack Gateway
+      - 4566:4566           # SQS
+      - 4576:4576           # LocalStack Gateway
       - 4510-4559:4510-4559  # external services port range
     environment:
       - DEBUG=${DEBUG-}
@@ -73,6 +74,9 @@ services:
       - POSTGRESQL_PASSWORD=password123
       - POSTGRESQL_DATABASE=usdr_grants
       - POSTGRESQL_USER=postgres
+      - POSTGRESQL_PGAUDIT_LOG=all
+    ports:
+        - 5432:5432
     volumes:
       - ./docker/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./docker/postgres/docker-entrypoint-preinitdb.d:/docker-entrypoint-preinitdb.d

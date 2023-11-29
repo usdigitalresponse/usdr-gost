@@ -163,3 +163,26 @@ any files within this directory will be ignored by git. Simply update the `postg
 definition in the `docker-compose.yml` file to mount this volume – you can do so
 by adding/uncommenting the corresponding `services.postgres.volumes` item in that file so that
 the `./docker/postgres/persistence:/bitnami/postgresql` volume mount is enabled.
+
+
+### Create SQS queues in localstack
+
+In order to test certain parts of the application with docker, you may need to use SQS queues.
+This is setup in the code using environment variables.
+
+To setup the queues, go to the docker container and create the queue
+```
+docker ps
+# assuming the localstack container name is gost-localstack_main
+docker exec -it gost-localstack_main /bin/bash
+bash-5.0# awslocal sqs --queue-name arpa-queue
+bash-5.0# awslocal sqs list-queues
+```
+Now we can use that queue name and set it as the environment variable `ARPA_AUDIT_REPORT_SQS_QUEUE_URL`.
+
+To check that you can access the queues locally, you can use the `aws cli`
+```
+aws --region us-west-2 --endpoint http://localhost:4566 sqs list-queues
+```
+For this to work, you must have `AWS_ACCESS_KEY_ID=test` and `AWS_SECRET_ACCESS_KEY=test`.
+This is part of the standard localstack setup.
