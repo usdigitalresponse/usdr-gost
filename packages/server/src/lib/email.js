@@ -118,8 +118,7 @@ function sendWelcomeEmail(email, httpOrigin) {
 function getGrantDetail(grant, emailNotificationType) {
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
 
-    const shortDescription = grant.description?.length > 380 ? grant.description.substring(0, 380) : grant.description;
-    const description = shortDescription.replace(/<\/?p[^>]*>/g, '');
+    const description = grant.description.substring(0, 380).replace(/(<([^>]+)>)/ig, '');
 
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
