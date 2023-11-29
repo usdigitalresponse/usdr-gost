@@ -469,11 +469,4 @@ export default {
 .search-panel .b-sidebar-body {
   padding: .75rem;
 }
-.search-panel .search-fields-radio-group {
-  /*
-    Ensure radio buttons are hidden behind <multiselect> options
-  */
-  position: relative;
-  z-index: 0;
-}
 </style>
