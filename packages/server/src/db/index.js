@@ -74,7 +74,7 @@ async function createUser(user) {
 
     const emailUnsubscribePreference = Object.assign(
         ...Object.values(emailConstants.notificationType).map(
-            (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
+            (k) => ({ [k]: emailConstants.emailSubscriptionStatus.subscribed }),
         ),
     );
     module.exports.setUserEmailSubscriptionPreference(response[0].id, user.agency_id, emailUnsubscribePreference);
@@ -87,11 +87,11 @@ async function createUser(user) {
 }
 
 async function updateUser(user) {
-    const { id, name } = user;
+    const { id, name, avatar_color } = user;
 
     await knex('users')
         .where('id', id)
-        .update({ name });
+        .update({ name, avatar_color });
 
     return getUser(id);
 }
@@ -125,7 +125,35 @@ async function getUsersEmailAndName(ids) {
 }
 
 async function getUser(id) {
-    const [user] = await knex('users')
+    // Temporary check for avatar_column until migration is applied in prod. Clean up ticket: #2259
+    const avatarColorExists = await knex.schema.hasColumn('users', 'avatar_color');
+
+    const [user] = avatarColorExists ? await knex('users')
+        .select(
+            'users.id',
+            'users.email',
+            'users.name',
+            'users.role_id',
+            'users.avatar_color', // adds column
+            'roles.name as role_name',
+            'roles.rules as role_rules',
+            'users.agency_id',
+            'agencies.name as agency_name',
+            'agencies.abbreviation as agency_abbreviation',
+            'agencies.parent as agency_parent_id_id',
+            'agencies.warning_threshold as agency_warning_threshold',
+            'agencies.danger_threshold as agency_danger_threshold',
+            'tenants.id as tenant_id',
+            'tenants.display_name as tenant_display_name',
+            'tenants.main_agency_id as tenant_main_agency_id',
+            'tenants.uses_spoc_process as tenant_uses_spoc_process',
+            'users.tags',
+            'users.tenant_id',
+        )
+        .leftJoin('roles', 'roles.id', 'users.role_id')
+        .leftJoin('agencies', 'agencies.id', 'users.agency_id')
+        .leftJoin('tenants', 'tenants.id', 'users.tenant_id')
+        .where('users.id', id) : await knex('users')
         .select(
             'users.id',
             'users.email',

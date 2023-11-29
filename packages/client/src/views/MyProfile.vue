@@ -4,7 +4,7 @@
     <section style="margin-top: 4rem;">
       <b-row>
         <b-col>
-          <b-avatar :text="initials" size="5rem"></b-avatar>
+          <UserAvatar />
         </b-col>
         <b-col cols="7">
           <p class="mb-2 h6"><b>{{ name }}</b></p>
@@ -38,10 +38,12 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import EditUserModal from '@/components/Modals/EditUser.vue';
+import UserAvatar from '@/components/UserAvatar.vue';
 
 export default {
   components: {
     EditUserModal,
+    UserAvatar,
   },
   data() {
     return {
@@ -76,12 +78,6 @@ export default {
     },
     agency() {
       return this.loggedInUser.agency_name;
-    },
-    initials() {
-      const fullNameArr = this.name.split(' ');
-      const firstName = fullNameArr.at(0);
-      const lastName = fullNameArr.at(-1);
-      return (firstName[0] + lastName[0]).toUpperCase();
     },
     emailPreferences() {
       return this.loggedInUser.emailPreferences;

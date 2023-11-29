@@ -50,6 +50,7 @@ module "api_container_definition" {
       ENABLE_GRANTS_DIGEST              = var.enable_grants_digest ? "true" : "false"
       ENABLE_SAVED_SEARCH_GRANTS_DIGEST = var.enable_saved_search_grants_digest ? "true" : "false"
       ENABLE_GRANTS_SCRAPER             = "false"
+      ENABLE_NEW_TEAM_TERMINOLOGY       = var.enable_new_team_terminology ? "true" : "false"
       GRANTS_SCRAPER_DATE_RANGE         = 7
       GRANTS_SCRAPER_DELAY              = 1000
       NODE_OPTIONS                      = "--max_old_space_size=1024"
