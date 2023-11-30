@@ -3,14 +3,14 @@
   <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.grant_number" @hide="resetSelectedGrant"
     scrollable size="xl">
     <div v-if="selectedGrant">
-      <b-row>
+      <b-row class="mb-3 d-flex align-items-baseline">
         <b-col cols="8">
           <h1 class="mb-0 h2">{{ selectedGrant.title }}</h1>
         </b-col>
         <b-col cols="4" class="text-right">
           <b-button :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
             target="_blank" rel="noopener noreferrer" variant="primary">
-            <b-icon icon="box-arrow-up-right" aria-hidden="true"></b-icon>View on Grants.gov
+            <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2"></b-icon>View on Grants.gov
           </b-button>
         </b-col>
       </b-row>
@@ -27,8 +27,8 @@
         <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
       </div>
       <br />
-      <b-row style="padding: 16px;">
-        <h4>{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h4>
+      <b-row class="ml-2 mb-2 d-flex align-items-baseline">
+        <h2 class="h4">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h2>
         <b-col class="text-right">
           <b-row v-if="!interested">
             <b-col cols="9">
@@ -47,7 +47,7 @@
                 </b-form-select-option-group>
               </b-form-select>
             </b-col>
-            <b-button variant="outline-success" @click="markGrantAsInterested">Submit</b-button>
+            <b-button variant="outline-primary" @click="markGrantAsInterested">Submit</b-button>
           </b-row>
           <b-row v-if="interested && interested.interested_status_code !== 'Rejection'&& shouldShowSpocButton">
             <b-col>
@@ -61,25 +61,25 @@
         <template #cell(actions)="row">
           <b-row
             v-if="(String(row.item.agency_id) === selectedAgencyId) || isAbleToUnmark(row.item.agency_id)">
-            <b-button variant="danger" class="mr-1" size="sm" @click="unmarkGrantAsInterested(row)">
+            <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unmarkGrantAsInterested(row)">
               <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
             </b-button>
           </b-row>
         </template>
       </b-table>
       <br />
-      <b-row style="padding: 16px;">
-        <h4>Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h4>
+      <b-row class="ml-2 mb-2 d-flex align-items-baseline">
+        <h2 class="h4">Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h2>
           <multiselect v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
             :clear-on-select="false" :placeholder="`Select ${newTerminologyEnabled ? 'teams': 'agencies'}`" label="name" track-by="id"
             style="width: 300px; margin: 0 16px;" :show-labels="false"
           >
           </multiselect>
-          <b-button variant="outline-success" @click="assignAgenciesToGrant">Assign</b-button>
+          <b-button variant="outline-primary" @click="assignAgenciesToGrant">Assign</b-button>
       </b-row>
       <b-table :items="assignedAgencies" :fields="assignedAgenciesFields">
         <template #cell(actions)="row">
-          <b-button variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
+          <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unassignAgenciesToGrant(row)">
             <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
           </b-button>
         </template>
