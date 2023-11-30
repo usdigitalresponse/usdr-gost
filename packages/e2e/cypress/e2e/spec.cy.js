@@ -15,5 +15,5 @@ it('loads page', () => {
         return false;
     });
 
-    cy.contains('Grants Identification Tool');
+    cy.contains('Federal Grant Finder');
 });
