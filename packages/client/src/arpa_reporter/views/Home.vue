@@ -10,7 +10,7 @@
       </div>
     </div>
 
-    <div class="row mt-5 mb-5">
+    <div class="row mt-5 mb-5" v-if="viewingOpenPeriod || isAdmin">
       <div class="col" v-if="this.$route.query.sync_treasury_download && isAdmin">
         <DownloadButton :href="downloadTreasuryReportURL()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
       </div>
@@ -40,11 +40,11 @@
         </button>
       </div>
 
-      <div class="col">
+      <div class="col" v-if="viewingOpenPeriod">
         <button @click.prevent="startUpload" class="btn btn-primary btn-block" id="submitWorkbookButton"  :disabled="!viewingOpenPeriod">Submit Workbook</button>
       </div>
 
-      <div class="col">
+      <div class="col" v-if="viewingOpenPeriod">
         <DownloadTemplateBtn :block="true" />
       </div>
     </div>
