@@ -105,6 +105,7 @@
                 :close-on-select="false"
                 :searchable="false"
                 selectLabel=""
+                :components="{Deselect, OpenIndicator}"
               />
             </b-form-group>
             <b-form-group
@@ -122,6 +123,7 @@
                 :close-on-select="false"
                 :searchable="true"
                 selectLabel=""
+                :components="{Deselect, OpenIndicator}"
               />
             </b-form-group>
             <b-form-group
@@ -136,6 +138,7 @@
                 :multiple="true"
                 :close-on-select="false"
                 :searchable="false"
+                :components="{Deselect, OpenIndicator}"
               />
             </b-form-group>
             <b-form-group
@@ -154,6 +157,7 @@
                 placeholder="All Bills"
                 :show-labels="false"
                 :clearable="false"
+                :components="{Deselect, OpenIndicator}"
               />
             </b-form-group>
             <b-form-group
@@ -184,6 +188,7 @@
                 placeholder="All Time"
                 :show-labels="false"
                 :clearable="false"
+                :components="{Deselect, OpenIndicator}"
               />
             </b-form-group>
             <b-form-group
@@ -220,7 +225,7 @@
 <script>
 
 import { mapActions, mapGetters } from 'vuex';
-import { VBToggle } from 'bootstrap-vue';
+import { BIconCaretDownFill, BIconXLg, VBToggle } from 'bootstrap-vue';
 import { billOptions } from '@/helpers/constants';
 import { DateTime } from 'luxon';
 
@@ -249,6 +254,12 @@ export default {
   },
   data() {
     return {
+      Deselect: {
+        render: (h) => h('span', { 'v-bind': 'attributes' }, [h(BIconXLg)]),
+      },
+      OpenIndicator: {
+        render: (h) => h('span', { 'v-bind': 'attributes' }, [h(BIconCaretDownFill, { scale: '1.2' })]),
+      },
       formData: {
         criteria: {
           ...defaultCriteria,
@@ -468,5 +479,8 @@ export default {
 }
 .search-panel .b-sidebar-body {
   padding: .75rem;
+}
+.vs__deselect {
+  scale: 0.7;
 }
 </style>

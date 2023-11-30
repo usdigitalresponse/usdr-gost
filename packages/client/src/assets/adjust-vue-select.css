@@ -5,3 +5,8 @@
   padding-left: 4px;
   padding-right: 4px;
 }
+
+.vs__selected {
+  border: none;
+  background-color: #d9e0e6;
+}

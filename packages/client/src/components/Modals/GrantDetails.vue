@@ -73,7 +73,7 @@
         <h4>Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h4>
           <v-select v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
             :clear-on-select="false" :placeholder="`Select ${newTerminologyEnabled ? 'teams': 'agencies'}`" label="name" track-by="id"
-            style="width: 300px; margin: 0 16px;" :show-labels="false"
+            style="width: 300px; margin: 0 16px;" :show-labels="false" :components="{Deselect, OpenIndicator}"
           >
           </v-select>
           <b-button variant="outline-success" @click="assignAgenciesToGrant">Assign</b-button>
@@ -93,6 +93,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
+import { BIconCaretDownFill, BIconXLg } from 'bootstrap-vue';
 import { titleize } from '../../helpers/form-helpers';
 
 export default {
@@ -101,6 +102,12 @@ export default {
   },
   data() {
     return {
+      Deselect: {
+        render: (h) => h('span', { 'v-bind': 'attributes' }, [h(BIconXLg)]),
+      },
+      OpenIndicator: {
+        render: (h) => h('span', { 'v-bind': 'attributes' }, [h(BIconCaretDownFill, { scale: '1.2' })]),
+      },
       showDialog: false,
       dialogFields: ['grant_id', 'agency_code', 'award_ceiling', 'cfda_list', 'opportunity_category', 'bill'],
       orderBy: '',
@@ -274,3 +281,8 @@ export default {
   },
 };
 </script>
+<style>
+.vs__deselect {
+  scale: 0.7;
+}
+</style>
