@@ -1,35 +1,34 @@
 <!-- eslint-disable max-len -->
 <template>
-  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.title" @hide="resetSelectedGrant"
-    scrollable size="lg" header-bg-variant="primary" header-text-variant="light" body-bg-variant="light"
-    body-text-variant="dark" footer-bg-variant="dark" footer-text-variant="light">
+  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.grant_number" @hide="resetSelectedGrant"
+    scrollable size="xl">
     <div v-if="selectedGrant">
-      <b-row>
-        <b-col cols="9">
-          <h3>Grant Number: {{ selectedGrant.grant_number }}</h3>
+      <b-row class="mb-3 d-flex align-items-baseline">
+        <b-col cols="8">
+          <h1 class="mb-0 h2">{{ selectedGrant.title }}</h1>
         </b-col>
-        <b-col cols="3" class="text-right">
+        <b-col cols="4" class="text-right">
           <b-button :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
             target="_blank" rel="noopener noreferrer" variant="primary">
-            Grants.Gov <b-icon icon="link" aria-hidden="true"></b-icon>
+            <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2"></b-icon>View on Grants.gov
           </b-button>
         </b-col>
       </b-row>
-      <p><span style="font-weight:bold">Valid from:</span> {{ new
+      <p><span class="data-label">Valid from:</span> {{ new
           Date(selectedGrant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
       }}-{{ new
     Date(selectedGrant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
 }}</p>
       <div v-for="field in dialogFields" :key="field">
-        <p><span style="font-weight:bold">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
+        <p><span class="data-label">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
       </div>
-      <h6>Description</h6>
+      <p class="data-label">Description:</p>
       <div style="max-height: 170px; overflow-y: scroll">
         <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
       </div>
       <br />
-      <b-row style="padding: 16px;">
-        <h4>{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h4>
+      <b-row class="ml-2 mb-2 d-flex align-items-baseline">
+        <h2 class="h4">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h2>
         <b-col class="text-right">
           <b-row v-if="!interested">
             <b-col cols="9">
@@ -48,7 +47,7 @@
                 </b-form-select-option-group>
               </b-form-select>
             </b-col>
-            <b-button variant="outline-success" @click="markGrantAsInterested">Submit</b-button>
+            <b-button variant="outline-primary" @click="markGrantAsInterested">Submit</b-button>
           </b-row>
           <b-row v-if="interested && interested.interested_status_code !== 'Rejection'&& shouldShowSpocButton">
             <b-col>
@@ -62,25 +61,25 @@
         <template #cell(actions)="row">
           <b-row
             v-if="(String(row.item.agency_id) === selectedAgencyId) || isAbleToUnmark(row.item.agency_id)">
-            <b-button variant="danger" class="mr-1" size="sm" @click="unmarkGrantAsInterested(row)">
+            <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unmarkGrantAsInterested(row)">
               <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
             </b-button>
           </b-row>
         </template>
       </b-table>
       <br />
-      <b-row style="padding: 16px;">
-        <h4>Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h4>
+      <b-row class="ml-2 mb-2 d-flex align-items-baseline">
+        <h2 class="h4">Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h2>
           <multiselect v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
             :clear-on-select="false" :placeholder="`Select ${newTerminologyEnabled ? 'teams': 'agencies'}`" label="name" track-by="id"
             style="width: 300px; margin: 0 16px;" :show-labels="false"
           >
           </multiselect>
-          <b-button variant="outline-success" @click="assignAgenciesToGrant">Assign</b-button>
+          <b-button variant="outline-primary" @click="assignAgenciesToGrant">Assign</b-button>
       </b-row>
       <b-table :items="assignedAgencies" :fields="assignedAgenciesFields">
         <template #cell(actions)="row">
-          <b-button variant="danger" class="mr-1" size="sm" @click="unassignAgenciesToGrant(row)">
+          <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unassignAgenciesToGrant(row)">
             <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
           </b-button>
         </template>

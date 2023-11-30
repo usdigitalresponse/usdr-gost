@@ -2,7 +2,7 @@
   <section class="container">
     <b-card class="border-0">
     <div class="d-flex">
-      <h4 class="card-title gutter-title1 row">Recent Activity</h4>
+      <h2 class="card-title gutter-title1 row h4">Recent Activity</h2>
       <div class="justify-content-end left-margin">
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
         <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
@@ -59,18 +59,6 @@
   </section>
 </template>
 <style scoped>
-.color-gray {
-  color: #757575
-}
-.color-red {
-  color: #ae1818;
-}
-.color-green {
-  color: green;
-}
-.color-yellow{
-  color: #aa8866;
-}
 .gutter-icon.row {
     margin-right: -8px;
     margin-left: -8px;
