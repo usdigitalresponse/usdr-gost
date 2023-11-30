@@ -10,3 +10,7 @@
   border: none;
   background-color: #d9e0e6;
 }
+
+.vs__open-indicator {
+  cursor: pointer;
+}
