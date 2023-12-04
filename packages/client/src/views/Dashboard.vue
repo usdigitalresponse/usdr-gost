@@ -112,7 +112,6 @@
         </template>
       </b-table>
     </b-card>
-
     <GrantDetails :selected-grant.sync="selectedGrant" />
   </section>
 </template>
