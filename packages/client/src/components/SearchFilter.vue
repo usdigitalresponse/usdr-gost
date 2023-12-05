@@ -2,7 +2,7 @@
   <div class="filter-container d-flex">
     <div class="align-self-end">
       <div class="align-self-end">
-        <h4 class="mb-0">{{ selectedSearch === null ? "All Grants" : searchName }} </h4>
+        <h2 class="mb-0 h4">{{ selectedSearch === null ? "All Grants" : searchName }} </h2>
         <span v-if="selectedSearch !== null">
           <a href="#" :class="{ inactiveLink: isDisabled }" v-on:click.prevent="editFilter">Edit</a> |
           <a href="#" :class="{ inactiveLink: isDisabled }" v-on:click.prevent="clearAll" >Clear</a>
@@ -71,9 +71,11 @@ export default {
 };
 
 </script>
-<style>
+<style lang="scss">
+@import '../../scss/colors-semantic-tokens.scss';
+
 .inactiveLink {
   pointer-events: none;
-  color: grey;
+  color: $text-placeholder;
 }
 </style>

@@ -100,8 +100,7 @@
         </b-form-group>
         <form ref="form" @click="handleDelete">
           <span id="disabled-wrapper" class="d-inline-block" tabindex="0">
-            <b-button v-bind:disabled="userRole !== 'admin'" style="pointer-events: none;" variant="danger">
-              Admin Delete {{newTerminologyEnabled ? 'Team' : 'Agency'}}
+            <b-button v-bind:disabled="userRole !== 'admin'" variant="outline-danger"> Delete {{newTerminologyEnabled ? 'Team' : 'Agency'}}
             </b-button>
           </span>
           <b-tooltip v-if="userRole !== 'admin'" target="disabled-wrapper" triggers="hover">

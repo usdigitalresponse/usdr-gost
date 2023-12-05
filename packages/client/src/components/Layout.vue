@@ -1,10 +1,10 @@
 <template>
   <div>
-    <b-navbar :type="navBarType" :variant="navBarVariant">
+    <b-navbar :type="navBarType" :variant="navBarVariant" class="header-dropshadow py-3">
       <b-navbar-brand href="/#/grants" class="d-flex align-items-center">
-      <b-img v-if="myProfileEnabled" :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo" />
-      <b-img v-else :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo in white" />
-      <h3 class="ml-3 mb-0">Grants Identification Tool</h3>
+      <b-img v-if="myProfileEnabled" :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response - Home" />
+      <b-img v-else :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response - Home" />
+      <h1 class="ml-3 mb-0 h4">Federal Grant Finder</h1>
     </b-navbar-brand>
       <b-collapse id="nav-collapse" is-nav>
 
