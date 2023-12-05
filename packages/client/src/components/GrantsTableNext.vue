@@ -4,7 +4,7 @@
       <div class="ml-3">
         <SavedSearchPanel :isDisabled="loading" />
       </div>
-      <div class="ml-2">
+      <div class="ml-1">
         <SearchPanel :isDisabled="loading" ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
       </div>
     </b-row>
@@ -13,15 +13,16 @@
         <SearchFilter :isDisabled="loading" :filterKeys="searchFilters" @filter-removed="clearSearch" />
       </b-col>
       <b-col align-self="end" v-if="!showSearchControls">
-        <h4 class="mb-0">{{ searchTitle }}</h4>
+        <h2 class="mb-0">{{ searchTitle }}</h2>
       </b-col>
-      <b-col align-self="end">
-        <p class="mb-0 text-right text-nowrap"><a href="#" @click="exportCSV" :disabled="loading" variant="outline-primary border-0">Export CSV</a></p>
+      <b-col class="d-flex justify-content-end">
+        <b-button @click="exportCSV" :disabled="loading" variant="outline-primary" size="sm">
+          <b-icon icon="download" class="mr-2" aria-hidden="true" />Export to CSV</b-button>
       </b-col>
     </b-row>
     <b-row align-v="center">
       <b-col cols="12">
-        <b-table id="grants-table" hover responsive :items="formattedGrants"
+        <b-table id="grants-table" hover responsive stacked="sm" :items="formattedGrants"
           :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
           @row-selected="onRowSelected" show-empty emptyText="No matches found">
@@ -302,7 +303,7 @@ export default {
       }
     },
     notifyError() {
-      this.$bvToast.toast('We encountered an error while retriving grants data. For the most accurate results please refresh the page and try again.', {
+      this.$bvToast.toast('We encountered an error while retrieving grants data. For the most accurate results please refresh the page and try again.', {
         title: 'Something went wrong',
         variant: 'danger',
         solid: true,
