@@ -1,11 +1,11 @@
 <template>
 <section class="container-fluid">
   <b-row>
-    <b-col><h2>{{newTerminologyEnabled ? 'Organizations' : 'Tenants'}}</h2></b-col>
+    <b-col class="m-2"><h2 class="h4">{{newTerminologyEnabled ? 'Organizations' : 'Tenants'}}</h2></b-col>
     <b-col></b-col>
     <b-col class="d-flex justify-content-end">
       <div>
-        <b-button variant="success" @click="openAddOrganizationModal">Add</b-button>
+        <b-button variant="primary" size="sm" @click="openAddOrganizationModal">Add</b-button>
       </div>
     </b-col>
   </b-row>
@@ -14,7 +14,7 @@
         {{row.item.display_name}}
       </template>
       <template #cell(actions)="row">
-      <b-button class="mr-1" size="sm" @click="openEditOrganizationModal(row.item)">
+      <b-button class="mr-1 border-0" size="sm" variant="outline-primary" @click="openEditOrganizationModal(row.item)">
         <b-icon icon="pencil-fill" aria-hidden="true"></b-icon>
       </b-button>
     </template>

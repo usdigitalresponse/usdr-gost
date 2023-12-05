@@ -46,8 +46,8 @@ describe('Layout.vue', () => {
       });
     });
     it('should show the Grants heading', () => {
-      const layoutHeader = wrapper.get('h3');
-      expect(layoutHeader.text()).to.include('Grants Identification Tool');
+      const layoutHeader = wrapper.get('h1');
+      expect(layoutHeader.text()).to.include('Federal Grant Finder');
     });
     it('should show My Grants tab', () => {
       const navItem = wrapper.get('[to="/my-grants"]');
