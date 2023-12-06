@@ -60,7 +60,7 @@ See [here](../docker/README.md) for more information about commands to use when 
 
    ![AWS SES Error](./img/error-aws-ses.png)
 
-1. Visit `client_url/login` (e.g <http://localhost:8080/#/login>) and login w/ user `grant-admin@usdigitalresponse.org`.
+1. Visit `client_url/login` (e.g <http://localhost:8080/#/login>) and login w/ user `grant-admin@usdigitalresponse.org`. You'll see a confirmation message on the screen. Check your logs to find the generated session link.
 
    **NOTE:** if you only see a blank screen then ensure you've set up the `packages/client/.env`
 
