@@ -45,7 +45,7 @@ jobs:
       - name: Count commits in candidate ref that are not in protected ref
         id: all-cherries
         run: |
-          $CHERRY_FILE=$(mktemp -t cherries.XXXXX)
+          CHERRY_FILE=$(mktemp -t cherries.XXXXX)
           git cherry -v "$PROTECTED_REF" "$DEPLOYMENT_REF" > $CHERRY_FILE
           echo "count=$(cat $CHERRY_FILE | wc -l)" >> $GITHUB_OUTPUT
           echo "file=$CHERRY_FILE" >> $GITHUB_OUTPUT
@@ -67,6 +67,7 @@ jobs:
           VALIDATION_RESULT: ${{ fromJson(steps.missing-cherries.outputs.count) == 0 && 'SUCCESS' || 'FAIL' }}
           TOTAL_CHERRY_COUNT: ${{ steps.all-cherries.outputs.count }}
           INVALID_CHERRY_COUNT: ${{ steps.missing-cherries.outputs.count }}
+          CHERRY_FILE: ${{ steps.all-cherries.outputs.file }}
       - name: Fail validation
         if: fromJson(steps.missing-cherries.outputs.count) > 0
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
