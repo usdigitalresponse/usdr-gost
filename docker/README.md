@@ -166,11 +166,17 @@ the `./docker/postgres/persistence:/bitnami/postgresql` volume mount is enabled.
 
 
 ### Create SQS queues in localstack
+SQS queues should automatically be setup from the `localstack/entrypoint/init-aws.sh` script.
+This script gets run by localstack after the container is setup.
 
-In order to test certain parts of the application with docker, you may need to use SQS queues.
-This is setup in the code using environment variables.
+To confirm evreything is working well, run the following locally (you may need the `aws cli` locally)
+```
+aws --region us-west-2 --endpoint http://localhost:4566 sqs list-queues
+```
 
-To setup the queues, go to the docker container and create the queue
+If the queue is not setup, first check that you have an updated version of localstack.
+
+If you have an updated version, but still need to setup the queuse, run the below commands.
 ```
 docker ps
 # assuming the localstack container name is gost-localstack_main
@@ -180,9 +186,10 @@ bash-5.0# awslocal sqs list-queues
 ```
 Now we can use that queue name and set it as the environment variable `ARPA_AUDIT_REPORT_SQS_QUEUE_URL`.
 
-To check that you can access the queues locally, you can use the `aws cli`
+To confirm that you can access the queues locally, use the `aws cli` again
 ```
 aws --region us-west-2 --endpoint http://localhost:4566 sqs list-queues
 ```
 For this to work, you must have `AWS_ACCESS_KEY_ID=test` and `AWS_SECRET_ACCESS_KEY=test`.
 This is part of the standard localstack setup.
+
