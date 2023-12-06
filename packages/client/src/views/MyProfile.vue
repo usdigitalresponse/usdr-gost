@@ -70,7 +70,7 @@ export default {
       breadcrumb_items: [
         {
           text: 'Home',
-          href: '../grants',
+          href: '/#/grants',
         },
         {
           text: 'My Profile',
