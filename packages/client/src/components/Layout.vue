@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar :type="navBarType" :variant="navBarVariant" class="header-dropshadow py-2">
+    <b-navbar :type="navBarType" :variant="navBarVariant" class="header-dropshadow py-1">
       <b-navbar-brand href="/#/grants" class="d-flex align-items-center">
       <b-img v-if="myProfileEnabled" :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 2.5rem;" class="" alt="United States Digital Response - Home" />
       <b-img v-else :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 2.5rem;" class="" alt="United States Digital Response - Home" />
