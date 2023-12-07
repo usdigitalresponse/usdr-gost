@@ -72,7 +72,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
-import GrantDetails from '@/components/Modals/GrantDetails.vue';
+import GrantDetails from '@/components/Modals/GrantDetailsLegacy.vue';
 
 export default {
   components: { GrantDetails },

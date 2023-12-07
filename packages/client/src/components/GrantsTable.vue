@@ -78,7 +78,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { titleize } from '../helpers/form-helpers';
-import GrantDetails from './Modals/GrantDetails.vue';
+import GrantDetails from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
 import SearchFilter from './SearchFilter.vue';
