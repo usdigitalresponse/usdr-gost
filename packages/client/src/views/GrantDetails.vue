@@ -93,7 +93,7 @@ import { mapActions, mapGetters } from 'vuex';
 import { debounce } from 'lodash';
 import Multiselect from 'vue-multiselect';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
-import { titleize } from '../../../helpers/form-helpers.js';
+import { titleize } from '../helpers/form-helpers';
 
 export default {
   components: { Multiselect },
