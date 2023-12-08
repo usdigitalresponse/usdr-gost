@@ -77,6 +77,11 @@ variable "origin_bucket_dist_path" {
   }
 }
 
+variable "origin_artifacts_dist_path" {
+  description = "Path to the local directory from which website build artifacts are sourced and uploaded to the S3 origin bucket."
+  type        = string
+}
+
 variable "origin_bucket_config_path" {
   description = "Path to the directory where non-build configuration files should be stored in the S3 origin bucket."
   default     = "/config"

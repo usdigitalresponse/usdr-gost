@@ -45,7 +45,6 @@ cluster_container_insights_enabled = true
 
 // API / Backend
 api_enabled                           = true
-api_container_image_tag               = "latest"
 api_default_desired_task_count        = 1
 api_minumum_task_count                = 1
 api_maximum_task_count                = 5
