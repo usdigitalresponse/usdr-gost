@@ -1,0 +1,211 @@
+name: Terraform Plan
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
+      environment-key:
+        type: string
+        required: true
+      aws-region:
+        type: string
+        required: true
+      tf-backend-config-file:
+        type: string
+        required: true
+      tf-var-file:
+        type: string
+        required: true
+      artifacts-retention-days:
+        description: Number of days to retain build artifacts
+        type: number
+        default: 90
+      upload-artifacts:
+        type: boolean
+        default: false
+      concurrency-group:
+        description: Name of the concurrency group (avoids simultaneous Terraform execution against the same environment)
+        type: string
+        default: run_terraform
+      server-image-tag:
+        type: string
+        required: true
+      server-image-digest:
+        type: string
+        required: true
+      website-artifacts-key:
+        type: string
+        required: true
+      website-artifacts-path:
+        type: string
+        required: true
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-session-token:
+        required: true
+      datadog-api-key:
+        required: true
+      datadog-app-key:
+        required: true
+      gpg-passphrase:
+        required: true
+    outputs:
+      artifacts-key:
+        value: ${{ jobs.do.outputs.artifacts-key }}
+      fmt-outcome:
+        value: ${{ jobs.do.outputs.fmt_outcome }}
+      init-outcome:
+        value: ${{ jobs.do.outputs.init_outcome }}
+      validate-outcome:
+        value: ${{ jobs.do.outputs.validate_outcome }}
+      validate-output:
+        value: ${{ jobs.do.outputs.validate_output }}
+      plan-exitcode:
+        value: ${{ jobs.do.outputs.plan_exitcode }}
+      plan-outcome:
+        value: ${{ jobs.do.outputs.plan_outcome }}
+      plan-output:
+        value: ${{ jobs.do.outputs.plan_output }}
+
+jobs:
+  do:
+    name: Validate and plan terraform
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: terraform
+    outputs:
+      artifacts-key: ${{ env.ARTIFACTS_KEY }}
+      fmt_outcome: ${{ steps.fmt.outcome }}
+      init_outcome: ${{ steps.init.outcome }}
+      validate_outcome: ${{ steps.validate.outcome }}
+      validate_output: ${{ steps.validate.outputs.stdout }}
+      plan_exitcode: ${{ steps.plan.outputs.exitcode }}
+      plan_outcome: ${{ steps.plan.outcome }}
+      plan_output: ${{ steps.show_plan.outputs.stdout || steps.show_plan.outputs.stderr }}
+    env:
+      ARTIFACTS_KEY: terraform-${{ inputs.environment-key }}-${{ inputs.ref }}
+      AWS_DEFAULT_REGION: ${{ inputs.aws-region }}
+      AWS_REGION: ${{ inputs.aws-region }}
+      TF_CLI_ARGS: "-no-color"
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: 0
+    concurrency:
+      group: ${{ inputs.concurrency-group }}
+      cancel-in-progress: false
+    steps:
+      - uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          ref: ${{ inputs.ref }}
+          show-progress: 'false'
+          persist-credentials: 'false'
+      - name: Validate workflow configuration
+        if: inputs.upload-artifacts && (env.GPG_PASSPHRASE == '')
+        run: |
+          echo 'gpg-passphrase is required when upload-artifacts is true'
+          exit 1
+        env:
+          GPG_PASSPHRASE: ${{ secrets.gpg-passphrase }}
+      - name: Download website artifacts
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        with:
+          name: ${{ inputs.website-artifacts-key }}
+          path: ${{ inputs.website-artifacts-path }}
+      - name: Get project TF version
+        id: get_tf_version
+        run: echo "TF_VERSION=$(cat .terraform-version | tr -d '[:space:]')" | tee -a $GITHUB_OUTPUT
+      - uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
+        with:
+          terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check -diff -recursive
+      - name: Get AWS access key ID
+        id: decrypt-aws-access-key-id
+        run: |
+          decrypted=$(gpg -qd --batch --yes --passphrase "$GPG_PASSPHRASE" -o - <(echo "$VALUE" | base64 -d))
+          echo "::add-mask::${decrypted}"
+          echo "out=${decrypted}" >> $GITHUB_OUTPUT
+        env:
+          GPG_PASSPHRASE: ${{ secrets.gpg-passphrase }}
+          VALUE: ${{ secrets.aws-access-key-id }}
+      - name: Get AWS secret access key
+        id: decrypt-aws-secret-access-key
+        run: |
+          decrypted=$(gpg -qd --batch --yes --passphrase "$GPG_PASSPHRASE" -o - <(echo "$VALUE" | base64 -d))
+          echo "::add-mask::${decrypted}"
+          echo "out=${decrypted}" >> $GITHUB_OUTPUT
+        env:
+          GPG_PASSPHRASE: ${{ secrets.gpg-passphrase }}
+          VALUE: ${{ secrets.aws-secret-access-key }}
+      - name: Get AWS session token
+        id: decrypt-aws-session-token
+        run: |
+          decrypted=$(gpg -qd --batch --yes --passphrase "$GPG_PASSPHRASE" -o - <(echo "$VALUE" | base64 -d))
+          echo "::add-mask::${decrypted}"
+          echo "out=${decrypted}" >> $GITHUB_OUTPUT
+        env:
+          GPG_PASSPHRASE: ${{ secrets.gpg-passphrase }}
+          VALUE: ${{ secrets.aws-session-token }}
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: "${{ steps.decrypt-aws-access-key-id.outputs.out }}"
+          AWS_SECRET_ACCESS_KEY: "${{ steps.decrypt-aws-secret-access-key.outputs.out }}"
+          AWS_SESSION_TOKEN: "${{ steps.decrypt-aws-session-token.outputs.out }}"
+          TF_CLI_ARGS_init: "-backend-config=${{ inputs.tf-backend-config-file }}"
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+      - name: Terraform Plan
+        if: always() && steps.validate.outcome == 'success'
+        id: plan
+        run: terraform plan -out="tfplan" -detailed-exitcode
+        env:
+          AWS_ACCESS_KEY_ID: "${{ steps.decrypt-aws-access-key-id.outputs.out }}"
+          AWS_SECRET_ACCESS_KEY: "${{ steps.decrypt-aws-secret-access-key.outputs.out }}"
+          AWS_SESSION_TOKEN: "${{ steps.decrypt-aws-session-token.outputs.out }}"
+          GPG_PASSPHRASE: "" # Just in case
+          TF_CLI_ARGS_plan: "-var-file=${{ inputs.tf-var-file }}"
+          TF_VAR_version_identifier: ${{ inputs.ref }}
+          TF_VAR_git_commit_sha: ${{ inputs.ref }}
+          TF_VAR_datadog_api_key: ${{ secrets.datadog-api-key }}
+          TF_VAR_datadog_app_key: ${{ secrets.datadog-app-key }}
+          TF_VAR_api_container_image_tag: "${{ inputs.server-image-tag }}@${{ inputs.server-image-digest }}"
+          TF_VAR_website_origin_artifacts_dist_path: "${{ inputs.website-artifacts-path }}"
+      - name: Generate plaintext plan
+        id: show_plan
+        run: terraform show tfplan
+      - name: Encrypt terraform plan file
+        id: encrypt_plan
+        if: success() && inputs.upload-artifacts
+        env:
+          GPG_PASSPHRASE: ${{ secrets.gpg-passphrase }}
+        run: |
+          gpg --batch --yes --passphrase "$GPG_PASSPHRASE" -c --cipher-algo AES256 tfplan
+          rm tfplan
+      - name: Store terraform artifacts
+        if: success() && inputs.upload-artifacts
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        with:
+          name: ${{ env.ARTIFACTS_KEY }}
+          path: |
+            ${{ github.workspace }}/terraform
+            !${{ github.workspace }}/terraform/.terraform
+          if-no-files-found: error
+          retention-days: ${{ inputs.artifacts-retention-days }}

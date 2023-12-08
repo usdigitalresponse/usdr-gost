@@ -35,6 +35,13 @@ This repository falls under [U.S. Digital Response’s Code of Conduct](./CODE_O
 
 This project wouldn’t exist without the hard work of many people. Please see [`CONTRIBUTING.md`](./CONTRIBUTING.md) to find out how you can help.
 
+## Release Management
+
+Releases are versioned using a `YYYY.inc` scheme that represents the year of the release, and the incremental release number for that year.
+You can view a list of all historical releases on the [Releases page](https://github.com/usdigitalresponse/usdr-gost/releases).
+
+For details on deploying releases to Production, see our [Release Process](./docs/releasing.md) documentation.
+
 ## License & Copyright
 
 Copyright (C) 2020-2021 U.S. Digital Response (USDR)
