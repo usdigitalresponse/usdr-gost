@@ -144,7 +144,7 @@ jobs:
           AWS_SESSION_TOKEN: "${{ steps.decrypt-aws-session-token.outputs.out }}"
       - name: Invalidate CloudFront distribution cache
         if: success() && inputs.clear-web-cache
-        run:
+        run: |
           DISTRIBUTION_ID=$(terraform output -json | jq .website_cloudfront_distribution_id.value)
           aws cloudfront create-invalidation --paths '/*' --distribution-id $DISTRIBUTION_ID
         env:
