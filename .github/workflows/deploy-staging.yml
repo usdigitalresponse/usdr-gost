@@ -1,0 +1,129 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  validate:
+    name: Validate commits for deployment
+    permissions:
+      contents: read
+    uses: ./.github/workflows/validate-deployment.yml
+    with:
+      protected-ref: ${{ github.event.repository.default_branch }}
+      deployment-ref: ${{ github.ref }}
+
+  build:
+    name: Build deployment artifacts
+    permissions:
+      contents: read
+      packages: write
+    needs:
+      - validate
+    uses: ./.github/workflows/build.yml
+    with:
+      ref: ${{ github.sha }}
+      build-server-image: true
+      server-image-push: true
+      server-image-args-ref: ${{ github.ref }}
+      server-image-version: "rc-${{ github.sha }}"
+      server-image-tag-latest: true
+      build-website: true
+      website-artifact-retention-days: 14
+
+  aws-auth:
+    name: Configure AWS Credentials
+    permissions:
+      contents: read
+      id-token: write
+    needs:
+      - validate
+    uses: ./.github/workflows/aws-auth.yml
+    with:
+      aws-region: us-west-2
+    secrets:
+      gpg-passphrase: ${{ secrets.STAGING_GPG_PASSPHRASE }}
+      role-to-assume: ${{ secrets.STAGING_ROLE_ARN }}
+
+  tf-plan:
+    name: Plan Terraform
+    permissions:
+      contents: read
+    needs:
+      - validate
+      - aws-auth
+      - build
+    uses: ./.github/workflows/terraform-plan.yml
+    with:
+      ref: ${{ github.sha }}
+      concurrency-group: run_terraform-staging
+      server-image-tag: ${{ github.sha }}
+      server-image-digest: ${{ needs.build.outputs.server-image-digest }}
+      website-artifacts-key: ${{ needs.build.outputs.website-artifacts-key }}
+      website-artifacts-path: ${{ needs.build.outputs.website-artifacts-path }}
+      aws-region: us-west-2
+      environment-key: staging
+      tf-backend-config-file: staging.s3.tfbackend
+      tf-var-file: staging.tfvars
+      upload-artifacts: true
+      artifacts-retention-days: 30
+    secrets:
+      aws-access-key-id: ${{ needs.aws-auth.outputs.aws-access-key-id }}
+      aws-secret-access-key: ${{ needs.aws-auth.outputs.aws-secret-access-key }}
+      aws-session-token: ${{ needs.aws-auth.outputs.aws-session-token }}
+      datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
+      datadog-app-key: ${{ secrets.DATADOG_APP_KEY }}
+      gpg-passphrase: ${{ secrets.STAGING_GPG_PASSPHRASE }}
+
+  publish-tf-plan:
+    name: Publish Terraform Plan
+    permissions:
+      contents: read
+      pull-requests: write
+    if: needs.tf-plan.result != 'skipped' || needs.tf-plan.result != 'cancelled'
+    needs:
+      - tf-plan
+    uses: ./.github/workflows/publish-terraform-plan.yml
+    with:
+      write-summary: true
+      write-comment: false
+      tf-fmt-outcome: ${{ needs.tf-plan.outputs.fmt-outcome }}
+      tf-init-outcome: ${{ needs.tf-plan.outputs.init-outcome }}
+      tf-plan-outcome: ${{ needs.tf-plan.outputs.plan-outcome }}
+      tf-plan-output: ${{ needs.tf-plan.outputs.plan-output }}
+      tf-validate-outcome: ${{ needs.tf-plan.outputs.validate-outcome }}
+      tf-validate-output: ${{ needs.tf-plan.outputs.validate-output }}
+
+  tf-apply:
+    name: Deploy to Staging
+    needs:
+      - build
+      - aws-auth
+      - tf-plan
+    if: needs.tf-plan.outputs.plan-exitcode == 2
+    uses: ./.github/workflows/terraform-apply.yml
+    with:
+      website-artifacts-key: ${{ needs.build.outputs.website-artifacts-key }}
+      website-artifacts-path: ${{ needs.build.outputs.website-artifacts-path }}
+      tf-plan-artifacts-key: ${{ needs.tf-plan.outputs.artifacts-key }}
+      aws-region: us-west-2
+      concurrency-group: run_terraform-staging
+      tf-backend-config-file: staging.s3.tfbackend
+      environment-name: staging
+    secrets:
+      aws-access-key-id: ${{ needs.aws-auth.outputs.aws-access-key-id }}
+      aws-secret-access-key: ${{ needs.aws-auth.outputs.aws-secret-access-key }}
+      aws-session-token: ${{ needs.aws-auth.outputs.aws-session-token }}
+      datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
+      datadog-app-key: ${{ secrets.DATADOG_APP_KEY }}
+      gpg-passphrase: ${{ secrets.STAGING_GPG_PASSPHRASE }}
