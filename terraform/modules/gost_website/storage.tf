@@ -128,6 +128,7 @@ locals {
     js     = "text/javascript"
     json   = "application/json"
     jsonld = "application/ld+json"
+    map    = "application/json" # assumes .js.map
     otf    = "font/otf"
     pdf    = "application/pdf"
     png    = "image/png"
