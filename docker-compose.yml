@@ -73,6 +73,8 @@ services:
       - POSTGRESQL_PASSWORD=password123
       - POSTGRESQL_DATABASE=usdr_grants
       - POSTGRESQL_USER=postgres
+    ports:
+        - 5432:5432
     volumes:
       - ./docker/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./docker/postgres/docker-entrypoint-preinitdb.d:/docker-entrypoint-preinitdb.d
