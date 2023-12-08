@@ -1,8 +1,11 @@
 # Require admin approval for GitHub settings and workflow modifications
 /.github/  @usdigitalresponse/grants-admins
 
-# Require admin approval for Terraform IAC modifications
-/terraform/ @usdigitalresponse/grants-admins
-
 # Require admin approval when Postgres root CA bundle is modified
 /packages/server/rds-combined-ca-bundle.pem @usdigitalresponse/grants-admins
+
+# Require admin approval for special doc modifications
+README.md  @usdigitalresponse/grants-admins
+LICENSE  @usdigitalresponse/grants-admins
+CODE_OF_CONDUCT.md  @usdigitalresponse/grants-admins
+CONTRIBUTING.md @usdigitalresponse/grants-admins

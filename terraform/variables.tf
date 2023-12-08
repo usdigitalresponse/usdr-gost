@@ -112,6 +112,12 @@ variable "website_managed_waf_rules" {
   default = {}
 }
 
+variable "website_origin_artifacts_dist_path" {
+  description = "Path to the local directory from which website build artifacts are sourced and uploaded to the S3 origin bucket."
+  type        = string
+  default     = ""
+}
+
 variable "website_feature_flags" {
   description = "Map of website feature flag names and their values."
   type        = any
@@ -162,6 +168,10 @@ variable "api_enable_grants_scraper" {
 }
 
 variable "api_enable_grants_digest" {
+  type = bool
+}
+
+variable "api_enable_new_team_terminology" {
   type = bool
 }
 

@@ -66,6 +66,9 @@ module "website" {
   gost_api_domain   = local.api_domain_name
   managed_waf_rules = var.website_managed_waf_rules
   feature_flags     = var.website_feature_flags
+  origin_artifacts_dist_path = coalesce(
+    var.website_origin_artifacts_dist_path, "${path.root}/../packages/client/dist"
+  )
 }
 
 module "api_to_postgres_security_group" {
@@ -160,6 +163,7 @@ module "api" {
   autoscaling_desired_count_maximum = var.api_maximum_task_count
   enable_grants_scraper             = var.api_enable_grants_scraper
   enable_grants_digest              = var.api_enable_grants_digest
+  enable_new_team_terminology       = var.api_enable_new_team_terminology
   enable_saved_search_grants_digest = var.api_enable_saved_search_grants_digest
   unified_service_tags              = local.unified_service_tags
   datadog_environment_variables     = var.api_datadog_environment_variables

@@ -1,16 +1,16 @@
 <template>
   <div>
-    <b-navbar :type="navBarType" :variant="navBarVariant">
+    <b-navbar :type="navBarType" :variant="navBarVariant" class="header-dropshadow py-3">
       <b-navbar-brand href="/#/grants" class="d-flex align-items-center">
-      <b-img v-if="myProfileEnabled" :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo" />
-      <b-img v-else :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 1.625rem;" class="" alt="United States Digital Response logo in white" />
-      <h3 class="ml-3 mb-0">Grants Identification Tool</h3>
+      <b-img v-if="myProfileEnabled" :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 2.5rem;" class="" alt="United States Digital Response - Home" />
+      <b-img v-else :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 2.5rem;" class="" alt="United States Digital Response - Home" />
+      <h1 class="ml-3 mb-0 h4">Federal Grant Finder</h1>
     </b-navbar-brand>
       <b-collapse id="nav-collapse" is-nav>
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-nav-item-dropdown right v-if="loggedInUser && myProfileEnabled" no-caret>
+          <b-nav-item-dropdown right v-if="loggedInUser && myProfileEnabled" no-caret menu-class="w-100">
             <!-- Using 'button-content' slot -->
             <template v-if="myProfileEnabled" #button-content>
               <div class="d-inline-flex justify-content-start align-items-center" style="width: 242px">
@@ -25,10 +25,22 @@
             <template v-else #button-content>
               <em>{{loggedInUser.email}}</em>
             </template>
-            <b-dropdown-item-button href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
-            <b-dropdown-item-button href="#" @click="giveFeedback">Give Feedback</b-dropdown-item-button>
-            <b-dropdown-item-button href="#" @click="trainingGuide">Training Guide</b-dropdown-item-button>
-            <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
+            <b-dropdown-item href="#/my-profile">
+              <b-icon icon="person-circle" scale="1" class="dropdown-icon"></b-icon>
+              <p class="dropdown-item-text">My profile</p>
+            </b-dropdown-item>
+            <b-dropdown-item-button href="#" @click="giveFeedback">
+              <b-icon icon="chat-square-text" scale="1" class="dropdown-icon"></b-icon>
+              <p class="dropdown-item-text">Give feedback</p>
+            </b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="trainingGuide">
+              <b-icon icon="book" scale="1" class="dropdown-icon"></b-icon>
+              <p class="dropdown-item-text">Training guide</p>
+            </b-dropdown-item-button>
+            <b-dropdown-item-button href="#" @click="logout">
+              <b-icon icon="box-arrow-right" scale="1" class="dropdown-icon"></b-icon>
+              <p class="dropdown-item-text">Sign out</p>
+            </b-dropdown-item-button>
           </b-nav-item-dropdown>
 
           <b-nav-text v-if="!myProfileEnabled">
@@ -145,6 +157,16 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.dropdown-icon {
+  margin-right: 1rem;
+}
+
+.dropdown-item-text {
+  font-size: 14px;
+  display: inline;
+  text-align: left;
+  padding: 0;
+}
 .text-black {
   color: #000;
 }

@@ -21,10 +21,11 @@ Find instructions for using Docker-compose to do local development [here](../doc
 
 - For Mac/Linux, see [here](./setup-mac.md)
 - For Windows, see [here](./setup-windows.md)
+  - Note: these instructions also use Docker
 
 ## Development
 
-See [here](./development.md) for more information about setting up local development
+See [here](./development.md) for more information on setting up for development with Docker or with a local environment. Includes details on running code, linting, debugging and styling.
 
 ## Common Tasks
 
