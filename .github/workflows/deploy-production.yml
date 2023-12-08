@@ -22,7 +22,7 @@ jobs:
       contents: read
     uses: ./.github/workflows/validate-deployment.yml
     with:
-      protected-ref: ${{ github.event.repository.default_branch }}
+      protected-ref: main
       deployment-ref: ${{ github.ref }}
 
   build:
