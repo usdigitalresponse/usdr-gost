@@ -1,0 +1,211 @@
+name: Pull Request Tidying
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - unassigned
+      - edited
+      - unlocked
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  default-assignee:
+    # Disabled for now
+    if: false
+    name: Assign contributor
+    continue-on-error: true
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    outputs:
+      check-passed: ${{ steps.check.outputs.result == 'passed' }}
+      fixed: ${{ steps.fix.outputs.result == 'fixed' }}
+    env:
+      DEFAULT_ASSIGNEE: ${{ github.actor }}
+    steps:
+      - uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - name: Check if PR already has assignee
+        id: check
+        run: |
+          if [[ -n $CURRENT_ASSIGNEE ]]; then
+            echo "result=passed" >> $GITHUB_OUTPUT
+          fi
+        env:
+          CURRENT_ASSIGNEE: ${{ github.event.pull_request.assignee.login || '' }}
+      - id: skip-edited-event
+        if: github.event.action == 'edited'
+        run: |
+          echo "Fix will be skipped because the triggering action is an edit event"
+          exit 1
+      - id: prevent-reassignment
+        if: github.event.action == 'unassigned' && env.DEFAULT_ASSIGNEE == github.event.assignee.login
+        run: |
+          echo "Fix will be skipped to avoid reassigning the unassigned user"
+          exit 1
+      - name: Add assignee
+        id: fix
+        if: steps.check.outputs.result != 'passed'
+        run: |
+          level=$(gh api /repos/$REPO/collaborators/$AUTHOR/permission --jq .permission)
+          if [[ $level = "write" || $level = "admin" ]]; then
+            gh pr edit "$PR_NUMBER" --repo "$REPO" --add-assignee "$AUTHOR"
+            echo "result=fixed" >> $GITHUB_OUTPUT
+          fi
+        env:
+          REPO: ${{ github.repository }}
+          AUTHOR: ${{ env.DEFAULT_ASSIGNEE }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  issue-in-title:
+    # Disabled for now
+    if: false
+    name: Add issue references to title
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    outputs:
+      check-passed: ${{ steps.check.outputs.result == 'passed' }}
+      fixed: ${{ steps.fix.outputs.result == 'fixed' }}
+    steps:
+      - uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - name: Check the current PR title
+        id: check
+        run: |
+          regex='\s\([#][0-9]+\s?\)$'
+          if [[ $PR_TITLE =~ $regex ]]; then
+            echo "result=passed" >> $GITHUB_OUTPUT
+          fi
+      - id: skip-unassigned-event
+        if: github.event.action == 'unassigned'
+        run: |
+          echo "Fix will be skipped because the triggering action is an unassignment event"
+          exit 1
+      - id: skip-non-title-edits
+        if: github.event.action == 'edited' && github.event.changes.title.from == github.event.pull_request.title
+        run: |
+          echo "Fix will be skipped because the triggering edit action did not modify the PR title"
+          exit 1
+      - name: Parse issue(s) from Ticket heading
+        id: parse
+        if: steps.check.outputs.result != 'passed'
+        run: |
+          regex='^[#][#][#] Ticket (([#][0-9]+\s?)+)'
+          line=$(gh pr view "$PR_NUMBER" --json body --jq .body | head -n 1)
+          issues=''
+          if [[ $line =~ $regex ]]; then
+            issues="${BASH_REMATCH[1]}"
+          fi
+          echo "issue-numbers=$(tr -s '[:blank:]' <<< $issues)" >> $GITHUB_OUTPUT
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - id: skip-empty-issues
+        if: steps.parse.outputs.issue-numbers == ''
+        run: |
+          echo "Fix will be skipped because no issue numbers were parsed"
+          exit 1
+      - name: Format the new title
+        id: new-title
+        run: echo result="$ORIGINAL_TITLE (issue $ISSUE_NUMBERS)" >> $GITHUB_OUTPUT
+        env:
+          ORIGINAL_TITLE: ${{ github.event.pull_request.title }}
+          ISSUE_NUMBERS: ${{ steps.parse.outputs.issue-numbers }}
+      - id: skip-prevent-revert
+        if: github.event.action == 'edited' && github.event.changes.title.from == steps.new-title.outputs.result
+        run: |
+          echo "Fix will be skipped to avoid setting the title back to its previous value"
+          exit 1
+      - name: Update PR title
+        id: fix
+        if: steps.check.outputs.result != 'passed' && steps.parse.outputs.issue-numbers != ''
+        run: |
+          gh pr edit "$PR_NUMBER" --title "$ORIGINAL_TITLE (issue $ISSUE_NUMBERS)"
+          echo "result=fixed" >> $GITHUB_OUTPUT
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ORIGINAL_TITLE: ${{ github.event.pull_request.title }}
+          ISSUE_NUMBERS: ${{ steps.parse.outputs.issue-numbers }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  comment:
+    name: Create/update PR comment
+    # Disabled for now
+    if: always() && github.actor != 'dependabot[bot]' && false
+    needs:
+      - default-assignee
+      - issue-in-title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - name: Create comment file
+        run: |
+          COMMENT_FILE=$(mktemp -t comment.md.XXXXX)
+          echo "COMMENT_FILE=$COMMENT_FILE" >> $GITHUB_ENV
+          cat >> $COMMENT_FILE << 'ENDOFCOMMENT'
+          ## PR Helper Bot 🤖
+
+          **Thanks for your pull request!**
+          My job is to check for any missing conventions and automatically tidy things up (if I can).
+          You'll find the results below, along with any suggested actions for you to take.
+
+          <details>
+          <summary>Result key</summary>
+          ✅ = Already passing
+          🛠️ = Fixed (now passing)
+          ⚠️  = Consider fixing
+          </details>
+
+          | Convention                           | Result |
+          |:-------------------------------------|:------:|
+          | PR has assignee (defaults to author) | ${{ env.DEFAULT_ASSIGNEE }} |
+          | PR title ends with `(#issue)`        | ${{ env.ISSUE_IN_TITLE }}   |
+
+          *Pusher: @${{ env.GH_ACTOR }}, Action: `${{ env.GH_ACTION }}`, Workflow: [`${{ env.GH_WORKFLOW }}`](${{ env.GH_SERVER}}/${{ env.GH_REPO }}/actions/runs/${{ env.GH_RUN_ID }})*
+          ENDOFCOMMENT
+        env:
+          DEFAULT_ASSIGNEE: ${{ (needs.default-assignee.outputs.check-passed && '✅' ) || (needs.default-assignee.outputs.fixed && '🛠️') || '⚠️' }}
+          ISSUE_IN_TITLE: ${{ (needs.issue-in-title.outputs.check-passed && '✅' ) || (needs.issue-in-title.outputs.fixed && '🛠️') || '⚠️' }}
+          GH_ACTOR: ${{ github.actor }}
+          GH_ACTION: ${{ github.event_name }}
+          GH_WORKFLOW: ${{ github.workflow }}
+          GH_SERVER: ${{ github.server_url }}
+          GH_REPO: ${{ github.repository }}
+          GH_RUN_ID: ${{ github.run_id }}
+      - name: Output comment body to step summary
+        run: cat $COMMENT_FILE >> $GITHUB_STEP_SUMMARY
+      - name: Write the comment body
+        id: comment-body
+        run: |
+          CONTENT=$(cat $COMMENT_FILE)
+          echo "COMMENT_CONTENT<<ENDOFREPORT" >> $GITHUB_OUTPUT
+          echo "$CONTENT" >> $GITHUB_OUTPUT
+          echo "ENDOFREPORT" >> $GITHUB_OUTPUT
+      - name: Find previous report comment
+        id: find-comment
+        uses: peter-evans/find-comment@a54c31d7fa095754bfef525c0c8e5e5674c4b4b1 # v2.4.0
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: 'PR Helper Bot 🤖'
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@23ff15729ef2fc348714a3bb66d2f655ca9066f2 # v3.1.0
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ steps.comment-body.outputs.COMMENT_CONTENT }}
+          edit-mode: replace
