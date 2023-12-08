@@ -380,8 +380,9 @@ export default {
     onShown() {
       this.initFormState();
     },
-    async onEnter() {
-      if (this.saveEnabled) {
+    async onEnter(event) {
+      const enterInOpenDropdown = event.target.closest('.vs--open');
+      if (this.saveEnabled && !enterInOpenDropdown) {
         await this.onSubmit();
       }
     },
