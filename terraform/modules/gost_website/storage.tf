@@ -114,6 +114,35 @@ module "origin_bucket" {
 locals {
   origin_artifacts_dist_path       = trimsuffix(var.origin_artifacts_dist_path, "/")
   origin_artifacts_dist_key_prefix = trim(var.origin_bucket_dist_path, "/")
+
+  extension_mime_types = {
+    bmp    = "image/bmp"
+    css    = "text/css"
+    csv    = "text/csv"
+    gif    = "image/gif"
+    htm    = "text/html"
+    html   = "text/html"
+    ico    = "image/vnd.microsoft.icon"
+    jpeg   = "image/jpeg"
+    jpg    = "image/jpeg"
+    js     = "text/javascript"
+    json   = "application/json"
+    jsonld = "application/ld+json"
+    otf    = "font/otf"
+    pdf    = "application/pdf"
+    png    = "image/png"
+    svg    = "image/svg+xml"
+    tif    = "image/tiff"
+    tiff   = "image/tiff"
+    ttf    = "font/ttf"
+    txt    = "text/plain"
+    woff   = "font/woff"
+    woff2  = "font/woff2"
+    xls    = "application/vnd.ms-excel"
+    xlsx   = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    xml    = "application/xml"
+    webp   = "image/webp"
+  }
 }
 
 resource "aws_s3_object" "origin_dist_artifact" {
@@ -125,6 +154,7 @@ resource "aws_s3_object" "origin_dist_artifact" {
   source_hash            = filemd5("${local.origin_artifacts_dist_path}/${each.value}")
   etag                   = filemd5("${local.origin_artifacts_dist_path}/${each.value}")
   server_side_encryption = "AES256"
+  content_type           = local.extension_mime_types[reverse(split(".", each.value))[0]]
 
   depends_on = [module.origin_bucket]
 }
