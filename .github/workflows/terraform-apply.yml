@@ -145,7 +145,7 @@ jobs:
       - name: Invalidate CloudFront distribution cache
         if: success() && inputs.clear-web-cache
         run: |
-          DISTRIBUTION_ID=$(terraform output -json | jq .website_cloudfront_distribution_id.value)
+          DISTRIBUTION_ID=$(terraform output -json | jq --raw-output .website_cloudfront_distribution_id.value)
           aws cloudfront create-invalidation --paths '/*' --distribution-id $DISTRIBUTION_ID
         env:
           AWS_ACCESS_KEY_ID: "${{ steps.decrypt-aws-access-key-id.outputs.out }}"
