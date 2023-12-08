@@ -1,5 +1,7 @@
-#! /bin/bash
+#!/bin/bash
 
+export LOCALSTACK_HOST=localhost
+export HOSTNAME_EXTERNAL=localstack
 export AWS_ACCESS_KEY_ID="test"
 export AWS_SECRET_ACCESS_KEY="test"
 
@@ -15,3 +17,4 @@ done
 awslocal s3api create-bucket --bucket arpa-audit-reports --region us-west-2 --create-bucket-configuration '{"LocationConstraint": "us-west-2"}'
 
 awslocal sqs create-queue --queue-name grants-ingest-events
+awslocal sqs create-queue --queue-name arpa-queue
