@@ -22,7 +22,7 @@
     </b-row>
     <b-row align-v="center">
       <b-col cols="12">
-       	<b-table id="grants-table" hover responsive stacked="sm" :items="formattedGrants"
+        <b-table id="grants-table" hover responsive stacked="sm" :items="formattedGrants"
           :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
           @row-selected="onRowSelected" show-empty emptyText="No matches found">
