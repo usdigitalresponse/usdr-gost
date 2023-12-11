@@ -55,7 +55,7 @@
         aria-controls="grants-table" />
       <b-button class="ml-2" variant="outline-primary disabled">{{ grantsInterested.length }} of {{ totalRows }}</b-button>
     </b-row>
-    <GrantDetails v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 <style scoped>
@@ -73,10 +73,10 @@
 import { mapActions, mapGetters } from 'vuex';
 import { newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import resizableTableMixin from '@/mixin/resizableTable';
-import GrantDetails from '@/components/Modals/GrantDetailsLegacy.vue';
+import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
 
 export default {
-  components: { GrantDetails },
+  components: { GrantDetailsLegacy },
   data() {
     return {
       perPage: 10,

@@ -112,7 +112,7 @@
         </template>
       </b-table>
     </b-card>
-    <GrantDetails v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 
@@ -144,11 +144,11 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
-import GrantDetails from '@/components/Modals/GrantDetailsLegacy.vue';
+import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
 import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 
 export default {
-  components: { GrantDetails },
+  components: { GrantDetailsLegacy },
   data() {
     return {
       dateColors: [],

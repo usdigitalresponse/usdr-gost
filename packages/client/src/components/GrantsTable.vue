@@ -70,7 +70,7 @@
           <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
       </b-col>
     </b-row>
-    <GrantDetails v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 
@@ -78,14 +78,14 @@
 import { mapActions, mapGetters } from 'vuex';
 import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import { titleize } from '../helpers/form-helpers';
-import GrantDetails from './Modals/GrantDetailsLegacy.vue';
+import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
 import SearchFilter from './SearchFilter.vue';
 
 export default {
   components: {
-    GrantDetails, SearchPanel, SavedSearchPanel, SearchFilter,
+    GrantDetailsLegacy, SearchPanel, SavedSearchPanel, SearchFilter,
   },
   props: {
     showInterested: Boolean,
