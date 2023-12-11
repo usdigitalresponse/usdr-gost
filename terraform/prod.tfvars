@@ -48,7 +48,8 @@ website_datadog_rum_options = {
 }
 website_feature_flags = {
   myProfileEnabled      = false,
-  newTerminologyEnabled = false
+  newTerminologyEnabled = false,
+  newGrantsDetailPageEnabled = false
 }
 
 // ECS Cluster
