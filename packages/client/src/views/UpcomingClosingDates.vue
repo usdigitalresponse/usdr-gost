@@ -30,7 +30,7 @@
         aria-controls="upcomingGrants" />
       <b-button class="ml-2" variant="outline-primary disabled">{{ upcomingItems.length }} of {{ totalRows }}</b-button>
     </b-row>
-    <GrantDetails :selected-grant.sync="selectedGrant" />
+    <GrantDetails v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 <style scoped>
@@ -46,6 +46,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import { newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import resizableTableMixin from '@/mixin/resizableTable';
 import GrantDetails from '@/components/Modals/GrantDetailsLegacy.vue';
 
@@ -125,6 +126,9 @@ export default {
     },
     totalRows() {
       return this.totalUpcomingGrants;
+    },
+    newGrantsDetailPageEnabled() {
+      return newGrantsDetailPageEnabled();
     },
   },
   watch: {

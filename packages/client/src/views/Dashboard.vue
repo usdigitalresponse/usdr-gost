@@ -112,7 +112,7 @@
         </template>
       </b-table>
     </b-card>
-    <GrantDetails :selected-grant.sync="selectedGrant" />
+    <GrantDetails v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 
@@ -145,7 +145,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
 import GrantDetails from '@/components/Modals/GrantDetailsLegacy.vue';
-import { newTerminologyEnabled } from '@/helpers/featureFlags';
+import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 
 export default {
   components: { GrantDetails },
@@ -365,6 +365,9 @@ export default {
     },
     newTerminologyEnabled() {
       return newTerminologyEnabled();
+    },
+    newGrantsDetailPageEnabled() {
+      return newGrantsDetailPageEnabled();
     },
   },
   watch: {
