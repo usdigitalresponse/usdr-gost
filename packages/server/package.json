@@ -37,7 +37,9 @@
     "test:email": "NODE_ENV=test mocha __tests__/email/*.test.js",
     "test:lib": "NODE_ENV=test mocha __tests__/lib/*.test.js",
     "test:userimport": "NODE_ENV=test SUPPRESS_EMAIL=true mocha --exit --bail --require __tests__/api/fixtures.js __tests__/db/userImporter._test_.js",
-    "test": "yarn test:apis && yarn test:arpa && yarn test:db && yarn test:userimport && yarn test:agencyimport && yarn test:email && yarn test:lib"
+    "test": "yarn test:apis && yarn test:arpa && yarn test:db && yarn test:userimport && yarn test:agencyimport && yarn test:email && yarn test:lib",
+    "start:arpa-audit-worker": "node src/scripts/arpaAuditReport.js",
+    "debug:arpa-audit-worker": "nodemon --inspect=0.0.0.0:9229 src/scripts/arpaAuditReport.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.312.0",
