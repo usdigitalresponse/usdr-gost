@@ -6,6 +6,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import './assets/fix-sticky-headers.css';
+import './assets/adjust-vue-select.css';
 
 const fetchApi = require('@/helpers/fetchApi');
 
