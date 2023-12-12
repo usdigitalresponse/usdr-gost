@@ -42,7 +42,7 @@
               <div v-if="totalInterestedGrants > 4">
                 <b-row align-v="center" >
                   <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
-                    <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
+                    <b-link class="nav-link active" to="RecentActivity">See All Activity</b-link>
                   </b-navbar>
                 </b-row>
               </div>
@@ -72,7 +72,7 @@
               <div v-if="totalUpcomingGrants > 3">
                 <b-row align-v="center">
                   <b-navbar toggleable="sm py-0" bg-transparent class="gutter-upcoming row">
-                    <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
+                    <b-link class="nav-link active" to="UpcomingClosingDates">See All Upcoming</b-link>
                   </b-navbar>
                 </b-row>
               </div>

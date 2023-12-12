@@ -11,6 +11,16 @@ module.exports = {
       options.patterns[0].globOptions.ignore.push('**/deploy-config.js');
       return [options];
     });
+    // Added as workaround for bug in @vue/cli-plugin-unit-mocha.
+    // https://github.com/vuejs/vue-cli/issues/4053
+    // Unit tests report webpack compilation failures without this workaround.
+    if (process.env.NODE_ENV === 'test') {
+      const scssRule = config.module.rule('scss');
+      scssRule.uses.clear();
+      scssRule
+        .use('null-loader')
+        .loader('null-loader');
+    }
   },
   pages: {
     main: {
