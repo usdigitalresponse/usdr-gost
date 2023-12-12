@@ -133,13 +133,13 @@ variable "website_datadog_rum_options" {
     trackResources          = bool
     trackLongTasks          = bool
   })
-  default = object({
+  default = {
     sessionSampleRate       = 100
     sessionReplaySampleRate = 20
     trackUserInteractions   = true
     trackResources          = true
     trackLongTasks          = true
-  })
+  }
 }
 
 variable "website_feature_flags" {
