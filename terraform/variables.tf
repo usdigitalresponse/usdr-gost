@@ -118,6 +118,30 @@ variable "website_origin_artifacts_dist_path" {
   default     = ""
 }
 
+variable "website_datadog_rum_enabled" {
+  description = "Whether to enable Datadog RUM on the website."
+  type        = bool
+  default     = false
+}
+
+variable "website_datadog_rum_options" {
+  description = "Configuration options for Datadog RUM data collection (if var.website_datadog_rum_enabled is true)."
+  type = object({
+    sessionSampleRate       = number
+    sessionReplaySampleRate = number
+    trackUserInteractions   = bool
+    trackResources          = bool
+    trackLongTasks          = bool
+  })
+  default = object({
+    sessionSampleRate       = 100
+    sessionReplaySampleRate = 20
+    trackUserInteractions   = true
+    trackResources          = true
+    trackLongTasks          = true
+  })
+}
+
 variable "website_feature_flags" {
   description = "Map of website feature flag names and their values."
   type        = any
