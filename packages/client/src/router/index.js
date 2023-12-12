@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import { myProfileEnabled, newTerminologyEnabled } from '@/helpers/featureFlags';
+import { myProfileEnabled, newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
 import Login from '../views/Login.vue';
 import Layout from '../components/Layout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
@@ -71,6 +71,24 @@ const routes = [
         component: () => import('../views/MyGrants.vue'),
         meta: {
           requiresAuth: true,
+        },
+      },
+      {
+        path: '/eligibility-codes',
+        name: 'eligibilityCodes',
+        component: () => import('../views/EligibilityCodes.vue'),
+        meta: {
+          requiresAuth: true,
+          enabledWithOldGrantsTableOnly: true,
+        },
+      },
+      {
+        path: '/keywords',
+        name: 'keywords',
+        component: () => import('../views/Keywords.vue'),
+        meta: {
+          requiresAuth: true,
+          enabledWithOldGrantsTableOnly: true,
         },
       },
       {
@@ -155,6 +173,7 @@ router.beforeEach((to, from, next) => {
   } else if (to.name === 'login' && authenticated) {
     next({ name: 'grants' });
   } else if (to.name === 'not-found'
+    || (to.meta.enabledWithOldGrantsTableOnly && useNewGrantsTable())
     || (to.meta.requiresMyProfileEnabled && !myProfileEnabled())
     || (to.meta.requiresNewTerminologyEnabled && !newTerminologyEnabled())
   ) {

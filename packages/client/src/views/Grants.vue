@@ -5,8 +5,11 @@
 <script>
 
 import GrantsTable from '@/components/GrantsTable.vue';
+import GrantsTableNext from '@/components/GrantsTableNext.vue';
+import { useNewGrantsTable } from '@/helpers/featureFlags';
 
 export default {
+  components: { GrantsTable },
   data() {
     return {
 
@@ -15,7 +18,7 @@ export default {
   methods: {},
   computed: {
     tableComponent() {
-      return GrantsTable;
+      return useNewGrantsTable() ? GrantsTableNext : GrantsTable;
     },
   },
 };

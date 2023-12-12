@@ -20,6 +20,7 @@ window.APP_CONFIG.overrideFeatureFlag = (flagName, overrideValue) => {
 // For local development only. Register feature flags for Staging and Production by
 //  configuring the `website_feature_flags` input variable in Terraform (see `terraform/*.tfvars`).
 window.APP_CONFIG.featureFlags = {
+  useNewTable: true,
   myProfileEnabled: true,
   newTerminologyEnabled: true,
 };
