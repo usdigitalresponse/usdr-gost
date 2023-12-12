@@ -1,7 +1,7 @@
 <!-- eslint-disable max-len -->
 <template>
-  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.grant_number" @hide="resetSelectedGrant"
-    scrollable size="xl">
+  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.grant_number"
+     @hide="resetSelectedGrant" scrollable size="xl" ok-title="Close">
     <div v-if="selectedGrant">
       <b-row class="mb-3 d-flex align-items-baseline">
         <b-col cols="8">

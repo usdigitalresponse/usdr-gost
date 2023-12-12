@@ -12,6 +12,10 @@ on:
       website-artifacts-path:
         type: string
         required: true
+      clear-web-cache:
+        description: Whether to invalidate the CloudFront distribution cache as a post-deployment step.
+        type: boolean
+        default: true
       tf-plan-artifacts-key:
         type: string
         required: true
@@ -134,6 +138,15 @@ jobs:
           TF_CLI_ARGS_init: "-backend-config=${{ inputs.tf-backend-config-file }}"
       - name: Terraform Apply
         run: terraform apply tfplan
+        env:
+          AWS_ACCESS_KEY_ID: "${{ steps.decrypt-aws-access-key-id.outputs.out }}"
+          AWS_SECRET_ACCESS_KEY: "${{ steps.decrypt-aws-secret-access-key.outputs.out }}"
+          AWS_SESSION_TOKEN: "${{ steps.decrypt-aws-session-token.outputs.out }}"
+      - name: Invalidate CloudFront distribution cache
+        if: success() && inputs.clear-web-cache
+        run: |
+          DISTRIBUTION_ID=$(terraform output -json | jq --raw-output .website_cloudfront_distribution_id.value)
+          aws cloudfront create-invalidation --paths '/*' --distribution-id $DISTRIBUTION_ID
         env:
           AWS_ACCESS_KEY_ID: "${{ steps.decrypt-aws-access-key-id.outputs.out }}"
           AWS_SECRET_ACCESS_KEY: "${{ steps.decrypt-aws-secret-access-key.outputs.out }}"

@@ -37,7 +37,9 @@
     "start": "yarn serve",
     "test:client": "yarn workspace client test",
     "test:server": "yarn workspace server test",
-    "test": "yarn workspaces run test"
+    "test": "yarn workspaces run test",
+    "start:arpa-audit-worker": "yarn workspace server start:arpa-audit-worker",
+    "debug:arpa-audit-worker": "yarn workspace server debug:arpa-audit-worker"
   },
   "dependencies": {},
   "devDependencies": {
