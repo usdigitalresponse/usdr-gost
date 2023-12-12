@@ -40,7 +40,7 @@ website_managed_waf_rules = {
 }
 website_datadog_rum_enabled = true
 website_datadog_rum_options = {
-  sessionSampleRate       = 100
+  sessionSampleRate       = 80
   sessionReplaySampleRate = 20
   trackUserInteractions   = true
   trackResources          = true
