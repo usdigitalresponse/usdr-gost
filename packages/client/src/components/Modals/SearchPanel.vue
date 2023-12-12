@@ -161,16 +161,13 @@
               label="Category of Funding Activity"
               label-for="category-of-funding-activity"
             >
-              <multiselect
+              <v-select
                 id="category-of-funding-activity"
                 v-model="formData.criteria.fundingActivityCategories"
                 :options="fundingActivityCategories"
                 :multiple="true"
                 :close-on-select="false"
                 label="name"
-                track-by="code"
-                :limit="3"
-                selectLabel=""
               />
             </b-form-group>
             <b-form-group
