@@ -126,7 +126,7 @@
             </b-form-group>
             <b-form-group
               id="opportunity-category-group"
-              label="Category"
+              label="Opportunity Category"
               label-for="opportunity-category"
             >
               <v-select
