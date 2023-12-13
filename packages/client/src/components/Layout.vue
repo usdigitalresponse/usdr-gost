@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar :type="navBarType" :variant="navBarVariant" class="header-dropshadow py-3">
+    <b-navbar :type="navBarType" :variant="navBarVariant" class="header-dropshadow py-1">
       <b-navbar-brand href="/#/grants" class="d-flex align-items-center">
       <b-img v-if="myProfileEnabled" :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 2.5rem;" class="" alt="United States Digital Response - Home" />
       <b-img v-else :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 2.5rem;" class="" alt="United States Digital Response - Home" />
@@ -64,8 +64,6 @@
       <b-nav tabs justified fill style="margin-top: 20px">
           <b-nav-item to="/my-grants" exact exact-active-class="active">My Grants</b-nav-item>
           <b-nav-item to="/grants" exact exact-active-class="active">Browse Grants</b-nav-item>
-          <b-nav-item v-if="!useNewGrantsTable" to="/eligibility-codes" exact exact-active-class="active">Eligibility Codes</b-nav-item>
-          <b-nav-item v-if="!useNewGrantsTable" to="/keywords" exact exact-active-class="active">Keywords</b-nav-item>
           <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
           <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
           <b-nav-item :to="newTerminologyEnabled ? '/teams' : '/agencies'" exact exact-active-class="active">{{newTerminologyEnabled ? 'Teams' : 'Agencies'}}</b-nav-item>
@@ -86,7 +84,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { myProfileEnabled, newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
+import { myProfileEnabled, newTerminologyEnabled } from '@/helpers/featureFlags';
 import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
 import AlertBox from '../arpa_reporter/components/AlertBox.vue';
 import UserAvatar from './UserAvatar.vue';
@@ -119,9 +117,6 @@ export default {
     },
     myProfileEnabled() {
       return myProfileEnabled();
-    },
-    useNewGrantsTable() {
-      return useNewGrantsTable();
     },
     showTabs() {
       return !(this.$route.meta.hideLayoutTabs === true);

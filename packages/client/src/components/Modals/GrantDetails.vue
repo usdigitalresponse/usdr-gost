@@ -1,7 +1,7 @@
 <!-- eslint-disable max-len -->
 <template>
-  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.grant_number" @hide="resetSelectedGrant"
-    scrollable size="xl">
+  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.grant_number"
+     @hide="resetSelectedGrant" scrollable size="xl" ok-title="Close">
     <div v-if="selectedGrant">
       <b-row class="mb-3 d-flex align-items-baseline">
         <b-col cols="8">
@@ -70,11 +70,11 @@
       <br />
       <b-row class="ml-2 mb-2 d-flex align-items-baseline">
         <h2 class="h4">Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h2>
-          <multiselect v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
+          <v-select v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
             :clear-on-select="false" :placeholder="`Select ${newTerminologyEnabled ? 'teams': 'agencies'}`" label="name" track-by="id"
             style="width: 300px; margin: 0 16px;" :show-labels="false"
           >
-          </multiselect>
+          </v-select>
           <b-button variant="outline-primary" @click="assignAgenciesToGrant">Assign</b-button>
       </b-row>
       <b-table :items="assignedAgencies" :fields="assignedAgenciesFields">
@@ -91,12 +91,10 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { debounce } from 'lodash';
-import Multiselect from 'vue-multiselect';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { titleize } from '../../helpers/form-helpers';
 
 export default {
-  components: { Multiselect },
   props: {
     selectedGrant: Object,
   },

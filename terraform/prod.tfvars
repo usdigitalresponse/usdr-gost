@@ -39,7 +39,6 @@ website_managed_waf_rules = {
   }
 }
 website_feature_flags = {
-  useNewTable           = true,
   myProfileEnabled      = false,
   newTerminologyEnabled = false
 }
@@ -49,7 +48,6 @@ cluster_container_insights_enabled = true
 
 // API / Backend
 api_enabled                           = true
-api_container_image_tag               = "stable"
 api_default_desired_task_count        = 3
 api_minumum_task_count                = 2
 api_maximum_task_count                = 5

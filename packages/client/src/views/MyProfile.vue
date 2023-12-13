@@ -1,37 +1,40 @@
 <template>
-  <main style="max-width: 516px;" class="mx-auto my-5 px-2">
-    <h2>My Profile</h2>
-    <section style="margin-top: 4rem;">
-      <b-row>
-        <b-col>
-          <UserAvatar />
-        </b-col>
-        <b-col cols="7">
-          <p class="mb-2 h6"><b>{{ name }}</b></p>
-          <p class="mb-2">{{ email }}</p>
-          <p class="mb-2">{{ agency }}</p>
-        </b-col>
-        <b-col class="text-end">
-          <b-button variant="primary" size="md" @click="$bvModal.show('edit-user-modal')">
-            <b-icon icon="pencil-fill" scale="0.8"></b-icon>
-            <span class="ml-1">Edit</span>
-          </b-button>
-        </b-col>
-      </b-row>
+  <main>
+    <b-breadcrumb :items="breadcrumb_items"></b-breadcrumb>
+    <section style="max-width: 516px;" class="mx-auto my-5 px-2">
+      <h2>My Profile</h2>
+      <section style="margin-top: 4rem;">
+        <b-row>
+          <b-col>
+            <UserAvatar />
+          </b-col>
+          <b-col cols="7">
+            <p class="mb-2 h6"><b>{{ name }}</b></p>
+            <p class="mb-2">{{ email }}</p>
+            <p class="mb-2">{{ agency }}</p>
+          </b-col>
+          <b-col class="text-end">
+            <b-button variant="primary" size="md" @click="$bvModal.show('edit-user-modal')">
+              <b-icon icon="pencil-fill" scale="0.8"></b-icon>
+              <span class="ml-1">Edit</span>
+            </b-button>
+          </b-col>
+        </b-row>
+      </section>
+      <section style="margin-top: 3.5rem;">
+        <h3 style="margin-bottom: 1.5rem;">Email Notifications</h3>
+        <b-row  v-for="pref in prefs" :key="pref.key" >
+          <b-col cols="11">
+            <p class="mb-0">{{ pref.name }}</p>
+            <p class="pref-description">{{ pref.description }}</p>
+          </b-col>
+          <b-col cols="1">
+            <b-form-checkbox switch v-model="pref.checked" @change="onUpdateEmailPreference(pref)"></b-form-checkbox>
+          </b-col>
+        </b-row>
+      </section>
+      <EditUserModal/>
     </section>
-    <section style="margin-top: 3.5rem;">
-      <h3 style="margin-bottom: 1.5rem;">Email Notifications</h3>
-      <b-row  v-for="pref in prefs" :key="pref.key" >
-        <b-col cols="11">
-          <p class="mb-0">{{ pref.name }}</p>
-          <p class="pref-description">{{ pref.description }}</p>
-        </b-col>
-        <b-col cols="1">
-          <b-form-checkbox switch v-model="pref.checked" @change="onUpdateEmailPreference(pref)"></b-form-checkbox>
-        </b-col>
-      </b-row>
-    </section>
-    <EditUserModal/>
   </main>
 </template>
 
@@ -62,6 +65,16 @@ export default {
           name: 'Occasional Updates',
           key: 'GRANT_FINDER_UPDATES',
           description: 'Send me occasional emails about feature releases, surveys, and other updates.',
+        },
+      ],
+      breadcrumb_items: [
+        {
+          text: 'Home',
+          href: '/#/grants',
+        },
+        {
+          text: 'My Profile',
+          href: '#',
         },
       ],
     };
@@ -110,5 +123,8 @@ export default {
   .pref-description {
     font-size: 12px;
     margin-bottom: 2rem;
+  }
+  .breadcrumb {
+    background-color: #ffffff;
   }
 </style>
