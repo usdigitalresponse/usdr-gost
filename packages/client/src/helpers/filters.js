@@ -3,15 +3,16 @@ const FILTER_FIELD_NAME_MAP = {
   includeKeywords: 'Include',
   excludeKeywords: 'Exclude',
   opportunityNumber: 'Opportunity Number',
-  opportunityStatuses: 'Opportunity Statuses',
+  opportunityStatuses: 'Opportunity Status',
   fundingTypes: 'Funding Type',
   agency: 'Agency Code',
   costSharing: 'Cost Sharing',
-  opportunityCategories: 'Opportunity Categories',
+  opportunityCategories: 'Opportunity Category',
   reviewStatus: 'Review Status',
   postedWithin: 'Posted Within',
   eligibility: 'Eligibility',
   bill: 'Bill',
+  fundingActivityCategories: 'Category of Funding Activity',
 };
 
 export function formatFilterDisplay(criteria) {
@@ -34,6 +35,8 @@ export function formatFilterDisplay(criteria) {
       } else if (key === 'eligibility') {
         newVal = value.map((i) => i.label).join(' or ');
       } else if (key === 'fundingTypes') {
+        newVal = value.map((i) => i.name).join(' or ');
+      } else if (key === 'fundingActivityCategories') {
         newVal = value.map((i) => i.name).join(' or ');
       }
 

@@ -22,6 +22,10 @@
       <div v-for="field in dialogFields" :key="field">
         <p><span class="data-label">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
       </div>
+      <p>
+        <span class="data-label">Category of Funding Activity:</span>
+        {{ selectedGrant['funding_activity_categories']?.join(', ') }}
+      </p>
       <p class="data-label">Description:</p>
       <div style="max-height: 170px; overflow-y: scroll">
         <div style="white-space: pre-line" v-html="selectedGrant.description"></div>

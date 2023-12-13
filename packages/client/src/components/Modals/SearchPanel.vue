@@ -126,7 +126,7 @@
             </b-form-group>
             <b-form-group
               id="opportunity-category-group"
-              label="Category"
+              label="Opportunity Category"
               label-for="opportunity-category"
             >
               <v-select
@@ -154,6 +154,20 @@
                 placeholder="All Bills"
                 :show-labels="false"
                 :clearable="false"
+              />
+            </b-form-group>
+            <b-form-group
+              id="category-of-funding-activity-group"
+              label="Category of Funding Activity"
+              label-for="category-of-funding-activity"
+            >
+              <v-select
+                id="category-of-funding-activity"
+                v-model="formData.criteria.fundingActivityCategories"
+                :options="fundingActivityCategories"
+                :multiple="true"
+                :close-on-select="false"
+                label="name"
               />
             </b-form-group>
             <b-form-group
@@ -234,6 +248,7 @@ const defaultCriteria = {
   bill: null,
   costSharing: null,
   opportunityCategories: [],
+  fundingActivityCategories: [],
   postedWithin: [],
 };
 
@@ -295,6 +310,7 @@ export default {
   computed: {
     ...mapGetters({
       eligibilityCodes: 'grants/eligibilityCodes',
+      fundingActivityCategories: 'grants/fundingActivityCategories',
       savedSearches: 'grants/savedSearches',
       displaySearchPanel: 'grants/displaySearchPanel',
     }),
@@ -320,13 +336,13 @@ export default {
       updateSavedSearch: 'grants/updateSavedSearch',
       fetchSavedSearches: 'grants/fetchSavedSearches',
       applyFilters: 'grants/applyFilters',
-      fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+      fetchSearchConfig: 'grants/fetchSearchConfig',
       changeSelectedSearchId: 'grants/changeSelectedSearchId',
       initNewSearch: 'grants/initNewSearch',
       initViewResults: 'grants/initViewResults',
     }),
     setup() {
-      this.fetchEligibilityCodes();
+      this.fetchSearchConfig();
       if (this.displaySearchPanel) {
         this.showSideBar();
       }

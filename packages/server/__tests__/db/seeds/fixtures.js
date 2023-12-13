@@ -123,6 +123,7 @@ const grants = {
         raw_body: 'raw body',
         funding_instrument_codes: 'CA G PC',
         bill: 'Infrastructure Investment and Jobs Act (IIJA)',
+        funding_activity_category_codes: 'ISS',
         created_at: '2021-08-11 11:30:38.89828-07',
         updated_at: '2021-08-11 12:30:39.531-07',
     },
@@ -147,6 +148,7 @@ const grants = {
         raw_body: 'raw body',
         funding_instrument_codes: 'O',
         bill: '',
+        funding_activity_category_codes: 'IS',
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
     },
@@ -171,6 +173,7 @@ const grants = {
         raw_body: 'raw body',
         funding_instrument_codes: 'O PC',
         bill: 'Infrastructure Investment and Jobs Act (IIJA)',
+        funding_activity_category_codes: 'ISS ST',
         created_at: '2021-01-06 11:30:38.89828-07',
         updated_at: '2022-04-23 12:30:39.531-07',
     },
@@ -363,6 +366,16 @@ const grantsSavedSearches = [
     },
 ];
 
+const grantsViewed = {
+    entry1: {
+        agency_id: agencies.accountancy.id,
+        grant_id: grants.earFellowship.grant_id,
+        user_id: users.adminUser.id,
+        created_at: '2022-08-06 16:03:53.57025-07',
+        updated_at: '2021-08-11 12:35:42.562-07',
+    },
+};
+
 module.exports = {
     tenants,
     agencies,
@@ -375,6 +388,7 @@ module.exports = {
     grants,
     interestedCodes,
     roles,
+    grantsViewed,
 };
 
 module.exports.seed = async (knex) => {
@@ -402,4 +416,5 @@ module.exports.seed = async (knex) => {
     await knex(TABLES.assigned_grants_agency).insert(Object.values(assignedAgencyGrants));
     await knex(TABLES.grants_interested).insert(Object.values(grantsInterested));
     await knex(TABLES.grants_saved_searches).insert(Object.values(grantsSavedSearches));
+    await knex(TABLES.grants_viewed).insert(Object.values(grantsViewed));
 };

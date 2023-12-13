@@ -22,6 +22,7 @@ const moment = require('moment');
 const knex = require('./connection');
 const { TABLES } = require('./constants');
 const emailConstants = require('../lib/email/constants');
+const { fundingActivityCategoriesByCode } = require('../lib/fieldConfigs/fundingActivityCategories');
 const helpers = require('./helpers');
 
 async function getUsers(tenantId) {
@@ -495,6 +496,10 @@ function buildKeywordQuery(queryBuilder, includeKeywords, excludeKeywords, order
     return Boolean(includeExpression);
 }
 
+function matchAsWordRegex(word) {
+    return `\\m${word}\\M`;
+}
+
 function buildFiltersQuery(queryBuilder, filters, agencyId) {
     const statusMap = {
         Applied: 'Result',
@@ -537,6 +542,10 @@ function buildFiltersQuery(queryBuilder, filters, agencyId) {
             } else if (filters.postedWithinDays > 0) {
                 const date = moment().subtract(filters.postedWithinDays, 'days').startOf('day').format('YYYY-MM-DD');
                 qb.where(`${TABLES.grants}.open_date`, '>=', date);
+            }
+            if (filters.fundingActivityCategories?.length) {
+                qb.where('funding_activity_category_codes', '~*',
+                    filters.fundingActivityCategories.map(matchAsWordRegex).join('|'));
             }
         },
     );
@@ -584,6 +593,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
     }
 }
 
+// Convert saved search criteria to db query filters
 function formatSearchCriteriaToQueryFilters(criteria) {
     const parsedCriteria = JSON.parse(criteria);
     const postedWithinOptions = {
@@ -614,6 +624,10 @@ function formatSearchCriteriaToQueryFilters(criteria) {
         filters.eligibilityCodes = parsedCriteria.eligibility.map((e) => e.code);
         delete parsedCriteria.eligibility;
     }
+    if (parsedCriteria.fundingActivityCategories) {
+        filters.fundingActivityCategories = parsedCriteria.fundingActivityCategories.map((c) => c.code);
+        delete parsedCriteria.fundingActivityCategories;
+    }
     filters = { ...filters, ...parsedCriteria };
 
     return filters;
@@ -623,6 +637,7 @@ function validateSearchFilters(filters) {
     const filterOptionsByType = {
         reviewStatuses: { type: 'List', valueType: 'Enum', values: ['Applied', 'Not Applying', 'Interested'] },
         eligibilityCodes: { type: 'List', valueType: 'String' },
+        fundingActivityCategories: { type: 'List', valueType: 'String' },
         includeKeywords: { type: 'List', valueType: 'String' },
         excludeKeywords: { type: 'List', valueType: 'String' },
         opportunityNumber: { type: 'String', valueType: 'Any' },
@@ -769,6 +784,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.description_ts',
             'grants.funding_instrument_codes',
             'grants.bill',
+            'grants.funding_activity_category_codes',
         ])
         .select(knex.raw(`
             CASE
@@ -811,6 +827,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.description_ts',
             'grants.funding_instrument_codes',
             'grants.bill',
+            'grants.funding_activity_category_codes',
         );
     if (toCsv) {
         query.modify(addCsvData);
@@ -824,12 +841,14 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
         lastPage: Math.ceil(parseInt(fullCount, 10) / parseInt(paginationParams.perPage, 10)),
     };
 
-    const dataWithAgency = await enhanceGrantData(tenantId, data);
+    const enhancedData = await enhanceGrantData(tenantId, data);
 
-    return { data: dataWithAgency, pagination };
+    return { data: enhancedData, pagination };
 }
 
 async function enhanceGrantData(tenantId, data) {
+    if (!data.length) return [];
+
     const viewedByQuery = knex(TABLES.agencies)
         .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
@@ -843,7 +862,7 @@ async function enhanceGrantData(tenantId, data) {
     );
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), tenantId });
 
-    const dataWithAgency = data.map((grant) => {
+    const enhancedData = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
         const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
         return {
@@ -851,10 +870,14 @@ async function enhanceGrantData(tenantId, data) {
             etitle: decodeURIComponent(escape(grant.title)),
             viewed_by_agencies: viewedByAgencies,
             interested_agencies: agenciesInterested,
+            funding_activity_categories: (grant.funding_activity_category_codes || '')
+                .split(' ')
+                .map((code) => fundingActivityCategoriesByCode[code]?.name)
+                .filter(Boolean),
         };
     });
 
-    return dataWithAgency;
+    return enhancedData;
 }
 
 async function getGrants({
@@ -1025,23 +1048,8 @@ async function getSingleGrantDetails({ grantId, tenantId }) {
     const results = await knex.table(TABLES.grants)
         .select('*')
         .where({ grant_id: grantId });
-
-    const viewedBy = await knex(TABLES.agencies)
-        .join(TABLES.grants_viewed, `${TABLES.agencies}.id`, '=', `${TABLES.grants_viewed}.agency_id`)
-        .whereIn('grant_id', [grantId])
-        .andWhere('tenant_id', tenantId)
-        .select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
-
-    const interestedBy = await getInterestedAgencies({ grantIds: [grantId], tenantId });
-
-    const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grantId);
-    const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grantId);
-
-    return {
-        ...(results[0]),
-        viewed_by_agencies: viewedByAgencies,
-        interested_agencies: agenciesInterested,
-    };
+    const enhancedResults = await enhanceGrantData(tenantId, results);
+    return enhancedResults.length ? enhancedResults[0] : null;
 }
 
 async function getClosestGrants({
