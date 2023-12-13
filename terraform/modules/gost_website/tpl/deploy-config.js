@@ -3,7 +3,7 @@ window.APP_CONFIG.apiURLForGOST = 'https://${gost_api_domain}/';
 window.apiURLForGOST = window.APP_CONFIG.apiURLForGOST; // Legacy
 
 window.APP_CONFIG.DD_RUM_ENABLED = ${dd_rum_enabled};
-window.APP_CONFIG.DD_RUM_CONFIG = JSON.parse(${dd_rum_config});
+window.APP_CONFIG.DD_RUM_CONFIG = ${dd_rum_config};
 
 window.APP_CONFIG.featureFlags = ${feature_flags};
 
