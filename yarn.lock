@@ -2386,6 +2386,26 @@
     debug "^3.1.0"
     lodash.once "^4.1.1"
 
+"@datadog/browser-core@5.5.0":
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.5.0.tgz#9de07fd46fbabbce0a30368394f612512869053c"
+  integrity sha512-orkbetqiXBrF3r9/WImwJG32tEtNjx2hfP7cyBvPw5qhdjOHkl87IdrKqELaadIAc7Tjgmn38TWccSmcRa1rVw==
+
+"@datadog/browser-rum-core@5.5.0":
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.5.0.tgz#fffb23643cd8be62f12e9781024a3f3fda09e1f9"
+  integrity sha512-VWI91gwKYTGMycpN5a8kgJ/YCdcnvYAhU2uk6HbTLNg2xj4368FyOdSFOQgQzBvmM323AFS+G0v5u+eQgtNgfQ==
+  dependencies:
+    "@datadog/browser-core" "5.5.0"
+
+"@datadog/browser-rum@^5.5.0":
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.5.0.tgz#b677b5684773db11a24c8b8dec3b0674416f625a"
+  integrity sha512-nsK9hrD4yuyiSJ2B+R0KVeb61Xj4rwVIIF6mGsNYIaX4sN51Qw/lz5GkOca3YwskS0zMoyicjEWKFZnzq5Q7ew==
+  dependencies:
+    "@datadog/browser-core" "5.5.0"
+    "@datadog/browser-rum-core" "5.5.0"
+
 "@datadog/native-appsec@4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-4.0.0.tgz#ee08138b987dec557eac3650a43a972dac85b6a6"

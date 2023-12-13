@@ -38,6 +38,14 @@ website_managed_waf_rules = {
     metric_visibility = true
   }
 }
+website_datadog_rum_enabled = true
+website_datadog_rum_options = {
+  sessionSampleRate       = 80
+  sessionReplaySampleRate = 20
+  trackUserInteractions   = true
+  trackResources          = true
+  trackLongTasks          = true
+}
 website_feature_flags = {
   myProfileEnabled      = false,
   newTerminologyEnabled = false
