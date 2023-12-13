@@ -44,8 +44,8 @@ website_datadog_rum_options = {
   trackLongTasks          = true
 }
 website_feature_flags = {
-  myProfileEnabled      = true,
-  newTerminologyEnabled = true,
+  myProfileEnabled           = true,
+  newTerminologyEnabled      = true,
   newGrantsDetailPageEnabled = false
 }
 
