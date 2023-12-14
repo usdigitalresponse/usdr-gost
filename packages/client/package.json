@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@braid/vue-formulate": "^2.5.3",
+    "@datadog/browser-rum": "^5.5.0",
     "bootstrap": "^4.6.1",
     "bootstrap-vue": "^2.19.0",
     "core-js": "^3.21.1",

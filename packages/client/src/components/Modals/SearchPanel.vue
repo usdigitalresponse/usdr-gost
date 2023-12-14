@@ -93,8 +93,9 @@
             <b-form-group
               id="funding-type-group"
               label="Funding Type"
+              label-for="funding-type"
             >
-              <multiselect
+              <v-select
                 id="funding-type"
                 v-model="formData.criteria.fundingTypes"
                 :options="fundingTypeOptions"
@@ -104,7 +105,6 @@
                 :close-on-select="false"
                 :searchable="false"
                 selectLabel=""
-                :limit="2"
               />
             </b-form-group>
             <b-form-group
@@ -112,7 +112,7 @@
               label="Eligibility"
               label-for="eligibility"
             >
-              <multiselect
+              <v-select
                 id="eligibility"
                 v-model="formData.criteria.eligibility"
                 :options="eligibilityCodes"
@@ -122,29 +122,28 @@
                 :close-on-select="false"
                 :searchable="true"
                 selectLabel=""
-                :limit="3"
               />
             </b-form-group>
             <b-form-group
               id="opportunity-category-group"
-              label="Category"
+              label="Opportunity Category"
+              label-for="opportunity-category"
             >
-              <multiselect
+              <v-select
                 id="opportunity-category"
                 v-model="formData.criteria.opportunityCategories"
                 :options="opportunityCategoryOptions"
                 :multiple="true"
                 :close-on-select="false"
                 :searchable="false"
-                :limit="2"
-                placeholder="Select Opportunity Category"
               />
             </b-form-group>
             <b-form-group
               id="bill-group"
               label="Appropriation Bill"
+              label-for="bill"
             >
-              <multiselect
+              <v-select
                 id="bill"
                 v-model="formData.criteria.bill"
                 :options="billOptions"
@@ -154,6 +153,21 @@
                 :searchable="false"
                 placeholder="All Bills"
                 :show-labels="false"
+                :clearable="false"
+              />
+            </b-form-group>
+            <b-form-group
+              id="category-of-funding-activity-group"
+              label="Category of Funding Activity"
+              label-for="category-of-funding-activity"
+            >
+              <v-select
+                id="category-of-funding-activity"
+                v-model="formData.criteria.fundingActivityCategories"
+                :options="fundingActivityCategories"
+                :multiple="true"
+                :close-on-select="false"
+                label="name"
               />
             </b-form-group>
             <b-form-group
@@ -171,8 +185,9 @@
             <b-form-group
               id="posted-within-group"
               label="Posted Within"
+              label-for="posted-within"
             >
-              <multiselect
+              <v-select
                 id="posted-within"
                 v-model="formData.criteria.postedWithin"
                 :options="postedWithinOptions"
@@ -182,6 +197,7 @@
                 :searchable="false"
                 placeholder="All Time"
                 :show-labels="false"
+                :clearable="false"
               />
             </b-form-group>
             <b-form-group
@@ -219,7 +235,6 @@
 
 import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
-import Multiselect from 'vue-multiselect';
 import { billOptions } from '@/helpers/constants';
 import { DateTime } from 'luxon';
 
@@ -233,11 +248,11 @@ const defaultCriteria = {
   bill: null,
   costSharing: null,
   opportunityCategories: [],
+  fundingActivityCategories: [],
   postedWithin: [],
 };
 
 export default {
-  components: { Multiselect },
   props: {
     SearchType: String,
     showModal: Boolean,
@@ -295,6 +310,7 @@ export default {
   computed: {
     ...mapGetters({
       eligibilityCodes: 'grants/eligibilityCodes',
+      fundingActivityCategories: 'grants/fundingActivityCategories',
       savedSearches: 'grants/savedSearches',
       displaySearchPanel: 'grants/displaySearchPanel',
     }),
@@ -320,13 +336,13 @@ export default {
       updateSavedSearch: 'grants/updateSavedSearch',
       fetchSavedSearches: 'grants/fetchSavedSearches',
       applyFilters: 'grants/applyFilters',
-      fetchEligibilityCodes: 'grants/fetchEligibilityCodes',
+      fetchSearchConfig: 'grants/fetchSearchConfig',
       changeSelectedSearchId: 'grants/changeSelectedSearchId',
       initNewSearch: 'grants/initNewSearch',
       initViewResults: 'grants/initViewResults',
     }),
     setup() {
-      this.fetchEligibilityCodes();
+      this.fetchSearchConfig();
       if (this.displaySearchPanel) {
         this.showSideBar();
       }
@@ -380,8 +396,9 @@ export default {
     onShown() {
       this.initFormState();
     },
-    async onEnter() {
-      if (this.saveEnabled) {
+    async onEnter(event) {
+      const enterInOpenDropdown = event.target.closest('.vs--open');
+      if (this.saveEnabled && !enterInOpenDropdown) {
         await this.onSubmit();
       }
     },
@@ -439,10 +456,6 @@ export default {
 };
 </script>
 <style>
-.search-panel .multiselect__option {
-  word-break: break-all;
-  white-space: normal;
-}
 .search-panel .sidebar-footer {
   border-top: 1.5px solid #e8e8e8;
   justify-content: space-between;
@@ -472,12 +485,5 @@ export default {
 }
 .search-panel .b-sidebar-body {
   padding: .75rem;
-}
-.search-panel .search-fields-radio-group {
-  /*
-    Ensure radio buttons are hidden behind <multiselect> options
-  */
-  position: relative;
-  z-index: 0;
 }
 </style>

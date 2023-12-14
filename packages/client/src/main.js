@@ -1,3 +1,10 @@
+/* eslint-disable import/first */
+import { datadogRum } from '@datadog/browser-rum';
+
+if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
+  datadogRum.init(window.APP_CONFIG.DD_RUM_CONFIG);
+}
+
 import Vue from 'vue';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import vSelect from 'vue-select';
@@ -6,6 +13,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import './assets/fix-sticky-headers.css';
+import './assets/adjust-vue-select.css';
 
 const fetchApi = require('@/helpers/fetchApi');
 

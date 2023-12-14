@@ -491,6 +491,7 @@ describe('`/api/grants` endpoint', () => {
                 'Appropriations Bill',
                 'Agency Code',
                 'Eligibility',
+                'Category of Funding Activity',
             ];
 
             const txt = await response.text();
@@ -505,6 +506,7 @@ describe('`/api/grants` endpoint', () => {
             expect(valMap.get('Funding Type')).to.equal('Other');
             expect(valMap.get('Agency Code')).to.equal('HHS-IHS');
             expect(valMap.get('Eligibility')).to.equal('"Native American tribal organizations (other than Federally recognized tribal governments)|Others(see text field entitled ""Additional Information on Eligibility"" for clarification)|Native American tribal governments(Federally recognized)"');
+            expect(valMap.get('Category of Funding Activity')).to.equal('Health|Income Security and Social Services');
         });
 
         it('produces same number of rows as grid', async () => {

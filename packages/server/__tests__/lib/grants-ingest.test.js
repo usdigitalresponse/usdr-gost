@@ -116,6 +116,18 @@ describe('processMessages', async () => {
                         { code: '13' }, { code: '12' },
                         { code: '11' }, { code: '10' },
                     ],
+                    funding_activity: {
+                        categories: [
+                            {
+                                name: 'Humanities',
+                                code: 'HU',
+                            },
+                            {
+                                name: 'Business and Commerce',
+                                code: 'BC',
+                            },
+                        ],
+                    },
                     revision: { id: 'c3' },
                 }),
                 ReceiptHandle: 'receipt-handle-1',
@@ -194,6 +206,7 @@ describe('processMessages', async () => {
             description: 'Here is a description of this superb grant',
             eligibility_codes: '25 20 13 12 11 10',
             opportunity_status: 'archived',
+            funding_activity_category_codes: 'HU BC',
             raw_body: sinon.match(
                 jsonMatcher(JSON.stringify(JSON.parse(messages[2].Body).detail.versions.new)),
             ),
