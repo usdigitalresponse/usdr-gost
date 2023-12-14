@@ -233,8 +233,26 @@ async function createProjectSummaries(periodId, domain, tenantId, logger = log) 
 }
 
 function getRecordsByProject(records) {
+    // the expenditures50k tab does not have a project id, but we can pull that
+    // information using the awards50k tab and make a mapping from subaward -> project.
+    // the expenditures50k has subawards, so that then gets used to map to project.
+    // missing info is indicated with a MISSING PROJECT
+    const subawardProjectMap = records.filter((x) => x.type === 'awards50k').reduce((map, value) => {
+        if (!(value.upload.filename in map)) {
+            map[value.upload.filename] = {};
+        }
+        map[value.upload.filename][value.content.Award_No__c] = value.content.Project_Identification_Number__c;
+        return map;
+    }, {});
     return records.reduce((groupByProject, item) => {
-        const project = item.content.Project_Identification_Number__c;
+        let project = item.content.Project_Identification_Number__c;
+        if (item.type === 'expenditures50k' && project == null) {
+            const subawardMap = subawardProjectMap[item.upload.filename];
+            if (subawardMap != null) {
+                project = subawardMap[item.content.Sub_Award_Lookup__c];
+            }
+        }
+        project = project ?? 'MISSING PROJECT';
         const group = (groupByProject[project] || []);
         group.push(item);
         groupByProject[project] = group;
@@ -265,6 +283,7 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
         const projectLogger = logger.child({
             project: { id: projectId, totalRecords: projectRecords.length },
         });
+
         projectLogger.debug('populating row from records in project');
 
         // set values for columns that are common across all records of projectId
@@ -568,6 +587,9 @@ module.exports = {
     processSQSMessageRequest,
     sendEmailWithLink,
     createHeadersProjectSummariesV2,
+
+    // export for testing
+    getRecordsByProject,
 };
 
 // NOTE: This file was copied from src/server/lib/audit-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
