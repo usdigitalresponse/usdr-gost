@@ -35,6 +35,37 @@ variable "gost_api_domain" {
   type        = string
 }
 
+variable "datadog_rum_enabled" {
+  description = "Whether to enable Datadog RUM."
+  type        = bool
+  default     = false
+}
+
+variable "datadog_rum_config" {
+  description = "Runtime configuration options for Datadog RUM."
+  type = object({
+    applicationId           = string
+    clientToken             = string
+    site                    = string
+    service                 = string
+    env                     = string
+    version                 = string
+    sessionSampleRate       = number
+    sessionReplaySampleRate = number
+    trackUserInteractions   = bool
+    trackResources          = bool
+    trackLongTasks          = bool
+    defaultPrivacyLevel     = string
+    allowedTracingUrls      = list(string)
+  })
+  default = null
+
+  validation {
+    condition     = can(jsonencode(var.datadog_rum_config))
+    error_message = "Value must be JSON-serializable."
+  }
+}
+
 variable "feature_flags" {
   description = "Feature flags for configuring the website runtime"
   type        = any

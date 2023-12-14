@@ -20,6 +20,7 @@ function configureApiRoutes(app) {
     app.use('/api/organizations/:organizationId/grants-saved-search', require('./routes/grantsSavedSearch'));
     app.use('/api/organizations/:organizationId/dashboard', require('./routes/dashboard'));
     app.use('/api/organizations/:organizationId/eligibility-codes', require('./routes/eligibilityCodes'));
+    app.use('/api/organizations/:organizationId/search-config', require('./routes/searchConfig'));
     app.use('/api/organizations/:organizationId/interested-codes', require('./routes/interestedCodes'));
     app.use('/api/organizations/:organizationId/keywords', require('./routes/keywords'));
     app.use('/api/organizations/:organizationId/refresh', require('./routes/refresh'));

@@ -406,11 +406,26 @@ describe('db', () => {
             const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
             expect(result.interested_agencies.length).to.equal(1);
         });
+        it('gets the viewed by agencies', async () => {
+            const grantId = '335255';
+            const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
+            expect(result.viewed_by_agencies.length).to.equal(1);
+        });
+        it('maps funding activity category codes to funding activity category names', async () => {
+            const grantId = '335255';
+            const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
+            expect(result.funding_activity_categories).to.deep.equal(['Income Security and Social Services']);
+        });
         it('returns dates in string format without timezone', async () => {
             const grantId = '335255';
             const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
             expect(result.open_date).to.equal('2021-08-11');
             expect(result.close_date).to.equal('2021-11-03');
+        });
+        it('handles grant not found', async () => {
+            const grantId = '435255';
+            const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
+            expect(result).to.be.null;
         });
     });
 
@@ -709,6 +724,18 @@ describe('db', () => {
             expect(result).to.have.property('data').with.lengthOf(6);
             expect(result.data[4].award_ceiling).to.be.null;
             expect(result.data[5].award_ceiling).to.be.null;
+        });
+        it('gets grants that have any of the funding activity category codes', async () => {
+            const result = await db.getGrantsNew(
+                { fundingActivityCategories: ['IS', 'ST'] },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+            );
+            expect(result).to.have.property('data').with.lengthOf(2);
+            expect(result.data[0].grant_id).to.equal(fixtures.grants.redefiningPossible.grant_id);
+            expect(result.data[1].grant_id).to.equal(fixtures.grants.healthAide.grant_id);
         });
     });
 

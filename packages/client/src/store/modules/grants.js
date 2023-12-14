@@ -13,6 +13,7 @@ function initialState() {
   return {
     grantsPaginated: {},
     eligibilityCodes: [],
+    fundingActivityCategories: [],
     interestedCodes: [],
     grantsInterested: [],
     closestGrants: [],
@@ -53,6 +54,7 @@ function buildGrantsNextQuery({ filters, ordering, pagination }) {
   postedWithin
   reviewStatus
   bill
+  fundingActivityCategories
   */
   const criteria = { ...filters };
   // Validate and fix the inputs into appropriate types.
@@ -61,6 +63,7 @@ function buildGrantsNextQuery({ filters, ordering, pagination }) {
   criteria.eligibility = criteria.eligibility?.map((e) => e.code);
   criteria.fundingTypes = criteria.fundingTypes?.map((f) => f.code);
   criteria.bill = criteria.bill === 'All Bills' ? null : criteria.bill;
+  criteria.fundingActivityCategories = criteria.fundingActivityCategories?.map((c) => c.code);
 
   if (!criteria.opportunityStatuses || criteria.opportunityStatuses.length === 0) {
     // by default, only show posted opportunities
@@ -99,6 +102,7 @@ export default {
     totalInterestedGrants: (state) => state.totalInterestedGrants,
     currentGrant: (state) => state.currentGrant,
     eligibilityCodes: (state) => state.eligibilityCodes,
+    fundingActivityCategories: (state) => state.fundingActivityCategories,
     interestedCodes: (state) => ({
       rejections: state.interestedCodes.filter((c) => c.status_code === 'Rejected'),
       result: state.interestedCodes.filter((c) => c.status_code === 'Result'),
@@ -206,6 +210,10 @@ export default {
       fetchApi.get('/api/organizations/:organizationId/eligibility-codes')
         .then((data) => commit('SET_ELIGIBILITY_CODES', data));
     },
+    fetchSearchConfig({ commit }) {
+      fetchApi.get('/api/organizations/:organizationId/search-config')
+        .then((data) => commit('SET_SEARCH_CONFIG', data));
+    },
     fetchInterestedCodes({ commit }) {
       fetchApi.get('/api/organizations/:organizationId/interested-codes')
         .then((data) => commit('SET_INTERESTED_CODES', data));
@@ -299,6 +307,10 @@ export default {
     },
     SET_ELIGIBILITY_CODES(state, eligibilityCodes) {
       state.eligibilityCodes = eligibilityCodes;
+    },
+    SET_SEARCH_CONFIG(state, searchConfig) {
+      state.eligibilityCodes = searchConfig.eligibilityCodes;
+      state.fundingActivityCategories = searchConfig.fundingActivityCategories;
     },
     SET_INTERESTED_CODES(state, interestedCodes) {
       state.interestedCodes = interestedCodes;

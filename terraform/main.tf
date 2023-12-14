@@ -69,6 +69,18 @@ module "website" {
   origin_artifacts_dist_path = coalesce(
     var.website_origin_artifacts_dist_path, "${path.root}/../packages/client/dist"
   )
+
+  datadog_rum_enabled = var.website_datadog_rum_enabled
+  datadog_rum_config = merge(var.website_datadog_rum_options, {
+    applicationId       = "15db471e-2ccb-4d3c-a6bf-99b750d748f5"
+    clientToken         = "pub50834fcc1999d53e546519b1a0f03934"
+    site                = "datadoghq.com"
+    service             = local.unified_service_tags.service
+    env                 = local.unified_service_tags.env
+    version             = local.unified_service_tags.version
+    defaultPrivacyLevel = "mask"
+    allowedTracingUrls  = ["https://${local.api_domain_name}"]
+  })
 }
 
 module "api_to_postgres_security_group" {

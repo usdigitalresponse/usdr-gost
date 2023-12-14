@@ -54,10 +54,15 @@ module "api_gateway" {
     allow_headers = [
       "authorization",
       "content-type",
+      "traceparent",
       "x-amz-date",
       "x-amz-security-token",
       "x-amz-user-agent",
       "x-api-key",
+      "x-datadog-trace-id",
+      "x-datadog-parent-id",
+      "x-datadog-origin",
+      "x-datadog-sampling-priority",
     ]
     max_age = 86400 // 24 hours, in seconds
   }
