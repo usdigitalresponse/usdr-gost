@@ -4,8 +4,8 @@
       <b-col class="m-2"><h2 class="h4">Users</h2></b-col>
       <b-col class="d-flex justify-content-end">
         <div>
-          <b-button variant="success" size="sm" class="mr-1" @click="openAddUserModal">Add</b-button>
-          <b-button variant="success" size="sm" @click="openUploadUsersModal">Bulk Import</b-button>
+          <b-button variant="primary" size="sm" class="mr-1" @click="openAddUserModal">Add</b-button>
+          <b-button variant="outline-primary" size="sm" @click="openUploadUsersModal">Bulk Import</b-button>
         </div>
       </b-col>
     </b-row>
