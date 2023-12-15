@@ -14,8 +14,9 @@ website_enabled           = true
 website_domain_name       = "sandbox.grants.usdr.dev"
 website_managed_waf_rules = {}
 website_feature_flags = {
-  myProfileEnabled      = true,
-  newTerminologyEnabled = false
+  myProfileEnabled           = true,
+  newTerminologyEnabled      = false,
+  newGrantsDetailPageEnabled = false
 }
 
 // ECS Cluster
