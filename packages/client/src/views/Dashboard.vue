@@ -82,40 +82,8 @@
         </div>
       </b-container>
     </div>
+    <br/>
 
-    <b-row v-if="showStats">
-      <b-col cols='4'>
-        <b-card bg-variant='secondary' text-variant='white' header='New Grants Matching Search Criteria, Last 24Hrs'
-          class='text-center mb-3 mt-3'>
-          <h3>{{ grantsCreatedInTimeframeMatchingCriteria }} of {{ grantsCreatedInTimeframe }}</h3>
-          <b-link class='stretched-link' to='/grants' />
-        </b-card>
-      </b-col>
-      <b-col cols='4'>
-        <b-card bg-variant='secondary' text-variant='white' header='Updated Grants Matching Search Criteria, Last 24Hrs'
-          class='text-center mb-3 mt-3'>
-          <h3>{{ grantsUpdatedInTimeframeMatchingCriteria }} of {{ grantsUpdatedInTimeframe }}</h3>
-          <b-link class='stretched-link' to='/grants' />
-        </b-card>
-      </b-col>
-      <b-col cols='4'>
-        <b-card bg-variant='secondary' text-variant='white' header='Total Grants Matching Search Criteria'
-          class='text-center mb-3 mt-3'>
-          <h3>{{ totalGrantsMatchingAgencyCriteria }} of {{ totalGrants }}</h3>
-          <b-link class='stretched-link' to='/grants' />
-        </b-card>
-      </b-col>
-    </b-row>
-    <br v-if="!showStats" />
-
-    <b-card :title="newTerminologyEnabled ? 'Total Interested Grants by Team' : 'Total Interested Grants by Agency'" v-if="showStats" >
-      <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
-        <template #cell()="{field, value}">
-          <div :style="field.style" v-text="value">
-          </div>
-        </template>
-      </b-table>
-    </b-card>
     <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
   </section>
 </template>
@@ -214,94 +182,6 @@ export default {
           thStyle: { width: '20%' },
         },
       ],
-      groupByFields: [
-        {
-          key: 'name',
-          sortable: true,
-          thStyle: {
-            width: '45%',
-          },
-        },
-        {
-          label: 'Total',
-          key: 'count',
-          sortable: true,
-          thStyle: {
-            // makes monetary value column closer,
-            // also gives more space for grant money value since it will be a longer number
-            width: '1%',
-          },
-        },
-        {
-          label: ' ',
-          key: 'total_grant_money',
-          sortByFormatted: false,
-          formatter: 'formatMoney',
-          style: {
-            color: '#6D7278',
-          },
-          class: 'text-right',
-        },
-        {
-          key: 'empty1',
-          label: '',
-          thStyle: {
-            width: '11%',
-          },
-        },
-        {
-          key: 'interested',
-          sortable: true,
-          thStyle: {
-            // makes monetary value column closer,
-            // also gives more space for grant money value since it will be a longer number
-            width: '1%',
-          },
-        },
-        {
-          label: ' ',
-          key: 'total_interested_grant_money',
-          sortByFormatted: false,
-          formatter: 'formatMoney',
-          class: 'text-right',
-          style: {
-            color: 'green',
-          },
-        },
-        {
-          key: 'empty2',
-          label: '',
-          thStyle: {
-            width: '11%',
-          },
-        },
-        {
-          key: 'rejections',
-          sortable: true,
-          thStyle: {
-            // makes monetary value column closer,
-            // also gives more space for grant money value since it will be a longer number
-            width: '1%',
-          },
-        },
-        {
-          label: '   ',
-          key: 'total_rejected_grant_money',
-          sortByFormatted: false,
-          formatter: 'formatMoney',
-          class: 'text-right',
-          style: {
-            color: '#ae1818',
-          },
-        },
-        {
-          key: 'empty3',
-          label: '',
-          thStyle: {
-            width: '11%',
-          },
-        },
-      ],
       selectedGrant: null,
     };
   },
@@ -312,16 +192,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-      totalGrants: 'dashboard/totalGrants',
-      totalGrantsMatchingAgencyCriteria: 'dashboard/totalGrantsMatchingAgencyCriteria',
       totalViewedGrants: 'dashboard/totalViewedGrants',
       totalInterestedGrants: 'grants/totalInterestedGrants',
       totalUpcomingGrants: 'grants/totalUpcomingGrants',
-      grantsCreatedInTimeframe: 'dashboard/grantsCreatedInTimeframe',
-      grantsCreatedInTimeframeMatchingCriteria: 'dashboard/grantsCreatedInTimeframeMatchingCriteria',
-      grantsUpdatedInTimeframe: 'dashboard/grantsUpdatedInTimeframe',
-      grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
-      totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedTeam: 'users/selectedAgency',
       closestGrants: 'grants/closestGrants',
       grants: 'grants/grants',
