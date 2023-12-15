@@ -47,9 +47,10 @@ website_datadog_rum_options = {
   trackLongTasks          = true
 }
 website_feature_flags = {
-  myProfileEnabled           = false,
-  newTerminologyEnabled      = false,
-  newGrantsDetailPageEnabled = false
+  myProfileEnabled                            = false,
+  newTerminologyEnabled                       = false,
+  newGrantsDetailPageEnabled                  = false,
+  categoryOfFundingActivitySearchFieldEnabled = false,
 }
 
 // ECS Cluster

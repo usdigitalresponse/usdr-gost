@@ -15,3 +15,7 @@ export function newTerminologyEnabled() {
 export function newGrantsDetailPageEnabled() {
   return getFeatureFlags().newGrantsDetailPageEnabled === true;
 }
+
+export function categoryOfFundingActivitySearchFieldEnabled() {
+  return getFeatureFlags().categoryOfFundingActivitySearchFieldEnabled === true;
+}

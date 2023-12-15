@@ -23,4 +23,5 @@ window.APP_CONFIG.featureFlags = {
   myProfileEnabled: true,
   newTerminologyEnabled: true,
   newGrantsDetailPageEnabled: false,
+  categoryOfFundingActivitySearchFieldEnabled: true,
 };
