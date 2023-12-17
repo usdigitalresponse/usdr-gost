@@ -1,10 +1,11 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import { myProfileEnabled, newTerminologyEnabled } from '@/helpers/featureFlags';
+import { myProfileEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import Login from '../views/Login.vue';
 import Layout from '../components/Layout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
+import GrantDetail from '../views/GrantDetails.vue';
 
 import store from '../store';
 
@@ -134,6 +135,16 @@ const routes = [
     redirect: '/my-grants',
   },
 ];
+
+if (newGrantsDetailPageEnabled()) {
+  routes.push(
+    {
+      path: '/grant/:id',
+      name: 'grantDetail',
+      component: GrantDetail,
+    },
+  );
+}
 
 const router = new VueRouter({
   base: process.env.BASE_URL,

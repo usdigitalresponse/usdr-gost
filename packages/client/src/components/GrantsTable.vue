@@ -25,7 +25,7 @@
         <b-table id="grants-table" hover responsive stacked="sm" :items="formattedGrants"
           :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
-          @row-selected="onRowSelected" show-empty emptyText="No matches found">
+          @row-selected="onRowSelected" @row-clicked="onRowClicked" show-empty emptyText="No matches found">
           <template #cell(award_floor)="row">
             <p> {{ formatMoney(row.item.award_floor) }}</p>
           </template>
@@ -334,6 +334,12 @@ export default {
         return undefined;
       }
       return floor;
+    },
+    onRowClicked(item) {
+      if (!newGrantsDetailPageEnabled()) {
+        return;
+      }
+      this.$router.push(`grant/${item.grant_id}`);
     },
     onRowSelected(items) {
       const [row] = items;

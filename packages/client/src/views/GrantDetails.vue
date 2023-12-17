@@ -1,8 +1,14 @@
 <!-- eslint-disable max-len -->
 <template>
-  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.grant_number"
-     @hide="resetSelectedGrant" scrollable size="xl" ok-title="Close">
-    <div v-if="selectedGrant">
+  <div>
+    Grant ID: {{this.$route.params.id}}
+    <div v-if="loading">
+      Loading...
+    </div>
+    <div v-if="!selectedGrant && !loading">
+      No grant found
+    </div>
+    <div v-if="selectedGrant && !loading">
       <b-row class="mb-3 d-flex align-items-baseline">
         <b-col cols="8">
           <h1 class="mb-0 h2">{{ selectedGrant.title }}</h1>
@@ -22,6 +28,10 @@
       <div v-for="field in dialogFields" :key="field">
         <p><span class="data-label">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
       </div>
+      <p>
+        <span class="data-label">Category of Funding Activity:</span>
+        {{ selectedGrant['funding_activity_categories']?.join(', ') }}
+      </p>
       <p class="data-label">Description:</p>
       <div style="max-height: 170px; overflow-y: scroll">
         <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
@@ -85,7 +95,7 @@
         </template>
       </b-table>
     </div>
-  </b-modal>
+</div>
 </template>
 
 <script>
@@ -150,9 +160,23 @@ export default {
       selectedInterestedCode: null,
       searchInput: null,
       debouncedSearchInput: null,
+      loading: true,
     };
   },
-  mounted() {
+  created() {
+    // watch the params of the route to fetch the data again
+    this.$watch(
+      () => this.$route.params,
+      () => {
+        this.loading = true;
+        this.fetchData().then(() => {
+          this.loading = false;
+        });
+      },
+      // fetch the data when the view is created and the data is
+      // already being observed
+      { immediate: true },
+    );
   },
   computed: {
     ...mapGetters({
@@ -164,6 +188,7 @@ export default {
       interestedCodes: 'grants/interestedCodes',
       loggedInUser: 'users/loggedInUser',
       selectedAgency: 'users/selectedAgency',
+      currentGrant: 'grants/currentGrant',
     }),
     alreadyViewed() {
       if (!this.selectedGrant) {
@@ -216,6 +241,7 @@ export default {
       unassignAgenciesToGrantAction: 'grants/unassignAgenciesToGrant',
       fetchUsers: 'users/fetchUsers',
       fetchAgencies: 'agencies/fetchAgencies',
+      fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
     titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
@@ -269,6 +295,11 @@ export default {
       this.$emit('update:selectedGrant', null);
       this.assignedAgencies = [];
       this.selectedAgencies = [];
+    },
+    async fetchData() {
+      await this.fetchGrantDetails({ grantId: this.$route.params.id }).then(() => {
+        this.selectedGrant = this.currentGrant;
+      });
     },
   },
 };
