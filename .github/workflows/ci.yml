@@ -101,7 +101,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    if: needs.tf-plan.result != 'skipped' || needs.tf-plan.result != 'cancelled'
+    if: always() && (needs.tf-plan.result != 'skipped' && needs.tf-plan.result != 'cancelled')
     needs:
       - tf-plan
     uses: ./.github/workflows/publish-terraform-plan.yml
