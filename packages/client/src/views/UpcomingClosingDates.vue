@@ -14,6 +14,7 @@
       selectable
       select-mode="single"
       @row-selected="onRowSelected"
+      @row-clicked="onRowClicked"
     >
       <template #cell()="{ field, value, index }">
         <div v-if="field.key == 'title'">{{value}}</div>
@@ -173,6 +174,12 @@ export default {
           this.selectedGrant = this.currentGrant;
         });
       }
+    },
+    onRowClicked(item) {
+      if (!newGrantsDetailPageEnabled()) {
+        return;
+      }
+      this.$router.push(`grant/${item.grant_id}`);
     },
     formatDate(value) {
       // value is the close date of grant

@@ -15,7 +15,9 @@
                 :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none"
                 selectable
                 select-mode="single"
-                @row-selected="onRowSelected">
+                @row-selected="onRowSelected"
+                @row-clicked="onRowClicked"
+                >
                 <template #cell(icon)="list">
                   <div class="gutter-icon row">
                     <b-icon v-if="list.item.interested === 0" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
@@ -56,7 +58,9 @@
                 class='table table-borderless' thead-class="d-none"
                 selectable
                 select-mode="single"
-                @row-selected="onRowSelected">
+                @row-selected="onRowSelected"
+                @row-clicked="onRowClicked"
+                >
                 <template #cell()="{ field, value, index }">
                   <div v-if="field.key === 'title'">{{value}}</div>
                   <div v-if="field.key === 'close_date' && yellowDate === true" :style="field.trStyle" v-text="value"></div>
@@ -471,6 +475,12 @@ export default {
           this.selectedGrant = this.currentGrant;
         });
       }
+    },
+    onRowClicked(item) {
+      if (!newGrantsDetailPageEnabled()) {
+        return;
+      }
+      this.$router.push(`grant/${item.grant_id}`);
     },
   },
 };

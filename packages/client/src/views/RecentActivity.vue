@@ -21,6 +21,7 @@
       selectable
       select-mode="single"
       @row-selected="onRowSelected"
+      @row-clicked="onRowClicked"
     >
       <template #cell(icon)="list">
         <div class="gutter-icon row">
@@ -194,6 +195,12 @@ export default {
           this.selectedGrant = this.currentGrant;
         });
       }
+    },
+    onRowClicked(item) {
+      if (!newGrantsDetailPageEnabled()) {
+        return;
+      }
+      this.$router.push(`grant/${item.grant_id}`);
     },
     exportCSV() {
       this.exportCSVRecentActivities();
