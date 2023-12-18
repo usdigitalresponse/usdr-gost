@@ -19,7 +19,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    if: needs.qa.result != 'skipped' || needs.qa.result != 'cancelled'
+    if: always() && (needs.qa.result != 'skipped' && needs.qa.result != 'cancelled')
     needs:
       - qa
     uses: "./.github/workflows/publish-qa-results.yml"
