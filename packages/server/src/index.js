@@ -72,4 +72,4 @@ hasOutstandingMigrations().then((hasMigrations) => {
     }
 });
 
-module.exports = server
+module.exports = server;

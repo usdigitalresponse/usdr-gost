@@ -15,7 +15,7 @@ terraform {
   backend "s3" {}
 }
 
-provider      "aws" {
+provider "aws" {
   default_tags {
     tags = {
       env        = var.env
