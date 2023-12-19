@@ -26,7 +26,7 @@
                   </div>
                 </template>
                 <template #cell(agencyAndGrant)="agencies">
-                  <div>{{ agencies.item.agency }}
+                  <div>{{ agencies.item.team }}
                     <span v-if="agencies.item.interested === 0" class="color-red" > <strong> rejected </strong> </span>
                     <span v-if="agencies.item.interested === 1" > is
                     <span class="color-green">
@@ -289,8 +289,8 @@ export default {
       return (`(${res})`);
     },
     formatDate(grantCloseDate) {
-      const warn = this.agency.warning_threshold;
-      const danger = this.agency.danger_threshold;
+      const warn = this.team.warning_threshold;
+      const danger = this.team.danger_threshold;
       const closeDatePlusDangerThreshold = new Date(new Date().setDate(new Date().getDate() + danger));
       const closeDatePlusWarningThreshold = new Date(new Date().setDate(new Date().getDate() + warn));
       //          if the grant close date is <= danger date---------------
