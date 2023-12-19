@@ -40,6 +40,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           ref: ${{ env.PROTECTED_REF }}
+          fetch-tags: 'true'
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Count commits in candidate ref that are not in protected ref
@@ -56,7 +57,6 @@ jobs:
           CHERRY_FILE: ${{ steps.all-cherries.outputs.file }}
       - name: Report outcome to step summary
         run: |
-          echo "Result: $VALIDATION_RESULT" >> $GITHUB_STEP_SUMMARY
           echo "Found $TOTAL_CHERRY_COUNT commits in $DEPLOYMENT_REF not in $PROTECTED_REF." >> $GITHUB_STEP_SUMMARY
           echo "Of these, $INVALID_CHERRY_COUNT were not cherry-picked from $PROTECTED_REF." >> $GITHUB_STEP_SUMMARY
           echo "Only commits from pull requests that were approved and merged to $PROTECTED_REF are eligible for deployment." >> $GITHUB_STEP_SUMMARY
@@ -64,7 +64,6 @@ jobs:
           cat "$CHERRY_FILE" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
         env:
-          VALIDATION_RESULT: ${{ fromJson(steps.missing-cherries.outputs.count) == 0 && 'SUCCESS' || 'FAIL' }}
           TOTAL_CHERRY_COUNT: ${{ steps.all-cherries.outputs.count }}
           INVALID_CHERRY_COUNT: ${{ steps.missing-cherries.outputs.count }}
           CHERRY_FILE: ${{ steps.all-cherries.outputs.file }}
