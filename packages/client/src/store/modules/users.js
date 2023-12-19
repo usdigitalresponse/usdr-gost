@@ -79,15 +79,14 @@ export default {
       }
       await dispatch('fetchUsers');
     },
-    async updateEmailSubscriptionPreferences({ dispatch, commit }, { userId, preferences }) {
+    async updateEmailSubscriptionPreferencesForLoggedInUser({ commit, getters }, { preferences }) {
       const data = await fetchApi.put(
-        `/api/organizations/:organizationId/users/${userId}/email_subscription`,
+        `/api/organizations/:organizationId/users/${getters.loggedInUser.id}/email_subscription`,
         {
           preferences,
         },
       );
       commit('SET_LOGGED_IN_USER', data.user);
-      dispatch('fetchUsers');
     },
   },
   mutations: {

@@ -61,11 +61,6 @@ export default {
           key: 'GRANT_ASSIGNMENT',
           description: 'Send me notifications if a grant has been assigned to my USDR Grants team.',
         },
-        {
-          name: 'Occasional Updates',
-          key: 'GRANT_FINDER_UPDATES',
-          description: 'Send me occasional emails about feature releases, surveys, and other updates.',
-        },
       ],
       breadcrumb_items: [
         {
@@ -98,7 +93,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      updateEmailSubscriptionPreferences: 'users/updateEmailSubscriptionPreferences',
+      updateEmailSubscriptionPreferences: 'users/updateEmailSubscriptionPreferencesForLoggedInUser',
     }),
     onUpdateEmailPreference(pref) {
       const updatedPreferences = {
@@ -106,7 +101,6 @@ export default {
         [pref.key]: pref.checked ? 'SUBSCRIBED' : 'UNSUBSCRIBED',
       };
       this.updateEmailSubscriptionPreferences({
-        userId: this.loggedInUser.id,
         preferences: updatedPreferences,
       });
     },
