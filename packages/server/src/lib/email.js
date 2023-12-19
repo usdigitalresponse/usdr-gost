@@ -133,7 +133,7 @@ function getGrantDetail(grant, emailNotificationType) {
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
             link_url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
-            grants_url: `${process.env.WEBSITE_DOMAIN}/#/${emailNotificationType === notificationType.grantDigest ? 'grants' : 'my-grants'}`,
+            grants_url: `${process.env.WEBSITE_DOMAIN}/${emailNotificationType === notificationType.grantDigest ? 'grants' : 'my-grants'}`,
             view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
         },
     );
@@ -163,7 +163,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const emailHTML = module.exports.addBaseBranding(grantAssignedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'Grants Assigned Notification',
-        notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
+        notifications_url: `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email
@@ -207,7 +207,7 @@ async function buildDigestBody({ name, openDate, matchedGrants }) {
     let additionalBody = grantDetails.join(contentSpacerStr).concat(contentSpacerStr);
 
     const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
-    additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
+    additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/grants` });
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
         body_title: `${name} - ${matchedGrants.length} NEW GRANTS`,
@@ -238,7 +238,7 @@ async function sendGrantDigest({
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Federal Grant Finder',
         title: 'New Grants Digest',
-        notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
+        notifications_url: `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email

@@ -6,6 +6,7 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
 }
 
 import Vue from 'vue';
+import VueRouter from 'vue-router';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import vSelect from 'vue-select';
 import Vuelidate from 'vuelidate';
@@ -22,6 +23,7 @@ Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
 Vue.use(Vuelidate);
+Vue.use(VueRouter);
 Vue.component('v-select', vSelect);
 
 Vue.config.productionTip = false;
