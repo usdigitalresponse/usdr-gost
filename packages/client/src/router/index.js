@@ -5,7 +5,6 @@ import { myProfileEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } f
 import Login from '../views/Login.vue';
 import Layout from '../components/Layout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
-import GrantDetail from '../views/GrantDetails.vue';
 
 import store from '../store';
 
@@ -64,6 +63,16 @@ const routes = [
         component: () => import('../views/Grants.vue'),
         meta: {
           requiresAuth: true,
+        },
+      },
+      {
+        path: '/grant/:id',
+        name: 'grantDetail',
+        component: () => import('../views/GrantDetails.vue'),
+        meta: {
+          hideLayoutTabs: true,
+          requiresAuth: true,
+          requiresNewGrantsDetailPageEnabled: true,
         },
       },
       {
@@ -136,16 +145,6 @@ const routes = [
   },
 ];
 
-if (newGrantsDetailPageEnabled()) {
-  routes.push(
-    {
-      path: '/grant/:id',
-      name: 'grantDetail',
-      component: GrantDetail,
-    },
-  );
-}
-
 const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
@@ -168,6 +167,7 @@ router.beforeEach((to, from, next) => {
   } else if (to.name === 'not-found'
     || (to.meta.requiresMyProfileEnabled && !myProfileEnabled())
     || (to.meta.requiresNewTerminologyEnabled && !newTerminologyEnabled())
+    || (to.meta.requiresNewGrantsDetailPageEnabled && !newGrantsDetailPageEnabled())
   ) {
     if (authenticated) {
       next({ name: 'grants' });
