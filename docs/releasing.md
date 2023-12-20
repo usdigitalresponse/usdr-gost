@@ -167,6 +167,44 @@ Ideally, the repository will always have exactly 1 draft release at any moment (
 
 ### Troubleshooting
 
+#### I accidentally published a release that wasn't ready! How do I fix this?
+
+> [!NOTE]
+> Pencils have erasers, keyboards have backspace, and accidental releases can be remedied; these things happen 🙂.
+
+It's probably fine, as every release is admin-reviewed before it actually deploys.
+Please begin by posting a notice in the [#project-grants-engineering](https://usdigitalresponse.slack.com/archives/C0324KDQSCR) Slack channel as soon as possible so that admins know not to approve the release – we will be grateful for the heads-up!
+
+If this happens, we will likely want to do a few things (which may differ depending on the scenario):
+1. If you have not already done so, give notice in Slack.
+2. Cancel the in-progress ["Deploy to Production" workflow](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/deploy-production.yml).
+3. Delete the release.
+    - Using the GitHub web UI:
+      1. Go to the [Releases page](https://github.com/usdigitalresponse/usdr-gost/releases)
+      2. Find the release that was accidentally published.
+      3. Optional: Copy any markdown from the release notes (like the Summary) that you don't want to lose.
+      4. Click the trash can icon to delete the release.
+    - Using the GitHub CLI:
+      ```cli
+      gh release delete release/1979.33  # just deletes the release
+      gh release delete release/1979.33 --cleanup-tag  # also deletes the tag
+      ```
+4. Delete the tag that was pushed when the release was published.
+    - Using the GitHub web UI:
+      1. Go to the [Tags page](https://github.com/usdigitalresponse/usdr-gost/tags)
+      2. Find the tag that was created for the (now-deleted) release.
+      3. Click the `...` icon for the tag, and select "Delete tag"
+    - Using the CLI:
+      ```cli
+      git tag delete release/1979.33
+      git push --delete origin release/1979.33
+      ```
+5. Check to ensure that no other releases were created after the release was accidentally published.
+  If a new release draft was created (likely because a pull request was recently merged), you should
+  delete that draft release as well.
+6. Recreate the release.
+  Refer to [How do I generate a new draft release?](#how-do-i-generate-a-new-draft-release) for instructions.
+
 #### How do I generate a new draft release?
 
 The easiest way to get a new draft release is to simply wait for pull request to merge;
