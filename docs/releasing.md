@@ -205,7 +205,27 @@ If this happens, we will likely want to do a few things (which may differ depend
 6. Recreate the release.
   Refer to [How do I generate a new draft release?](#how-do-i-generate-a-new-draft-release) for instructions.
 
+#### I want to fix a problem with already-published release notes.
+
+Releases can still be edited after they are initially published without causing any problems or initiating a new deployment.
+If you want to fix a typo or otherwise update the release notes after publishing, follow these steps:
+
+1. Go to the [Releases page](https://github.com/usdigitalresponse/usdr-gost/releases)
+2. Find the release that you want to edit and click the pencil icon.
+3. Use the "Write" and "Preview" tabs in the editor interface to make edits and preview the changes.
+4. Click "Update release" to save your changes.
+
+> [!IMPORTANT]
+> Unless you *really* know what you're doing...
+> - Do not toggle the "Set as a pre-release" or "Set as latest release" checkboxes.
+> - Do not change the tag associated with the release.
+> - Do not change the title of the release.
+
 #### How do I generate a new draft release?
+
+> [!IMPORTANT]
+> In most cases, you should avoid using the "Draft a new release" feature in GitHub to manually create a new release.
+> Using the "Release Drafter" workflow helps ensure that releases are generated consistently and can be managed easily.
 
 The easiest way to get a new draft release is to simply wait for pull request to merge;
 whenever a commit is pushed to `main`, a new draft release will be generated if it does not already exist.
