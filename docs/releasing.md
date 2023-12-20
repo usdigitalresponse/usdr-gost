@@ -165,9 +165,9 @@ Ideally, the repository will always have exactly 1 draft release at any moment (
 - **Latest release:** A label indicating the last (published) release that has successfully deployed to Production.
 - **Pre-release:** A label indicating that a published release has not yet fully and/or successfully deployed to Production.
 
-### Troubleshooting
+## Troubleshooting
 
-#### I accidentally published a release that wasn't ready! How do I fix this?
+### I accidentally published a release that wasn't ready! How do I fix this?
 
 > [!NOTE]
 > Pencils have erasers, keyboards have backspace, and accidental releases can be remedied; these things happen 🙂.
@@ -205,7 +205,7 @@ If this happens, we will likely want to do a few things (which may differ depend
 6. Recreate the release.
   Refer to [How do I generate a new draft release?](#how-do-i-generate-a-new-draft-release) for instructions.
 
-#### I want to fix a problem with already-published release notes.
+### I want to fix a problem with already-published release notes.
 
 Releases can still be edited after they are initially published without causing any problems or initiating a new deployment.
 If you want to fix a typo or otherwise update the release notes after publishing, follow these steps:
@@ -221,7 +221,7 @@ If you want to fix a typo or otherwise update the release notes after publishing
 > - Do not change the tag associated with the release.
 > - Do not change the title of the release.
 
-#### How do I generate a new draft release?
+### How do I generate a new draft release?
 
 > [!IMPORTANT]
 > In most cases, you should avoid using the "Draft a new release" feature in GitHub to manually create a new release.
