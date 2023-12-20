@@ -163,7 +163,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const emailHTML = module.exports.addBaseBranding(grantAssignedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'Grants Assigned Notification',
-        notifications_url: `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
+        notifications_url: (process.env.ENABLE_MY_PROFILE === 'true') ? `${process.env.WEBSITE_DOMAIN}/my-profile` : `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email
@@ -238,7 +238,7 @@ async function sendGrantDigest({
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Federal Grant Finder',
         title: 'New Grants Digest',
-        notifications_url: `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
+        notifications_url: (process.env.ENABLE_MY_PROFILE === 'true') ? `${process.env.WEBSITE_DOMAIN}/my-profile` : `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email
@@ -304,7 +304,7 @@ async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
 
     await asyncBatch(inputs, getAndSendGrantForSavedSearch, 2);
 
-    console.log(`Successfully built and sent grants digest emails for ${openDate}`);
+    console.log(`Successfully built and sent grants digest emails for ${inputs.length} saved searches on ${openDate}`);
 }
 
 async function buildAndSendGrantDigest() {
