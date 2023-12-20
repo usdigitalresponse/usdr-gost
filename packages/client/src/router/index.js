@@ -1,4 +1,3 @@
-import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 import { myProfileEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
@@ -8,9 +7,7 @@ import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporte
 
 import store from '../store';
 
-Vue.use(VueRouter);
-
-const routes = [
+export const routes = [
   {
     path: '/login',
     name: 'login',
@@ -27,7 +24,13 @@ const routes = [
   {
     path: '/',
     name: 'layout',
-    redirect: '/my-grants',
+    redirect: (to) => {
+      if (to.fullPath.startsWith('/#/')) {
+        // Redirect any old hash-style URLs to the new history API URL.
+        return { path: to.hash.substring(1), hash: '' };
+      }
+      return 'my-grants';
+    },
     component: Layout,
     meta: {
       requiresAuth: true,
@@ -141,12 +144,17 @@ const routes = [
   },
   {
     path: '*',
-    redirect: '/my-grants',
+    component: () => import('../views/NotFound.vue'),
+    name: 'notFound',
+    meta: {
+      requiresAuth: true,
+    },
   },
 ];
 
 const router = new VueRouter({
   base: process.env.BASE_URL,
+  mode: 'history',
   routes,
 });
 
@@ -164,8 +172,8 @@ router.beforeEach((to, from, next) => {
     next({ name: 'login', query: { redirect_to: redirectTo } });
   } else if (to.name === 'login' && authenticated) {
     next({ name: 'grants' });
-  } else if (to.name === 'not-found'
-    || (to.meta.requiresMyProfileEnabled && !myProfileEnabled())
+  } else if (
+    (to.meta.requiresMyProfileEnabled && !myProfileEnabled())
     || (to.meta.requiresNewTerminologyEnabled && !newTerminologyEnabled())
     || (to.meta.requiresNewGrantsDetailPageEnabled && !newGrantsDetailPageEnabled())
   ) {
