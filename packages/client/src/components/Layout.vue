@@ -110,7 +110,7 @@ export default {
       alerts: 'alerts/alerts',
     }),
     canSeeOrganizationsTab() {
-      return true;
+      return this.loggedInUser && this.loggedInUser.isUSDRSuperAdmin;
     },
     newTerminologyEnabled() {
       return newTerminologyEnabled();
