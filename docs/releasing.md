@@ -94,15 +94,7 @@ commit-E  <- NOT successfully QA'd
 7. Follow the remaining steps in **Scenario 1** to deploy the release.
 8. Optional: Delete the release branch (the release commit is now tagged; the branch is no longer needed)
 9. Optional: Generate the next draft release.
-    - Using the GitHub web UI:
-      1. Navigate to the ["Release Drafter" workflow](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/release-drafter.yml)
-      2. Click "Run workflow"
-      3. Select the "Branch" dropdown menu and choose the `main` branch
-      4. Click the "Run workflow" button located beneath the selected branch.
-    - Using the GitHub CLI:
-      ```cli
-      gh workflow run "Release Drafter" --ref main
-      ```
+  Refer to [How do I generate a new draft release?](#how-do-i-generate-a-new-draft-release) for instructions.
 
 > [!TIP]
 > You can skip the final step if you want to wait for a new draft release to be created automatically the next time `main` is updated.
@@ -172,3 +164,21 @@ Ideally, the repository will always have exactly 1 draft release at any moment (
 - **Published release:** Any release that is not a draft, i.e. is publicly viewable, and is considered to be a finalized representation of at least one change to Production.
 - **Latest release:** A label indicating the last (published) release that has successfully deployed to Production.
 - **Pre-release:** A label indicating that a published release has not yet fully and/or successfully deployed to Production.
+
+### Troubleshooting
+
+#### How do I generate a new draft release?
+
+The easiest way to get a new draft release is to simply wait for pull request to merge;
+whenever a commit is pushed to `main`, a new draft release will be generated if it does not already exist.
+
+If you want to create the next draft release without waiting, simply run the Release Drafter workflow:
+- Using the GitHub web UI:
+  1. Navigate to the ["Release Drafter" workflow](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/release-drafter.yml)
+  2. Click "Run workflow"
+  3. Select the "Branch" dropdown menu and choose the `main` branch
+  4. Click the "Run workflow" button located beneath the selected branch.
+- Using the GitHub CLI:
+  ```cli
+  gh workflow run "Release Drafter" --ref main
+  ```
