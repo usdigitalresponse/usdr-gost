@@ -1,7 +1,7 @@
 <!-- eslint-disable max-len -->
 <template>
+  <section class="container-fluid grants-details-container">
   <div>
-    Grant ID: {{this.$route.params.id}}
     <div v-if="loading">
       Loading...
     </div>
@@ -9,25 +9,32 @@
       No grant found
     </div>
     <div v-if="selectedGrant && !loading">
-      <b-row class="mb-3 d-flex align-items-baseline">
-        <b-col cols="8">
+      <b-row>
           <h1 class="mb-0 h2">{{ selectedGrant.title }}</h1>
+      </b-row>
+      <b-row class="mb-3 d-flex align-items-end">
+        <b-col cols="4">
+           <span class="data-label">Open Date: </span>{{ formatDate(selectedGrant.open_date) }}<br />
+           <span class="data-label">Close Date: </span>{{ formatDate(selectedGrant.close_date) }}<br />
         </b-col>
-        <b-col cols="4" class="text-right">
+        <b-col cols="4">
+          <b-button target="_blank" rel="noopener noreferrer" variant="outline-primary" @click="copyUrl">
+            <!-- fixme: figure out why the copy icon doesn't work here -->
+            <b-icon icon="front" aria-hidden="true" class="mr-2"></b-icon>Copy link to clipboard
+          </b-button>
+        </b-col>
+        <b-col cols="4">
           <b-button :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
             target="_blank" rel="noopener noreferrer" variant="primary" data-dd-action-name="view on grants.gov">
-            <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2"></b-icon>View on Grants.gov
+            <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2"></b-icon>Apply on Grants.gov
           </b-button>
         </b-col>
       </b-row>
-      <p><span class="data-label">Valid from:</span> {{ new
-          Date(selectedGrant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
-      }}-{{ new
-    Date(selectedGrant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
-}}</p>
+
       <div v-for="field in dialogFields" :key="field">
         <p><span class="data-label">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
-      </div>
+      </div> 
+
       <p>
         <span class="data-label">Category of Funding Activity:</span>
         {{ selectedGrant['funding_activity_categories']?.join(', ') }}
@@ -97,6 +104,7 @@
       </b-table>
     </div>
 </div>
+</section>
 </template>
 
 <script>
@@ -105,6 +113,7 @@ import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { titleize } from '../helpers/form-helpers';
+import { DateTime } from 'luxon';
 
 export default {
   props: {
@@ -307,6 +316,18 @@ export default {
         this.selectedGrant = this.currentGrant;
       });
     },
+    copyUrl() {
+      // fixme: make sure this works in the browsers we need to support
+      navigator.clipboard.writeText(window.location.href);
+    },
+    formatDate(dateString) {
+      return DateTime.fromISO(dateString).toLocaleString(DateTime.DATE_MED);
+    }
   },
 };
 </script>
+<style>
+.grants-details-container {
+    padding: 80px;
+}
+</style>
