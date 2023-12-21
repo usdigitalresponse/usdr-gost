@@ -94,15 +94,7 @@ commit-E  <- NOT successfully QA'd
 7. Follow the remaining steps in **Scenario 1** to deploy the release.
 8. Optional: Delete the release branch (the release commit is now tagged; the branch is no longer needed)
 9. Optional: Generate the next draft release.
-    - Using the GitHub web UI:
-      1. Navigate to the ["Release Drafter" workflow](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/release-drafter.yml)
-      2. Click "Run workflow"
-      3. Select the "Branch" dropdown menu and choose the `main` branch
-      4. Click the "Run workflow" button located beneath the selected branch.
-    - Using the GitHub CLI:
-      ```cli
-      gh workflow run "Release Drafter" --ref main
-      ```
+  Refer to [How do I generate a new draft release?](#how-do-i-generate-a-new-draft-release) for instructions.
 
 > [!TIP]
 > You can skip the final step if you want to wait for a new draft release to be created automatically the next time `main` is updated.
@@ -172,3 +164,79 @@ Ideally, the repository will always have exactly 1 draft release at any moment (
 - **Published release:** Any release that is not a draft, i.e. is publicly viewable, and is considered to be a finalized representation of at least one change to Production.
 - **Latest release:** A label indicating the last (published) release that has successfully deployed to Production.
 - **Pre-release:** A label indicating that a published release has not yet fully and/or successfully deployed to Production.
+
+## Troubleshooting
+
+### I accidentally published a release that wasn't ready! How do I fix this?
+
+> [!NOTE]
+> Pencils have erasers, keyboards have backspace, and accidental releases can be remedied; these things happen 🙂.
+
+It's probably fine, as every release is admin-reviewed before it actually deploys.
+Please begin by posting a notice in the [#project-grants-engineering](https://usdigitalresponse.slack.com/archives/C0324KDQSCR) Slack channel as soon as possible so that admins know not to approve the release – we will be grateful for the heads-up!
+
+If this happens, we will likely want to do a few things (which may differ depending on the scenario):
+1. If you have not already done so, give notice in Slack.
+2. Cancel the in-progress ["Deploy to Production" workflow](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/deploy-production.yml).
+3. Delete the release.
+    - Using the GitHub web UI:
+      1. Go to the [Releases page](https://github.com/usdigitalresponse/usdr-gost/releases)
+      2. Find the release that was accidentally published.
+      3. Optional: Copy any markdown from the release notes (like the Summary) that you don't want to lose.
+      4. Click the trash can icon to delete the release.
+    - Using the GitHub CLI:
+      ```cli
+      gh release delete release/1979.33  # just deletes the release
+      gh release delete release/1979.33 --cleanup-tag  # also deletes the tag
+      ```
+4. Delete the tag that was pushed when the release was published.
+    - Using the GitHub web UI:
+      1. Go to the [Tags page](https://github.com/usdigitalresponse/usdr-gost/tags)
+      2. Find the tag that was created for the (now-deleted) release.
+      3. Click the `...` icon for the tag, and select "Delete tag"
+    - Using the CLI:
+      ```cli
+      git tag delete release/1979.33
+      git push --delete origin release/1979.33
+      ```
+5. Check to ensure that no other releases were created after the release was accidentally published.
+  If a new release draft was created (likely because a pull request was recently merged), you should
+  delete that draft release as well.
+6. Recreate the release.
+  Refer to [How do I generate a new draft release?](#how-do-i-generate-a-new-draft-release) for instructions.
+
+### I want to fix a problem with already-published release notes.
+
+Releases can still be edited after they are initially published without causing any problems or initiating a new deployment.
+If you want to fix a typo or otherwise update the release notes after publishing, follow these steps:
+
+1. Go to the [Releases page](https://github.com/usdigitalresponse/usdr-gost/releases)
+2. Find the release that you want to edit and click the pencil icon.
+3. Use the "Write" and "Preview" tabs in the editor interface to make edits and preview the changes.
+4. Click "Update release" to save your changes.
+
+> [!IMPORTANT]
+> Unless you *really* know what you're doing...
+> - Do not toggle the "Set as a pre-release" or "Set as latest release" checkboxes.
+> - Do not change the tag associated with the release.
+> - Do not change the title of the release.
+
+### How do I generate a new draft release?
+
+> [!IMPORTANT]
+> In most cases, you should avoid using the "Draft a new release" feature in GitHub to manually create a new release.
+> Using the "Release Drafter" workflow helps ensure that releases are generated consistently and can be managed easily.
+
+The easiest way to get a new draft release is to simply wait for pull request to merge;
+whenever a commit is pushed to `main`, a new draft release will be generated if it does not already exist.
+
+If you want to create the next draft release without waiting, simply run the Release Drafter workflow:
+- Using the GitHub web UI:
+  1. Navigate to the ["Release Drafter" workflow](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/release-drafter.yml)
+  2. Click "Run workflow"
+  3. Select the "Branch" dropdown menu and choose the `main` branch
+  4. Click the "Run workflow" button located beneath the selected branch.
+- Using the GitHub CLI:
+  ```cli
+  gh workflow run "Release Drafter" --ref main
+  ```
