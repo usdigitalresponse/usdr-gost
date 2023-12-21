@@ -153,6 +153,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
+            uploads.github.com:443
             github.com:443
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Download website build artifacts
