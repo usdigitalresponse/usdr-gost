@@ -2405,17 +2405,17 @@
     "@datadog/browser-core" "5.5.1"
     "@datadog/browser-rum-core" "5.5.1"
 
-"@datadog/native-appsec@5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-5.0.0.tgz#e42e77f42062532ad7defa3a79090dc8b020c22b"
-  integrity sha512-Ks8a4L49N40w+TJjj2e9ncGssUIEjo4wnmUFjPBRvlLGuVj1VJLxCx7ztpd8eTycM5QQlzggCDOP6CMEVmeZbA==
+"@datadog/native-appsec@6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-6.0.0.tgz#da753f8566ec5180ad9e83014cb44984b4bc878e"
+  integrity sha512-e7vH5usFoqov7FraPcA99fe80t2/qm4Cmno1T3iBhYlhyO6HD01ArDsCZ/sUvNIUR1ujxtbr8Z9WRGJ0qQ/FDA==
   dependencies:
     node-gyp-build "^3.9.0"
 
-"@datadog/native-iast-rewriter@2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@datadog/native-iast-rewriter/-/native-iast-rewriter-2.2.1.tgz#3c74c5a8caa0b876e091e9c5a95256add0d73e1c"
-  integrity sha512-DyZlE8gNa5AoOFNKGRJU4RYF/Y/tJzv4bIAMuVBbEnMA0xhiIYqpYQG8T3OKkALl3VSEeBMjYwuOR2fCrJ6gzA==
+"@datadog/native-iast-rewriter@2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@datadog/native-iast-rewriter/-/native-iast-rewriter-2.2.2.tgz#3f7feaf6be1af4c83ad063065b8ed509bbaf11cb"
+  integrity sha512-13ZBhJpjZ/tiV6rYfyAf/ITye9cyd3x12M/2NKhD4Ivev4N4uKBREAjpArOtzKtPXZ5b6oXwVV4ofT1SHoYyzA==
   dependencies:
     lru-cache "^7.14.0"
     node-gyp-build "^4.5.0"
@@ -6784,12 +6784,12 @@ dc-polyfill@^0.1.2:
   integrity sha512-Wyk5n/5KUj3GfVKV2jtDbtChC/Ff9fjKsBcg4ZtYW1yQe3DXNHcGURvmoxhqQdfOQ9TwyMjnfyv1lyYcOkFkFA==
 
 dd-trace@^4.11.1:
-  version "4.21.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.21.0.tgz#1a6969838edba7258eeefefed5e24136f95a199d"
-  integrity sha512-nuFHfDJNy039Qns1sbJdIbXeP1ZmUioctwzXfw60k4Dif8dC3RmrHebvW48EbYCKrJj3Awri/vmwcBNf6xNpHw==
+  version "4.22.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.22.0.tgz#aa3c5402edd4c30acf2c2cc78f4476c68c86bf8d"
+  integrity sha512-29mFmPNEA5obdKQSSK3fcke0fhpwpETB5+R6UWRoBn6BqirBWGbkQeU7xW1vZMHzgTV5d4MkQFmjTPK8SlsgHg==
   dependencies:
-    "@datadog/native-appsec" "5.0.0"
-    "@datadog/native-iast-rewriter" "2.2.1"
+    "@datadog/native-appsec" "6.0.0"
+    "@datadog/native-iast-rewriter" "2.2.2"
     "@datadog/native-iast-taint-tracking" "1.6.4"
     "@datadog/native-metrics" "^2.0.0"
     "@datadog/pprof" "4.1.0"
