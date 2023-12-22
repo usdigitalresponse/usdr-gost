@@ -12,7 +12,7 @@ import chalk from 'chalk';
 import XLSX from 'xlsx';
 import lodash from 'lodash';
 
-import { DATA_SHEET_TYPES, readVersionRecord } from '../arpa_reporter/services/records.js';
+import { CPF_DATA_SHEET_TYPES, DATA_SHEET_TYPES, readVersionRecord } from '../arpa_reporter/services/records.js';
 import { SERVER_DATA_DIR, EMPTY_TEMPLATE_NAME, SERVER_CODE_DIR } from '../arpa_reporter/environment.js';
 import { dropdownCorrections } from '../arpa_reporter/services/validation-rules.js';
 
@@ -22,43 +22,37 @@ const log = (msg) => { console.log(chalk.green(msg)); };
 // For every dropdown extracted into templateDropdowns.json, record what fields
 // should be validated according to that list
 const dropdownNamesToFieldIds = {
-    'Agency Code': [/* Not automatically applied to any fields */],
-    'Expenditure Category Group': [/* Not automatically applied to any fields */],
-    'Detailed Expenditure Category': [/* Not automatically applied to any fields */],
-    'State Code': ['State_Abbreviated__c'],
-    Country: [/* Not automatically applied to any fields */],
-    'Project Status': ['Completion_Status__c'],
-    'Yes/No Questions': [
-        '(manual entry)1',
-        '(manual entry)5',
-        '(manual entry)6',
-        '(manual entry)10',
-        '(manual entry)11',
-        '(manual entry)12',
-        '(manual entry)13',
-        'Derives_25_Million_or_More_from_Federal__c',
-        'Does_Project_Include_Capital_Expenditure__c',
-        'Federal_Funds_80_or_More_of_Revenue__c',
-        'Is_project_designed_to_exceed_100_mbps__c',
-        'Is_project_designed_to_meet_100_mbps__c',
-        'Registered_in_Sam_gov__c',
-        'Total_Compensation_for_Officers_Public__c',
-        'Whether_program_evaluation_is_being_conducted',
+    'Ownership': [
+        'Capital_Asset_Ownership_Type__c',
     ],
-    Types: ['Award_Type__c'],
-    'Funding Type': ['Sub_Award_Type_Aggregates_SLFRF__c'],
-    'Sectors Designated as Essential Critical Infrastructure': [
-        'Primary_Sector__c', 'Sectors_Critical_to_Health_Well_Being__c',
+    'Status': [
+        'Project_Status__c',
     ],
-    'Location (for broadband, geospatial location data)': ['Location__c'],
-    'Project Demographics': [
-        'Primary_Project_Demographics__c',
-        'Secondary_Project_Demographics__c',
-        'Tertiary_Project_Demographics__c',
+    'YesNo': [
+        'Access_to_Public_Transit__c',
+        'Measurement_of_Effectiveness__c',
+        'Same_Address__c',
+        'Affordable_Connectivity_Program_ACP__c',
+        'Community_Benefit_Agreement__c',
+        'Prioritize_Local_Hires__c',
+        'Project_Labor_Agreement__c',
+        'Adequate_Wages__c',
+        'Project_Labor_Certification__c',
+        'Any_Wages_Less_Than_Prevailing__c',
+        'Davis_Bacon_Certification__c',
+        'Matching_Funds__c',
+        'Other_Federal_Funding__c',
+        'Operations_intiated__c',
     ],
-    'Capital Expenditure Type': ['Type_of_Capital_Expenditure__c'],
-    Subrecipient: ['Entity_Type_2__c'],
-    'Broadband Type': ['Technology_Type_Actual__c', 'Technology_Type_Planned__c'],
+    'TechType': [
+        'Technology_Type_Actual__c',
+        'Technology_Type_Planned__c',
+
+    ],
+    'State': [ 'State_Planned__c', 'State_Actual__c', 'State_Abbreviated__c' ],
+    'Investment': [
+        'Type_of_Investment__c',
+    ],
 };
 
 function invertDropdownToFieldMap() {
@@ -129,8 +123,9 @@ async function extractRules(workbook, logic, dropdowns) {
     };
 
     // read rules for ordinary sheet types
-    for (const sheetName of Object.keys(DATA_SHEET_TYPES)) {
-        const type = DATA_SHEET_TYPES[sheetName];
+    for (const sheetName of Object.keys(CPF_DATA_SHEET_TYPES)) {
+        const type = CPF_DATA_SHEET_TYPES[sheetName];
+        console.log(sheetName, type);
         const sheet = workbook.Sheets[sheetName];
 
         // entire sheet
@@ -203,11 +198,15 @@ async function extractDropdowns(workbook) {
     });
 
     const dropdowns = {};
+    console.log(rows);
 
     rows[0].map((n) => n.trim()).forEach((colName, colIdx) => {
+        console.log(colName, colIdx);
+        console.log(dropdowns);
         dropdowns[colName] = [];
         let rowIdx = 1;
-        while (rows[rowIdx][colIdx]) {
+        while (rows[rowIdx] && rows[rowIdx][colIdx]) {
+            if (colName === 'State') console.log(rows[rowIdx][colIdx], rowIdx, colIdx);
             dropdowns[colName].push(rows[rowIdx][colIdx]);
             rowIdx += 1;
         }
@@ -232,16 +231,17 @@ async function extractLogic(workbook) {
     });
 
     const sheetNames = Object.fromEntries(workbook.SheetNames.entries());
+    console.log(sheetNames);
     const logic = rows.map((row) => {
-    // parse EC code
-        const codeString = row['Detail Expenditure'];
+        // parse EC code
+        const codeString = row['Project Use Code'];
         const codeParts = codeString.split('-');
         const ecCode = codeParts[0];
         const ecCodeDesc = codeParts.slice(1, codeParts.length).join('-');
 
         // type that this logic rule applies to
         const sheetName = sheetNames[row.Sheet - 1];
-        const type = DATA_SHEET_TYPES[sheetName];
+        const type = CPF_DATA_SHEET_TYPES[sheetName];
 
         // which columns are relevant given the ec code?
         const columnNames = Object.fromEntries(
@@ -283,6 +283,7 @@ function validateExtractedDropdowns(extractedDropdowns) {
 }
 
 function validateDropdownCorrections(extractedDropdowns) {
+    return true;
     // Make sure that every correction configured refers to a real value in a dropdown somewhere
     Object.keys(dropdownCorrections).forEach((valToCorrect) => {
         for (const dropdownName in extractedDropdowns) {

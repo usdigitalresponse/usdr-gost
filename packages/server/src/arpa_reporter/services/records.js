@@ -30,6 +30,11 @@ const DATA_SHEET_TYPES = {
     'Aggregate Awards < 50000': 'awards',
 };
 
+const CPF_DATA_SHEET_TYPES = {
+    Project: 'ec1',
+    Subrecipients: 'subrecipient',
+};
+
 const TYPE_TO_SHEET_NAME = Object.fromEntries(
     Object.entries(DATA_SHEET_TYPES).map(([sheetName, type]) => [type, sheetName]),
 );
@@ -260,6 +265,7 @@ module.exports = {
     mostRecentProjectRecords,
     EC_SHEET_TYPES,
     DATA_SHEET_TYPES,
+    CPF_DATA_SHEET_TYPES,
     TYPE_TO_SHEET_NAME,
     readVersionRecord,
     recordsForProject,
