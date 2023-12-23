@@ -297,7 +297,22 @@ async function workbookForUpload(upload, options) {
     );
 }
 
+async function testGetJson() {
+    const buffer = await fs.readFile('../../../__tests__/arpa_reporter/server/fixtures/upload.xlsm');
+    const workbook = XLSX.read(buffer, {
+        cellDates: true,
+        type: 'buffer',
+        cellHTML: false,
+        cellFormula: false,
+        sheets: ['Certification', 'Cover', 'Logic', 'Project', 'Subrecipients'],
+    });
+    const filename = 'uploadFile.json';
+    await fs.mkdir(path.dirname(filename), { recursive: true });
+    await fs.writeFile(filename, Cryo.stringify(workbook), { flag: 'w' });
+}
+
 module.exports = {
+    testGetJson,
     persistUpload,
     bufferForUpload,
     workbookForUpload,

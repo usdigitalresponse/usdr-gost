@@ -81,7 +81,7 @@ async function loadRecordsForUpload(upload) {
     // parse certification and cover as special cases
     const [certification] = XLSX.utils.sheet_to_json(workbook.Sheets[CERTIFICATION_SHEET]);
     const [cover] = XLSX.utils.sheet_to_json(workbook.Sheets[COVER_SHEET]);
-    const subcategory = cover['Detailed Expenditure Category'];
+    const subcategory = cover['Project Use Name'];
 
     const records = [
         { type: 'certification', upload, content: certification },
@@ -90,8 +90,8 @@ async function loadRecordsForUpload(upload) {
     ];
 
     // parse data sheets
-    for (const sheetName of Object.keys(DATA_SHEET_TYPES)) {
-        const type = DATA_SHEET_TYPES[sheetName];
+    for (const sheetName of Object.keys(CPF_DATA_SHEET_TYPES)) {
+        const type = CPF_DATA_SHEET_TYPES[sheetName];
         const sheet = workbook.Sheets[sheetName];
         const sheetAttributes = workbook.Workbook.Sheets.find(
             ({ name }) => name === sheetName,
