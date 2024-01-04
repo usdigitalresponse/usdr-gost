@@ -16,12 +16,20 @@ const { isUSDRSuperAdmin } = require('../lib/access-helpers');
 
 // NOTE(mbroussard): previously we allowed 2 uses to accommodate automated email systems that prefetch
 // links. Now, we send login links through a clientside redirect instead so this should not be necessary.
-const MAX_ACCESS_TOKEN_USES = 1;
+// This has been updated to accommodate Microsoft Safe Links which will prefetch the link twice.
+const MAX_ACCESS_TOKEN_USES = 4;
 
 // the validation URL is sent in the authentication email:
 //     http://localhost:8080/api/sessions/?passcode=97fa7091-77ae-4905-b62e-97a7b4699abd
 //
 router.get('/', async (req, res) => {
+    const userAgent = req.headers['user-agent'] || '';
+    const nativeHost = req.headers['x-native-host'] || '';
+    if (userAgent.toLowerCase().includes('oneoutlook') || nativeHost.toLowerCase().includes('oneoutlook')) {
+        res.json({ message: 'Success' });
+        return;
+    }
+
     const { passcode } = req.query;
     if (passcode) {
         res.sendFile(path.join(__dirname, '../static/login_redirect.html'));
