@@ -92,6 +92,7 @@ describe('Acces Helper Module', () => {
     context('isMicrosoftSafeLinksRequest', () => {
         it('early-returns if request is from Microsoft Safe Links', async () => {
             const resFake = sinon.fake.returns(true);
+            resFake.json = sinon.fake.returns(true);
             const nextFake = sinon.fake.returns(true);
             const requestFake = {
                 headers: {
@@ -105,6 +106,7 @@ describe('Acces Helper Module', () => {
         });
         it('proceeds normally if request is not from Microsoft Safe Links', async () => {
             const resFake = sinon.fake.returns(true);
+            resFake.json = sinon.fake.returns(true);
             const nextFake = sinon.fake.returns(true);
             const requestFake = {
                 headers: {
