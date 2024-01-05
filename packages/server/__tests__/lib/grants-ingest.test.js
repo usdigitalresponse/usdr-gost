@@ -36,9 +36,12 @@ describe('processMessages', async () => {
         };
         knexStub = sinon.stub().returns(knexQuery);
         sqsStub = { send: sinon.stub() };
+        this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+        this.clock = this.clockFn('2023-12-05');
     });
 
     afterEach(() => {
+        this.clock.restore();
         sinon.restore();
     });
 

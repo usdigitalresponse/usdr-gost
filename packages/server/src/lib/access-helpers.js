@@ -124,6 +124,17 @@ async function requireUSDRSuperAdminUser(req, res, next) {
     });
 }
 
+async function isMicrosoftSafeLinksRequest(req, res, next) {
+    const userAgent = req.headers['user-agent'] || '';
+    const nativeHost = req.headers['x-native-host'] || '';
+    if (userAgent.toLowerCase().includes('oneoutlook') || nativeHost.toLowerCase().includes('oneoutlook')) {
+        res.json({ message: 'Success' });
+        return;
+    }
+
+    next();
+}
+
 module.exports = {
-    requireAdminUser, requireUser, isAuthorizedForAgency, isUserAuthorized, isUSDRSuperAdmin, requireUSDRSuperAdminUser, getAdminAuthInfo,
+    requireAdminUser, requireUser, isAuthorizedForAgency, isUserAuthorized, isUSDRSuperAdmin, requireUSDRSuperAdminUser, getAdminAuthInfo, isMicrosoftSafeLinksRequest,
 };
