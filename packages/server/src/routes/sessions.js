@@ -3,6 +3,7 @@ const _ = require('lodash-checkit');
 const path = require('path');
 const { sendPassCode } = require('../lib/email');
 const { validatePostLoginRedirectPath } = require('../lib/redirect_validation');
+const { isMicrosoftSafeLinksRequest } = require('../lib/access-helpers');
 
 const router = express.Router({ mergeParams: true });
 const {
@@ -14,14 +15,14 @@ const {
 } = require('../db');
 const { isUSDRSuperAdmin } = require('../lib/access-helpers');
 
-// NOTE(mbroussard): previously we allowed 2 uses to accommodate automated email systems that prefetch
-// links. Now, we send login links through a clientside redirect instead so this should not be necessary.
-const MAX_ACCESS_TOKEN_USES = 1;
+// Increasing the max-uses to ensure users are able to log-in even if their email client/security provider has clicked on the link already.
+// Specifically the issue was identified with Microsoft Safe Links, which clicks on the link to check if it is safe.
+const MAX_ACCESS_TOKEN_USES = 4;
 
 // the validation URL is sent in the authentication email:
 //     http://localhost:8080/api/sessions/?passcode=97fa7091-77ae-4905-b62e-97a7b4699abd
 //
-router.get('/', async (req, res) => {
+router.get('/', isMicrosoftSafeLinksRequest, async (req, res) => {
     const { passcode } = req.query;
     if (passcode) {
         res.sendFile(path.join(__dirname, '../static/login_redirect.html'));
