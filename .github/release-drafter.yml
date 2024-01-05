@@ -2,7 +2,7 @@
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'release/$RESOLVED_VERSION'
 tag-prefix: 'release/'
-version-template: '2023.$MINOR'
+version-template: '$RESOLVED_VERSION'
 version-resolver:
   default: minor
 prerelease: true
