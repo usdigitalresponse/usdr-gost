@@ -1,8 +1,21 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/release-drafter/release-drafter/master/schema.json
+
+# NOTES:
+# - The value of the `version` action input is NOT made directly available to this template.
+# - Components like $MAJOR/$MINOR/$PATCH are derived either by parsing the `version` action input
+#   or else computed by incrementing the previous release if no `version` input is given.
+# - $RESOLVED_VERSION is the result of rendering the below `version-template` config value
+#   once the individual version number components have been derived.
+# - We compute our YYYY.inc versions separately and passed the result as `version` input;
+#   while it is NOT incremented by this action, it is still parsed into components, where:
+#   - $MAJOR = YYYY value of `version` input
+#   - $MINOR = inc value of `version` input
+#   - $PATCH will always be 0 (and is not used in this template)
+
+version-template: '$MAJOR.$MINOR'
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'release/$RESOLVED_VERSION'
 tag-prefix: 'release/'
-version-template: '2024.$MINOR'
 version-resolver:
   default: minor
 prerelease: true
