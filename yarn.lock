@@ -7161,9 +7161,9 @@ dc-polyfill@^0.1.2:
   integrity sha512-Wyk5n/5KUj3GfVKV2jtDbtChC/Ff9fjKsBcg4ZtYW1yQe3DXNHcGURvmoxhqQdfOQ9TwyMjnfyv1lyYcOkFkFA==
 
 dd-trace@^4.11.1:
-  version "4.22.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.22.0.tgz#aa3c5402edd4c30acf2c2cc78f4476c68c86bf8d"
-  integrity sha512-29mFmPNEA5obdKQSSK3fcke0fhpwpETB5+R6UWRoBn6BqirBWGbkQeU7xW1vZMHzgTV5d4MkQFmjTPK8SlsgHg==
+  version "4.23.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.23.0.tgz#94d977dd6d1918ccfa4d68f7fa1fc41f14411056"
+  integrity sha512-cezwRSOJNzrUFZr5B7qHY6tZMKqevlAWqPN6ynAOxD+/tocpwEcGAFIP6wWiQsOcAmk+KO3LLzBxU1mlktLYbw==
   dependencies:
     "@datadog/native-appsec" "6.0.0"
     "@datadog/native-iast-rewriter" "2.2.2"
@@ -7176,7 +7176,7 @@ dd-trace@^4.11.1:
     crypto-randomuuid "^1.0.0"
     dc-polyfill "^0.1.2"
     ignore "^5.2.4"
-    import-in-the-middle "^1.4.2"
+    import-in-the-middle "^1.7.1"
     int64-buffer "^0.1.9"
     ipaddr.js "^2.1.0"
     istanbul-lib-coverage "3.2.0"
@@ -10092,10 +10092,10 @@ import-global@^0.1.0:
   dependencies:
     global-dirs "^0.1.0"
 
-import-in-the-middle@^1.4.2:
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/import-in-the-middle/-/import-in-the-middle-1.4.2.tgz#2a266676e3495e72c04bbaa5ec14756ba168391b"
-  integrity sha512-9WOz1Yh/cvO/p69sxRmhyQwrIGGSp7EIdcb+fFNVi7CzQGQB8U1/1XrKVSbEd/GNOAeM0peJtmi7+qphe7NvAw==
+import-in-the-middle@^1.7.1:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/import-in-the-middle/-/import-in-the-middle-1.7.2.tgz#31c44088271b50ecb9cacbdfb1e5732c802e0658"
+  integrity sha512-coz7AjRnPyKW36J6JX5Bjz1mcX7MX1H2XsEGseVcnXMdzsAbbAu0HBZhiAem+3SAmuZdi+p8OwoB2qUpTRgjOQ==
   dependencies:
     acorn "^8.8.2"
     acorn-import-assertions "^1.9.0"
