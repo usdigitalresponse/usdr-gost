@@ -8,6 +8,9 @@ const { log } = require('../lib/log');
 const { requiredArgument } = require('../lib/preconditions');
 const { getRules } = require('./validation-rules');
 const { useRequest } = require('../use-request');
+const fs = require('fs/promises');
+const path = require('path');
+const Cryo = require('cryo');
 
 const CERTIFICATION_SHEET = 'Certification';
 const COVER_SHEET = 'Cover';
@@ -67,16 +70,21 @@ async function loadRecordsForUpload(upload) {
 
     const rules = getRules();
 
+    const buffer = await fs.readFile('../../../__tests__/arpa_reporter/server/fixtures/upload.xlsm');
+
     // NOTE: workbookForUpload relies on a disk cache for optimization.
     // If you change any of the below parsing parameters, you will need to
     // clear the server's TEMP_DIR folder to ensure they take effect.
-    const workbook = await workbookForUpload(upload, {
+    const workbook = XLSX.read(buffer, {
         cellDates: true,
         type: 'buffer',
         cellHTML: false,
         cellFormula: false,
-        sheets: [CERTIFICATION_SHEET, COVER_SHEET, LOGIC_SHEET, ...Object.keys(DATA_SHEET_TYPES)],
+        sheets: ['Certification', 'Cover', 'Logic', 'Project', 'Subrecipients'],
     });
+    const filename = 'uploadFile.json';
+    await fs.mkdir(path.dirname(filename), { recursive: true });
+    await fs.writeFile(filename, Cryo.stringify(workbook), { flag: 'w' });
 
     // parse certification and cover as special cases
     const [certification] = XLSX.utils.sheet_to_json(workbook.Sheets[CERTIFICATION_SHEET]);
@@ -269,6 +277,7 @@ module.exports = {
     TYPE_TO_SHEET_NAME,
     readVersionRecord,
     recordsForProject,
+    loadRecordsForUpload,
 };
 
 // NOTE: This file was copied from src/server/services/records.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

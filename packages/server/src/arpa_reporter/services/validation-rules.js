@@ -118,8 +118,8 @@ function generateRules() {
     rules.subrecipient.EIN__c.dataType = 'String';
     rules.subrecipient.EIN__c.maxLength = 10;
 
-    rules.awards50k.Recipient_EIN__c.dataType = 'String';
-    rules.awards50k.Recipient_EIN__c.maxLength = 10;
+    // rules.awards50k.Recipient_EIN__c.dataType = 'String';
+    // rules.awards50k.Recipient_EIN__c.maxLength = 10;
 
     // value formatters modify the value in the record before it's validated
     // we check any rule against the formatted value
