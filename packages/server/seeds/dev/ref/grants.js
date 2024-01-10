@@ -48,7 +48,36 @@ const grants = [
         eligibility_codes: '25',
         funding_activity_category_codes: 'ST',
         opportunity_status: 'posted',
-        raw_body: 'raw body',
+        raw_body_json: {
+            opportunity: {
+                id: '335255',
+                number: '21-605',
+                title: 'EAR Postdoctoral Fellowships',
+                description: '<p class="MsoNormal">The Division of Earth Sciences (EAR) awards Postdoctoral Fellowships </p>',
+                milestones: {
+                    post_date: '2021-08-11',
+                    close: {
+                        date: '2021-11-03',
+                    },
+                },
+                category: { code: 'D', name: 'Discretionary' },
+            },
+            agency: { code: 'NSF' },
+            award: { ceiling: '6500' },
+            cost_sharing_or_matching_requirement: false,
+            cfda_numbers: ['47.050'],
+            eligible_applicants: [
+                { code: '25' },
+            ],
+            funding_activity: {
+                categories: [
+                    {
+                        name: 'Science and Technology and Other Research and Development',
+                        code: 'ST',
+                    },
+                ],
+            },
+        },
         created_at: '2021-08-11 11:30:38.89828-07',
         updated_at: '2021-08-11 12:30:39.531-07',
     },
@@ -71,9 +100,41 @@ const grants = [
         eligibility_codes: '11 07 25',
         funding_activity_category_codes: 'HL ISS',
         opportunity_status: 'posted',
-        raw_body: 'raw body',
+        raw_body_json: {
+            opportunity: {
+                id: '333816',
+                number: 'HHS-2021-IHS-TPI-0001',
+                title: 'Community Health Aide Program:  Tribal Planning & Implementation',
+                description: ' <p>Health Aide Program for Covid</p>',
+                milestones: {
+                    post_date: '2021-08-05',
+                },
+                category: { code: 'D', name: 'Discretionary' },
+            },
+            agency: { code: 'HHS-IHS' },
+            award: { ceiling: '500000' },
+            cost_sharing_or_matching_requirement: false,
+            cfda_numbers: ['93.382'],
+            eligible_applicants: [
+                { code: '11' }, { code: '07' }, { code: '25' },
+            ],
+            funding_activity: {
+                categories: [
+                    {
+                        name: 'Health',
+                        code: 'HL',
+                    },
+                    {
+                        name: 'Income Security and Social Services',
+                        code: 'ISS',
+                    },
+                ],
+            },
+            revision: { id: 'c3' },
+        },
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
+        revision_id: 'c3',
     },
     {
         status: 'inbox',
@@ -94,7 +155,33 @@ const grants = [
         eligibility_codes: '25',
         funding_activity_category_codes: 'HL',
         opportunity_status: 'posted',
-        raw_body: 'raw body',
+        raw_body_json: {
+            opportunity: {
+                id: '666999',
+                number: 'grant-number-666999',
+                title: 'Test Grant 666999',
+                description: '<p>Test Grant Description 666999</p>',
+                milestones: {
+                    post_date: '2021-09-04',
+                    close: {
+                        date: daysAhead(2),
+                    },
+                },
+                category: { code: 'D', name: 'Discretionary' },
+            },
+            agency: { code: 'NSF' },
+            award: { ceiling: '6500' },
+            cost_sharing_or_matching_requirement: false,
+            cfda_numbers: ['47.050'],
+            eligible_applicants: [
+                { code: '25' },
+            ],
+            funding_activity: {
+                categories: [
+                    { name: 'Health', code: 'HL' },
+                ],
+            },
+        },
         created_at: '2021-08-11 11:30:38.89828-07',
         updated_at: '2021-08-11 12:30:39.531-07',
     },
@@ -117,7 +204,32 @@ const grants = [
         eligibility_codes: '',
         funding_activity_category_codes: 'HL',
         opportunity_status: 'posted',
-        raw_body: 'raw body',
+        raw_body_json: {
+            opportunity: {
+                id: '0',
+                number: '0',
+                title: 'Test Grant 0',
+                description: '',
+                milestones: {
+                    post_date: '2021-08-05',
+                    close: {
+                        date: daysAhead(3),
+                    },
+                },
+                category: { code: 'D', name: 'Discretionary' },
+            },
+            agency: { code: 'HHS-IHS' },
+            award: { ceiling: '500000' },
+            cost_sharing_or_matching_requirement: false,
+            cfda_numbers: ['93.382'],
+            eligible_applicants: [
+            ],
+            funding_activity: {
+                categories: [
+                    { name: 'Health', code: 'HL' },
+                ],
+            },
+        },
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
     },
@@ -140,7 +252,33 @@ const grants = [
         eligibility_codes: '11 07 25',
         funding_activity_category_codes: 'O',
         opportunity_status: 'posted',
-        raw_body: 'raw body',
+        raw_body_json: {
+            opportunity: {
+                id: '333333',
+                number: 'HHS-2021-IHS-TPI-0002',
+                title: 'Community Health Aide Program:  County Planning & Implementation',
+                description: ' <p>Health Aide Program for Covid</p>',
+                milestones: {
+                    post_date: '2021-08-05',
+                    close: {
+                        date: daysAhead(4),
+                    },
+                },
+                category: { code: 'D', name: 'Discretionary' },
+            },
+            agency: { code: 'HHS-IHS' },
+            award: { ceiling: '500000' },
+            cost_sharing_or_matching_requirement: false,
+            cfda_numbers: ['93.382'],
+            eligible_applicants: [
+                { code: '11' }, { code: '07' }, { code: '25' },
+            ],
+            funding_activity: {
+                categories: [
+                    { name: 'Other', code: 'O' },
+                ],
+            },
+        },
         created_at: '2021-08-06 16:03:53.57025-07',
         updated_at: '2021-08-11 12:35:42.562-07',
     },
