@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://json.schemastore.org/dependabot-2.0.json
+
 # Please see the documentation for all configuration options:
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
@@ -8,29 +10,43 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+      time: "03:00"
+      timezone: "America/New_York"
   - package-ecosystem: "terraform"
     directory: "/terraform"
     schedule:
       interval: "daily"
+      time: "03:00"
+      timezone: "America/New_York"
   # Dependabot can't inspect nested directories so we need to list all local modules individually.
   # TODO: Consider switching to Rennovate.
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_api"
     schedule:
       interval: "daily"
+      time: "03:00"
+      timezone: "America/New_York"
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_consume_grants"
     schedule:
       interval: "daily"
+      time: "03:00"
+      timezone: "America/New_York"
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_website"
     schedule:
       interval: "daily"
+      time: "03:00"
+      timezone: "America/New_York"
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_postgres"
     schedule:
       interval: "daily"
+      time: "03:00"
+      timezone: "America/New_York"
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/scheduled_ecs_task"
     schedule:
       interval: "daily"
+      time: "03:00"
+      timezone: "America/New_York"
