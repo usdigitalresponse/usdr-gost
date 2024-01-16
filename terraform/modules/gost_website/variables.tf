@@ -83,7 +83,7 @@ variable "feature_flags" {
 variable "google_tag_id" {
   description = "Enables Google Analytics for the website if set"
   type        = string
-  default     = null
+  default     = ""
 }
 
 variable "logs_bucket_versioning" {

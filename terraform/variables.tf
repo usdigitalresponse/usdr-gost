@@ -155,7 +155,7 @@ variable "website_feature_flags" {
 variable "website_google_tag_id" {
   description = "Enables Google Analytics for the website if set"
   type        = string
-  default     = null
+  default     = ""
 }
 
 // ECS cluster
