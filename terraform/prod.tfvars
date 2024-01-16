@@ -53,6 +53,9 @@ website_feature_flags = {
   categoryOfFundingActivitySearchFieldEnabled = false,
 }
 
+// Google Analytics Account ID: 233192355, Property ID: 321194851
+website_google_tag_id = "G-WCDTMFM6RG"
+
 // ECS Cluster
 cluster_container_insights_enabled = true
 

@@ -80,6 +80,12 @@ variable "feature_flags" {
   }
 }
 
+variable "google_tag_id" {
+  description = "Enables Google Analytics for the website if set"
+  type        = "string"
+  default     = null
+}
+
 variable "logs_bucket_versioning" {
   description = "Enable versioning for the logs S3 bucket"
   type        = bool

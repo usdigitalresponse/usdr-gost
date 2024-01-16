@@ -152,6 +152,12 @@ variable "website_feature_flags" {
   }
 }
 
+variable "website_google_tag_id" {
+  description = "Enables Google Analytics for the website if set"
+  type        = string
+  default     = null
+}
+
 // ECS cluster
 variable "cluster_container_insights_enabled" {
   type    = bool
