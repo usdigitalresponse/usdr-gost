@@ -341,7 +341,7 @@ export default {
         return;
       }
       this.$router.push(`grant/${item.grant_id}`);
-      datadogRUM.addAction('grant search result', {grant: item})
+      datadogRUM.addAction('grant search result', {grant: item});
     },
     onRowSelected(items) {
       const [row] = items;
