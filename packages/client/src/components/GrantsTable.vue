@@ -82,6 +82,7 @@ import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
 import SearchFilter from './SearchFilter.vue';
+import { datadogRum } from '@datadog/browser-rum';
 
 export default {
   components: {
