@@ -25,3 +25,7 @@ window.APP_CONFIG.featureFlags = {
   newGrantsDetailPageEnabled: false,
   categoryOfFundingActivitySearchFieldEnabled: true,
 };
+
+// Setting a GOOGLE_TAG_ID enables Google Analytics.
+// Empty for the dev configuration since there is not yet a Google Analytics property for dev.
+window.APP_CONFIG.GOOGLE_TAG_ID = '';

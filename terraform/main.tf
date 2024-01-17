@@ -69,6 +69,7 @@ module "website" {
   origin_artifacts_dist_path = coalesce(
     var.website_origin_artifacts_dist_path, "${path.root}/../packages/client/dist"
   )
+  google_tag_id = var.website_google_tag_id
 
   datadog_rum_enabled = var.website_datadog_rum_enabled
   datadog_rum_config = merge(var.website_datadog_rum_options, {
