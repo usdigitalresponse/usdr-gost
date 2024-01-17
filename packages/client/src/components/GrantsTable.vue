@@ -342,7 +342,7 @@ export default {
         return;
       }
       this.$router.push(`grant/${item.grant_id}`);
-      datadogRum.addAction('view grant details', {grant: item});
+      datadogRum.addAction('view grant details', { grant: item });
     },
     onRowSelected(items) {
       const [row] = items;
