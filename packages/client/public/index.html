@@ -6,7 +6,7 @@
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js"></script>
   <script>
-      if (window.APP_CONFIG.GOOGLE_TAG_ID) {
+      if (window.APP_CONFIG && window.APP_CONFIG.GOOGLE_TAG_ID) {
           window.dataLayer = window.dataLayer || [];
 
           function gtag() {
