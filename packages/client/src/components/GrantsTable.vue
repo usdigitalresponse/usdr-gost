@@ -84,7 +84,6 @@ import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
 import SearchFilter from './SearchFilter.vue';
-import { datadogRum } from '@datadog/browser-rum';
 
 export default {
   components: {
@@ -343,7 +342,7 @@ export default {
         return;
       }
       this.$router.push(`grant/${item.grant_id}`);
-      datadogRUM.addAction('grant search result', {grant: item});
+      datadogRum.addAction('view grant details', {grant: item});
     },
     onRowSelected(items) {
       const [row] = items;
