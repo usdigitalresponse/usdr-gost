@@ -2437,10 +2437,10 @@
     node-addon-api "^6.1.0"
     node-gyp-build "^3.9.0"
 
-"@datadog/pprof@4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@datadog/pprof/-/pprof-4.1.0.tgz#db86a720f1dfecbcab8838bc1f148eb0a402af55"
-  integrity sha512-g7EWI185nwSuFwlmnAGDPxbPsqe+ipOoDB2oP841WMNRaJBPRdg5J90c+6ucmyltuC9VpTrmzzqcachkOTzZEQ==
+"@datadog/pprof@5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@datadog/pprof/-/pprof-5.0.0.tgz#0c0aaf06def6d2bc4b2d353ec7b264dadbfbefab"
+  integrity sha512-vhNan4SBuNWLpexunDJQ+hNbRAgWdk2qy5Iyh7Nn94uSSHXigAJMAvu4jwMKKQKFfchtobOkWT8GQUWW3tgpFg==
   dependencies:
     delay "^5.0.0"
     node-gyp-build "<4.0"
@@ -6788,15 +6788,15 @@ dc-polyfill@^0.1.2:
   integrity sha512-Wyk5n/5KUj3GfVKV2jtDbtChC/Ff9fjKsBcg4ZtYW1yQe3DXNHcGURvmoxhqQdfOQ9TwyMjnfyv1lyYcOkFkFA==
 
 dd-trace@^4.11.1:
-  version "4.23.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.23.0.tgz#94d977dd6d1918ccfa4d68f7fa1fc41f14411056"
-  integrity sha512-cezwRSOJNzrUFZr5B7qHY6tZMKqevlAWqPN6ynAOxD+/tocpwEcGAFIP6wWiQsOcAmk+KO3LLzBxU1mlktLYbw==
+  version "4.24.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.24.0.tgz#5a7f2d9a7d676dbddcaf9f475d20e5fe11b08363"
+  integrity sha512-ItmcumH8A0kzN6n1Rujuu1A+f3MUsKFFE7JFjVlH7xyHKY8SmW1jx+242Oxbnw2z+2tLG0dI9ZBz3B5Fz10CcA==
   dependencies:
     "@datadog/native-appsec" "6.0.0"
     "@datadog/native-iast-rewriter" "2.2.2"
     "@datadog/native-iast-taint-tracking" "1.6.4"
     "@datadog/native-metrics" "^2.0.0"
-    "@datadog/pprof" "4.1.0"
+    "@datadog/pprof" "5.0.0"
     "@datadog/sketches-js" "^2.1.0"
     "@opentelemetry/api" "^1.0.0"
     "@opentelemetry/core" "^1.14.0"
@@ -6809,7 +6809,7 @@ dd-trace@^4.11.1:
     istanbul-lib-coverage "3.2.0"
     jest-docblock "^29.7.0"
     koalas "^1.0.2"
-    limiter "^1.1.4"
+    limiter "1.1.5"
     lodash.kebabcase "^4.1.1"
     lodash.pick "^4.4.0"
     lodash.sortby "^4.7.0"
@@ -10944,7 +10944,7 @@ lilconfig@^2.0.3:
   resolved "https://registry.yarnpkg.com/lilconfig/-/lilconfig-2.0.6.tgz#32a384558bd58af3d4c6e077dd1ad1d397bc69d4"
   integrity sha512-9JROoBW7pobfsx+Sq2JsASvCo6Pfo6WWoUW79HuB1BCoBXD4PLWJPqDF6fNj67pqBYTbAHkE57M1kS/+L1neOg==
 
-limiter@^1.1.4:
+limiter@1.1.5:
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/limiter/-/limiter-1.1.5.tgz#8f92a25b3b16c6131293a0cc834b4a838a2aa7c2"
   integrity sha512-FWWMIEOxz3GwUI4Ts/IvgVy6LPvoMPgjMdQ185nN6psJyBJ4yOpzqm695/h5umdLJg2vW3GR5iG11MAkR2AzJA==
