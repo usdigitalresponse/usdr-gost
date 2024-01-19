@@ -8,7 +8,7 @@ const { SendMessageCommand } = require('@aws-sdk/client-sqs');
 
 const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
 const audit_report = require('../lib/audit-report');
-const { useUser } = require('../use-request');
+const { useUser, useTenantId } = require('../use-request');
 const aws = require('../../lib/gost-aws');
 const { getReportingPeriod } = require('../db/reporting-periods');
 
@@ -85,7 +85,8 @@ router.get('/', requireUser, async (req, res) => {
         console.log('Generating Async audit report');
         try {
             const user = useUser();
-            audit_report.generateAndSendEmail(req.headers.host, user.email, req.query.period_id);
+            const tenantId = useTenantId();
+            audit_report.generateAndSendEmail(req.headers.host, user.email, tenantId, req.query.period_id);
             res.json({ success: true });
             return;
         } catch (error) {
