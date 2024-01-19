@@ -35,6 +35,37 @@ variable "gost_api_domain" {
   type        = string
 }
 
+variable "datadog_rum_enabled" {
+  description = "Whether to enable Datadog RUM."
+  type        = bool
+  default     = false
+}
+
+variable "datadog_rum_config" {
+  description = "Runtime configuration options for Datadog RUM."
+  type = object({
+    applicationId           = string
+    clientToken             = string
+    site                    = string
+    service                 = string
+    env                     = string
+    version                 = string
+    sessionSampleRate       = number
+    sessionReplaySampleRate = number
+    trackUserInteractions   = bool
+    trackResources          = bool
+    trackLongTasks          = bool
+    defaultPrivacyLevel     = string
+    allowedTracingUrls      = list(string)
+  })
+  default = null
+
+  validation {
+    condition     = can(jsonencode(var.datadog_rum_config))
+    error_message = "Value must be JSON-serializable."
+  }
+}
+
 variable "feature_flags" {
   description = "Feature flags for configuring the website runtime"
   type        = any
@@ -47,6 +78,12 @@ variable "feature_flags" {
     condition     = can(jsonencode(var.feature_flags))
     error_message = "Value must be JSON-serializable."
   }
+}
+
+variable "google_tag_id" {
+  description = "Enables Google Analytics for the website if set"
+  type        = string
+  default     = ""
 }
 
 variable "logs_bucket_versioning" {
@@ -75,6 +112,11 @@ variable "origin_bucket_dist_path" {
     condition     = !endswith(var.origin_bucket_dist_path, "/")
     error_message = "Value cannot end with a forward slash."
   }
+}
+
+variable "origin_artifacts_dist_path" {
+  description = "Path to the local directory from which website build artifacts are sourced and uploaded to the S3 origin bucket."
+  type        = string
 }
 
 variable "origin_bucket_config_path" {

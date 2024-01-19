@@ -2,7 +2,7 @@ const ecCodes = {
     1.1: 'COVID-19 Vaccination',
     1.2: 'COVID-19 Testing',
     1.3: 'COVID-19 Contact Tracing',
-    1.4: 'Prevention in Congregate Settings (Nursing Homes Prisons/Jails Dense Work)',
+    1.4: 'Prevention in Congregate Settings (Nursing Homes Prisons/Jails Dense Work Sites Schools Child care facilities etc.)',
     1.5: 'Personal Protective Equipment',
     1.6: 'Medical Expenses (including Alternative Care Facilities)',
     1.7: 'Other COVID-19 Public Health Expenses (including Communications Enforcement Isolation/Quarantine)',

@@ -91,7 +91,7 @@ export default {
   methods: {
     ...mapActions({
       changeSelectedAgency: 'users/changeSelectedAgency',
-      updateEmailSubscriptionPreferences: 'users/updateEmailSubscriptionPreferences',
+      updateEmailSubscriptionPreferences: 'users/updateEmailSubscriptionPreferencesForLoggedInUser',
     }),
     resetModal() {
       this.$emit('update:showModal', false);
@@ -103,7 +103,6 @@ export default {
       };
       data.forEach((notificationType) => { updatedPreferences[notificationType] = 'SUBSCRIBED'; });
       this.updateEmailSubscriptionPreferences({
-        userId: this.loggedInUser.id,
         preferences: updatedPreferences,
       });
     },

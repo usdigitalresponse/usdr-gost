@@ -15,7 +15,9 @@
                 :sort-by.sync="sortBy" :sort-desc.sync="sortAsc" class='table table-borderless overflow-hidden' thead-class="d-none"
                 selectable
                 select-mode="single"
-                @row-selected="onRowSelected">
+                @row-selected="onRowSelected"
+                @row-clicked="onRowClicked"
+                >
                 <template #cell(icon)="list">
                   <div class="gutter-icon row">
                     <b-icon v-if="list.item.interested === 0" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
@@ -24,7 +26,7 @@
                   </div>
                 </template>
                 <template #cell(agencyAndGrant)="agencies">
-                  <div>{{ agencies.item.agency }}
+                  <div>{{ agencies.item.team }}
                     <span v-if="agencies.item.interested === 0" class="color-red" > <strong> rejected </strong> </span>
                     <span v-if="agencies.item.interested === 1" > is
                     <span class="color-green">
@@ -40,7 +42,7 @@
               <div v-if="totalInterestedGrants > 4">
                 <b-row align-v="center" >
                   <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
-                    <a class="nav-link active" href="#/RecentActivity">See All Activity</a>
+                    <b-link class="nav-link active" to="RecentActivity">See All Activity</b-link>
                   </b-navbar>
                 </b-row>
               </div>
@@ -49,26 +51,28 @@
           <b-col>
             <b-card>
               <div class="card-block text-left">
-                <h4 class="card-title gutter-title2 row">Upcoming Closing Dates</h4>
+                <h2 class="card-title gutter-title2 row h4">Upcoming Closing Dates</h2>
                 <span id="noUpcomingCloseDates" class="gutter-title2 row" v-if="!grantsAndIntAgens?.length">Your {{newTerminologyEnabled ? 'team' : 'agency'}} has no upcoming close dates.</span>
               </div>
               <b-table sticky-header='350px' hover :items='grantsAndIntAgens' :fields='upcomingFields'
                 class='table table-borderless' thead-class="d-none"
                 selectable
                 select-mode="single"
-                @row-selected="onRowSelected">
+                @row-selected="onRowSelected"
+                @row-clicked="onRowClicked"
+                >
                 <template #cell()="{ field, value, index }">
                   <div v-if="field.key === 'title'">{{value}}</div>
                   <div v-if="field.key === 'close_date' && yellowDate === true" :style="field.trStyle" v-text="value"></div>
                   <div v-if="field.key === 'close_date' && redDate === true" :style="field.tdStyle" v-text="value"></div>
                   <div v-if="field.key === 'close_date' && blackDate === true" :style="field.tlStyle" v-text="value"></div>
-                  <div v-if="(grantsAndIntAgens[index]) && (field.key === 'title') && (value === grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
+                  <div v-if="(grantsAndIntAgens[index]) && (field.key === 'title') && (value === grantsAndIntAgens[index].title)" class="color-gray">{{grantsAndIntAgens[index].interested_agencies}}</div>
                 </template>
               </b-table>
               <div v-if="totalUpcomingGrants > 3">
                 <b-row align-v="center">
                   <b-navbar toggleable="sm py-0" bg-transparent class="gutter-upcoming row">
-                    <a class="nav-link active" href="#/UpcomingClosingDates">See All Upcoming</a>
+                    <b-link class="nav-link active" to="UpcomingClosingDates">See All Upcoming</b-link>
                   </b-navbar>
                 </b-row>
               </div>
@@ -78,58 +82,13 @@
         </div>
       </b-container>
     </div>
+    <br/>
 
-    <b-row v-if="showStats">
-      <b-col cols='4'>
-        <b-card bg-variant='secondary' text-variant='white' header='New Grants Matching Search Criteria, Last 24Hrs'
-          class='text-center mb-3 mt-3'>
-          <h3>{{ grantsCreatedInTimeframeMatchingCriteria }} of {{ grantsCreatedInTimeframe }}</h3>
-          <b-link class='stretched-link' to='/grants' />
-        </b-card>
-      </b-col>
-      <b-col cols='4'>
-        <b-card bg-variant='secondary' text-variant='white' header='Updated Grants Matching Search Criteria, Last 24Hrs'
-          class='text-center mb-3 mt-3'>
-          <h3>{{ grantsUpdatedInTimeframeMatchingCriteria }} of {{ grantsUpdatedInTimeframe }}</h3>
-          <b-link class='stretched-link' to='/grants' />
-        </b-card>
-      </b-col>
-      <b-col cols='4'>
-        <b-card bg-variant='secondary' text-variant='white' header='Total Grants Matching Search Criteria'
-          class='text-center mb-3 mt-3'>
-          <h3>{{ totalGrantsMatchingAgencyCriteria }} of {{ totalGrants }}</h3>
-          <b-link class='stretched-link' to='/grants' />
-        </b-card>
-      </b-col>
-    </b-row>
-    <br v-if="!showStats" />
-
-    <b-card :title="newTerminologyEnabled ? 'Total Interested Grants by Team' : 'Total Interested Grants by Agency'" v-if="showStats" >
-      <b-table sticky-header="600px" hover :items="totalInterestedGrantsByAgencies" :fields="groupByFields">
-        <template #cell()="{field, value}">
-          <div :style="field.style" v-text="value">
-          </div>
-        </template>
-      </b-table>
-    </b-card>
-    <GrantDetails :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 
 <style scoped>
-.color-gray{
-  color: #757575;
-}
-.color-yellow{
-  color: #aa8866;
-}
-.color-red{
-  color: #ae1818;
-}
-
-.color-green {
-  color: green;
-}
 .gutter-icon.row {
     margin-right: -8px;
     margin-left: -8px;
@@ -157,11 +116,11 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
-import GrantDetails from '@/components/Modals/GrantDetails.vue';
-import { newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
+import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
+import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 
 export default {
-  components: { GrantDetails },
+  components: { GrantDetailsLegacy },
   data() {
     return {
       dateColors: [],
@@ -203,14 +162,14 @@ export default {
           formatter: 'formatDate',
           thStyle: { width: '20%' },
           tdStyle: {
-            color: '#ae1818',
+            color: '#C22E31',
             fontWeight: 'bold',
           },
           tlStyle: {
             color: 'black',
           },
           trStyle: {
-            color: '#aa8866',
+            color: '#956F0D',
             fontWeight: 'bold',
           },
           fontWeight: 'bold',
@@ -223,94 +182,6 @@ export default {
           thStyle: { width: '20%' },
         },
       ],
-      groupByFields: [
-        {
-          key: 'name',
-          sortable: true,
-          thStyle: {
-            width: '45%',
-          },
-        },
-        {
-          label: 'Total',
-          key: 'count',
-          sortable: true,
-          thStyle: {
-            // makes monetary value column closer,
-            // also gives more space for grant money value since it will be a longer number
-            width: '1%',
-          },
-        },
-        {
-          label: ' ',
-          key: 'total_grant_money',
-          sortByFormatted: false,
-          formatter: 'formatMoney',
-          style: {
-            color: '#757575',
-          },
-          class: 'text-right',
-        },
-        {
-          key: 'empty1',
-          label: '',
-          thStyle: {
-            width: '11%',
-          },
-        },
-        {
-          key: 'interested',
-          sortable: true,
-          thStyle: {
-            // makes monetary value column closer,
-            // also gives more space for grant money value since it will be a longer number
-            width: '1%',
-          },
-        },
-        {
-          label: ' ',
-          key: 'total_interested_grant_money',
-          sortByFormatted: false,
-          formatter: 'formatMoney',
-          class: 'text-right',
-          style: {
-            color: 'green',
-          },
-        },
-        {
-          key: 'empty2',
-          label: '',
-          thStyle: {
-            width: '11%',
-          },
-        },
-        {
-          key: 'rejections',
-          sortable: true,
-          thStyle: {
-            // makes monetary value column closer,
-            // also gives more space for grant money value since it will be a longer number
-            width: '1%',
-          },
-        },
-        {
-          label: '   ',
-          key: 'total_rejected_grant_money',
-          sortByFormatted: false,
-          formatter: 'formatMoney',
-          class: 'text-right',
-          style: {
-            color: '#ae1818',
-          },
-        },
-        {
-          key: 'empty3',
-          label: '',
-          thStyle: {
-            width: '11%',
-          },
-        },
-      ],
       selectedGrant: null,
     };
   },
@@ -321,16 +192,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-      totalGrants: 'dashboard/totalGrants',
-      totalGrantsMatchingAgencyCriteria: 'dashboard/totalGrantsMatchingAgencyCriteria',
       totalViewedGrants: 'dashboard/totalViewedGrants',
       totalInterestedGrants: 'grants/totalInterestedGrants',
       totalUpcomingGrants: 'grants/totalUpcomingGrants',
-      grantsCreatedInTimeframe: 'dashboard/grantsCreatedInTimeframe',
-      grantsCreatedInTimeframeMatchingCriteria: 'dashboard/grantsCreatedInTimeframeMatchingCriteria',
-      grantsUpdatedInTimeframe: 'dashboard/grantsUpdatedInTimeframe',
-      grantsUpdatedInTimeframeMatchingCriteria: 'dashboard/grantsUpdatedInTimeframeMatchingCriteria',
-      totalInterestedGrantsByAgencies: 'dashboard/totalInterestedGrantsByAgencies',
       selectedTeam: 'users/selectedAgency',
       closestGrants: 'grants/closestGrants',
       grants: 'grants/grants',
@@ -338,9 +202,6 @@ export default {
       team: 'users/agency',
       currentGrant: 'grants/currentGrant',
     }),
-    showStats() {
-      return !useNewGrantsTable();
-    },
     activityItems() {
       const rtf = new Intl.RelativeTimeFormat('en', {
         numeric: 'auto',
@@ -382,6 +243,9 @@ export default {
     newTerminologyEnabled() {
       return newTerminologyEnabled();
     },
+    newGrantsDetailPageEnabled() {
+      return newGrantsDetailPageEnabled();
+    },
   },
   watch: {
     async selectedTeam() {
@@ -412,9 +276,6 @@ export default {
       fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
     async setup() {
-      if (this.showStats) {
-        this.fetchDashboard();
-      }
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
       this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
@@ -428,8 +289,8 @@ export default {
       return (`(${res})`);
     },
     formatDate(grantCloseDate) {
-      const warn = this.agency.warning_threshold;
-      const danger = this.agency.danger_threshold;
+      const warn = this.team.warning_threshold;
+      const danger = this.team.danger_threshold;
       const closeDatePlusDangerThreshold = new Date(new Date().setDate(new Date().getDate() + danger));
       const closeDatePlusWarningThreshold = new Date(new Date().setDate(new Date().getDate() + warn));
       //          if the grant close date is <= danger date---------------
@@ -487,6 +348,12 @@ export default {
           this.selectedGrant = this.currentGrant;
         });
       }
+    },
+    onRowClicked(item) {
+      if (!newGrantsDetailPageEnabled()) {
+        return;
+      }
+      this.$router.push(`grant/${item.grant_id}`);
     },
   },
 };

@@ -68,8 +68,15 @@ If you are required to use a base token for which there is no corresponding sema
 
 ### Fonts
 
-The fonts used in the USDR design system are:
-- [Lora](https://fonts.google.com/specimen/Lora): heading font
-- [Inter](https://fonts.google.com/specimen/Inter): body font
+The font used in the USDR design system is:
+- [Inter](https://fonts.google.com/specimen/Inter): heading & body font
 
 These font styles are implemented in [fonts.scss](../packages/client/scss/fonts.scss).
+
+#### Accessibility note: Don't use heading elements for styling 💡
+Heading elements (`<h1>` through `<h6>`) represent page structure and should be logical: i.e., someone reading the headings or using a screen reader should be able to understand the general hierarchy of a page so they can quickly find the content they need. Headings should not be used for styling. If you need to use a text style that differs from the appropriate heading level within the page, use a class instead.
+
+Example:
+``` html
+<h2 class="h4">This text will render as an <h2> in the HTML but will look like an h4!</h2>
+```

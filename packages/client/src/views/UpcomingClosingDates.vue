@@ -14,13 +14,14 @@
       selectable
       select-mode="single"
       @row-selected="onRowSelected"
+      @row-clicked="onRowClicked"
     >
       <template #cell()="{ field, value, index }">
         <div v-if="field.key == 'title'">{{value}}</div>
         <div v-if="field.key == 'close_date' && yellowDate == true" :style="field.trStyle" v-text="value"></div>
         <div v-if="field.key == 'close_date' && redDate == true" :style="field.tdStyle" v-text="value"></div>
         <div v-if="field.key == 'close_date' && blackDate == true" :style="field.tlStyle" v-text="value"></div>
-        <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" :style="{color:'#757575'}">{{grantsAndIntAgens[index].interested_agencies}}</div>
+        <div v-if="(grantsAndIntAgens[index]) && (field.key == 'title') && (value == grantsAndIntAgens[index].title)" class="color-gray">{{grantsAndIntAgens[index].interested_agencies}}</div>
       </template>
     </b-table>
     </b-card>
@@ -30,19 +31,10 @@
         aria-controls="upcomingGrants" />
       <b-button class="ml-2" variant="outline-primary disabled">{{ upcomingItems.length }} of {{ totalRows }}</b-button>
     </b-row>
-    <GrantDetails :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 <style scoped>
-.color-gray {
-  color: #757575
-}
-.color-red {
-  color: #ae1818;
-}
-.color-green {
-  color: green;
-}
 .gutter-icon.row {
     margin-right: -8px;
     margin-left: -8px;
@@ -55,11 +47,12 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import { newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import resizableTableMixin from '@/mixin/resizableTable';
-import GrantDetails from '@/components/Modals/GrantDetails.vue';
+import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
 
 export default {
-  components: { GrantDetails },
+  components: { GrantDetailsLegacy },
   data() {
     return {
       // yellowDate: null,
@@ -85,11 +78,11 @@ export default {
           formatter: 'formatDate',
           thStyle: { width: '20%' },
           tdStyle: {
-            color: '#ae1818',
+            color: '#C22E31',
             fontWeight: 'bold',
           },
           trStyle: {
-            color: '#aa8866',
+            color: '#956F0D',
             fontWeight: 'bold',
           },
           tlStyle: {
@@ -135,6 +128,9 @@ export default {
     totalRows() {
       return this.totalUpcomingGrants;
     },
+    newGrantsDetailPageEnabled() {
+      return newGrantsDetailPageEnabled();
+    },
   },
   watch: {
     async selectedAgency() {
@@ -178,6 +174,12 @@ export default {
           this.selectedGrant = this.currentGrant;
         });
       }
+    },
+    onRowClicked(item) {
+      if (!newGrantsDetailPageEnabled()) {
+        return;
+      }
+      this.$router.push(`grant/${item.grant_id}`);
     },
     formatDate(value) {
       // value is the close date of grant

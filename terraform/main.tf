@@ -66,6 +66,22 @@ module "website" {
   gost_api_domain   = local.api_domain_name
   managed_waf_rules = var.website_managed_waf_rules
   feature_flags     = var.website_feature_flags
+  origin_artifacts_dist_path = coalesce(
+    var.website_origin_artifacts_dist_path, "${path.root}/../packages/client/dist"
+  )
+  google_tag_id = var.website_google_tag_id
+
+  datadog_rum_enabled = var.website_datadog_rum_enabled
+  datadog_rum_config = merge(var.website_datadog_rum_options, {
+    applicationId       = "15db471e-2ccb-4d3c-a6bf-99b750d748f5"
+    clientToken         = "pub50834fcc1999d53e546519b1a0f03934"
+    site                = "datadoghq.com"
+    service             = local.unified_service_tags.service
+    env                 = local.unified_service_tags.env
+    version             = local.unified_service_tags.version
+    defaultPrivacyLevel = "mask"
+    allowedTracingUrls  = ["https://${local.api_domain_name}"]
+  })
 }
 
 module "api_to_postgres_security_group" {
@@ -161,6 +177,7 @@ module "api" {
   enable_grants_scraper             = var.api_enable_grants_scraper
   enable_grants_digest              = var.api_enable_grants_digest
   enable_new_team_terminology       = var.api_enable_new_team_terminology
+  enable_my_profile                 = var.api_enable_my_profile
   enable_saved_search_grants_digest = var.api_enable_saved_search_grants_digest
   unified_service_tags              = local.unified_service_tags
   datadog_environment_variables     = var.api_datadog_environment_variables

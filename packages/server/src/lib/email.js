@@ -117,10 +117,13 @@ function sendWelcomeEmail(email, httpOrigin) {
 
 function getGrantDetail(grant, emailNotificationType) {
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
+
+    const description = grant.description.substring(0, 380).replace(/(<([^>]+)>)/ig, '');
+
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
             title: grant.title,
-            description: grant.description && grant.description.length > 400 ? `${grant.description.substring(0, 400)}...` : grant.description,
+            description,
             status: grant.opportunity_status,
             show_date_range: grant.open_date && grant.close_date,
             open_date: grant.open_date ? new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : undefined,
@@ -130,7 +133,7 @@ function getGrantDetail(grant, emailNotificationType) {
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
             link_url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
-            grants_url: `${process.env.WEBSITE_DOMAIN}/#/${emailNotificationType === notificationType.grantDigest ? 'grants' : 'my-grants'}`,
+            grants_url: `${process.env.WEBSITE_DOMAIN}/${emailNotificationType === notificationType.grantDigest ? 'grants' : 'my-grants'}`,
             view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
         },
     );
@@ -160,7 +163,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const emailHTML = module.exports.addBaseBranding(grantAssignedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'Grants Assigned Notification',
-        notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
+        notifications_url: (process.env.ENABLE_MY_PROFILE === 'true') ? `${process.env.WEBSITE_DOMAIN}/my-profile` : `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email
@@ -193,7 +196,7 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
     agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
 }
 
-async function buildDigestBody(matchedGrants) {
+async function buildDigestBody({ name, openDate, matchedGrants }) {
     const grantDetails = [];
     matchedGrants.slice(0, 30).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
 
@@ -201,14 +204,14 @@ async function buildDigestBody(matchedGrants) {
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
     const contentSpacerStr = contentSpacerTemplate.toString();
 
-    let additionalBody = grantDetails.join(contentSpacerStr);
+    let additionalBody = grantDetails.join(contentSpacerStr).concat(contentSpacerStr);
 
     const additionalButtonTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_additional_grants_button.html'));
-    additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/#/grants` });
+    additionalBody += mustache.render(additionalButtonTemplate.toString(), { additional_grants_url: `${process.env.WEBSITE_DOMAIN}/grants` });
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
-        body_title: 'New grants have been posted',
-        body_detail: `There are ${matchedGrants.length} new grants matching your keywords and settings.`,
+        body_title: `${name} - ${matchedGrants.length} NEW GRANTS`,
+        body_detail: moment(openDate).format('MMMM Do YYYY'),
         additional_body: additionalBody,
     });
 
@@ -230,12 +233,12 @@ async function sendGrantDigest({
         return;
     }
 
-    const formattedBody = await buildDigestBody(matchedGrants);
+    const formattedBody = await buildDigestBody({ name, openDate, matchedGrants });
 
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
-        tool_name: 'Grants Identification Tool',
+        tool_name: 'Federal Grant Finder',
         title: 'New Grants Digest',
-        notifications_url: `${process.env.WEBSITE_DOMAIN}/#/grants?manageSettings=true`,
+        notifications_url: (process.env.ENABLE_MY_PROFILE === 'true') ? `${process.env.WEBSITE_DOMAIN}/my-profile` : `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
     });
 
     // TODO: add plain text version of the email
@@ -301,7 +304,7 @@ async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
 
     await asyncBatch(inputs, getAndSendGrantForSavedSearch, 2);
 
-    console.log(`Successfully built and sent grants digest emails for ${openDate}`);
+    console.log(`Successfully built and sent grants digest emails for ${inputs.length} saved searches on ${openDate}`);
 }
 
 async function buildAndSendGrantDigest() {

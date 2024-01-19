@@ -1,16 +1,13 @@
-import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import { myProfileEnabled, newTerminologyEnabled, useNewGrantsTable } from '@/helpers/featureFlags';
+import { myProfileEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import Login from '../views/Login.vue';
 import Layout from '../components/Layout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
 
 import store from '../store';
 
-Vue.use(VueRouter);
-
-const routes = [
+export const routes = [
   {
     path: '/login',
     name: 'login',
@@ -27,7 +24,13 @@ const routes = [
   {
     path: '/',
     name: 'layout',
-    redirect: '/my-grants',
+    redirect: (to) => {
+      if (to.fullPath.startsWith('/#/')) {
+        // Redirect any old hash-style URLs to the new history API URL.
+        return { path: to.hash.substring(1), hash: '' };
+      }
+      return 'my-grants';
+    },
     component: Layout,
     meta: {
       requiresAuth: true,
@@ -66,29 +69,21 @@ const routes = [
         },
       },
       {
+        path: '/grant/:id',
+        name: 'grantDetail',
+        component: () => import('../views/GrantDetails.vue'),
+        meta: {
+          hideLayoutTabs: true,
+          requiresAuth: true,
+          requiresNewGrantsDetailPageEnabled: true,
+        },
+      },
+      {
         path: '/my-grants',
         name: 'myGrants',
         component: () => import('../views/MyGrants.vue'),
         meta: {
           requiresAuth: true,
-        },
-      },
-      {
-        path: '/eligibility-codes',
-        name: 'eligibilityCodes',
-        component: () => import('../views/EligibilityCodes.vue'),
-        meta: {
-          requiresAuth: true,
-          enabledWithOldGrantsTableOnly: true,
-        },
-      },
-      {
-        path: '/keywords',
-        name: 'keywords',
-        component: () => import('../views/Keywords.vue'),
-        meta: {
-          requiresAuth: true,
-          enabledWithOldGrantsTableOnly: true,
         },
       },
       {
@@ -149,12 +144,17 @@ const routes = [
   },
   {
     path: '*',
-    redirect: '/my-grants',
+    component: () => import('../views/NotFound.vue'),
+    name: 'notFound',
+    meta: {
+      requiresAuth: true,
+    },
   },
 ];
 
 const router = new VueRouter({
   base: process.env.BASE_URL,
+  mode: 'history',
   routes,
 });
 
@@ -172,10 +172,10 @@ router.beforeEach((to, from, next) => {
     next({ name: 'login', query: { redirect_to: redirectTo } });
   } else if (to.name === 'login' && authenticated) {
     next({ name: 'grants' });
-  } else if (to.name === 'not-found'
-    || (to.meta.enabledWithOldGrantsTableOnly && useNewGrantsTable())
-    || (to.meta.requiresMyProfileEnabled && !myProfileEnabled())
+  } else if (
+    (to.meta.requiresMyProfileEnabled && !myProfileEnabled())
     || (to.meta.requiresNewTerminologyEnabled && !newTerminologyEnabled())
+    || (to.meta.requiresNewGrantsDetailPageEnabled && !newGrantsDetailPageEnabled())
   ) {
     if (authenticated) {
       next({ name: 'grants' });

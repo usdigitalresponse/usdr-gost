@@ -14,9 +14,10 @@ website_enabled           = true
 website_domain_name       = "sandbox.grants.usdr.dev"
 website_managed_waf_rules = {}
 website_feature_flags = {
-  useNewTable           = true,
-  myProfileEnabled      = true,
-  newTerminologyEnabled = false
+  myProfileEnabled                            = true,
+  newTerminologyEnabled                       = false,
+  newGrantsDetailPageEnabled                  = false,
+  categoryOfFundingActivitySearchFieldEnabled = false,
 }
 
 // ECS Cluster
@@ -31,6 +32,7 @@ api_maximum_task_count                = 5
 api_enable_grants_scraper             = false
 api_enable_grants_digest              = false
 api_enable_new_team_terminology       = false
+api_enable_my_profile                 = true
 api_enable_saved_search_grants_digest = false
 api_log_retention_in_days             = 7
 

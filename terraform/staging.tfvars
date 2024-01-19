@@ -35,10 +35,19 @@ website_managed_waf_rules = {
     metric_visibility = true
   }
 }
+website_datadog_rum_enabled = true
+website_datadog_rum_options = {
+  sessionSampleRate       = 10
+  sessionReplaySampleRate = 1
+  trackUserInteractions   = true
+  trackResources          = true
+  trackLongTasks          = true
+}
 website_feature_flags = {
-  useNewTable           = true,
-  myProfileEnabled      = true,
-  newTerminologyEnabled = true
+  myProfileEnabled                            = true,
+  newTerminologyEnabled                       = true,
+  newGrantsDetailPageEnabled                  = false,
+  categoryOfFundingActivitySearchFieldEnabled = false,
 }
 
 // ECS Cluster
@@ -46,13 +55,13 @@ cluster_container_insights_enabled = true
 
 // API / Backend
 api_enabled                           = true
-api_container_image_tag               = "latest"
 api_default_desired_task_count        = 1
 api_minumum_task_count                = 1
 api_maximum_task_count                = 5
 api_enable_grants_scraper             = false
 api_enable_grants_digest              = false
 api_enable_new_team_terminology       = true
+api_enable_my_profile                 = true
 api_enable_saved_search_grants_digest = true
 api_log_retention_in_days             = 14
 api_datadog_environment_variables = {

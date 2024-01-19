@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/release-drafter/release-drafter/master/schema.json
+
+# NOTES:
+# - The value of the `version` action input is NOT made directly available to this template.
+# - Components like $MAJOR/$MINOR/$PATCH are derived either by parsing the `version` action input
+#   or else computed by incrementing the previous release if no `version` input is given.
+# - $RESOLVED_VERSION is the result of rendering the below `version-template` config value
+#   once the individual version number components have been derived.
+# - We compute our YYYY.inc versions separately and passed the result as `version` input;
+#   while it is NOT incremented by this action, it is still parsed into components, where:
+#   - $MAJOR = YYYY value of `version` input
+#   - $MINOR = inc value of `version` input
+#   - $PATCH will always be 0 (and is not used in this template)
+
+version-template: '$MAJOR.$MINOR'
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'release/$RESOLVED_VERSION'
+tag-prefix: 'release/'
+version-resolver:
+  default: minor
+prerelease: true
+categories:
+  - title: 🚀 New features and enhancements
+    collapse-after: 10
+    labels:
+      - enhancement
+  - title: 🐛 Bug fixes
+    collapse-after: 10
+    labels:
+      - bug
+  - title: 📖 Documentation improvements
+    collapse-after: 10
+    labels:
+      - documentation
+  - title: 🔧 Dependency updates
+    collapse-after: 3
+    labels:
+      - dependencies
+  - title: 🔍 Federal Grant Finder updates
+    collapse-after: 3
+    labels:
+      - Grant Finder
+  - title: 🧾 ARPA Reporter updates
+    collapse-after: 3
+    labels:
+      - arpa validations
+      - arpa subrecipients
+      - arpa web tool
+      - arpa audit report
+      - arpa output templates
+      - arpa quarterly reporter
+      - performance reporter
+  - title: Other changes
+    labels:
+      - '*'
+category-template: '### $TITLE'
+exclude-labels:
+  - skip-changelog
+exclude-contributors:
+  - dependabot
+  - 'dependabot[bot]'
+  - step-security-bot
+autolabeler:
+  - label: javascript
+    files:
+      - '**/*.js'
+      - '**/package.json'
+      - 'packages/**'
+      - '**/yarn.lock'
+      - '**/.npmrc'
+      - '**/.nvmrc'
+      - '**/.nycrc'
+      - '**/.node-version'
+      - '**/.huskyrc.json'
+      - '**/lerna.json'
+      - '**/eslintrc.js'
+      - '**/.browserslistrc'
+  - label: database-changes
+    files:
+      - 'packages/server/migrations/**'
+      - 'packages/server/knexfile.js'
+      - 'packages/server/rds-combined-ca-bundle.pem'
+  - label: terraform
+    files:
+      - 'terraform/**'
+  - label: Infra
+    files:
+      - 'terraform/**'
+      - 'docker/**'
+      - '**/docker-compose.yml'
+      - '**/docker-compose.yaml'
+      - 'localstack/**'
+  - label: dependencies
+    files:
+      - '**/yarn.lock'
+      - '**/.terraform.lock.hcl'
+    branch:
+      - '/^dependabot\/.+$/i'
+  - label: documentation
+    files:
+      - README
+      - '**/doc/**'
+      - '**/docs/**'
+      - '**/*.md'
+      - .adr-dir
+    branch:
+      - '/^docs?\/.+$/'
+  - label: bug
+    branch:
+      - '/^fix\/.+$/i'
+      - '/^bug\/.+$/i'
+    title:
+      - '/\bfix(es)?\b/i'
+      - '/\bbug\b/i'
+      - '/\brevert(s)?\b/i'
+  - label: enhancement
+    branch:
+      - '/^feat(ures?)?\/.+$/i'
+      - '/^enhance(s|ments?)?\/.+$/i'
+    title:
+      - '/\b(?<!^chores?\b.*)feat(ures?)?\b/i'
+      - '/\b(?<!^chores?\b.*)enhance(s|ment)?\b/i'
+  - label: github
+    files:
+      - '.github/**'
+      - '**/.gitignore'
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'
+no-contributors-template: >-
+  '*All changes in this release were crafted by robots (and reviewed by humans).*'
+template: |
+  ## 📚 Summary
+
+  The releaser should provide a high-level summary here (or remove this section).
+
+  ## 🛠️ Changes
+
+  $CHANGES
+
+  ## 🤝 Contributors
+
+  We would like to thank the following people who made this release possible:
+
+  $CONTRIBUTORS
+
+  ## Deployment History

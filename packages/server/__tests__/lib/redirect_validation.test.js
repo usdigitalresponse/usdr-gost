@@ -13,12 +13,9 @@ describe('Redirect Validation Module', () => {
             expect(result_undefined).to.equal(null);
         });
         it('returns URL if part of safe URL list', async () => {
-            const grantsModalUrl = '#/grants?manageSettings=true';
             const auditReportUrl = '/api/audit_report/3/99/some-example-file.xlsx';
-            const result_grants_modal = validatePostLoginRedirectPath(grantsModalUrl);
             const result_audit_report = validatePostLoginRedirectPath(auditReportUrl);
 
-            expect(result_grants_modal).to.equal(grantsModalUrl);
             expect(result_audit_report).to.equal(auditReportUrl);
         });
         it('returns null if string that does not start with / is passed in', async () => {

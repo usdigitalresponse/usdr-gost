@@ -4,13 +4,19 @@
 <head>
   <script src="/deploy-config.js"></script>
   <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WCDTMFM6RG"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js"></script>
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
+      if (window.APP_CONFIG && window.APP_CONFIG.GOOGLE_TAG_ID) {
+          window.dataLayer = window.dataLayer || [];
 
-    gtag('config', 'G-WCDTMFM6RG');
+          function gtag() {
+              dataLayer.push(arguments);
+          }
+
+          gtag('js', new Date());
+
+          gtag('config', window.APP_CONFIG.GOOGLE_TAG_ID);
+      }
   </script>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">

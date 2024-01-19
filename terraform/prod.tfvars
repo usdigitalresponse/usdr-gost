@@ -38,24 +38,36 @@ website_managed_waf_rules = {
     metric_visibility = true
   }
 }
-website_feature_flags = {
-  useNewTable           = true,
-  myProfileEnabled      = false,
-  newTerminologyEnabled = false
+website_datadog_rum_enabled = true
+website_datadog_rum_options = {
+  sessionSampleRate       = 100
+  sessionReplaySampleRate = 80
+  trackUserInteractions   = true
+  trackResources          = true
+  trackLongTasks          = true
 }
+website_feature_flags = {
+  myProfileEnabled                            = true,
+  newTerminologyEnabled                       = true,
+  newGrantsDetailPageEnabled                  = false,
+  categoryOfFundingActivitySearchFieldEnabled = false,
+}
+
+// Google Analytics Account ID: 233192355, Property ID: 321194851
+website_google_tag_id = "G-WCDTMFM6RG"
 
 // ECS Cluster
 cluster_container_insights_enabled = true
 
 // API / Backend
 api_enabled                           = true
-api_container_image_tag               = "stable"
 api_default_desired_task_count        = 3
 api_minumum_task_count                = 2
 api_maximum_task_count                = 5
 api_enable_grants_scraper             = false
 api_enable_grants_digest              = false
-api_enable_new_team_terminology       = false
+api_enable_new_team_terminology       = true
+api_enable_my_profile                 = true
 api_enable_saved_search_grants_digest = true
 api_log_retention_in_days             = 30
 api_datadog_environment_variables = {

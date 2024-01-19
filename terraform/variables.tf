@@ -112,6 +112,36 @@ variable "website_managed_waf_rules" {
   default = {}
 }
 
+variable "website_origin_artifacts_dist_path" {
+  description = "Path to the local directory from which website build artifacts are sourced and uploaded to the S3 origin bucket."
+  type        = string
+  default     = ""
+}
+
+variable "website_datadog_rum_enabled" {
+  description = "Whether to enable Datadog RUM on the website."
+  type        = bool
+  default     = false
+}
+
+variable "website_datadog_rum_options" {
+  description = "Configuration options for Datadog RUM data collection (if var.website_datadog_rum_enabled is true)."
+  type = object({
+    sessionSampleRate       = number
+    sessionReplaySampleRate = number
+    trackUserInteractions   = bool
+    trackResources          = bool
+    trackLongTasks          = bool
+  })
+  default = {
+    sessionSampleRate       = 100
+    sessionReplaySampleRate = 20
+    trackUserInteractions   = true
+    trackResources          = true
+    trackLongTasks          = true
+  }
+}
+
 variable "website_feature_flags" {
   description = "Map of website feature flag names and their values."
   type        = any
@@ -120,6 +150,12 @@ variable "website_feature_flags" {
     condition     = can(lookup(var.website_feature_flags, uuid(), "default"))
     error_message = "Value must be an object."
   }
+}
+
+variable "website_google_tag_id" {
+  description = "Enables Google Analytics for the website if set"
+  type        = string
+  default     = ""
 }
 
 // ECS cluster
@@ -166,6 +202,10 @@ variable "api_enable_grants_digest" {
 }
 
 variable "api_enable_new_team_terminology" {
+  type = bool
+}
+
+variable "api_enable_my_profile" {
   type = bool
 }
 

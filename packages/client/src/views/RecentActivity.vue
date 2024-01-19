@@ -2,7 +2,7 @@
   <section class="container">
     <b-card class="border-0">
     <div class="d-flex">
-      <h4 class="card-title gutter-title1 row">Recent Activity</h4>
+      <h2 class="card-title gutter-title1 row h4">Recent Activity</h2>
       <div class="justify-content-end left-margin">
         <b-button @click="exportCSV" :disabled="loading" variant="outline-secondary">
         <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
@@ -21,6 +21,7 @@
       selectable
       select-mode="single"
       @row-selected="onRowSelected"
+      @row-clicked="onRowClicked"
     >
       <template #cell(icon)="list">
         <div class="gutter-icon row">
@@ -55,22 +56,10 @@
         aria-controls="grants-table" />
       <b-button class="ml-2" variant="outline-primary disabled">{{ grantsInterested.length }} of {{ totalRows }}</b-button>
     </b-row>
-    <GrantDetails :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
   </section>
 </template>
 <style scoped>
-.color-gray {
-  color: #757575
-}
-.color-red {
-  color: #ae1818;
-}
-.color-green {
-  color: green;
-}
-.color-yellow{
-  color: #aa8866;
-}
 .gutter-icon.row {
     margin-right: -8px;
     margin-left: -8px;
@@ -83,11 +72,12 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import { newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import resizableTableMixin from '@/mixin/resizableTable';
-import GrantDetails from '@/components/Modals/GrantDetails.vue';
+import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
 
 export default {
-  components: { GrantDetails },
+  components: { GrantDetailsLegacy },
   data() {
     return {
       perPage: 10,
@@ -168,6 +158,9 @@ export default {
     totalRows() {
       return this.totalInterestedGrants;
     },
+    newGrantsDetailPageEnabled() {
+      return newGrantsDetailPageEnabled();
+    },
   },
   watch: {
     async selectedGrant() {
@@ -202,6 +195,12 @@ export default {
           this.selectedGrant = this.currentGrant;
         });
       }
+    },
+    onRowClicked(item) {
+      if (!newGrantsDetailPageEnabled()) {
+        return;
+      }
+      this.$router.push(`grant/${item.grant_id}`);
     },
     exportCSV() {
       this.exportCSVRecentActivities();

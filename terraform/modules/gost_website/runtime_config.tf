@@ -2,8 +2,11 @@ locals {
   deployConfigContents = templatefile(
     "${path.module}/tpl/deploy-config.js",
     {
-      gost_api_domain = var.gost_api_domain,
-      feature_flags   = jsonencode(var.feature_flags),
+      gost_api_domain = var.gost_api_domain
+      feature_flags   = jsonencode(var.feature_flags)
+      dd_rum_enabled  = var.datadog_rum_enabled
+      dd_rum_config   = jsonencode(var.datadog_rum_config)
+      google_tag_id   = var.google_tag_id
     }
   )
 }
