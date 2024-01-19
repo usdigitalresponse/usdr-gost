@@ -82,7 +82,6 @@ export default {
   computed: {
     rows() {
       const rows = this.recipients.map((r) => ({ ...r, json: JSON.parse(r.record) }));
-      console.log(rows);
       return rows;
     },
     columns() {
