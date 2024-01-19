@@ -1,3 +1,9 @@
+<style scoped>
+  .strikethrough {
+    text-decoration: line-through;
+  }
+</style>
+
 <template>
   <div>
     <h2>Sub-recipients</h2>
@@ -23,31 +29,35 @@
       </div>
 
       <template slot="table-row" slot-scope="props">
-        <span v-if="props.column.field === 'upload_id'">
-          <router-link :to="`/uploads/${props.row.upload_id}`">
-            {{ props.row.upload_id }}
-          </router-link>
-        </span>
+        <div :class="{strikethrough: props.row.archived_at && props.column.field !== 'edit'}">
+          <span v-if="props.column.field === 'upload_id'">
+            <router-link :to="`/uploads/${props.row.upload_id}`">
+              {{ props.row.upload_id }}
+            </router-link>
+          </span>
 
-        <ul v-else-if="props.column.field === 'record'" class="list-group list-group-flush">
-          <template v-for="(value, col) in props.row.json">
-            <template v-if="col === 'Unique_Entity_Identifier__c' || col === 'EIN__c'">
+          <ul v-else-if="props.column.field === 'record'" class="list-group list-group-flush">
+            <template v-for="(value, col) in props.row.json">
+              <template v-if="col === 'Unique_Entity_Identifier__c' || col === 'EIN__c'">
+              </template>
+
+              <li v-else class="list-group-item" :key="col">
+                <span class="font-weight-bold">{{ col }}: </span>
+                {{ value }}
+              </li>
             </template>
+          </ul>
 
-            <li v-else class="list-group-item" :key="col">
-              <span class="font-weight-bold">{{ col }}: </span>
-              {{ value }}
-            </li>
-          </template>
-        </ul>
+          <span class="d-flex flex-column" v-else-if="props.column.field === 'edit'" >
+            <router-link v-if="!props.row.archived_at" tag="button" class="btn btn-sm btn-secondary mb-2" :to="`/subrecipients/${props.row.id}`">Edit</router-link>
+            <button v-if="props.row.archived_at" class="btn btn-sm btn-primary" @click="archiveOrRestoreSubrecipient(props.row.id)">Restore</button>
+            <button v-else class="btn btn-sm btn-outline-danger" @click="archiveOrRestoreSubrecipient(props.row.id)">Archive</button>
+          </span>
 
-        <span v-else-if="props.column.field === 'edit'">
-          <router-link tag="button" class="btn btn-sm btn-secondary" :to="`/subrecipients/${props.row.id}`">Edit</router-link>
-        </span>
-
-        <span v-else>
-          {{props.formattedRow[props.column.field]}}
-        </span>
+          <span v-else>
+            {{props.formattedRow[props.column.field]}}
+          </span>
+        </div>
       </template>
 
     </vue-good-table>
@@ -59,7 +69,7 @@ import moment from 'moment';
 import 'vue-good-table/dist/vue-good-table.css';
 import { VueGoodTable } from 'vue-good-table';
 
-import { getJson } from '../store/index';
+import { getJson, post } from '../store/index';
 
 export default {
   name: 'Subrecipients',
@@ -71,7 +81,8 @@ export default {
   },
   computed: {
     rows() {
-      return this.recipients.map((r) => ({ ...r, json: JSON.parse(r.record) }));
+      const rows = this.recipients.map((r) => ({ ...r, json: JSON.parse(r.record) }));
+      return rows;
     },
     columns() {
       return [
@@ -123,6 +134,31 @@ export default {
       this.$refs.recipientsTable.reset();
       this.$refs.recipientsTable.changeSort([]);
     },
+
+    /**
+     * Archive or restore a subrecipient.
+     *
+     * Call this method to archive or unarchive a subrecipient record.
+     *
+     * @param {*} id
+     * The ID of the subrecipient to archive or restore.
+     */
+    async archiveOrRestoreSubrecipient(id) {
+      this.loading = true;
+
+      const result = await post(`/api/subrecipients/archive/${id}`);
+      if (result.error) {
+        this.$store.commit('addAlert', {
+          text: `archiveOrRestoreSubrecipient Error (${result.status}): ${result.error}`,
+          level: 'err',
+        });
+      } else {
+        this.recipients = this.recipients.map((recipient) => (recipient.id === id ? result.recipient : recipient));
+      }
+
+      this.loading = false;
+    },
+
     async loadRecipients() {
       this.loading = true;
 
