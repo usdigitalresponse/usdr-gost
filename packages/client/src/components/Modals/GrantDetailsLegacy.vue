@@ -1,7 +1,7 @@
 <!-- eslint-disable max-len -->
 <template>
   <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.grant_number"
-     @hide="resetSelectedGrant" scrollable size="xl" ok-title="Close">
+     @hide="resetSelectedGrant" scrollable size="xl" ok-title="Close" data-dd-action-name= "close grant details modal button">
     <div v-if="selectedGrant">
       <b-row class="mb-3 d-flex align-items-baseline">
         <b-col cols="8">
@@ -9,7 +9,7 @@
         </b-col>
         <b-col cols="4" class="text-right">
           <b-button :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
-            target="_blank" rel="noopener noreferrer" variant="primary">
+            target="_blank" rel="noopener noreferrer" variant="primary" data-dd-action-name="view on grants.gov">
             <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2"></b-icon>View on Grants.gov
           </b-button>
         </b-col>
@@ -36,7 +36,7 @@
         <b-col class="text-right">
           <b-row v-if="!interested">
             <b-col cols="9">
-              <b-form-select v-model="selectedInterestedCode">
+              <b-form-select v-model="selectedInterestedCode" data-dd-action-name="select team status">
                 <b-form-select-option-group label="Interested">
                   <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
                     {{ code.name }}</b-form-select-option>
@@ -51,7 +51,7 @@
                 </b-form-select-option-group>
               </b-form-select>
             </b-col>
-            <b-button variant="outline-primary" @click="markGrantAsInterested">Submit</b-button>
+            <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">Submit</b-button>
           </b-row>
           <b-row v-if="interested && interested.interested_status_code !== 'Rejection'&& shouldShowSpocButton">
             <b-col>
@@ -65,7 +65,7 @@
         <template #cell(actions)="row">
           <b-row
             v-if="(String(row.item.agency_id) === selectedAgencyId) || isAbleToUnmark(row.item.agency_id)">
-            <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unmarkGrantAsInterested(row)">
+            <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unmarkGrantAsInterested(row)" data-dd-action-name="remove team status">
               <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
             </b-button>
           </b-row>
@@ -75,15 +75,16 @@
       <b-row class="ml-2 mb-2 d-flex align-items-baseline">
         <h2 class="h4">Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h2>
           <v-select v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
+            data-dd-action-name="select team for grant assignment"
             :clear-on-select="false" :placeholder="`Select ${newTerminologyEnabled ? 'teams': 'agencies'}`" label="name" track-by="id"
             style="width: 300px; margin: 0 16px;" :show-labels="false"
           >
           </v-select>
-          <b-button variant="outline-primary" @click="assignAgenciesToGrant">Assign</b-button>
+          <b-button variant="outline-primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">Assign</b-button>
       </b-row>
       <b-table :items="assignedAgencies" :fields="assignedAgenciesFields">
         <template #cell(actions)="row">
-          <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unassignAgenciesToGrant(row)">
+          <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unassignAgenciesToGrant(row)" data-dd-action-name="remove team assignment">
             <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
           </b-button>
         </template>
@@ -94,6 +95,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { newTerminologyEnabled, categoryOfFundingActivitySearchFieldEnabled } from '@/helpers/featureFlags';
 import { titleize } from '../../helpers/form-helpers';
@@ -238,6 +240,7 @@ export default {
           agencyId: this.selectedAgencyId,
           interestedCode: this.selectedInterestedCode,
         });
+        datadogRum.addAction('submit team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
       }
     },
     async unmarkGrantAsInterested(row) {
@@ -247,6 +250,7 @@ export default {
         interestedCode: this.selectedInterestedCode,
       });
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
+      datadogRum.addAction('remove team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
     },
     async assignAgenciesToGrant() {
       const agencyIds = this.selectedAgencies.map((agency) => agency.id);
@@ -256,6 +260,7 @@ export default {
       });
       this.selectedAgencies = [];
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+      datadogRum.addAction('assign team to grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
     },
     async unassignAgenciesToGrant(row) {
       await this.unassignAgenciesToGrantAction({
@@ -263,6 +268,7 @@ export default {
         agencyIds: [row.item.id],
       });
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+      datadogRum.addAction('remove team assignment from grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
     },
     async generateSpoc() {
       await this.generateGrantForm({
@@ -276,6 +282,7 @@ export default {
       this.$emit('update:selectedGrant', null);
       this.assignedAgencies = [];
       this.selectedAgencies = [];
+      datadogRum.addAction('close grant details modal', { grant: { id: this.selectedGrant.grant_id } });
     },
   },
 };
