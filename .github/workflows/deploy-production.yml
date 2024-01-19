@@ -46,7 +46,7 @@ jobs:
       build-website: true
       website-artifact-retention-days: 90
 
-  aws-auth:
+  aws-auth-plan:
     name: Configure AWS Credentials
     permissions:
       contents: read
@@ -66,7 +66,7 @@ jobs:
       contents: read
     needs:
       - validate
-      - aws-auth
+      - aws-auth-plan
       - build
     uses: ./.github/workflows/terraform-plan.yml
     with:
@@ -83,9 +83,9 @@ jobs:
       upload-artifacts: true
       artifacts-retention-days: 90
     secrets:
-      aws-access-key-id: ${{ needs.aws-auth.outputs.aws-access-key-id }}
-      aws-secret-access-key: ${{ needs.aws-auth.outputs.aws-secret-access-key }}
-      aws-session-token: ${{ needs.aws-auth.outputs.aws-session-token }}
+      aws-access-key-id: ${{ needs.aws-auth-plan.outputs.aws-access-key-id }}
+      aws-secret-access-key: ${{ needs.aws-auth-plan.outputs.aws-secret-access-key }}
+      aws-session-token: ${{ needs.aws-auth-plan.outputs.aws-session-token }}
       datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
       datadog-app-key: ${{ secrets.DATADOG_APP_KEY }}
       gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}
@@ -109,11 +109,25 @@ jobs:
       tf-validate-outcome: ${{ needs.tf-plan.outputs.validate-outcome }}
       tf-validate-output: ${{ needs.tf-plan.outputs.validate-output }}
 
+  aws-auth-apply:
+    name: Configure AWS Credentials
+    permissions:
+      contents: read
+      id-token: write
+    needs:
+      - validate
+    uses: ./.github/workflows/aws-auth.yml
+    with:
+      aws-region: us-west-2
+    secrets:
+      gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}
+      role-to-assume: ${{ secrets.PRODUCTION_ROLE_ARN }}
+
   tf-apply:
     name: Deploy to Production
     needs:
       - build
-      - aws-auth
+      - aws-auth-apply
       - tf-plan
     if: needs.tf-plan.outputs.plan-exitcode == 2
     uses: ./.github/workflows/terraform-apply.yml
@@ -126,9 +140,9 @@ jobs:
       tf-backend-config-file: prod.s3.tfbackend
       environment-name: production
     secrets:
-      aws-access-key-id: ${{ needs.aws-auth.outputs.aws-access-key-id }}
-      aws-secret-access-key: ${{ needs.aws-auth.outputs.aws-secret-access-key }}
-      aws-session-token: ${{ needs.aws-auth.outputs.aws-session-token }}
+      aws-access-key-id: ${{ needs.aws-auth-apply.outputs.aws-access-key-id }}
+      aws-secret-access-key: ${{ needs.aws-auth-apply.outputs.aws-secret-access-key }}
+      aws-session-token: ${{ needs.aws-auth-apply.outputs.aws-session-token }}
       datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
       datadog-app-key: ${{ secrets.DATADOG_APP_KEY }}
       gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}

@@ -25,6 +25,7 @@
         <b-table id="grants-table" hover responsive stacked="sm" :items="formattedGrants"
           :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
+          :tbody-tr-attr="{'data-dd-action-name': 'grant search result'}"
           @row-selected="onRowSelected" @row-clicked="onRowClicked" show-empty emptyText="No matches found">
           <template #cell(award_floor)="row">
             <p> {{ formatMoney(row.item.award_floor) }}</p>
@@ -77,6 +78,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
+import { datadogRum } from '@datadog/browser-rum';
 import { titleize } from '../helpers/form-helpers';
 import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
@@ -340,6 +342,7 @@ export default {
         return;
       }
       this.$router.push(`grant/${item.grant_id}`);
+      datadogRum.addAction('view grant details', { grant: item });
     },
     onRowSelected(items) {
       const [row] = items;
