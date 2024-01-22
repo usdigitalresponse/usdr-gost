@@ -21,7 +21,7 @@ body:
       value: "As a… I want to… So I can…"
     validations:
       required: true
- - type: textarea
+  - type: textarea
     id: context
     attributes:
       label: Why is this issue important?
