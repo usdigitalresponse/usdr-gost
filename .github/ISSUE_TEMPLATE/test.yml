@@ -21,15 +21,6 @@ body:
       value: "As a… I want to… So I can…"
     validations:
       required: true
-  - type: textarea
-    id: current-state
-    attributes:
-      label: Current State
-      description: Explain any current behavior
-      placeholder: Add current state here! If this is a net-new feature, then say feature does not exist.
-      value: "When user visits X page..."
-    validations:
-      required: true
  - type: textarea
     id: context
     attributes:
