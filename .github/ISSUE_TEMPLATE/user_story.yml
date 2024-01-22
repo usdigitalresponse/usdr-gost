@@ -63,6 +63,6 @@ body:
     attributes:
       label: Acceptance Criteria
       description: Please provide a detailed and results-oriented acceptance criteria that will enable anyone reading it to test and verify if what is implemented is successful in meeting stated behavior. While acceptance criteria should not be over-specific in how the solution is implemented, it should clarify user-oriented results of the work and behavior expectations. 
-     value: "Expected behavior includes…"
+      value: "Expected behavior includes…"
     validations:
       required: false
