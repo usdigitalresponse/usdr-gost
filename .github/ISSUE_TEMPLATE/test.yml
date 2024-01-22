@@ -1,0 +1,57 @@
+name: Default Issue
+description: File an issue for a new feature or bug
+title: "[Issue]: "
+projects: "Grants Team Agile Planning"
+assignees:
+  - usdr-grants
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this issue!
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Why is this issue important?
+      description: Provide any context on how this issue ties into the larger team objectives.
+      placeholder: Add context here!
+      value: "This issue stems from a conversation in Slack..."
+    validations:
+      required: true
+  - type: textarea
+    id: current-state
+    attributes:
+      label: Current State
+      description: Explain any current behavior
+      placeholder: Add current state here! If this is a net-new feature, then say feature does not exist.
+      value: "When user visits X page..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected-state
+    attributes:
+      label: Expected State
+      description: Explain the expected behavior
+      placeholder: Add expected state here!
+      value: "When user visits X page..."
+    validations:
+      required: true
+  - type: textarea
+    id: implementation-plan
+    attributes:
+      label: Implementation Plan
+      description: Please add an engineering implementation plan if able. Otherwise, assign the ticket to an engineer on the team.
+      placeholder: Add implementation plan here!
+      value: "The following functions need to be added..."
+    validations:
+      required: false
+  - type: textarea
+    id: code-plan
+    attributes:
+      label: Relevant Code Snippets
+      description: If you have any implementation ideas please add the code here. This will be pre-formatted.
+      render: shell
+    validations:
+      required: false
