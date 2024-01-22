@@ -1,5 +1,5 @@
-name: User Story
-description: File an issue for a new feature
+name: "User Story"
+description: "File an issue for a new feature"
 title: "[STORY]: "
 projects: "Grants Team Agile Planning"
 labels: story
