@@ -1,6 +1,6 @@
-name: Test Issue
-description: File an issue for a new feature or bug
-title: "[Issue]: "
+name: User Story 2
+description: File an issue for a new feature
+title: "[STORY]: "
 projects: "Grants Team Agile Planning"
 assignees:
   - usdr-grants
