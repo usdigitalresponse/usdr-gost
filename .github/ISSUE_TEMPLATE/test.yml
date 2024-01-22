@@ -21,6 +21,15 @@ body:
       value: "As a… I want to… So I can…"
     validations:
       required: true
+ - type: textarea
+    id: context
+    attributes:
+      label: Why is this issue important?
+      description: "Provide any additional context and/or business rationale for why this work is needed"
+      placeholder: Add context here!
+      value: "This work is important because…"
+    validations:
+      required: true
   - type: textarea
     id: code-plan
     attributes:
