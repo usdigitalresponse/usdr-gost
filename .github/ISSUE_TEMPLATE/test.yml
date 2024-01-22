@@ -4,6 +4,7 @@ title: "[STORY]: "
 projects: "Grants Team Agile Planning"
 assignees:
   - usdr-grants
+labels: ["story"]
 body:
   - type: markdown
     attributes:
