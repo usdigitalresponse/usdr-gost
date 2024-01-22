@@ -18,7 +18,7 @@ body:
       label: Full User Story
       description: User can be a partner persona or USDR admin role
       placeholder: Add content here!
-      value: As a… I want to… So I can….
+      value: "As a… I want to… So I can…"
     validations:
       required: true
  - type: textarea
