@@ -11,6 +11,8 @@ const audit_report = require('../../../../src/arpa_reporter/lib/audit-report');
 const aws = require('../../../../src/lib/gost-aws');
 const { withTenantId } = require('../helpers/with-tenant-id');
 
+const OLD_AUDIT_REPORT_BUCKET = process.env.AUDIT_REPORT_BUCKET;
+
 function handleUploadFake(type) {
     if (type === 'success') {
         return () => {
@@ -26,7 +28,11 @@ function handleUploadFake(type) {
 
 describe('audit report generation', () => {
     const sandbox = sinon.createSandbox();
+    beforeEach(() => {
+        process.env.AUDIT_REPORT_BUCKET = 'arpa-audit-reports';
+    });
     afterEach(() => {
+        process.env.AUDIT_REPORT_BUCKET = OLD_AUDIT_REPORT_BUCKET;
         sandbox.restore();
     });
     it('sendEmailWithLink creates a presigned url and sends email to recipient', async () => {
