@@ -31,12 +31,12 @@ body:
     validations:
       required: true
   - type: textarea
-    id: expected-state
+    id: user-story
     attributes:
-      label: Expected State
-      description: Explain the expected behavior
-      placeholder: Add expected state here!
-      value: "When user visits X page..."
+      label: Full User Story
+      description: User can be a partner persona or USDR admin role
+      placeholder: Add content here!
+      value: "As a… I want to… So I can…"
     validations:
       required: true
   - type: textarea
