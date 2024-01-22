@@ -37,7 +37,6 @@ body:
       description: Adjust the provided action plan as needed
       placeholder: Add action plan here!
       value: |
-          ```[tasklist]
           - [ ] Initial design drafted
           - [ ] Initial acceptance criteria drafted
           - [ ] High level technical approach & feature flag use determined
@@ -46,16 +45,15 @@ body:
           - [ ] Assessment of whether partner training & communication actions are needed
           - [ ] Acceptance criteria testing completed & passed in staging
           - [ ] Feature flags enabled in production
-          ```
     validations:
-      required: true
+      required: false
   - type: textarea
     id: engineering-tasks
     attributes:
       label: Engineering Tasks
-      description: If available, link to engineering task issues needed to execute this story.
+      description: Link to engineering task issues needed to execute this story.
       placeholder: Add tasks here!
-      value: "Add links to engineering tasks if available"
+      value: "Add links to engineering tasks"
     validations:
       required: false
   - type: textarea
