@@ -1,1 +1,72 @@
+name: User Story
+description: File an issue for a new feature
+title: "[STORY]: "
+projects: "Grants Team Agile Planning"
+labels: story
+assignees:
+  - usdr-grants
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this issue!
+    validations:
+      required: false
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: Full User Story
+      description: User can be a partner persona or USDR admin role
+      placeholder: Add content here!
+      value: As a… I want to… So I can….
+    validations:
+      required: true
+
+ - type: textarea
+    id: context
+    attributes:
+      label: Why is this issue important?
+      description: Provide any additional context and/or business rationale for why this work is needed
+      placeholder: Add context here!
+      value: "This work is important because…"
+    validations:
+      required: true
+
+  - type: textarea
+    id: action-plan
+    attributes:
+      label: Action Plan
+      description: Adjust the provided action plan as needed
+      placeholder: Add action plan here!
+      value: “
+- [ ] Initial design drafted
+- [ ] Initial acceptance criteria drafted
+- [ ] High level technical approach & feature flag use determined
+- [ ] Designs & Acceptance criteria finalized
+- [ ] Eng task breakout complete
+- [ ] Assessment of whether partner training & communication actions are needed
+- [ ] Acceptance criteria testing completed & passed in staging
+- [ ] Feature flags enabled in production”
+    validations:
+      required: true
+
+  - type: textarea
+    id: engineering-tasks
+    attributes:
+      label: Engineering Tasks
+      description: If available, link to engineering task issues needed to execute this story.
+      placeholder: Add tasks here!
+      value: "Add links to engineering tasks if available"
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Please provide a detailed and results-oriented acceptance criteria that will enable anyone reading it to test and verify if what is implemented is successful in meeting stated behavior. While acceptance criteria should not be over-specific in how the solution is implemented, it should clarify user-oriented results of the work and behavior expectations. 
+     value: "Expected behavior includes…"
+    validations:
+      required: false
 
