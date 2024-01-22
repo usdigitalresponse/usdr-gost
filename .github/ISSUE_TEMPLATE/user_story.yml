@@ -2,7 +2,7 @@ name: User Story
 description: File an issue for a new feature
 title: "[STORY]: "
 projects: "Grants Team Agile Planning"
-labels: story
+labels: "story"
 assignees:
   - usdr-grants
 body:
