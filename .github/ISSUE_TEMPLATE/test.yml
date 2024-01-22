@@ -13,12 +13,12 @@ body:
     validations:
       required: false
   - type: textarea
-    id: context
+    id: user-story
     attributes:
-      label: Why is this issue important?
-      description: Provide any context on how this issue ties into the larger team objectives.
-      placeholder: Add context here!
-      value: "This issue stems from a conversation in Slack..."
+      label: Full User Story
+      description: User can be a partner persona or USDR admin role
+      placeholder: Add content here!
+      value: "As a… I want to… So I can…"
     validations:
       required: true
   - type: textarea
@@ -30,24 +30,15 @@ body:
       value: "When user visits X page..."
     validations:
       required: true
-  - type: textarea
-    id: user-story
+ - type: textarea
+    id: context
     attributes:
-      label: Full User Story
-      description: User can be a partner persona or USDR admin role
-      placeholder: Add content here!
-      value: "As a… I want to… So I can…"
+      label: Why is this issue important?
+      description: Provide any additional context and/or business rationale for why this work is needed
+      placeholder: Add context here!
+      value: "This work is important because…"
     validations:
       required: true
-  - type: textarea
-    id: implementation-plan
-    attributes:
-      label: Implementation Plan
-      description: Please add an engineering implementation plan if able. Otherwise, assign the ticket to an engineer on the team.
-      placeholder: Add implementation plan here!
-      value: "The following functions need to be added..."
-    validations:
-      required: false
   - type: textarea
     id: code-plan
     attributes:
