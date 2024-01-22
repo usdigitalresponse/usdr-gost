@@ -12,7 +12,6 @@ body:
         Thanks for taking the time to fill out this issue!
     validations:
       required: false
-
   - type: textarea
     id: user-story
     attributes:
@@ -22,7 +21,6 @@ body:
       value: As a… I want to… So I can….
     validations:
       required: true
-
  - type: textarea
     id: context
     attributes:
@@ -32,25 +30,25 @@ body:
       value: "This work is important because…"
     validations:
       required: true
-
   - type: textarea
     id: action-plan
     attributes:
       label: Action Plan
       description: Adjust the provided action plan as needed
       placeholder: Add action plan here!
-      value: “
-- [ ] Initial design drafted
-- [ ] Initial acceptance criteria drafted
-- [ ] High level technical approach & feature flag use determined
-- [ ] Designs & Acceptance criteria finalized
-- [ ] Eng task breakout complete
-- [ ] Assessment of whether partner training & communication actions are needed
-- [ ] Acceptance criteria testing completed & passed in staging
-- [ ] Feature flags enabled in production”
+      value: |
+          ```[tasklist]
+          - [ ] Initial design drafted
+          - [ ] Initial acceptance criteria drafted
+          - [ ] High level technical approach & feature flag use determined
+          - [ ] Designs & Acceptance criteria finalized
+          - [ ] Eng task breakout complete
+          - [ ] Assessment of whether partner training & communication actions are needed
+          - [ ] Acceptance criteria testing completed & passed in staging
+          - [ ] Feature flags enabled in production
+          ```
     validations:
       required: true
-
   - type: textarea
     id: engineering-tasks
     attributes:
@@ -60,7 +58,6 @@ body:
       value: "Add links to engineering tasks if available"
     validations:
       required: false
-
   - type: textarea
     id: acceptance-criteria
     attributes:
@@ -69,4 +66,3 @@ body:
      value: "Expected behavior includes…"
     validations:
       required: false
-
