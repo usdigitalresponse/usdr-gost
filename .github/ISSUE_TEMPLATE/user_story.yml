@@ -1,6 +1,6 @@
 name: User Story
 description: File an issue for a new feature
-title:
+title: "[STORY]: "
 projects: "Grants Team Agile Planning"
 assignees:
   - usdr-grants
@@ -8,7 +8,7 @@ labels: ["story"]
 body:
   - type: markdown
     attributes:
-      value: Thanks for taking the time to fill out this issue!
+      value: Thanks for taking the time to fill out this issue! Ensure that the title includes the prefix "[STORY]"
     validations:
       required: false
   - type: textarea
