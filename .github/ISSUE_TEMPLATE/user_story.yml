@@ -1,6 +1,6 @@
 name: User Story
 description: File an issue for a new feature
-title: "[STORY]: "
+title:
 projects: "Grants Team Agile Planning"
 assignees:
   - usdr-grants
