@@ -22,8 +22,8 @@ export function setUserForGoogleAnalytics(user) {
   gtagConfig({
     user_id: user?.id,
     user_properties: {
-      team_name: user?.agency_name,
-      organization_name: user?.tenant_display_name,
+      team_id: user?.agency_id,
+      organization_id: user?.tenant_id,
     },
   });
 }

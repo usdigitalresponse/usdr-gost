@@ -3,8 +3,8 @@ import { setUserForGoogleAnalytics } from '@/helpers/gtag';
 
 const user = {
   id: 5,
-  agency_name: 'agency',
-  tenant_display_name: 'tenant',
+  agency_id: 8,
+  tenant_id: 9,
 };
 
 const gtagId = 'google_tag_id';
@@ -27,8 +27,8 @@ describe('gtag', () => {
         {
           user_id: 5,
           user_properties: {
-            organization_name: 'tenant',
-            team_name: 'agency',
+            organization_id: 9,
+            team_id: 8,
           },
         }]);
     });
@@ -40,8 +40,8 @@ describe('gtag', () => {
         {
           user_id: undefined,
           user_properties: {
-            organization_name: undefined,
-            team_name: undefined,
+            organization_id: undefined,
+            team_id: undefined,
           },
         }]);
     });
