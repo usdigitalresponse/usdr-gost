@@ -53,7 +53,6 @@
 </template>
 
 <script>
-import { apiURL } from '@/helpers/fetchApi';
 import AlertBox from '../components/AlertBox.vue';
 import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
 import { getJson } from '../store/index';
@@ -90,9 +89,6 @@ export default {
     clearAlert() {
       this.alert = null;
     },
-    downloadAuditReportURL() {
-      return apiURL('/api/audit_report');
-    },
     async sendAuditReport() {
       this.sending = true;
 
@@ -123,44 +119,6 @@ export default {
       }
 
       this.sending = false;
-    },
-    async downloadAuditReport() {
-      this.sending = true;
-
-      try {
-        const periodId = this.$store.getters.viewPeriod.id || 0;
-        const periodIdQuery = (periodId && !this.viewingOpenPeriod) ? `&period_id=${periodId}` : '';
-        const url = `/api/audit_report?async=false${periodIdQuery}`;
-        const result = await getJson(url);
-        // const result = await getJson('/api/audit_report?async=false');
-
-        if (result.error) {
-          this.alert = {
-            text: 'Something went wrong. Unable to send an email containing the audit report. Reach out to grants-helpdesk@usdigitalresponse.org if this happens again.',
-            level: 'err',
-          };
-          console.log(result.error);
-        } else {
-          this.alert = {
-            text: 'Sent. Please note, it could take up to 1 hour for this email to arrive.',
-            level: 'ok',
-          };
-        }
-      } catch (error) {
-        // we got an error from the backend, but the backend didn't send reasons
-        this.alert = {
-          text: 'Something went wrong. Unable to send an email containing the audit report. Reach out to grants-helpdesk@usdigitalresponse.org if this happens again.',
-          level: 'err',
-        };
-      }
-
-      this.sending = false;
-    },
-    downloadTreasuryReportURL() {
-      const periodId = this.$store.getters.viewPeriod.id || 0;
-      const periodIdQuery = (periodId && !this.viewingOpenPeriod) ? `?period_id=${periodId}` : '';
-      const url = `/api/exports${periodIdQuery}`;
-      return apiURL(url);
     },
     async sendTreasuryReport() {
       this.sending = true;
