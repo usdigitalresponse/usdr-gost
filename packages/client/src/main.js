@@ -24,7 +24,7 @@ if (window.APP_CONFIG?.GOOGLE_TAG_ID) {
 }
 
 store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser({
-  id: newUser.id, 'agency.id': newUser.agency_id, role: newUser.role.name, 'organization.id': newUser.tenant_id,
+  id: newUser.id, 'agency_id': newUser.agency_id, role: newUser.role.name, 'organization_id': newUser.tenant_id,
 }));
 
 // Install BootstrapVue
