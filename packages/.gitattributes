@@ -1,0 +1,21 @@
+# Consider all files text by default; enforce unix line endings
+*                   text eol=lf
+
+# Treat these files as binary so git doesn't show massive diffs
+/.yarn/releases/**  binary
+/.yarn/plugins/**   binary
+
+# Windows-specific files that need windows-style endings to work
+*.bat               text eol=crlf
+
+# Files that are actually binary
+*.data              binary
+*.eot               binary
+*.gif               binary
+*.ico               binary
+*.jar               binary
+*.jpg               binary
+*.png               binary
+*.ttf               binary
+*.woff              binary
+*.woff2             binary

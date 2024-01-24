@@ -14,6 +14,29 @@ function baseQuery(trns) {
         .leftJoin('users AS users2', 'arpa_subrecipients.updated_by', 'users2.id');
 }
 
+/**
+ * Archive or restore a subrecipient.
+ *
+ * Call t his method to archive or restore an arpa_subrecipients table.
+ */
+async function archiveOrRestoreRecipient(id, { updatedByUser }, trns = knex) {
+    const query = trns('arpa_subrecipients')
+        .where('id', id)
+        .returning('*');
+
+    if (updatedByUser) {
+        query.update('updated_by', updatedByUser.id);
+        query.update('updated_at', knex.fn.now());
+    }
+
+    query.update(
+        'archived_at',
+        knex.raw('CASE WHEN archived_at IS NULL THEN ?? ELSE NULL END', [knex.fn.now()]),
+    );
+
+    return query.then((rows) => rows[0]);
+}
+
 async function createRecipient(recipient, trns = knex) {
     const tenantId = useTenantId();
     if (!(recipient.uei || recipient.tin)) {
@@ -70,10 +93,11 @@ async function listRecipients(trns = knex) {
 }
 
 async function listRecipientsForReportingPeriod(periodId, trns = knex) {
-    return baseQuery(trns).where('reporting_period_id', periodId);
+    return baseQuery(trns).where('reporting_period_id', periodId).whereNull('archived_at');
 }
 
 module.exports = {
+    archiveOrRestoreRecipient,
     createRecipient,
     getRecipient,
     findRecipient,
