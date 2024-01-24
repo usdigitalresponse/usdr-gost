@@ -23,6 +23,7 @@ if (window.APP_CONFIG?.GOOGLE_TAG_ID) {
   store.watch((state) => state.users.loggedInUser, (newUser) => setUserForGoogleAnalytics(newUser));
 }
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser({ id: newUser.id, 'agency.id': newUser.agency_id, 'role': newUser.role.name, 'organization.id': newUser.tenant_id }));
 =======
@@ -30,6 +31,11 @@ store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser
   id: newUser.id, 'agency.id': newUser.agency_id, role: newUser.role.name, 'organization.id': newUser.tenant_id,
 }));
 >>>>>>> addUserInfo
+=======
+store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser({
+  id: newUser.id, 'agency.id': newUser.agency_id, role: newUser.role.name, 'organization.id': newUser.tenant_id,
+}));
+>>>>>>> Stashed changes
 
 // Install BootstrapVue
 Vue.use(BootstrapVue);
