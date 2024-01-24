@@ -11,10 +11,6 @@
     </div>
 
     <div class="row mt-5 mb-5" v-if="viewingOpenPeriod || isAdmin">
-      <div class="col" v-if="this.$route.query.sync_treasury_download && isAdmin">
-        <DownloadButton :href="downloadTreasuryReportURL()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
-      </div>
-
       <div class="col" v-if="isAdmin">
         <button class="btn btn-primary btn-block" @click="sendTreasuryReport" :disabled="sending" id="sendTreasuryReportButton">
           <span v-if="sending">Sending...</span>
@@ -22,21 +18,10 @@
         </button>
       </div>
 
-      <div class="col" v-if="this.$route.query.sync_audit_download && isAdmin">
-        <DownloadButton :href="downloadAuditReport()" class="btn btn-info btn-block">Download Audit Report</DownloadButton>
-      </div>
-
       <div class="col" v-if="isAdmin">
         <button class="btn btn-info btn-block" @click="sendAuditReport" :disabled="sending" id="sendAuditReportButton">
           <span v-if="sending">Sending...</span>
           <span v-else>Send Audit Report by Email</span>
-        </button>
-      </div>
-
-      <div class="col" v-if="isAdmin">
-        <button class="btn btn-info btn-block" @click="downloadAuditReport" :disabled="sending">
-          <span v-if="sending">Sending...</span>
-          <span v-else>Download Audit Report</span>
         </button>
       </div>
 
@@ -70,7 +55,6 @@
 <script>
 import { apiURL } from '@/helpers/fetchApi';
 import AlertBox from '../components/AlertBox.vue';
-import DownloadButton from '../components/DownloadButton.vue';
 import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
 import { getJson } from '../store/index';
 
@@ -216,7 +200,6 @@ export default {
     },
   },
   components: {
-    DownloadButton,
     DownloadTemplateBtn,
     AlertBox,
   },
