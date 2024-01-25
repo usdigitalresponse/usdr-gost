@@ -448,14 +448,7 @@ router.get('/:grantId/form/:formName', requireUser, async (req, res) => {
     if (!grant) {
         return res.status(404);
     }
-    if (grant.raw_body) {
-        try {
-            const rawBody = JSON.parse(grant.raw_body);
-            grant.agencyName = rawBody && rawBody.synopsis ? rawBody.synopsis.agencyName : '';
-        } catch (e) {
-            console.log('failed to parse grant raw_body');
-        }
-    }
+    grant.agencyName = grant.raw_body_json?.synopsis?.agencyName || '';
     const filePath = await pdf.fillPdf(`${req.params.formName}.pdf`, formFields[req.params.formName], {
         ...user,
         ...grant,

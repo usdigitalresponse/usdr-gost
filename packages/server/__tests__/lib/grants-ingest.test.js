@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const { expect } = require('chai');
 const moment = require('moment');
 const sinon = require('sinon');
@@ -46,9 +45,6 @@ describe('processMessages', async () => {
     });
 
     it('should process messages successfully', async () => {
-        const jsonMatcher = (expectedString) => (actualString) => _.isEqual(
-            JSON.parse(expectedString), JSON.parse(actualString),
-        );
         const messages = [
             {
                 Body: serlializeGrantEvent({
@@ -161,9 +157,7 @@ describe('processMessages', async () => {
             description: 'Here is a description of this cool grant',
             eligibility_codes: '00 01 02 03',
             opportunity_status: 'posted',
-            raw_body: sinon.match(
-                jsonMatcher(JSON.stringify(JSON.parse(messages[0].Body).detail.versions.new)),
-            ),
+            raw_body_json: JSON.parse(messages[0].Body).detail.versions.new,
         }));
         sinon.assert.calledWith(knexQuery.insert, sinon.match({
             status: 'inbox',
@@ -185,9 +179,7 @@ describe('processMessages', async () => {
             description: 'Here is a description of this awesome grant',
             eligibility_codes: '25 20 13 12 11 10',
             opportunity_status: 'closed',
-            raw_body: sinon.match(
-                jsonMatcher(JSON.stringify(JSON.parse(messages[1].Body).detail.versions.new)),
-            ),
+            raw_body_json: JSON.parse(messages[1].Body).detail.versions.new,
         }));
         sinon.assert.calledWith(knexQuery.insert, sinon.match({
             status: 'inbox',
@@ -210,9 +202,7 @@ describe('processMessages', async () => {
             eligibility_codes: '25 20 13 12 11 10',
             opportunity_status: 'archived',
             funding_activity_category_codes: 'HU BC',
-            raw_body: sinon.match(
-                jsonMatcher(JSON.stringify(JSON.parse(messages[2].Body).detail.versions.new)),
-            ),
+            raw_body_json: JSON.parse(messages[2].Body).detail.versions.new,
         }));
         sinon.assert.callCount(sqsStub.send, messages.length);
         sinon.assert.calledWith(sqsStub.send, sinon.match({
