@@ -581,7 +581,6 @@ async function validateReferences({ records }) {
 
 async function validateUpload(upload, user, trns = null) {
     // holder for our validation errors
-    debugger;
     const errors = [];
 
     // holder for post-validation functions
