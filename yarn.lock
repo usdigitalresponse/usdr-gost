@@ -2470,10 +2470,10 @@
     "@datadog/browser-core" "5.8.0"
     "@datadog/browser-rum-core" "5.8.0"
 
-"@datadog/native-appsec@6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-6.0.0.tgz#da753f8566ec5180ad9e83014cb44984b4bc878e"
-  integrity sha512-e7vH5usFoqov7FraPcA99fe80t2/qm4Cmno1T3iBhYlhyO6HD01ArDsCZ/sUvNIUR1ujxtbr8Z9WRGJ0qQ/FDA==
+"@datadog/native-appsec@7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-7.0.0.tgz#a380174dd49aef2d9bb613a0ec8ead6dc7822095"
+  integrity sha512-bywstWFW2hWxzPuS0+mFMVHHL0geulx5yQFtsjfszaH2LTAgk2D+Rt40MKbAoZ8q3tRw2dy6aYQ7svO3ca8jpA==
   dependencies:
     node-gyp-build "^3.9.0"
 
@@ -6814,11 +6814,11 @@ dc-polyfill@^0.1.2:
   integrity sha512-Wyk5n/5KUj3GfVKV2jtDbtChC/Ff9fjKsBcg4ZtYW1yQe3DXNHcGURvmoxhqQdfOQ9TwyMjnfyv1lyYcOkFkFA==
 
 dd-trace@^4.11.1:
-  version "4.24.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.24.0.tgz#5a7f2d9a7d676dbddcaf9f475d20e5fe11b08363"
-  integrity sha512-ItmcumH8A0kzN6n1Rujuu1A+f3MUsKFFE7JFjVlH7xyHKY8SmW1jx+242Oxbnw2z+2tLG0dI9ZBz3B5Fz10CcA==
+  version "4.25.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.25.0.tgz#ba12e39bc0d5c02ba5710c21a89754255482ff92"
+  integrity sha512-B3mBh/JQchu4MAe/FqM9OiDcO1d/XLLYVypJqZ6qFKwkdYj/rV9uoeRdCI+pWZr2RB+7NQASdxURTOH0+N0GfA==
   dependencies:
-    "@datadog/native-appsec" "6.0.0"
+    "@datadog/native-appsec" "7.0.0"
     "@datadog/native-iast-rewriter" "2.2.2"
     "@datadog/native-iast-taint-tracking" "1.6.4"
     "@datadog/native-metrics" "^2.0.0"
@@ -6829,7 +6829,7 @@ dd-trace@^4.11.1:
     crypto-randomuuid "^1.0.0"
     dc-polyfill "^0.1.2"
     ignore "^5.2.4"
-    import-in-the-middle "^1.7.1"
+    import-in-the-middle "^1.7.3"
     int64-buffer "^0.1.9"
     ipaddr.js "^2.1.0"
     istanbul-lib-coverage "3.2.0"
@@ -9745,10 +9745,10 @@ import-global@^0.1.0:
   dependencies:
     global-dirs "^0.1.0"
 
-import-in-the-middle@^1.7.1:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/import-in-the-middle/-/import-in-the-middle-1.7.2.tgz#31c44088271b50ecb9cacbdfb1e5732c802e0658"
-  integrity sha512-coz7AjRnPyKW36J6JX5Bjz1mcX7MX1H2XsEGseVcnXMdzsAbbAu0HBZhiAem+3SAmuZdi+p8OwoB2qUpTRgjOQ==
+import-in-the-middle@^1.7.3:
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/import-in-the-middle/-/import-in-the-middle-1.7.3.tgz#ffa784cdd57a47d2b68d2e7dd33070ff06baee43"
+  integrity sha512-R2I11NRi0lI3jD2+qjqyVlVEahsejw7LDnYEbGb47QEFjczE3bZYsmWheCTQA+LFs2DzOQxR7Pms7naHW1V4bQ==
   dependencies:
     acorn "^8.8.2"
     acorn-import-assertions "^1.9.0"
