@@ -777,6 +777,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.updated_at',
             'grants.description',
             'grants.eligibility_codes',
+            'grants.raw_body',
             'grants.award_floor',
             'grants.revision_id',
             'grants.title_ts',
@@ -819,6 +820,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.updated_at',
             'grants.description',
             'grants.eligibility_codes',
+            'grants.raw_body',
             'grants.award_floor',
             'grants.revision_id',
             'grants.title_ts',
@@ -1044,22 +1046,7 @@ async function getGrant({ grantId }) {
 
 async function getSingleGrantDetails({ grantId, tenantId }) {
     const results = await knex.table(TABLES.grants)
-        .select([
-            'grants.grant_id',
-            'grants.grant_number',
-            'grants.title',
-            'grants.agency_code',
-            'grants.cost_sharing',
-            'grants.cfda_list',
-            'grants.open_date',
-            'grants.close_date',
-            'grants.opportunity_category',
-            'grants.opportunity_status',
-            'grants.description',
-            'grants.award_ceiling',
-            'grants.bill',
-            'grants.funding_activity_category_codes',
-        ])
+        .select('*')
         .where({ grant_id: grantId });
     const enhancedResults = await enhanceGrantData(tenantId, results);
     return enhancedResults.length ? enhancedResults[0] : null;

@@ -14,8 +14,6 @@ exports.up = function (knex) {
       UPDATE grants SET raw_body_json = jsonb_from_text(raw_body) WHERE raw_body IS NOT NULL;
       
       DROP FUNCTION jsonb_from_text;
-      
-      ALTER TABLE grants DROP COLUMN raw_body;
     `);
 };
 
@@ -23,12 +21,7 @@ exports.up = function (knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
+// eslint-disable-next-line no-unused-vars
 exports.down = function (knex) {
-    // This isn't a perfect inverse function.
-    // Rows where raw_body was not valid json will not be restored.
-    return knex.raw(`
-      ALTER TABLE grants ADD COLUMN raw_body TEXT;
-
-      UPDATE grants SET raw_body = raw_body_json::text WHERE raw_body_json IS NOT NULL;
-    `);
+    // no going back
 };

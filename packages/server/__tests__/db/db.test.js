@@ -396,17 +396,10 @@ describe('db', () => {
     });
 
     context('getSingleGrantDetails', () => {
-        it('gets the desired grant with fields', async () => {
+        it('gets the desired grant', async () => {
             const grantId = '335255';
             const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
             expect(result.grant_id).to.equal('335255');
-            expect(result.description).to.equal('The Division of Earth Sciences (EAR) awards Postdoctoral Fellowships');
-            expect(result.title).to.equal('EAR Postdoctoral Fellowships');
-            expect(result.agency_code).to.equal('NSF');
-            expect(result.award_ceiling).to.equal('6500');
-            expect(result.cfda_list).to.equal('47.050');
-            expect(result.opportunity_category).to.equal('Discretionary');
-            expect(result.bill).to.equal('Infrastructure Investment and Jobs Act (IIJA)');
         });
         it('gets the interested agencies', async () => {
             const grantId = '335255';
