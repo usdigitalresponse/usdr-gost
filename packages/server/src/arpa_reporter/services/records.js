@@ -93,7 +93,7 @@ async function loadRecordsForUpload(upload) {
         );
 
         // ignore hidden sheets
-        if (sheetAttributes?.Hidden !== 0) {
+        if (sheetAttributes.Hidden !== 0) {
             // eslint-disable-next-line no-continue
             continue;
         }

@@ -4,7 +4,6 @@ const moment = require('moment');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const fs = require('fs/promises');
 const { log } = require('../../lib/logging');
 const aws = require('../../lib/gost-aws');
 const { ec } = require('./format');
@@ -555,9 +554,8 @@ async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useT
     try {
         logger.info({ uploadParams: { Bucket: uploadParams.Bucket, Key: uploadParams.Key } },
             'uploading ARPA audit report to S3');
-        await fs.writeFile(report.filename, report.outputWorkBook, { flag: 'wx' });
         await s3.send(new PutObjectCommand(uploadParams));
-        // await module.exports.sendEmailWithLink(reportKey, recipientEmail, logger);
+        await module.exports.sendEmailWithLink(reportKey, recipientEmail, logger);
     } catch (err) {
         logger.error({ err }, 'failed to upload/email audit report');
         throw err;
