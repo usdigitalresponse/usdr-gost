@@ -4,6 +4,7 @@ const moment = require('moment');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const fs = require('fs/promises');
 const { log } = require('../../lib/logging');
 const aws = require('../../lib/gost-aws');
 const { ec } = require('./format');
@@ -311,6 +312,8 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
             row[`${endDate} Total Expenditures for Awards Greater or Equal to $50k`] = 0;
             row[`${endDate} Total Aggregate Obligations`] = 0;
             row[`${endDate} Total Obligations for Awards Greater or Equal to $50k`] = 0;
+            row[`${endDate} Total Obligations for Aggregate Awards < $50k`] = 0;
+            row[`${endDate} Total Expenditures for Aggregate Awards < $50k`] = 0;
         });
 
         // Sum the total value of each initialized column from the corresponding subtotal
@@ -321,6 +324,8 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
             row[`${endDate} Total Aggregate Obligations`] += (record.content.Total_Obligations__c || 0);
             row[`${endDate} Total Obligations for Awards Greater or Equal to $50k`] += (record.content.Award_Amount__c || 0);
             row[`${endDate} Total Expenditures for Awards Greater or Equal to $50k`] += (record.content.Expenditure_Amount__c || 0);
+            row[`${endDate} Total Obligations for Aggregate Awards < $50k`] += (record.content.Quarterly_Obligation_Amt_Aggregates__c || 0);
+            row[`${endDate} Total Expenditures for Aggregate Awards < $50k`] += (record.content.Quarterly_Expenditure_Amt_Aggregates__c || 0);
             row['Capital Expenditure Amount'] += (record.content.Total_Cost_Capital_Expenditure__c || 0);
         });
 
@@ -413,6 +418,8 @@ function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
         'Total Aggregate Expenditures',
         'Total Obligations for Awards Greater or Equal to $50k',
         'Total Expenditures for Awards Greater or Equal to $50k',
+        'Total Obligations for Aggregate Awards < $50k',
+        'Total Expenditures for Aggregate Awards < $50k',
     ];
 
     // first add the properly ordered non-date headers,
@@ -548,8 +555,9 @@ async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useT
     try {
         logger.info({ uploadParams: { Bucket: uploadParams.Bucket, Key: uploadParams.Key } },
             'uploading ARPA audit report to S3');
+        await fs.writeFile(report.filename, report.outputWorkBook, { flag: 'wx' });
         await s3.send(new PutObjectCommand(uploadParams));
-        await module.exports.sendEmailWithLink(reportKey, recipientEmail, logger);
+        // await module.exports.sendEmailWithLink(reportKey, recipientEmail, logger);
     } catch (err) {
         logger.error({ err }, 'failed to upload/email audit report');
         throw err;

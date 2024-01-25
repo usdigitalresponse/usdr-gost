@@ -93,7 +93,7 @@ async function loadRecordsForUpload(upload) {
         );
 
         // ignore hidden sheets
-        if (sheetAttributes.Hidden !== 0) {
+        if (sheetAttributes?.Hidden !== 0) {
             // eslint-disable-next-line no-continue
             continue;
         }
@@ -249,8 +249,7 @@ async function recordsForProject(periodId, tenantId) {
     const projectRecords = allRecords
         .flat()
         // exclude non-project records
-        .filter((record) => ([...Object.values(EC_SHEET_TYPES), 'awards50k', 'expenditures50k']).includes(record.type));
-
+        .filter((record) => ([...Object.values(EC_SHEET_TYPES), 'awards50k', 'expenditures50k', 'awards']).includes(record.type));
     return Object.values(projectRecords);
 }
 
