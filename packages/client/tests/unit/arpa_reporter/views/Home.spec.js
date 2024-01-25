@@ -112,9 +112,9 @@ describe('Home.vue', () => {
           mocks: { $route: route },
         });
       });
-      it('should show the Download Treasury Report button', () => {
-        const downloadButton = wrapper.getComponent({ name: 'DownloadButton' });
-        expect(downloadButton.text()).to.include('Download Treasury Report');
+      it('should show the Send Treasury Report button', () => {
+        const sendTreasuryReportButton = wrapper.get('#sendTreasuryReportButton');
+        expect(sendTreasuryReportButton.text()).to.include('Send Treasury Report by Email');
       });
     });
     describe('with the sync_audit_download param', () => {
@@ -133,9 +133,9 @@ describe('Home.vue', () => {
           mocks: { $route: route },
         });
       });
-      it('should show the Download Treasury Report button', () => {
-        const downloadAuditButton = wrapper.getComponent({ name: 'DownloadButton' });
-        expect(downloadAuditButton.text()).to.include('Download Audit Report');
+      it('should show the Send Treasury Report button', () => {
+        const sendTreasuryReportButton = wrapper.get('#sendTreasuryReportButton');
+        expect(sendTreasuryReportButton.text()).to.include('Send Treasury Report by Email');
       });
     });
   });
