@@ -86,7 +86,7 @@
           <b-col>
             <v-select v-model="selectedAgencies" :options="agencies" :multiple="true"
               label="name" track-by="id"
-              :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`" 
+              :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
               data-dd-action-name="select team for grant assignment"
             >
             </v-select>
@@ -98,9 +98,9 @@
         <b-row>
             <div v-for="agency in assignedAgencies" :key="agency">
             <p>
-            	<span>{{ agency.name }} </span>
-            	<button type="button" class="btn btn-close" @click="unassignAgenciesToGrant(agency)" 
-            	  data-dd-action-name="remove team assignment"><b-icon icon="x" aria-hidden="true"></b-icon></button>
+              <span>{{ agency.name }} </span>
+              <button type="button" class="btn btn-close" @click="unassignAgenciesToGrant(agency)"
+                data-dd-action-name="remove team assignment"><b-icon icon="x" aria-hidden="true"></b-icon></button>
             </p>
             </div>
         </b-row>
@@ -137,7 +137,7 @@
                     <span class="data-label">{{ agency.agency_name }}</span>
                     <span> team status to </span>
                     <span class="data-label">{{ agency.interested_code_name }}</span>
-                    <button type="button" class="btn btn-close" 
+                    <button type="button" class="btn btn-close"
                        @click="unmarkGrantAsInterested(agency)" data-dd-action-name="remove team status">
                        <b-icon icon="x" aria-hidden="true"></b-icon>
                     </button>
