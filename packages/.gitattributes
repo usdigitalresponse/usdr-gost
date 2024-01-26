@@ -20,3 +20,5 @@
 *.ttf               binary
 *.woff              binary
 *.woff2             binary
+*.xlsm              binary
+*.xlsx              binary
