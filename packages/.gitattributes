@@ -15,6 +15,7 @@
 *.ico               binary
 *.jar               binary
 *.jpg               binary
+*.pdf               binary
 *.png               binary
 *.ttf               binary
 *.woff              binary

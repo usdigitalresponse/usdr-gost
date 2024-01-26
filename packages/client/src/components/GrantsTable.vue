@@ -27,9 +27,6 @@
           :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
           :tbody-tr-attr="{'data-dd-action-name': 'grant search result'}"
           @row-selected="onRowSelected" @row-clicked="onRowClicked" show-empty emptyText="No matches found">
-          <template #cell(award_floor)="row">
-            <p> {{ formatMoney(row.item.award_floor) }}</p>
-          </template>
           <template #cell(award_ceiling)="row">
             <p> {{ formatMoney(row.item.award_ceiling) }}</p>
           </template>
@@ -191,7 +188,6 @@ export default {
           .map((v) => v.agency_abbreviation)
           .join(', '),
         status: grant.opportunity_status,
-        award_floor: this.getAwardFloor(grant),
         award_ceiling: grant.award_ceiling,
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
@@ -315,27 +311,6 @@ export default {
         noAutoHide: true,
         toaster: 'b-toaster-top-center',
       });
-    },
-    getAwardFloor(grant) {
-      let body;
-      try {
-        body = JSON.parse(grant.raw_body);
-      } catch (err) {
-        // Some seeded test data has invalid JSON in raw_body field
-        return undefined;
-      }
-
-      // For some reason, some grants rows have null raw_body.
-      // TODO: investigate how this can happen
-      if (!body) {
-        return undefined;
-      }
-
-      const floor = parseInt(body.synopsis && body.synopsis.awardFloor, 10);
-      if (Number.isNaN(floor)) {
-        return undefined;
-      }
-      return floor;
     },
     onRowClicked(item) {
       if (!newGrantsDetailPageEnabled()) {

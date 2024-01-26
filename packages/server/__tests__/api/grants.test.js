@@ -576,7 +576,6 @@ describe('`/api/grants` endpoint', () => {
                 description: 'fake grant inserted by test',
                 eligibility_codes: '25',
                 opportunity_status: 'posted',
-                raw_body: 'raw body',
             }));
 
             try {
@@ -685,7 +684,6 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
                 description: 'fake grant inserted by test',
                 eligibility_codes: '25',
                 opportunity_status: 'posted',
-                raw_body: 'raw body',
             }));
 
             this.timeout(10000);

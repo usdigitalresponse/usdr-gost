@@ -249,8 +249,7 @@ async function recordsForProject(periodId, tenantId) {
     const projectRecords = allRecords
         .flat()
         // exclude non-project records
-        .filter((record) => ([...Object.values(EC_SHEET_TYPES), 'awards50k', 'expenditures50k']).includes(record.type));
-
+        .filter((record) => ([...Object.values(EC_SHEET_TYPES), 'awards50k', 'expenditures50k', 'awards']).includes(record.type));
     return Object.values(projectRecords);
 }
 
