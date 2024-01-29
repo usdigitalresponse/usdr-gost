@@ -1,7 +1,10 @@
 <!-- eslint-disable max-len -->
 <template>
   <section class="container-fluid grants-details-container">
-  <b-breadcrumb :items="breadcrumb_items"></b-breadcrumb>
+    <b-breadcrumb>
+        <b-breadcrumb-item href="/#/grants">Home</b-breadcrumb-item>
+     	<b-breadcrumb-item active>{{ selectedGrant.title }}</b-breadcrumb-item>
+    </b-breadcrumb>
   <div>
     <div v-if="loading">
       Loading...
@@ -181,16 +184,6 @@ export default {
           key: 'actions',
           label: 'Actions',
         },
-      ],
-      breadcrumb_items: [
-        {
-          text: 'Home',
-          href: '/#/grants',
-        },
-        {
-          text: 'Grant Detail',
-          href: '#',
-         },
       ],
       assignedAgencies: [],
       selectedAgencies: [],
