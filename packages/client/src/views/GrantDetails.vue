@@ -1,5 +1,9 @@
 <template>
   <section class="container-fluid grants-details-container">
+    <b-breadcrumb>
+        <b-breadcrumb-item href="/#/grants">Home</b-breadcrumb-item>
+     	<b-breadcrumb-item active>{{ selectedGrant.title }}</b-breadcrumb-item>
+    </b-breadcrumb>
     <div>
       <div v-if="loading">
         Loading...
@@ -9,7 +13,6 @@
       </div>
       <b-container fluid v-if="selectedGrant && !loading" class="mt-5">
         <b-row>
-
           <!-- Left page column: title, table data, and grant description -->
           <b-col>
             <h2 class="mb-5">{{ selectedGrant.title }}</h2>
@@ -399,6 +402,12 @@ export default {
 </script>
 
 <style lang="css">
+.breadcrumb {
+  background-color: #ffffff;
+}
+.grants-details-container {
+    padding: 80px;
+}
 .grants-details-sidebar {
   flex-basis: 500px;
   flex-grow: 0;
