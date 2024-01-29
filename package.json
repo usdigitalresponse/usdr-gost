@@ -21,6 +21,7 @@
     "build": "yarn workspace client run build",
     "coverage": "nyc --reporter=lcov --reporter=text-summary yarn workspaces run test",
     "create_tenant": "yarn workspace server create_tenant",
+    "create_user": "yarn workspace server create_user",
     "db:migrate": "yarn workspace server run db:migrate",
     "db:seed": "yarn workspace server run db:seed",
     "debug:server": "yarn workspace server debug",
