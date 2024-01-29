@@ -2,15 +2,15 @@ require('dotenv').config();
 
 // This script creates a new staff user under a given tenant and agency.
 
-const _ = require('lodash');
 const inquirer = require('inquirer');
 const { validate: validateEmail } = require('email-validator');
 const knex = require('./connection');
 
-
 // Adds a user with the given options into the database
 async function createUser(options, trns = knex) {
-    const { userEmail, userName, tenantId, agencyId } = options;
+    const {
+        userEmail, userName, tenantId, agencyId,
+    } = options;
     const staffRole = await trns('roles')
         .select('*')
         .where('name', 'staff')
@@ -67,9 +67,9 @@ const buildInquirerQuestionsForCreateUserOptions = (trns) => [
                 console.log('No tenants found. Did you run `yarn db:seed`?');
                 process.exit(0);
             }
-            return tenants.map(({id, display_name}) => ({
-            name: display_name,
-            value: id,
+            return tenants.map(({ id, display_name }) => ({
+                name: display_name,
+                value: id,
             }));
         },
     },
@@ -77,11 +77,11 @@ const buildInquirerQuestionsForCreateUserOptions = (trns) => [
         name: 'agencyId',
         type: 'list',
         message: 'Select an agency for the user:',
-        choices: async ({tenantId}) => {
+        choices: async ({ tenantId }) => {
             const agencies = await trns('agencies')
                 .select('id', 'name', 'abbreviation')
                 .where('tenant_id', tenantId);
-            return agencies.map(({id, name, abbreviation}) => ({
+            return agencies.map(({ id, name, abbreviation }) => ({
                 name,
                 short: abbreviation,
                 value: id,
@@ -92,23 +92,23 @@ const buildInquirerQuestionsForCreateUserOptions = (trns) => [
 
 // Prompts the user for user data, and confirms at the end of the flow
 async function promptForCreateUserOptions(trns = knex) {
-  const questions = buildInquirerQuestionsForCreateUserOptions(trns);
-  const { confirmed, ...options } = await inquirer.prompt([
-      ...questions,
-      {
-          name: 'confirmed',
-          type: 'confirm',
-          message: (answers) => {
-              console.log(answers);
-              return 'Everything look good?';
-          },
-      },
-  ]);
-  if (!confirmed) {
-      console.log('Aborting');
-      process.exit(0);
-  }
-  return options;
+    const questions = buildInquirerQuestionsForCreateUserOptions(trns);
+    const { confirmed, ...options } = await inquirer.prompt([
+        ...questions,
+        {
+            name: 'confirmed',
+            type: 'confirm',
+            message: (answers) => {
+                console.log(answers);
+                return 'Everything look good?';
+            },
+        },
+    ]);
+    if (!confirmed) {
+        console.log('Aborting');
+        process.exit(0);
+    }
+    return options;
 }
 
 // Main function: runs the prompt and creates the user
