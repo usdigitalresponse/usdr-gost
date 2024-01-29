@@ -1,6 +1,7 @@
 <!-- eslint-disable max-len -->
 <template>
   <section class="container-fluid grants-details-container">
+  <b-breadcrumb :items="breadcrumb_items"></b-breadcrumb>
   <div>
     <div v-if="loading">
       Loading...
@@ -9,7 +10,6 @@
       No grant found
     </div>
     <div v-if="selectedGrant && !loading" class="mb-3 d-flex align-items-start">
-    <b-breadcrumb :items="breadcrumb_items"></b-breadcrumb>
       <b-col class="mx-4">
           <h1 class="mb-0 h2">{{ selectedGrant.title }}</h1>
           <table class="table table-striped table-responsive-md mr-5 mt-5">
@@ -357,7 +357,7 @@ export default {
 <style>
   .breadcrumb {
     background-color: #ffffff;
-
+  }
   .grants-details-container {
     padding: 80px;
   }
