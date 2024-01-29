@@ -119,7 +119,15 @@ function getGrantDetail(grant, emailNotificationType) {
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
 
     const description = grant.description.substring(0, 380).replace(/(<([^>]+)>)/ig, '');
-
+    const grantsUrl = new URL(process.env.WEBSITE_DOMAIN);
+    if (emailNotificationType === notificationType.grantDigest) {
+        grantsUrl.pathname = 'grants';
+    } else {
+        grantsUrl.pathname = 'my-grants';
+    }
+    grantsUrl.searchParams.set('utm_source', 'subscription');
+    grantsUrl.searchParams.set('utm_medium', 'email');
+    grantsUrl.searchParams.set('utm_campaign', emailNotificationType);
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
             title: grant.title,
@@ -133,7 +141,7 @@ function getGrantDetail(grant, emailNotificationType) {
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
             link_url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
-            grants_url: `${process.env.WEBSITE_DOMAIN}/${emailNotificationType === notificationType.grantDigest ? 'grants' : 'my-grants'}`,
+            grants_url: grantsUrl.toString(),
             view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
         },
     );
@@ -159,11 +167,15 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     }, {
         grant_detail: grantDetail,
     });
-
+    const baseUrl = new URL(process.env.WEBSITE_DOMAIN);
+    baseUrl.pathname = 'my-grants';
+    baseUrl.searchParams.set('utm_source', 'subscription');
+    baseUrl.searchParams.set('utm_medium', 'email');
+    baseUrl.searchParams.set('utm_campaign', 'GRANT_ASSIGNMENT');
     const emailHTML = module.exports.addBaseBranding(grantAssignedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'Grants Assigned Notification',
-        notifications_url: (process.env.ENABLE_MY_PROFILE === 'true') ? `${process.env.WEBSITE_DOMAIN}/my-profile` : `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
+        notifications_url: baseUrl.toString(),
     });
 
     // TODO: add plain text version of the email
