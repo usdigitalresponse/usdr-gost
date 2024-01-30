@@ -66,6 +66,7 @@ async function sendEmail(message) {
     const params = {
         Destination: {
             ToAddresses: [message.toAddress],
+            CcAddresses: [message.ccAddress],
         },
         Source: process.env.NOTIFICATIONS_EMAIL,
         Message: {

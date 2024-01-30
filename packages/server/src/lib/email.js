@@ -17,12 +17,14 @@ const ASYNC_REPORT_TYPES = {
 
 async function deliverEmail({
     toAddress,
+    ccAddress,
     emailHTML,
     emailPlain,
     subject,
 }) {
     return emailService.getTransport().sendEmail({
         toAddress,
+        ccAddress,
         subject,
         body: emailHTML,
         text: emailPlain,
