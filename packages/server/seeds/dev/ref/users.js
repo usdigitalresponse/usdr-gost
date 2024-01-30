@@ -147,4 +147,20 @@ module.exports = [
         role_id: staffRole.id,
         tenant_id: usdrTenant.id,
     },
+    {
+        id: 17,
+        email: 'admin@usdigitalresponse.org',
+        name: 'USDR Admin',
+        agency_id: usdrAgency.id,
+        role_id: adminRole.id,
+        tenant_id: usdrTenant.id,
+    },
+    {
+        id: 18,
+        email: 'staff@usdigitalresponse.org',
+        name: 'USDR Staff',
+        agency_id: usdrAgency.id,
+        role_id: staffRole.id,
+        tenant_id: usdrTenant.id,
+    },
 ];
