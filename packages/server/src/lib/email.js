@@ -77,7 +77,11 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
     );
 
     if (process.env.DEV_LOGIN_LINK && process.env.NODE_ENV === 'development') {
-        console.log(`Login link generated: \x1b[32m${href}`);
+        const BLUE = '\x1b[34m';
+        const message = `| Login link generated: ${href} |`;
+        console.log(`${BLUE}${'-'.repeat(message.length)}`);
+        console.log(`${BLUE}${message}`);
+        console.log(`${BLUE}${'-'.repeat(message.length)}`);
     }
     return module.exports.deliverEmail({
         toAddress: email,
