@@ -4,6 +4,9 @@ const agencies = require('./agencies');
 const roles = require('./roles');
 const tenants = require('./tenants');
 
+const adminRole = roles.find(({ name }) => name === 'admin');
+const staffRole = roles.find(({ name }) => name === 'staff');
+
 const usdrAgency = agencies.find((a) => a.abbreviation === 'USDR');
 const usdrSubAgency = agencies.find((a) => a.abbreviation === 'TSDR');
 const nevadaAgency = agencies.find((a) => a.abbreviation === 'NV');
@@ -21,7 +24,7 @@ module.exports = [
         email: 'alex@usdigitalresponse.org',
         name: 'Alex Allain',
         agency_id: usdrAgency.id,
-        role_id: roles[0].id,
+        role_id: adminRole.id,
         tenant_id: usdrTenant.id,
     },
     {
@@ -29,7 +32,7 @@ module.exports = [
         email: 'mindy@usdigitalresponse.org', // fake email for testing
         name: 'Mindy Huang',
         agency_id: usdrAgency.id,
-        role_id: roles[0].id,
+        role_id: adminRole.id,
         tenant_id: usdrTenant.id,
     },
     {
@@ -37,7 +40,7 @@ module.exports = [
         email: 'joecomeau01@gmail.com',
         name: 'Joe Comeau',
         agency_id: usdrAgency.id,
-        role_id: roles[0].id,
+        role_id: adminRole.id,
         tenant_id: usdrTenant.id,
     },
     {
@@ -45,7 +48,7 @@ module.exports = [
         email: 'asridhar@usdigitalresponse.org',
         name: 'Aditya Sridhar',
         agency_id: usdrAgency.id,
-        role_id: roles[0].id,
+        role_id: adminRole.id,
         tenant_id: usdrTenant.id,
     },
     {
@@ -53,7 +56,7 @@ module.exports = [
         email: 'thendrickson@usdigitalresponse.org',
         name: 'Tyler Hendrickson',
         agency_id: usdrAgency.id,
-        role_id: roles[0].id,
+        role_id: adminRole.id,
         tenant_id: usdrTenant.id,
     },
     {
@@ -61,7 +64,7 @@ module.exports = [
         email: 'user1@nv.gov', // fake email for testing
         name: 'nv.gov User 1',
         agency_id: nevadaAgency.id,
-        role_id: roles[1].id,
+        role_id: staffRole.id,
         tenant_id: nevadaenant.id,
     },
     {
@@ -69,7 +72,7 @@ module.exports = [
         email: 'user2@nv.gov', // fake email for testing
         name: 'nv.gov User 2',
         agency_id: nevadaAgency.id,
-        role_id: roles[1].id,
+        role_id: staffRole.id,
         tenant_id: nevadaenant.id,
     },
     {
@@ -77,7 +80,7 @@ module.exports = [
         email: 'user3@nv.gov', // fake email for testing
         name: 'nv.gov User 3',
         agency_id: nevadaAgency.id,
-        role_id: roles[1].id,
+        role_id: staffRole.id,
         tenant_id: nevadaenant.id,
     },
     {
@@ -85,7 +88,7 @@ module.exports = [
         email: 'user1@npo.nv.gov', // fake email for testing
         name: 'npo.nv.gov User 1',
         agency_id: procurementAgency.id,
-        role_id: roles[1].id,
+        role_id: staffRole.id,
         tenant_id: procurementTenant.id,
     },
     {
@@ -93,7 +96,7 @@ module.exports = [
         email: 'user2@npo.nv.gov', // fake email for testing
         name: 'npo.nv.gov User 2',
         agency_id: procurementAgency.id,
-        role_id: roles[1].id,
+        role_id: staffRole.id,
         tenant_id: procurementTenant.id,
     },
     {
@@ -101,7 +104,7 @@ module.exports = [
         email: 'user3@npo.nv.gov', // fake email for testing
         name: 'npo.nv.gov User 3',
         agency_id: procurementAgency.id,
-        role_id: roles[1].id,
+        role_id: staffRole.id,
         tenant_id: procurementTenant.id,
     },
     {
@@ -109,7 +112,7 @@ module.exports = [
         email: 'user1@dallas.gov', // fake email for testing
         name: 'dallas.gov User 1',
         agency_id: dallasAgency.id,
-        role_id: roles[0].id,
+        role_id: adminRole.id,
         tenant_id: dallasTenant.id,
     },
     {
@@ -117,7 +120,7 @@ module.exports = [
         email: 'admin1@nv.gov', // fake email for testing
         name: 'nv.gov Admin User 1',
         agency_id: nevadaAgency.id,
-        role_id: roles[0].id,
+        role_id: adminRole.id,
         tenant_id: nevadaenant.id,
     },
     {
@@ -125,7 +128,7 @@ module.exports = [
         email: 'mindy+testsub@usdigitalresponse.org',
         name: 'USDR tenant sub agency user',
         agency_id: usdrSubAgency.id,
-        role_id: roles[1].id,
+        role_id: staffRole.id,
         tenant_id: usdrTenant.id,
     },
     {
@@ -133,7 +136,7 @@ module.exports = [
         email: 'nat.hillard.usdr@gmail.com',
         name: 'Nat Hillard',
         agency_id: usdrSubAgency.id,
-        role_id: roles[0].id,
+        role_id: adminRole.id,
         tenant_id: usdrTenant.id,
     },
     {
@@ -141,7 +144,7 @@ module.exports = [
         email: 'admin1@usdigitalresponse.org',
         name: 'USDR tenant sub agency admin',
         agency_id: usdrSubAgency.id,
-        role_id: roles[1].id,
+        role_id: staffRole.id,
         tenant_id: usdrTenant.id,
     },
 ];
