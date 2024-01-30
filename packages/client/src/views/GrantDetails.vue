@@ -1,7 +1,7 @@
 <template>
   <section class="container-fluid grants-details-container">
     <b-breadcrumb>
-        <b-breadcrumb-item href="/#/grants">Home</b-breadcrumb-item>
+        <b-breadcrumb-item href="/grants">Home</b-breadcrumb-item>
      	<b-breadcrumb-item active>{{ selectedGrant.title }}</b-breadcrumb-item>
     </b-breadcrumb>
     <div>
