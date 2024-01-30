@@ -66,7 +66,6 @@ async function sendEmail(message) {
     const params = {
         Destination: {
             ToAddresses: [message.toAddress],
-            CcAddresses: [message.ccAddress],
         },
         Source: process.env.NOTIFICATIONS_EMAIL,
         Message: {
@@ -85,6 +84,9 @@ async function sendEmail(message) {
                 },
             },
         },
+    };
+    if (message.ccAddress) {
+        params.Destination.CcAddresses = [message.ccAddress];
     };
     const command = new SendEmailCommand(params);
     try {

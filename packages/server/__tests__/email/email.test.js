@@ -195,6 +195,7 @@ describe('Email sender', () => {
 
             email.deliverEmail({
                 toAddress: 'foo@bar.com',
+                ccAddress: 'cc@example.com',
                 emailHTML: '<p>foo</p>',
                 emailPlain: 'foo',
                 subject: 'test foo email',
@@ -203,6 +204,7 @@ describe('Email sender', () => {
             expect(sendFake.calledOnce).to.equal(true);
             expect(sendFake.firstCall.args).to.deep.equal([{
                 toAddress: 'foo@bar.com',
+                ccAddress: 'cc@example.com',
                 subject: 'test foo email',
                 body: '<p>foo</p>',
                 text: 'foo',
