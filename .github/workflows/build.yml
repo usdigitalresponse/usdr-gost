@@ -216,6 +216,7 @@ jobs:
           path: ${{ steps.store-attestations.outputs.path }}
           if-no-files-found: error
           retention-days: ${{ inputs.server-image-artifacts-retention-days }}
+          overwrite: true
 
   website-bundle:
     name: Build website deployment artifact
@@ -281,3 +282,4 @@ jobs:
           path: ${{ env.ARTIFACTS_PATH }}
           if-no-files-found: error
           retention-days: ${{ inputs.website-artifact-retention-days }}
+          overwrite: true
