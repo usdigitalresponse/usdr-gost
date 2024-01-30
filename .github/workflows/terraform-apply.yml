@@ -81,7 +81,7 @@ jobs:
             registry.terraform.io:443
             releases.hashicorp.com:443
       - name: Download Terraform artifacts
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
         with:
           name: ${{ inputs.tf-plan-artifacts-key }}
           path: ${{ github.workspace }}/terraform
@@ -94,7 +94,7 @@ jobs:
         with:
           terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
       - name: Download website artifacts
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
         with:
           name: ${{ inputs.website-artifacts-key }}
           path: ${{ inputs.website-artifacts-path }}
