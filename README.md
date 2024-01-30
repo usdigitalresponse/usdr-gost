@@ -2,7 +2,6 @@
 
 [![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg?style=flat)](./CODE_OF_CONDUCT.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
-[![Build Status](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/ci.yaml/badge.svg)](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/ci.yaml)
 
 ## About
 
