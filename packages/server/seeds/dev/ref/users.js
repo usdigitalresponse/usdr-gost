@@ -149,7 +149,7 @@ module.exports = [
     },
     {
         id: 17,
-        email: 'admin@usdigitalresponse.org',
+        email: 'admin@example.com',
         name: 'USDR Admin',
         agency_id: usdrAgency.id,
         role_id: adminRole.id,
@@ -157,7 +157,7 @@ module.exports = [
     },
     {
         id: 18,
-        email: 'staff@usdigitalresponse.org',
+        email: 'staff@example.com',
         name: 'USDR Staff',
         agency_id: usdrAgency.id,
         role_id: staffRole.id,
