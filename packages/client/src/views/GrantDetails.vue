@@ -74,8 +74,7 @@
             <b-icon icon="printer-fill" aria-hidden="true" class="mr-2"></b-icon>Print
           </b-button>
           <b-button target="_blank" rel="noopener noreferrer" variant="outline-primary" class="col mx-1" @click="copyUrl">
-            <!-- fixme: figure out why the copy icon doesn't work here -->
-            <b-icon icon="front" aria-hidden="true" class="mr-2"></b-icon>Copy Link
+            <b-icon icon="files" aria-hidden="true" class="mr-2"></b-icon>Copy Link
           </b-button>
           </b-row>
       <br />
