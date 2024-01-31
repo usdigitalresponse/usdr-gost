@@ -8,7 +8,7 @@
           <h1 class="mb-0 h2">{{ selectedGrant.title }}</h1>
         </b-col>
         <b-col cols="4" class="text-right">
-          <b-button :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
+          <b-button :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
             target="_blank" rel="noopener noreferrer" variant="primary" data-dd-action-name="view on grants.gov">
             <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2"></b-icon>View on Grants.gov
           </b-button>
