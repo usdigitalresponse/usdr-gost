@@ -90,7 +90,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
         before(async () => {
             admin = await createUser({
                 name: 'Test Admin',
-                email: 'admin@example.com',
+                email: 'adminuser@example.com',
                 agency_id: 0,
                 tenant_id: 1,
                 role_id: fixtures.roles.adminRole.id,
@@ -130,7 +130,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
         it('issues 400 Bad Request when agency has users', async () => {
             const blockingUser = await createUser({
                 name: 'Some One',
-                email: 'staff@example.com',
+                email: 'staffuser@example.com',
                 agency_id: agency.id,
                 tenant_id: agency.tenant_id,
                 role_id: fixtures.roles.staffRole.id,
