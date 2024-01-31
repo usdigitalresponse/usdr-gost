@@ -3,6 +3,7 @@ import { datadogRum } from '@datadog/browser-rum';
 
 if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
   datadogRum.init(window.APP_CONFIG.DD_RUM_CONFIG);
+  datadogRum.setGlobalContextProperty('app', 'finder');
 }
 
 import Vue from 'vue';
