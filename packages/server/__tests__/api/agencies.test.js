@@ -59,7 +59,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
         fetchOptions.nonUSDRAdmin.headers.cookie = await getSessionCookie('joecomeau01@gmail.com');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.example.com');
 
         testServer = await makeTestServer();
         fetchApi = testServer.fetchApi;

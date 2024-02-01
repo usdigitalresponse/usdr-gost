@@ -61,7 +61,7 @@ module.exports = [
     },
     {
         id: 6,
-        email: 'user1@nv.gov', // fake email for testing
+        email: 'user1@nv.example.com', // fake email for testing
         name: 'nv.gov User 1',
         agency_id: nevadaAgency.id,
         role_id: staffRole.id,
@@ -69,7 +69,7 @@ module.exports = [
     },
     {
         id: 7,
-        email: 'user2@nv.gov', // fake email for testing
+        email: 'user2@nv.example.com', // fake email for testing
         name: 'nv.gov User 2',
         agency_id: nevadaAgency.id,
         role_id: staffRole.id,
@@ -77,7 +77,7 @@ module.exports = [
     },
     {
         id: 8,
-        email: 'user3@nv.gov', // fake email for testing
+        email: 'user3@nv.example.com', // fake email for testing
         name: 'nv.gov User 3',
         agency_id: nevadaAgency.id,
         role_id: staffRole.id,
@@ -117,7 +117,7 @@ module.exports = [
     },
     {
         id: 13,
-        email: 'admin1@nv.gov', // fake email for testing
+        email: 'admin1@nv.example.com', // fake email for testing
         name: 'nv.gov Admin User 1',
         agency_id: nevadaAgency.id,
         role_id: adminRole.id,
