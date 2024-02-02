@@ -171,12 +171,12 @@ jobs:
             github.com:443
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Download website build artifacts
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
         with:
           name: ${{ needs.build.outputs.website-artifacts-key }}
           path: ${{ needs.build.outputs.website-artifacts-path }}
       - name: Download docker build attestation artifacts
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
         with:
           name: ${{ needs.build.outputs.server-attestation-artifacts-key }}
           path: ${{ needs.build.outputs.server-attestation-artifacts-path }}
