@@ -1,5 +1,8 @@
 # GMail Setup
 
+> [!WARNING]
+> Email setup is generally not required for local development, unless you're directly working on email templates or sending. Note that with this setup you will send real emails — please ensure you don't have real external email addresses in your database that you could accidentally mail. Please revert these environment variables to disable email sending anytime you're not actively developing email.
+
 Users log into the app by means of a single-use link that is sent to their email. In order to set your app up to send this email, you'll need to setup an App Password in Gmail.
 
 Visit: <https://myaccount.google.com/apppasswords> and set up an "App Password" (see screenshot below). *Note: Select "Mac" even if you're not using a Mac.*

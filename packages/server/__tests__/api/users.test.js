@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const { getSessionCookie, makeTestServer } = require('./utils');
+const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const email = require('../../src/lib/email');
 const emailConstants = require('../../src/lib/email/constants');
 
@@ -158,7 +158,11 @@ describe('`/api/users` endpoint', () => {
                 const response = await fetchApi(`/users`, agencies.own, fetchOptions.admin);
                 expect(response.statusText).to.equal('OK');
                 const json = await response.json();
-                expect(json.length).to.equal(12);
+                const ownAgency = await knex('agencies').where({ id: agencies.own }).first();
+                const expectedUserCount = (
+                    await knex('users').where({ tenant_id: ownAgency.tenant_id }).count().first()
+                ).count;
+                expect(json.length).to.equal(parseInt(expectedUserCount, 10));
             });
             it('lists users for an agency outside this user\'s hierarchy but in the same tenant', async () => {
                 const response = await fetchApi(`/users`, agencies.offLimits, fetchOptions.admin);
