@@ -39,8 +39,8 @@ describe('`/api/grants-saved-search` endpoint', () => {
     let fetchApi;
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.example.com');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.example.com');
 
         const allAgencyIds = new Set(Object.values(agencies.admin).concat(Object.values(agencies.staff)));
         const testSavedSearches = [];
