@@ -1,5 +1,9 @@
 <template>
   <section class="container-fluid grants-details-container">
+    <b-breadcrumb class="mx-4 flex-nowrap">
+      <b-breadcrumb-item href="/grants">Home</b-breadcrumb-item>
+      <b-breadcrumb-item active class="text-truncate">{{ selectedGrant.title }}</b-breadcrumb-item>
+    </b-breadcrumb>
     <div>
       <div v-if="loading">
         Loading...
@@ -11,10 +15,6 @@
         <b-row>
           <!-- Left page column: title, table data, and grant description -->
           <b-col>
-            <b-breadcrumb class="px-0 flex-nowrap">
-              <b-breadcrumb-item href="/grants">Home</b-breadcrumb-item>
-     	      <b-breadcrumb-item active class="text-truncate">{{ selectedGrant.title }}</b-breadcrumb-item>
-            </b-breadcrumb>
             <h2 class="mb-5">{{ selectedGrant.title }}</h2>
             <b-table
               class="grant-details-table mb-5"
