@@ -1,4 +1,3 @@
-<!-- eslint-disable max-len -->
 <template>
   <section class="container-fluid grants-details-container">
   <div>
@@ -10,55 +9,18 @@
     </div>
     <div v-if="selectedGrant && !loading" class="mb-3 d-flex align-items-start">
       <b-col class="mx-4">
-          <h1 class="mb-0 h2">{{ selectedGrant.title }}</h1>
-          <table class="table table-striped table-responsive-md mr-5 mt-5">
-          <tbody>
-            <tr>
-                  <th>Opportunity Number</th>
-                  <td>{{ selectedGrant.grant_number }}</td>
-            </tr>
-            <tr>
-                  <th>Open Date</th>
-                  <td>{{ formatDate(selectedGrant.open_date) }}</td>
-            </tr>
-            <tr>
-                  <th>Close Date</th>
-                  <td>{{ formatDate(selectedGrant.close_date) }}</td>
-            </tr>
-             <tr>
-                  <th>Grant ID</th>
-                  <td>{{ selectedGrant.grant_id }}</td>
-            </tr>
-            <tr>
-                  <th>Federal Awarding Agency Code</th>
-                  <td>{{ selectedGrant.agency_code }}</td>
-            </tr>
-            <tr>
-                  <th>Award Ceiling</th>
-                  <td>{{ selectedGrant.award_ceiling }}</td>
-            </tr>
-            <tr>
-                  <th>Category of Funding Activity</th>
-                  <td>{{ selectedGrant['funding_activity_categories']?.join(', ') }}</td>
-            </tr>
-            <tr>
-                  <th>Opportunity Category</th>
-                  <td>{{ selectedGrant.opportunity_category }}</td>
-            </tr>
-            <tr>
-                  <th>Opportunity Status</th>
-                  <td>{{ selectedGrant.opportunity_status }}</td>
-            </tr>
-            <tr>
-                  <th>Appropriation Bill</th>
-                  <td>{{ selectedGrant.bill }}</td>
-            </tr>
-            <tr>
-                  <th>Cost Sharing</th>
-                  <td>{{ selectedGrant.cost_sharing }}</td>
-            </tr>
-           </tbody>
-        </table>
+      <h2>{{ selectedGrant.title }}</h2>
+      <b-table
+        class="grant-details-table"
+        :items="tableData"
+        :fields="[
+          {key: 'name', class: 'color-gray grants-details-table-fit-content'},
+          {key: 'value', class: 'font-weight-bold'},
+        ]"
+        thead-class="d-none"
+        borderless
+        hover
+      ></b-table>
       <p class="data-label">Description:</p>
         <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
       <br />
@@ -215,6 +177,43 @@ export default {
       selectedAgency: 'users/selectedAgency',
       currentGrant: 'grants/currentGrant',
     }),
+    tableData() {
+      return [{
+        name: 'Opportunity Number',
+        value: this.selectedGrant.grant_number,
+      }, {
+        name: 'Open Date',
+        value: this.formatDate(this.selectedGrant.open_date),
+      }, {
+        name: 'Close Date',
+        value: this.formatDate(this.selectedGrant.close_date),
+      }, {
+        name: 'Grant ID',
+        value: this.selectedGrant.grant_id,
+      }, {
+        name: 'Federal Awarding',
+        value: this.selectedGrant.agency_code,
+      }, {
+        name: 'Award Ceiling',
+        value: this.selectedGrant.award_ceiling,
+      }, {
+        name: 'Category of',
+        value: this.selectedGrant.funding_activity_categories?.join(', '),
+      }, {
+        name: 'Opportunity Category',
+        value: this.selectedGrant.opportunity_category,
+      }, {
+        name: 'Opportunity Status',
+        value: this.selectedGrant.opportunity_status,
+      }, {
+        name: 'Appropriation Bill',
+        value: this.selectedGrant.bill,
+      }, {
+        name: 'Cost Sharing',
+        value: this.selectedGrant.cost_sharing,
+      },
+      ];
+    },
     alreadyViewed() {
       if (!this.selectedGrant) {
         return false;
@@ -342,16 +341,14 @@ export default {
   },
 };
 </script>
-<style>
-  .grants-details-container {
-    padding: 80px;
-  }
 
-  .grants-details-container th {
-    font-weight: normal;
-  }
-
-  .grants-details-container td {
-    font-weight: bold;
-  }
+<style lang="css">
+.grant-details-table tr:nth-of-type(odd) {
+  background-color: #F9F9F9;
+}
+.grants-details-table-fit-content {
+  /* Make a table column that's the width of its content */
+  white-space: nowrap;
+  width: 1%;
+}
 </style>
