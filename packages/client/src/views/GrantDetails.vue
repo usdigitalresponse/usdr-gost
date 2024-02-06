@@ -66,7 +66,7 @@
       </b-col>
       <b-col class="mx-auto my-5 px-2 col-md-4 col-lg-3">
         <b-row>
-          <b-button :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
+          <b-button :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
             target="_blank" rel="noopener noreferrer" variant="primary" class="btn-block mx-1 my-2" data-dd-action-name="view on grants.gov">
             <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2"></b-icon>Apply on Grants.gov
           </b-button>
@@ -74,8 +74,7 @@
             <b-icon icon="printer-fill" aria-hidden="true" class="mr-2"></b-icon>Print
           </b-button>
           <b-button target="_blank" rel="noopener noreferrer" variant="outline-primary" class="col mx-1" @click="copyUrl">
-            <!-- fixme: figure out why the copy icon doesn't work here -->
-            <b-icon icon="front" aria-hidden="true" class="mr-2"></b-icon>Copy Link
+            <b-icon icon="files" aria-hidden="true" class="mr-2"></b-icon>Copy Link
           </b-button>
           </b-row>
       <br />

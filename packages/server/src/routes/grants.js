@@ -138,7 +138,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             .join(', '),
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
+        url: `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
     }));
 
     if (data.length === 0) {
@@ -223,7 +223,7 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             .join(', '),
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
+        url: `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
     }));
 
     if (data.length === 0) {

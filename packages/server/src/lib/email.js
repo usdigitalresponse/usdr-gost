@@ -79,7 +79,11 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
     );
 
     if (process.env.DEV_LOGIN_LINK && process.env.NODE_ENV === 'development') {
-        console.log(`Login link generated: \x1b[32m${href}`);
+        const BLUE = '\x1b[34m';
+        const message = `| Login link generated: ${href} |`;
+        console.log(`${BLUE}${'-'.repeat(message.length)}`);
+        console.log(`${BLUE}${message}`);
+        console.log(`${BLUE}${'-'.repeat(message.length)}`);
     }
     return module.exports.deliverEmail({
         toAddress: email,
@@ -142,7 +146,7 @@ function getGrantDetail(grant, emailNotificationType) {
             award_ceiling: grant.award_ceiling || 'Not available',
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
-            link_url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
+            link_url: `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
             grants_url: grantsUrl.toString(),
             view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
         },
