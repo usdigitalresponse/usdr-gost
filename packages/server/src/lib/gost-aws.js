@@ -87,7 +87,7 @@ async function sendEmail(message) {
     };
     if (message.ccAddress) {
         params.Destination.CcAddresses = [message.ccAddress];
-    };
+    }
     const command = new SendEmailCommand(params);
     try {
         const data = await transport.send(command);
