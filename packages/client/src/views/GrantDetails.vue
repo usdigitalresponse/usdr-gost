@@ -9,9 +9,9 @@
     </div>
     <div v-if="selectedGrant && !loading" class="mb-3 d-flex align-items-start">
       <b-col class="mx-4">
-      <h2>{{ selectedGrant.title }}</h2>
+      <h2 class="mb-5">{{ selectedGrant.title }}</h2>
       <b-table
-        class="grant-details-table"
+        class="grant-details-table mb-5"
         :items="tableData"
         :fields="[
           {key: 'name', class: 'color-gray grants-details-table-fit-content'},
@@ -21,8 +21,8 @@
         borderless
         hover
       ></b-table>
-      <p class="data-label">Description:</p>
-        <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
+      <h3 class="mb-3">Description</h3>
+      <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
       <br />
 
       </b-col>
