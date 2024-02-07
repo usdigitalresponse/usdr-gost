@@ -9,6 +9,7 @@
       </div>
       <b-container fluid v-if="selectedGrant && !loading" class="mt-5">
         <b-row>
+
           <!-- Left page column: title, table data, and grant description -->
           <b-col>
             <h2 class="mb-5">{{ selectedGrant.title }}</h2>
@@ -68,7 +69,7 @@
 
             <!-- Assign grant section -->
             <div class="mb-5">
-              <h4 class="mb-3">Assign Grant</h4>
+              <h3 class="mb-3">Assign Grant</h3>
               <div class="d-flex">
                 <v-select
                   class="flex-grow-1 mr-3"
@@ -97,7 +98,7 @@
 
             <!-- Team status section -->
             <div class="mb-5">
-              <h4 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h4>
+              <h3 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h3>
               <div class="d-flex">
                 <b-form-select
                   class="flex-grow-1 mr-3"
@@ -142,6 +143,7 @@
             </div>
 
           </b-col>
+
         </b-row>
       </b-container>
     </div>
