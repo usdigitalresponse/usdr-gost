@@ -22,6 +22,7 @@
         hover
       ></b-table>
       <h3 class="mb-3">Description</h3>
+      <!-- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
       <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
       <br />
 
