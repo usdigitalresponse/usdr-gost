@@ -1,6 +1,9 @@
 <template>
   <section class="container-fluid grants-details-container">
-    <b-breadcrumb class="mx-4 flex-nowrap">
+    <router-link v-if="backButton" class="d-inline-block" to="">
+      <span @click="$router.back()" style="color: black"><b-icon icon="arrow-left" aria-hidden="true" class="mr-3" scale="2.0"></b-icon>Back</span>
+    </router-link>
+    <b-breadcrumb v-else class="mx-4 flex-nowrap">
       <b-breadcrumb-item href="/grants">Home</b-breadcrumb-item>
       <b-breadcrumb-item active class="text-truncate">{{ selectedGrant.title }}</b-breadcrumb-item>
     </b-breadcrumb>
@@ -165,6 +168,7 @@ import { DateTime } from 'luxon';
 export default {
   props: {
     selectedGrant: Object,
+    backButton: Boolean,
   },
   data() {
     return {

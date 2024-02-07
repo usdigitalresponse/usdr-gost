@@ -72,6 +72,7 @@ export const routes = [
         path: '/grant/:id',
         name: 'grantDetail',
         component: () => import('../views/GrantDetails.vue'),
+        props: true,
         meta: {
           hideLayoutTabs: true,
           requiresAuth: true,
