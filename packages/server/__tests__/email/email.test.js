@@ -283,6 +283,27 @@ describe('Email sender', () => {
             expect(sendFake.firstCall.firstArg.emailHTML).contains('https://example.usdigitalresponse.org');
         });
     });
+    context('report error email', () => {
+        it('sendReportErrorEmail delivers an email with the error message', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            const user = {
+                email: 'foo@example.com',
+                tenant: {
+                    display_name: 'Test Tenant',
+                },
+            };
+            sinon.replace(email, 'deliverEmail', sendFake);
+            const body = 'There was an error generating a your requested Audit Report. Someone from USDR will reach out within 24 hours to debug the problem. We apologize for any inconvenience.';
+
+            await email.sendReportErrorEmail(user, 'Audit');
+            expect(sendFake.calledOnce).to.equal(true);
+            expect(sendFake.firstCall.firstArg.subject).to.equal(`Audit Report generation has failed for Test Tenant`);
+            expect(sendFake.firstCall.firstArg.emailPlain).to.equal(body);
+            expect(sendFake.firstCall.firstArg.toAddress).to.equal(user.email);
+            expect(sendFake.firstCall.firstArg.ccAddress).to.equal('grants-helpdesk@usdigitalresponse.org');
+            expect(sendFake.firstCall.firstArg.emailHTML).contains(body);
+        });
+    });
     context('saved search grant digest email', () => {
         beforeEach(async () => {
             this.clockFn = (date) => sinon.useFakeTimers(new Date(date));

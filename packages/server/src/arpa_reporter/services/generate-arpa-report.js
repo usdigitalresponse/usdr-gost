@@ -1075,20 +1075,6 @@ async function generateAndSendEmail(recipientEmail, periodId, tenantId, logger =
     }
 }
 
-async function sendErrorEmail(user) {
-    const subject = `Treasury Report generation has failed for ${user.tenant.display_name}`;
-    const emailPlain = `There was an error generating a your requested Treasury Report. 
-                        Someone from USDR will reach out within 24 hours to debug the problem. 
-                        We apologize for any inconvenience.`;
-    email.deliverEmail({
-        toAddress: user.email,
-        ccAddress: 'grants-helpdesk@usdigitalresponse.org',
-        emailHTML: emailPlain,
-        emailPlain,
-        subject,
-    });
-}
-
 async function processSQSMessageRequest(message) {
     let requestData;
     let user;
@@ -1113,7 +1099,7 @@ async function processSQSMessageRequest(message) {
         await generateAndSendEmail(user.email, requestData.periodId, requestData.tenantId);
     } catch (err) {
         log.error({ err }, 'failed to generate and send treasury report');
-        await sendErrorEmail(user);
+        await email.sendReportErrorEmail(user, 'Treasury');
         return false;
     }
 
