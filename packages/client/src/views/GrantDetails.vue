@@ -7,139 +7,143 @@
       <div v-if="!selectedGrant && !loading">
         No grant found
       </div>
-      <div v-if="selectedGrant && !loading" class="mb-3 d-flex align-items-start">
-        <b-col class="mx-4">
-          <h2 class="mb-5">{{ selectedGrant.title }}</h2>
-          <b-table
-            class="grant-details-table mb-5"
-            :items="tableData"
-            :fields="[
-              {key: 'name', class: 'color-gray grants-details-table-fit-content'},
-              {key: 'value', class: 'font-weight-bold'},
-            ]"
-            thead-class="d-none"
-            borderless
-            hover
-          ></b-table>
-          <h3 class="mb-3">Description</h3>
-          <!-- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
-          <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
-          <br />
-        </b-col>
-        <b-col class="mx-auto my-5 px-2 col-md-4 col-lg-3">
-          <b-row>
-            <b-button
-              :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="primary"
-              class="btn-block mx-1 my-2"
-              data-dd-action-name="view on grants.gov"
-            >
-              <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2" />
-              Apply on Grants.gov
-            </b-button>
-            <b-button
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="outline-primary"
-              class="col mx-1"
-              @click="printPage"
-            >
-              <b-icon icon="printer-fill" aria-hidden="true" class="mr-2" />
-              Print
-            </b-button>
-            <b-button
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="outline-primary"
-              class="col mx-1"
-              @click="copyUrl"
-            >
-              <b-icon icon="files" aria-hidden="true" class="mr-2" />
-              Copy Link
-            </b-button>
-          </b-row>
-          <br />
-          <b-row class="mt-4">
-            <h4>Assign Grant</h4>
-          </b-row>
-          <b-row>
-            <b-col>
-              <v-select
-                v-model="selectedAgencies"
-                :options="agencies"
-                :multiple="true"
-                label="name" track-by="id"
-                :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
-                data-dd-action-name="select team for grant assignment"
-              />
-            </b-col>
-            <b-col>
-              <b-button variant="primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
-                Submit
+      <b-container fluid v-if="selectedGrant && !loading" class="mt-5">
+        <b-row>
+          <!-- Left page column: title, table data, and grant description -->
+          <b-col>
+            <h2 class="mb-5">{{ selectedGrant.title }}</h2>
+            <b-table
+              class="grant-details-table mb-5"
+              :items="tableData"
+              :fields="[
+                {key: 'name', class: 'color-gray grants-details-table-fit-content'},
+                {key: 'value', class: 'font-weight-bold'},
+              ]"
+              thead-class="d-none"
+              borderless
+              hover
+            ></b-table>
+            <h3 class="mb-3">Description</h3>
+            <!-- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
+            <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
+          </b-col>
+
+          <!-- Right page column: apply, assign, and status actions -->
+          <b-col class="grants-details-sidebar">
+            <b-row>
+              <b-button
+                :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="primary"
+                class="btn-block mx-1 my-2"
+                data-dd-action-name="view on grants.gov"
+              >
+                <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2" />
+                Apply on Grants.gov
               </b-button>
-            </b-col>
-          </b-row>
-          <b-row>
-            <div v-for="agency in assignedAgencies" :key="agency">
-              <p>
-                <span>{{ agency.name }}</span>
-                <button
-                  type="button"
-                  class="btn btn-close"
-                  @click="unassignAgenciesToGrant(agency)"
-                  data-dd-action-name="remove team assignment"
-                >
-                  <b-icon icon="x" aria-hidden="true" />
-                </button>
-              </p>
-            </div>
-          </b-row>
-          <b-row>
-            <h4>{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h4>
-          </b-row>
-          <b-row>
-            <b-col>
-              <b-form-select v-model="selectedInterestedCode" data-dd-action-name="select team status">
-                <b-form-select-option :value="null">Choose Status</b-form-select-option>
-                <b-form-select-option-group label="Interested">
-                  <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
-                    {{ code.name }}
-                  </b-form-select-option>
-                </b-form-select-option-group>
-                <b-form-select-option-group label="Applied">
-                  <b-form-select-option v-for="code in interestedCodes.result" :key="code.id" :value="code.id">
-                    {{ code.name }}
-                  </b-form-select-option>
-                </b-form-select-option-group>
-                <b-form-select-option-group label="Not Applying">
-                  <b-form-select-option v-for="code in interestedCodes.rejections" :key="code.id" :value="code.id">
-                    {{ code.name }}
-                  </b-form-select-option>
-                </b-form-select-option-group>
-              </b-form-select>
-            </b-col>
-            <b-col>
-              <b-button variant="primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">Submit</b-button>
-            </b-col>
-          </b-row>
-          <b-row>
-            <div v-for="agency in selectedGrant.interested_agencies" :key="agency">
-              <p v-if="(String(agency.agency_id) === selectedAgencyId) || isAbleToUnmark(agency.agency_id)">
-                <span class="data-label">{{ agency.user_name }}</span>
-                <span> updated </span>
-                <span class="data-label">{{ agency.agency_name }}</span>
-                <span> team status to </span>
-                <span class="data-label">{{ agency.interested_code_name }}</span>
-                <button type="button" class="btn btn-close" @click="unmarkGrantAsInterested(agency)" data-dd-action-name="remove team status">
-                  <b-icon icon="x" aria-hidden="true" />
-                </button>
-              </p>
-            </div>
-          </b-row>
-        </b-col>
-      </div>
+              <b-button
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outline-primary"
+                class="col mx-1"
+                @click="printPage"
+              >
+                <b-icon icon="printer-fill" aria-hidden="true" class="mr-2" />
+                Print
+              </b-button>
+              <b-button
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outline-primary"
+                class="col mx-1"
+                @click="copyUrl"
+              >
+                <b-icon icon="files" aria-hidden="true" class="mr-2" />
+                Copy Link
+              </b-button>
+            </b-row>
+            <br />
+            <b-row class="mt-4">
+              <h4>Assign Grant</h4>
+            </b-row>
+            <b-row>
+              <b-col>
+                <v-select
+                  v-model="selectedAgencies"
+                  :options="agencies"
+                  :multiple="true"
+                  label="name" track-by="id"
+                  :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
+                  data-dd-action-name="select team for grant assignment"
+                />
+              </b-col>
+              <b-col>
+                <b-button variant="primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
+                  Submit
+                </b-button>
+              </b-col>
+            </b-row>
+            <b-row>
+              <div v-for="agency in assignedAgencies" :key="agency.id">
+                <p>
+                  <span>{{ agency.name }}</span>
+                  <button
+                    type="button"
+                    class="btn btn-close"
+                    @click="unassignAgenciesToGrant(agency)"
+                    data-dd-action-name="remove team assignment"
+                  >
+                    <b-icon icon="x" aria-hidden="true" />
+                  </button>
+                </p>
+              </div>
+            </b-row>
+            <b-row>
+              <h4>{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h4>
+            </b-row>
+            <b-row>
+              <b-col>
+                <b-form-select v-model="selectedInterestedCode" data-dd-action-name="select team status">
+                  <b-form-select-option :value="null">Choose Status</b-form-select-option>
+                  <b-form-select-option-group label="Interested">
+                    <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
+                      {{ code.name }}
+                    </b-form-select-option>
+                  </b-form-select-option-group>
+                  <b-form-select-option-group label="Applied">
+                    <b-form-select-option v-for="code in interestedCodes.result" :key="code.id" :value="code.id">
+                      {{ code.name }}
+                    </b-form-select-option>
+                  </b-form-select-option-group>
+                  <b-form-select-option-group label="Not Applying">
+                    <b-form-select-option v-for="code in interestedCodes.rejections" :key="code.id" :value="code.id">
+                      {{ code.name }}
+                    </b-form-select-option>
+                  </b-form-select-option-group>
+                </b-form-select>
+              </b-col>
+              <b-col>
+                <b-button variant="primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">Submit</b-button>
+              </b-col>
+            </b-row>
+            <b-row>
+              <div v-for="agency in selectedGrant.interested_agencies" :key="agency.id">
+                <p v-if="(String(agency.agency_id) === selectedAgencyId) || isAbleToUnmark(agency.agency_id)">
+                  <span class="data-label">{{ agency.user_name }}</span>
+                  <span> updated </span>
+                  <span class="data-label">{{ agency.agency_name }}</span>
+                  <span> team status to </span>
+                  <span class="data-label">{{ agency.interested_code_name }}</span>
+                  <button type="button" class="btn btn-close" @click="unmarkGrantAsInterested(agency)" data-dd-action-name="remove team status">
+                    <b-icon icon="x" aria-hidden="true" />
+                  </button>
+                </p>
+              </div>
+            </b-row>
+          </b-col>
+        </b-row>
+      </b-container>
     </div>
   </section>
 </template>
@@ -376,7 +380,12 @@ export default {
 </script>
 
 <style lang="css">
+.grants-details-sidebar {
+  flex-basis: 500px;
+  flex-grow: 0;
+}
 .grant-details-table tr:nth-of-type(odd) {
+  /* Design color differs from default bootstrap, so making our own striped background here */
   background-color: #F9F9F9;
 }
 .grants-details-table-fit-content {
