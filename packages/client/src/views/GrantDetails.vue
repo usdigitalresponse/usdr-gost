@@ -30,40 +30,41 @@
 
           <!-- Right page column: apply, assign, and status actions -->
           <b-col class="grants-details-sidebar">
-            <b-row>
+
+            <!-- Main action buttons section -->
+            <div class="mb-5">
               <b-button
+                size="lg"
+                variant="primary"
+                block
+                class="mb-3"
                 :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
                 target="_blank"
                 rel="noopener noreferrer"
-                variant="primary"
-                class="btn-block mx-1 my-2"
                 data-dd-action-name="view on grants.gov"
               >
                 <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2" />
                 Apply on Grants.gov
               </b-button>
-              <b-button
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="outline-primary"
-                class="col mx-1"
-                @click="printPage"
-              >
-                <b-icon icon="printer-fill" aria-hidden="true" class="mr-2" />
-                Print
-              </b-button>
-              <b-button
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="outline-primary"
-                class="col mx-1"
-                @click="copyUrl"
-              >
-                <b-icon icon="files" aria-hidden="true" class="mr-2" />
-                Copy Link
-              </b-button>
-            </b-row>
-            <br />
+              <div class="d-flex">
+                <b-button
+                  class="w-50 flex-shrink-1 mr-3"
+                  variant="outline-primary"
+                  @click="printPage"
+                >
+                  <b-icon icon="printer-fill" aria-hidden="true" class="mr-2" />
+                  Print
+                </b-button>
+                <b-button
+                  class="w-50 flex-shrink-1"
+                  variant="outline-primary"
+                  @click="copyUrl"
+                >
+                  <b-icon icon="files" aria-hidden="true" class="mr-2" />
+                  Copy Link
+                </b-button>
+              </div>
+            </div>
             <b-row class="mt-4">
               <h4>Assign Grant</h4>
             </b-row>
