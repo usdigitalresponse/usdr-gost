@@ -96,12 +96,14 @@
             </div>
 
             <!-- Team status section -->
-            <b-row>
-              <h4>{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h4>
-            </b-row>
-            <b-row>
-              <b-col>
-                <b-form-select v-model="selectedInterestedCode" data-dd-action-name="select team status">
+            <div class="mb-5">
+              <h4 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h4>
+              <div class="d-flex">
+                <b-form-select
+                  class="flex-grow-1 mr-3"
+                  v-model="selectedInterestedCode"
+                  data-dd-action-name="select team status"
+                >
                   <b-form-select-option :value="null">Choose Status</b-form-select-option>
                   <b-form-select-option-group label="Interested">
                     <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
@@ -119,25 +121,26 @@
                     </b-form-select-option>
                   </b-form-select-option-group>
                 </b-form-select>
-              </b-col>
-              <b-col>
-                <b-button variant="primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">Submit</b-button>
-              </b-col>
-            </b-row>
-            <b-row>
-              <div v-for="agency in selectedGrant.interested_agencies" :key="agency.id">
-                <p v-if="(String(agency.agency_id) === selectedAgencyId) || isAbleToUnmark(agency.agency_id)">
-                  <span class="data-label">{{ agency.user_name }}</span>
-                  <span> updated </span>
-                  <span class="data-label">{{ agency.agency_name }}</span>
-                  <span> team status to </span>
-                  <span class="data-label">{{ agency.interested_code_name }}</span>
-                  <button type="button" class="btn btn-close" @click="unmarkGrantAsInterested(agency)" data-dd-action-name="remove team status">
-                    <b-icon icon="x" aria-hidden="true" />
-                  </button>
-                </p>
+                <b-button variant="primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">
+                  Submit
+                </b-button>
               </div>
-            </b-row>
+              <div v-for="agency in visibleInterestedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
+                <!-- TODO: adopt updated design for what to show on each line item here -->
+                <div>
+                  <p class="m-0">
+                    <strong>{{ agency.user_name }}</strong> updated
+                    <strong>{{ agency.agency_name }}</strong> team status to
+                    <strong>{{ agency.interested_code_name }}</strong>
+                  </p>
+                </div>
+                <b-button-close
+                  @click="unmarkGrantAsInterested(agency)"
+                  data-dd-action-name="remove team status"
+                />
+              </div>
+            </div>
+
           </b-col>
         </b-row>
       </b-container>
@@ -247,6 +250,10 @@ export default {
         value: this.selectedGrant.cost_sharing,
       },
       ];
+    },
+    visibleInterestedAgencies() {
+      return this.selectedGrant.interested_agencies
+        .filter((agency) => String(agency.agency_id) === this.selectedAgencyId || this.isAbleToUnmark(agency.agency_id));
     },
     alreadyViewed() {
       if (!this.selectedGrant) {
