@@ -87,7 +87,7 @@
               <div v-for="agency in assignedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
                 <div class="mr-3">
                   <p class="m-0">{{ agency.name }}</p>
-                  <p class="m-0 text-muted"><small>{{ agency.created_at }}</small></p>
+                  <p class="m-0 text-muted"><small>{{ formatDateTime(agency.created_at) }}</small></p>
                 </div>
                 <b-button-close
                   @click="unassignAgenciesToGrant(agency)"
@@ -380,6 +380,9 @@ export default {
     },
     formatDate(dateString) {
       return DateTime.fromISO(dateString).toLocaleString(DateTime.DATE_MED);
+    },
+    formatDateTime(dateString) {
+      return DateTime.fromISO(dateString).toLocaleString(DateTime.DATETIME_MED);
     },
   },
 };
