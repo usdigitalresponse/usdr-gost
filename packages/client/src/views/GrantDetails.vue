@@ -65,12 +65,13 @@
                 </b-button>
               </div>
             </div>
-            <b-row class="mt-4">
-              <h4>Assign Grant</h4>
-            </b-row>
-            <b-row>
-              <b-col>
+
+            <!-- Assign grant section -->
+            <div class="mb-5">
+              <h4 class="mb-3">Assign Grant</h4>
+              <div class="d-flex">
                 <v-select
+                  class="flex-grow-1 mr-3"
                   v-model="selectedAgencies"
                   :options="agencies"
                   :multiple="true"
@@ -78,28 +79,23 @@
                   :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
                   data-dd-action-name="select team for grant assignment"
                 />
-              </b-col>
-              <b-col>
                 <b-button variant="primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
                   Submit
                 </b-button>
-              </b-col>
-            </b-row>
-            <b-row>
-              <div v-for="agency in assignedAgencies" :key="agency.id">
-                <p>
-                  <span>{{ agency.name }}</span>
-                  <button
-                    type="button"
-                    class="btn btn-close"
-                    @click="unassignAgenciesToGrant(agency)"
-                    data-dd-action-name="remove team assignment"
-                  >
-                    <b-icon icon="x" aria-hidden="true" />
-                  </button>
-                </p>
               </div>
-            </b-row>
+              <div v-for="agency in assignedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
+                <div class="mr-3">
+                  <p class="m-0">{{ agency.name }}</p>
+                  <p class="m-0 text-muted"><small>{{ agency.created_at }}</small></p>
+                </div>
+                <b-button-close
+                  @click="unassignAgenciesToGrant(agency)"
+                  data-dd-action-name="remove team assignment"
+                />
+              </div>
+            </div>
+
+            <!-- Team status section -->
             <b-row>
               <h4>{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h4>
             </b-row>
