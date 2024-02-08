@@ -33,7 +33,7 @@
           <b-col class="grants-details-sidebar">
 
             <!-- Main action buttons section -->
-            <div class="mb-5">
+            <div class="mb-5 print-d-none">
               <b-button
                 size="lg"
                 variant="primary"
@@ -70,7 +70,7 @@
             <!-- Assign grant section -->
             <div class="mb-5">
               <h3 class="mb-3">Assign Grant</h3>
-              <div class="d-flex">
+              <div class="d-flex print-d-none">
                 <v-select
                   class="flex-grow-1 mr-3"
                   v-model="selectedAgencies"
@@ -92,6 +92,7 @@
                 <b-button-close
                   @click="unassignAgenciesToGrant(agency)"
                   data-dd-action-name="remove team assignment"
+                  class="print-d-none"
                 />
               </div>
             </div>
@@ -99,7 +100,7 @@
             <!-- Team status section -->
             <div class="mb-5">
               <h3 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h3>
-              <div class="d-flex">
+              <div class="d-flex print-d-none">
                 <b-form-select
                   class="flex-grow-1 mr-3"
                   v-model="selectedInterestedCode"
@@ -138,6 +139,7 @@
                 <b-button-close
                   @click="unmarkGrantAsInterested(agency)"
                   data-dd-action-name="remove team status"
+                  class="print-d-none"
                 />
               </div>
             </div>
@@ -401,5 +403,14 @@ export default {
   /* Make a table column that's the width of its content */
   white-space: nowrap;
   width: 1%;
+}
+
+@media print {
+  .print-d-none {
+    display: none !important; /* important to override other styles like `d-flex` */
+  }
+  .grants-details-sidebar {
+    flex-basis: 30%; /* don't want the sidebar taking over the page in print */
+  }
 }
 </style>
