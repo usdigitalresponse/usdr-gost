@@ -18,6 +18,7 @@
       </div>
       <b-container fluid v-if="selectedGrant && !loading" class="mt-4">
         <b-row>
+
           <!-- Left page column: title, table data, and grant description -->
           <b-col>
             <h2 class="mb-5">{{ selectedGrant.title }}</h2>
