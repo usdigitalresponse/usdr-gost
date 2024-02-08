@@ -1,9 +1,11 @@
 <template>
-  <section class="container-fluid grants-details-container">
-    <router-link v-if="backButton" class="d-inline-block" to="">
-      <span @click="$router.back()" style="color: black"><b-icon icon="arrow-left" aria-hidden="true" class="mr-3" scale="2.0"></b-icon>Back</span>
+  <section class="container-fluid">
+    <router-link v-if="backButton" class="d-inline-block text-dark" to="">
+      <h4 @click="$router.back()">
+        <b-icon icon="arrow-left" aria-hidden="true" class="mx-3" scale="2.5"></b-icon>Back
+      </h4>
     </router-link>
-    <b-breadcrumb v-else class="mx-4 flex-nowrap">
+    <b-breadcrumb v-else class="flex-nowrap bg-white">
       <b-breadcrumb-item href="/grants">Home</b-breadcrumb-item>
       <b-breadcrumb-item active class="text-truncate">{{ selectedGrant.title }}</b-breadcrumb-item>
     </b-breadcrumb>
@@ -14,7 +16,7 @@
       <div v-if="!selectedGrant && !loading">
         No grant found
       </div>
-      <b-container fluid v-if="selectedGrant && !loading" class="mt-5">
+      <b-container fluid v-if="selectedGrant && !loading" class="mt-4">
         <b-row>
           <!-- Left page column: title, table data, and grant description -->
           <b-col>
@@ -406,11 +408,8 @@ export default {
 </script>
 
 <style lang="css">
-.breadcrumb {
-  background-color: #ffffff;
-}
-.grants-details-container {
-    padding: 80px;
+.breadcrumb a {
+  color: #6D7278;
 }
 .grants-details-sidebar {
   flex-basis: 500px;
