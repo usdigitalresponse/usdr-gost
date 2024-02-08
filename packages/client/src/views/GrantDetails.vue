@@ -63,7 +63,7 @@
                 >
                   <b-icon :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'" aria-hidden="true" class="mr-2" />
                   <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
-                  <span v-else>Successfully Copied</span>
+                  <span v-else>Link Copied</span>
                 </b-button>
               </div>
             </div>
