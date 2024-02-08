@@ -58,11 +58,12 @@
                 </b-button>
                 <b-button
                   class="w-50 flex-shrink-1"
-                  variant="outline-primary"
+                  :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
                   @click="copyUrl"
                 >
-                  <b-icon icon="files" aria-hidden="true" class="mr-2" />
-                  Copy Link
+                  <b-icon :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'" aria-hidden="true" class="mr-2" />
+                  <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
+                  <span v-else>Link Copied</span>
                 </b-button>
               </div>
             </div>
@@ -189,6 +190,7 @@ export default {
       searchInput: null,
       debouncedSearchInput: null,
       loading: true,
+      copyUrlSuccessTimeout: null,
     };
   },
   created() {
@@ -374,8 +376,15 @@ export default {
       });
     },
     copyUrl() {
-      // fixme: make sure this works in the browsers we need to support
       navigator.clipboard.writeText(window.location.href);
+
+      // Show the success indicator
+      // (Clear previous timeout to ensure multiple clicks in quick succession don't cause issues)
+      clearTimeout(this.copyUrlSuccessTimeout);
+      this.copyUrlSuccessTimeout = setTimeout(
+        () => { this.copyUrlSuccessTimeout = null; },
+        1000,
+      );
     },
     printPage() {
       window.print();
