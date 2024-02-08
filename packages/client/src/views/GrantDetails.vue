@@ -236,7 +236,7 @@ export default {
         name: 'Award Ceiling',
         value: this.selectedGrant.award_ceiling,
       }, {
-        name: 'Category of',
+        name: 'Category of Funding Activity',
         value: this.selectedGrant.funding_activity_categories?.join(', '),
       }, {
         name: 'Opportunity Category',
@@ -401,5 +401,8 @@ export default {
   /* Make a table column that's the width of its content */
   white-space: nowrap;
   width: 1%;
+}
+.grants-details-table-fit-content:after {
+  content: ": "
 }
 </style>
