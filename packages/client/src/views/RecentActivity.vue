@@ -200,7 +200,7 @@ export default {
       if (!newGrantsDetailPageEnabled()) {
         return;
       }
-      this.$router.push({ name: 'grantDetail', params: {id: item.grant_id, backButton: true }});
+      this.$router.push({ name: 'grantDetail', params: { id: item.grant_id, backButton: true }});
     },
     exportCSV() {
       this.exportCSVRecentActivities();
