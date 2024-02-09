@@ -33,7 +33,7 @@
           <b-col class="grants-details-sidebar">
 
             <!-- Main action buttons section -->
-            <div class="mb-5">
+            <div class="mb-5 print-d-none">
               <b-button
                 size="lg"
                 variant="primary"
@@ -58,11 +58,12 @@
                 </b-button>
                 <b-button
                   class="w-50 flex-shrink-1"
-                  variant="outline-primary"
+                  :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
                   @click="copyUrl"
                 >
-                  <b-icon icon="files" aria-hidden="true" class="mr-2" />
-                  Copy Link
+                  <b-icon :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'" aria-hidden="true" class="mr-2" />
+                  <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
+                  <span v-else>Link Copied</span>
                 </b-button>
               </div>
             </div>
@@ -70,7 +71,7 @@
             <!-- Assign grant section -->
             <div class="mb-5">
               <h3 class="mb-3">Assign Grant</h3>
-              <div class="d-flex">
+              <div class="d-flex print-d-none">
                 <v-select
                   class="flex-grow-1 mr-3"
                   v-model="selectedAgencies"
@@ -92,6 +93,7 @@
                 <b-button-close
                   @click="unassignAgenciesToGrant(agency)"
                   data-dd-action-name="remove team assignment"
+                  class="print-d-none"
                 />
               </div>
             </div>
@@ -99,7 +101,7 @@
             <!-- Team status section -->
             <div class="mb-5">
               <h3 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h3>
-              <div class="d-flex">
+              <div class="d-flex print-d-none">
                 <b-form-select
                   class="flex-grow-1 mr-3"
                   v-model="selectedInterestedCode"
@@ -138,6 +140,7 @@
                 <b-button-close
                   @click="unmarkGrantAsInterested(agency)"
                   data-dd-action-name="remove team status"
+                  class="print-d-none"
                 />
               </div>
             </div>
@@ -187,6 +190,7 @@ export default {
       searchInput: null,
       debouncedSearchInput: null,
       loading: true,
+      copyUrlSuccessTimeout: null,
     };
   },
   created() {
@@ -372,8 +376,15 @@ export default {
       });
     },
     copyUrl() {
-      // fixme: make sure this works in the browsers we need to support
       navigator.clipboard.writeText(window.location.href);
+
+      // Show the success indicator
+      // (Clear previous timeout to ensure multiple clicks in quick succession don't cause issues)
+      clearTimeout(this.copyUrlSuccessTimeout);
+      this.copyUrlSuccessTimeout = setTimeout(
+        () => { this.copyUrlSuccessTimeout = null; },
+        1000,
+      );
     },
     printPage() {
       window.print();
@@ -401,5 +412,14 @@ export default {
   /* Make a table column that's the width of its content */
   white-space: nowrap;
   width: 1%;
+}
+
+@media print {
+  .print-d-none {
+    display: none !important; /* important to override other styles like `d-flex` */
+  }
+  .grants-details-sidebar {
+    flex-basis: 30%; /* don't want the sidebar taking over the page in print */
+  }
 }
 </style>
