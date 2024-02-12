@@ -240,7 +240,7 @@ export default {
         name: 'Award Ceiling',
         value: this.selectedGrant.award_ceiling,
       }, {
-        name: 'Category of',
+        name: 'Category of Funding Activity',
         value: this.selectedGrant.funding_activity_categories?.join(', '),
       }, {
         name: 'Opportunity Category',
