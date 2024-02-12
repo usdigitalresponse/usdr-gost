@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-navbar :type="navBarType" :variant="navBarVariant" class="header-dropshadow py-1">
-      <b-navbar-brand to="grants" class="d-flex align-items-center">
+      <b-navbar-brand :to="{ name: 'grants' }" class="d-flex align-items-center">
       <b-img v-if="myProfileEnabled" :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 2.5rem;" class="" alt="United States Digital Response - Home" />
       <b-img v-else :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 2.5rem;" class="" alt="United States Digital Response - Home" />
       <h1 class="ml-3 mb-0 h4">Federal Grant Finder</h1>
@@ -25,7 +25,7 @@
             <template v-else #button-content>
               <em>{{loggedInUser.email}}</em>
             </template>
-            <b-dropdown-item to="my-profile">
+            <b-dropdown-item :to="{ name: 'myProfile' }">
               <b-icon icon="person-circle" scale="1" class="dropdown-icon"></b-icon>
               <p class="dropdown-item-text">My profile</p>
             </b-dropdown-item>
