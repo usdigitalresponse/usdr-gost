@@ -14,15 +14,18 @@ const ASYNC_REPORT_TYPES = {
     audit: 'audit',
     treasury: 'treasury',
 };
+const HELPDESK_EMAIL = 'grants-helpdesk@usdigitalresponse.org';
 
 async function deliverEmail({
     toAddress,
+    ccAddress,
     emailHTML,
     emailPlain,
     subject,
 }) {
     return emailService.getTransport().sendEmail({
         toAddress,
+        ccAddress,
         subject,
         body: emailHTML,
         text: emailPlain,
@@ -88,6 +91,36 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
         emailHTML,
         emailPlain: `Your link to access USDR's Grants tool is ${href}. It expires in ${expiryMinutes} minutes`,
         subject: 'USDR Grants Tool Access Link',
+    });
+}
+
+async function sendReportErrorEmail(user, reportType) {
+    const body = `There was an error generating a your requested ${reportType} Report. `
+    + 'Someone from USDR will reach out within 24 hours to debug the problem. '
+    + 'We apologize for any inconvenience.';
+    const subject = `${reportType} Report generation has failed for ${user.tenant.display_name}`;
+
+    const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
+
+    const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
+        body_title: subject,
+        body_detail: body,
+    });
+
+    const emailHTML = module.exports.addBaseBranding(
+        formattedBody,
+        {
+            tool_name: 'Grants Reporter Tool',
+            title: subject,
+        },
+    );
+
+    return module.exports.deliverEmail({
+        toAddress: user.email,
+        ccAddress: HELPDESK_EMAIL,
+        emailHTML,
+        emailPlain: body,
+        subject,
     });
 }
 
@@ -371,6 +404,7 @@ async function sendAsyncReportEmail(recipient, signedUrl, reportType) {
 module.exports = {
     sendPassCode,
     sendWelcomeEmail,
+    sendReportErrorEmail,
     sendGrantAssignedEmail,
     deliverEmail,
     buildGrantDetail,

@@ -52,6 +52,9 @@ async function sendEmail(message) {
         // text: 'Hello world?', // plain text body
         html: message.body, // html body
     };
+    if (message.ccAddress) {
+        params.cc = message.ccAddress;
+    }
     transport.sendMail(params);
 }
 

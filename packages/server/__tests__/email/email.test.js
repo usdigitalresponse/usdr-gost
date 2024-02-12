@@ -195,6 +195,7 @@ describe('Email sender', () => {
 
             email.deliverEmail({
                 toAddress: 'foo@bar.com',
+                ccAddress: 'cc@example.com',
                 emailHTML: '<p>foo</p>',
                 emailPlain: 'foo',
                 subject: 'test foo email',
@@ -203,6 +204,7 @@ describe('Email sender', () => {
             expect(sendFake.calledOnce).to.equal(true);
             expect(sendFake.firstCall.args).to.deep.equal([{
                 toAddress: 'foo@bar.com',
+                ccAddress: 'cc@example.com',
                 subject: 'test foo email',
                 body: '<p>foo</p>',
                 text: 'foo',
@@ -279,6 +281,27 @@ describe('Email sender', () => {
             expect(sendFake.firstCall.firstArg.emailPlain).to.equal('Your treasury report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org This link will remain active for 7 days.');
             expect(sendFake.firstCall.firstArg.toAddress).to.equal('foo@example.com');
             expect(sendFake.firstCall.firstArg.emailHTML).contains('https://example.usdigitalresponse.org');
+        });
+    });
+    context('report error email', () => {
+        it('sendReportErrorEmail delivers an email with the error message', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            const user = {
+                email: 'foo@example.com',
+                tenant: {
+                    display_name: 'Test Tenant',
+                },
+            };
+            sinon.replace(email, 'deliverEmail', sendFake);
+            const body = 'There was an error generating a your requested Audit Report. Someone from USDR will reach out within 24 hours to debug the problem. We apologize for any inconvenience.';
+
+            await email.sendReportErrorEmail(user, 'Audit');
+            expect(sendFake.calledOnce).to.equal(true);
+            expect(sendFake.firstCall.firstArg.subject).to.equal(`Audit Report generation has failed for Test Tenant`);
+            expect(sendFake.firstCall.firstArg.emailPlain).to.equal(body);
+            expect(sendFake.firstCall.firstArg.toAddress).to.equal(user.email);
+            expect(sendFake.firstCall.firstArg.ccAddress).to.equal('grants-helpdesk@usdigitalresponse.org');
+            expect(sendFake.firstCall.firstArg.emailHTML).contains(body);
         });
     });
     context('saved search grant digest email', () => {
