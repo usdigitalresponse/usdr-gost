@@ -402,7 +402,4 @@ export default {
   white-space: nowrap;
   width: 1%;
 }
-.grants-details-table-fit-content:after {
-  content: ": "
-}
 </style>
