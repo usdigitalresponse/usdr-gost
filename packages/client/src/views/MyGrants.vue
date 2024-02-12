@@ -2,16 +2,16 @@
   <div class="grants-tabs">
     <b-tabs align="left" style="margin-top: 1.5rem" lazy>
       <b-tab title="Interested" active>
-        <component :is="tableComponent" searchTitle="Interested" :showInterested="true" :showSearchControls="false"/>
+        <GrantsTable searchTitle="Interested" showInterested :showSearchControls="false"/>
       </b-tab>
       <b-tab title="Assigned">
-        <component :is="tableComponent" searchTitle="Assigned" :showAssignedToAgency="selectedAgencyId" :showSearchControls="false"/>
+        <GrantsTable searchTitle="Assigned" :showAssignedToAgency="selectedAgencyId" :showSearchControls="false"/>
       </b-tab>
       <b-tab title="Not Applying">
-        <component :is="tableComponent" searchTitle="Not Applying" :showRejected="true" :showSearchControls="false"/>
+        <GrantsTable searchTitle="Not Applying" showRejected :showSearchControls="false"/>
       </b-tab>
       <b-tab title="Applied">
-          <component :is="tableComponent" searchTitle="Applied" :showResult="true" :showSearchControls="false"/>
+        <GrantsTable searchTitle="Applied" showResult :showSearchControls="false"/>
       </b-tab>
     </b-tabs>
   </div>
@@ -19,26 +19,20 @@
 
 <script>
 import { mapGetters } from 'vuex';
-
 import GrantsTable from '@/components/GrantsTable.vue';
 
 export default {
-  data() {
-    return {
-
-    };
+  components: {
+    GrantsTable,
   },
   computed: {
     ...mapGetters({
       selectedAgencyId: 'users/selectedAgencyId',
     }),
-    tableComponent() {
-      return GrantsTable;
-    },
   },
-  methods: {},
 };
 </script>
+
 <style>
 .grants-tabs .nav-tabs {
   padding-left: 20px;
