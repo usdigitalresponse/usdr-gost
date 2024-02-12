@@ -22,11 +22,27 @@
     </b-row>
     <b-row align-v="center">
       <b-col cols="12">
-        <b-table id="grants-table" hover responsive stacked="sm" :items="formattedGrants"
-          :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
-          :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
+        <b-table
+          id="grants-table"
+          responsive
+          bordered
+          striped
+          hover
+          stacked="sm"
+          :busy="loading"
+          :items="formattedGrants"
+          :fields="fields.filter(field => !field.hideGrantItem)"
+          show-empty
+          emptyText="No matches found"
+          no-local-sorting
+          :sort-by.sync="orderBy"
+          :sort-desc.sync="orderDesc"
+          selectable
+          select-mode="single"
           :tbody-tr-attr="{'data-dd-action-name': 'grant search result'}"
-          @row-selected="onRowSelected" @row-clicked="onRowClicked" show-empty emptyText="No matches found">
+          @row-selected="onRowSelected"
+          @row-clicked="onRowClicked"
+        >
           <template #cell(award_ceiling)="row">
             <p> {{ formatMoney(row.item.award_ceiling) }}</p>
           </template>
@@ -60,7 +76,7 @@
           v-model="currentPage"
           use-router
           replace
-          :link-gen="paginationLinkGen"
+          :link-gen="buildRouteQuery"
           :number-of-pages="totalPages"
           first-text="First"
           prev-text="Prev"
@@ -225,18 +241,23 @@ export default {
       if (this.loading) {
         return;
       }
+      this.updateRouteQuery();
       this.paginateGrants();
     },
     orderBy() {
       if (this.loading) {
         return;
       }
+      this.currentPage = 1;
+      this.updateRouteQuery();
       this.paginateGrants();
     },
     orderDesc() {
       if (this.loading) {
         return;
       }
+      this.currentPage = 1;
+      this.updateRouteQuery();
       this.paginateGrants();
     },
     selectedGrantIndex() {
@@ -258,6 +279,7 @@ export default {
         this.orderBy = 'open_date';
         this.orderDesc = true;
       }
+      this.updateRouteQuery();
       this.paginateGrants();
     },
   },
@@ -271,6 +293,7 @@ export default {
     }),
     setup() {
       this.clearSelectedSearch();
+      this.updateRouteQuery();
       this.paginateGrants();
     },
     clearSearch() {
@@ -310,19 +333,30 @@ export default {
         this.loading = false;
       }
     },
-    paginationLinkGen(pageNum) {
+    buildRouteQuery(pageNum) {
       const route = {
         ...router.currentRoute,
         query: {
           ...router.currentRoute.query,
-          page: pageNum,
+          page: pageNum ?? this.currentPage,
+          sort: this.orderBy,
+          desc: this.orderDesc,
         },
       };
-      // Page 1 should be inferred rather than appended as a query
-      if (pageNum === 1) {
+      // Remove default query component values to reduce clutter
+      if (route.query.page === 1) {
         delete route.query.page;
       }
+      if (!route.query.sort) {
+        delete route.query.sort;
+      }
+      if (!route.query.desc) {
+        delete route.query.desc;
+      }
       return route;
+    },
+    updateRouteQuery() {
+      router.replace(this.buildRouteQuery());
     },
     notifyError() {
       this.$bvToast.toast('We encountered an error while retrieving grants data. For the most accurate results please refresh the page and try again.', {
