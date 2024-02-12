@@ -55,17 +55,19 @@
     </b-row>
     <b-row class="grants-table-pagination">
       <b-col cols="11" class="grants-table-pagination-component">
-        <b-pagination
+        <b-pagination-nav
           class="m-0"
           v-model="currentPage"
-          :total-rows="totalRows"
-          :per-page="perPage"
+          use-router
+          replace
+          :link-gen="paginationLinkGen"
+          :number-of-pages="totalPages"
           first-text="First"
           prev-text="Prev"
           next-text="Next"
           last-text="Last"
           aria-controls="grants-table" />
-          <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
+        <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
       </b-col>
     </b-row>
     <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
@@ -74,6 +76,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import router from '@/router';
 import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import { datadogRum } from '@datadog/browser-rum';
 import { titleize } from '../helpers/form-helpers';
@@ -81,6 +84,8 @@ import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
 import SearchFilter from './SearchFilter.vue';
+
+const PER_PAGE = 50;
 
 export default {
   components: {
@@ -102,7 +107,6 @@ export default {
   },
   data() {
     return {
-      perPage: 50,
       currentPage: 1,
       loading: false,
       fields: [
@@ -164,6 +168,9 @@ export default {
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
+    },
+    totalPages() {
+      return Math.max(Math.ceil(this.totalRows / PER_PAGE), 1);
     },
     lastPage() {
       return this.grantsPagination ? this.grantsPagination.lastPage : 0;
@@ -287,7 +294,7 @@ export default {
         }
         this.loading = true;
         await this.fetchGrants({
-          perPage: this.perPage,
+          perPage: PER_PAGE,
           currentPage: this.currentPage,
           orderBy: this.orderBy,
           orderDesc: this.orderDesc,
@@ -302,6 +309,20 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    paginationLinkGen(pageNum) {
+      const route = {
+        ...router.currentRoute,
+        query: {
+          ...router.currentRoute.query,
+          page: pageNum,
+        },
+      };
+      // Page 1 should be inferred rather than appended as a query
+      if (pageNum === 1) {
+        delete route.query.page;
+      }
+      return route;
     },
     notifyError() {
       this.$bvToast.toast('We encountered an error while retrieving grants data. For the most accurate results please refresh the page and try again.', {
