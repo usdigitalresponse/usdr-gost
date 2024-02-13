@@ -12,6 +12,14 @@ updates:
       interval: "daily"
       time: "03:00"
       timezone: "America/New_York"
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+      time: "03:00"
+      timezone: "America/New_York"
+    commit-message:
+      prefix: 'Chore [deps:github-actions]'
   - package-ecosystem: "terraform"
     directory: "/terraform"
     schedule:
