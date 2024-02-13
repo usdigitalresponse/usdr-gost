@@ -12,6 +12,8 @@ updates:
       interval: "daily"
       time: "03:00"
       timezone: "America/New_York"
+    commit-message:
+      prefix: 'Chore [deps:npm]'
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -26,6 +28,8 @@ updates:
       interval: "daily"
       time: "03:00"
       timezone: "America/New_York"
+    commit-message:
+      prefix: 'Chore [deps:terraform]'
   # Dependabot can't inspect nested directories so we need to list all local modules individually.
   # TODO: Consider switching to Rennovate.
   - package-ecosystem: "terraform"
@@ -34,27 +38,37 @@ updates:
       interval: "daily"
       time: "03:00"
       timezone: "America/New_York"
+    commit-message:
+      prefix: 'Chore [deps:terraform]'
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_consume_grants"
     schedule:
       interval: "daily"
       time: "03:00"
       timezone: "America/New_York"
+    commit-message:
+      prefix: 'Chore [deps:terraform]'
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_website"
     schedule:
       interval: "daily"
       time: "03:00"
       timezone: "America/New_York"
+    commit-message:
+      prefix: 'Chore [deps:terraform]'
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_postgres"
     schedule:
       interval: "daily"
       time: "03:00"
       timezone: "America/New_York"
+    commit-message:
+      prefix: 'Chore [deps:terraform]'
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/scheduled_ecs_task"
     schedule:
       interval: "daily"
       time: "03:00"
       timezone: "America/New_York"
+    commit-message:
+      prefix: 'Chore [deps:terraform]'
