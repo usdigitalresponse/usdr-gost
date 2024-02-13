@@ -35,7 +35,6 @@
             <!-- Main action buttons section -->
             <div class="mb-5 print-d-none">
               <b-button
-                size="lg"
                 variant="primary"
                 block
                 class="mb-3"
@@ -81,7 +80,7 @@
                   :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
                   data-dd-action-name="select team for grant assignment"
                 />
-                <b-button variant="primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
+                <b-button variant="outline-primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
                   Submit
                 </b-button>
               </div>
@@ -124,7 +123,7 @@
                     </b-form-select-option>
                   </b-form-select-option-group>
                 </b-form-select>
-                <b-button variant="primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">
+                <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">
                   Submit
                 </b-button>
               </div>
