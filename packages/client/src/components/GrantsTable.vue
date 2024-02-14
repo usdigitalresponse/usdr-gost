@@ -71,19 +71,18 @@
     </b-row>
     <b-row class="grants-table-pagination">
       <b-col cols="11" class="grants-table-pagination-component">
-        <b-pagination-nav
+        <b-pagination
           class="m-0"
+          :key="forcePaginationUpdate"
           v-model="currentPage"
-          use-router
-          replace
-          :link-gen="buildRoute"
-          :number-of-pages="totalPages"
-          no-page-detect
+          :total-rows="totalRows"
+          :per-page="perPage"
           first-text="First"
           prev-text="Prev"
           next-text="Next"
           last-text="Last"
-          aria-controls="grants-table" />
+          aria-controls="grants-table"
+        />
         <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
       </b-col>
     </b-row>
@@ -93,7 +92,6 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import router from '@/router';
 import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import { datadogRum } from '@datadog/browser-rum';
 import { titleize } from '../helpers/form-helpers';
@@ -101,8 +99,6 @@ import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
 import SearchFilter from './SearchFilter.vue';
-
-const PER_PAGE = 50;
 
 export default {
   components: {
@@ -125,6 +121,8 @@ export default {
   data() {
     return {
       currentPage: 1,
+      perPage: 50,
+      forcePaginationUpdate: 1,
       loading: false,
       fields: [
         {
@@ -171,6 +169,10 @@ export default {
   },
   mounted() {
     document.addEventListener('keyup', this.changeSelectedGrantIndex);
+    this.$watch(
+      () => this.$route.query,
+      () => { this.setup(); },
+    );
     this.setup();
   },
   computed: {
@@ -185,9 +187,6 @@ export default {
     }),
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
-    },
-    totalPages() {
-      return Math.max(Math.ceil(this.totalRows / PER_PAGE), 1);
     },
     lastPage() {
       return this.grantsPagination ? this.grantsPagination.lastPage : 0;
@@ -279,29 +278,35 @@ export default {
       applyFilters: 'grants/applyFilters',
     }),
     titleize,
-    setup() {
+    async setup() {
       this.clearSelectedSearch();
       // Pull pagination and sort state from route
       this.loading = true; // Prevent routing
-      this.currentPage = router.currentRoute.query.page ?? this.currentPage;
-      this.orderBy = router.currentRoute.query.sort ?? this.orderBy;
-      this.orderDesc = Boolean(router.currentRoute.query.desc);
-      this.retrieveFilteredGrants();
+      this.currentPage = Number(this.$router.currentRoute.query.page) ?? this.currentPage;
+      this.orderBy = this.$router.currentRoute.query.sort ?? this.orderBy;
+      this.orderDesc = Boolean(this.$router.currentRoute.query.desc);
+      await this.retrieveFilteredGrants();
+      // We need to force the pagination component to update after the fetch completes to render the correct page.
+      // If you load the page with a `?page=n` query part, the pagination component renders with currentPage=n
+      // and totalRows=0, so it thinks there aren't any pages and defaults to showing page 1, even if you're on
+      // page n. In order to force the component to update once we have an accurate count of total pages, we'll
+      // update a `key` property here after fetching grants is complete.
+      this.forcePaginationUpdate += 1;
     },
     clearSearch() {
       this.loading = true;
       this.orderBy = 'open_date';
       this.orderDesc = true;
     },
-    async updateFilteredGrants({ routerHistoryReplace = false }) {
+    async updateFilteredGrants({ routerHistoryReplace = false } = {}) {
       // Updates the grants being displayed triggered by an update to search,
       // filter, pagination, or column sorting; and updates URL and history.
       if (this.loading) { return; }
       const route = this.buildRoute();
       if (routerHistoryReplace) {
-        router.replace(route);
+        this.$router.replace(route);
       } else {
-        router.push(route);
+        this.$router.push(route);
       }
       await this.retrieveFilteredGrants();
     },
@@ -320,7 +325,7 @@ export default {
           });
         }
         await this.fetchGrants({
-          perPage: PER_PAGE,
+          perPage: this.perPage,
           currentPage: this.currentPage,
           orderBy: this.orderBy,
           orderDesc: this.orderDesc,
@@ -339,9 +344,9 @@ export default {
     buildRoute(pageNum) {
       // Create a new Route object based on the current search/filter/page/sort parameters
       const route = {
-        ...router.currentRoute,
+        ...this.$router.currentRoute,
         query: {
-          ...router.currentRoute.query,
+          ...this.$router.currentRoute.query,
           page: pageNum ?? this.currentPage,
           sort: this.orderBy,
           desc: this.orderDesc,
