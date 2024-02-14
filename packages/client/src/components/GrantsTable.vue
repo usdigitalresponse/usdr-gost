@@ -5,7 +5,7 @@
         <SavedSearchPanel :isDisabled="loading" />
       </div>
       <div class="ml-1">
-        <SearchPanel :isDisabled="loading" ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
+        <SearchPanel :isDisabled="loading" ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="updateFilteredGrants" />
       </div>
     </b-row>
     <b-row  class="grants-table-title-control">
@@ -76,8 +76,9 @@
           v-model="currentPage"
           use-router
           replace
-          :link-gen="buildRouteQuery"
+          :link-gen="buildRoute"
           :number-of-pages="totalPages"
+          no-page-detect
           first-text="First"
           prev-text="Prev"
           next-text="Next"
@@ -163,7 +164,7 @@ export default {
       ],
       selectedGrant: null,
       selectedGrantIndex: null,
-      orderBy: '',
+      orderBy: 'rank',
       orderDesc: false,
       searchId: null,
     };
@@ -238,37 +239,17 @@ export default {
       this.setup();
     },
     currentPage() {
-      if (this.loading) {
-        return;
-      }
-      this.updateRouteQuery();
-      this.paginateGrants();
+      this.updateFilteredGrants();
     },
     orderBy() {
-      if (this.loading) {
-        return;
-      }
-      this.currentPage = 1;
-      this.updateRouteQuery();
-      this.paginateGrants();
+      this.currentPage = 1; // Return to page 1 when re-sorting results
+      this.updateFilteredGrants({ routerHistoryReplace: true });
     },
     orderDesc() {
-      if (this.loading) {
-        return;
-      }
-      this.currentPage = 1;
-      this.updateRouteQuery();
-      this.paginateGrants();
-    },
-    selectedGrantIndex() {
-      this.changeSelectedGrant();
-    },
-    // when we fetch grants, refresh selectedGrant reference
-    grants() {
-      this.changeSelectedGrant();
+      this.currentPage = 1; // Return to page 1 when re-sorting results
+      this.updateFilteredGrants({ routerHistoryReplace: true });
     },
     selectedSearchId() {
-      this.loading = true;
       this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
       const filterKeys = this.activeFilters.map((f) => f.key);
       if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
@@ -279,8 +260,14 @@ export default {
         this.orderBy = 'open_date';
         this.orderDesc = true;
       }
-      this.updateRouteQuery();
-      this.paginateGrants();
+      this.updateFilteredGrants();
+    },
+    selectedGrantIndex() {
+      this.changeSelectedGrant();
+    },
+    grants() {
+      // when we fetch grants, refresh selectedGrant reference
+      this.changeSelectedGrant();
     },
   },
   methods: {
@@ -291,21 +278,38 @@ export default {
       initEditSearch: 'grants/initEditSearch',
       applyFilters: 'grants/applyFilters',
     }),
+    titleize,
     setup() {
       this.clearSelectedSearch();
-      this.updateRouteQuery();
-      this.paginateGrants();
+      // Pull pagination and sort state from route
+      this.loading = true; // Prevent routing
+      this.currentPage = router.currentRoute.query.page ?? this.currentPage;
+      this.orderBy = router.currentRoute.query.sort ?? this.orderBy;
+      this.orderDesc = Boolean(router.currentRoute.query.desc);
+      this.retrieveFilteredGrants();
     },
     clearSearch() {
       this.loading = true;
       this.orderBy = 'open_date';
       this.orderDesc = true;
     },
-    titleize,
-    async paginateGrants() {
+    async updateFilteredGrants({ routerHistoryReplace = false }) {
+      // Updates the grants being displayed triggered by an update to search,
+      // filter, pagination, or column sorting; and updates URL and history.
+      if (this.loading) { return; }
+      const route = this.buildRoute();
+      if (routerHistoryReplace) {
+        router.replace(route);
+      } else {
+        router.push(route);
+      }
+      await this.retrieveFilteredGrants();
+    },
+    async retrieveFilteredGrants() {
+      this.loading = true;
       try {
         if (!this.searchId) {
-          // apply custom filters based on props
+        // apply custom filters based on props
           await this.applyFilters({
             reviewStatus: [
               `${this.showInterested ? 'Interested' : ''}`,
@@ -315,7 +319,6 @@ export default {
             ].filter((r) => r),
           });
         }
-        this.loading = true;
         await this.fetchGrants({
           perPage: PER_PAGE,
           currentPage: this.currentPage,
@@ -326,14 +329,15 @@ export default {
           showRejected: this.showRejected,
           assignedToAgency: this.showAssignedToAgency,
         });
-      } catch (e) {
+      } catch (error) {
         this.notifyError();
-        console.log(e);
+        console.error(error);
       } finally {
         this.loading = false;
       }
     },
-    buildRouteQuery(pageNum) {
+    buildRoute(pageNum) {
+      // Create a new Route object based on the current search/filter/page/sort parameters
       const route = {
         ...router.currentRoute,
         query: {
@@ -347,16 +351,13 @@ export default {
       if (route.query.page === 1) {
         delete route.query.page;
       }
-      if (!route.query.sort) {
+      if (!route.query.sort || route.query.sort === 'rank') {
         delete route.query.sort;
       }
       if (!route.query.desc) {
         delete route.query.desc;
       }
       return route;
-    },
-    updateRouteQuery() {
-      router.replace(this.buildRouteQuery());
     },
     notifyError() {
       this.$bvToast.toast('We encountered an error while retrieving grants data. For the most accurate results please refresh the page and try again.', {
@@ -417,16 +418,6 @@ export default {
         }
         this.selectedGrantIndex += 1;
       }
-    },
-    async grantUpdated() {
-      await this.paginateGrants();
-      const grant = this.grants.find(
-        (g) => this.selectedGrant.grant_id === g.grant_id,
-      );
-      this.selectedGrant = grant;
-      this.selectedGrantIndex = this.grants.findIndex(
-        (g) => this.selectedGrant.grant_id === g.grant_id,
-      );
     },
     exportCSV() {
       this.navigateToExportCSV({
