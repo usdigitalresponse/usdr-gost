@@ -72,7 +72,7 @@
               <div class="d-flex print-d-none">
                 <v-select
                   class="flex-grow-1 mr-3"
-                  v-model="selectedAgencies"
+                  v-model="selectedAgencyToAssign"
                   :options="agencies"
                   label="name" track-by="id"
                   :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
@@ -168,7 +168,7 @@ export default {
         },
       ],
       assignedAgencies: [],
-      selectedAgencies: [],
+      selectedAgencyToAssign: null,
       selectedInterestedCode: null,
       searchInput: null,
       debouncedSearchInput: null,
@@ -331,14 +331,14 @@ export default {
       datadogRum.addAction('remove team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
     },
     async assignAgenciesToGrant() {
-      const agencyIds = this.selectedAgencies.map((agency) => agency.id);
+      const agencyIds = this.assignedAgencies.map((agency) => agency.id).concat(this.selectedAgencyToAssign.id);
       await this.assignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
         agencyIds,
       });
-      this.selectedAgencies = [];
+      datadogRum.addAction('assign team to grant', { team: { id: this.selectedAgencyToAssign.id }, grant: { id: this.selectedGrant.grant_id } });
+      this.selectedAgencyToAssign = null;
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
-      datadogRum.addAction('assign team to grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
     },
     async unassignAgenciesToGrant(agency) {
       await this.unassignAgenciesToGrantAction({
@@ -359,7 +359,7 @@ export default {
     resetSelectedGrant() {
       this.$emit('update:selectedGrant', null);
       this.assignedAgencies = [];
-      this.selectedAgencies = [];
+      this.selectedAgencyToAssign = null;
     },
     async fetchData() {
       await this.fetchGrantDetails({ grantId: this.$route.params.id }).then(() => {
