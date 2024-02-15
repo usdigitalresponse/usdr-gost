@@ -9,3 +9,7 @@
 .vs__open-indicator {
   cursor: pointer;
 }
+
+.vs__search::placeholder {
+  color: #878787;
+}
