@@ -131,9 +131,12 @@
                 <div>
                   <p class="m-0">
                     <strong>{{ agency.user_name }}</strong> updated
-                    <strong>{{ agency.agency_name }}</strong> team status to
+                    <strong>{{ agency.agency_name }}'s</strong> status to
                     <strong>{{ agency.interested_code_name }}</strong>
                   </p>
+                  <a class="text-muted" :href="'mailto:' + agency.user_email" target="_blank" >
+                    <b-icon icon="envelope-fill" class="mr-1"/>{{ agency.user_email }}
+                  </a>
                 </div>
                 <b-button-close
                   @click="unmarkGrantAsInterested(agency)"
