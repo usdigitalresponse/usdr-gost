@@ -15,7 +15,11 @@
 *.ico               binary
 *.jar               binary
 *.jpg               binary
+*.pdf               binary
 *.png               binary
 *.ttf               binary
 *.woff              binary
 *.woff2             binary
+*.xls               binary
+*.xlsm              binary
+*.xlsx              binary

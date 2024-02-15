@@ -138,7 +138,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             .join(', '),
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
+        url: `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
     }));
 
     if (data.length === 0) {
@@ -223,7 +223,7 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             .join(', '),
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        url: `https://www.grants.gov/web/grants/view-opportunity.html?oppId=${grant.grant_id}`,
+        url: `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
     }));
 
     if (data.length === 0) {
@@ -448,14 +448,7 @@ router.get('/:grantId/form/:formName', requireUser, async (req, res) => {
     if (!grant) {
         return res.status(404);
     }
-    if (grant.raw_body) {
-        try {
-            const rawBody = JSON.parse(grant.raw_body);
-            grant.agencyName = rawBody && rawBody.synopsis ? rawBody.synopsis.agencyName : '';
-        } catch (e) {
-            console.log('failed to parse grant raw_body');
-        }
-    }
+    grant.agencyName = grant.raw_body_json?.synopsis?.agencyName || '';
     const filePath = await pdf.fillPdf(`${req.params.formName}.pdf`, formFields[req.params.formName], {
         ...user,
         ...grant,

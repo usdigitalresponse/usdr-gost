@@ -42,7 +42,7 @@ function mapSourceDataToGrant(source) {
         funding_activity_category_codes: (source.funding_activity?.categories || []).map((it) => it.code).join(' '),
         award_ceiling: source.award && source.award.ceiling ? source.award.ceiling : undefined,
         award_floor: source.award && source.award.floor ? source.award.floor : undefined,
-        raw_body: JSON.stringify(source),
+        raw_body_json: source,
         bill: source.bill,
         funding_instrument_codes: (source.funding_instrument_types || []).map((it) => it.code).join(' '),
     };

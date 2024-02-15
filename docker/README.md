@@ -22,8 +22,11 @@ steps to prepare your environment:
 4. Run `docker compose up -d` to start the services in the background (the `-d` flag).
 5. Install application dependencies via yarn: `docker compose exec app yarn`.
 6. Visit http://localhost:8080 to confirm you see 'Grants Identification Tool' with a prompt to enter an email address.
-If you see a blank screen, [review the logs](#cookbook-logs), you may need to [run a db migrate](#cookbook-db-migrate) and restart the app container.
-
+  - If you see a blank screen, [review the logs](#cookbook-logs), you may need to [run a db migrate](#cookbook-db-migrate) and restart the app container.
+7. To enable logging in, seed the DB with data and use one of the generic login emails
+  - Run the DB seed script: `docker compose exec app yarn db:seed`
+  - At the login page, enter either `admin@example.com` or `staff@example.com`
+  - Check the logs for a generated login URL `docker compose logs -f app` and open it!
 
 **Note:** Some systems may have Docker Compose installed as an integrated plugin for Docker,
 while others may have it installed as a standalone executable (e.g. via `pip install`).

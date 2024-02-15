@@ -59,7 +59,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
         fetchOptions.admin.headers.cookie = await getSessionCookie('mindy@usdigitalresponse.org');
         fetchOptions.nonUSDRAdmin.headers.cookie = await getSessionCookie('joecomeau01@gmail.com');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.gov');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('user2@nv.example.com');
 
         testServer = await makeTestServer();
         fetchApi = testServer.fetchApi;
@@ -90,7 +90,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
         before(async () => {
             admin = await createUser({
                 name: 'Test Admin',
-                email: 'admin@example.com',
+                email: 'adminuser@example.com',
                 agency_id: 0,
                 tenant_id: 1,
                 role_id: fixtures.roles.adminRole.id,
@@ -130,7 +130,7 @@ describe('`/api/organizations/:organizationId/agencies` endpoint', () => {
         it('issues 400 Bad Request when agency has users', async () => {
             const blockingUser = await createUser({
                 name: 'Some One',
-                email: 'staff@example.com',
+                email: 'staffuser@example.com',
                 agency_id: agency.id,
                 tenant_id: agency.tenant_id,
                 role_id: fixtures.roles.staffRole.id,

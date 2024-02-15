@@ -3,6 +3,7 @@ import { datadogRum } from '@datadog/browser-rum';
 
 if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
   datadogRum.init(window.APP_CONFIG.DD_RUM_CONFIG);
+  datadogRum.setGlobalContextProperty('app', 'finder');
 }
 
 import Vue from 'vue';
@@ -22,6 +23,10 @@ const fetchApi = require('@/helpers/fetchApi');
 if (window.APP_CONFIG?.GOOGLE_TAG_ID) {
   store.watch((state) => state.users.loggedInUser, (newUser) => setUserForGoogleAnalytics(newUser));
 }
+
+store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser({
+  id: newUser.id, agency_id: newUser.agency_id, role: newUser.role.name, organization_id: newUser.tenant_id,
+}));
 
 // Install BootstrapVue
 Vue.use(BootstrapVue);

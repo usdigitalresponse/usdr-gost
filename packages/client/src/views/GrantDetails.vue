@@ -1,102 +1,155 @@
-<!-- eslint-disable max-len -->
 <template>
-  <div>
-    Grant ID: {{this.$route.params.id}}
-    <div v-if="loading">
-      Loading...
-    </div>
-    <div v-if="!selectedGrant && !loading">
-      No grant found
-    </div>
-    <div v-if="selectedGrant && !loading">
-      <b-row class="mb-3 d-flex align-items-baseline">
-        <b-col cols="8">
-          <h1 class="mb-0 h2">{{ selectedGrant.title }}</h1>
-        </b-col>
-        <b-col cols="4" class="text-right">
-          <b-button :href="`https://www.grants.gov/web/grants/view-opportunity.html?oppId=${selectedGrant.grant_id}`"
-            target="_blank" rel="noopener noreferrer" variant="primary" data-dd-action-name="view on grants.gov">
-            <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2"></b-icon>View on Grants.gov
-          </b-button>
-        </b-col>
-      </b-row>
-      <p><span class="data-label">Valid from:</span> {{ new
-          Date(selectedGrant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
-      }}-{{ new
-    Date(selectedGrant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
-}}</p>
-      <div v-for="field in dialogFields" :key="field">
-        <p><span class="data-label">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
+  <section class="container-fluid grants-details-container">
+    <div>
+      <div v-if="loading">
+        Loading...
       </div>
-      <p>
-        <span class="data-label">Category of Funding Activity:</span>
-        {{ selectedGrant['funding_activity_categories']?.join(', ') }}
-      </p>
-      <p class="data-label">Description:</p>
-      <div style="max-height: 170px; overflow-y: scroll">
-        <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
+      <div v-if="!selectedGrant && !loading">
+        No grant found
       </div>
-      <br />
-      <b-row class="ml-2 mb-2 d-flex align-items-baseline">
-        <h2 class="h4">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h2>
-        <b-col class="text-right">
-          <b-row v-if="!interested">
-            <b-col cols="9">
-              <b-form-select v-model="selectedInterestedCode" data-dd-action-name="select team status">
-                <b-form-select-option-group label="Interested">
-                  <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
-                    {{ code.name }}</b-form-select-option>
-                </b-form-select-option-group>
-                <b-form-select-option-group label="Applied">
-                  <b-form-select-option v-for="code in interestedCodes.result" :key="code.id" :value="code.id">
-                    {{ code.name }}</b-form-select-option>
-                </b-form-select-option-group>
-                <b-form-select-option-group label="Not Applying">
-                  <b-form-select-option v-for="code in interestedCodes.rejections" :key="code.id" :value="code.id">
-                    {{ code.name }}</b-form-select-option>
-                </b-form-select-option-group>
-              </b-form-select>
-            </b-col>
-            <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">Submit</b-button>
-          </b-row>
-          <b-row v-if="interested && interested.interested_status_code !== 'Rejection'&& shouldShowSpocButton">
-            <b-col>
-              <b-button variant="primary" @click="generateSpoc">Generate SPOC</b-button>
-            </b-col>
-          </b-row>
-        </b-col>
-      </b-row>
-      <br />
-      <b-table :items="selectedGrant.interested_agencies" :fields="interestedAgenciesFields">
-        <template #cell(actions)="row">
-          <b-row
-            v-if="(String(row.item.agency_id) === selectedAgencyId) || isAbleToUnmark(row.item.agency_id)">
-            <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unmarkGrantAsInterested(row)" data-dd-action-name="remove team status">
-              <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
-            </b-button>
-          </b-row>
-        </template>
-      </b-table>
-      <br />
-      <b-row class="ml-2 mb-2 d-flex align-items-baseline">
-        <h2 class="h4">Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h2>
-          <v-select v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
-            data-dd-action-name="select team for grant assignment"
-            :clear-on-select="false" :placeholder="`Select ${newTerminologyEnabled ? 'teams': 'agencies'}`" label="name" track-by="id"
-            style="width: 300px; margin: 0 16px;" :show-labels="false"
-          >
-          </v-select>
-          <b-button variant="outline-primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">Assign</b-button>
-      </b-row>
-      <b-table :items="assignedAgencies" :fields="assignedAgenciesFields">
-        <template #cell(actions)="row">
-          <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unassignAgenciesToGrant(row)" data-dd-action-name="remove team assignment">
-            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
-          </b-button>
-        </template>
-      </b-table>
+      <b-container fluid v-if="selectedGrant && !loading" class="mt-5">
+        <b-row>
+
+          <!-- Left page column: title, table data, and grant description -->
+          <b-col>
+            <h2 class="mb-5">{{ selectedGrant.title }}</h2>
+            <b-table
+              class="grant-details-table mb-5"
+              :items="tableData"
+              :fields="[
+                {key: 'name', class: 'color-gray grants-details-table-fit-content'},
+                {key: 'value', class: 'font-weight-bold'},
+              ]"
+              thead-class="d-none"
+              borderless
+              hover
+            ></b-table>
+            <h3 class="mb-3">Description</h3>
+            <!-- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
+            <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
+          </b-col>
+
+          <!-- Right page column: apply, assign, and status actions -->
+          <b-col class="grants-details-sidebar">
+
+            <!-- Main action buttons section -->
+            <div class="mb-5 print-d-none">
+              <b-button
+                variant="primary"
+                block
+                class="mb-3"
+                :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-dd-action-name="view on grants.gov"
+              >
+                <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2" />
+                Apply on Grants.gov
+              </b-button>
+              <div class="d-flex">
+                <b-button
+                  class="w-50 flex-shrink-1 mr-3"
+                  variant="outline-primary"
+                  @click="printPage"
+                >
+                  <b-icon icon="printer-fill" aria-hidden="true" class="mr-2" />
+                  Print
+                </b-button>
+                <b-button
+                  class="w-50 flex-shrink-1"
+                  :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
+                  @click="copyUrl"
+                >
+                  <b-icon :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'" aria-hidden="true" class="mr-2" />
+                  <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
+                  <span v-else>Link Copied</span>
+                </b-button>
+              </div>
+            </div>
+
+            <!-- Assign grant section -->
+            <div class="mb-5">
+              <h3 class="mb-3">Assign Grant</h3>
+              <div class="d-flex print-d-none">
+                <v-select
+                  class="flex-grow-1 mr-3"
+                  v-model="selectedAgencies"
+                  :options="agencies"
+                  :multiple="true"
+                  label="name" track-by="id"
+                  :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
+                  data-dd-action-name="select team for grant assignment"
+                />
+                <b-button variant="outline-primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
+                  Submit
+                </b-button>
+              </div>
+              <div v-for="agency in assignedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
+                <div class="mr-3">
+                  <p class="m-0">{{ agency.name }}</p>
+                  <p class="m-0 text-muted"><small>{{ formatDateTime(agency.created_at) }}</small></p>
+                </div>
+                <b-button-close
+                  @click="unassignAgenciesToGrant(agency)"
+                  data-dd-action-name="remove team assignment"
+                  class="print-d-none"
+                />
+              </div>
+            </div>
+
+            <!-- Team status section -->
+            <div class="mb-5">
+              <h3 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h3>
+              <div class="d-flex print-d-none">
+                <b-form-select
+                  class="flex-grow-1 mr-3"
+                  v-model="selectedInterestedCode"
+                  data-dd-action-name="select team status"
+                >
+                  <b-form-select-option :value="null">Choose Status</b-form-select-option>
+                  <b-form-select-option-group label="Interested">
+                    <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
+                      {{ code.name }}
+                    </b-form-select-option>
+                  </b-form-select-option-group>
+                  <b-form-select-option-group label="Applied">
+                    <b-form-select-option v-for="code in interestedCodes.result" :key="code.id" :value="code.id">
+                      {{ code.name }}
+                    </b-form-select-option>
+                  </b-form-select-option-group>
+                  <b-form-select-option-group label="Not Applying">
+                    <b-form-select-option v-for="code in interestedCodes.rejections" :key="code.id" :value="code.id">
+                      {{ code.name }}
+                    </b-form-select-option>
+                  </b-form-select-option-group>
+                </b-form-select>
+                <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">
+                  Submit
+                </b-button>
+              </div>
+              <div v-for="agency in visibleInterestedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
+                <!-- TODO: adopt updated design for what to show on each line item here -->
+                <div>
+                  <p class="m-0">
+                    <strong>{{ agency.user_name }}</strong> updated
+                    <strong>{{ agency.agency_name }}</strong> team status to
+                    <strong>{{ agency.interested_code_name }}</strong>
+                  </p>
+                </div>
+                <b-button-close
+                  @click="unmarkGrantAsInterested(agency)"
+                  data-dd-action-name="remove team status"
+                  class="print-d-none"
+                />
+              </div>
+            </div>
+
+          </b-col>
+
+        </b-row>
+      </b-container>
     </div>
-</div>
+  </section>
 </template>
 
 <script>
@@ -104,7 +157,7 @@ import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
-import { titleize } from '../helpers/form-helpers';
+import { DateTime } from 'luxon';
 
 export default {
   props: {
@@ -113,34 +166,7 @@ export default {
   data() {
     return {
       showDialog: false,
-      dialogFields: ['grant_id', 'agency_code', 'award_ceiling', 'cfda_list', 'opportunity_category', 'bill'],
       orderBy: '',
-      interestedAgenciesFields: [
-        {
-          key: 'agency_name',
-          label: `${newTerminologyEnabled ? 'Team' : 'Agency'}`,
-        },
-        {
-          key: 'agency_abbreviation',
-          label: 'Abbreviation',
-        },
-        {
-          label: 'Name',
-          key: 'user_name',
-        },
-        {
-          label: 'Email',
-          key: 'user_email',
-        },
-        {
-          label: 'Interested Code',
-          key: 'interested_code_name',
-        },
-        {
-          key: 'actions',
-          label: 'Actions',
-        },
-      ],
       assignedAgenciesFields: [
         {
           key: 'name',
@@ -163,6 +189,7 @@ export default {
       searchInput: null,
       debouncedSearchInput: null,
       loading: true,
+      copyUrlSuccessTimeout: null,
     };
   },
   created() {
@@ -192,6 +219,47 @@ export default {
       selectedAgency: 'users/selectedAgency',
       currentGrant: 'grants/currentGrant',
     }),
+    tableData() {
+      return [{
+        name: 'Opportunity Number',
+        value: this.selectedGrant.grant_number,
+      }, {
+        name: 'Open Date',
+        value: this.formatDate(this.selectedGrant.open_date),
+      }, {
+        name: 'Close Date',
+        value: this.formatDate(this.selectedGrant.close_date),
+      }, {
+        name: 'Grant ID',
+        value: this.selectedGrant.grant_id,
+      }, {
+        name: 'Federal Awarding',
+        value: this.selectedGrant.agency_code,
+      }, {
+        name: 'Award Ceiling',
+        value: this.selectedGrant.award_ceiling,
+      }, {
+        name: 'Category of Funding Activity',
+        value: this.selectedGrant.funding_activity_categories?.join(', '),
+      }, {
+        name: 'Opportunity Category',
+        value: this.selectedGrant.opportunity_category,
+      }, {
+        name: 'Opportunity Status',
+        value: this.selectedGrant.opportunity_status,
+      }, {
+        name: 'Appropriation Bill',
+        value: this.selectedGrant.bill,
+      }, {
+        name: 'Cost Sharing',
+        value: this.selectedGrant.cost_sharing,
+      },
+      ];
+    },
+    visibleInterestedAgencies() {
+      return this.selectedGrant.interested_agencies
+        .filter((agency) => String(agency.agency_id) === this.selectedAgencyId || this.isAbleToUnmark(agency.agency_id));
+    },
     alreadyViewed() {
       if (!this.selectedGrant) {
         return false;
@@ -245,7 +313,6 @@ export default {
       fetchAgencies: 'agencies/fetchAgencies',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
-    titleize,
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
     }, 500),
@@ -262,10 +329,10 @@ export default {
         datadogRum.addAction('submit team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
       }
     },
-    async unmarkGrantAsInterested(row) {
+    async unmarkGrantAsInterested(agency) {
       await this.unmarkGrantAsInterestedAction({
         grantId: this.selectedGrant.grant_id,
-        agencyIds: [row.item.agency_id],
+        agencyIds: [agency.agency_id],
         interestedCode: this.selectedInterestedCode,
       });
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
@@ -281,10 +348,10 @@ export default {
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
       datadogRum.addAction('assign team to grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
     },
-    async unassignAgenciesToGrant(row) {
+    async unassignAgenciesToGrant(agency) {
       await this.unassignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
-        agencyIds: [row.item.id],
+        agencyIds: [agency.id],
       });
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
       datadogRum.addAction('remove team assignment from grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
@@ -307,6 +374,51 @@ export default {
         this.selectedGrant = this.currentGrant;
       });
     },
+    copyUrl() {
+      navigator.clipboard.writeText(window.location.href);
+
+      // Show the success indicator
+      // (Clear previous timeout to ensure multiple clicks in quick succession don't cause issues)
+      clearTimeout(this.copyUrlSuccessTimeout);
+      this.copyUrlSuccessTimeout = setTimeout(
+        () => { this.copyUrlSuccessTimeout = null; },
+        1000,
+      );
+    },
+    printPage() {
+      window.print();
+    },
+    formatDate(dateString) {
+      return DateTime.fromISO(dateString).toLocaleString(DateTime.DATE_MED);
+    },
+    formatDateTime(dateString) {
+      return DateTime.fromISO(dateString).toLocaleString(DateTime.DATETIME_MED);
+    },
   },
 };
 </script>
+
+<style lang="css">
+.grants-details-sidebar {
+  flex-basis: 500px;
+  flex-grow: 0;
+}
+.grant-details-table tr:nth-of-type(odd) {
+  /* Design color differs from default bootstrap, so making our own striped background here */
+  background-color: #F9F9F9;
+}
+.grants-details-table-fit-content {
+  /* Make a table column that's the width of its content */
+  white-space: nowrap;
+  width: 1%;
+}
+
+@media print {
+  .print-d-none {
+    display: none !important; /* important to override other styles like `d-flex` */
+  }
+  .grants-details-sidebar {
+    flex-basis: 30%; /* don't want the sidebar taking over the page in print */
+  }
+}
+</style>

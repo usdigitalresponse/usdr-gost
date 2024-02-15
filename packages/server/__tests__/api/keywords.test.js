@@ -38,8 +38,8 @@ describe('`/api/keywords` endpoint', () => {
     let fetchApi;
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.example.com');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.example.com');
 
         // Tests below assume the presence of at least one keyword per agency. Previously, we had
         // a db seed that created some default COVID-related keywords but now that that is gone, we

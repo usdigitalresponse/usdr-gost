@@ -44,8 +44,8 @@ describe('`/api/grants` endpoint', () => {
     let fetchApi;
     before(async function beforeHook() {
         this.timeout(9000); // Getting session cookies can exceed default timeout.
-        fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.gov');
-        fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.gov');
+        fetchOptions.admin.headers.cookie = await getSessionCookie('admin1@nv.example.com');
+        fetchOptions.staff.headers.cookie = await getSessionCookie('user1@nv.example.com');
         fetchOptions.dallasAdmin.headers.cookie = await getSessionCookie('user1@dallas.gov');
 
         testServer = await makeTestServer();
@@ -576,7 +576,6 @@ describe('`/api/grants` endpoint', () => {
                 description: 'fake grant inserted by test',
                 eligibility_codes: '25',
                 opportunity_status: 'posted',
-                raw_body: 'raw body',
             }));
 
             try {
@@ -685,7 +684,6 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
                 description: 'fake grant inserted by test',
                 eligibility_codes: '25',
                 opportunity_status: 'posted',
-                raw_body: 'raw body',
             }));
 
             this.timeout(10000);
