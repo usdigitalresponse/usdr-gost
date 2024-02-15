@@ -11,7 +11,7 @@
         <b-row>
 
           <!-- Left page column: title, table data, and grant description -->
-          <b-col>
+          <b-col class="ml-5">
             <h2 class="mb-5">{{ selectedGrant.title }}</h2>
             <b-table
               class="grant-details-table mb-5"
@@ -30,7 +30,7 @@
           </b-col>
 
           <!-- Right page column: apply, assign, and status actions -->
-          <b-col class="grants-details-sidebar">
+          <b-col class="grants-details-sidebar mr-5">
 
             <!-- Main action buttons section -->
             <div class="mb-5 print-d-none">
@@ -400,7 +400,7 @@ export default {
 
 <style lang="css">
 .grants-details-sidebar {
-  flex-basis: 500px;
+  flex-basis: 437px;
   flex-grow: 0;
 }
 .grant-details-table tr:nth-of-type(odd) {
