@@ -5,7 +5,7 @@
         <SavedSearchPanel :isDisabled="loading" />
       </div>
       <div class="ml-1">
-        <SearchPanel :isDisabled="loading" ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="updateFilteredGrants" />
+        <SearchPanel :isDisabled="loading" ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="retrieveFilteredGrants" />
       </div>
     </b-row>
     <b-row  class="grants-table-title-control">
@@ -42,6 +42,7 @@
           :tbody-tr-attr="{'data-dd-action-name': 'grant search result'}"
           @row-selected="onRowSelected"
           @row-clicked="onRowClicked"
+          @sort-changed="currentPage = 1"
         >
           <template #cell(award_ceiling)="row">
             <p> {{ formatMoney(row.item.award_ceiling) }}</p>
@@ -71,18 +72,24 @@
     </b-row>
     <b-row class="grants-table-pagination">
       <b-col cols="11" class="grants-table-pagination-component">
-        <b-pagination
-          class="m-0"
-          :key="forcePaginationUpdate"
-          v-model="currentPage"
-          :total-rows="totalRows"
-          :per-page="perPage"
-          first-text="First"
-          prev-text="Prev"
-          next-text="Next"
-          last-text="Last"
-          aria-controls="grants-table"
-        />
+        <!--
+          Pagination component resets currentPage to 1 if totalRows is too low.
+          When loading the page with e.g. `?page=4`, this would reset the currentPage to 1
+          instead of 4. So we delay rendering of the pagination until grants are loaded.
+        -->
+        <template v-if="totalRows > 0">
+          <b-pagination
+            class="m-0"
+            v-model="currentPage"
+            :total-rows="totalRows"
+            :per-page="perPage"
+            first-text="First"
+            prev-text="Prev"
+            next-text="Next"
+            last-text="Last"
+            aria-controls="grants-table"
+          />
+        </template>
         <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
       </b-col>
     </b-row>
@@ -99,6 +106,11 @@ import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
 import SearchFilter from './SearchFilter.vue';
+
+const DEFAULT_CURRENT_PAGE = 1;
+const DEFAULT_ORDER_BY = 'rank';
+const DEFAULT_ORDER_DESC = false;
+const DEFAULT_SEARCH_ID = null;
 
 export default {
   components: {
@@ -120,9 +132,8 @@ export default {
   },
   data() {
     return {
-      currentPage: 1,
+      currentPage: DEFAULT_CURRENT_PAGE,
       perPage: 50,
-      forcePaginationUpdate: 1,
       loading: false,
       fields: [
         {
@@ -162,18 +173,38 @@ export default {
       ],
       selectedGrant: null,
       selectedGrantIndex: null,
-      orderBy: 'rank',
-      orderDesc: false,
-      searchId: null,
+      orderBy: DEFAULT_ORDER_BY,
+      orderDesc: DEFAULT_ORDER_DESC,
+      searchId: DEFAULT_SEARCH_ID,
     };
   },
   mounted() {
     document.addEventListener('keyup', this.changeSelectedGrantIndex);
+    this.clearSelectedSearch();
+
+    // Watch route query updates and reflect them in the component
+    // (This happens with browser back/forward through history)
+    // and trigger immediately to pull initial state from URL
     this.$watch(
       () => this.$route.query,
-      () => { this.setup(); },
+      this.extractStateFromRoute,
+      { deep: true, immediate: true },
     );
-    this.setup();
+
+    // Watch route query and push a route update when it changes.
+    // This needs to be set up after the initial setting of related
+    // data (currentPage, order, etc.) so it won't trigger initially.
+    this.$watch(
+      () => this.routeQuery,
+      (routeQuery) => {
+        this.pushRouteUpdate(routeQuery);
+        this.retrieveFilteredGrants();
+      },
+      { deep: true, immediate: false },
+    );
+
+    // Retrieve the initial grants list for the table
+    this.retrieveFilteredGrants();
   },
   computed: {
     ...mapGetters({
@@ -185,6 +216,27 @@ export default {
       selectedSearchId: 'grants/selectedSearchId',
       editingSearchId: 'grants/editingSearchId',
     }),
+    routeQuery() {
+      const query = {
+        page: this.currentPage,
+        sort: this.orderBy,
+        desc: this.orderDesc,
+        search: this.searchId,
+      };
+      if (query.page === DEFAULT_CURRENT_PAGE) {
+        delete query.page;
+      }
+      if (!query.sort || query.sort === DEFAULT_ORDER_BY) {
+        delete query.sort;
+      }
+      if (!query.desc) {
+        delete query.desc;
+      }
+      if (!query.search) {
+        delete query.search;
+      }
+      return query;
+    },
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
     },
@@ -235,21 +287,12 @@ export default {
   },
   watch: {
     selectedAgency() {
-      this.setup();
-    },
-    currentPage() {
-      this.updateFilteredGrants();
-    },
-    orderBy() {
-      this.currentPage = 1; // Return to page 1 when re-sorting results
-      this.updateFilteredGrants({ routerHistoryReplace: true });
-    },
-    orderDesc() {
-      this.currentPage = 1; // Return to page 1 when re-sorting results
-      this.updateFilteredGrants({ routerHistoryReplace: true });
+      this.clearSelectedSearch();
+      this.retrieveFilteredGrants();
     },
     selectedSearchId() {
       this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
+      this.currentPage = 1;
       const filterKeys = this.activeFilters.map((f) => f.key);
       if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
         // only if include/exclude keywords are selected
@@ -259,7 +302,6 @@ export default {
         this.orderBy = 'open_date';
         this.orderDesc = true;
       }
-      this.updateFilteredGrants();
     },
     selectedGrantIndex() {
       this.changeSelectedGrant();
@@ -274,41 +316,24 @@ export default {
       fetchGrants: 'grants/fetchGrantsNext',
       navigateToExportCSV: 'grants/exportCSV',
       clearSelectedSearch: 'grants/clearSelectedSearch',
+      changeSelectedSearchId: 'grants/changeSelectedSearchId',
+      changeEditingSearchId: 'grants/changeEditingSearchId',
       initEditSearch: 'grants/initEditSearch',
       applyFilters: 'grants/applyFilters',
     }),
     titleize,
-    async setup() {
-      this.clearSelectedSearch();
-      // Pull pagination and sort state from route
-      this.loading = true; // Prevent routing
-      this.currentPage = Number(this.$router.currentRoute.query.page) ?? this.currentPage;
-      this.orderBy = this.$router.currentRoute.query.sort ?? this.orderBy;
-      this.orderDesc = Boolean(this.$router.currentRoute.query.desc);
-      await this.retrieveFilteredGrants();
-      // We need to force the pagination component to update after the fetch completes to render the correct page.
-      // If you load the page with a `?page=n` query part, the pagination component renders with currentPage=n
-      // and totalRows=0, so it thinks there aren't any pages and defaults to showing page 1, even if you're on
-      // page n. In order to force the component to update once we have an accurate count of total pages, we'll
-      // update a `key` property here after fetching grants is complete.
-      this.forcePaginationUpdate += 1;
+    extractStateFromRoute() {
+      this.currentPage = Number(this.$route.query.page) || DEFAULT_CURRENT_PAGE;
+      this.orderBy = this.$route.query.sort || DEFAULT_ORDER_BY;
+      this.orderDesc = Boolean(this.$route.query.desc);
+      this.searchId = Number(this.$route.query.search) || DEFAULT_SEARCH_ID;
+      this.changeSelectedSearchId(this.searchId);
+      this.changeEditingSearchId(this.searchId);
     },
     clearSearch() {
       this.loading = true;
       this.orderBy = 'open_date';
       this.orderDesc = true;
-    },
-    async updateFilteredGrants({ routerHistoryReplace = false } = {}) {
-      // Updates the grants being displayed triggered by an update to search,
-      // filter, pagination, or column sorting; and updates URL and history.
-      if (this.loading) { return; }
-      const route = this.buildRoute();
-      if (routerHistoryReplace) {
-        this.$router.replace(route);
-      } else {
-        this.$router.push(route);
-      }
-      await this.retrieveFilteredGrants();
     },
     async retrieveFilteredGrants() {
       this.loading = true;
@@ -341,28 +366,23 @@ export default {
         this.loading = false;
       }
     },
-    buildRoute(pageNum) {
-      // Create a new Route object based on the current search/filter/page/sort parameters
-      const route = {
-        ...this.$router.currentRoute,
+    pushRouteUpdate(newQuery) {
+      // First remove the query params the table controls, so they don't get carried over in the case
+      // that the new query wants it removed (e.g., when resetting currentPage to 1)
+      const currentQuery = { ...this.$route.query };
+      delete currentQuery.page;
+      delete currentQuery.sort;
+      delete currentQuery.desc;
+      delete currentQuery.search;
+      // Next, combine this with other existing route details
+      const newRoute = {
+        ...this.$route,
         query: {
-          ...this.$router.currentRoute.query,
-          page: pageNum ?? this.currentPage,
-          sort: this.orderBy,
-          desc: this.orderDesc,
+          ...currentQuery,
+          ...newQuery,
         },
       };
-      // Remove default query component values to reduce clutter
-      if (route.query.page === 1) {
-        delete route.query.page;
-      }
-      if (!route.query.sort || route.query.sort === 'rank') {
-        delete route.query.sort;
-      }
-      if (!route.query.desc) {
-        delete route.query.desc;
-      }
-      return route;
+      this.$router.push(newRoute);
     },
     notifyError() {
       this.$bvToast.toast('We encountered an error while retrieving grants data. For the most accurate results please refresh the page and try again.', {
