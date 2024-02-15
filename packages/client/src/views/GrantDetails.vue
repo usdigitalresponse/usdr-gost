@@ -74,7 +74,6 @@
                   class="flex-grow-1 mr-3"
                   v-model="selectedAgencies"
                   :options="agencies"
-                  :multiple="true"
                   label="name" track-by="id"
                   :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
                   data-dd-action-name="select team for grant assignment"
@@ -100,28 +99,15 @@
             <div class="mb-5">
               <h3 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h3>
               <div class="d-flex print-d-none">
-                <b-form-select
+                <v-select
                   class="flex-grow-1 mr-3"
                   v-model="selectedInterestedCode"
+                  :options="interestedOptions"
+                  label="name" track-by="id"
+                  placeholder="Choose status"
+                  :selectable="selectableOption"
                   data-dd-action-name="select team status"
-                >
-                  <b-form-select-option :value="null">Choose Status</b-form-select-option>
-                  <b-form-select-option-group label="Interested">
-                    <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
-                      {{ code.name }}
-                    </b-form-select-option>
-                  </b-form-select-option-group>
-                  <b-form-select-option-group label="Applied">
-                    <b-form-select-option v-for="code in interestedCodes.result" :key="code.id" :value="code.id">
-                      {{ code.name }}
-                    </b-form-select-option>
-                  </b-form-select-option-group>
-                  <b-form-select-option-group label="Not Applying">
-                    <b-form-select-option v-for="code in interestedCodes.rejections" :key="code.id" :value="code.id">
-                      {{ code.name }}
-                    </b-form-select-option>
-                  </b-form-select-option-group>
-                </b-form-select>
+                />
                 <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">
                   Submit
                 </b-button>
@@ -217,6 +203,13 @@ export default {
       selectedAgency: 'users/selectedAgency',
       currentGrant: 'grants/currentGrant',
     }),
+    interestedOptions() {
+      const interestedHeader = [ { name: "Interested", status_code: "HEADER" } ];
+      const appliedHeader = [ { name: "Applied", status_code: "HEADER" } ];
+      const rejectedHeader = [ { name: "Not Applying", status_code: "HEADER" } ];
+      return interestedHeader.concat(this.interestedCodes.interested, appliedHeader, 
+        this.interestedCodes.result, rejectedHeader, this.interestedCodes.rejections);
+    },
     tableData() {
       return [{
         name: 'Opportunity Number',
@@ -324,6 +317,7 @@ export default {
           agencyId: this.selectedAgencyId,
           interestedCode: this.selectedInterestedCode,
         });
+        this.selectedInterestedCode = null;
         datadogRum.addAction('submit team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
       }
     },
@@ -391,6 +385,9 @@ export default {
     },
     formatDateTime(dateString) {
       return DateTime.fromISO(dateString).toLocaleString(DateTime.DATETIME_MED);
+    },
+    selectableOption(option) {
+      return option.status_code != 'HEADER';
     },
   },
 };
