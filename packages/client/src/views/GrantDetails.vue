@@ -1,13 +1,12 @@
 <template>
-  <section class="container-fluid grants-details-container">
-    <div>
+  <section class="grants-details-container m-5">
       <div v-if="loading">
         Loading...
       </div>
       <div v-if="!selectedGrant && !loading">
         No grant found
       </div>
-      <b-container fluid v-if="selectedGrant && !loading" class="mt-5">
+      <b-container fluid v-if="selectedGrant && !loading">
         <b-row>
 
           <!-- Left page column: title, table data, and grant description -->
@@ -148,7 +147,6 @@
 
         </b-row>
       </b-container>
-    </div>
   </section>
 </template>
 
@@ -400,7 +398,7 @@ export default {
 
 <style lang="css">
 .grants-details-sidebar {
-  flex-basis: 500px;
+  flex-basis: 437px;
   flex-grow: 0;
 }
 .grant-details-table tr:nth-of-type(odd) {
