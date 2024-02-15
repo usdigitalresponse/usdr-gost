@@ -1,17 +1,16 @@
 <template>
-  <section class="container-fluid grants-details-container">
-    <div>
+  <section class="grants-details-container m-5">
       <div v-if="loading">
         Loading...
       </div>
       <div v-if="!selectedGrant && !loading">
         No grant found
       </div>
-      <b-container fluid v-if="selectedGrant && !loading" class="mt-5">
+      <b-container fluid v-if="selectedGrant && !loading">
         <b-row>
 
           <!-- Left page column: title, table data, and grant description -->
-          <b-col class="ml-5">
+          <b-col>
             <h2 class="mb-5">{{ selectedGrant.title }}</h2>
             <b-table
               class="grant-details-table mb-5"
@@ -30,7 +29,7 @@
           </b-col>
 
           <!-- Right page column: apply, assign, and status actions -->
-          <b-col class="grants-details-sidebar mr-5">
+          <b-col class="grants-details-sidebar">
 
             <!-- Main action buttons section -->
             <div class="mb-5 print-d-none">
@@ -148,7 +147,6 @@
 
         </b-row>
       </b-container>
-    </div>
   </section>
 </template>
 
