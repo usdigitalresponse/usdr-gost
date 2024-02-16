@@ -102,6 +102,7 @@
                 <v-select
                   class="flex-grow-1 mr-3"
                   v-model="selectedInterestedCode"
+                  :reduce="(option) => option.id"
                   :options="interestedOptions"
                   label="name" track-by="id"
                   placeholder="Choose status"
@@ -204,10 +205,10 @@ export default {
       currentGrant: 'grants/currentGrant',
     }),
     interestedOptions() {
-      const interestedHeader = [ { name: "Interested", status_code: "HEADER" } ];
-      const appliedHeader = [ { name: "Applied", status_code: "HEADER" } ];
-      const rejectedHeader = [ { name: "Not Applying", status_code: "HEADER" } ];
-      return interestedHeader.concat(this.interestedCodes.interested, appliedHeader, 
+      const interestedHeader = [{ name: 'Interested', status_code: 'HEADER' }];
+      const appliedHeader = [{ name: 'Applied', status_code: 'HEADER' }];
+      const rejectedHeader = [{ name: 'Not Applying', status_code: 'HEADER' }];
+      return interestedHeader.concat(this.interestedCodes.interested, appliedHeader,
         this.interestedCodes.result, rejectedHeader, this.interestedCodes.rejections);
     },
     tableData() {
@@ -312,23 +313,27 @@ export default {
     },
     async markGrantAsInterested() {
       if (this.selectedInterestedCode !== null) {
+        const existingAgencyRecord = this.interested;
+        if (existingAgencyRecord) {
+          await this.unmarkGrantAsInterested(existingAgencyRecord);
+        }
         await this.markGrantAsInterestedAction({
           grantId: this.selectedGrant.grant_id,
           agencyId: this.selectedAgencyId,
           interestedCode: this.selectedInterestedCode,
         });
-        this.selectedInterestedCode = null;
         datadogRum.addAction('submit team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
+        this.selectedInterestedCode = null;
       }
     },
     async unmarkGrantAsInterested(agency) {
       await this.unmarkGrantAsInterestedAction({
         grantId: this.selectedGrant.grant_id,
         agencyIds: [agency.agency_id],
-        interestedCode: this.selectedInterestedCode,
+        interestedCode: agency.interested_code_id,
       });
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
-      datadogRum.addAction('remove team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
+      datadogRum.addAction('remove team status for grant', { team: { id: agency.agency_id }, status: agency.interested_code_id, grant: { id: this.selectedGrant.grant_id } });
     },
     async assignAgenciesToGrant() {
       const agencyIds = this.assignedAgencies.map((agency) => agency.id).concat(this.selectedAgencyToAssign.id);
@@ -387,7 +392,7 @@ export default {
       return DateTime.fromISO(dateString).toLocaleString(DateTime.DATETIME_MED);
     },
     selectableOption(option) {
-      return option.status_code != 'HEADER';
+      return option.status_code !== 'HEADER';
     },
   },
 };
