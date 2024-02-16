@@ -74,12 +74,13 @@
                   class="flex-grow-1 mr-3"
                   v-model="selectedAgencyToAssign"
                   :options="agencies"
-                  label="name" track-by="id"
+                  label="name" 
+                  track-by="id"
                   :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
                   :clearable="false"
                   data-dd-action-name="select team for grant assignment"
                 />
-                <b-button variant="outline-primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
+                <b-button variant="outline-primary" @click="assignAgenciesToGrant" :disabled="!selectedAgencyToAssign" data-dd-action-name="assign team">
                   Submit
                 </b-button>
               </div>
@@ -105,13 +106,14 @@
                   v-model="selectedInterestedCode"
                   :reduce="(option) => option.id"
                   :options="interestedOptions"
-                  label="name" track-by="id"
+                  label="name" 
+                  track-by="id"
                   placeholder="Choose status"
                   :selectable="selectableOption"
                   :clearable="false"
                   data-dd-action-name="select team status"
                 />
-                <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">
+                <b-button variant="outline-primary" @click="markGrantAsInterested" :disabled="!selectedInterestedCode" data-dd-action-name="submit team status">
                   Submit
                 </b-button>
               </div>
@@ -145,6 +147,8 @@ import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { DateTime } from 'luxon';
+
+const HEADER = '__HEADER__';
 
 export default {
   props: {
@@ -207,11 +211,14 @@ export default {
       currentGrant: 'grants/currentGrant',
     }),
     interestedOptions() {
-      const interestedHeader = [{ name: 'Interested', status_code: 'HEADER' }];
-      const appliedHeader = [{ name: 'Applied', status_code: 'HEADER' }];
-      const rejectedHeader = [{ name: 'Not Applying', status_code: 'HEADER' }];
-      return interestedHeader.concat(this.interestedCodes.interested, appliedHeader,
-        this.interestedCodes.result, rejectedHeader, this.interestedCodes.rejections);
+      return [
+        { name: 'Interested', status_code: HEADER },
+        ...this.interestedCodes.interested,
+        { name: 'Applied', status_code: HEADER },
+        ...this.interestedCodes.result,
+        { name: 'Not Applying', status_code: HEADER },
+        ...this.interestedCodes.rejections,
+        ]
     },
     tableData() {
       return [{
@@ -394,7 +401,7 @@ export default {
       return DateTime.fromISO(dateString).toLocaleString(DateTime.DATETIME_MED);
     },
     selectableOption(option) {
-      return option.status_code !== 'HEADER';
+      return option.status_code !== HEADER;
     },
   },
 };

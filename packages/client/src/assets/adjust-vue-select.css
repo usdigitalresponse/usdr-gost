@@ -13,3 +13,11 @@
 .vs__search::placeholder {
   color: #878787;
 }
+
+.vs__dropdown-option--disabled {
+  text-transform: uppercase;
+  font-size: 12px;
+}
+.vs__dropdown-option--disabled:not(:first-child) {
+  margin-top: 12px;
+}
