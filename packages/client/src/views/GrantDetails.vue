@@ -73,8 +73,8 @@
                 <v-select
                   class="flex-grow-1 mr-3"
                   v-model="selectedAgencyToAssign"
-                  :options="agencies"
-                  label="name" 
+                  :options="unassignedAgencies"
+                  label="name"
                   track-by="id"
                   :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
                   :clearable="false"
@@ -106,7 +106,7 @@
                   v-model="selectedInterestedCode"
                   :reduce="(option) => option.id"
                   :options="interestedOptions"
-                  label="name" 
+                  label="name"
                   track-by="id"
                   placeholder="Choose status"
                   :selectable="selectableOption"
@@ -218,7 +218,7 @@ export default {
         ...this.interestedCodes.result,
         { name: 'Not Applying', status_code: HEADER },
         ...this.interestedCodes.rejections,
-        ]
+      ];
     },
     tableData() {
       return [{
@@ -283,6 +283,11 @@ export default {
     newTerminologyEnabled() {
       return newTerminologyEnabled();
     },
+    unassignedAgencies() {
+      return this.agencies.filter(
+        (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
+      );
+    },
   },
   watch: {
     async selectedGrant() {
@@ -345,10 +350,9 @@ export default {
       datadogRum.addAction('remove team status for grant', { team: { id: agency.agency_id }, status: agency.interested_code_id, grant: { id: this.selectedGrant.grant_id } });
     },
     async assignAgenciesToGrant() {
-      const agencyIds = this.assignedAgencies.map((agency) => agency.id).concat(this.selectedAgencyToAssign.id);
       await this.assignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
-        agencyIds,
+        agencyIds: this.assignedAgencies.map((agency) => agency.id).concat(this.selectedAgencyToAssign.id),
       });
       datadogRum.addAction('assign team to grant', { team: { id: this.selectedAgencyToAssign.id }, grant: { id: this.selectedGrant.grant_id } });
       this.selectedAgencyToAssign = null;
