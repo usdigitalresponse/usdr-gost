@@ -76,6 +76,7 @@
                   :options="agencies"
                   label="name" track-by="id"
                   :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
+                  :clearable="false"
                   data-dd-action-name="select team for grant assignment"
                 />
                 <b-button variant="outline-primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
@@ -107,6 +108,7 @@
                   label="name" track-by="id"
                   placeholder="Choose status"
                   :selectable="selectableOption"
+                  :clearable="false"
                   data-dd-action-name="select team status"
                 />
                 <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">
