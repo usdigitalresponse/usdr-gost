@@ -1,13 +1,12 @@
 <template>
-  <section class="container-fluid grants-details-container">
-    <div>
+  <section class="grants-details-container m-5">
       <div v-if="loading">
         Loading...
       </div>
       <div v-if="!selectedGrant && !loading">
         No grant found
       </div>
-      <b-container fluid v-if="selectedGrant && !loading" class="mt-5">
+      <b-container fluid v-if="selectedGrant && !loading">
         <b-row>
 
           <!-- Left page column: title, table data, and grant description -->
@@ -35,7 +34,6 @@
             <!-- Main action buttons section -->
             <div class="mb-5 print-d-none">
               <b-button
-                size="lg"
                 variant="primary"
                 block
                 class="mb-3"
@@ -81,7 +79,7 @@
                   :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
                   data-dd-action-name="select team for grant assignment"
                 />
-                <b-button variant="primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
+                <b-button variant="outline-primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
                   Submit
                 </b-button>
               </div>
@@ -124,7 +122,7 @@
                     </b-form-select-option>
                   </b-form-select-option-group>
                 </b-form-select>
-                <b-button variant="primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">
+                <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">
                   Submit
                 </b-button>
               </div>
@@ -149,7 +147,6 @@
 
         </b-row>
       </b-container>
-    </div>
   </section>
 </template>
 
@@ -401,7 +398,7 @@ export default {
 
 <style lang="css">
 .grants-details-sidebar {
-  flex-basis: 500px;
+  flex-basis: 437px;
   flex-grow: 0;
 }
 .grant-details-table tr:nth-of-type(odd) {
