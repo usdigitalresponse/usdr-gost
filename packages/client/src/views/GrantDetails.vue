@@ -72,14 +72,15 @@
               <div class="d-flex print-d-none">
                 <v-select
                   class="flex-grow-1 mr-3"
-                  v-model="selectedAgencies"
-                  :options="agencies"
-                  :multiple="true"
-                  label="name" track-by="id"
+                  v-model="selectedAgencyToAssign"
+                  :options="unassignedAgencies"
+                  label="name"
+                  track-by="id"
                   :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
+                  :clearable="false"
                   data-dd-action-name="select team for grant assignment"
                 />
-                <b-button variant="outline-primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">
+                <b-button variant="outline-primary" @click="assignAgenciesToGrant" :disabled="!selectedAgencyToAssign" data-dd-action-name="assign team">
                   Submit
                 </b-button>
               </div>
@@ -100,29 +101,19 @@
             <div class="mb-5">
               <h3 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h3>
               <div class="d-flex print-d-none">
-                <b-form-select
+                <v-select
                   class="flex-grow-1 mr-3"
                   v-model="selectedInterestedCode"
+                  :reduce="(option) => option.id"
+                  :options="interestedOptions"
+                  label="name"
+                  track-by="id"
+                  placeholder="Choose status"
+                  :selectable="selectableOption"
+                  :clearable="false"
                   data-dd-action-name="select team status"
-                >
-                  <b-form-select-option :value="null">Choose Status</b-form-select-option>
-                  <b-form-select-option-group label="Interested">
-                    <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
-                      {{ code.name }}
-                    </b-form-select-option>
-                  </b-form-select-option-group>
-                  <b-form-select-option-group label="Applied">
-                    <b-form-select-option v-for="code in interestedCodes.result" :key="code.id" :value="code.id">
-                      {{ code.name }}
-                    </b-form-select-option>
-                  </b-form-select-option-group>
-                  <b-form-select-option-group label="Not Applying">
-                    <b-form-select-option v-for="code in interestedCodes.rejections" :key="code.id" :value="code.id">
-                      {{ code.name }}
-                    </b-form-select-option>
-                  </b-form-select-option-group>
-                </b-form-select>
-                <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">
+                />
+                <b-button variant="outline-primary" @click="markGrantAsInterested" :disabled="!selectedInterestedCode" data-dd-action-name="submit team status">
                   Submit
                 </b-button>
               </div>
@@ -157,6 +148,8 @@ import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { DateTime } from 'luxon';
 
+const HEADER = '__HEADER__';
+
 export default {
   props: {
     selectedGrant: Object,
@@ -182,7 +175,7 @@ export default {
         },
       ],
       assignedAgencies: [],
-      selectedAgencies: [],
+      selectedAgencyToAssign: null,
       selectedInterestedCode: null,
       searchInput: null,
       debouncedSearchInput: null,
@@ -217,6 +210,16 @@ export default {
       selectedAgency: 'users/selectedAgency',
       currentGrant: 'grants/currentGrant',
     }),
+    interestedOptions() {
+      return [
+        { name: 'Interested', status_code: HEADER },
+        ...this.interestedCodes.interested,
+        { name: 'Applied', status_code: HEADER },
+        ...this.interestedCodes.result,
+        { name: 'Not Applying', status_code: HEADER },
+        ...this.interestedCodes.rejections,
+      ];
+    },
     tableData() {
       return [{
         name: 'Opportunity Number',
@@ -280,6 +283,11 @@ export default {
     newTerminologyEnabled() {
       return newTerminologyEnabled();
     },
+    unassignedAgencies() {
+      return this.agencies.filter(
+        (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
+      );
+    },
   },
   watch: {
     async selectedGrant() {
@@ -319,32 +327,36 @@ export default {
     },
     async markGrantAsInterested() {
       if (this.selectedInterestedCode !== null) {
+        const existingAgencyRecord = this.interested;
+        if (existingAgencyRecord) {
+          await this.unmarkGrantAsInterested(existingAgencyRecord);
+        }
         await this.markGrantAsInterestedAction({
           grantId: this.selectedGrant.grant_id,
           agencyId: this.selectedAgencyId,
           interestedCode: this.selectedInterestedCode,
         });
         datadogRum.addAction('submit team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
+        this.selectedInterestedCode = null;
       }
     },
     async unmarkGrantAsInterested(agency) {
       await this.unmarkGrantAsInterestedAction({
         grantId: this.selectedGrant.grant_id,
         agencyIds: [agency.agency_id],
-        interestedCode: this.selectedInterestedCode,
+        interestedCode: agency.interested_code_id,
       });
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
-      datadogRum.addAction('remove team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
+      datadogRum.addAction('remove team status for grant', { team: { id: agency.agency_id }, status: agency.interested_code_id, grant: { id: this.selectedGrant.grant_id } });
     },
     async assignAgenciesToGrant() {
-      const agencyIds = this.selectedAgencies.map((agency) => agency.id);
       await this.assignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
-        agencyIds,
+        agencyIds: this.assignedAgencies.map((agency) => agency.id).concat(this.selectedAgencyToAssign.id),
       });
-      this.selectedAgencies = [];
+      datadogRum.addAction('assign team to grant', { team: { id: this.selectedAgencyToAssign.id }, grant: { id: this.selectedGrant.grant_id } });
+      this.selectedAgencyToAssign = null;
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
-      datadogRum.addAction('assign team to grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
     },
     async unassignAgenciesToGrant(agency) {
       await this.unassignAgenciesToGrantAction({
@@ -365,7 +377,7 @@ export default {
     resetSelectedGrant() {
       this.$emit('update:selectedGrant', null);
       this.assignedAgencies = [];
-      this.selectedAgencies = [];
+      this.selectedAgencyToAssign = null;
     },
     async fetchData() {
       await this.fetchGrantDetails({ grantId: this.$route.params.id }).then(() => {
@@ -391,6 +403,9 @@ export default {
     },
     formatDateTime(dateString) {
       return DateTime.fromISO(dateString).toLocaleString(DateTime.DATETIME_MED);
+    },
+    selectableOption(option) {
+      return option.status_code !== HEADER;
     },
   },
 };
