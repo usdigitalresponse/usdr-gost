@@ -1,7 +1,7 @@
 <template>
   <div class="grants-tabs">
-    <b-tabs align="left" style="margin-top: 1.5rem" lazy>
-      <b-tab title="Interested" active>
+    <b-tabs align="left" style="margin-top: 1.5rem" lazy v-model="activeTab">
+      <b-tab title="Interested">
         <GrantsTable searchTitle="Interested" showInterested :showSearchControls="false"/>
       </b-tab>
       <b-tab title="Assigned">
@@ -24,6 +24,19 @@ import GrantsTable from '@/components/GrantsTable.vue';
 export default {
   components: {
     GrantsTable,
+  },
+  data() {
+    return {
+      activeTab: 0,
+    };
+  },
+  created() {
+    this.$watch('$route.params.tab', (tabName) => {
+      this.activeTab = this.$route.meta.tabNames.indexOf(tabName);
+    }, { immediate: true });
+    this.$watch('activeTab', (newActiveTab) => {
+      this.$router.push({ name: 'myGrants', params: { tab: this.$route.meta.tabNames[newActiveTab] } });
+    });
   },
   computed: {
     ...mapGetters({

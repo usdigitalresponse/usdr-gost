@@ -80,10 +80,22 @@ export const routes = [
       },
       {
         path: '/my-grants',
+        redirect: '/my-grants/interested',
+      },
+      {
+        path: '/my-grants/:tab',
         name: 'myGrants',
         component: () => import('../views/MyGrants.vue'),
         meta: {
+          tabNames: ['interested', 'assigned', 'not-applying', 'applied'],
           requiresAuth: true,
+        },
+        beforeEnter: (to, _, next) => {
+          if (to.meta.tabNames.includes(to.params.tab)) {
+            next();
+          } else {
+            next('/404');
+          }
         },
       },
       {
