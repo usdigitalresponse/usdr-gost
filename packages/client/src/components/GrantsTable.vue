@@ -178,18 +178,33 @@ export default {
       searchId: DEFAULT_SEARCH_ID,
     };
   },
-  mounted() {
+  async mounted() {
     document.addEventListener('keyup', this.changeSelectedGrantIndex);
     this.clearSelectedSearch();
 
     // Watch route query updates and reflect them in the component
     // (This happens with browser back/forward through history)
-    // and trigger immediately to pull initial state from URL
     this.$watch(
       () => this.$route.query,
       this.extractStateFromRoute,
-      { deep: true, immediate: true },
+      { deep: true },
     );
+
+    // Retrieve the initial grants list for the table
+    if (this.$route.query.search) {
+      // We need to load saved searches before extracting initial state from route
+      this.loading = true;
+      await this.fetchSavedSearches({
+        perPage: 100, // TODO: make this robust to users with more saved searches
+        currentPage: 1,
+      });
+      this.extractStateFromRoute();
+      this.retrieveFilteredGrants();
+      this.loading = false;
+    } else {
+      this.extractStateFromRoute();
+      this.retrieveFilteredGrants();
+    }
 
     // Watch route query and push a route update when it changes.
     // This needs to be set up after the initial setting of related
@@ -202,9 +217,6 @@ export default {
       },
       { deep: true, immediate: false },
     );
-
-    // Retrieve the initial grants list for the table
-    this.retrieveFilteredGrants();
   },
   computed: {
     ...mapGetters({
@@ -215,6 +227,7 @@ export default {
       activeFilters: 'grants/activeFilters',
       selectedSearchId: 'grants/selectedSearchId',
       editingSearchId: 'grants/editingSearchId',
+      savedSearches: 'grants/savedSearches',
     }),
     routeQuery() {
       const query = {
@@ -320,6 +333,8 @@ export default {
       changeEditingSearchId: 'grants/changeEditingSearchId',
       initEditSearch: 'grants/initEditSearch',
       applyFilters: 'grants/applyFilters',
+      initViewResults: 'grants/initViewResults',
+      fetchSavedSearches: 'grants/fetchSavedSearches',
     }),
     titleize,
     extractStateFromRoute() {
@@ -327,8 +342,14 @@ export default {
       this.orderBy = this.$route.query.sort || DEFAULT_ORDER_BY;
       this.orderDesc = Boolean(this.$route.query.desc);
       this.searchId = Number(this.$route.query.search) || DEFAULT_SEARCH_ID;
-      this.changeSelectedSearchId(this.searchId);
-      this.changeEditingSearchId(this.searchId);
+
+      // Manage search state
+      const searchData = this.savedSearches.data.find((search) => search.id === this.searchId);
+      if (searchData) {
+        this.changeSelectedSearchId(this.searchId);
+        this.applyFilters(JSON.parse(searchData.criteria));
+        this.initViewResults();
+      }
     },
     clearSearch() {
       this.loading = true;
