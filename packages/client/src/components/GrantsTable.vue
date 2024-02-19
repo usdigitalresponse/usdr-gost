@@ -344,11 +344,13 @@ export default {
       this.searchId = Number(this.$route.query.search) || DEFAULT_SEARCH_ID;
 
       // Manage search state
-      const searchData = this.savedSearches.data.find((search) => search.id === this.searchId);
-      if (searchData) {
-        this.changeSelectedSearchId(this.searchId);
-        this.applyFilters(JSON.parse(searchData.criteria));
-        this.initViewResults();
+      if (this.searchId && this.savedSearches) {
+        const searchData = this.savedSearches.data.find((search) => search.id === this.searchId);
+        if (searchData) {
+          this.changeSelectedSearchId(this.searchId);
+          this.applyFilters(JSON.parse(searchData.criteria));
+          this.initViewResults();
+        }
       }
     },
     clearSearch() {
