@@ -62,8 +62,8 @@
     </b-navbar>
     <b-col cols="12" v-if="showTabs">
       <b-nav tabs justified fill style="margin-top: 20px">
-          <b-nav-item to="/my-grants" exact exact-active-class="active">My Grants</b-nav-item>
           <b-nav-item to="/grants" exact exact-active-class="active">Browse Grants</b-nav-item>
+          <b-nav-item to="/my-grants" exact exact-active-class="active">My Grants</b-nav-item>
           <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
           <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
           <b-nav-item :to="newTerminologyEnabled ? '/teams' : '/agencies'" exact exact-active-class="active">{{newTerminologyEnabled ? 'Teams' : 'Agencies'}}</b-nav-item>
