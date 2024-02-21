@@ -56,6 +56,7 @@ jobs:
     uses: ./.github/workflows/aws-auth.yml
     with:
       aws-region: us-west-2
+      concurrency-group: run_terraform-production
     secrets:
       gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}
       role-to-assume: ${{ secrets.PRODUCTION_ROLE_ARN }}
@@ -66,8 +67,8 @@ jobs:
       contents: read
     needs:
       - validate
-      - aws-auth-plan
       - build
+      - aws-auth-plan
     uses: ./.github/workflows/terraform-plan.yml
     with:
       ref: ${{ github.sha }}
@@ -115,10 +116,11 @@ jobs:
       contents: read
       id-token: write
     needs:
-      - validate
+      - publish-tf-plan
     uses: ./.github/workflows/aws-auth.yml
     with:
       aws-region: us-west-2
+      concurrency-group: run_terraform-production
     secrets:
       gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}
       role-to-assume: ${{ secrets.PRODUCTION_ROLE_ARN }}
@@ -127,8 +129,8 @@ jobs:
     name: Deploy to Production
     needs:
       - build
-      - aws-auth-apply
       - tf-plan
+      - aws-auth-apply
     if: needs.tf-plan.outputs.plan-exitcode == 2
     uses: ./.github/workflows/terraform-apply.yml
     with:
