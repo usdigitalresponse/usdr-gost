@@ -56,7 +56,6 @@ jobs:
     uses: ./.github/workflows/aws-auth.yml
     with:
       aws-region: us-west-2
-      concurrency-group: run_terraform-production
     secrets:
       gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}
       role-to-assume: ${{ secrets.PRODUCTION_ROLE_ARN }}
@@ -116,11 +115,11 @@ jobs:
       contents: read
       id-token: write
     needs:
-      - publish-tf-plan
+      - tf-plan
     uses: ./.github/workflows/aws-auth.yml
     with:
       aws-region: us-west-2
-      concurrency-group: run_terraform-production
+      environment-name: production
     secrets:
       gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}
       role-to-assume: ${{ secrets.PRODUCTION_ROLE_ARN }}

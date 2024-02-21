@@ -6,10 +6,8 @@ on:
       aws-region:
         type: string
         required: true
-      concurrency-group:
-        description: Name of the concurrency group
+      environment-name:
         type: string
-        default: run_terraform
     secrets:
       role-to-assume:
         required: true
@@ -31,12 +29,10 @@ jobs:
   oidc-auth:
     name: OIDC Auth
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment-name }}
     permissions:
       contents: read
       id-token: write
-    concurrency:
-      group: ${{ inputs.concurrency-group }}
-      cancel-in-progress: false
     outputs:
       aws-access-key-id: ${{ steps.encrypt-aws-access-key-id.outputs.out }}
       aws-secret-access-key: ${{ steps.encrypt-aws-secret-access-key.outputs.out }}
