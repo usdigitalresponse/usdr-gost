@@ -51,6 +51,7 @@ function mapSourceDataToGrant(source) {
     grant.open_date = milestones.post_date;
     grant.close_date = milestones.close && milestones.close.date
         ? milestones.close.date : '2100-01-01';
+    grant.close_date_explanation = milestones?.close?.explanation ?? undefined;
     grant.archive_date = milestones.archive_date;
     const today = moment().startOf('day');
     if (milestones.archive_date && today.isSameOrAfter(moment(milestones.archive_date), 'date')) {
