@@ -29,7 +29,7 @@ export const routes = [
         // Redirect any old hash-style URLs to the new history API URL.
         return { path: to.hash.substring(1), hash: '' };
       }
-      return 'my-grants';
+      return { name: 'grants' };
     },
     component: Layout,
     meta: {
