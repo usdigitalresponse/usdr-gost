@@ -217,6 +217,26 @@ export default {
       },
       { deep: true, immediate: false },
     );
+
+    // Watch selected search and reset orderBy and orderDesc
+    // (This must be done after these values are set on initial page load
+    // to prevent them being overwritten)
+    this.$watch(
+      'selectedSearchId',
+      (selectedSearchId) => {
+        this.searchId = (selectedSearchId === null || Number.isNaN(selectedSearchId)) ? null : Number(selectedSearchId);
+        this.currentPage = 1;
+        const filterKeys = this.activeFilters.map((f) => f.key);
+        if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
+        // only if include/exclude keywords are selected
+          this.orderBy = 'rank';
+          this.orderDesc = false;
+        } else {
+          this.orderBy = 'open_date';
+          this.orderDesc = true;
+        }
+      },
+    );
   },
   computed: {
     ...mapGetters({
@@ -302,19 +322,6 @@ export default {
     selectedAgency() {
       this.clearSelectedSearch();
       this.retrieveFilteredGrants();
-    },
-    selectedSearchId() {
-      this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
-      this.currentPage = 1;
-      const filterKeys = this.activeFilters.map((f) => f.key);
-      if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
-        // only if include/exclude keywords are selected
-        this.orderBy = 'rank';
-        this.orderDesc = false;
-      } else {
-        this.orderBy = 'open_date';
-        this.orderDesc = true;
-      }
     },
     selectedGrantIndex() {
       this.changeSelectedGrant();
