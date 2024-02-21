@@ -42,6 +42,9 @@ async function getAllReportingPeriods(trns = knex, tenantId = useTenantId()) {
 /* getReportingPeriod() returns a record from the reporting_periods table.
   */
 async function getReportingPeriod(period_id = undefined, trns = knex, tenantId = useTenantId()) {
+    if (trns == null) {
+        trns = knex;
+    }
     if (period_id && Number(period_id)) {
         return baseQuery(trns)
             .where('reporting_periods.tenant_id', tenantId)

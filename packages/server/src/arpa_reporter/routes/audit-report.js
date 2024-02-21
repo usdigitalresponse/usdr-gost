@@ -8,8 +8,9 @@ const { SendMessageCommand } = require('@aws-sdk/client-sqs');
 
 const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
 const audit_report = require('../lib/audit-report');
-const { useUser } = require('../use-request');
+const { useUser, useTenantId } = require('../use-request');
 const aws = require('../../lib/gost-aws');
+const { getReportingPeriod } = require('../db/reporting-periods');
 
 router.get('/:tenantId/:periodId/:filename', async (req, res) => {
     let user;
@@ -49,6 +50,14 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
 
 router.get('/', requireUser, async (req, res) => {
     console.log('/api/audit-report GET');
+    const periodId = req.query.period_id;
+    if (periodId !== undefined) {
+        const period = await getReportingPeriod(periodId);
+        if (!period) {
+            res.status(404).json({ error: 'invalid reporting period' });
+            return;
+        }
+    }
 
     if (req.query.queue) {
         // Special handling for deferring audit report generation and sending to a task queue
@@ -59,7 +68,7 @@ router.get('/', requireUser, async (req, res) => {
             const sqs = aws.getSQSClient();
             await sqs.send(new SendMessageCommand({
                 QueueUrl: process.env.ARPA_AUDIT_REPORT_SQS_QUEUE_URL,
-                MessageBody: JSON.stringify({ userId: user.id }),
+                MessageBody: JSON.stringify({ userId: user.id, ...(periodId && { periodId }) }),
             }));
             res.json({ success: true });
             return;
@@ -76,7 +85,8 @@ router.get('/', requireUser, async (req, res) => {
         console.log('Generating Async audit report');
         try {
             const user = useUser();
-            audit_report.generateAndSendEmail(req.headers.host, user.email);
+            const tenantId = useTenantId();
+            audit_report.generateAndSendEmail(req.headers.host, user.email, tenantId, req.query.period_id);
             res.json({ success: true });
             return;
         } catch (error) {
@@ -88,7 +98,7 @@ router.get('/', requireUser, async (req, res) => {
 
     let report;
     try {
-        report = await audit_report.generate(req.headers.host);
+        report = await audit_report.generate(req.headers.host, req.query.period_id);
         console.log('Successfully generated report');
     } catch (error) {
     // In addition to sending the error message in the 500 response, log the full error stacktrace
