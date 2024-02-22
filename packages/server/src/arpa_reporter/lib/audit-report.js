@@ -8,7 +8,7 @@ const { log } = require('../../lib/logging');
 const aws = require('../../lib/gost-aws');
 const { ec } = require('./format');
 
-const { getPreviousReportingPeriods, getAllReportingPeriods } = require('../db/reporting-periods');
+const { getPreviousReportingPeriods, getAllReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
 const {
     recordsForProject, recordsForReportingPeriod, recordsForUpload, EC_SHEET_TYPES,
@@ -435,10 +435,13 @@ function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
     return headers;
 }
 
-async function generate(requestHost, tenantId) {
+async function generate(requestHost, tenantId, periodId) {
     const domain = ARPA_REPORTER_BASE_URL ?? requestHost;
+    const isCustomPeriod = periodId != null;
     return tracer.trace('generate()', async () => {
-        const periodId = await getCurrentReportingPeriodID(undefined, tenantId);
+        if (periodId == null) {
+            periodId = await getCurrentReportingPeriodID(undefined, tenantId);
+        }
         const logger = processStatsLogger(log, {
             workbook: { period: { id: periodId }, tenant: { id: tenantId } },
         });
@@ -516,7 +519,15 @@ async function generate(requestHost, tenantId) {
             return buffer;
         });
 
-        const filename = `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`;
+        let filename = '';
+        // for custom periods, add the period name to the filename
+        if (isCustomPeriod) {
+            const reportingPeriod = await getReportingPeriod(periodId, null, tenantId);
+            const reportingPeriodName = reportingPeriod.name.replace(' ', '_').toLowerCase();
+            filename = `audit-report-${moment().format('yy-MM-DD')}-${reportingPeriodName}-${v4()}.xlsx`;
+        } else {
+            filename = `audit-report-${moment().format('yy-MM-DD')}-${v4()}.xlsx`;
+        }
         log.info({ generatedFilename: filename }, 'generated filename for workbook');
 
         return {
@@ -533,11 +544,11 @@ async function sendEmailWithLink(fileKey, recipientEmail, logger = log) {
     logger.info({ downloadUrl: url }, 'emailed workbook download link to requesting user');
 }
 
-async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useTenantId(), logger = log) {
+async function generateAndSendEmail(requestHost, recipientEmail, tenantId = useTenantId(), periodId, logger = log) {
     logger = logger.child({ tenant: { id: tenantId } });
     // Generate the report
     logger.info('generating ARPA audit report');
-    const report = await module.exports.generate(requestHost, tenantId);
+    const report = await module.exports.generate(requestHost, tenantId, periodId);
     logger.info('finished generating ARPA audit report');
     // Upload to S3 and send email link
     const reportKey = `${tenantId}/${report.periodId}/${report.filename}`;
@@ -585,7 +596,7 @@ async function processSQSMessageRequest(message) {
     }
 
     try {
-        await generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id);
+        await generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id, requestData.periodId);
     } catch (err) {
         log.error({ err }, 'failed to generate and send audit report');
         await email.sendReportErrorEmail(user, 'Audit');
