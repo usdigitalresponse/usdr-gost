@@ -357,6 +357,10 @@ export default {
           this.changeSelectedSearchId(this.searchId);
           this.applyFilters(JSON.parse(searchData.criteria));
           this.initViewResults();
+        } else {
+          // Remove search query param if it's not found in saved searches
+          this.searchId = DEFAULT_SEARCH_ID;
+          this.pushRouteUpdate(this.routeQuery, true);
         }
       }
     },
@@ -401,7 +405,7 @@ export default {
         this.loading = false;
       }
     },
-    pushRouteUpdate(newQuery) {
+    pushRouteUpdate(newQuery, replace) {
       // First remove the query params the table controls, so they don't get carried over in the case
       // that the new query wants it removed (e.g., when resetting currentPage to 1)
       const currentQuery = { ...this.$route.query };
@@ -417,7 +421,11 @@ export default {
           ...newQuery,
         },
       };
-      this.$router.push(newRoute);
+      if (replace) {
+        this.$router.replace(newRoute);
+      } else {
+        this.$router.push(newRoute);
+      }
     },
     notifyError() {
       this.$bvToast.toast('We encountered an error while retrieving grants data. For the most accurate results please refresh the page and try again.', {
