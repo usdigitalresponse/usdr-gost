@@ -420,12 +420,12 @@ async function buildPaginationParams(args) {
     const { currentPage, perPage } = args;
     let { isLengthAware } = args;
 
-    if (!currentPage) {
-        throw Error('Missing current Page');
+    if (!currentPage || currentPage < 1) {
+        throw Error('Invalid page');
     }
 
-    if (!perPage) {
-        throw Error('Missing per page');
+    if (!perPage || perPage < 1) {
+        throw Error('Invalid per page');
     }
 
     if (isLengthAware === undefined || isLengthAware === null) {
