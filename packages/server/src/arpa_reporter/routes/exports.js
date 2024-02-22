@@ -48,7 +48,7 @@ router.get('/:tenantId/:periodId/:filename', async (req, res) => {
 });
 
 router.get('/', requireUser, async (req, res) => {
-    const periodId = await getReportingPeriodID(req.query.period_id);
+    const periodId = req.query.period_id ?? await getReportingPeriodID(req.query.period_id);
     const period = await getReportingPeriod(periodId);
     if (!period) {
         res.status(404).json({ error: 'invalid reporting period' });
