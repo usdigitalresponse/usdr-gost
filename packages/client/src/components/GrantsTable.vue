@@ -10,7 +10,7 @@
     </b-row>
     <b-row  class="grants-table-title-control">
       <b-col v-if="showSearchControls" >
-        <SearchFilter :isDisabled="loading" :filterKeys="searchFilters" @filter-removed="clearSearch" />
+        <SearchFilter :isDisabled="loading" :filterKeys="searchFilters" @filter-removed="onFilterRemoved" />
       </b-col>
       <b-col align-self="end" v-if="!showSearchControls">
         <h2 class="mb-0">{{ searchTitle }}</h2>
@@ -364,10 +364,9 @@ export default {
         }
       }
     },
-    clearSearch() {
-      this.loading = true;
-      this.orderBy = 'open_date';
-      this.orderDesc = true;
+    onFilterRemoved() {
+      this.orderBy = DEFAULT_ORDER_BY;
+      this.orderDesc = DEFAULT_ORDER_DESC;
     },
     async retrieveFilteredGrants() {
       this.loading = true;
