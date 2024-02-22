@@ -369,7 +369,7 @@ export default {
       this.loading = true;
       try {
         if (!this.searchId) {
-        // apply custom filters based on props
+          // apply custom filters based on props
           await this.applyFilters({
             reviewStatus: [
               `${this.showInterested ? 'Interested' : ''}`,
@@ -389,6 +389,11 @@ export default {
           showRejected: this.showRejected,
           assignedToAgency: this.showAssignedToAgency,
         });
+        // Clamp currentPage to valid range
+        const clampedPage = Math.max(Math.min(this.currentPage, this.lastPage), 1);
+        if (clampedPage !== this.currentPage) {
+          this.currentPage = clampedPage;
+        }
       } catch (error) {
         this.notifyError();
         console.error(error);
