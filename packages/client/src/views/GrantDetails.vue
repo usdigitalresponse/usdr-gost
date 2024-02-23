@@ -30,11 +30,12 @@
           <h3 class="mb-3">
             Description
           </h3>
-          <!-- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
+          <!-- eslint-disable vue/no-v-html -- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
           <div
             style="white-space: pre-line"
             v-html="selectedGrant.description"
           />
+          <!-- eslint-enable vue/no-v-html -->
         </b-col>
 
         <!-- Right page column: apply, assign, and status actions -->
@@ -196,7 +197,10 @@ const HEADER = '__HEADER__';
 
 export default {
   props: {
-    selectedGrant: Object,
+    selectedGrant: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
@@ -226,21 +230,6 @@ export default {
       loading: true,
       copyUrlSuccessTimeout: null,
     };
-  },
-  created() {
-    // watch the params of the route to fetch the data again
-    this.$watch(
-      () => this.$route.params,
-      () => {
-        this.loading = true;
-        this.fetchData().then(() => {
-          this.loading = false;
-        });
-      },
-      // fetch the data when the view is created and the data is
-      // already being observed
-      { immediate: true },
-    );
   },
   computed: {
     ...mapGetters({
@@ -348,6 +337,21 @@ export default {
         this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
       }
     },
+  },
+  created() {
+    // watch the params of the route to fetch the data again
+    this.$watch(
+      () => this.$route.params,
+      () => {
+        this.loading = true;
+        this.fetchData().then(() => {
+          this.loading = false;
+        });
+      },
+      // fetch the data when the view is created and the data is
+      // already being observed
+      { immediate: true },
+    );
   },
   methods: {
     ...mapActions({
