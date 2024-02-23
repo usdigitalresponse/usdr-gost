@@ -1,143 +1,187 @@
 <template>
   <section class="grants-details-container m-5">
-      <div v-if="loading">
-        Loading...
-      </div>
-      <div v-if="!selectedGrant && !loading">
-        No grant found
-      </div>
-      <b-container fluid v-if="selectedGrant && !loading">
-        <b-row>
+    <div v-if="loading">
+      Loading...
+    </div>
+    <div v-if="!selectedGrant && !loading">
+      No grant found
+    </div>
+    <b-container
+      v-if="selectedGrant && !loading"
+      fluid
+    >
+      <b-row>
+        <!-- Left page column: title, table data, and grant description -->
+        <b-col>
+          <h2 class="mb-5">
+            {{ selectedGrant.title }}
+          </h2>
+          <b-table
+            class="grant-details-table mb-5"
+            :items="tableData"
+            :fields="[
+              {key: 'name', class: 'color-gray grants-details-table-fit-content'},
+              {key: 'value', class: 'font-weight-bold'},
+            ]"
+            thead-class="d-none"
+            borderless
+            hover
+          />
+          <h3 class="mb-3">
+            Description
+          </h3>
+          <!-- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
+          <div
+            style="white-space: pre-line"
+            v-html="selectedGrant.description"
+          />
+        </b-col>
 
-          <!-- Left page column: title, table data, and grant description -->
-          <b-col>
-            <h2 class="mb-5">{{ selectedGrant.title }}</h2>
-            <b-table
-              class="grant-details-table mb-5"
-              :items="tableData"
-              :fields="[
-                {key: 'name', class: 'color-gray grants-details-table-fit-content'},
-                {key: 'value', class: 'font-weight-bold'},
-              ]"
-              thead-class="d-none"
-              borderless
-              hover
-            ></b-table>
-            <h3 class="mb-3">Description</h3>
-            <!-- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
-            <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
-          </b-col>
-
-          <!-- Right page column: apply, assign, and status actions -->
-          <b-col class="grants-details-sidebar">
-
-            <!-- Main action buttons section -->
-            <div class="mb-5 print-d-none">
+        <!-- Right page column: apply, assign, and status actions -->
+        <b-col class="grants-details-sidebar">
+          <!-- Main action buttons section -->
+          <div class="mb-5 print-d-none">
+            <b-button
+              variant="primary"
+              block
+              class="mb-3"
+              :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-dd-action-name="view on grants.gov"
+            >
+              <b-icon
+                icon="box-arrow-up-right"
+                aria-hidden="true"
+                class="mr-2"
+              />
+              Apply on Grants.gov
+            </b-button>
+            <div class="d-flex">
               <b-button
-                variant="primary"
-                block
-                class="mb-3"
-                :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-dd-action-name="view on grants.gov"
+                class="w-50 flex-shrink-1 mr-3"
+                variant="outline-primary"
+                @click="printPage"
               >
-                <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2" />
-                Apply on Grants.gov
+                <b-icon
+                  icon="printer-fill"
+                  aria-hidden="true"
+                  class="mr-2"
+                />
+                Print
               </b-button>
-              <div class="d-flex">
-                <b-button
-                  class="w-50 flex-shrink-1 mr-3"
-                  variant="outline-primary"
-                  @click="printPage"
-                >
-                  <b-icon icon="printer-fill" aria-hidden="true" class="mr-2" />
-                  Print
-                </b-button>
-                <b-button
-                  class="w-50 flex-shrink-1"
-                  :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
-                  @click="copyUrl"
-                >
-                  <b-icon :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'" aria-hidden="true" class="mr-2" />
-                  <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
-                  <span v-else>Link Copied</span>
-                </b-button>
-              </div>
+              <b-button
+                class="w-50 flex-shrink-1"
+                :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
+                @click="copyUrl"
+              >
+                <b-icon
+                  :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'"
+                  aria-hidden="true"
+                  class="mr-2"
+                />
+                <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
+                <span v-else>Link Copied</span>
+              </b-button>
             </div>
+          </div>
 
-            <!-- Assign grant section -->
-            <div class="mb-5">
-              <h3 class="mb-3">Assign Grant</h3>
-              <div class="d-flex print-d-none">
-                <v-select
-                  class="flex-grow-1 mr-3"
-                  v-model="selectedAgencyToAssign"
-                  :options="unassignedAgencies"
-                  label="name"
-                  track-by="id"
-                  :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
-                  :clearable="false"
-                  data-dd-action-name="select team for grant assignment"
-                />
-                <b-button variant="outline-primary" @click="assignAgenciesToGrant" :disabled="!selectedAgencyToAssign" data-dd-action-name="assign team">
-                  Submit
-                </b-button>
-              </div>
-              <div v-for="agency in assignedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
-                <div class="mr-3">
-                  <p class="m-0">{{ agency.name }}</p>
-                  <p class="m-0 text-muted"><small>{{ formatDateTime(agency.created_at) }}</small></p>
-                </div>
-                <b-button-close
-                  @click="unassignAgenciesToGrant(agency)"
-                  data-dd-action-name="remove team assignment"
-                  class="print-d-none"
-                />
-              </div>
+          <!-- Assign grant section -->
+          <div class="mb-5">
+            <h3 class="mb-3">
+              Assign Grant
+            </h3>
+            <div class="d-flex print-d-none">
+              <v-select
+                v-model="selectedAgencyToAssign"
+                class="flex-grow-1 mr-3"
+                :options="unassignedAgencies"
+                label="name"
+                track-by="id"
+                :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
+                :clearable="false"
+                data-dd-action-name="select team for grant assignment"
+              />
+              <b-button
+                variant="outline-primary"
+                :disabled="!selectedAgencyToAssign"
+                data-dd-action-name="assign team"
+                @click="assignAgenciesToGrant"
+              >
+                Submit
+              </b-button>
             </div>
-
-            <!-- Team status section -->
-            <div class="mb-5">
-              <h3 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h3>
-              <div class="d-flex print-d-none">
-                <v-select
-                  class="flex-grow-1 mr-3"
-                  v-model="selectedInterestedCode"
-                  :reduce="(option) => option.id"
-                  :options="interestedOptions"
-                  label="name"
-                  track-by="id"
-                  placeholder="Choose status"
-                  :selectable="selectableOption"
-                  :clearable="false"
-                  data-dd-action-name="select team status"
-                />
-                <b-button variant="outline-primary" @click="markGrantAsInterested" :disabled="!selectedInterestedCode" data-dd-action-name="submit team status">
-                  Submit
-                </b-button>
+            <div
+              v-for="agency in assignedAgencies"
+              :key="agency.id"
+              class="d-flex justify-content-between align-items-start my-3"
+            >
+              <div class="mr-3">
+                <p class="m-0">
+                  {{ agency.name }}
+                </p>
+                <p class="m-0 text-muted">
+                  <small>{{ formatDateTime(agency.created_at) }}</small>
+                </p>
               </div>
-              <div v-for="agency in visibleInterestedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
-                <!-- TODO: adopt updated design for what to show on each line item here -->
-                <div>
-                  <p class="m-0">
-                    <strong>{{ agency.user_name }}</strong> updated
-                    <strong>{{ agency.agency_name }}</strong> team status to
-                    <strong>{{ agency.interested_code_name }}</strong>
-                  </p>
-                </div>
-                <b-button-close
-                  @click="unmarkGrantAsInterested(agency)"
-                  data-dd-action-name="remove team status"
-                  class="print-d-none"
-                />
-              </div>
+              <b-button-close
+                data-dd-action-name="remove team assignment"
+                class="print-d-none"
+                @click="unassignAgenciesToGrant(agency)"
+              />
             </div>
+          </div>
 
-          </b-col>
-
-        </b-row>
-      </b-container>
+          <!-- Team status section -->
+          <div class="mb-5">
+            <h3 class="mb-3">
+              {{ newTerminologyEnabled ? 'Team': 'Agency' }} Status
+            </h3>
+            <div class="d-flex print-d-none">
+              <v-select
+                v-model="selectedInterestedCode"
+                class="flex-grow-1 mr-3"
+                :reduce="(option) => option.id"
+                :options="interestedOptions"
+                label="name"
+                track-by="id"
+                placeholder="Choose status"
+                :selectable="selectableOption"
+                :clearable="false"
+                data-dd-action-name="select team status"
+              />
+              <b-button
+                variant="outline-primary"
+                :disabled="!selectedInterestedCode"
+                data-dd-action-name="submit team status"
+                @click="markGrantAsInterested"
+              >
+                Submit
+              </b-button>
+            </div>
+            <div
+              v-for="agency in visibleInterestedAgencies"
+              :key="agency.id"
+              class="d-flex justify-content-between align-items-start my-3"
+            >
+              <!-- TODO: adopt updated design for what to show on each line item here -->
+              <div>
+                <p class="m-0">
+                  <strong>{{ agency.user_name }}</strong> updated
+                  <strong>{{ agency.agency_name }}</strong> team status to
+                  <strong>{{ agency.interested_code_name }}</strong>
+                </p>
+              </div>
+              <b-button-close
+                data-dd-action-name="remove team status"
+                class="print-d-none"
+                @click="unmarkGrantAsInterested(agency)"
+              />
+            </div>
+          </div>
+        </b-col>
+      </b-row>
+    </b-container>
   </section>
 </template>
 
