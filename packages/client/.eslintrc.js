@@ -86,7 +86,6 @@ module.exports = {
         './src/views/ArpaAnnualPerformanceReporter.vue',
         './src/views/Dashboard.vue',
         './src/views/EligibilityCodes.vue',
-        './src/views/GrantDetails.vue',
         './src/views/Grants.vue',
         './src/views/Home.vue',
         './src/views/Keywords.vue',
