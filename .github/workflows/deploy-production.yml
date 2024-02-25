@@ -66,8 +66,8 @@ jobs:
       contents: read
     needs:
       - validate
-      - aws-auth-plan
       - build
+      - aws-auth-plan
     uses: ./.github/workflows/terraform-plan.yml
     with:
       ref: ${{ github.sha }}
@@ -115,10 +115,11 @@ jobs:
       contents: read
       id-token: write
     needs:
-      - validate
+      - tf-plan
     uses: ./.github/workflows/aws-auth.yml
     with:
       aws-region: us-west-2
+      environment-name: production
     secrets:
       gpg-passphrase: ${{ secrets.PRODUCTION_GPG_PASSPHRASE }}
       role-to-assume: ${{ secrets.PRODUCTION_ROLE_ARN }}
@@ -127,8 +128,8 @@ jobs:
     name: Deploy to Production
     needs:
       - build
-      - aws-auth-apply
       - tf-plan
+      - aws-auth-apply
     if: needs.tf-plan.outputs.plan-exitcode == 2
     uses: ./.github/workflows/terraform-apply.yml
     with:
@@ -171,12 +172,12 @@ jobs:
             github.com:443
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Download website build artifacts
-        uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
+        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
         with:
           name: ${{ needs.build.outputs.website-artifacts-key }}
           path: ${{ needs.build.outputs.website-artifacts-path }}
       - name: Download docker build attestation artifacts
-        uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
+        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
         with:
           name: ${{ needs.build.outputs.server-attestation-artifacts-key }}
           path: ${{ needs.build.outputs.server-attestation-artifacts-path }}
