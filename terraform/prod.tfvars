@@ -47,9 +47,9 @@ website_datadog_rum_options = {
   trackLongTasks          = true
 }
 website_feature_flags = {
-  myProfileEnabled                            = true,
-  newTerminologyEnabled                       = true,
-  newGrantsDetailPageEnabled                  = false,
+  myProfileEnabled           = true,
+  newTerminologyEnabled      = true,
+  newGrantsDetailPageEnabled = false,
 }
 
 // Google Analytics Account ID: 233192355, Property ID: 321194851
