@@ -22,7 +22,7 @@
       <div v-for="field in dialogFields" :key="field">
         <p><span class="data-label">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
       </div>
-      <p v-if="categoryOfFundingActivitySearchFieldEnabled">
+      <p>
         <span class="data-label">Category of Funding Activity:</span>
         {{ selectedGrant['funding_activity_categories']?.join(', ') }}
       </p>
@@ -97,7 +97,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
-import { newTerminologyEnabled, categoryOfFundingActivitySearchFieldEnabled } from '@/helpers/featureFlags';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { titleize } from '../../helpers/form-helpers';
 
 export default {
@@ -192,9 +192,6 @@ export default {
     },
     newTerminologyEnabled() {
       return newTerminologyEnabled();
-    },
-    categoryOfFundingActivitySearchFieldEnabled() {
-      return categoryOfFundingActivitySearchFieldEnabled();
     },
   },
   watch: {

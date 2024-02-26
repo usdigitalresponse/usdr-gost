@@ -47,7 +47,6 @@ website_feature_flags = {
   myProfileEnabled                            = true,
   newTerminologyEnabled                       = true,
   newGrantsDetailPageEnabled                  = false,
-  categoryOfFundingActivitySearchFieldEnabled = true,
 }
 
 // ECS Cluster

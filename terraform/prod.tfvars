@@ -50,7 +50,6 @@ website_feature_flags = {
   myProfileEnabled                            = true,
   newTerminologyEnabled                       = true,
   newGrantsDetailPageEnabled                  = false,
-  categoryOfFundingActivitySearchFieldEnabled = true,
 }
 
 // Google Analytics Account ID: 233192355, Property ID: 321194851
