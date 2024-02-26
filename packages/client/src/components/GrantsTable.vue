@@ -439,7 +439,7 @@ export default {
       if (!newGrantsDetailPageEnabled()) {
         return;
       }
-      this.$router.push(`grant/${item.grant_id}`);
+      this.$router.push({name: 'grantDetail', params: {id: item.grant_id}});
       datadogRum.addAction('view grant details', { grant: item });
     },
     onRowSelected(items) {
