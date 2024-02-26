@@ -222,7 +222,7 @@ export default {
     // to prevent them being overwritten)
     this.$watch(
       'selectedSearchId',
-      (selectedSearchId) => {
+      () => {
         this.currentPage = 1;
         const filterKeys = this.activeFilters.map((f) => f.key);
         if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
@@ -440,7 +440,7 @@ export default {
       if (!newGrantsDetailPageEnabled()) {
         return;
       }
-      this.$router.push({name: 'grantDetail', params: {id: item.grant_id}});
+      this.$router.push({ name: 'grantDetail', params: { id: item.grant_id } });
       datadogRum.addAction('view grant details', { grant: item });
     },
     onRowSelected(items) {
