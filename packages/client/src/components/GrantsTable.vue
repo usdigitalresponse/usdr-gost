@@ -175,7 +175,6 @@ export default {
       selectedGrantIndex: null,
       orderBy: DEFAULT_ORDER_BY,
       orderDesc: DEFAULT_ORDER_DESC,
-      searchId: DEFAULT_SEARCH_ID,
     };
   },
   async mounted() {
@@ -224,7 +223,6 @@ export default {
     this.$watch(
       'selectedSearchId',
       (selectedSearchId) => {
-        this.searchId = (selectedSearchId === null || Number.isNaN(selectedSearchId)) ? null : Number(selectedSearchId);
         this.currentPage = 1;
         const filterKeys = this.activeFilters.map((f) => f.key);
         if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
@@ -249,6 +247,9 @@ export default {
       editingSearchId: 'grants/editingSearchId',
       savedSearches: 'grants/savedSearches',
     }),
+    searchId() {
+      return (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
+    },
     routeQuery() {
       const query = {
         page: this.currentPage,
@@ -348,18 +349,18 @@ export default {
       this.currentPage = Number(this.$route.query.page) || DEFAULT_CURRENT_PAGE;
       this.orderBy = this.$route.query.sort || DEFAULT_ORDER_BY;
       this.orderDesc = Boolean(this.$route.query.desc);
-      this.searchId = Number(this.$route.query.search) || DEFAULT_SEARCH_ID;
 
       // Manage search state
-      if (this.searchId && this.savedSearches) {
-        const searchData = this.savedSearches.data.find((search) => search.id === this.searchId);
+      const routeSearchId = Number(this.$route.query.search) || DEFAULT_SEARCH_ID;
+      if (routeSearchId && this.savedSearches) {
+        const searchData = this.savedSearches.data.find((search) => search.id === routeSearchId);
         if (searchData) {
-          this.changeSelectedSearchId(this.searchId);
+          this.changeSelectedSearchId(routeSearchId);
           this.applyFilters(JSON.parse(searchData.criteria));
           this.initViewResults();
         } else {
           // Remove search query param if it's not found in saved searches
-          this.searchId = DEFAULT_SEARCH_ID;
+          this.clearSelectedSearch();
           this.pushRouteUpdate(this.routeQuery, true);
         }
       }
