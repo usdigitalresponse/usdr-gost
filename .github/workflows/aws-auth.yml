@@ -6,6 +6,8 @@ on:
       aws-region:
         type: string
         required: true
+      environment-name:
+        type: string
     secrets:
       role-to-assume:
         required: true
@@ -27,6 +29,7 @@ jobs:
   oidc-auth:
     name: OIDC Auth
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment-name }}
     permissions:
       contents: read
       id-token: write

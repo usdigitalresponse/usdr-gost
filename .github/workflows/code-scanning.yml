@@ -30,7 +30,7 @@ jobs:
         with:
           show-progress: 'false'
           persist-credentials: 'false'
-      - uses: actions/dependency-review-action@6c5ccdad469c9f8a2996bfecaec55a631a347034 # v3.1.0
+      - uses: actions/dependency-review-action@9129d7d40b8c12c1ed0f60400d00c92d437adcce # v4.1.3
 
   codeql:
     name: CodeQL
@@ -77,4 +77,4 @@ jobs:
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Ensure GitHub action versions are pinned to SHAs
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@fdc1a0099560840b2be12459d0a61c7bc95b9db1 # v3.0.0
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@ba37328d4ea95eaf8b3bd6c6cef308f709a5f2ec # v3.0.3

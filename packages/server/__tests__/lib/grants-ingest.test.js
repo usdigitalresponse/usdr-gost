@@ -9,6 +9,31 @@ describe('processMessages', async () => {
     let knexStub;
     let sqsStub;
 
+    const createBaseGrantEvent = () => ({
+        opportunity: {
+            id: '1',
+            number: 'for-some-reason-not-a-number',
+            title: 'Great opportunity',
+            description: 'Here is a description of this cool grant',
+            milestones: {
+                post_date: '2023-06-05',
+                close: {
+                    date: '2024-01-02',
+                    explanation: 'Test explanation',
+                },
+            },
+            category: { code: 'O', name: 'Other' },
+        },
+        agency: { code: 'ABC-ZYX-QMWN' },
+        award: { ceiling: '98765', floor: '12345' },
+        cost_sharing_or_matching_requirement: true,
+        cfda_numbers: ['12.345'],
+        eligible_applicants: [
+            { code: '00' }, { code: '01' }, { code: '02' }, { code: '03' },
+        ],
+        revision: { id: 'a1' },
+    });
+
     const serlializeGrantEvent = (newData = {}, prevData = {}) => {
         const eventData = { detail: { versions: { new: newData, previous: prevData } } };
         const newDataJSON = JSON.stringify(newData);
@@ -47,24 +72,7 @@ describe('processMessages', async () => {
     it('should process messages successfully', async () => {
         const messages = [
             {
-                Body: serlializeGrantEvent({
-                    opportunity: {
-                        id: '1',
-                        number: 'for-some-reason-not-a-number',
-                        title: 'Great opportunity',
-                        description: 'Here is a description of this cool grant',
-                        milestones: { post_date: '2023-06-05', close: { date: '2024-01-02' } },
-                        category: { code: 'O', name: 'Other' },
-                    },
-                    agency: { code: 'ABC-ZYX-QMWN' },
-                    award: { ceiling: '98765', floor: '12345' },
-                    cost_sharing_or_matching_requirement: true,
-                    cfda_numbers: ['12.345'],
-                    eligible_applicants: [
-                        { code: '00' }, { code: '01' }, { code: '02' }, { code: '03' },
-                    ],
-                    revision: { id: 'a1' },
-                }),
+                Body: serlializeGrantEvent(createBaseGrantEvent()),
                 ReceiptHandle: 'receipt-handle-2',
             },
             {
@@ -210,6 +218,36 @@ describe('processMessages', async () => {
         }));
         sinon.assert.calledWith(sqsStub.send, sinon.match({
             input: { QueueUrl: queueUrl, ReceiptHandle: messages[1].ReceiptHandle },
+        }));
+    });
+
+    it('should extract close_date_explanation when present', async () => {
+        const grantEvent = createBaseGrantEvent();
+        grantEvent.opportunity.milestones.close.explanation = 'Test explanation';
+        const messages = [{
+            Body: serlializeGrantEvent(grantEvent),
+            ReceiptHandle: 'receipt-handle-2',
+        }];
+
+        await processMessages(knexStub, sqsStub, queueUrl, messages);
+
+        sinon.assert.calledWith(knexQuery.insert, sinon.match({
+            close_date_explanation: 'Test explanation',
+        }));
+    });
+
+    it('should skip when close_date_explanation is missing', async () => {
+        const grantEvent = createBaseGrantEvent();
+        delete grantEvent.opportunity.milestones.close.explanation;
+        const messages = [{
+            Body: serlializeGrantEvent(grantEvent),
+            ReceiptHandle: 'receipt-handle-2',
+        }];
+
+        await processMessages(knexStub, sqsStub, queueUrl, messages);
+
+        sinon.assert.calledWith(knexQuery.insert, sinon.match({
+            close_date_explanation: undefined,
         }));
     });
 
