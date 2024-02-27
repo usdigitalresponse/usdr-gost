@@ -97,6 +97,7 @@ variable "managed_waf_rules" {
 
 variable "origin_bucket_dist_path" {
   description = "Path to the directory where website build files should be stored in the S3 origin bucket."
+  type        = string
   default     = "/dist"
   validation {
     condition     = startswith(var.origin_bucket_dist_path, "/")
@@ -115,6 +116,7 @@ variable "origin_artifacts_dist_path" {
 
 variable "origin_bucket_config_path" {
   description = "Path to the directory where non-build configuration files should be stored in the S3 origin bucket."
+  type        = string
   default     = "/config"
   validation {
     condition     = startswith(var.origin_bucket_config_path, "/")
@@ -128,6 +130,7 @@ variable "origin_bucket_config_path" {
 
 variable "origin_config_filename" {
   description = "Filename (relative to origin_bucket_config_path) from which the website loads non-build, deployment configuration directives."
+  type        = string
   default     = "deploy-config.js"
   validation {
     condition     = endswith(var.origin_config_filename, ".js")

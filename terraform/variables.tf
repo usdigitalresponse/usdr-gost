@@ -216,18 +216,23 @@ variable "api_maximum_task_count" {
 
 // Postgres
 variable "postgres_enabled" {
+  type    = bool
   default = true
 }
 variable "postgres_prevent_destroy" {
+  type    = bool
   default = true
 }
 variable "postgres_snapshot_before_destroy" {
+  type    = bool
   default = true
 }
 variable "postgres_apply_changes_immediately" {
+  type    = bool
   default = false
 }
 variable "postgres_query_logging_enabled" {
+  type    = bool
   default = false
 }
 
