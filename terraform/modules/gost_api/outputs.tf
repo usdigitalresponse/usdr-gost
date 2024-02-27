@@ -9,7 +9,7 @@ output "base_url_alias" {
     Note that externally-managed DNS authorities may not always point this URL to the base_url;
     use base_url if you need to ensure that requests target this particular deployment.
     EOF
-  value       = var.enabled ? "https://${join("", aws_route53_record.alias.*.fqdn)}" : null
+  value       = var.enabled ? "https://${join("", aws_route53_record.alias[*].fqdn)}" : null
 }
 
 output "ecs_cluster_name" {
@@ -17,15 +17,15 @@ output "ecs_cluster_name" {
 }
 
 output "ecs_service_name" {
-  value = join("", aws_ecs_service.default.*.name)
+  value = join("", aws_ecs_service.default[*].name)
 }
 
 output "ecs_service_arn" {
-  value = join("", aws_ecs_service.default.*.id)
+  value = join("", aws_ecs_service.default[*].id)
 }
 
 output "ecs_task_role_name" {
-  value = join("", aws_iam_role.task.*.name)
+  value = join("", aws_iam_role.task[*].name)
 }
 
 output "arpa_audit_reports_bucket_id" {

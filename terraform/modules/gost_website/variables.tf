@@ -14,12 +14,6 @@ variable "tags" {
   default = {}
 }
 
-variable "permissions_boundary_arn" {
-  description = "ARN of the managed policy to set as the permissions boundary for all roles."
-  type        = string
-  default     = null
-}
-
 variable "dns_zone_id" {
   description = "Route53 Hosted Zone ID where DNS records for the website should be managed."
   type        = string

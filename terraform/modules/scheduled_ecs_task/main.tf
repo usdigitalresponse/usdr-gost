@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "trust" {
     condition {
       test     = "StringEquals"
       variable = "aws:SourceAccount"
-      values   = data.aws_caller_identity.current.*.account_id
+      values   = data.aws_caller_identity.current[*].account_id
     }
   }
 }
@@ -118,7 +118,7 @@ resource "aws_scheduler_schedule" "default" {
 
   target {
     arn      = var.cluster_arn
-    role_arn = coalesce(var.role_arn, join("", aws_iam_role.default.*.arn))
+    role_arn = coalesce(var.role_arn, join("", aws_iam_role.default[*].arn))
 
     input = var.task_override
 

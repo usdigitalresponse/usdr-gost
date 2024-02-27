@@ -1,10 +1,12 @@
 data "aws_region" "current" {}
-data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
 terraform {
   required_providers {
-    aws = "~> 4.67.0"
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.67.0"
+    }
   }
 }
 
