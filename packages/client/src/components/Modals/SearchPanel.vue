@@ -156,7 +156,7 @@
                 :clearable="false"
               />
             </b-form-group>
-            <b-form-group v-if="categoryOfFundingActivitySearchFieldEnabled"
+            <b-form-group
               id="category-of-funding-activity-group"
               label="Category of Funding Activity"
               label-for="category-of-funding-activity"
@@ -237,7 +237,6 @@ import { mapActions, mapGetters } from 'vuex';
 import { VBToggle } from 'bootstrap-vue';
 import { DateTime } from 'luxon';
 import { billOptions } from '@/helpers/constants';
-import { categoryOfFundingActivitySearchFieldEnabled } from '@/helpers/featureFlags';
 
 const defaultCriteria = {
   includeKeywords: null,
@@ -329,9 +328,6 @@ export default {
     },
     invalidTitleFeedback() {
       return 'Search Title is required';
-    },
-    categoryOfFundingActivitySearchFieldEnabled() {
-      return categoryOfFundingActivitySearchFieldEnabled();
     },
   },
   methods: {

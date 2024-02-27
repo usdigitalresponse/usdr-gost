@@ -23,7 +23,6 @@ window.APP_CONFIG.featureFlags = {
   myProfileEnabled: true,
   newTerminologyEnabled: true,
   newGrantsDetailPageEnabled: false,
-  categoryOfFundingActivitySearchFieldEnabled: true,
 };
 
 // Setting a GOOGLE_TAG_ID enables Google Analytics.
