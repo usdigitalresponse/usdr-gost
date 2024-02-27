@@ -122,3 +122,6 @@ volume/
 
 # Terraform
 terraform/.terraform/
+
+# Local overrides for docker compose
+docker-compose.override.yml
