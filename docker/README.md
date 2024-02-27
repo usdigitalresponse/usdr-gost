@@ -162,11 +162,19 @@ development environments (e.g. you can nuke everything and start fresh). However
 like to persist the state of your databases across rebuilds, you can mount a local directory
 from your workstation at the `/bitnami/postgresql` path within the container. For your convenience,
 this repository contains a directory at `docker/postgres/persistence` to use for this purpose;
-any files within this directory will be ignored by git. Simply update the `postgres` service
-definition in the `docker-compose.yml` file to mount this volume – you can do so
-by adding/uncommenting the corresponding `services.postgres.volumes` item in that file so that
-the `./docker/postgres/persistence:/bitnami/postgresql` volume mount is enabled.
+any files within this directory will be ignored by git.
 
+#### How to enable persistence - Quick and dirty method
+Uncomment the line `# - ./docker/postgres/persistence:/bitnami/postgresql` in our root level `docker-compose.yml` file.
+
+#### How to enable persistence - Long-tem method
+Create a file `docker-compose.override.yml` in the root of the project and add the following content. Note that this file is ignored by git.
+```yaml
+ services:
+   postgres:
+     volumes:
+       - ./docker/postgres/persistence:/bitnami/postgresql 
+```
 
 ### Create SQS queues in localstack
 SQS queues should automatically be setup from the `localstack/entrypoint/init-aws.sh` script.
