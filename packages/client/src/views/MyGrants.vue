@@ -1,17 +1,17 @@
 <template>
   <div class="grants-tabs">
-    <b-tabs align="left" style="margin-top: 1.5rem" lazy>
-      <b-tab title="Interested" active>
-        <component :is="tableComponent" searchTitle="Interested" :showInterested="true" :showSearchControls="false"/>
+    <b-tabs align="left" style="margin-top: 1.5rem" lazy v-model="activeTab">
+      <b-tab title="Interested">
+        <GrantsTable searchTitle="Interested" showInterested :showSearchControls="false"/>
       </b-tab>
       <b-tab title="Assigned">
-        <component :is="tableComponent" searchTitle="Assigned" :showAssignedToAgency="selectedAgencyId" :showSearchControls="false"/>
+        <GrantsTable searchTitle="Assigned" :showAssignedToAgency="selectedAgencyId" :showSearchControls="false"/>
       </b-tab>
       <b-tab title="Not Applying">
-        <component :is="tableComponent" searchTitle="Not Applying" :showRejected="true" :showSearchControls="false"/>
+        <GrantsTable searchTitle="Not Applying" showRejected :showSearchControls="false"/>
       </b-tab>
       <b-tab title="Applied">
-          <component :is="tableComponent" searchTitle="Applied" :showResult="true" :showSearchControls="false"/>
+        <GrantsTable searchTitle="Applied" showResult :showSearchControls="false"/>
       </b-tab>
     </b-tabs>
   </div>
@@ -19,26 +19,33 @@
 
 <script>
 import { mapGetters } from 'vuex';
-
 import GrantsTable from '@/components/GrantsTable.vue';
 
 export default {
+  components: {
+    GrantsTable,
+  },
   data() {
     return {
-
+      activeTab: 0,
     };
+  },
+  created() {
+    this.$watch('$route.params.tab', (tabName) => {
+      this.activeTab = this.$route.meta.tabNames.indexOf(tabName);
+    }, { immediate: true });
+    this.$watch('activeTab', (newActiveTab) => {
+      this.$router.push({ name: 'myGrants', params: { tab: this.$route.meta.tabNames[newActiveTab] } });
+    });
   },
   computed: {
     ...mapGetters({
       selectedAgencyId: 'users/selectedAgencyId',
     }),
-    tableComponent() {
-      return GrantsTable;
-    },
   },
-  methods: {},
 };
 </script>
+
 <style>
 .grants-tabs .nav-tabs {
   padding-left: 20px;

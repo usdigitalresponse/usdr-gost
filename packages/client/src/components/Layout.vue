@@ -62,12 +62,12 @@
     </b-navbar>
     <b-col cols="12" v-if="showTabs">
       <b-nav tabs justified fill style="margin-top: 20px">
-          <b-nav-item to="/grants" exact exact-active-class="active">Browse Grants</b-nav-item>
-          <b-nav-item to="/my-grants" exact exact-active-class="active">My Grants</b-nav-item>
-          <b-nav-item to="/dashboard" exact exact-active-class="active">Dashboard</b-nav-item>
-          <b-nav-item to="/users" exact exact-active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
-          <b-nav-item :to="newTerminologyEnabled ? '/teams' : '/agencies'" exact exact-active-class="active">{{newTerminologyEnabled ? 'Teams' : 'Agencies'}}</b-nav-item>
-          <b-nav-item v-if="canSeeOrganizationsTab" :to="newTerminologyEnabled ? '/organizations' : '/tenants'" exact exact-active-class="active">{{newTerminologyEnabled ? 'Organizations' : 'Tenants'}}</b-nav-item>
+          <b-nav-item to="/grants" active-class="active">Browse Grants</b-nav-item>
+          <b-nav-item to="/my-grants" active-class="active">My Grants</b-nav-item>
+          <b-nav-item to="/dashboard" active-class="active">Dashboard</b-nav-item>
+          <b-nav-item to="/users" active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
+          <b-nav-item :to="newTerminologyEnabled ? '/teams' : '/agencies'" active-class="active">{{newTerminologyEnabled ? 'Teams' : 'Agencies'}}</b-nav-item>
+          <b-nav-item v-if="canSeeOrganizationsTab" :to="newTerminologyEnabled ? '/organizations' : '/tenants'" active-class="active">{{newTerminologyEnabled ? 'Organizations' : 'Tenants'}}</b-nav-item>
       </b-nav>
     </b-col>
 
