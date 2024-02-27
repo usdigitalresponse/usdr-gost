@@ -1,5 +1,9 @@
 data "aws_caller_identity" "current" { count = var.enabled ? 1 : 0 }
 
+terraform {
+  required_version = "1.3.6"
+}
+
 locals {
   create_role = var.enabled && var.role_arn == null
 

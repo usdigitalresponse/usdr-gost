@@ -7,6 +7,10 @@ data "aws_rds_engine_version" "postgres13_8" {
   version = "13.8"
 }
 
+terraform {
+  required_version = "1.3.6"
+}
+
 resource "aws_db_parameter_group" "postgres13" {
   name        = "${var.namespace}-aurora-postgres13-db"
   family      = "aurora-postgresql13"

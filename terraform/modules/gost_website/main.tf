@@ -1,6 +1,10 @@
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
+terraform {
+  required_version = "1.3.6"
+}
+
 provider "aws" {
   region = "us-east-1"
   alias  = "us-east-1"
