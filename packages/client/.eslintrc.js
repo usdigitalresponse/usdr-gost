@@ -27,9 +27,6 @@ module.exports = {
     'no-restricted-syntax': 'off',
 
     'import/prefer-default-export': 'off',
-
-    'vue/multi-word-component-names': 'off',
-    'vue/no-mutating-props': 'off',
   },
   overrides: [
     // This override is part of the process of upgrading plugin:vue/essential -> plugin:vue/recommended.
@@ -101,6 +98,9 @@ module.exports = {
         './src/views/Users.vue',
       ],
       rules: {
+        // List of essential rules we previously had turned off
+        'vue/multi-word-component-names': 'off',
+        'vue/no-mutating-props': 'off',
         // List of strongly recommended rules introduced (https://eslint.vuejs.org/rules/#priority-b-strongly-recommended-improving-readability)
         'vue/attribute-hyphenation': 'off',
         'vue/component-definition-name-casing': 'off',
