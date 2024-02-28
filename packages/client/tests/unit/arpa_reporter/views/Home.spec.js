@@ -39,10 +39,6 @@ describe('Home.vue', () => {
         const reportingPeriodClosed = wrapper.get('#closedReportingPeriodMessage');
         expect(reportingPeriodClosed.text()).to.include('This reporting period is closed.');
       });
-      it('should not show a download button', () => {
-        const sendTreasuryReportButton = wrapper.find('#sendTreasuryReportButton');
-        expect(sendTreasuryReportButton.exists()).to.not.true;
-      });
     });
     describe('during the reporting period', () => {
       beforeEach(() => {
@@ -112,9 +108,9 @@ describe('Home.vue', () => {
           mocks: { $route: route },
         });
       });
-      it('should show the Send Treasury Report button', () => {
-        const sendTreasuryReportButton = wrapper.get('#sendTreasuryReportButton');
-        expect(sendTreasuryReportButton.text()).to.include('Send Treasury Report by Email');
+      it('should show the Download Treasury Report button', () => {
+        const downloadButton = wrapper.getComponent({ name: 'DownloadButton' });
+        expect(downloadButton.text()).to.include('Download Treasury Report');
       });
     });
     describe('with the sync_audit_download param', () => {
@@ -133,40 +129,9 @@ describe('Home.vue', () => {
           mocks: { $route: route },
         });
       });
-      it('should show the Send Treasury Report button', () => {
-        const sendTreasuryReportButton = wrapper.get('#sendTreasuryReportButton');
-        expect(sendTreasuryReportButton.text()).to.include('Send Treasury Report by Email');
-      });
-    });
-  });
-  describe('when an admin loads the home page outside the reporting period', () => {
-    describe('without query params', () => {
-      beforeEach(() => {
-        store = new Vuex.Store({
-          state: { },
-          getters: {
-            user: () => ({ role: { name: 'admin' } }),
-            viewPeriodIsCurrent: () => false,
-          },
-        });
-        route = { query: { } };
-        wrapper = shallowMount(Home, {
-          store,
-          localVue,
-          mocks: { $route: route },
-        });
-      });
-      it('should not show the submit workbook button', () => {
-        const submitWorkbookButton = wrapper.find('#submitWorkbookButton');
-        expect(submitWorkbookButton.exists()).to.not.true;
-      });
-      it('should show the Send Treasury Report by Email Button', () => {
-        const sendTreasuryReportButton = wrapper.get('#sendTreasuryReportButton');
-        expect(sendTreasuryReportButton.text()).to.include('Send Treasury Report by Email');
-      });
-      it('should show the reporting period as closed', () => {
-        const reportingPeriodClosed = wrapper.get('#closedReportingPeriodMessage');
-        expect(reportingPeriodClosed.text()).to.include('This reporting period is closed.');
+      it('should show the Download Treasury Report button', () => {
+        const downloadAuditButton = wrapper.getComponent({ name: 'DownloadButton' });
+        expect(downloadAuditButton.text()).to.include('Download Audit Report');
       });
     });
   });

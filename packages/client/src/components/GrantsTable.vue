@@ -5,12 +5,12 @@
         <SavedSearchPanel :isDisabled="loading" />
       </div>
       <div class="ml-1">
-        <SearchPanel :isDisabled="loading" ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="paginateGrants" />
+        <SearchPanel :isDisabled="loading" ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="retrieveFilteredGrants" />
       </div>
     </b-row>
     <b-row  class="grants-table-title-control">
       <b-col v-if="showSearchControls" >
-        <SearchFilter :isDisabled="loading" :filterKeys="searchFilters" @filter-removed="clearSearch" />
+        <SearchFilter :isDisabled="loading" :filterKeys="searchFilters" @filter-removed="onFilterRemoved" />
       </b-col>
       <b-col align-self="end" v-if="!showSearchControls">
         <h2 class="mb-0">{{ searchTitle }}</h2>
@@ -22,11 +22,28 @@
     </b-row>
     <b-row align-v="center">
       <b-col cols="12">
-        <b-table id="grants-table" hover responsive stacked="sm" :items="formattedGrants"
-          :fields="fields.filter(field => !field.hideGrantItem)" selectable striped :sort-by.sync="orderBy"
-          :sort-desc.sync="orderDesc" :no-local-sorting="true" :bordered="true" select-mode="single" :busy="loading"
+        <b-table
+          id="grants-table"
+          responsive
+          bordered
+          striped
+          hover
+          stacked="sm"
+          :busy="loading"
+          :items="formattedGrants"
+          :fields="fields.filter(field => !field.hideGrantItem)"
+          show-empty
+          emptyText="No matches found"
+          no-local-sorting
+          :sort-by.sync="orderBy"
+          :sort-desc.sync="orderDesc"
+          selectable
+          select-mode="single"
           :tbody-tr-attr="{'data-dd-action-name': 'grant search result'}"
-          @row-selected="onRowSelected" @row-clicked="onRowClicked" show-empty emptyText="No matches found">
+          @row-selected="onRowSelected"
+          @row-clicked="onRowClicked"
+          @sort-changed="currentPage = 1"
+        >
           <template #cell(award_ceiling)="row">
             <p> {{ formatMoney(row.item.award_ceiling) }}</p>
           </template>
@@ -55,17 +72,25 @@
     </b-row>
     <b-row class="grants-table-pagination">
       <b-col cols="11" class="grants-table-pagination-component">
-        <b-pagination
-          class="m-0"
-          v-model="currentPage"
-          :total-rows="totalRows"
-          :per-page="perPage"
-          first-text="First"
-          prev-text="Prev"
-          next-text="Next"
-          last-text="Last"
-          aria-controls="grants-table" />
-          <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
+        <!--
+          Pagination component resets currentPage to 1 if totalRows is too low.
+          When loading the page with e.g. `?page=4`, this would reset the currentPage to 1
+          instead of 4. So we delay rendering of the pagination until grants are loaded.
+        -->
+        <template v-if="totalRows > 0">
+          <b-pagination
+            class="m-0"
+            v-model="currentPage"
+            :total-rows="totalRows"
+            :per-page="perPage"
+            first-text="First"
+            prev-text="Prev"
+            next-text="Next"
+            last-text="Last"
+            aria-controls="grants-table"
+          />
+        </template>
+        <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
       </b-col>
     </b-row>
     <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
@@ -81,6 +106,11 @@ import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
 import SearchFilter from './SearchFilter.vue';
+
+const DEFAULT_CURRENT_PAGE = 1;
+const DEFAULT_ORDER_BY = 'rank';
+const DEFAULT_ORDER_DESC = false;
+const DEFAULT_SEARCH_ID = null;
 
 export default {
   components: {
@@ -102,8 +132,8 @@ export default {
   },
   data() {
     return {
+      currentPage: DEFAULT_CURRENT_PAGE,
       perPage: 50,
-      currentPage: 1,
       loading: false,
       fields: [
         {
@@ -143,14 +173,68 @@ export default {
       ],
       selectedGrant: null,
       selectedGrantIndex: null,
-      orderBy: '',
-      orderDesc: false,
-      searchId: null,
+      orderBy: DEFAULT_ORDER_BY,
+      orderDesc: DEFAULT_ORDER_DESC,
     };
   },
-  mounted() {
+  async mounted() {
     document.addEventListener('keyup', this.changeSelectedGrantIndex);
-    this.setup();
+    this.clearSelectedSearch();
+
+    // Watch route query updates and reflect them in the component
+    // (This happens with browser back/forward through history)
+    this.$watch(
+      () => this.$route.query,
+      this.extractStateFromRoute,
+      { deep: true },
+    );
+
+    // Retrieve the initial grants list for the table
+    if (this.$route.query.search) {
+      // We need to load saved searches before extracting initial state from route
+      this.loading = true;
+      await this.fetchSavedSearches({
+        perPage: 100, // TODO: make this robust to users with more saved searches
+        currentPage: 1,
+      });
+      this.extractStateFromRoute();
+      this.retrieveFilteredGrants();
+      this.loading = false;
+    } else {
+      this.extractStateFromRoute();
+      this.retrieveFilteredGrants();
+    }
+
+    // Watch route query and push a route update when it changes.
+    // This needs to be set up after the initial setting of related
+    // data (currentPage, order, etc.) so it won't trigger initially.
+    this.$watch(
+      () => this.routeQuery,
+      (routeQuery) => {
+        this.pushRouteUpdate(routeQuery);
+        this.retrieveFilteredGrants();
+      },
+      { deep: true, immediate: false },
+    );
+
+    // Watch selected search and reset orderBy and orderDesc
+    // (This must be done after these values are set on initial page load
+    // to prevent them being overwritten)
+    this.$watch(
+      'selectedSearchId',
+      () => {
+        this.currentPage = 1;
+        const filterKeys = this.activeFilters.map((f) => f.key);
+        if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
+        // only if include/exclude keywords are selected
+          this.orderBy = 'rank';
+          this.orderDesc = false;
+        } else {
+          this.orderBy = 'open_date';
+          this.orderDesc = true;
+        }
+      },
+    );
   },
   computed: {
     ...mapGetters({
@@ -161,7 +245,32 @@ export default {
       activeFilters: 'grants/activeFilters',
       selectedSearchId: 'grants/selectedSearchId',
       editingSearchId: 'grants/editingSearchId',
+      savedSearches: 'grants/savedSearches',
     }),
+    searchId() {
+      return (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
+    },
+    routeQuery() {
+      const query = {
+        page: this.currentPage,
+        sort: this.orderBy,
+        desc: this.orderDesc,
+        search: this.searchId,
+      };
+      if (query.page === DEFAULT_CURRENT_PAGE) {
+        delete query.page;
+      }
+      if (!query.sort || query.sort === DEFAULT_ORDER_BY) {
+        delete query.sort;
+      }
+      if (!query.desc) {
+        delete query.desc;
+      }
+      if (!query.search) {
+        delete query.search;
+      }
+      return query;
+    },
     totalRows() {
       return this.grantsPagination ? this.grantsPagination.total : 0;
     },
@@ -212,46 +321,15 @@ export default {
   },
   watch: {
     selectedAgency() {
-      this.setup();
-    },
-    currentPage() {
-      if (this.loading) {
-        return;
-      }
-      this.paginateGrants();
-    },
-    orderBy() {
-      if (this.loading) {
-        return;
-      }
-      this.paginateGrants();
-    },
-    orderDesc() {
-      if (this.loading) {
-        return;
-      }
-      this.paginateGrants();
+      this.clearSelectedSearch();
+      this.retrieveFilteredGrants();
     },
     selectedGrantIndex() {
       this.changeSelectedGrant();
     },
-    // when we fetch grants, refresh selectedGrant reference
     grants() {
+      // when we fetch grants, refresh selectedGrant reference
       this.changeSelectedGrant();
-    },
-    selectedSearchId() {
-      this.loading = true;
-      this.searchId = (this.selectedSearchId === null || Number.isNaN(this.selectedSearchId)) ? null : Number(this.selectedSearchId);
-      const filterKeys = this.activeFilters.map((f) => f.key);
-      if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
-        // only if include/exclude keywords are selected
-        this.orderBy = 'rank';
-        this.orderDesc = false;
-      } else {
-        this.orderBy = 'open_date';
-        this.orderDesc = true;
-      }
-      this.paginateGrants();
     },
   },
   methods: {
@@ -259,20 +337,40 @@ export default {
       fetchGrants: 'grants/fetchGrantsNext',
       navigateToExportCSV: 'grants/exportCSV',
       clearSelectedSearch: 'grants/clearSelectedSearch',
+      changeSelectedSearchId: 'grants/changeSelectedSearchId',
+      changeEditingSearchId: 'grants/changeEditingSearchId',
       initEditSearch: 'grants/initEditSearch',
       applyFilters: 'grants/applyFilters',
+      initViewResults: 'grants/initViewResults',
+      fetchSavedSearches: 'grants/fetchSavedSearches',
     }),
-    setup() {
-      this.clearSelectedSearch();
-      this.paginateGrants();
-    },
-    clearSearch() {
-      this.loading = true;
-      this.orderBy = 'open_date';
-      this.orderDesc = true;
-    },
     titleize,
-    async paginateGrants() {
+    extractStateFromRoute() {
+      this.currentPage = Number(this.$route.query.page) || DEFAULT_CURRENT_PAGE;
+      this.orderBy = this.$route.query.sort || DEFAULT_ORDER_BY;
+      this.orderDesc = Boolean(this.$route.query.desc);
+
+      // Manage search state
+      const routeSearchId = Number(this.$route.query.search) || DEFAULT_SEARCH_ID;
+      if (routeSearchId && this.savedSearches) {
+        const searchData = this.savedSearches.data.find((search) => search.id === routeSearchId);
+        if (searchData) {
+          this.changeSelectedSearchId(routeSearchId);
+          this.applyFilters(JSON.parse(searchData.criteria));
+          this.initViewResults();
+        } else {
+          // Remove search query param if it's not found in saved searches
+          this.clearSelectedSearch();
+          this.pushRouteUpdate(this.routeQuery, true);
+        }
+      }
+    },
+    onFilterRemoved() {
+      this.orderBy = DEFAULT_ORDER_BY;
+      this.orderDesc = DEFAULT_ORDER_DESC;
+    },
+    async retrieveFilteredGrants() {
+      this.loading = true;
       try {
         if (!this.searchId) {
           // apply custom filters based on props
@@ -285,7 +383,6 @@ export default {
             ].filter((r) => r),
           });
         }
-        this.loading = true;
         await this.fetchGrants({
           perPage: this.perPage,
           currentPage: this.currentPage,
@@ -296,11 +393,38 @@ export default {
           showRejected: this.showRejected,
           assignedToAgency: this.showAssignedToAgency,
         });
-      } catch (e) {
+        // Clamp currentPage to valid range
+        const clampedPage = Math.max(Math.min(this.currentPage, this.lastPage), 1);
+        if (clampedPage !== this.currentPage) {
+          this.currentPage = clampedPage;
+        }
+      } catch (error) {
         this.notifyError();
-        console.log(e);
+        console.error(error);
       } finally {
         this.loading = false;
+      }
+    },
+    pushRouteUpdate(newQuery, replace) {
+      // First remove the query params the table controls, so they don't get carried over in the case
+      // that the new query wants it removed (e.g., when resetting currentPage to 1)
+      const currentQuery = { ...this.$route.query };
+      delete currentQuery.page;
+      delete currentQuery.sort;
+      delete currentQuery.desc;
+      delete currentQuery.search;
+      // Next, combine this with other existing route details
+      const newRoute = {
+        ...this.$route,
+        query: {
+          ...currentQuery,
+          ...newQuery,
+        },
+      };
+      if (replace) {
+        this.$router.replace(newRoute);
+      } else {
+        this.$router.push(newRoute);
       }
     },
     notifyError() {
@@ -316,7 +440,7 @@ export default {
       if (!newGrantsDetailPageEnabled()) {
         return;
       }
-      this.$router.push(`grant/${item.grant_id}`);
+      this.$router.push({ name: 'grantDetail', params: { id: item.grant_id } });
       datadogRum.addAction('view grant details', { grant: item });
     },
     onRowSelected(items) {
@@ -362,16 +486,6 @@ export default {
         }
         this.selectedGrantIndex += 1;
       }
-    },
-    async grantUpdated() {
-      await this.paginateGrants();
-      const grant = this.grants.find(
-        (g) => this.selectedGrant.grant_id === g.grant_id,
-      );
-      this.selectedGrant = grant;
-      this.selectedGrantIndex = this.grants.findIndex(
-        (g) => this.selectedGrant.grant_id === g.grant_id,
-      );
     },
     exportCSV() {
       this.navigateToExportCSV({

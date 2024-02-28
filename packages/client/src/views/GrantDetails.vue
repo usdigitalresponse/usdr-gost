@@ -22,7 +22,13 @@
               thead-class="d-none"
               borderless
               hover
-            ></b-table>
+            >
+              <template #cell()="data">
+                <span :class="{'text-muted font-weight-normal': data.item.displayMuted}">
+                  {{ data.value }}
+                </span>
+              </template>
+            </b-table>
             <h3 class="mb-3">Description</h3>
             <!-- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
             <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
@@ -149,6 +155,8 @@ import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { DateTime } from 'luxon';
 
 const HEADER = '__HEADER__';
+const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
+const NOT_AVAILABLE_TEXT = 'Not available';
 
 export default {
   props: {
@@ -229,7 +237,8 @@ export default {
         value: this.formatDate(this.selectedGrant.open_date),
       }, {
         name: 'Close Date',
-        value: this.formatDate(this.selectedGrant.close_date),
+        value: this.closeDateDisplay,
+        displayMuted: this.closeDateDisplayMuted,
       }, {
         name: 'Grant ID',
         value: this.selectedGrant.grant_id,
@@ -256,6 +265,16 @@ export default {
         value: this.selectedGrant.cost_sharing,
       },
       ];
+    },
+    closeDateDisplay() {
+      // If we have an explainer text instead of a real close date, display that instead
+      if (this.selectedGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
+        return this.selectedGrant.close_date_explanation ?? NOT_AVAILABLE_TEXT;
+      }
+      return this.formatDate(this.selectedGrant.close_date);
+    },
+    closeDateDisplayMuted() {
+      return this.selectedGrant.close_date === FAR_FUTURE_CLOSE_DATE && !this.selectedGrant.close_date_explanation;
     },
     visibleInterestedAgencies() {
       return this.selectedGrant.interested_agencies
