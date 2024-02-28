@@ -1,6 +1,6 @@
 module "cloudfront_ssl_certificate" {
   source  = "cloudposse/acm-request-certificate/aws"
-  version = "0.17.0"
+  version = "0.18.0"
   context = module.this.context
 
   # CloudFront SSL certificates must be managed in us-east-1
