@@ -1150,7 +1150,7 @@ async function getInterestedAgencies({ grantIds, tenantId }) {
 
     const result = await query.select(`${TABLES.grants_interested}.grant_id`, `${TABLES.grants_interested}.agency_id`,
         `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`,
-        `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`,
+        `${TABLES.users}.id as user_id`, `${TABLES.users}.email as user_email`, `${TABLES.users}.name as user_name`, `${TABLES.users}.avatar_color as user_avatar_color`,
         `${TABLES.interested_codes}.id as interested_code_id`, `${TABLES.interested_codes}.name as interested_code_name`, `${TABLES.interested_codes}.status_code as interested_status_code`);
 
     return result;
