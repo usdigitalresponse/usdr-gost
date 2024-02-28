@@ -2,6 +2,13 @@ data "aws_caller_identity" "current" { count = var.enabled ? 1 : 0 }
 
 terraform {
   required_version = "1.3.6"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.67.0"
+    }
+  }
 }
 
 locals {
