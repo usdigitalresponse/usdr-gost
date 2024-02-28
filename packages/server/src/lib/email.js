@@ -161,10 +161,12 @@ function getGrantDetail(grant, emailNotificationType) {
         grantsUrl.pathname = 'grants';
     } else {
         grantsUrl.pathname = 'my-grants';
+        grantsUrl.searchParams.set('View My Grants');
     }
-    grantsUrl.searchParams.set('utm_source', 'subscription');
+    grantsUrl.searchParams.set('utm_source', 'usdr-grants');
     grantsUrl.searchParams.set('utm_medium', 'email');
     grantsUrl.searchParams.set('utm_campaign', emailNotificationType);
+
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
             title: grant.title,
