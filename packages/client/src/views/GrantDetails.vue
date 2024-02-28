@@ -124,8 +124,8 @@
                 </b-button>
               </div>
               <div v-for="agency in visibleInterestedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
-                <!-- TODO: adopt updated design for what to show on each line item here -->
-                <div>
+                <UserAvatar :user-name="agency.user_name" :color="agency.user_avatar_color" size="2.5rem" />
+                <div class="mx-3">
                   <p class="m-0">
                     <strong>{{ agency.user_name }}</strong> updated
                     <strong>{{ agency.agency_name }}</strong> team status to
@@ -153,6 +153,7 @@ import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { DateTime } from 'luxon';
+import UserAvatar from '@/components/UserAvatar.vue';
 
 const HEADER = '__HEADER__';
 const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
@@ -161,6 +162,9 @@ const NOT_AVAILABLE_TEXT = 'Not available';
 export default {
   props: {
     selectedGrant: Object,
+  },
+  components: {
+    UserAvatar,
   },
   data() {
     return {
@@ -334,7 +338,6 @@ export default {
       getGrantAssignedAgencies: 'grants/getGrantAssignedAgencies',
       assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
       unassignAgenciesToGrantAction: 'grants/unassignAgenciesToGrant',
-      fetchUsers: 'users/fetchUsers',
       fetchAgencies: 'agencies/fetchAgencies',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
