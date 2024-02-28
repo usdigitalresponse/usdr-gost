@@ -56,7 +56,13 @@ const avatarColors = {
   '#FCD663': '#000',
 };
 
+const defaultCloseDateThresholds = {
+  warning: 30,
+  danger: 15,
+};
+
 module.exports = {
   billOptions,
   avatarColors,
+  defaultCloseDateThresholds,
 };
