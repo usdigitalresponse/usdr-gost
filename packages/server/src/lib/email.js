@@ -156,16 +156,16 @@ function getGrantDetail(grant, emailNotificationType) {
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
 
     const description = grant.description.substring(0, 380).replace(/(<([^>]+)>)/ig, '');
-    const grantsUrl = new URL(process.env.WEBSITE_DOMAIN);
+    const browseGrantsUrl = new URL(process.env.WEBSITE_DOMAIN);
+    browseGrantsUrl.searchParams.set('utm_source', 'usdr-grants');
+    browseGrantsUrl.searchParams.set('utm_medium', 'email');
+    browseGrantsUrl.searchParams.set('utm_campaign', emailNotificationType);
     if (emailNotificationType === notificationType.grantDigest) {
-        grantsUrl.pathname = 'grants';
+        browseGrantsUrl.pathname = 'grants';
     } else {
-        grantsUrl.pathname = 'my-grants';
-        grantsUrl.searchParams.set('View My Grants');
+        browseGrantsUrl.pathname = 'my-grants';
+        browseGrantsUrl.searchParams.set('View My Grants');
     }
-    grantsUrl.searchParams.set('utm_source', 'usdr-grants');
-    grantsUrl.searchParams.set('utm_medium', 'email');
-    grantsUrl.searchParams.set('utm_campaign', emailNotificationType);
 
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
@@ -180,7 +180,7 @@ function getGrantDetail(grant, emailNotificationType) {
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
             link_url: `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
-            grants_url: grantsUrl.toString(),
+            browse_grants_url: browseGrantsUrl.toString(),
             view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
         },
     );
