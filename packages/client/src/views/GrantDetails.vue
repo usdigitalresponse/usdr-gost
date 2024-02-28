@@ -131,6 +131,11 @@
                     <strong>{{ agency.agency_name }}</strong> team status to
                     <strong>{{ agency.interested_code_name }}</strong>
                   </p>
+                  <p v-if="agency.user_email">
+                    <a :href="`mailto:${ agency.user_email }`" class="text-muted">
+                      <small><b-icon icon="envelope-fill"></b-icon> {{ agency.user_email }}</small>
+                    </a>
+                  </p>
                 </div>
                 <b-button-close
                   @click="unmarkGrantAsInterested(agency)"
