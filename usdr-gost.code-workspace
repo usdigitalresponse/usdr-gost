@@ -18,12 +18,9 @@
 		"diffEditor.ignoreTrimWhitespace": false,
 		"editor.columnSelection": false,
 		"editor.find.cursorMoveOnType": true,
-		"eslint.debug":true,
 		"javascript.format.enable": false,
-		"editor.formatOnSaveMode": "modifications",
-		"eslint.alwaysShowStatus": true,
 		"editor.codeActionsOnSave": {
-			"source.fixAll.eslint": true
+			"source.fixAll.eslint": "explicit"
 		},
 	}
 }
