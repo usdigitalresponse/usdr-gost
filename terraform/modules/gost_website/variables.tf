@@ -14,6 +14,15 @@ variable "tags" {
   default = {}
 }
 
+# We include this variable in all packages as convention to help enforce our permissions boundaries.
+# If this module ever needs to create an IAM role, it should utilize this, and we can remove the tflint ignore.
+# tflint-ignore: terraform_unused_declarations
+variable "permissions_boundary_arn" {
+  description = "ARN of the managed policy to set as the permissions boundary for all roles."
+  type        = string
+  default     = null
+}
+
 variable "dns_zone_id" {
   description = "Route53 Hosted Zone ID where DNS records for the website should be managed."
   type        = string
