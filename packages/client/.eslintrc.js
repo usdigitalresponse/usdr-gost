@@ -12,13 +12,10 @@ module.exports = {
     parser: 'babel-eslint',
   },
   rules: {
-    'max-len': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    // ['warn', {
-    //   // eslint-disable-next-line max-len
-    //   code: 120, comments: 120, tabWidth: 4, ignoreStrings: true, ignoreTemplateLiterals: true, ignoreRegExpLiterals: true,
-    // }],
-    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    // TODO: enable these lint rules over time
+    'max-len': 'off',
+    'no-console': 'off',
+    'no-debugger': 'off',
     'func-names': 'off',
 
     // Modern browsers have much greater support for ES6+ features than they did
