@@ -75,9 +75,15 @@ router.get('/next', requireUser, async (req, res) => {
     } catch {
         return res.status(400).send('Invalid ordering parameter');
     }
+    let paginationParams;
+    try {
+        paginationParams = await db.buildPaginationParams(req.query.pagination);
+    } catch {
+        return res.status(400).send('Invalid pagination parameters');
+    }
     const grants = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
-        await db.buildPaginationParams(req.query.pagination),
+        paginationParams,
         orderingParams,
         user.tenant_id,
         user.agency_id,

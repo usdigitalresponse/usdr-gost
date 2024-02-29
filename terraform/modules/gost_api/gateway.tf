@@ -24,7 +24,7 @@ module "http_security_group" {
 module "ssl_certificate" {
   enabled = var.enabled
   source  = "cloudposse/acm-request-certificate/aws"
-  version = "0.17.0"
+  version = "0.18.0"
 
   domain_name                       = var.domain_name
   zone_id                           = var.dns_zone_id
@@ -35,7 +35,7 @@ module "ssl_certificate" {
 module "api_gateway" {
   create  = var.enabled
   source  = "terraform-aws-modules/apigateway-v2/aws"
-  version = "2.2.2"
+  version = "3.1.0"
 
   name          = var.namespace
   description   = "API Gateway proxy to ECS web services for GOST"

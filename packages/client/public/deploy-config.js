@@ -22,8 +22,7 @@ window.APP_CONFIG.overrideFeatureFlag = (flagName, overrideValue) => {
 window.APP_CONFIG.featureFlags = {
   myProfileEnabled: true,
   newTerminologyEnabled: true,
-  newGrantsDetailPageEnabled: false,
-  categoryOfFundingActivitySearchFieldEnabled: true,
+  newGrantsDetailPageEnabled: true,
 };
 
 // Setting a GOOGLE_TAG_ID enables Google Analytics.
