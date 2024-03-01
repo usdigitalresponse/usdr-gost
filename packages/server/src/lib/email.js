@@ -190,10 +190,10 @@ function getGrantDetail(grant, emailNotificationType) {
             award_ceiling: grant.award_ceiling || 'Not available',
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
-            link_url: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED
+            link_url: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED === 'true'
                 ? buildGrantDetailUrl(grant.grant_id, notificationType).toString()
                 : `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
-            link_description: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED
+            link_description: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED === 'true'
                 ? 'Grant Finder'
                 : 'Grants.gov',
             grants_url: buildGrantsUrl(notificationType).toString(),
