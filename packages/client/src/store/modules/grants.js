@@ -188,15 +188,6 @@ export default {
         interestedCode,
       });
     },
-    async generateGrantForm(context, { grantId }) {
-      const response = await fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/form/nevada_spoc`);
-      const link = document.createElement('a');
-      link.href = response.filePath;
-      link.setAttribute('download', response.filePath);
-      link.setAttribute('target', '_blank');
-      document.body.appendChild(link);
-      link.click();
-    },
     fetchInterestedAgencies(context, { grantId }) {
       return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/interested`);
     },

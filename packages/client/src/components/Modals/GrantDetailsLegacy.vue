@@ -53,11 +53,6 @@
             </b-col>
             <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">Submit</b-button>
           </b-row>
-          <b-row v-if="interested && interested.interested_status_code !== 'Rejection'&& shouldShowSpocButton">
-            <b-col>
-              <b-button variant="primary" @click="generateSpoc">Generate SPOC</b-button>
-            </b-col>
-          </b-row>
         </b-col>
       </b-row>
       <br />
@@ -179,9 +174,6 @@ export default {
         (viewed) => viewed.agency_id.toString() === this.selectedAgencyId,
       );
     },
-    shouldShowSpocButton() {
-      return this.currentTenant.uses_spoc_process;
-    },
     interested() {
       if (!this.selectedGrant) {
         return undefined;
@@ -213,7 +205,6 @@ export default {
   methods: {
     ...mapActions({
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
-      generateGrantForm: 'grants/generateGrantForm',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
       unmarkGrantAsInterestedAction: 'grants/unmarkGrantAsInterested',
       getInterestedAgencies: 'grants/getInterestedAgencies',
@@ -266,11 +257,6 @@ export default {
       });
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
       datadogRum.addAction('remove team assignment from grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
-    },
-    async generateSpoc() {
-      await this.generateGrantForm({
-        grantId: this.selectedGrant.grant_id,
-      });
     },
     isAbleToUnmark(agencyId) {
       return this.agencies.some((agency) => agency.id === agencyId);
