@@ -417,6 +417,21 @@ describe('Email sender', () => {
             expect(body).to.include(name);
             expect(body).to.include(moment(openDate).format('MMMM Do YYYY'));
         });
+        it('links to Grants.gov when Grant Details page is not live', async () => {
+            const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
+            const agency = agencies[0];
+            agency.matched_grants = [fixtures.grants.healthAide];
+            const body = await email.buildDigestBody({ name: 'Saved search test', openDate: '2021-08-05', matchedGrants: agency.matched_grants });
+            expect(body).to.include(`https://www.grants.gov/search-results-detail/${fixtures.grants.healthAide.grant_id}`.replaceAll('/', '&#x2F;'));
+        });
+        it('links to Grant Finder when Grant Details page is live', async () => {
+            process.env.NEW_GRANT_DETAILS_PAGE_ENABLED = 'true';
+            const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
+            const agency = agencies[0];
+            agency.matched_grants = [fixtures.grants.healthAide];
+            const body = await email.buildDigestBody({ name: 'Saved search test', openDate: '2021-08-05', matchedGrants: agency.matched_grants });
+            expect(body).to.include(`${process.env.WEBSITE_DOMAIN}/grant/${fixtures.grants.healthAide.grant_id}`.replaceAll('/', '&#x2F;'));
+        });
     });
     context('getAndSendGrantForSavedSearch', () => {
         it('Sends an email for a saved search', async () => {
