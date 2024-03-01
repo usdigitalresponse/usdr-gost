@@ -152,10 +152,17 @@ function sendWelcomeEmail(email, httpOrigin) {
     });
 }
 
-function getGrantDetail(grant, emailNotificationType) {
-    const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
+function buildGrantDetailUrl(grantId, emailNotificationType) {
+    const grantDetailUrl = new URL(process.env.WEBSITE_DOMAIN);
+    grantDetailUrl.pathname = `grant/${grantId}`;
+    grantDetailUrl.searchParams.set('utm_source', 'usdr-grants');
+    grantDetailUrl.searchParams.set('utm_medium', 'email');
+    grantDetailUrl.searchParams.set('utm_campaign', emailNotificationType);
+    grantDetailUrl.searchParams.set('utm_content', 'grant-details');
+    return grantDetailUrl;
+}
 
-    const description = grant.description.substring(0, 380).replace(/(<([^>]+)>)/ig, '');
+function buildGrantsUrl(emailNotificationType) {
     const grantsUrl = new URL(process.env.WEBSITE_DOMAIN);
     if (emailNotificationType === notificationType.grantDigest) {
         grantsUrl.pathname = 'grants';
@@ -165,6 +172,12 @@ function getGrantDetail(grant, emailNotificationType) {
     grantsUrl.searchParams.set('utm_source', 'subscription');
     grantsUrl.searchParams.set('utm_medium', 'email');
     grantsUrl.searchParams.set('utm_campaign', emailNotificationType);
+    return grantsUrl;
+}
+
+function getGrantDetail(grant, emailNotificationType) {
+    const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
+    const description = grant.description.substring(0, 380).replace(/(<([^>]+)>)/ig, '');
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
             title: grant.title,
@@ -177,8 +190,13 @@ function getGrantDetail(grant, emailNotificationType) {
             award_ceiling: grant.award_ceiling || 'Not available',
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
-            link_url: `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
-            grants_url: grantsUrl.toString(),
+            link_url: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED
+                ? buildGrantDetailUrl(grant.grant_id, notificationType).toString()
+                : `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
+            link_description: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED
+                ? 'Grant Finder'
+                : 'Grants.gov',
+            grants_url: buildGrantsUrl(notificationType).toString(),
             view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
         },
     );
@@ -218,10 +236,10 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     // TODO: add plain text version of the email
     const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
     const emailSubject = `Grant Assigned to ${assignee_agency.name}`;
-    const assginees = await db.getSubscribersForNotification(assignee_agency.id, notificationType.grantAssignment);
+    const assignees = await db.getSubscribersForNotification(assignee_agency.id, notificationType.grantAssignment);
 
     const inputs = [];
-    assginees.forEach((assignee) => inputs.push(
+    assignees.forEach((assignee) => inputs.push(
         {
             toAddress: assignee.email,
             emailHTML,
