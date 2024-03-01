@@ -26,5 +26,6 @@ window.APP_CONFIG.featureFlags = {
 };
 
 // Setting a GOOGLE_TAG_ID enables Google Analytics.
-// Empty for the dev configuration since there is not yet a Google Analytics property for dev.
+// Empty for the dev configuration by default.
+// Set to 'G-D5DFR7BN0N' to enable Google Analytics in dev environments.
 window.APP_CONFIG.GOOGLE_TAG_ID = '';
