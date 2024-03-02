@@ -31,5 +31,5 @@ window.APP_CONFIG.featureFlags = {
 window.APP_CONFIG.GOOGLE_TAG_ID = '';
 
 // This only takes effect if GOOGLE_TAG_ID is non-empty and can generally be ignored.
-// See https://support.google.com/analytics/answer/7201382 for usage information.
+//  See https://support.google.com/analytics/answer/7201382 for usage information.
 window.APP_CONFIG.GOOGLE_ANALYTICS_DEBUG = true;
