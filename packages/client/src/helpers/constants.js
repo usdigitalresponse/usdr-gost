@@ -34,6 +34,7 @@ const billOptions = [
   'Social Security Administration',
 ];
 
+// Mapping of available avatar background colors to foreground text colors
 const avatarColors = {
   '#44337A': '#FFF',
   '#086F83': '#FFF',
