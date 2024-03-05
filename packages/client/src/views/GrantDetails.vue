@@ -1,11 +1,13 @@
 <template>
   <section>
-      <div class="grant-details-back-link" style="display: flex; justify-content: start" v-if="showBackLink">
+    <div class="container-fluid">
+      <div class="grant-details-back-link" v-if="showBackLink">
           <a @click="goBack" class="back-link">Back</a>
       </div>
-      <div class="grant-details-back-link" style="display: flex; justify-content: start" v-else>
+      <div class="grant-details-back-link" v-else>
           <router-link to="/grants">Browse Grants</router-link>
       </div>
+    </div>
     <div v-if="loading">
       Loading...
     </div>
@@ -452,12 +454,19 @@ export default {
 
 <style lang="css">
 .grant-details-back-link {
-position: absolute;
-left: 6rem;
-top: 112px;
+  font-size: 1rem;
+  width: 100%;
+  padding-right: 80px;
+  padding-left: 80px;
+  padding-top: 80px;
+  margin-right: auto;
+  margin-left: auto;
+  box-sizing: border-box;
 }
 .grant-details-container {
-  margin: 80px;
+  padding-right: 80px;
+  padding-left: 80px;
+  padding-bottom: 80px;
   display: grid;
   grid-template-columns: 1fr 437px;
   grid-template-rows: auto;
