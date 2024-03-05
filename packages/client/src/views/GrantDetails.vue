@@ -5,7 +5,7 @@
           <a @click="$router.back()">Back</a>
       </div>
       <div class="grant-details-back-link" v-else>
-          <router-link to="/grants">Browse Grants</router-link>
+          <router-link :to="{ name: 'grants' }">Browse Grants</router-link>
       </div>
     </div>
     <div v-if="loading">
