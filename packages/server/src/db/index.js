@@ -147,7 +147,6 @@ async function getUser(id) {
             'tenants.id as tenant_id',
             'tenants.display_name as tenant_display_name',
             'tenants.main_agency_id as tenant_main_agency_id',
-            'tenants.uses_spoc_process as tenant_uses_spoc_process',
             'users.tags',
             'users.tenant_id',
         )
@@ -171,7 +170,6 @@ async function getUser(id) {
             'tenants.id as tenant_id',
             'tenants.display_name as tenant_display_name',
             'tenants.main_agency_id as tenant_main_agency_id',
-            'tenants.uses_spoc_process as tenant_uses_spoc_process',
             'users.tags',
             'users.tenant_id',
         )
@@ -203,7 +201,6 @@ async function getUser(id) {
             id: user.tenant_id,
             display_name: user.tenant_display_name,
             main_agency_id: user.tenant_main_agency_id,
-            uses_spoc_process: user.tenant_uses_spoc_process,
         };
         let subagencies = [];
         if (user.role.name === 'admin') {
