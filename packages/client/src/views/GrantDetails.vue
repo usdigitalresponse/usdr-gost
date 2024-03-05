@@ -453,7 +453,7 @@ export default {
 <style lang="css">
 .grant-details-back-link {
 position: absolute;
-left: 11.5rem;
+left: 6rem;
 top: 112px;
 }
 .grant-details-container {
