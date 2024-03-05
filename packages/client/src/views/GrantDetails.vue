@@ -2,7 +2,7 @@
   <section>
     <div class="container-fluid">
       <div class="grant-details-back-link" v-if="showBackLink">
-          <a @click="goBack" class="back-link">Back</a>
+          <a @click="$router.back()">Back</a>
       </div>
       <div class="grant-details-back-link" v-else>
           <router-link to="/grants">Browse Grants</router-link>
@@ -445,9 +445,6 @@ export default {
     selectableOption(option) {
       return option.status_code !== HEADER;
     },
-    goBack() {
-      this.$router.go(-1);
-    },
   },
 };
 </script>
@@ -459,9 +456,6 @@ export default {
   padding-right: 80px;
   padding-left: 80px;
   padding-top: 80px;
-  margin-right: auto;
-  margin-left: auto;
-  box-sizing: border-box;
 }
 .grant-details-container {
   padding-right: 80px;
