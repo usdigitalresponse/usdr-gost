@@ -1,13 +1,5 @@
 <template>
   <section>
-    <div class="container-fluid">
-      <div class="grant-details-back-link" v-if="showBackLink">
-          <a @click="$router.back()">Back</a>
-      </div>
-      <div class="grant-details-back-link" v-else>
-          <router-link :to="{ name: 'grants' }">Browse Grants</router-link>
-      </div>
-    </div>
     <div v-if="loading">
       Loading...
     </div>
@@ -16,7 +8,12 @@
     </div>
     <b-container fluid v-if="selectedGrant && !loading">
       <div class="grant-details-container">
-
+        <div class="grant-details-back-link" v-if="isFirstPageLoad">
+          <router-link :to="{ name: 'grants' }">Browse Grants</router-link>
+        </div>
+        <div class="grant-details-back-link" v-else>
+          <a @click="$router.back()">Back</a>
+        </div>
         <!-- Left page column: headline -->
         <h2 class="grant-details-headline m-0">{{ selectedGrant.title }}</h2>
 
@@ -181,6 +178,7 @@ export default {
   },
   data() {
     return {
+      isFirstPageLoad: false,
       showDialog: false,
       orderBy: '',
       assignedAgenciesFields: [
@@ -207,6 +205,14 @@ export default {
       loading: true,
       copyUrlSuccessTimeout: null,
     };
+  },
+  beforeRouteEnter(to, from, next) {
+    const isFirstPageLoad = from.name === null && from.path === '/';
+    next((vm) => {
+      if (isFirstPageLoad) {
+        vm.setFirstPageLoad();
+      }
+    });
   },
   created() {
     // watch the params of the route to fetch the data again
@@ -321,9 +327,6 @@ export default {
         (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
       );
     },
-    showBackLink() {
-      return this.$route.query.fromApp;
-    },
   },
   watch: {
     async selectedGrant() {
@@ -356,6 +359,9 @@ export default {
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
     }, 500),
+    setFirstPageLoad() {
+      this.isFirstPageLoad = true;
+    },
     async markGrantAsViewed() {
       await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.selectedAgencyId });
     },
@@ -441,13 +447,6 @@ export default {
 </script>
 
 <style lang="css">
-.grant-details-back-link {
-  font-size: 1rem;
-  width: 100%;
-  padding-right: 80px;
-  padding-left: 80px;
-  padding-top: 80px;
-}
 .grant-details-container {
   padding-right: 80px;
   padding-left: 80px;
@@ -456,10 +455,23 @@ export default {
   grid-template-columns: 1fr 437px;
   grid-template-rows: auto;
   grid-template-areas:
+    "back-link back-link"
     "headline  main-actions"
     "content   secondary-actions";
   column-gap: 90px;
   row-gap: 48px;
+  .grant-details-back-link {
+    padding-top: 20px;
+    font-size: 1rem;
+    a {
+      cursor: pointer;
+      color: black;
+      text-decoration: none;
+    }
+  }
+}
+.grant-details-back-link {
+  grid-area: back-link;
 }
 .grant-details-headline {
   grid-area: headline;
