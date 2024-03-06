@@ -155,7 +155,7 @@ function sendWelcomeEmail(email, httpOrigin) {
 function getGrantDetail(grant, emailNotificationType) {
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
 
-    const description = grant.description.substring(0, 380).replace(/(<([^>]+)>)/ig, '');
+    const description = grant.description?.substring(0, 380).replace(/(<([^>]+)>)/ig, '');
     const grantsUrl = new URL(process.env.WEBSITE_DOMAIN);
     if (emailNotificationType === notificationType.grantDigest) {
         grantsUrl.pathname = 'grants';
