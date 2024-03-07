@@ -162,6 +162,7 @@ import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
+import { formatCurrency } from '@/helpers/currency';
 import { DateTime } from 'luxon';
 import UserAvatar from '@/components/UserAvatar.vue';
 
@@ -270,7 +271,7 @@ export default {
         value: this.selectedGrant.agency_code,
       }, {
         name: 'Award Ceiling',
-        value: this.selectedGrant.award_ceiling,
+        value: formatCurrency(this.selectedGrant.award_ceiling),
       }, {
         name: 'Category of Funding Activity',
         value: this.selectedGrant.funding_activity_categories?.join(', '),
@@ -356,6 +357,7 @@ export default {
       fetchAgencies: 'agencies/fetchAgencies',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
+    formatCurrency,
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
     }, 500),
