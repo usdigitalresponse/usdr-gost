@@ -468,7 +468,7 @@ export default {
       color: #6D7278;
       cursor: pointer;
       &::hover {
-        text-decoration: underline !important;
+        text-decoration: underline;
       }
     }
   }
