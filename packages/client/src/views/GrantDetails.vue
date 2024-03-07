@@ -91,8 +91,9 @@
                 :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
                 :clearable="false"
                 data-dd-action-name="select team for grant assignment"
+                @close="$refs.assignSubmitButton.focus()"
               />
-              <b-button variant="outline-primary" @click="assignAgenciesToGrant" :disabled="!selectedAgencyToAssign" data-dd-action-name="assign team">
+              <b-button ref="assignSubmitButton" variant="outline-primary" @click="assignAgenciesToGrant" :disabled="!selectedAgencyToAssign" data-dd-action-name="assign team">
                 Submit
               </b-button>
             </div>
@@ -124,8 +125,9 @@
                 :selectable="selectableOption"
                 :clearable="false"
                 data-dd-action-name="select team status"
+                @close="$refs.statusSubmitButton.focus()"
               />
-              <b-button variant="outline-primary" @click="markGrantAsInterested" :disabled="!selectedInterestedCode" data-dd-action-name="submit team status">
+              <b-button ref="statusSubmitButton" variant="outline-primary" @click="markGrantAsInterested" :disabled="!selectedInterestedCode" data-dd-action-name="submit team status">
                 Submit
               </b-button>
             </div>
