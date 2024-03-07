@@ -149,10 +149,14 @@ export default {
       return fetchApi.get(`/api/organizations/:organizationId/grants/next?${paginationQuery}&${orderingQuery}&${criteriaQuery}`)
         .then((data) => commit('SET_GRANTS', data));
     },
+    // Retrieves grants that the user's team (or any subteam) has interacted with (either by setting status or assigning to a user).
+    // Sorted in descending order by the date on which the interaction occurred (recently interacted with are first).
     fetchGrantsInterested({ commit }, { perPage, currentPage }) {
       return fetchApi.get(`/api/organizations/:organizationId/grants/grantsInterested/${perPage}/${currentPage}`)
         .then((data) => commit('SET_GRANTS_INTERESTED', data));
     },
+    // Retrieves grants that the user's team (or any subteam) is interested in and that have closing dates in the future.
+    // Sorted in ascending order by the closing date (grants that close soonest are first).
     fetchClosestGrants({ commit }, { perPage, currentPage }) {
       return fetchApi.get(`/api/organizations/:organizationId/grants/closestGrants/${perPage}/${currentPage}`)
         .then((data) => commit('SET_CLOSEST_GRANTS', data));

@@ -14,7 +14,10 @@
 export function gtagConfig(config) {
   // See index.html for the definition of the gtag function.
   if (typeof window.gtag === 'function' && window.APP_CONFIG?.GOOGLE_TAG_ID) {
-    window.gtag('config', window.APP_CONFIG.GOOGLE_TAG_ID, config);
+    window.gtag('config', window.APP_CONFIG.GOOGLE_TAG_ID, {
+      ...(window.APP_CONFIG?.GOOGLE_ANALYTICS_DEBUG ? { debug_mode: true } : {}),
+      ...config,
+    });
   }
 }
 
