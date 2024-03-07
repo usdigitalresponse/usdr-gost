@@ -163,6 +163,7 @@ import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { formatCurrency } from '@/helpers/currency';
+import { titleize } from '@/helpers/form-helpers';
 import { DateTime } from 'luxon';
 import UserAvatar from '@/components/UserAvatar.vue';
 
@@ -280,7 +281,7 @@ export default {
         value: this.selectedGrant.opportunity_category,
       }, {
         name: 'Opportunity Status',
-        value: this.selectedGrant.opportunity_status,
+        value: titleize(this.selectedGrant.opportunity_status),
       }, {
         name: 'Appropriation Bill',
         value: this.selectedGrant.bill,
@@ -357,6 +358,7 @@ export default {
       fetchAgencies: 'agencies/fetchAgencies',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
+    titleize,
     formatCurrency,
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
