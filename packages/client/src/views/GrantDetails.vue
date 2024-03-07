@@ -268,7 +268,7 @@ export default {
         name: 'Grant ID',
         value: this.selectedGrant.grant_id,
       }, {
-        name: 'Federal Awarding',
+        name: 'Agency Code',
         value: this.selectedGrant.agency_code,
       }, {
         name: 'Award Ceiling',
