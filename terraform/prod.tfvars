@@ -52,7 +52,7 @@ website_feature_flags = {
   newGrantsDetailPageEnabled = false,
 }
 
-// Google Analytics Account ID: 233192355, Property ID: 321194851
+// Google Analytics Account ID: 233192355, Property ID: 321194851, Stream ID: 3802896350
 website_google_tag_id = "G-WCDTMFM6RG"
 
 // ECS Cluster

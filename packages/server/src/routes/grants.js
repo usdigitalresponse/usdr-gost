@@ -1,9 +1,9 @@
 const express = require('express');
 // eslint-disable-next-line import/no-unresolved
 const { stringify: csvStringify } = require('csv-stringify/sync');
+const groupBy = require('lodash/groupBy');
 const db = require('../db');
 const email = require('../lib/email');
-const pdf = require('../lib/pdf');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 
 const router = express.Router({ mergeParams: true });
@@ -103,8 +103,20 @@ router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
 
 router.get('/closestGrants/:perPage/:currentPage', requireUser, async (req, res) => {
     const { perPage, currentPage } = req.params;
-    const rows = await db.getClosestGrants({ agency: req.session.selectedAgency, perPage, currentPage });
-    res.json(rows);
+    const { data, pagination } = await db.getClosestGrants({ agency: req.session.selectedAgency, perPage, currentPage });
+
+    // Get interested agencies for each grant
+    const grantIds = data.map((grant) => grant.grant_id);
+    const agencies = await db.getInterestedAgencies({ grantIds, tenantId: req.session.user.tenant_id });
+    const agenciesByGrantId = groupBy(agencies, 'grant_id');
+    const enhancedData = data.map((grant) => (
+        {
+            ...grant,
+            interested_agencies: (agenciesByGrantId[grant.grant_id] || []).map((agency) => agency.agency_abbreviation || agency.agency_name),
+        }
+    ));
+
+    res.json({ data: enhancedData, pagination });
 });
 
 // For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
@@ -422,44 +434,6 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
 
     await db.unmarkGrantAsInterested({ grantId, agencyIds: submittedAgencyIds, userId: user.id });
     res.json({});
-});
-
-const formFields = {
-    nevada_spoc: {
-        PDFTextField: {
-            'Name of Person Requesting SPoC': 'name',
-            Email: 'email',
-            'NoFO #': 'grant_number',
-            'Title of Federal Program': 'title',
-            CFDA: 'cfda_list',
-            'Application amount': '',
-            'Funding Agency': 'agencyName',
-            // 'Date of award or start of project': '',
-            // 'Date due': '',
-            // 'Date full application is due': '',
-            'Max amount allowed for applications': 'award_ceiling',
-            // 'State Application Identification #': '',
-            // Summary: '',
-        },
-    },
-};
-
-// eslint-disable-next-line consistent-return
-router.get('/:grantId/form/:formName', requireUser, async (req, res) => {
-    if (req.params.formName !== 'nevada_spoc') {
-        return res.status(400);
-    }
-    const { user } = req.session;
-    const grant = await db.getGrant({ grantId: req.params.grantId });
-    if (!grant) {
-        return res.status(404);
-    }
-    grant.agencyName = grant.raw_body_json?.synopsis?.agencyName || '';
-    const filePath = await pdf.fillPdf(`${req.params.formName}.pdf`, formFields[req.params.formName], {
-        ...user,
-        ...grant,
-    });
-    res.json({ filePath });
 });
 
 module.exports = router;

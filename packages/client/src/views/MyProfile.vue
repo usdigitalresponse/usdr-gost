@@ -6,12 +6,12 @@
       <section style="margin-top: 4rem;">
         <b-row>
           <b-col>
-            <UserAvatar />
+            <UserAvatar :user-name="loggedInUser.name" :color="loggedInUser.avatar_color" />
           </b-col>
           <b-col cols="7">
-            <p class="mb-2 h6"><b>{{ name }}</b></p>
-            <p class="mb-2">{{ email }}</p>
-            <p class="mb-2">{{ agency }}</p>
+            <p class="mb-2 h6"><b>{{ loggedInUser.name }}</b></p>
+            <p class="mb-2">{{ loggedInUser.email }}</p>
+            <p class="mb-2">{{ loggedInUser.agency_name }}</p>
           </b-col>
           <b-col class="text-end">
             <b-button variant="primary" size="md" @click="$bvModal.show('edit-user-modal')">
@@ -78,18 +78,6 @@ export default {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
     }),
-    name() {
-      return this.loggedInUser.name;
-    },
-    email() {
-      return this.loggedInUser.email;
-    },
-    agency() {
-      return this.loggedInUser.agency_name;
-    },
-    emailPreferences() {
-      return this.loggedInUser.emailPreferences;
-    },
   },
   methods: {
     ...mapActions({
@@ -97,7 +85,7 @@ export default {
     }),
     onUpdateEmailPreference(pref) {
       const updatedPreferences = {
-        ...this.emailPreferences,
+        ...this.loggedInUser.emailPreferences,
         [pref.key]: pref.checked ? 'SUBSCRIBED' : 'UNSUBSCRIBED',
       };
       this.updateEmailSubscriptionPreferences({
@@ -108,7 +96,7 @@ export default {
   beforeMount() {
     this.prefs.forEach((pref) => {
       // eslint-disable-next-line no-param-reassign
-      pref.checked = this.emailPreferences[pref.key] === 'SUBSCRIBED';
+      pref.checked = this.loggedInUser.emailPreferences[pref.key] === 'SUBSCRIBED';
     });
   },
 };
