@@ -154,7 +154,7 @@ function sendWelcomeEmail(email, httpOrigin) {
 
 function buildGrantDetailUrl(grantId, emailNotificationType) {
     const grantDetailUrl = new URL(process.env.WEBSITE_DOMAIN);
-    grantDetailUrl.pathname = `grant/${grantId}`;
+    grantDetailUrl.pathname = `grants/${grantId}`;
     grantDetailUrl.searchParams.set('utm_source', 'usdr-grants');
     grantDetailUrl.searchParams.set('utm_medium', 'email');
     grantDetailUrl.searchParams.set('utm_campaign', emailNotificationType);
