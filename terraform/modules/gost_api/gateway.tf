@@ -35,7 +35,7 @@ module "ssl_certificate" {
 module "api_gateway" {
   create  = var.enabled
   source  = "terraform-aws-modules/apigateway-v2/aws"
-  version = "3.1.0"
+  version = "3.1.1"
 
   name          = var.namespace
   description   = "API Gateway proxy to ECS web services for GOST"

@@ -49,6 +49,9 @@ website_feature_flags = {
   newGrantsDetailPageEnabled = false,
 }
 
+// Google Analytics Account ID: 233192355, Property ID: 429910307, Stream ID: 7590745080
+website_google_tag_id = "G-D5DFR7BN0N"
+
 // ECS Cluster
 cluster_container_insights_enabled = true
 

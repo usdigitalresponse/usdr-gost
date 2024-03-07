@@ -34,6 +34,7 @@ const billOptions = [
   'Social Security Administration',
 ];
 
+// Mapping of available avatar background colors to foreground text colors
 const avatarColors = {
   '#44337A': '#FFF',
   '#086F83': '#FFF',
@@ -55,7 +56,13 @@ const avatarColors = {
   '#FCD663': '#000',
 };
 
+const defaultCloseDateThresholds = {
+  warning: 30,
+  danger: 15,
+};
+
 module.exports = {
   billOptions,
   avatarColors,
+  defaultCloseDateThresholds,
 };
