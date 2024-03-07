@@ -244,7 +244,11 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
     try {
         const grantDetail = await buildGrantDetail(grantId, notificationType.grantAssignment);
         const agencies = await db.getAgenciesByIds(agencyIds);
-        agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
+        await asyncBatch(
+            agencies,
+            (agency) => { module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId); },
+            2,
+        );
     } catch (err) {
         log.error({
             err, grantId, agencyIds, userId,
