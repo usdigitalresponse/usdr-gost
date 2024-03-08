@@ -19,7 +19,7 @@
                                         <tr style="border-collapse:collapse">
                                             <td align="left"
                                                 style="Margin:0;padding-bottom:16px;">
-                                                <a style="text-decoration:none;" href="{{link_url}}">
+                                                <a style="text-decoration:none;" href="{{& link_url_safe }}">
                                                     <h2
                                                     style="Margin:0;line-height:30px;mso-line-height-rule:exactly;font-family:arial,'helvetica neue',helvetica,sans-serif;font-size:22px;font-style:normal;font-weight:normal;color:#0068D6">
                                                     {{title}}</h2>
@@ -31,7 +31,7 @@
                                                 style="Margin:0;padding-bottom:16px;">
                                                 <p
                                                     style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:24px;color:#000000;font-size:16px">
-                                                    {{{description}}}<span>... View on <a style="color:#0068D6;text-decoration:none;" href="{{link_url}}">{{ link_description }}</a></span>
+                                                    {{{description}}}<span>... View on <a style="color:#0068D6;text-decoration:none;" href="{{& link_url_safe }}">{{ link_description }}</a></span>
                                                 </p>
                                             </td>
                                         </tr>
@@ -60,8 +60,8 @@
                                         <tr style="border-collapse:collapse">
                                             <td align="center"
                                                 style="Margin:0;padding-left:10px;padding-right:10px;padding-top:15px;padding-bottom:25px">
-                                                <!--[if mso]><a href="{{grants_url}}" target="_blank" hidden>
-  <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" esdevVmlButton href="{{grants_url}}" 
+                                                <!--[if mso]><a href="{{& grants_url_safe }}" target="_blank" hidden>
+  <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" esdevVmlButton href="{{& grants_url_safe }}"
            style="height:49px; v-text-anchor:middle; width:131px" arcsize="50%" strokecolor="#75b6c9" strokeweight="1px" fillcolor="#007bff">
    <w:anchorlock></w:anchorlock>
    <center style='color:#ffffff; font-family:arial, "helvetica neue", helvetica, sans-serif; font-size:16px; font-weight:400; line-height:16px;  mso-text-raise:1px'>{{view_grant_label}}</center>
@@ -69,7 +69,7 @@
   <![endif]-->
                                                 <!--[if !mso]><!-- --><span class="msohide es-button-border"
                                                     style="border-style:solid;border-color:#75B6C9;background:#007bff;border-width:1px;display:inline-block;border-radius:28px;width:auto;mso-hide:all"><a
-                                                        href="{{grants_url}}" class="es-button" target="_blank"
+                                                        href="{{& grants_url_safe }}" class="es-button" target="_blank"
                                                         utm-content="view my grants" style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;color:#FFFFFF;font-size:16px;border-style:solid;border-color:#007bff;border-width:15px 25px 15px 25px;display:inline-block;background:#007bff;border-radius:28px;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-weight:normal;font-style:normal;line-height:19px;width:auto;text-align:center">{{view_grant_label}}</a></span>
                                                 <!--<![endif]-->
                                             </td>

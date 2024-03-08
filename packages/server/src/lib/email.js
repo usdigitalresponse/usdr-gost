@@ -152,17 +152,17 @@ function sendWelcomeEmail(email, httpOrigin) {
     });
 }
 
-function buildGrantDetailUrl(grantId, emailNotificationType) {
+function buildGrantDetailUrlSafe(grantId, emailNotificationType) {
     const grantDetailUrl = new URL(process.env.WEBSITE_DOMAIN);
-    grantDetailUrl.pathname = `grants/${grantId}`;
+    grantDetailUrl.pathname = `grants/${mustache.escape(grantId)}`;
     grantDetailUrl.searchParams.set('utm_source', 'usdr-grants');
     grantDetailUrl.searchParams.set('utm_medium', 'email');
-    grantDetailUrl.searchParams.set('utm_campaign', emailNotificationType);
+    grantDetailUrl.searchParams.set('utm_campaign', mustache.escape(emailNotificationType));
     grantDetailUrl.searchParams.set('utm_content', 'grant-details');
-    return grantDetailUrl;
+    return grantDetailUrl.toString();
 }
 
-function buildGrantsUrl(emailNotificationType) {
+function buildGrantsUrlSafe(emailNotificationType) {
     const grantsUrl = new URL(process.env.WEBSITE_DOMAIN);
     if (emailNotificationType === notificationType.grantDigest) {
         grantsUrl.pathname = 'grants';
@@ -171,8 +171,8 @@ function buildGrantsUrl(emailNotificationType) {
     }
     grantsUrl.searchParams.set('utm_source', 'subscription');
     grantsUrl.searchParams.set('utm_medium', 'email');
-    grantsUrl.searchParams.set('utm_campaign', emailNotificationType);
-    return grantsUrl;
+    grantsUrl.searchParams.set('utm_campaign', mustache.escape(emailNotificationType));
+    return grantsUrl.toString();
 }
 
 function getGrantDetail(grant, emailNotificationType) {
@@ -190,13 +190,13 @@ function getGrantDetail(grant, emailNotificationType) {
             award_ceiling: grant.award_ceiling || 'Not available',
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
-            link_url: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED === 'true'
-                ? buildGrantDetailUrl(grant.grant_id, notificationType).toString()
-                : `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
+            link_url_safe: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED === 'true'
+                ? buildGrantDetailUrlSafe(grant.grant_id, notificationType)
+                : `https://www.grants.gov/search-results-detail/${mustache.escape(grant.grant_id)}`,
             link_description: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED === 'true'
                 ? 'Grant Finder'
                 : 'Grants.gov',
-            grants_url: buildGrantsUrl(notificationType).toString(),
+            grants_url_safe: buildGrantsUrlSafe(notificationType),
             view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
         },
     );
