@@ -10,7 +10,7 @@
       <div class="grant-details-container">
         <div class="grant-details-back-link">
           <router-link v-if="isFirstPageLoad" :to="{ name: 'grants' }">Browse Grants</router-link>
-          <a href="#" @click="$router.back()" v-else>Back to Results</a>
+          <a href="#" @click="$router.back()" v-else>Back</a>
         </div>
         <!-- Left page column: headline -->
         <h2 class="grant-details-headline m-0">{{ selectedGrant.title }}</h2>
@@ -444,7 +444,8 @@ export default {
 };
 </script>
 
-<style lang="css">
+<style lang="scss">
+@import '@/scss/colors-semantic-tokens.scss';
 
 .grant-details-container {
   padding-right: 80px;
@@ -463,9 +464,9 @@ export default {
     margin-top: 24px;
     font-size: 14px;
     font-weight: 700;
-    color: #6D7278;
+    color: $link-back;
     a {
-      color: #6D7278;
+      color: $link-back;
       cursor: pointer;
       &::hover {
         text-decoration: underline;
