@@ -9,6 +9,8 @@ Visit: <https://myaccount.google.com/apppasswords> and set up an "App Password" 
 
 In `packages/server/.env`, set `NODEMAILER_EMAIL` to your email/gmail and set your `NODEMAILER_EMAIL_PW` to the new generated PW.
 
+**Note:** Environment variable changes will require rebuilding your docker container to be picked up. 
+
 ![Gmail App Password screen](./img/gmail-app-password.png)
 
 **NOTE:** In order to enable App Password MUST turn on 2FA for gmail.

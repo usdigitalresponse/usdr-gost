@@ -11,15 +11,21 @@
     :ok-disabled="$v.formData.$invalid"
     >
     <div class="text-center my-3">
-      <UserAvatar editable @changeColor="handleChangeColor" :userName="formData.name"/>
+      <UserAvatar :userName="formData.name" :color="formData.avatarColor" />
     </div>
     <b-form>
-       <b-form-group
-          :state="!$v.formData.name.$invalid"
-          label="Name"
-          label-for="name-input"
-          invalid-feedback="Please enter your preferred first and last name"
-        >
+      <b-form-group label="Avatar color" label-for="avatar-color">
+        <b-form-radio-group id="avatar-color" class="color-picker" v-model="formData.avatarColor" buttons>
+          <b-form-radio v-for="color in avatarColors" :key="color" :value="color" button :style="{ backgroundColor: color}" />
+        </b-form-radio-group>
+      </b-form-group>
+
+      <b-form-group
+        :state="!$v.formData.name.$invalid"
+        label="Name"
+        label-for="name-input"
+        invalid-feedback="Please enter your preferred first and last name"
+      >
         <b-form-input
           type="text"
           id="name-input"
@@ -28,7 +34,7 @@
           required
           trim
           autofocus
-        ></b-form-input>
+        />
       </b-form-group>
     </b-form>
   </b-modal>
@@ -37,7 +43,8 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { required, minLength } from 'vuelidate/lib/validators';
-import UserAvatar from '../UserAvatar.vue';
+import { avatarColors } from '@/helpers/constants';
+import UserAvatar from '@/components/UserAvatar.vue';
 
 export default {
   components: {
@@ -45,6 +52,7 @@ export default {
   },
   data() {
     return {
+      avatarColors: Object.keys(avatarColors),
       formData: {
         name: null,
         avatarColor: null,
@@ -110,8 +118,19 @@ export default {
     font-size: 20px;
     font-weight: 700;
   }
-
   .footer {
     border: none;
+  }
+  #avatar-color {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    justify-items: center;
+    row-gap: 10px;
+  }
+  #avatar-color .btn {
+    border: none;
+    border-radius: 5px;
+    height: 35px;
+    width: 35px;
   }
 </style>
