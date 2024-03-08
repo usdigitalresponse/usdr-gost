@@ -279,4 +279,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Run TFLint
-        run: tflint --format compact --recursive --minimum-failure-severity=error
+        run: tflint --format compact --recursive --minimum-failure-severity=warning

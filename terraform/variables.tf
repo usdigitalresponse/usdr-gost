@@ -48,17 +48,6 @@ variable "datadog_draft" {
   default     = true
 }
 
-variable "datadog_metrics_metadata" {
-  description = "Map of metadata describing custom Datadog metrics, keyed by the metric name. All metrics are automatically prefixed with grants_ingest."
-  type = map(object({
-    short_name  = optional(string)
-    description = optional(string)
-    unit        = optional(string) # https://docs.datadoghq.com/metrics/units/
-    per_unit    = optional(string)
-  }))
-  default = {}
-}
-
 // Common
 variable "permissions_boundary_policy_name" {
   description = "Name of the permissions boundary for service roles"
@@ -227,18 +216,23 @@ variable "api_maximum_task_count" {
 
 // Postgres
 variable "postgres_enabled" {
+  type    = bool
   default = true
 }
 variable "postgres_prevent_destroy" {
+  type    = bool
   default = true
 }
 variable "postgres_snapshot_before_destroy" {
+  type    = bool
   default = true
 }
 variable "postgres_apply_changes_immediately" {
+  type    = bool
   default = false
 }
 variable "postgres_query_logging_enabled" {
+  type    = bool
   default = false
 }
 
