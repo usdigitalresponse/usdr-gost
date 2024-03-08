@@ -12,7 +12,7 @@ resource "aws_service_discovery_service" "default" {
   name = "${var.namespace}-api"
 
   dns_config {
-    namespace_id = join("", aws_service_discovery_private_dns_namespace.default.*.id)
+    namespace_id = join("", aws_service_discovery_private_dns_namespace.default[*].id)
 
     dns_records {
       type = "SRV"
@@ -30,7 +30,7 @@ resource "aws_ecs_service" "default" {
 
   name                   = "${var.namespace}-api"
   cluster                = var.ecs_cluster_id
-  task_definition        = join("", aws_ecs_task_definition.default.*.arn)
+  task_definition        = join("", aws_ecs_task_definition.default[*].arn)
   desired_count          = var.default_desired_task_count
   launch_type            = "FARGATE"
   enable_execute_command = true
@@ -42,7 +42,7 @@ resource "aws_ecs_service" "default" {
   }
 
   service_registries {
-    registry_arn = join("", aws_service_discovery_service.default.*.arn)
+    registry_arn = join("", aws_service_discovery_service.default[*].arn)
     port         = local.api_container_port
   }
 

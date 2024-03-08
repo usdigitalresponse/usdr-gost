@@ -67,7 +67,7 @@ module "api_gateway" {
     max_age = 86400 // 24 hours, in seconds
   }
 
-  default_stage_access_log_destination_arn = join("", aws_cloudwatch_log_group.default.*.arn)
+  default_stage_access_log_destination_arn = join("", aws_cloudwatch_log_group.default[*].arn)
   default_stage_access_log_format = jsonencode({
     requestId      = "$context.requestId"
     ip             = "$context.identity.sourceIp"
@@ -93,7 +93,7 @@ module "api_gateway" {
     "$default" = {
       connection_type    = "VPC_LINK"
       vpc_link           = "api-service"
-      integration_uri    = join("", aws_service_discovery_service.default.*.arn)
+      integration_uri    = join("", aws_service_discovery_service.default[*].arn)
       integration_type   = "HTTP_PROXY"
       integration_method = "ANY"
     }
