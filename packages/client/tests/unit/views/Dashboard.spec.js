@@ -13,7 +13,6 @@ const stubs = ['b-row', 'b-col', 'b-table', 'b-button', 'b-card', 'b-link', 'b-c
 const noOpGetters = {
   'dashboard/totalGrants': () => [],
   'dashboard/totalGrantsMatchingAgencyCriteria': () => [],
-  'dashboard/totalViewedGrants': () => [],
   'grants/totalInterestedGrants': () => [],
   'grants/totalUpcomingGrants': () => [],
   'dashboard/grantsCreatedInTimeframe': () => [],
@@ -23,13 +22,10 @@ const noOpGetters = {
   'dashboard/totalInterestedGrantsByAgencies': () => [],
   'users/selectedAgency': () => undefined,
   'grants/closestGrants': () => [],
-  'grants/grants': () => [],
   'grants/grantsInterested': () => [],
-  'users/agency': () => undefined,
   'grants/currentGrant': () => undefined,
 };
 const noOpActions = {
-  'dashboard/fetchDashboard': () => {},
   'grants/fetchGrantsInterested': () => {},
   'grants/fetchClosestGrants': () => {},
 };
