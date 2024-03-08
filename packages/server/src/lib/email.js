@@ -191,12 +191,12 @@ function getGrantDetail(grant, emailNotificationType) {
             // estimated_funding: grant.estimated_funding, TODO: add once field is available in the database.
             cost_sharing: grant.cost_sharing,
             link_url_safe: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED === 'true'
-                ? buildGrantDetailUrlSafe(grant.grant_id, notificationType)
+                ? buildGrantDetailUrlSafe(grant.grant_id, emailNotificationType)
                 : `https://www.grants.gov/search-results-detail/${mustache.escape(grant.grant_id)}`,
             link_description: process.env.NEW_GRANT_DETAILS_PAGE_ENABLED === 'true'
                 ? 'Grant Finder'
                 : 'Grants.gov',
-            grants_url_safe: buildGrantsUrlSafe(notificationType),
+            grants_url_safe: buildGrantsUrlSafe(emailNotificationType),
             view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
         },
     );
