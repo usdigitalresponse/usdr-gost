@@ -14,7 +14,7 @@
             <!-- Using 'button-content' slot -->
             <template v-if="myProfileEnabled" #button-content>
               <div class="d-inline-flex justify-content-start align-items-center" style="width: 242px">
-                <UserAvatar size="2.5rem"/>
+                <UserAvatar :user-name="loggedInUser.name" :color="loggedInUser.avatar_color" size="2.5rem"/>
                 <div class="ml-2 mr-5 text-black">
                   <p class="m-0 font-weight-bold">{{ loggedInUser.name }}</p>
                   <p class="m-0">{{ selectedTeam ? selectedTeam.name : '' }}</p>

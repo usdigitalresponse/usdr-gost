@@ -8,7 +8,10 @@
     </div>
     <b-container fluid v-if="selectedGrant && !loading">
       <div class="grant-details-container">
-
+        <div class="grant-details-back-link">
+          <router-link v-if="isFirstPageLoad" :to="{ name: 'grants' }">Browse Grants</router-link>
+          <a href="#" @click="$router.back()" v-else>Back to Results</a>
+        </div>
         <!-- Left page column: headline -->
         <h2 class="grant-details-headline m-0">{{ selectedGrant.title }}</h2>
 
@@ -125,13 +128,18 @@
               </b-button>
             </div>
             <div v-for="agency in visibleInterestedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
-              <!-- TODO: adopt updated design for what to show on each line item here -->
-              <div>
+              <UserAvatar :user-name="agency.user_name" :color="agency.user_avatar_color" size="2.5rem" />
+              <div class="mx-3">
                 <p class="m-0">
                   <strong>{{ agency.user_name }}</strong> updated
                   <strong>{{ agency.agency_name }}</strong> team status to
                   <strong>{{ agency.interested_code_name }}</strong>
                 </p>
+                <p v-if="agency.user_email">
+                    <a :href="`mailto:${ agency.user_email }`" class="text-muted">
+                      <small><b-icon icon="envelope-fill"></b-icon> {{ agency.user_email }}</small>
+                    </a>
+                  </p>
               </div>
               <b-button-close
                 @click="unmarkGrantAsInterested(agency)"
@@ -153,6 +161,7 @@ import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { DateTime } from 'luxon';
+import UserAvatar from '@/components/UserAvatar.vue';
 
 const HEADER = '__HEADER__';
 const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
@@ -162,8 +171,12 @@ export default {
   props: {
     selectedGrant: Object,
   },
+  components: {
+    UserAvatar,
+  },
   data() {
     return {
+      isFirstPageLoad: false,
       showDialog: false,
       orderBy: '',
       assignedAgenciesFields: [
@@ -190,6 +203,14 @@ export default {
       loading: true,
       copyUrlSuccessTimeout: null,
     };
+  },
+  beforeRouteEnter(to, from, next) {
+    const isFirstPageLoad = from.name === null && from.path === '/';
+    next((vm) => {
+      if (isFirstPageLoad) {
+        vm.setFirstPageLoad();
+      }
+    });
   },
   created() {
     // watch the params of the route to fetch the data again
@@ -288,9 +309,6 @@ export default {
         (viewed) => viewed.agency_id.toString() === this.selectedAgencyId,
       );
     },
-    shouldShowSpocButton() {
-      return this.currentTenant.uses_spoc_process;
-    },
     interested() {
       if (!this.selectedGrant) {
         return undefined;
@@ -327,20 +345,21 @@ export default {
   methods: {
     ...mapActions({
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
-      generateGrantForm: 'grants/generateGrantForm',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
       unmarkGrantAsInterestedAction: 'grants/unmarkGrantAsInterested',
       getInterestedAgencies: 'grants/getInterestedAgencies',
       getGrantAssignedAgencies: 'grants/getGrantAssignedAgencies',
       assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
       unassignAgenciesToGrantAction: 'grants/unassignAgenciesToGrant',
-      fetchUsers: 'users/fetchUsers',
       fetchAgencies: 'agencies/fetchAgencies',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
     }, 500),
+    setFirstPageLoad() {
+      this.isFirstPageLoad = true;
+    },
     async markGrantAsViewed() {
       await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.selectedAgencyId });
     },
@@ -385,11 +404,6 @@ export default {
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
       datadogRum.addAction('remove team assignment from grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
     },
-    async generateSpoc() {
-      await this.generateGrantForm({
-        grantId: this.selectedGrant.grant_id,
-      });
-    },
     isAbleToUnmark(agencyId) {
       return this.agencies.some((agency) => agency.id === agencyId);
     },
@@ -431,16 +445,36 @@ export default {
 </script>
 
 <style lang="css">
+
 .grant-details-container {
-  margin: 80px;
+  padding-right: 80px;
+  padding-left: 80px;
+  padding-bottom: 80px;
   display: grid;
   grid-template-columns: 1fr 437px;
   grid-template-rows: auto;
   grid-template-areas:
+    "back-link back-link"
     "headline  main-actions"
     "content   secondary-actions";
   column-gap: 90px;
   row-gap: 48px;
+  .grant-details-back-link {
+    margin-top: 24px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #6D7278;
+    a {
+      color: #6D7278;
+      cursor: pointer;
+      &::hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+.grant-details-back-link {
+  grid-area: back-link;
 }
 .grant-details-headline {
   grid-area: headline;

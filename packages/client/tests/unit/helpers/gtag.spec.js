@@ -51,5 +51,15 @@ describe('gtag', () => {
       expect(() => setUserForGoogleAnalytics(user)).to.not.throw();
       expect(observedGtagArgs).to.be.null;
     });
+    it('enables GA debug mode when instructed via APP_CONFIG', () => {
+      window.APP_CONFIG.GOOGLE_ANALYTICS_DEBUG = true;
+      setUserForGoogleAnalytics(user);
+      expect(observedGtagArgs[2]).to.have.property('debug_mode', true);
+    });
+    it('disables GA debug mode when not instructed via APP_CONFIG', () => {
+      window.APP_CONFIG.GOOGLE_ANALYTICS_DEBUG = undefined;
+      setUserForGoogleAnalytics(user);
+      expect(observedGtagArgs[2]).to.not.have.property('debug_mode');
+    });
   });
 });
