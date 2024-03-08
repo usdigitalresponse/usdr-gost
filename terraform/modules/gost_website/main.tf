@@ -1,6 +1,16 @@
 data "aws_region" "current" {}
-data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
+
+terraform {
+  required_version = "1.3.6"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.67.0"
+    }
+  }
+}
 
 provider "aws" {
   region = "us-east-1"

@@ -143,7 +143,7 @@ resource "aws_ecs_cluster" "default" {
 }
 
 resource "aws_ecs_cluster_capacity_providers" "default" {
-  count = length(aws_ecs_cluster.default.*)
+  count = length(aws_ecs_cluster.default[*])
 
   cluster_name       = aws_ecs_cluster.default[count.index].name
   capacity_providers = ["FARGATE"]
@@ -166,8 +166,8 @@ module "api" {
   ]
 
   # Cluster
-  ecs_cluster_id   = join("", aws_ecs_cluster.default.*.id)
-  ecs_cluster_name = join("", aws_ecs_cluster.default.*.name)
+  ecs_cluster_id   = join("", aws_ecs_cluster.default[*].id)
+  ecs_cluster_name = join("", aws_ecs_cluster.default[*].name)
 
   # Task configuration
   docker_tag                        = var.api_container_image_tag
@@ -219,7 +219,7 @@ module "consume_grants" {
   security_group_ids = [module.api_to_postgres_security_group.id]
 
   # Task configuration
-  ecs_cluster_name              = join("", aws_ecs_cluster.default.*.name)
+  ecs_cluster_name              = join("", aws_ecs_cluster.default[*].name)
   docker_tag                    = var.api_container_image_tag
   unified_service_tags          = local.unified_service_tags
   datadog_environment_variables = var.consume_grants_datadog_environment_variables
@@ -260,7 +260,7 @@ module "arpa_audit_report" {
   security_group_ids = [module.arpa_audit_report_security_group.id]
 
   # Task configuration
-  ecs_cluster_name      = join("", aws_ecs_cluster.default.*.name)
+  ecs_cluster_name      = join("", aws_ecs_cluster.default[*].name)
   docker_tag            = var.api_container_image_tag
   unified_service_tags  = local.unified_service_tags
   stop_timeout_seconds  = 120
@@ -348,7 +348,7 @@ module "arpa_treasury_report" {
   security_group_ids = [module.arpa_treasury_report_security_group.id]
 
   # Task configuration
-  ecs_cluster_name      = join("", aws_ecs_cluster.default.*.name)
+  ecs_cluster_name      = join("", aws_ecs_cluster.default[*].name)
   docker_tag            = var.api_container_image_tag
   unified_service_tags  = local.unified_service_tags
   stop_timeout_seconds  = 120
