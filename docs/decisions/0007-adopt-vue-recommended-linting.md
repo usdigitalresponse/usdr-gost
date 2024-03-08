@@ -1,7 +1,7 @@
 # 0007. Adopt vue/recommended linting
 
 Date: 2024-02-26
-Status: Proposed
+Status: Accepted
 
 ## Context and Problem Statement
 
