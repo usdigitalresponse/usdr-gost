@@ -101,7 +101,9 @@
 import { mapActions, mapGetters } from 'vuex';
 import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import { datadogRum } from '@datadog/browser-rum';
-import { titleize } from '../helpers/form-helpers';
+import { titleize } from '@/helpers/form-helpers';
+import { daysUntil } from '@/helpers/dates';
+import { defaultCloseDateThresholds } from '@/helpers/constants';
 import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
@@ -278,10 +280,8 @@ export default {
       return this.grantsPagination ? this.grantsPagination.lastPage : 0;
     },
     formattedGrants() {
-      const DAYS_TO_MILLISECS = 24 * 60 * 60 * 1000;
-      const warningThreshold = (this.agency.warning_threshold || 30) * DAYS_TO_MILLISECS;
-      const dangerThreshold = (this.agency.danger_threshold || 15) * DAYS_TO_MILLISECS;
-      const now = new Date();
+      const warningThreshold = this.agency.warning_threshold || defaultCloseDateThresholds.warning;
+      const dangerThreshold = this.agency.danger_threshold || defaultCloseDateThresholds.danger;
       const generateTitle = (t) => {
         const txt = document.createElement('textarea');
         txt.innerHTML = t;
@@ -301,11 +301,11 @@ export default {
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         _cellVariants: (() => {
-          const diff = new Date(grant.close_date) - now;
-          if (diff <= dangerThreshold) {
+          const daysUntilClose = daysUntil(grant.close_date);
+          if (daysUntilClose <= dangerThreshold) {
             return { close_date: 'danger' };
           }
-          if (diff <= warningThreshold) {
+          if (daysUntilClose <= warningThreshold) {
             return { close_date: 'warning' };
           }
           return {};

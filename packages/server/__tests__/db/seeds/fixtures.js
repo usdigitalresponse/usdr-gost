@@ -472,6 +472,15 @@ const grantsInterested = {
         updated_at: '2022-04-23 12:30:39.531-07',
         interested_code_id: interestedCodes.filter((code) => code.status_code === 'Result')[0].id,
     },
+    entry6: {
+        // Both this agency and its parent agency are interested in same grant
+        agency_id: agencies.subAccountancy.id,
+        grant_id: grants.interestedGrant.grant_id,
+        user_id: users.adminUser.id,
+        created_at: '2022-01-06 11:30:38.89828-07',
+        updated_at: '2022-04-23 12:30:39.531-07',
+        interested_code_id: interestedCodes.filter((code) => code.status_code === 'Interested')[0].id,
+    },
 };
 
 const assignedAgencyGrants = {

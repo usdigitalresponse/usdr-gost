@@ -8,7 +8,10 @@
     </div>
     <b-container fluid v-if="selectedGrant && !loading">
       <div class="grant-details-container">
-
+        <div class="grant-details-back-link">
+          <router-link v-if="isFirstPageLoad" :to="{ name: 'grants' }">Browse Grants</router-link>
+          <a href="#" @click="$router.back()" v-else>Back to Results</a>
+        </div>
         <!-- Left page column: headline -->
         <h2 class="grant-details-headline m-0">{{ selectedGrant.title }}</h2>
 
@@ -173,6 +176,7 @@ export default {
   },
   data() {
     return {
+      isFirstPageLoad: false,
       showDialog: false,
       orderBy: '',
       assignedAgenciesFields: [
@@ -199,6 +203,14 @@ export default {
       loading: true,
       copyUrlSuccessTimeout: null,
     };
+  },
+  beforeRouteEnter(to, from, next) {
+    const isFirstPageLoad = from.name === null && from.path === '/';
+    next((vm) => {
+      if (isFirstPageLoad) {
+        vm.setFirstPageLoad();
+      }
+    });
   },
   created() {
     // watch the params of the route to fetch the data again
@@ -297,9 +309,6 @@ export default {
         (viewed) => viewed.agency_id.toString() === this.selectedAgencyId,
       );
     },
-    shouldShowSpocButton() {
-      return this.currentTenant.uses_spoc_process;
-    },
     interested() {
       if (!this.selectedGrant) {
         return undefined;
@@ -336,7 +345,6 @@ export default {
   methods: {
     ...mapActions({
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
-      generateGrantForm: 'grants/generateGrantForm',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
       unmarkGrantAsInterestedAction: 'grants/unmarkGrantAsInterested',
       getInterestedAgencies: 'grants/getInterestedAgencies',
@@ -349,6 +357,9 @@ export default {
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
     }, 500),
+    setFirstPageLoad() {
+      this.isFirstPageLoad = true;
+    },
     async markGrantAsViewed() {
       await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.selectedAgencyId });
     },
@@ -393,11 +404,6 @@ export default {
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
       datadogRum.addAction('remove team assignment from grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
     },
-    async generateSpoc() {
-      await this.generateGrantForm({
-        grantId: this.selectedGrant.grant_id,
-      });
-    },
     isAbleToUnmark(agencyId) {
       return this.agencies.some((agency) => agency.id === agencyId);
     },
@@ -439,16 +445,36 @@ export default {
 </script>
 
 <style lang="css">
+
 .grant-details-container {
-  margin: 80px;
+  padding-right: 80px;
+  padding-left: 80px;
+  padding-bottom: 80px;
   display: grid;
   grid-template-columns: 1fr 437px;
   grid-template-rows: auto;
   grid-template-areas:
+    "back-link back-link"
     "headline  main-actions"
     "content   secondary-actions";
   column-gap: 90px;
   row-gap: 48px;
+  .grant-details-back-link {
+    margin-top: 24px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #6D7278;
+    a {
+      color: #6D7278;
+      cursor: pointer;
+      &::hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+.grant-details-back-link {
+  grid-area: back-link;
 }
 .grant-details-headline {
   grid-area: headline;

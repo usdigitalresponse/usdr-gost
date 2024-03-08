@@ -147,7 +147,6 @@ async function getUser(id) {
             'tenants.id as tenant_id',
             'tenants.display_name as tenant_display_name',
             'tenants.main_agency_id as tenant_main_agency_id',
-            'tenants.uses_spoc_process as tenant_uses_spoc_process',
             'users.tags',
             'users.tenant_id',
         )
@@ -171,7 +170,6 @@ async function getUser(id) {
             'tenants.id as tenant_id',
             'tenants.display_name as tenant_display_name',
             'tenants.main_agency_id as tenant_main_agency_id',
-            'tenants.uses_spoc_process as tenant_uses_spoc_process',
             'users.tags',
             'users.tenant_id',
         )
@@ -203,7 +201,6 @@ async function getUser(id) {
             id: user.tenant_id,
             display_name: user.tenant_display_name,
             main_agency_id: user.tenant_main_agency_id,
-            uses_spoc_process: user.tenant_uses_spoc_process,
         };
         let subagencies = [];
         if (user.role.name === 'admin') {
@@ -777,7 +774,6 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.updated_at',
             'grants.description',
             'grants.eligibility_codes',
-            'grants.raw_body',
             'grants.award_floor',
             'grants.revision_id',
             'grants.title_ts',
@@ -820,7 +816,6 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.updated_at',
             'grants.description',
             'grants.eligibility_codes',
-            'grants.raw_body',
             'grants.award_floor',
             'grants.revision_id',
             'grants.title_ts',
@@ -1066,6 +1061,7 @@ async function getClosestGrants({
         .whereIn('grants_interested.agency_id', agencies.map((a) => a.id))
         .andWhere('close_date', '>=', timestamp)
         .andWhere('interested_codes.status_code', '!=', 'Rejected')
+        .groupBy('grants.title', 'grants.close_date', 'grants.grant_id')
         .orderBy('close_date', 'asc')
         .paginate({ currentPage, perPage, isLengthAware: true });
 }
@@ -1196,7 +1192,8 @@ async function getGrantsInterested({ agencyId, perPage, currentPage }) {
                 .from('assigned_grants_agency')
                 .innerJoin('agencies', 'agencies.id', 'assigned_grants_agency.agency_id')
                 .innerJoin('grants', 'grants.grant_id', 'assigned_grants_agency.grant_id')
-                .whereIn('agencies.id', agencies.map((subAgency) => subAgency.id));
+                .whereIn('agencies.id', agencies.map((subAgency) => subAgency.id))
+                .andWhereNot('assigned_by', null);
         })
         .orderBy('created_at', 'DESC')
         .paginate({ currentPage, perPage, isLengthAware: true });
