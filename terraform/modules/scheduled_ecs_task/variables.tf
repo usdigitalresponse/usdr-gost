@@ -254,8 +254,3 @@ variable "retry_policy_max_attempts" {
   default     = null
 }
 
-variable "kms_key_arn" {
-  description = "ARN for the customer-managed KMS key that EventBridge Scheduler will use to encrypt/decrypt your data."
-  type        = string
-  default     = null
-}

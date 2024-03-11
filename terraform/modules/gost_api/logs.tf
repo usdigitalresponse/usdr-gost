@@ -21,7 +21,7 @@ module "write_api_logs_policy" {
         "logs:PutLogEvents",
       ]
       resources = flatten([
-        for arn in aws_cloudwatch_log_group.default.*.arn :
+        for arn in aws_cloudwatch_log_group.default[*].arn :
         [
           arn,
           "${arn}:log-stream:*"

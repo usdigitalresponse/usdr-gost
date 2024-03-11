@@ -8,11 +8,9 @@
     </div>
     <b-container fluid v-if="selectedGrant && !loading">
       <div class="grant-details-container">
-        <div class="grant-details-back-link" v-if="isFirstPageLoad">
-          <router-link :to="{ name: 'grants' }">Browse Grants</router-link>
-        </div>
-        <div class="grant-details-back-link" v-else>
-          <a @click="$router.back()">Back</a>
+        <div class="grant-details-back-link">
+          <router-link v-if="isFirstPageLoad" :to="{ name: 'grants' }">Browse Grants</router-link>
+          <a href="#" @click="$router.back()" v-else>Back to Results</a>
         </div>
         <!-- Left page column: headline -->
         <h2 class="grant-details-headline m-0">{{ selectedGrant.title }}</h2>
@@ -451,6 +449,7 @@ export default {
 </script>
 
 <style lang="css">
+
 .grant-details-container {
   padding-right: 80px;
   padding-left: 80px;
@@ -465,12 +464,16 @@ export default {
   column-gap: 90px;
   row-gap: 48px;
   .grant-details-back-link {
-    padding-top: 20px;
-    font-size: 1rem;
+    margin-top: 24px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #6D7278;
     a {
+      color: #6D7278;
       cursor: pointer;
-      color: black;
-      text-decoration: none;
+      &::hover {
+        text-decoration: underline;
+      }
     }
   }
 }
