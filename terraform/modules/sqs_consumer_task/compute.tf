@@ -69,7 +69,7 @@ module "consumer_container_definition" {
     },
     local.datadog_env_vars,
     var.consumer_container_environment,
-    { "${var.queue_url_environment_variable_name}" = module.sqs_queue.queue_url },
+    { (var.queue_url_environment_variable_name) = module.sqs_queue.queue_url },
   )
 
   docker_labels = local.datadog_docker_labels

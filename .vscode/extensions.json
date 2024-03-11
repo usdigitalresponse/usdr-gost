@@ -1,3 +1,9 @@
 {
-  "recommendations": ["Vue.volar", "dbaeumer.vscode-eslint"]
+  "recommendations": [
+    "Vue.volar",
+    "hashicorp.terraform",
+    "ms-azuretools.vscode-docker",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
+  ]
 }
