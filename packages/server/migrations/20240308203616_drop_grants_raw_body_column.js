@@ -16,5 +16,9 @@ exports.up = function (knex) {
 exports.down = function (knex) {
     return knex.schema.table('grants', (table) => {
         table.text('raw_body');
-    });
+    }).raw(`
+        UPDATE grants 
+          SET raw_body = raw_body_json::text 
+        WHERE raw_body_json IS NOT NULL;
+    `);
 };
