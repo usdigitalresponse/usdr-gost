@@ -1,6 +1,12 @@
 <template>
   <div class="grants-tabs">
-    <b-tabs align="left" style="margin-top: 1.5rem" lazy v-model="activeTab">
+    <b-tabs
+      align="left"
+      style="margin-top: 1.5rem"
+      lazy
+      v-model="activeTab"
+      :key="activeTab /* Force reload when tab changes to hacky fix a visual artifact, see: https://github.com/usdigitalresponse/usdr-gost/issues/2721 */"
+    >
       <b-tab title="Interested">
         <GrantsTable searchTitle="Interested" showInterested :showSearchControls="false"/>
       </b-tab>
