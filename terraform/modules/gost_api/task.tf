@@ -65,8 +65,8 @@ module "api_container_definition" {
   )
 
   map_secrets = {
-    COOKIE_SECRET = join("", aws_ssm_parameter.cookie_secret.*.arn)
-    POSTGRES_URL  = join("", aws_ssm_parameter.postgres_connection_string.*.arn)
+    COOKIE_SECRET = join("", aws_ssm_parameter.cookie_secret[*].arn)
+    POSTGRES_URL  = join("", aws_ssm_parameter.postgres_connection_string[*].arn)
   }
 
   docker_labels = local.datadog_docker_labels
@@ -88,7 +88,7 @@ module "api_container_definition" {
   log_configuration = {
     logDriver = "awslogs"
     options = {
-      awslogs-group         = join("", aws_cloudwatch_log_group.default.*.name)
+      awslogs-group         = join("", aws_cloudwatch_log_group.default[*].name)
       awslogs-region        = data.aws_region.current.name
       awslogs-stream-prefix = "ecs"
     }
@@ -113,7 +113,7 @@ module "datadog_container_definition" {
     local.datadog_env_vars,
   )
   map_secrets = {
-    DD_API_KEY = join("", data.aws_ssm_parameter.datadog_api_key.*.arn),
+    DD_API_KEY = join("", data.aws_ssm_parameter.datadog_api_key[*].arn),
   }
   docker_labels = local.datadog_docker_labels
 }
@@ -144,7 +144,7 @@ resource "aws_iam_role_policy" "execution" {
   }
 
   name   = each.key
-  role   = join("", aws_iam_role.execution.*.name)
+  role   = join("", aws_iam_role.execution[*].name)
   policy = each.value
 }
 
@@ -152,8 +152,8 @@ resource "aws_ecs_task_definition" "default" {
   count = var.enabled ? 1 : 0
 
   family                   = "${var.namespace}-api"
-  execution_role_arn       = join("", aws_iam_role.execution.*.arn)
-  task_role_arn            = join("", aws_iam_role.task.*.arn)
+  execution_role_arn       = join("", aws_iam_role.execution[*].arn)
+  task_role_arn            = join("", aws_iam_role.task[*].arn)
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 
@@ -224,6 +224,6 @@ resource "aws_iam_role_policy" "task" {
   }
 
   name   = each.key
-  role   = join("", aws_iam_role.task.*.name)
+  role   = join("", aws_iam_role.task[*].name)
   policy = each.value
 }

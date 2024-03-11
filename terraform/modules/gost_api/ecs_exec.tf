@@ -29,7 +29,7 @@ module "ecs_exec_policy" {
         "logs:PutLogEvents",
       ]
       resources = [
-        for arn in aws_cloudwatch_log_group.default.*.arn : "${arn}:log-stream:*"
+        for arn in aws_cloudwatch_log_group.default[*].arn : "${arn}:log-stream:*"
       ]
     }
   }

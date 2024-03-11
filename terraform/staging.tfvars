@@ -69,6 +69,9 @@ api_log_retention_in_days             = 14
 api_datadog_environment_variables = {
   DD_PROFILING_ENABLED = true,
 }
+api_container_environment = {
+  NEW_GRANT_DETAILS_PAGE_ENABLED = true,
+}
 
 // Postgres
 postgres_enabled                   = true

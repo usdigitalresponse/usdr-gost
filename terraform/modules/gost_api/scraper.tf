@@ -19,13 +19,13 @@ module "grants_scraper" {
   retry_policy_max_event_age   = { hours = 4 }
 
   // Permissions
-  task_role_arn            = join("", aws_ecs_task_definition.default.*.task_role_arn)
-  task_execution_role_arn  = join("", aws_ecs_task_definition.default.*.execution_role_arn)
+  task_role_arn            = join("", aws_ecs_task_definition.default[*].task_role_arn)
+  task_execution_role_arn  = join("", aws_ecs_task_definition.default[*].execution_role_arn)
   permissions_boundary_arn = var.permissions_boundary_arn
 
   // Task settings
-  cluster_arn             = join("", data.aws_ecs_cluster.default.*.arn)
-  task_definition_arn     = join("", aws_ecs_task_definition.default.*.arn)
+  cluster_arn             = join("", data.aws_ecs_cluster.default[*].arn)
+  task_definition_arn     = join("", aws_ecs_task_definition.default[*].arn)
   task_revision           = "LATEST"
   launch_type             = "FARGATE"
   enable_ecs_managed_tags = true
