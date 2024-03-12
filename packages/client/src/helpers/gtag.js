@@ -41,7 +41,8 @@ export function setUserForGoogleAnalytics(user) {
 }
 
 /**
- * Emits a Google Analytics GA4 custom event.
+ * Emits a Google Analytics GA4 custom event. Google also defines some reserved param names to be aware of,
+ * such as `event_callback` to execute code once the event has been logged: https://developers.google.com/tag-platform/gtagjs/reference/parameters
  *
  * @param {string} eventName Canonical name of the event to emit
  * @param {object} eventParams Metadata to associate with this event

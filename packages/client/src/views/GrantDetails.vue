@@ -49,6 +49,7 @@
             target="_blank"
             rel="noopener noreferrer"
             data-dd-action-name="view on grants.gov"
+            @click="onOpenGrantsGov"
           >
             <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2" />
             Apply on Grants.gov
@@ -164,6 +165,7 @@ import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { formatCurrency } from '@/helpers/currency';
 import { titleize } from '@/helpers/form-helpers';
+import { gtagEvent } from '@/helpers/gtag';
 import { DateTime } from 'luxon';
 import UserAvatar from '@/components/UserAvatar.vue';
 
@@ -424,6 +426,7 @@ export default {
       });
     },
     copyUrl() {
+      gtagEvent('copy btn clicked');
       navigator.clipboard.writeText(window.location.href);
 
       // Show the success indicator
@@ -435,7 +438,13 @@ export default {
       );
     },
     printPage() {
+      gtagEvent('print btn clicked');
       window.print();
+    },
+    onOpenGrantsGov() {
+      // Note that we can execute this as a side effect of clicking on the outbound link only because it's set to
+      // load in a new tab. If it opened in the same tab, it would open the new URL before the event is logged.
+      gtagEvent('grants.gov btn clicked');
     },
     formatDate(dateString) {
       return DateTime.fromISO(dateString).toLocaleString(DateTime.DATE_MED);
