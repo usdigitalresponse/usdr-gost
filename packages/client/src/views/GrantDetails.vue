@@ -382,7 +382,10 @@ export default {
           agencyId: this.selectedAgencyId,
           interestedCode: this.selectedInterestedCode,
         });
-        datadogRum.addAction('submit team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
+        const eventName = 'submit team status for grant';
+        const statusName = this.interestedOptions.find((option) => option.id === this.selectedInterestedCode)?.name;
+        gtagEvent(eventName, { status_name: statusName });
+        datadogRum.addAction(eventName, { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
         this.selectedInterestedCode = null;
       }
     },
@@ -393,14 +396,19 @@ export default {
         interestedCode: agency.interested_code_id,
       });
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
-      datadogRum.addAction('remove team status for grant', { team: { id: agency.agency_id }, status: agency.interested_code_id, grant: { id: this.selectedGrant.grant_id } });
+      const eventName = 'remove team status for grant';
+      gtagEvent(eventName);
+      datadogRum.addAction(eventName, { team: { id: agency.agency_id }, status: agency.interested_code_id, grant: { id: this.selectedGrant.grant_id } });
     },
     async assignAgenciesToGrant() {
       await this.assignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
         agencyIds: this.assignedAgencies.map((agency) => agency.id).concat(this.selectedAgencyToAssign.id),
       });
-      datadogRum.addAction('assign team to grant', { team: { id: this.selectedAgencyToAssign.id }, grant: { id: this.selectedGrant.grant_id } });
+      const eventName = 'assign team to grant';
+      const eventParams = { team: { id: this.selectedAgencyToAssign.id }, grant: { id: this.selectedGrant.grant_id } };
+      gtagEvent(eventName, eventParams);
+      datadogRum.addAction(eventName, eventParams);
       this.selectedAgencyToAssign = null;
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
     },
@@ -410,7 +418,10 @@ export default {
         agencyIds: [agency.id],
       });
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
-      datadogRum.addAction('remove team assignment from grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
+      const eventName = 'remove team assignment from grant';
+      const eventParams = { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } };
+      gtagEvent(eventName, eventParams);
+      datadogRum.addAction(eventName, eventParams);
     },
     isAbleToUnmark(agencyId) {
       return this.agencies.some((agency) => agency.id === agencyId);
