@@ -72,7 +72,7 @@ export default {
 
 </script>
 <style lang="scss">
-@import '../../scss/colors-semantic-tokens.scss';
+@import '@/scss/colors-semantic-tokens.scss';
 
 .inactiveLink {
   pointer-events: none;
