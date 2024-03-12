@@ -10,7 +10,7 @@
       <div class="grant-details-container">
         <div class="grant-details-back-link">
           <router-link v-if="isFirstPageLoad" :to="{ name: 'grants' }">Browse Grants</router-link>
-          <a href="#" @click="$router.back()" v-else>Back to Results</a>
+          <a href="#" @click="$router.back()" v-else>Back</a>
         </div>
         <!-- Left page column: headline -->
         <h2 class="grant-details-headline m-0">{{ selectedGrant.title }}</h2>
@@ -473,14 +473,13 @@ export default {
 </script>
 
 <style lang="css">
-
 .grant-details-container {
   padding-right: 80px;
   padding-left: 80px;
   padding-bottom: 80px;
   display: grid;
   grid-template-columns: 1fr 437px;
-  grid-template-rows: auto;
+  grid-template-rows: 50px auto auto;
   grid-template-areas:
     "back-link back-link"
     "headline  main-actions"
@@ -488,44 +487,48 @@ export default {
   column-gap: 90px;
   row-gap: 48px;
   .grant-details-back-link {
-    margin-top: 24px;
+    grid-area: back-link;
+    margin-top: 28px;
+    margin-bottom: 5px;
     font-size: 14px;
     font-weight: 700;
-    color: #6D7278;
+    color: #6d7278;
     a {
-      color: #6D7278;
+      color: #6d7278;
       cursor: pointer;
       &::hover {
         text-decoration: underline;
       }
     }
   }
-}
-.grant-details-back-link {
-  grid-area: back-link;
-}
-.grant-details-headline {
-  grid-area: headline;
-  align-self: end;
-}
-.grant-details-content {
-  grid-area: content;
-}
-.grant-details-main-actions {
-  grid-area: main-actions;
-}
-.grant-details-secondary-actions {
-  grid-area: secondary-actions;
-}
 
-.grant-details-table tr:nth-of-type(odd) {
-  /* Design color differs from default bootstrap, so making our own striped background here */
-  background-color: #F9F9F9;
-}
-.grants-details-table-fit-content {
-  /* Make a table column that's the width of its content */
-  white-space: nowrap;
-  width: 1%;
+  .grant-details-headline {
+    grid-area: headline;
+    align-self: start;
+  }
+
+  .grant-details-content {
+    grid-area: content;
+  }
+
+  .grant-details-main-actions {
+    grid-area: main-actions;
+  }
+
+  .grant-details-secondary-actions {
+    grid-area: secondary-actions;
+  }
+
+  .grant-details-table tr:nth-of-type(odd) {
+    /* Design color differs from default bootstrap, so making our own striped background here */
+    background-color: #f9f9f9;
+  }
+
+  .grants-details-table-fit-content {
+    /* Make a table column that's the width of its content */
+    white-space: nowrap;
+    width: 1%;
+  }
 }
 
 @media print {

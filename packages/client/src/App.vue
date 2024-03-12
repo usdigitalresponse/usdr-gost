@@ -14,7 +14,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../scss/custom.scss';
+@import '@/scss/custom.scss';
 
 #app {
   -webkit-font-smoothing: antialiased;
