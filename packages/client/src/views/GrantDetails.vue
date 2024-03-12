@@ -10,7 +10,7 @@
       <div class="grant-details-container">
         <div class="grant-details-back-link">
           <router-link v-if="isFirstPageLoad" :to="{ name: 'grants' }">Browse Grants</router-link>
-          <a href="#" @click="$router.back()" v-else>Back to Results</a>
+          <a href="#" @click="$router.back()" v-else>Back</a>
         </div>
         <!-- Left page column: headline -->
         <h2 class="grant-details-headline m-0">{{ selectedGrant.title }}</h2>
