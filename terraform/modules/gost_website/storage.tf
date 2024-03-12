@@ -11,19 +11,6 @@ module "s3_label" {
 }
 
 locals {
-  sync_website_to_origin_bucket_policy = {
-    actions = [
-      "s3:DeleteObject",
-      "s3:GetBucketLocation",
-      "s3:GetObject",
-      "s3:ListBucket",
-      "s3:PutObject",
-    ]
-    resources = [
-
-      "${module.origin_bucket.bucket_arn}${var.origin_bucket_dist_path}/*",
-    ]
-  }
 }
 
 module "cloudfront_to_origin_bucket_access_policy" {

@@ -90,7 +90,7 @@ module "cdn" {
 
     function_association = {
       viewer-request = {
-        function_arn = join("", aws_cloudfront_function.arpa_reporter_uri_rewriter.*.arn)
+        function_arn = join("", aws_cloudfront_function.arpa_reporter_uri_rewriter[*].arn)
       }
     }
   }

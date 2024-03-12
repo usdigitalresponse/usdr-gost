@@ -258,6 +258,16 @@ describe('Email sender', () => {
             expect(sendFake.secondCall.args[0].emailHTML.includes('<table')).to.equal(true);
             expect(sendFake.secondCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
         });
+        it('is resilient to missing grant description', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'sendGrantAssignedNotficationForAgency', sendFake);
+            const grant = fixtures.grants.noDescOrEligibilityCodes;
+
+            await email.sendGrantAssignedEmail({ grantId: grant.grant_id, agencyIds: [0], userId: 1 });
+
+            expect(sendFake.called).to.equal(true);
+            expect(sendFake.firstCall.args[1].includes('... View on')).to.equal(true);
+        });
     });
     context('async report email', () => {
         it('sendAsyncReportEmail delivers an email with the signedURL for audit report', async () => {
@@ -416,6 +426,21 @@ describe('Email sender', () => {
             additionalGrants.forEach((grant) => expect(body).to.include(grant.description));
             expect(body).to.include(name);
             expect(body).to.include(moment(openDate).format('MMMM Do YYYY'));
+        });
+        it('links to Grants.gov when Grant Details page is not live', async () => {
+            const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
+            const agency = agencies[0];
+            agency.matched_grants = [fixtures.grants.healthAide];
+            const body = await email.buildDigestBody({ name: 'Saved search test', openDate: '2021-08-05', matchedGrants: agency.matched_grants });
+            expect(body).to.include(`https://www.grants.gov/search-results-detail/${fixtures.grants.healthAide.grant_id}`);
+        });
+        it('links to Grant Finder when Grant Details page is live', async () => {
+            process.env.NEW_GRANT_DETAILS_PAGE_ENABLED = 'true';
+            const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
+            const agency = agencies[0];
+            agency.matched_grants = [fixtures.grants.healthAide];
+            const body = await email.buildDigestBody({ name: 'Saved search test', openDate: '2021-08-05', matchedGrants: agency.matched_grants });
+            expect(body).to.include(`${process.env.WEBSITE_DOMAIN}/grants/${fixtures.grants.healthAide.grant_id}`);
         });
     });
     context('getAndSendGrantForSavedSearch', () => {
