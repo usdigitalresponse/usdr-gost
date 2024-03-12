@@ -132,6 +132,8 @@ module.exports = {
         './src/views/Dashboard.vue',
         './src/views/RecentActivity.vue',
         './src/views/UpcomingClosingDates.vue',
+        './src/components/ActivityTable.vue',
+        './src/components/ClosingDatesTable.vue',
 
         // DELETE -- no longer used
         './src/views/EligibilityCodes.vue',
