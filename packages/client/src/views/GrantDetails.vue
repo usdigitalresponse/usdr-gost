@@ -419,7 +419,7 @@ export default {
       });
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
       const eventName = 'remove team assignment from grant';
-      const eventParams = { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } };
+      const eventParams = { team: { id: agency.id }, grant: { id: this.selectedGrant.grant_id } };
       gtagEvent(eventName, eventParams);
       datadogRum.addAction(eventName, eventParams);
     },
