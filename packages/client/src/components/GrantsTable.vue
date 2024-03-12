@@ -45,7 +45,7 @@
           @sort-changed="currentPage = 1"
         >
           <template #cell(award_ceiling)="row">
-            <p> {{ formatMoney(row.item.award_ceiling) }}</p>
+            <p> {{ formatCurrency(row.item.award_ceiling) }}</p>
           </template>
           <template #table-busy>
             <div class="text-center text-info my-2" style="height: 1200px;">
@@ -104,6 +104,7 @@ import { datadogRum } from '@datadog/browser-rum';
 import { titleize } from '@/helpers/form-helpers';
 import { daysUntil } from '@/helpers/dates';
 import { defaultCloseDateThresholds } from '@/helpers/constants';
+import { formatCurrency } from '@/helpers/currency';
 import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
 import SearchPanel from './Modals/SearchPanel.vue';
 import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
@@ -345,6 +346,7 @@ export default {
       fetchSavedSearches: 'grants/fetchSavedSearches',
     }),
     titleize,
+    formatCurrency,
     extractStateFromRoute() {
       this.currentPage = Number(this.$route.query.page) || DEFAULT_CURRENT_PAGE;
       this.orderBy = this.$route.query.sort || DEFAULT_ORDER_BY;
@@ -498,18 +500,6 @@ export default {
         showRejected: this.showRejected,
         assignedToAgency: this.showAssignedToAgency,
       });
-    },
-    formatMoney(value) {
-      if (value === undefined || value === null) {
-        return '';
-      }
-      const res = Number(value).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-        style: 'currency',
-        currency: 'USD',
-      });
-      return (`${res}`);
     },
   },
 };
