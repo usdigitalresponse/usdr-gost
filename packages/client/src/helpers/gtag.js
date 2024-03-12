@@ -5,6 +5,11 @@
 function gtag(...args) {
   if (typeof window.gtag === 'function' && window.APP_CONFIG?.GOOGLE_TAG_ID) {
     window.gtag(...args);
+    if (window.APP_CONFIG?.GOOGLE_ANALYTICS_DEBUG) {
+      console.log(`[Google Analytics] Emitted ${args[0]} with:`, ...args.slice(1));
+    }
+  } else if (window.APP_CONFIG?.GOOGLE_ANALYTICS_DEBUG) {
+    console.log(`[Google Analytics][DISABLED] Would have emitted ${args[0]} with:`, ...args.slice(1));
   }
 }
 
