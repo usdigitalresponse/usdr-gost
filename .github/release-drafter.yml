@@ -28,6 +28,10 @@ categories:
     collapse-after: 10
     labels:
       - bug
+  - title: 🗂️ Database Changes
+    collapse-after: 1
+    labels:
+      - database-changes
   - title: 📖 Documentation improvements
     collapse-after: 10
     labels:

@@ -69,7 +69,7 @@ export const routes = [
         },
       },
       {
-        path: '/grant/:id',
+        path: '/grants/:id',
         name: 'grantDetail',
         component: () => import('../views/GrantDetails.vue'),
         meta: {
