@@ -248,7 +248,7 @@ const grants = {
         search_terms: '[in title/desc]+',
         reviewer_name: 'none',
         opportunity_category: 'Discretionary',
-        description: '',
+        description: null,
         eligibility_codes: '',
         opportunity_status: 'posted',
         raw_body_json: {

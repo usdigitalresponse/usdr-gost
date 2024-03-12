@@ -360,7 +360,12 @@ router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
     }
 
     await db.assignGrantsToAgencies({ grantId, agencyIds, userId: user.id });
-    email.sendGrantAssignedEmail({ grantId, agencyIds, userId: user.id });
+    try {
+        await email.sendGrantAssignedEmail({ grantId, agencyIds, userId: user.id });
+    } catch {
+        res.sendStatus(500);
+        return;
+    }
 
     res.json({});
 });
