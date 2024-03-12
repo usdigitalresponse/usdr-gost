@@ -258,6 +258,16 @@ describe('Email sender', () => {
             expect(sendFake.secondCall.args[0].emailHTML.includes('<table')).to.equal(true);
             expect(sendFake.secondCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
         });
+        it('is resilient to missing grant description', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(email, 'sendGrantAssignedNotficationForAgency', sendFake);
+            const grant = fixtures.grants.noDescOrEligibilityCodes;
+
+            await email.sendGrantAssignedEmail({ grantId: grant.grant_id, agencyIds: [0], userId: 1 });
+
+            expect(sendFake.called).to.equal(true);
+            expect(sendFake.firstCall.args[1].includes('... View on')).to.equal(true);
+        });
     });
     context('async report email', () => {
         it('sendAsyncReportEmail delivers an email with the signedURL for audit report', async () => {

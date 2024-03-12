@@ -5,6 +5,7 @@ const asyncBatch = require('async-batch').default;
 const fileSystem = require('fs');
 const path = require('path');
 const mustache = require('mustache');
+const { log } = require('./logging');
 const emailService = require('./email/service-email');
 const db = require('../db');
 const { notificationType } = require('./email/constants');
@@ -177,7 +178,7 @@ function buildGrantsUrlSafe(emailNotificationType) {
 
 function getGrantDetail(grant, emailNotificationType) {
     const grantDetailTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_detail.html'));
-    const description = grant.description.substring(0, 380).replace(/(<([^>]+)>)/ig, '');
+    const description = grant.description?.substring(0, 380).replace(/(<([^>]+)>)/ig, '');
     const grantDetail = mustache.render(
         grantDetailTemplate.toString(), {
             title: grant.title,
@@ -258,9 +259,20 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
         2b. For each user part of the agency
             i. Send email
     */
-    const grantDetail = await buildGrantDetail(grantId, notificationType.grantAssignment);
-    const agencies = await db.getAgenciesByIds(agencyIds);
-    agencies.forEach((agency) => module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId));
+    try {
+        const grantDetail = await buildGrantDetail(grantId, notificationType.grantAssignment);
+        const agencies = await db.getAgenciesByIds(agencyIds);
+        await asyncBatch(
+            agencies,
+            (agency) => { module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId); },
+            2,
+        );
+    } catch (err) {
+        log.error({
+            err, grantId, agencyIds, userId,
+        }, 'Failed to send grant assigned email');
+        throw err;
+    }
 }
 
 async function buildDigestBody({ name, openDate, matchedGrants }) {
