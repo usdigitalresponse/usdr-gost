@@ -58,6 +58,7 @@
             <b-button
               class="w-50 flex-shrink-1 mr-3"
               variant="outline-primary"
+              data-dd-action-name="print btn"
               @click="printPage"
             >
               <b-icon icon="printer-fill" aria-hidden="true" class="mr-2" />
@@ -66,6 +67,7 @@
             <b-button
               class="w-50 flex-shrink-1"
               :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
+              data-dd-action-name="copy btn"
               @click="copyUrl"
             >
               <b-icon :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'" aria-hidden="true" class="mr-2" />
