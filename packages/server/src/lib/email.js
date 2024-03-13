@@ -33,6 +33,13 @@ async function deliverEmail({
     });
 }
 
+function buildBaseUrlSafe() {
+    const baseUrl = new URL(process.env.WEBSITE_DOMAIN);
+    baseUrl.searchParams.set('utm_source', 'subscription');
+    baseUrl.searchParams.set('utm_medium', 'email');
+    return baseUrl.toString();
+}
+
 function addBaseBranding(emailHTML, brandDetails) {
     const { tool_name, title, notifications_url } = brandDetails;
     const baseBrandedTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/base.html'));
@@ -42,7 +49,7 @@ function addBaseBranding(emailHTML, brandDetails) {
         webview_available: false, // Preheader and webview are not setup for Grant notification email.
         // preheader: 'Test preheader',
         // webview_url: 'http://localhost:8080',
-        usdr_url: 'http://usdigitalresponse.org',
+        base_url_safe: buildBaseUrlSafe(),
         usdr_logo_url: 'https://grants.usdigitalresponse.org/usdr_logo_transparent.png',
         notifications_url,
     }, {
