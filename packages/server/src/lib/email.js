@@ -18,6 +18,7 @@ const ASYNC_REPORT_TYPES = {
 const HELPDESK_EMAIL = 'grants-helpdesk@usdigitalresponse.org';
 
 async function deliverEmail({
+    fromName,
     toAddress,
     ccAddress,
     emailHTML,
@@ -25,6 +26,7 @@ async function deliverEmail({
     subject,
 }) {
     return emailService.getTransport().sendEmail({
+        fromName,
         toAddress,
         ccAddress,
         subject,
@@ -334,6 +336,7 @@ async function sendGrantDigest({
     recipients.forEach(
         (recipient) => inputs.push(
             {
+                fromName: 'USDR Federal Grant Finder',
                 toAddress: recipient.trim(),
                 emailHTML,
                 emailPlain,
