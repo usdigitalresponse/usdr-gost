@@ -312,6 +312,15 @@
 
 <body
     style="width:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;padding:0;Margin:0">
+    {{# preheader }}
+        <div style="display: none; max-height: 0px; overflow: hidden;">
+            {{ preheader }}
+        </div>
+        <!-- Insert &#847;&zwnj;&nbsp; after hidden preview text to add space and avoid pulling in other email content -->
+        <div style="display: none; max-height: 0px; overflow: hidden;">
+            &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy;
+        </div>
+    {{/ preheader }}
     <div class="es-wrapper-color" style="background-color:#F6F6F6">
         <!--[if gte mso 9]>
 			<v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">

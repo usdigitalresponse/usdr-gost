@@ -42,14 +42,29 @@ function buildBaseUrlSafe() {
     return baseUrl.toString();
 }
 
+/**
+ * Adds the base email HTML around the email body HTML. Specifically, adds the USDR logo header,
+ * footer, title, preheader, etc.
+ *
+ * @param {string} emailHTML - Rendered email body HTML
+ * @param {object} brandDetails - Options to control how the base branding is rendered
+ * @param {string} brandDetails.tool_name - Name of the product triggering the email, rendered
+ *   underneath the USDR logo
+ * @param {string} brandDetails.title - Rendered as the HTML <title> (most email programs ignore)
+ * @param {string} brandDetails.preheader - Preview text for the email (most email programs
+ *   render this, often truncated, after the subject line in your inbox)
+ * @param {string} brandDetails.notifications_url - URL where the user can manage notification settings
+ */
 function addBaseBranding(emailHTML, brandDetails) {
-    const { tool_name, title, notifications_url } = brandDetails;
+    const {
+        tool_name, title, preheader, notifications_url,
+    } = brandDetails;
     const baseBrandedTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/base.html'));
     const brandedHTML = mustache.render(baseBrandedTemplate.toString(), {
         tool_name,
         title,
         webview_available: false, // Preheader and webview are not setup for Grant notification email.
-        // preheader: 'Test preheader',
+        preheader,
         // webview_url: 'http://localhost:8080',
         base_url_safe: buildBaseUrlSafe(),
         usdr_logo_url: 'https://grants.usdigitalresponse.org/usdr_logo_transparent.png',
