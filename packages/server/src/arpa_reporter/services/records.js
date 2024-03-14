@@ -241,7 +241,7 @@ async function mostRecentProjectRecords(periodId, tenantId) {
     return Object.values(latestProjectRecords);
 }
 
-async function recordsForProject(periodId, tenantId) {
+async function recordsForProject(periodId, tenantId, sheets = undefined) {
     log(`recordsForProject`);
     requiredArgument(periodId, 'must specify periodId in mostRecentProjectRecords');
 
@@ -251,10 +251,12 @@ async function recordsForProject(periodId, tenantId) {
         reportingPeriods.map(({ id }) => recordsForReportingPeriod(id, tenantId)),
     );
 
+    const sheetsToFilter = sheets || [...Object.values(EC_SHEET_TYPES), 'awards50k', 'expenditures50k', 'awards'];
+
     const projectRecords = allRecords
         .flat()
         // exclude non-project records
-        .filter((record) => ([...Object.values(EC_SHEET_TYPES), 'awards50k', 'expenditures50k', 'awards']).includes(record.type));
+        .filter((record) => (sheetsToFilter).includes(record.type));
 
     // expenditures do not have projects on them, but awards do under Project_Identification_Number__c
     // we can map the two by Subawards
