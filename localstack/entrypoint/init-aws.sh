@@ -18,3 +18,5 @@ awslocal s3api create-bucket --bucket arpa-audit-reports --region us-west-2 --cr
 
 awslocal sqs create-queue --queue-name grants-ingest-events
 awslocal sqs create-queue --queue-name arpa-queue
+
+awslocal sqs create-queue --queue-name arpa-treasury-queue --region us-west-2
