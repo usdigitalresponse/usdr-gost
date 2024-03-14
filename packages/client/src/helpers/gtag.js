@@ -2,6 +2,17 @@
 // Note that the 'set' command does not appear to do anything (despite Google documentation to the contrary) so all
 // runtime reconfiguration is being performed via 'config'.
 
+function gtag(...args) {
+  if (typeof window.gtag === 'function' && window.APP_CONFIG?.GOOGLE_TAG_ID) {
+    window.gtag(...args);
+    if (window.APP_CONFIG?.GOOGLE_ANALYTICS_DEBUG) {
+      console.log(`[Google Analytics] Emitted ${args[0]} with:`, ...args.slice(1));
+    }
+  } else if (window.APP_CONFIG?.GOOGLE_ANALYTICS_DEBUG) {
+    console.log(`[Google Analytics][DISABLED] Would have emitted ${args[0]} with:`, ...args.slice(1));
+  }
+}
+
 /**
  * If Google Analytics are enabled, calls the config command on the appropriate Google tag.
  * If called repeatedly, appears to update the config by performing a deep merge of the existing config with the new.
@@ -13,12 +24,10 @@
  */
 export function gtagConfig(config) {
   // See index.html for the definition of the gtag function.
-  if (typeof window.gtag === 'function' && window.APP_CONFIG?.GOOGLE_TAG_ID) {
-    window.gtag('config', window.APP_CONFIG.GOOGLE_TAG_ID, {
-      ...(window.APP_CONFIG?.GOOGLE_ANALYTICS_DEBUG ? { debug_mode: true } : {}),
-      ...config,
-    });
-  }
+  gtag('config', window.APP_CONFIG.GOOGLE_TAG_ID, {
+    ...(window.APP_CONFIG?.GOOGLE_ANALYTICS_DEBUG ? { debug_mode: true } : {}),
+    ...config,
+  });
 }
 
 export function setUserForGoogleAnalytics(user) {
@@ -29,4 +38,15 @@ export function setUserForGoogleAnalytics(user) {
       organization_id: user?.tenant_id,
     },
   });
+}
+
+/**
+ * Emits a Google Analytics GA4 custom event. Google also defines some reserved param names to be aware of,
+ * such as `event_callback` to execute code once the event has been logged: https://developers.google.com/tag-platform/gtagjs/reference/parameters
+ *
+ * @param {string} eventName Canonical name of the event to emit
+ * @param {object} eventParams Metadata to associate with this event
+ */
+export function gtagEvent(eventName, eventParams) {
+  gtag('event', eventName, eventParams);
 }

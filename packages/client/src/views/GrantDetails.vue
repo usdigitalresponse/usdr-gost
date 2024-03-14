@@ -49,6 +49,7 @@
             target="_blank"
             rel="noopener noreferrer"
             data-dd-action-name="view on grants.gov"
+            @click="onOpenGrantsGov"
           >
             <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2" />
             Apply on Grants.gov
@@ -57,6 +58,7 @@
             <b-button
               class="w-50 flex-shrink-1 mr-3"
               variant="outline-primary"
+              data-dd-action-name="print btn"
               @click="printPage"
             >
               <b-icon icon="printer-fill" aria-hidden="true" class="mr-2" />
@@ -65,6 +67,7 @@
             <b-button
               class="w-50 flex-shrink-1"
               :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
+              data-dd-action-name="copy btn"
               @click="copyUrl"
             >
               <b-icon :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'" aria-hidden="true" class="mr-2" />
@@ -164,6 +167,7 @@ import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import { formatCurrency } from '@/helpers/currency';
 import { titleize } from '@/helpers/form-helpers';
+import { gtagEvent } from '@/helpers/gtag';
 import { DateTime } from 'luxon';
 import UserAvatar from '@/components/UserAvatar.vue';
 
@@ -380,7 +384,12 @@ export default {
           agencyId: this.selectedAgencyId,
           interestedCode: this.selectedInterestedCode,
         });
-        datadogRum.addAction('submit team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
+        const eventName = 'submit team status for grant';
+        const eventParams = {
+          status_name: this.interestedOptions.find((option) => option.id === this.selectedInterestedCode)?.name,
+        };
+        gtagEvent(eventName, eventParams);
+        datadogRum.addAction(eventName, eventParams);
         this.selectedInterestedCode = null;
       }
     },
@@ -391,14 +400,18 @@ export default {
         interestedCode: agency.interested_code_id,
       });
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
-      datadogRum.addAction('remove team status for grant', { team: { id: agency.agency_id }, status: agency.interested_code_id, grant: { id: this.selectedGrant.grant_id } });
+      const eventName = 'remove team status for grant';
+      gtagEvent(eventName);
+      datadogRum.addAction(eventName);
     },
     async assignAgenciesToGrant() {
       await this.assignAgenciesToGrantAction({
         grantId: this.selectedGrant.grant_id,
         agencyIds: this.assignedAgencies.map((agency) => agency.id).concat(this.selectedAgencyToAssign.id),
       });
-      datadogRum.addAction('assign team to grant', { team: { id: this.selectedAgencyToAssign.id }, grant: { id: this.selectedGrant.grant_id } });
+      const eventName = 'assign team to grant';
+      gtagEvent(eventName);
+      datadogRum.addAction(eventName);
       this.selectedAgencyToAssign = null;
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
     },
@@ -408,7 +421,9 @@ export default {
         agencyIds: [agency.id],
       });
       this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
-      datadogRum.addAction('remove team assignment from grant', { team: { id: this.selectedAgencyId }, grant: { id: this.selectedGrant.grant_id } });
+      const eventName = 'remove team assignment from grant';
+      gtagEvent(eventName);
+      datadogRum.addAction(eventName);
     },
     isAbleToUnmark(agencyId) {
       return this.agencies.some((agency) => agency.id === agencyId);
@@ -424,6 +439,7 @@ export default {
       });
     },
     copyUrl() {
+      gtagEvent('copy btn clicked');
       navigator.clipboard.writeText(window.location.href);
 
       // Show the success indicator
@@ -435,7 +451,13 @@ export default {
       );
     },
     printPage() {
+      gtagEvent('print btn clicked');
       window.print();
+    },
+    onOpenGrantsGov() {
+      // Note that we can execute this as a side effect of clicking on the outbound link only because it's set to
+      // load in a new tab. If it opened in the same tab, it would open the new URL before the event is logged.
+      gtagEvent('grants.gov btn clicked');
     },
     formatDate(dateString) {
       return DateTime.fromISO(dateString).toLocaleString(DateTime.DATE_MED);
