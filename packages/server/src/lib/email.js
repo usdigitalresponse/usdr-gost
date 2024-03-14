@@ -340,7 +340,7 @@ async function sendGrantDigest({
                 toAddress: recipient.trim(),
                 emailHTML,
                 emailPlain,
-                subject: `New Grants published for ${name}`,
+                subject: `New Grants Published for ${name}`,
             },
         ),
     );
