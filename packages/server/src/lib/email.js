@@ -322,7 +322,7 @@ async function buildDigestBody({ name, openDate, matchedGrants }) {
 }
 
 async function sendGrantDigest({
-    name, matchedGrants, recipients, openDate,
+    name, matchedGrants, matchedGrantsTotal, recipients, openDate,
 }) {
     console.log(`${name} is subscribed for notifications on ${openDate}`);
 
@@ -337,10 +337,14 @@ async function sendGrantDigest({
     }
 
     const formattedBody = await buildDigestBody({ name, openDate, matchedGrants });
+    const preheader = typeof matchedGrantsTotal === 'number' && matchedGrantsTotal > 0
+        ? `You have ${Intl.NumberFormat('en-US', { useGrouping: true }).format(matchedGrantsTotal)} new ${matchedGrantsTotal > 1 ? 'grants' : 'grant'} to review!`
+        : 'You have new grants to review!';
 
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Federal Grant Finder',
         title: 'New Grants Digest',
+        preheader,
         notifications_url: (process.env.ENABLE_MY_PROFILE === 'true') ? `${process.env.WEBSITE_DOMAIN}/my-profile` : `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
     });
 
@@ -382,6 +386,7 @@ async function getAndSendGrantForSavedSearch({
     return sendGrantDigest({
         name: userSavedSearch.name,
         matchedGrants: response.data,
+        matchedGrantsTotal: response.pagination.total,
         recipients: [userSavedSearch.email],
         openDate,
     });
@@ -424,6 +429,7 @@ async function buildAndSendGrantDigest() {
     agencies.forEach((agency) => inputs.push({
         name: agency.name,
         matchedGrants: agency.matched_grants,
+        matchedGrantsTotal: agency.matched_grants.length,
         recipients: agency.recipients,
         openDate,
     }));
