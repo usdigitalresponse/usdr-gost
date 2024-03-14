@@ -3,20 +3,19 @@
     <div class="row">
       <AlertBox v-if="alert" :text="alert.text" :level="alert.level" v-on:dismiss="clearAlert" />
     </div>
-    <div class="row mt-5 mb-5" v-if="viewingOpenPeriod">
-      <div class="col" v-if="this.$route.query.sync_treasury_download && isAdmin">
-        <DownloadButton :href="downloadTreasuryReportURL()" class="btn btn-primary btn-block">Download Treasury Report</DownloadButton>
-      </div>
 
+    <div class="row border border-danger rounded m-3 mb-3 p-3" v-if="!viewingOpenPeriod">
+      <div class="col" id="closedReportingPeriodMessage">
+        This reporting period is closed.
+      </div>
+    </div>
+
+    <div class="row mt-5 mb-5" v-if="viewingOpenPeriod || isAdmin">
       <div class="col" v-if="isAdmin">
         <button class="btn btn-primary btn-block" @click="sendTreasuryReport" :disabled="sending" id="sendTreasuryReportButton">
           <span v-if="sending">Sending...</span>
           <span v-else>Send Treasury Report by Email</span>
         </button>
-      </div>
-
-      <div class="col" v-if="this.$route.query.sync_audit_download && isAdmin">
-        <DownloadButton :href="downloadAuditReportURL()" class="btn btn-info btn-block">Download Audit Report</DownloadButton>
       </div>
 
       <div class="col" v-if="isAdmin">
@@ -26,18 +25,12 @@
         </button>
       </div>
 
-      <div class="col">
-        <button @click.prevent="startUpload" class="btn btn-primary btn-block" id="submitWorkbookButton">Submit Workbook</button>
+      <div class="col" v-if="viewingOpenPeriod">
+        <button @click.prevent="startUpload" class="btn btn-primary btn-block" id="submitWorkbookButton"  :disabled="!viewingOpenPeriod">Submit Workbook</button>
       </div>
 
-      <div class="col">
+      <div class="col" v-if="viewingOpenPeriod">
         <DownloadTemplateBtn :block="true" />
-      </div>
-    </div>
-
-    <div class="row border border-danger rounded m-3 mb-3 p-3" v-else>
-      <div class="col" id="closedReportingPeriodMessage">
-        This reporting period is closed.
       </div>
     </div>
 
@@ -60,9 +53,7 @@
 </template>
 
 <script>
-import { apiURL } from '@/helpers/fetchApi';
 import AlertBox from '../components/AlertBox.vue';
-import DownloadButton from '../components/DownloadButton.vue';
 import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
 import { getJson } from '../store/index';
 
@@ -98,14 +89,16 @@ export default {
     clearAlert() {
       this.alert = null;
     },
-    downloadAuditReportURL() {
-      return apiURL('/api/audit_report');
-    },
     async sendAuditReport() {
       this.sending = true;
 
       try {
-        const result = await getJson('/api/audit_report?queue=true');
+        const periodId = this.$store.getters.viewPeriod.id || 0;
+        const query = new URLSearchParams({ queue: true });
+        if (periodId && !this.viewingOpenPeriod) {
+          query.set('period_id', periodId);
+        }
+        const result = await getJson(`/api/audit_report?${query}`);
 
         if (result.error) {
           this.alert = {
@@ -129,15 +122,16 @@ export default {
 
       this.sending = false;
     },
-    downloadTreasuryReportURL() {
-      const periodId = this.$store.getters.viewPeriod.id || 0;
-      return apiURL(`/api/exports?period_id=${periodId}`);
-    },
     async sendTreasuryReport() {
       this.sending = true;
 
       try {
-        const result = await getJson('/api/exports?queue=true');
+        const periodId = this.$store.getters.viewPeriod.id || 0;
+        const query = new URLSearchParams({ queue: true });
+        if (periodId && !this.viewingOpenPeriod) {
+          query.set('period_id', periodId);
+        }
+        const result = await getJson(`/api/exports?${query}`);
 
         if (result.error) {
           this.alert = {
@@ -168,7 +162,6 @@ export default {
     },
   },
   components: {
-    DownloadButton,
     DownloadTemplateBtn,
     AlertBox,
   },
