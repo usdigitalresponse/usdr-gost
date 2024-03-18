@@ -1,23 +1,50 @@
 <template>
   <section class="container-fluid grants-table-container">
-    <b-row class="my-3" v-if="showSearchControls">
+    <b-row
+      v-if="showSearchControls"
+      class="my-3"
+    >
       <div class="ml-3">
-        <SavedSearchPanel :isDisabled="loading" />
+        <SavedSearchPanel :is-disabled="loading" />
       </div>
       <div class="ml-1">
-        <SearchPanel :isDisabled="loading" ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="retrieveFilteredGrants" />
+        <SearchPanel
+          ref="searchPanel"
+          :is-disabled="loading"
+          :search-id="Number(editingSearchId)"
+          @filters-applied="retrieveFilteredGrants"
+        />
       </div>
     </b-row>
-    <b-row  class="grants-table-title-control">
-      <b-col v-if="showSearchControls" >
-        <SearchFilter :isDisabled="loading" :filterKeys="searchFilters" @filter-removed="onFilterRemoved" />
+    <b-row class="grants-table-title-control">
+      <b-col v-if="showSearchControls">
+        <SearchFilter
+          :is-disabled="loading"
+          :filter-keys="searchFilters"
+          @filter-removed="onFilterRemoved"
+        />
       </b-col>
-      <b-col align-self="end" v-if="!showSearchControls">
-        <h2 class="mb-0">{{ searchTitle }}</h2>
+      <b-col
+        v-if="!showSearchControls"
+        align-self="end"
+      >
+        <h2 class="mb-0">
+          {{ searchTitle }}
+        </h2>
       </b-col>
       <b-col class="d-flex justify-content-end">
-        <b-button @click="exportCSV" :disabled="loading" variant="outline-primary" size="sm">
-          <b-icon icon="download" class="mr-2" aria-hidden="true" />Export to CSV</b-button>
+        <b-button
+          :disabled="loading"
+          variant="outline-primary"
+          size="sm"
+          @click="exportCSV"
+        >
+          <b-icon
+            icon="download"
+            class="mr-2"
+            aria-hidden="true"
+          />Export to CSV
+        </b-button>
       </b-col>
     </b-row>
     <b-row align-v="center">
@@ -33,7 +60,7 @@
           :items="formattedGrants"
           :fields="fields.filter(field => !field.hideGrantItem)"
           show-empty
-          emptyText="No matches found"
+          empty-text="No matches found"
           no-local-sorting
           :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc"
@@ -48,8 +75,11 @@
             <p> {{ formatCurrency(row.item.award_ceiling) }}</p>
           </template>
           <template #table-busy>
-            <div class="text-center text-info my-2" style="height: 1200px;">
-              <b-spinner class="align-middle"></b-spinner>
+            <div
+              class="text-center text-info my-2"
+              style="height: 1200px;"
+            >
+              <b-spinner class="align-middle" />
               <strong> Loading...</strong>
             </div>
           </template>
@@ -57,13 +87,22 @@
             &emsp;
             &emsp;
             <div class="text-center">
-              <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
+              <p class="empty-text">
+                <strong>{{ scope.emptyText }}</strong>
+              </p>
               <div v-if="showSearchControls">
-              <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
+                <p class="empty-text">
+                  Tip: Broaden your search or adjust your keywords for more results
+                </p>
               &nbsp;
-              <p><a @click="initEditSearch(searchId);" class="link">
-                  Edit Search Criteria
-                </a></p>
+                <p>
+                  <a
+                    class="link"
+                    @click="initEditSearch(searchId);"
+                  >
+                    Edit Search Criteria
+                  </a>
+                </p>
               </div>
             </div>
           </template>
@@ -71,7 +110,10 @@
       </b-col>
     </b-row>
     <b-row class="grants-table-pagination">
-      <b-col cols="11" class="grants-table-pagination-component">
+      <b-col
+        cols="11"
+        class="grants-table-pagination-component"
+      >
         <!--
           Pagination component resets currentPage to 1 if totalRows is too low.
           When loading the page with e.g. `?page=4`, this would reset the currentPage to 1
@@ -79,8 +121,8 @@
         -->
         <template v-if="totalRows > 0">
           <b-pagination
-            class="m-0"
             v-model="currentPage"
+            class="m-0"
             :total-rows="totalRows"
             :per-page="perPage"
             first-text="First"
@@ -90,10 +132,15 @@
             aria-controls="grants-table"
           />
         </template>
-        <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
+        <div class="my-1 rounded py-1 px-2 page-item">
+          {{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}
+        </div>
       </b-col>
     </b-row>
-    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy
+      v-if="!newGrantsDetailPageEnabled"
+      :selected-grant.sync="selectedGrant"
+    />
   </section>
 </template>
 
