@@ -85,11 +85,6 @@ module.exports = {
         './src/main.js',
         './src/components/Layout.vue',
 
-        // Grant Finder: core views
-        './src/views/Home.vue',
-        './src/views/Login.vue',
-        './src/views/NotFound.vue',
-
         // Grant Finder: grants tables
         './src/views/Grants.vue',
         './src/views/MyGrants.vue',
