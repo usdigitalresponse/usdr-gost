@@ -170,7 +170,10 @@ export default {
     showInterested: Boolean,
     showRejected: Boolean,
     showResult: Boolean,
-    showAssignedToAgency: String,
+    showAssignedToAgency: {
+      type: String,
+      default: undefined,
+    },
     showSearchControls: {
       type: Boolean,
       default: true,
@@ -226,65 +229,6 @@ export default {
       orderBy: DEFAULT_ORDER_BY,
       orderDesc: DEFAULT_ORDER_DESC,
     };
-  },
-  async mounted() {
-    document.addEventListener('keyup', this.changeSelectedGrantIndex);
-    this.clearSelectedSearch();
-
-    // Watch route query updates and reflect them in the component
-    // (This happens with browser back/forward through history)
-    this.$watch(
-      () => this.$route.query,
-      this.extractStateFromRoute,
-      { deep: true },
-    );
-
-    // Retrieve the initial grants list for the table
-    if (this.$route.query.search) {
-      // We need to load saved searches before extracting initial state from route
-      this.loading = true;
-      await this.fetchSavedSearches({
-        perPage: 100, // TODO: make this robust to users with more saved searches
-        currentPage: 1,
-      });
-      this.extractStateFromRoute();
-      this.retrieveFilteredGrants();
-      this.loading = false;
-    } else {
-      this.extractStateFromRoute();
-      this.retrieveFilteredGrants();
-    }
-
-    // Watch route query and push a route update when it changes.
-    // This needs to be set up after the initial setting of related
-    // data (currentPage, order, etc.) so it won't trigger initially.
-    this.$watch(
-      () => this.routeQuery,
-      (routeQuery) => {
-        this.pushRouteUpdate(routeQuery);
-        this.retrieveFilteredGrants();
-      },
-      { deep: true, immediate: false },
-    );
-
-    // Watch selected search and reset orderBy and orderDesc
-    // (This must be done after these values are set on initial page load
-    // to prevent them being overwritten)
-    this.$watch(
-      'selectedSearchId',
-      () => {
-        this.currentPage = 1;
-        const filterKeys = this.activeFilters.map((f) => f.key);
-        if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
-        // only if include/exclude keywords are selected
-          this.orderBy = 'rank';
-          this.orderDesc = false;
-        } else {
-          this.orderBy = 'open_date';
-          this.orderDesc = true;
-        }
-      },
-    );
   },
   computed: {
     ...mapGetters({
@@ -379,6 +323,65 @@ export default {
       // when we fetch grants, refresh selectedGrant reference
       this.changeSelectedGrant();
     },
+  },
+  async mounted() {
+    document.addEventListener('keyup', this.changeSelectedGrantIndex);
+    this.clearSelectedSearch();
+
+    // Watch route query updates and reflect them in the component
+    // (This happens with browser back/forward through history)
+    this.$watch(
+      () => this.$route.query,
+      this.extractStateFromRoute,
+      { deep: true },
+    );
+
+    // Retrieve the initial grants list for the table
+    if (this.$route.query.search) {
+      // We need to load saved searches before extracting initial state from route
+      this.loading = true;
+      await this.fetchSavedSearches({
+        perPage: 100, // TODO: make this robust to users with more saved searches
+        currentPage: 1,
+      });
+      this.extractStateFromRoute();
+      this.retrieveFilteredGrants();
+      this.loading = false;
+    } else {
+      this.extractStateFromRoute();
+      this.retrieveFilteredGrants();
+    }
+
+    // Watch route query and push a route update when it changes.
+    // This needs to be set up after the initial setting of related
+    // data (currentPage, order, etc.) so it won't trigger initially.
+    this.$watch(
+      () => this.routeQuery,
+      (routeQuery) => {
+        this.pushRouteUpdate(routeQuery);
+        this.retrieveFilteredGrants();
+      },
+      { deep: true, immediate: false },
+    );
+
+    // Watch selected search and reset orderBy and orderDesc
+    // (This must be done after these values are set on initial page load
+    // to prevent them being overwritten)
+    this.$watch(
+      'selectedSearchId',
+      () => {
+        this.currentPage = 1;
+        const filterKeys = this.activeFilters.map((f) => f.key);
+        if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
+        // only if include/exclude keywords are selected
+          this.orderBy = 'rank';
+          this.orderDesc = false;
+        } else {
+          this.orderBy = 'open_date';
+          this.orderDesc = true;
+        }
+      },
+    );
   },
   methods: {
     ...mapActions({

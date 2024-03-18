@@ -52,6 +52,11 @@ export default {
       activeTab: 0,
     };
   },
+  computed: {
+    ...mapGetters({
+      selectedAgencyId: 'users/selectedAgencyId',
+    }),
+  },
   created() {
     this.$watch('$route.params.tab', (tabName) => {
       this.activeTab = this.$route.meta.tabNames.indexOf(tabName);
@@ -59,11 +64,6 @@ export default {
     this.$watch('activeTab', (newActiveTab) => {
       this.$router.push({ name: 'myGrants', params: { tab: this.$route.meta.tabNames[newActiveTab] } });
     });
-  },
-  computed: {
-    ...mapGetters({
-      selectedAgencyId: 'users/selectedAgencyId',
-    }),
   },
 };
 </script>
