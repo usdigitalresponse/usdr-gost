@@ -13,14 +13,12 @@
           v-if="myProfileEnabled"
           :src="require('../assets/usdr_logo_standard_wide.svg')"
           style="height: 2.5rem;"
-          class=""
           alt="United States Digital Response - Home"
         />
         <b-img
           v-else
           :src="require('../assets/usdr_logo_white_wide.svg')"
           style="height: 2.5rem;"
-          class=""
           alt="United States Digital Response - Home"
         />
         <h1 class="ml-3 mb-0 h4">
