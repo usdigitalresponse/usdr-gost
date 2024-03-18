@@ -1,31 +1,51 @@
 {
-	"folders": [
-		{
-			"name": "✨ usdr-gost",
-			"path": "."
-		},
-		{
-			"name": "📦 client",
-			"path": "packages/client"
-		},
-		{
-			"name": "📦 server",
-			"path": "packages/server"
-		}
-	],
-	"settings": {
-		"window.zoomLevel": 0,
-		"diffEditor.ignoreTrimWhitespace": false,
-		"editor.columnSelection": false,
-		"editor.find.cursorMoveOnType": true,
-		"javascript.format.enable": false,
-		"editor.codeActionsOnSave": {
-			"source.fixAll.eslint": "explicit"
-		},
-		// We need to explicitly turn this off at the worksplace level to avoid 
-		// competing user settings and workplace settings. We use VSCode's "codeActionsOnSave"
-		// to manage linting/fixing, but users can have other settings via "formatOnSave".
-		// If both are on, the editor can "fix" things that are immediately flagged as lint failures.
-		"editor.formatOnSave": false,
-	}
+  "folders": [
+    {
+      "name": "✨ usdr-gost",
+      "path": "."
+    },
+    {
+      "name": "📦 client",
+      "path": "packages/client"
+    },
+    {
+      "name": "📦 server",
+      "path": "packages/server"
+    }
+  ],
+  "settings": {
+    "window.zoomLevel": 0,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.columnSelection": false,
+    "editor.find.cursorMoveOnType": true,
+    "javascript.format.enable": false,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.eol": "\n",
+    "editor.detectIndentation": false,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.sortImports": "explicit",
+      "source.formatAll.terraform": "explicit",
+    },
+    // We need to explicitly turn this off at the worksplace level to avoid
+    // competing user settings and workplace settings. We use VSCode's "codeActionsOnSave"
+    // to manage linting/fixing, but users can have other settings via "formatOnSave".
+    // If both are on, the editor can "fix" things that are immediately flagged as lint failures.
+    "editor.formatOnSave": false,
+    "[yaml]": {
+      "editor.defaultFormatter": "redhat.vscode-yaml",
+      "editor.formatOnSave": true,
+    },
+    "[json][jsonc][jsonl]": {
+      "editor.defaultFormatter": "vscode.json-language-features",
+      "editor.formatOnSave": true,
+    },
+    "[terraform]": {
+      "editor.defaultFormatter": "hashicorp.terraform",
+    },
+    "[terraform-vars]": {
+      "editor.defaultFormatter": "hashicorp.terraform",
+    }
+  }
 }
