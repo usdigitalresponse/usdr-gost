@@ -338,6 +338,88 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
     return rows;
 }
 
+/**
+ * Audit report sheet grouped by subaward.
+ * All data comes from the Awards 50k or Expenditures 50k sheet, so we can filter those out.
+ * We group the data, then aggregate on a couple fields ordered by date.
+ */
+async function createReportsGroupedBySubAward(periodId, tenantId, dateFormat = REPORTING_DATE_FORMAT, logger = log) {
+    logger.info('building rows for spreadsheet');
+    const sheets = ['awards50k', 'expenditures50k'];
+    const records = await recordsForProject(periodId, tenantId, sheets);
+    logger.fields.sheet.totalRecords = records.length;
+    logger.info('retrieved records for projects');
+    const recordsBySubAward = records.reduce((groupBySubAward, item) => {
+        let subAward = 'Missing SubAward';
+        if (item.type === 'expenditures50k') {
+            subAward = item.content.Sub_Award_Lookup__c || subAward;
+        } else if (item.type === 'awards50k') {
+            subAward = item.content.Award_No__c || subAward;
+        }
+        const group = (groupBySubAward[subAward] || []);
+        group.push(item);
+        groupBySubAward[subAward] = group;
+        return groupBySubAward;
+    }, {});
+    logger.fields.sheet.totalProjects = Object.keys(recordsBySubAward).length;
+    logger.info('grouped records by subaward');
+
+    const allReportingPeriods = await getAllReportingPeriods(undefined, tenantId);
+    logger.fields.sheet.totalReportingPeriods = allReportingPeriods.length;
+    logger.info('retrieved all reporting periods for tenant');
+
+    // index project end dates by project
+    const endDatesByReportingPeriodId = Object.fromEntries(allReportingPeriods.map((reportingPeriod) => [
+        reportingPeriod.id, moment(reportingPeriod.end_date, 'yyyy-MM-DD').format(dateFormat),
+    ]));
+
+    // create a row for each subAward, populated from the records related to that subAward
+    const rows = Object.entries(recordsBySubAward).map(([subAwardId, subAwardRecords]) => {
+        const subAwardLogger = logger.child({
+            subAward: { id: subAwardId, totalRecords: subAwardRecords.length },
+        });
+
+        subAwardLogger.debug('populating row from records in subaward');
+
+        // set values for columns that are common across all records of subAwardId
+        const row = {
+            'SubAward ID': subAwardId,
+        };
+
+        // get all reporting periods related to the subAward
+        const subAwardReportingPeriodIds = new Set(
+            subAwardRecords.map((r) => r.upload.reporting_period_id),
+        );
+        subAwardLogger.fields.subAward.totalReportingPeriods = subAwardReportingPeriodIds.length;
+        subAwardLogger.debug('determined unique reporting periods for the current subAward');
+
+        // for each reporting period related to the subAward, add 4 new columns to the row where:
+        //   - the name (row key) of each column is prefixed by the reporting period's end date
+        //   - the initial value for each column in this row is zero
+        subAwardReportingPeriodIds.forEach((id) => {
+            const endDate = endDatesByReportingPeriodId[id];
+            row[`${endDate} Awards > 50000 SubAward Amount`] = 0;
+            row[`${endDate} Awards > 50000 SubAward Expenditure`] = 0;
+        });
+
+        // Sum the total value of each initialized column from the corresponding subtotal
+        // provided by each subAward record
+        subAwardRecords.forEach((record) => {
+            const endDate = endDatesByReportingPeriodId[record.upload.reporting_period_id];
+            row[`${endDate} Awards > 50000 SubAward Amount`] += (record.content.Award_Amount__c || 0);
+            row[`${endDate} Awards > 50000 SubAward Expenditure`] += (record.content.Expenditure_Amount__c || 0);
+        });
+
+        subAwardLogger.fields.subAward.totalColumns = Object.keys(row).length;
+        subAwardLogger.info('finished populating row');
+        return row;
+    });
+
+    logger.fields.sheet.rowCount = rows.length;
+    logger.info('finished building rows for spreadsheet');
+    return rows;
+}
+
 async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
     logger.info('building rows for spreadsheet');
     const records = await recordsForProject(periodId, tenantId);
@@ -469,6 +551,13 @@ async function generate(requestHost, tenantId, periodId) {
                 REPORTING_DATE_FORMAT,
                 logger.child({ sheet: { name: 'Project Summaries V2' } }),
             ));
+        const projectSummaryGroupedBySubAward = await tracer.trace('createReportsGroupedBySubAward',
+            async () => createReportsGroupedBySubAward(
+                periodId,
+                tenantId,
+                REPORTING_DATE_FORMAT,
+                logger.child({ sheet: { name: 'SubAward Summaries' } }),
+            ));
         const KPIDataGroupedByProject = await tracer.trace('createKpiDataGroupedByProject',
             async () => createKpiDataGroupedByProject(
                 periodId,
@@ -492,7 +581,9 @@ async function generate(requestHost, tenantId, periodId) {
             const sheet3 = jsonToSheet(projectSummaryGroupedByProject, 'Project Summaries V2', {
                 header: createHeadersProjectSummariesV2(projectSummaryGroupedByProject),
             });
-            const sheet4 = jsonToSheet(KPIDataGroupedByProject, 'KPI');
+            // FIXME need to sort
+            const sheet4 = jsonToSheet(projectSummaryGroupedBySubAward, 'SubAward Summaries');
+            const sheet5 = jsonToSheet(KPIDataGroupedByProject, 'KPI');
             log.info('finished building sheets from aggregated data');
 
             // create the workbook and add sheet data
@@ -505,7 +596,8 @@ async function generate(requestHost, tenantId, periodId) {
             addSheetToWorkbook(sheet1, 'Obligations & Expenditures');
             addSheetToWorkbook(sheet2, 'Project Summaries');
             addSheetToWorkbook(sheet3, 'Project Summaries V2');
-            addSheetToWorkbook(sheet4, 'KPI');
+            addSheetToWorkbook(sheet4, 'SubAward Summaries');
+            addSheetToWorkbook(sheet5, 'KPI');
             logger.info('finished making new workbook');
 
             logger.info('finished composing workbook');

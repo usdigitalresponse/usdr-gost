@@ -246,7 +246,7 @@ jobs:
         env:
           CI: "true"
       - name: Run linter
-        run: yarn lint
+        run: yarn lint --no-fix
 
   tflint:
     name: Lint terraform
