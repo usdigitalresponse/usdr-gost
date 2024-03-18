@@ -80,11 +80,6 @@ module.exports = {
         // ARPA Reporter: annual performance reporter
         './src/views/ArpaAnnualPerformanceReporter.vue',
 
-        // Grant Finder: app files
-        './src/App.vue',
-        './src/main.js',
-        './src/components/Layout.vue',
-
         // Grant Finder: core views
         './src/views/Home.vue',
         './src/views/Login.vue',
