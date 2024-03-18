@@ -244,7 +244,7 @@ import AlertBox from '../arpa_reporter/components/AlertBox.vue';
 import UserAvatar from './UserAvatar.vue';
 
 export default {
-  name: 'Layout',
+  name: 'BaseLayout',
   components: {
     AlertBox,
     ProfileSettingsModal,
