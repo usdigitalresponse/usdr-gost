@@ -6,26 +6,30 @@
     class="mx-auto border-0"
   >
     <b-card-img
-        :src="require('../assets/usdr_logo_standard_wide.svg')"
-        style="max-width: 14rem"
-        alt="United States Digital Response logo"
-        class="mx-auto mb-3"
-        top
-      ></b-card-img>
+      :src="require('../assets/usdr_logo_standard_wide.svg')"
+      style="max-width: 14rem"
+      alt="United States Digital Response logo"
+      class="mx-auto mb-3"
+      top
+    />
     <b-card-text class="mt-4 p-3 dropshadow-card">
-      <h1 class="h3 my-4">Log in to Federal Grant Finder</h1>
-      <p class="mb-4">Enter your email to receive a one-time login link.</p>
+      <h1 class="h3 my-4">
+        Log in to Federal Grant Finder
+      </h1>
+      <p class="mb-4">
+        Enter your email to receive a one-time login link.
+      </p>
       <form @submit="login">
         <div>
           <label for="email">Email</label>
           <input
-            class="form-control mb-4"
             id="email"
+            v-model="email"
+            class="form-control mb-4"
             name="email"
             placeholder="Email address"
-            v-model="email"
             autofocus
-          />
+          >
         </div>
         <div
           class="d-flex justify-content-center"
@@ -40,11 +44,20 @@
           </b-button>
         </div>
       </form>
-      <div :class="messageClass" class="mt-3" v-if="message">{{ message }}</div>
-      <hr class="my-4"/>
+      <div
+        v-if="message"
+        :class="messageClass"
+        class="mt-3"
+      >
+        {{ message }}
+      </div>
+      <hr class="my-4">
       <p>
         Don't have an account? Please fill out
-        <a href="https://form.jotform.com/201195733501145" target="_blank">USDR's request form</a>
+        <a
+          href="https://form.jotform.com/201195733501145"
+          target="_blank"
+        >USDR's request form</a>
         and indicate you'd like to create one.
       </p>
       <p>Need help? <a href="mailto:grants-helpdesk@usdigitalresponse.org?subject=Federal Grant Finder Login Issue">Contact us</a> for support.</p>

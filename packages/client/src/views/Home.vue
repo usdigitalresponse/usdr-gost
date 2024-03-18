@@ -1,7 +1,9 @@
 <template>
-<section class="section">
+  <section class="section">
     <div class="container">
-      <h1 class="title">Welcome</h1>
+      <h1 class="title">
+        Welcome
+      </h1>
     </div>
   </section>
 </template>
@@ -13,10 +15,10 @@ export default {
     return {
     };
   },
+  computed: {
+  },
   mounted() {
 
-  },
-  computed: {
   },
   methods: {
   },
