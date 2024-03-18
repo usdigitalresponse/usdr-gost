@@ -1,84 +1,238 @@
 <template>
   <div>
-    <b-navbar :type="navBarType" :variant="navBarVariant" class="header-dropshadow py-1">
-      <b-navbar-brand :to="{ name: 'grants' }" class="d-flex align-items-center">
-      <b-img v-if="myProfileEnabled" :src="require('../assets/usdr_logo_standard_wide.svg')" style="height: 2.5rem;" class="" alt="United States Digital Response - Home" />
-      <b-img v-else :src="require('../assets/usdr_logo_white_wide.svg')" style="height: 2.5rem;" class="" alt="United States Digital Response - Home" />
-      <h1 class="ml-3 mb-0 h4">Federal Grant Finder</h1>
-    </b-navbar-brand>
-      <b-collapse id="nav-collapse" is-nav>
-
+    <b-navbar
+      :type="navBarType"
+      :variant="navBarVariant"
+      class="header-dropshadow py-1"
+    >
+      <b-navbar-brand
+        :to="{ name: 'grants' }"
+        class="d-flex align-items-center"
+      >
+        <b-img
+          v-if="myProfileEnabled"
+          :src="require('../assets/usdr_logo_standard_wide.svg')"
+          style="height: 2.5rem;"
+          class=""
+          alt="United States Digital Response - Home"
+        />
+        <b-img
+          v-else
+          :src="require('../assets/usdr_logo_white_wide.svg')"
+          style="height: 2.5rem;"
+          class=""
+          alt="United States Digital Response - Home"
+        />
+        <h1 class="ml-3 mb-0 h4">
+          Federal Grant Finder
+        </h1>
+      </b-navbar-brand>
+      <b-collapse
+        id="nav-collapse"
+        is-nav
+      >
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-nav-item-dropdown right v-if="loggedInUser && myProfileEnabled" no-caret menu-class="w-100">
+          <b-nav-item-dropdown
+            v-if="loggedInUser && myProfileEnabled"
+            right
+            no-caret
+            menu-class="w-100"
+          >
             <!-- Using 'button-content' slot -->
-            <template v-if="myProfileEnabled" #button-content>
-              <div class="d-inline-flex justify-content-start align-items-center" style="width: 242px">
-                <UserAvatar :user-name="loggedInUser.name" :color="loggedInUser.avatar_color" size="2.5rem"/>
+            <template
+              v-if="myProfileEnabled"
+              #button-content
+            >
+              <div
+                class="d-inline-flex justify-content-start align-items-center"
+                style="width: 242px"
+              >
+                <UserAvatar
+                  :user-name="loggedInUser.name"
+                  :color="loggedInUser.avatar_color"
+                  size="2.5rem"
+                />
                 <div class="ml-2 mr-5 text-black">
-                  <p class="m-0 font-weight-bold">{{ loggedInUser.name }}</p>
-                  <p class="m-0">{{ selectedTeam ? selectedTeam.name : '' }}</p>
+                  <p class="m-0 font-weight-bold">
+                    {{ loggedInUser.name }}
+                  </p>
+                  <p class="m-0">
+                    {{ selectedTeam ? selectedTeam.name : '' }}
+                  </p>
                 </div>
-                <p class="text-black m-0 ml-auto"><b-icon icon="caret-down-fill" scale="0.8"></b-icon></p>
+                <p class="text-black m-0 ml-auto">
+                  <b-icon
+                    icon="caret-down-fill"
+                    scale="0.8"
+                  />
+                </p>
               </div>
             </template>
-            <template v-else #button-content>
-              <em>{{loggedInUser.email}}</em>
+            <template
+              v-else
+              #button-content
+            >
+              <em>{{ loggedInUser.email }}</em>
             </template>
             <b-dropdown-item :to="{ name: 'myProfile' }">
-              <b-icon icon="person-circle" scale="1" class="dropdown-icon"></b-icon>
-              <p class="dropdown-item-text">My profile</p>
+              <b-icon
+                icon="person-circle"
+                scale="1"
+                class="dropdown-icon"
+              />
+              <p class="dropdown-item-text">
+                My profile
+              </p>
             </b-dropdown-item>
-            <b-dropdown-item-button href="#" @click="giveFeedback">
-              <b-icon icon="chat-square-text" scale="1" class="dropdown-icon"></b-icon>
-              <p class="dropdown-item-text">Give feedback</p>
+            <b-dropdown-item-button
+              href="#"
+              @click="giveFeedback"
+            >
+              <b-icon
+                icon="chat-square-text"
+                scale="1"
+                class="dropdown-icon"
+              />
+              <p class="dropdown-item-text">
+                Give feedback
+              </p>
             </b-dropdown-item-button>
-            <b-dropdown-item-button href="#" @click="trainingGuide">
-              <b-icon icon="book" scale="1" class="dropdown-icon"></b-icon>
-              <p class="dropdown-item-text">Training guide</p>
+            <b-dropdown-item-button
+              href="#"
+              @click="trainingGuide"
+            >
+              <b-icon
+                icon="book"
+                scale="1"
+                class="dropdown-icon"
+              />
+              <p class="dropdown-item-text">
+                Training guide
+              </p>
             </b-dropdown-item-button>
-            <b-dropdown-item-button href="#" @click="logout">
-              <b-icon icon="box-arrow-right" scale="1" class="dropdown-icon"></b-icon>
-              <p class="dropdown-item-text">Sign out</p>
+            <b-dropdown-item-button
+              href="#"
+              @click="logout"
+            >
+              <b-icon
+                icon="box-arrow-right"
+                scale="1"
+                class="dropdown-icon"
+              />
+              <p class="dropdown-item-text">
+                Sign out
+              </p>
             </b-dropdown-item-button>
           </b-nav-item-dropdown>
 
           <b-nav-text v-if="!myProfileEnabled">
-            <b-badge>{{selectedTeam ? selectedTeam.name : ''}}</b-badge>
+            <b-badge>{{ selectedTeam ? selectedTeam.name : '' }}</b-badge>
           </b-nav-text>
 
-          <b-nav-item-dropdown right v-if="loggedInUser && !myProfileEnabled">
+          <b-nav-item-dropdown
+            v-if="loggedInUser && !myProfileEnabled"
+            right
+          >
             <!-- Using 'button-content' slot -->
             <template #button-content>
-              <em>{{loggedInUser.email}}</em>
+              <em>{{ loggedInUser.email }}</em>
             </template>
-            <b-dropdown-item-button href="#" @click="settingsClicked">Settings</b-dropdown-item-button>
-            <b-dropdown-item-button href="#" @click="giveFeedback">Give Feedback</b-dropdown-item-button>
-            <b-dropdown-item-button href="#" @click="trainingGuide">Training Guide</b-dropdown-item-button>
-            <b-dropdown-item-button href="#" @click="logout">Sign Out</b-dropdown-item-button>
+            <b-dropdown-item-button
+              href="#"
+              @click="settingsClicked"
+            >
+              Settings
+            </b-dropdown-item-button>
+            <b-dropdown-item-button
+              href="#"
+              @click="giveFeedback"
+            >
+              Give Feedback
+            </b-dropdown-item-button>
+            <b-dropdown-item-button
+              href="#"
+              @click="trainingGuide"
+            >
+              Training Guide
+            </b-dropdown-item-button>
+            <b-dropdown-item-button
+              href="#"
+              @click="logout"
+            >
+              Sign Out
+            </b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-    <b-col cols="12" v-if="showTabs">
-      <b-nav tabs justified fill style="margin-top: 20px">
-          <b-nav-item to="/grants" active-class="active">Browse Grants</b-nav-item>
-          <b-nav-item to="/my-grants" active-class="active">My Grants</b-nav-item>
-          <b-nav-item to="/dashboard" active-class="active">Dashboard</b-nav-item>
-          <b-nav-item to="/users" active-class="active" v-if="userRole === 'admin'">Users</b-nav-item>
-          <b-nav-item :to="newTerminologyEnabled ? '/teams' : '/agencies'" active-class="active">{{newTerminologyEnabled ? 'Teams' : 'Agencies'}}</b-nav-item>
-          <b-nav-item v-if="canSeeOrganizationsTab" :to="newTerminologyEnabled ? '/organizations' : '/tenants'" active-class="active">{{newTerminologyEnabled ? 'Organizations' : 'Tenants'}}</b-nav-item>
+    <b-col
+      v-if="showTabs"
+      cols="12"
+    >
+      <b-nav
+        tabs
+        justified
+        fill
+        style="margin-top: 20px"
+      >
+        <b-nav-item
+          to="/grants"
+          active-class="active"
+        >
+          Browse Grants
+        </b-nav-item>
+        <b-nav-item
+          to="/my-grants"
+          active-class="active"
+        >
+          My Grants
+        </b-nav-item>
+        <b-nav-item
+          to="/dashboard"
+          active-class="active"
+        >
+          Dashboard
+        </b-nav-item>
+        <b-nav-item
+          v-if="userRole === 'admin'"
+          to="/users"
+          active-class="active"
+        >
+          Users
+        </b-nav-item>
+        <b-nav-item
+          :to="newTerminologyEnabled ? '/teams' : '/agencies'"
+          active-class="active"
+        >
+          {{ newTerminologyEnabled ? 'Teams' : 'Agencies' }}
+        </b-nav-item>
+        <b-nav-item
+          v-if="canSeeOrganizationsTab"
+          :to="newTerminologyEnabled ? '/organizations' : '/tenants'"
+          active-class="active"
+        >
+          {{ newTerminologyEnabled ? 'Organizations' : 'Tenants' }}
+        </b-nav-item>
       </b-nav>
     </b-col>
 
     <div style="margin-top: 10px">
-      <section class="container-fluid" style="display: flex; justify-content: center;">
-        <AlertBox v-for="(alert, alertId) in alerts" :key="alertId" v-bind="alert" v-on:dismiss="dismissAlert(alertId)" />
+      <section
+        class="container-fluid"
+        style="display: flex; justify-content: center;"
+      >
+        <AlertBox
+          v-for="(alert, alertId) in alerts"
+          :key="alertId"
+          v-bind="alert"
+          @dismiss="dismissAlert(alertId)"
+        />
       </section>
 
       <router-view />
     </div>
-    <ProfileSettingsModal :showModal.sync="showProfileSettingModal"/>
+    <ProfileSettingsModal :show-modal.sync="showProfileSettingModal" />
   </div>
 </template>
 
