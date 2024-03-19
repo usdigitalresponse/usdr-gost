@@ -90,11 +90,6 @@ module.exports = {
         './src/views/Login.vue',
         './src/views/NotFound.vue',
 
-        // Grant Finder: grants tables
-        './src/views/Grants.vue',
-        './src/views/MyGrants.vue',
-        './src/components/GrantsTable.vue',
-
         // Grant Finder: search modals
         './src/components/Modals/AddKeyword.vue',
         './src/components/Modals/SavedSearchPanel.vue',
