@@ -37,7 +37,7 @@ async function deliverEmail({
 
 function buildBaseUrlSafe() {
     const baseUrl = new URL(process.env.WEBSITE_DOMAIN);
-    baseUrl.searchParams.set('utm_source', 'subscription');
+    baseUrl.searchParams.set('utm_source', 'usdr-grants');
     baseUrl.searchParams.set('utm_medium', 'email');
     return baseUrl.toString();
 }
