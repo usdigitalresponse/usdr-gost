@@ -4,7 +4,6 @@
   - [Prerequisites](#prerequisites)
     - [Node](#node)
       - [Node Version Manager (NVM) / Nodenv](#node-version-manager-nvm--nodenv)
-      - [ASDF](#asdf)
     - [Gmail Setup](#gmail-setup)
   - [Installation](#installation)
 
@@ -14,32 +13,15 @@ These steps are for an install on a Mac. The Windows instructions are [here](./s
 
 ### Node
 
-First check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. You can install it using several tools - NVM, Nodenv, or ASDF
+First check the [`.nvmrc` file](./.nvmrc) to make sure you have the correct version of Node.js installed. You can install it using several tools - NVM, Nodenv
 
 #### Node Version Manager (NVM) / Nodenv
 
-To use [NVM](https://nvm.sh/), follow the install directions at <https://github.com/nvm-sh/nvm#install--update-script>. Once installed, you can run `nvm install` to install the correct version of Node.js.
-
-You can manually specify a version with
-
-```sh
-nvm install v16.14.0
-nvm use v16.14.0
-```
+To use [NVM](https://nvm.sh/), follow the install directions at <https://github.com/nvm-sh/nvm#install--update-script>. Once installed, you can run `nvm use` to activate the correct version of Node.js. If you don't have the correct version installed, nvm will warn you and tell you how to install it.
 
 If using [Nodenv](https://github.com/nodenv/nodenv) follow the instructions [here](https://github.com/nodenv/nodenv#installation) to install, then run run `nodenv install`.
 
 ***Make sure to use new terminals after completing install***
-
-#### ASDF
-
-Install ASDF using the instructions [here](https://asdf-vm.com/guide/getting-started.html), then:
-
-```sh
-   asdf plugin add nodejs
-   asdf install nodejs 16.14.0
-   asdf local nodejs 16.14.0
-```
 
 ### Gmail Setup
 
