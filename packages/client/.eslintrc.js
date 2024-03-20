@@ -85,11 +85,6 @@ module.exports = {
         './src/main.js',
         './src/components/Layout.vue',
 
-        // Grant Finder: core views
-        './src/views/Home.vue',
-        './src/views/Login.vue',
-        './src/views/NotFound.vue',
-
         // Grant Finder: search modals
         './src/components/Modals/AddKeyword.vue',
         './src/components/Modals/SavedSearchPanel.vue',

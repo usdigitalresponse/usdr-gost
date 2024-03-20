@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router';
 
 import { myProfileEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
-import Login from '../views/Login.vue';
+import LoginView from '@/views/LoginView.vue';
 import Layout from '../components/Layout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
 
@@ -11,7 +11,7 @@ export const routes = [
   {
     path: '/login',
     name: 'login',
-    component: Login,
+    component: LoginView,
   },
   {
     path: '/arpa-annual-performance-reporter',
@@ -156,7 +156,7 @@ export const routes = [
   },
   {
     path: '*',
-    component: () => import('../views/NotFound.vue'),
+    component: () => import('../views/NotFoundView.vue'),
     name: 'notFound',
     meta: {
       requiresAuth: true,
