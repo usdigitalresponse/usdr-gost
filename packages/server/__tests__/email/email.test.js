@@ -194,6 +194,7 @@ describe('Email sender', () => {
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
             email.deliverEmail({
+                fromName: 'Foo',
                 toAddress: 'foo@bar.com',
                 ccAddress: 'cc@example.com',
                 emailHTML: '<p>foo</p>',
@@ -203,6 +204,7 @@ describe('Email sender', () => {
 
             expect(sendFake.calledOnce).to.equal(true);
             expect(sendFake.firstCall.args).to.deep.equal([{
+                fromName: 'Foo',
                 toAddress: 'foo@bar.com',
                 ccAddress: 'cc@example.com',
                 subject: 'test foo email',
