@@ -1,5 +1,5 @@
 <template>
-  <GrantsTable hideGrantItems />
+  <GrantsTable hide-grant-items />
 </template>
 
 <script>

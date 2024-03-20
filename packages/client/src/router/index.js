@@ -63,7 +63,7 @@ export const routes = [
       {
         path: '/grants',
         name: 'grants',
-        component: () => import('../views/Grants.vue'),
+        component: () => import('../views/GrantsView.vue'),
         meta: {
           requiresAuth: true,
         },
@@ -85,7 +85,7 @@ export const routes = [
       {
         path: '/my-grants/:tab',
         name: 'myGrants',
-        component: () => import('../views/MyGrants.vue'),
+        component: () => import('../views/MyGrantsView.vue'),
         meta: {
           tabNames: ['interested', 'assigned', 'not-applying', 'applied'],
           requiresAuth: true,
