@@ -157,7 +157,20 @@ describe('audit report generation', () => {
             'Project Expenditure Category Group': '2-Negative Economic Impacts',
             'Project ID': '4',
         }];
-        const headers = audit_report.createHeadersProjectSummariesV2(projects);
+        const headers = audit_report.sortHeadersWithDates(projects,
+            [
+                'Capital Expenditure Amount',
+                'Project Description',
+                'Project Expenditure Category',
+                'Project Expenditure Category Group',
+                'Project ID',
+            ],
+            [
+                'Total Aggregate Expenditures',
+                'Total Aggregate Obligations',
+                'Total Expenditures for Awards Greater or Equal to $50k',
+                'Total Obligations for Awards Greater or Equal to $50k',
+            ]);
         const headersExpected = [
             'Project ID',
             'Project Description',
