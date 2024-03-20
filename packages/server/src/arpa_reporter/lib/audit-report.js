@@ -398,16 +398,16 @@ async function createReportsGroupedBySubAward(periodId, tenantId, dateFormat = R
         //   - the initial value for each column in this row is zero
         subAwardReportingPeriodIds.forEach((id) => {
             const endDate = endDatesByReportingPeriodId[id];
-            row[`${endDate} Awards > 50000 SubAward Amount`] = 0;
-            row[`${endDate} Awards > 50000 SubAward Expenditure`] = 0;
+            row[`${endDate} Awards > 50000 SubAward Amount (Obligation)`] = 0;
+            row[`${endDate} Awards > 50000 SubAward Current Expenditure Amount`] = 0;
         });
 
         // Sum the total value of each initialized column from the corresponding subtotal
         // provided by each subAward record
         subAwardRecords.forEach((record) => {
             const endDate = endDatesByReportingPeriodId[record.upload.reporting_period_id];
-            row[`${endDate} Awards > 50000 SubAward Amount`] += (record.content.Award_Amount__c || 0);
-            row[`${endDate} Awards > 50000 SubAward Expenditure`] += (record.content.Expenditure_Amount__c || 0);
+            row[`${endDate} Awards > 50000 SubAward Amount (Obligation)`] += (record.content.Award_Amount__c || 0);
+            row[`${endDate} Awards > 50000 SubAward Current Expenditure Amount`] += (record.content.Expenditure_Amount__c || 0);
         });
 
         subAwardLogger.fields.subAward.totalColumns = Object.keys(row).length;
@@ -465,8 +465,8 @@ async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
  * The headers are split into the date and non-date headers.
  * The non-date headers come first with an ordering, then the date headers.
  */
-function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
-    const keys = Array.from(new Set(projectSummaryGroupedByProject.map(Object.keys).flat()));
+function sortHeadersWithDates(data, expectedOrderWithoutDate, expectedOrderWithDate) {
+    const keys = Array.from(new Set(data.map(Object.keys).flat()));
     // split up by date and not date
     const withDate = keys.filter((x) => REPORTING_DATE_REGEX.exec(x));
     const withoutDate = keys.filter((x) => REPORTING_DATE_REGEX.exec(x) == null);
@@ -486,23 +486,6 @@ function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
         return x;
     }, {});
 
-    const expectedOrderWithoutDate = [
-        'Project ID',
-        'Project Description',
-        'Project Expenditure Category Group',
-        'Project Expenditure Category',
-        'Capital Expenditure Amount',
-    ];
-
-    const expectedOrderWithDate = [
-        'Total Aggregate Obligations',
-        'Total Aggregate Expenditures',
-        'Total Obligations for Awards Greater or Equal to $50k',
-        'Total Expenditures for Awards Greater or Equal to $50k',
-        'Total Obligations for Aggregate Awards < $50k',
-        'Total Expenditures for Aggregate Awards < $50k',
-    ];
-
     // first add the properly ordered non-date headers,
     // then add the headers sorted by the header group then the date
     const headers = [
@@ -514,6 +497,7 @@ function createHeadersProjectSummariesV2(projectSummaryGroupedByProject) {
                 .map((date) => `${date.format(REPORTING_DATE_FORMAT)} ${x[0]}`)).flat(),
     ];
 
+    debugger;
     return headers;
 }
 
@@ -579,10 +563,36 @@ async function generate(requestHost, tenantId, periodId) {
             const sheet1 = jsonToSheet(obligations, 'Obligations & Expenditures');
             const sheet2 = jsonToSheet(projectSummaries, 'Project Summaries');
             const sheet3 = jsonToSheet(projectSummaryGroupedByProject, 'Project Summaries V2', {
-                header: createHeadersProjectSummariesV2(projectSummaryGroupedByProject),
+                header: sortHeadersWithDates(
+                    projectSummaryGroupedByProject,
+                    [
+                        'Project ID',
+                        'Project Description',
+                        'Project Expenditure Category Group',
+                        'Project Expenditure Category',
+                        'Capital Expenditure Amount',
+                    ],
+                    [
+                        'Total Aggregate Obligations',
+                        'Total Aggregate Expenditures',
+                        'Total Obligations for Awards Greater or Equal to $50k',
+                        'Total Expenditures for Awards Greater or Equal to $50k',
+                        'Total Obligations for Aggregate Awards < $50k',
+                        'Total Expenditures for Aggregate Awards < $50k',
+                    ],
+                ),
             });
             // FIXME need to sort
-            const sheet4 = jsonToSheet(projectSummaryGroupedBySubAward, 'SubAward Summaries');
+            const sheet4 = jsonToSheet(projectSummaryGroupedBySubAward, 'SubAward Summaries', {
+                header: sortHeadersWithDates(
+                    projectSummaryGroupedBySubAward,
+                    ['SubAward ID'],
+                    [
+                        'Awards > 50000 SubAward Amount (Obligation)',
+                        'Awards > 50000 SubAward Current Expenditure Amount',
+                    ],
+                ),
+            });
             const sheet5 = jsonToSheet(KPIDataGroupedByProject, 'KPI');
             log.info('finished building sheets from aggregated data');
 
@@ -704,7 +714,7 @@ module.exports = {
     generateAndSendEmail,
     processSQSMessageRequest,
     sendEmailWithLink,
-    createHeadersProjectSummariesV2,
+    sortHeadersWithDates,
 
     // export for testing
     getRecordsByProject,
