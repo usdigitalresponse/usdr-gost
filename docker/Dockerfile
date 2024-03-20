@@ -1,4 +1,4 @@
-FROM node:18.16.1-alpine as app_base
+FROM node:20.11.1-alpine as app_base
 WORKDIR /app
 COPY . .
 RUN ["mkdir", "-p", "/root/.config/yarn"]
@@ -16,7 +16,7 @@ RUN ["yarn", "install"]
 WORKDIR /app
 CMD ["yarn", "start:server"]
 
-FROM cypress/base:18.16.1 as e2e
+FROM cypress/base:20.11.0 as e2e
 WORKDIR /app
 
 # dependencies will be installed only if the package files change
