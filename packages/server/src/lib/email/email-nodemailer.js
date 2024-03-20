@@ -46,7 +46,10 @@ async function sendEmail(message) {
 
     const transport = createTransport();
     const params = {
-        from: process.env.NODEMAILER_EMAIL, // sender address
+        from: {
+            name: message.fromName, // If not provided, undefined value is ignored just fine by nodemailer
+            address: process.env.NODEMAILER_EMAIL,
+        },
         to: message.toAddress, // list of receivers e.g. 'a@aa.com, b@bb.com'
         subject: message.subject,
         // text: 'Hello world?', // plain text body

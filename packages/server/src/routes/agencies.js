@@ -41,6 +41,7 @@ router.get('/sendDigestEmail', requireUSDRSuperAdminUser, async (req, res) => {
         await email.sendGrantDigest({
             name: agency[0].name,
             matchedGrants: agency[0].matched_grants,
+            matchedGrantsTotal: agency[0].matched_grants?.length,
             recipients: agency[0].recipients,
         });
     } catch (e) {
