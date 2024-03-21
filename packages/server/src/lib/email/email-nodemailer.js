@@ -33,7 +33,7 @@ function createTransport() {
     return nodemailer.createTransport({
         host: process.env.NODEMAILER_HOST, // e.g. 'smtp.ethereal.email'
         port: process.env.NODEMAILER_PORT, // e.g. 465
-        secure: true, // true for 465, false for other ports
+        secure: process.env.NODEMAILER_SECURE !== 'false', // In dev, it can be useful to turn this off, e.g. to work with ethereal.email
         auth: {
             user: process.env.NODEMAILER_EMAIL,
             pass: process.env.NODEMAILER_EMAIL_PW,
