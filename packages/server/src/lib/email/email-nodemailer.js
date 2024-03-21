@@ -58,7 +58,7 @@ async function sendEmail(message) {
     if (message.ccAddress) {
         params.cc = message.ccAddress;
     }
-    transport.sendMail(params);
+    await transport.sendMail(params);
 }
 
 module.exports = { sendEmail };
