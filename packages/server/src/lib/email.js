@@ -42,6 +42,20 @@ function buildBaseUrlSafe() {
     return baseUrl.toString();
 }
 
+function buildNotificationsUrlSafe() {
+    const notificationsUrl = new URL(process.env.WEBSITE_DOMAIN);
+    if (process.env.ENABLE_MY_PROFILE === 'true') {
+        notificationsUrl.pathname = 'my-profile';
+    } else {
+        notificationsUrl.pathname = 'grants';
+        notificationsUrl.searchParams.set('manageSettings', 'true');
+    }
+    notificationsUrl.searchParams.set('utm_source', 'usdr-grants');
+    notificationsUrl.searchParams.set('utm_medium', 'email');
+    notificationsUrl.searchParams.set('utm_content', 'change notification preferences');
+    return notificationsUrl.toString();
+}
+
 /**
  * Adds the base email HTML around the email body HTML. Specifically, adds the USDR logo header,
  * footer, title, preheader, etc.
@@ -53,12 +67,18 @@ function buildBaseUrlSafe() {
  * @param {string} brandDetails.title - Rendered as the HTML <title> (most email programs ignore)
  * @param {string} brandDetails.preheader - Preview text for the email (most email programs
  *   render this, often truncated, after the subject line in your inbox)
- * @param {string} brandDetails.notifications_url - URL where the user can manage notification settings
+ * @param {boolean} brandDetails.includeNotificationsLink - Whether to include a link for users to
+ *   update notification settings (should be true for subscriptions the user can turn off; should
+ *   be false for required emails like login links; note that no default value is provided to
+ *   ensure the setting is intentional for each email type)
  */
 function addBaseBranding(emailHTML, brandDetails) {
     const {
-        tool_name, title, preheader, notifications_url,
+        tool_name, title, preheader, includeNotificationsLink,
     } = brandDetails;
+    if (typeof includeNotificationsLink !== 'boolean') {
+        throw new Error('Emails must explicitly include or exclude a link to notification settings');
+    }
     const baseBrandedTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/base.html'));
     const brandedHTML = mustache.render(baseBrandedTemplate.toString(), {
         tool_name,
@@ -68,7 +88,7 @@ function addBaseBranding(emailHTML, brandDetails) {
         // webview_url: 'http://localhost:8080',
         base_url_safe: buildBaseUrlSafe(),
         usdr_logo_url: 'https://grants.usdigitalresponse.org/usdr_logo_transparent.png',
-        notifications_url,
+        notifications_url_safe: includeNotificationsLink ? buildNotificationsUrlSafe() : null,
     }, {
         email_body: emailHTML,
     });
@@ -101,6 +121,7 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
         {
             tool_name: href.includes('reporter') ? 'Grants Reporter Tool' : 'Grants Identification Tool',
             title: 'Login Passcode',
+            includeNotificationsLink: false,
         },
     );
 
@@ -137,6 +158,7 @@ async function sendReportErrorEmail(user, reportType) {
         {
             tool_name: 'Grants Reporter Tool',
             title: subject,
+            includeNotificationsLink: false,
         },
     );
 
@@ -166,6 +188,7 @@ function sendWelcomeEmail(email, httpOrigin) {
         {
             tool_name: httpOrigin.includes('reporter') ? 'Grants Reporter Tool' : 'Grants Identification Tool',
             title: 'Welcome to the USDR Grants tool',
+            includeNotificationsLink: false,
         },
     );
 
@@ -255,7 +278,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const emailHTML = module.exports.addBaseBranding(grantAssignedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'Grants Assigned Notification',
-        notifications_url: baseUrl.toString(),
+        includeNotificationsLink: true,
     });
 
     // TODO: add plain text version of the email
@@ -345,7 +368,7 @@ async function sendGrantDigest({
         tool_name: 'Federal Grant Finder',
         title: 'New Grants Digest',
         preheader,
-        notifications_url: (process.env.ENABLE_MY_PROFILE === 'true') ? `${process.env.WEBSITE_DOMAIN}/my-profile` : `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
+        includeNotificationsLink: true,
     });
 
     // TODO: add plain text version of the email
@@ -451,6 +474,7 @@ async function sendAsyncReportEmail(recipient, signedUrl, reportType) {
         {
             tool_name: 'Grants Reporter Tool',
             title: `Your ${reportType} report is ready for download`,
+            includeNotificationsLink: false,
         },
     );
 
