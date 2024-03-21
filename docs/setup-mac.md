@@ -41,10 +41,6 @@ Install ASDF using the instructions [here](https://asdf-vm.com/guide/getting-sta
    asdf local nodejs 16.14.0
 ```
 
-### Gmail Setup
-
-See [./setup-gmail.md](./setup-gmail.md) for instructions on setting up Gmail to send emails.
-
 ## Installation
 
 1. Install dependencies
