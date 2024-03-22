@@ -12,15 +12,31 @@
 
       <div class="col form-inline">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="commitRevalidate" v-model="commit">
-          <label class="form-check-label" for="commitRevalidate">
+          <input
+            id="commitRevalidate"
+            v-model="commit"
+            class="form-check-input"
+            type="checkbox"
+          >
+          <label
+            class="form-check-label"
+            for="commitRevalidate"
+          >
             Actually mark with updated validity?
           </label>
         </div>
 
-        <button class="btn ml-2" :class="revalidateBtnClass" @click="revalidate" :disabled="disableRevalidateBtn">
-          <span v-if="revalidating" class="spinner-grow spinner-grow-sm" role="status">
-          </span>
+        <button
+          class="btn ml-2"
+          :class="revalidateBtnClass"
+          :disabled="disableRevalidateBtn"
+          @click="revalidate"
+        >
+          <span
+            v-if="revalidating"
+            class="spinner-grow spinner-grow-sm"
+            role="status"
+          />
           <span v-if="revalidating"> Loading...</span>
           <span v-else>
             <span v-if="commit">Revalidate uploads</span>
@@ -39,12 +55,21 @@
           <span v-if="commit">has</span>
           <span v-else>will have</span>
           {{ validAfterRevalidation.length }} valid uploads --
-          <span v-if="revalidationDiff > 0" class="text-success">{{ Math.abs(revalidationDiff) }} more</span>
-          <span v-else-if="revalidationDiff < 0" class="text-danger">{{ Math.abs(revalidationDiff) }} fewer</span>
+          <span
+            v-if="revalidationDiff > 0"
+            class="text-success"
+          >{{ Math.abs(revalidationDiff) }} more</span>
+          <span
+            v-else-if="revalidationDiff < 0"
+            class="text-danger"
+          >{{ Math.abs(revalidationDiff) }} fewer</span>
           <span v-else-if="updateRows.length > 0">
             with a total of {{ updateRows.length }} uploads <span class="text-warning">changing state</span>
           </span>
-          <span v-else class="text-info">same as before.</span>
+          <span
+            v-else
+            class="text-info"
+          >same as before.</span>
           .
         </p>
       </div>
@@ -53,13 +78,16 @@
         v-if="updateRows.length > 0"
         :columns="updateCols"
         :rows="updateRows"
-        styleClass="vgt-table table table-striped table-bordered"
-        >
+        style-class="vgt-table table table-striped table-bordered"
+      >
         <div slot="emptystate">
           Nothing to display; adjust your filters?
         </div>
 
-        <template slot="table-row" slot-scope="props">
+        <template
+          slot="table-row"
+          slot-scope="props"
+        >
           <span v-if="props.column.field === 'id'">
             <router-link :to="`/uploads/${props.row.id}`">
               {{ props.row.id }}
@@ -67,7 +95,7 @@
           </span>
 
           <span v-else>
-            {{props.formattedRow[props.column.field]}}
+            {{ props.formattedRow[props.column.field] }}
           </span>
         </template>
       </vue-good-table>
@@ -83,6 +111,9 @@ import { post } from '../store/index';
 
 export default {
   name: 'Validation',
+  components: {
+    VueGoodTable,
+  },
   data() {
     return {
       commit: false,
@@ -205,6 +236,14 @@ export default {
       return this.$store.getters.viewPeriod.name;
     },
   },
+  watch: {
+    async periodId() {
+      this.$store.dispatch('updateUploads');
+    },
+  },
+  async mounted() {
+    this.$store.dispatch('updateUploads');
+  },
   methods: {
     async revalidate() {
       this.revalidating = true;
@@ -233,17 +272,6 @@ export default {
 
       this.revalidating = false;
     },
-  },
-  watch: {
-    async periodId() {
-      this.$store.dispatch('updateUploads');
-    },
-  },
-  async mounted() {
-    this.$store.dispatch('updateUploads');
-  },
-  components: {
-    VueGoodTable,
   },
 };
 </script>

@@ -1,35 +1,78 @@
 <template>
   <div>
     <div class="row">
-      <AlertBox v-if="alert" :text="alert.text" :level="alert.level" v-on:dismiss="clearAlert" />
+      <AlertBox
+        v-if="alert"
+        :text="alert.text"
+        :level="alert.level"
+        @dismiss="clearAlert"
+      />
     </div>
 
-    <div class="row border border-danger rounded m-3 mb-3 p-3" v-if="!viewingOpenPeriod">
-      <div class="col" id="closedReportingPeriodMessage">
+    <div
+      v-if="!viewingOpenPeriod"
+      class="row border border-danger rounded m-3 mb-3 p-3"
+    >
+      <div
+        id="closedReportingPeriodMessage"
+        class="col"
+      >
         This reporting period is closed.
       </div>
     </div>
 
-    <div class="row mt-5 mb-5" v-if="viewingOpenPeriod || isAdmin">
-      <div class="col" v-if="isAdmin">
-        <button class="btn btn-primary btn-block" @click="sendTreasuryReport" :disabled="sending" id="sendTreasuryReportButton">
+    <div
+      v-if="viewingOpenPeriod || isAdmin"
+      class="row mt-5 mb-5"
+    >
+      <div
+        v-if="isAdmin"
+        class="col"
+      >
+        <button
+          id="sendTreasuryReportButton"
+          class="btn btn-primary btn-block"
+          :disabled="sending"
+          @click="sendTreasuryReport"
+        >
           <span v-if="sending">Sending...</span>
           <span v-else>Send Treasury Report by Email</span>
         </button>
       </div>
 
-      <div class="col" v-if="isAdmin">
-        <button class="btn btn-info btn-block" @click="sendAuditReport" :disabled="sending" id="sendAuditReportButton">
+      <div
+        v-if="isAdmin"
+        class="col"
+      >
+        <button
+          id="sendAuditReportButton"
+          class="btn btn-info btn-block"
+          :disabled="sending"
+          @click="sendAuditReport"
+        >
           <span v-if="sending">Sending...</span>
           <span v-else>Send Audit Report by Email</span>
         </button>
       </div>
 
-      <div class="col" v-if="viewingOpenPeriod">
-        <button @click.prevent="startUpload" class="btn btn-primary btn-block" id="submitWorkbookButton"  :disabled="!viewingOpenPeriod">Submit Workbook</button>
+      <div
+        v-if="viewingOpenPeriod"
+        class="col"
+      >
+        <button
+          id="submitWorkbookButton"
+          class="btn btn-primary btn-block"
+          :disabled="!viewingOpenPeriod"
+          @click.prevent="startUpload"
+        >
+          Submit Workbook
+        </button>
       </div>
 
-      <div class="col" v-if="viewingOpenPeriod">
+      <div
+        v-if="viewingOpenPeriod"
+        class="col"
+      >
         <DownloadTemplateBtn :block="true" />
       </div>
     </div>
@@ -59,16 +102,9 @@ import { getJson } from '../store/index';
 
 export default {
   name: 'Home',
-  computed: {
-    isAdmin() {
-      return this.role === 'admin';
-    },
-    role() {
-      return this.$store.getters.user.role.name;
-    },
-    viewingOpenPeriod() {
-      return this.$store.getters.viewPeriodIsCurrent;
-    },
+  components: {
+    DownloadTemplateBtn,
+    AlertBox,
   },
   data() {
     let alert;
@@ -84,6 +120,17 @@ export default {
       alert,
       sending: false,
     };
+  },
+  computed: {
+    isAdmin() {
+      return this.role === 'admin';
+    },
+    role() {
+      return this.$store.getters.user.role.name;
+    },
+    viewingOpenPeriod() {
+      return this.$store.getters.viewPeriodIsCurrent;
+    },
   },
   methods: {
     clearAlert() {
@@ -160,10 +207,6 @@ export default {
         this.$router.push({ path: '/new_upload' });
       }
     },
-  },
-  components: {
-    DownloadTemplateBtn,
-    AlertBox,
   },
 };
 </script>
