@@ -48,7 +48,7 @@
 
 <script>
 export default {
-  name: 'Agencies',
+  name: 'AgenciesView',
   computed: {
     agencies() {
       return this.$store.state.agencies;

@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import Agencies from '../views/Agencies.vue';
-import Agency from '../views/Agency.vue';
+import AgenciesView from '@/arpa_reporter/views/AgenciesView.vue';
+import AgencyView from '@/arpa_reporter/views/AgencyView.vue';
 import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import NewTemplate from '../views/NewTemplate.vue';
@@ -56,13 +56,13 @@ const routes = [
   {
     path: '/agencies',
     name: 'Agencies',
-    component: Agencies,
+    component: AgenciesView,
     meta: { requiresLogin: true },
   },
   {
     path: '/agencies/:id',
     name: 'Agency',
-    component: Agency,
+    component: AgencyView,
     meta: { requiresLogin: true },
   },
   {
