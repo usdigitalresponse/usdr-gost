@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import Home from '../../../../src/arpa_reporter/views/Home.vue';
+import HomeView from '@/arpa_reporter/views/HomeView.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -16,7 +16,7 @@ afterEach(() => {
   route = { query: { } };
 });
 
-describe('Home.vue', () => {
+describe('HomeView.vue', () => {
   describe('when a non-admin loads the home page', () => {
     describe('outside the reporting period', () => {
       beforeEach(() => {
@@ -26,7 +26,7 @@ describe('Home.vue', () => {
             user: () => ({ role: { name: 'not an admin' } }),
           },
         });
-        wrapper = shallowMount(Home, {
+        wrapper = shallowMount(HomeView, {
           store,
           localVue,
         });
@@ -53,7 +53,7 @@ describe('Home.vue', () => {
             viewPeriodIsCurrent: () => true,
           },
         });
-        wrapper = shallowMount(Home, {
+        wrapper = shallowMount(HomeView, {
           store,
           localVue,
           mocks: { $route: route },
@@ -76,7 +76,7 @@ describe('Home.vue', () => {
           },
         });
         route = { query: { } };
-        wrapper = shallowMount(Home, {
+        wrapper = shallowMount(HomeView, {
           store,
           localVue,
           mocks: { $route: route },
@@ -106,7 +106,7 @@ describe('Home.vue', () => {
           },
         });
         route = { query: { sync_treasury_download: true } };
-        wrapper = shallowMount(Home, {
+        wrapper = shallowMount(HomeView, {
           store,
           localVue,
           mocks: { $route: route },
@@ -127,7 +127,7 @@ describe('Home.vue', () => {
           },
         });
         route = { query: { sync_audit_download: true } };
-        wrapper = shallowMount(Home, {
+        wrapper = shallowMount(HomeView, {
           store,
           localVue,
           mocks: { $route: route },
@@ -150,7 +150,7 @@ describe('Home.vue', () => {
           },
         });
         route = { query: { } };
-        wrapper = shallowMount(Home, {
+        wrapper = shallowMount(HomeView, {
           store,
           localVue,
           mocks: { $route: route },

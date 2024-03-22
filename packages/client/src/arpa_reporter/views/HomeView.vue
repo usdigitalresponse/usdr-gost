@@ -101,7 +101,7 @@ import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
 import { getJson } from '../store/index';
 
 export default {
-  name: 'Home',
+  name: 'HomeView',
   components: {
     DownloadTemplateBtn,
     AlertBox,
