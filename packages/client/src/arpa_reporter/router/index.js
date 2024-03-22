@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 
 import HomeView from '@/arpa_reporter/views/HomeView.vue';
 import LoginView from '@/arpa_reporter/views/LoginView.vue';
+import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
 import Agencies from '../views/Agencies.vue';
 import Agency from '../views/Agency.vue';
 import NewTemplate from '../views/NewTemplate.vue';
@@ -15,8 +16,6 @@ import Subrecipient from '../views/Subrecipient.vue';
 import Subrecipients from '../views/Subrecipients.vue';
 import User from '../views/User.vue';
 import Users from '../views/Users.vue';
-import Validation from '../views/Validation.vue';
-
 import store from '../store/index';
 
 Vue.use(VueRouter);
@@ -104,7 +103,7 @@ const routes = [
   {
     path: '/validation',
     name: 'Validation',
-    component: Validation,
+    component: ValidationView,
     meta: { requiresLogin: true },
   },
 ];

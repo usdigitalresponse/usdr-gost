@@ -110,7 +110,7 @@ import { VueGoodTable } from 'vue-good-table';
 import { post } from '../store/index';
 
 export default {
-  name: 'Validation',
+  name: 'ValidationView',
   components: {
     VueGoodTable,
   },
