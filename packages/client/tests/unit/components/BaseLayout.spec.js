@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import Layout from '@/components/Layout.vue';
+import BaseLayout from '@/components/BaseLayout.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -33,7 +33,7 @@ describe('Layout.vue', () => {
       store = new Vuex.Store({
         getters: { ...noOpGetters },
       });
-      wrapper = shallowMount(Layout, {
+      wrapper = shallowMount(BaseLayout, {
         localVue,
         store,
         mocks: {
@@ -74,7 +74,7 @@ describe('Layout.vue', () => {
           'users/loggedInUser': () => ({}),
         },
       });
-      wrapper = shallowMount(Layout, {
+      wrapper = shallowMount(BaseLayout, {
         localVue,
         store,
         mocks: {
@@ -103,7 +103,7 @@ describe('Layout.vue', () => {
           'users/userRole': () => 'admin',
         },
       });
-      wrapper = shallowMount(Layout, {
+      wrapper = shallowMount(BaseLayout, {
         localVue,
         store,
         mocks: {
@@ -126,7 +126,7 @@ describe('Layout.vue', () => {
           'users/loggedInUser': () => ({ isUSDRSuperAdmin: true }),
         },
       });
-      wrapper = shallowMount(Layout, {
+      wrapper = shallowMount(BaseLayout, {
         localVue,
         store,
         mocks: {
@@ -152,7 +152,7 @@ describe('Layout.vue', () => {
           'users/selectedAgency': () => ({ name: 'Test Team Name' }),
         },
       });
-      wrapper = shallowMount(Layout, {
+      wrapper = shallowMount(BaseLayout, {
         localVue,
         store,
         mocks: {
