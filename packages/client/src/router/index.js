@@ -1,8 +1,8 @@
 import VueRouter from 'vue-router';
 
 import { myProfileEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
-import Login from '../views/Login.vue';
-import BaseLayout from '../components/BaseLayout.vue';
+import LoginView from '@/views/LoginView.vue';
+import BaseLayout from '@/components/BaseLayout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
 
 import store from '../store';
@@ -11,7 +11,7 @@ export const routes = [
   {
     path: '/login',
     name: 'login',
-    component: Login,
+    component: LoginView,
   },
   {
     path: '/arpa-annual-performance-reporter',
@@ -63,7 +63,7 @@ export const routes = [
       {
         path: '/grants',
         name: 'grants',
-        component: () => import('../views/Grants.vue'),
+        component: () => import('../views/GrantsView.vue'),
         meta: {
           requiresAuth: true,
         },
@@ -85,7 +85,7 @@ export const routes = [
       {
         path: '/my-grants/:tab',
         name: 'myGrants',
-        component: () => import('../views/MyGrants.vue'),
+        component: () => import('../views/MyGrantsView.vue'),
         meta: {
           tabNames: ['interested', 'assigned', 'not-applying', 'applied'],
           requiresAuth: true,
@@ -156,7 +156,7 @@ export const routes = [
   },
   {
     path: '*',
-    component: () => import('../views/NotFound.vue'),
+    component: () => import('../views/NotFoundView.vue'),
     name: 'notFound',
     meta: {
       requiresAuth: true,

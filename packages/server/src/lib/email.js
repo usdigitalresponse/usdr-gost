@@ -18,6 +18,7 @@ const ASYNC_REPORT_TYPES = {
 const HELPDESK_EMAIL = 'grants-helpdesk@usdigitalresponse.org';
 
 async function deliverEmail({
+    fromName,
     toAddress,
     ccAddress,
     emailHTML,
@@ -25,6 +26,7 @@ async function deliverEmail({
     subject,
 }) {
     return emailService.getTransport().sendEmail({
+        fromName,
         toAddress,
         ccAddress,
         subject,
@@ -33,16 +35,38 @@ async function deliverEmail({
     });
 }
 
+function buildBaseUrlSafe() {
+    const baseUrl = new URL(process.env.WEBSITE_DOMAIN);
+    baseUrl.searchParams.set('utm_source', 'usdr-grants');
+    baseUrl.searchParams.set('utm_medium', 'email');
+    return baseUrl.toString();
+}
+
+/**
+ * Adds the base email HTML around the email body HTML. Specifically, adds the USDR logo header,
+ * footer, title, preheader, etc.
+ *
+ * @param {string} emailHTML - Rendered email body HTML
+ * @param {object} brandDetails - Options to control how the base branding is rendered
+ * @param {string} brandDetails.tool_name - Name of the product triggering the email, rendered
+ *   underneath the USDR logo
+ * @param {string} brandDetails.title - Rendered as the HTML <title> (most email programs ignore)
+ * @param {string} brandDetails.preheader - Preview text for the email (most email programs
+ *   render this, often truncated, after the subject line in your inbox)
+ * @param {string} brandDetails.notifications_url - URL where the user can manage notification settings
+ */
 function addBaseBranding(emailHTML, brandDetails) {
-    const { tool_name, title, notifications_url } = brandDetails;
+    const {
+        tool_name, title, preheader, notifications_url,
+    } = brandDetails;
     const baseBrandedTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/base.html'));
     const brandedHTML = mustache.render(baseBrandedTemplate.toString(), {
         tool_name,
         title,
         webview_available: false, // Preheader and webview are not setup for Grant notification email.
-        // preheader: 'Test preheader',
+        preheader,
         // webview_url: 'http://localhost:8080',
-        usdr_url: 'http://usdigitalresponse.org',
+        base_url_safe: buildBaseUrlSafe(),
         usdr_logo_url: 'https://grants.usdigitalresponse.org/usdr_logo_transparent.png',
         notifications_url,
     }, {
@@ -298,7 +322,7 @@ async function buildDigestBody({ name, openDate, matchedGrants }) {
 }
 
 async function sendGrantDigest({
-    name, matchedGrants, recipients, openDate,
+    name, matchedGrants, matchedGrantsTotal, recipients, openDate,
 }) {
     console.log(`${name} is subscribed for notifications on ${openDate}`);
 
@@ -313,10 +337,14 @@ async function sendGrantDigest({
     }
 
     const formattedBody = await buildDigestBody({ name, openDate, matchedGrants });
+    const preheader = typeof matchedGrantsTotal === 'number' && matchedGrantsTotal > 0
+        ? `You have ${Intl.NumberFormat('en-US', { useGrouping: true }).format(matchedGrantsTotal)} new ${matchedGrantsTotal > 1 ? 'grants' : 'grant'} to review!`
+        : 'You have new grants to review!';
 
     const emailHTML = module.exports.addBaseBranding(formattedBody, {
         tool_name: 'Federal Grant Finder',
         title: 'New Grants Digest',
+        preheader,
         notifications_url: (process.env.ENABLE_MY_PROFILE === 'true') ? `${process.env.WEBSITE_DOMAIN}/my-profile` : `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
     });
 
@@ -327,10 +355,11 @@ async function sendGrantDigest({
     recipients.forEach(
         (recipient) => inputs.push(
             {
+                fromName: 'USDR Federal Grant Finder',
                 toAddress: recipient.trim(),
                 emailHTML,
                 emailPlain,
-                subject: `New Grants published for ${name}`,
+                subject: `New Grants Published for ${name}`,
             },
         ),
     );
@@ -357,6 +386,7 @@ async function getAndSendGrantForSavedSearch({
     return sendGrantDigest({
         name: userSavedSearch.name,
         matchedGrants: response.data,
+        matchedGrantsTotal: response.pagination.total,
         recipients: [userSavedSearch.email],
         openDate,
     });
@@ -399,6 +429,7 @@ async function buildAndSendGrantDigest() {
     agencies.forEach((agency) => inputs.push({
         name: agency.name,
         matchedGrants: agency.matched_grants,
+        matchedGrantsTotal: agency.matched_grants.length,
         recipients: agency.recipients,
         openDate,
     }));

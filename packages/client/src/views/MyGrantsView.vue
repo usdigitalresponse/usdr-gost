@@ -1,23 +1,39 @@
 <template>
   <div class="grants-tabs">
     <b-tabs
+      :key="activeTab /* Force reload when tab changes to hacky fix a visual artifact, see: https://github.com/usdigitalresponse/usdr-gost/issues/2721 */"
+      v-model="activeTab"
       align="left"
       style="margin-top: 1.5rem"
       lazy
-      v-model="activeTab"
-      :key="activeTab /* Force reload when tab changes to hacky fix a visual artifact, see: https://github.com/usdigitalresponse/usdr-gost/issues/2721 */"
     >
       <b-tab title="Interested">
-        <GrantsTable searchTitle="Interested" showInterested :showSearchControls="false"/>
+        <GrantsTable
+          search-title="Interested"
+          show-interested
+          :show-search-controls="false"
+        />
       </b-tab>
       <b-tab title="Assigned">
-        <GrantsTable searchTitle="Assigned" :showAssignedToAgency="selectedAgencyId" :showSearchControls="false"/>
+        <GrantsTable
+          search-title="Assigned"
+          :show-assigned-to-agency="selectedAgencyId"
+          :show-search-controls="false"
+        />
       </b-tab>
       <b-tab title="Not Applying">
-        <GrantsTable searchTitle="Not Applying" showRejected :showSearchControls="false"/>
+        <GrantsTable
+          search-title="Not Applying"
+          show-rejected
+          :show-search-controls="false"
+        />
       </b-tab>
       <b-tab title="Applied">
-        <GrantsTable searchTitle="Applied" showResult :showSearchControls="false"/>
+        <GrantsTable
+          search-title="Applied"
+          show-result
+          :show-search-controls="false"
+        />
       </b-tab>
     </b-tabs>
   </div>
@@ -36,6 +52,11 @@ export default {
       activeTab: 0,
     };
   },
+  computed: {
+    ...mapGetters({
+      selectedAgencyId: 'users/selectedAgencyId',
+    }),
+  },
   created() {
     this.$watch('$route.params.tab', (tabName) => {
       this.activeTab = this.$route.meta.tabNames.indexOf(tabName);
@@ -43,11 +64,6 @@ export default {
     this.$watch('activeTab', (newActiveTab) => {
       this.$router.push({ name: 'myGrants', params: { tab: this.$route.meta.tabNames[newActiveTab] } });
     });
-  },
-  computed: {
-    ...mapGetters({
-      selectedAgencyId: 'users/selectedAgencyId',
-    }),
   },
 };
 </script>

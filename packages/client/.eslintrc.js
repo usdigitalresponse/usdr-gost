@@ -80,16 +80,6 @@ module.exports = {
         // ARPA Reporter: annual performance reporter
         './src/views/ArpaAnnualPerformanceReporter.vue',
 
-        // Grant Finder: core views
-        './src/views/Home.vue',
-        './src/views/Login.vue',
-        './src/views/NotFound.vue',
-
-        // Grant Finder: grants tables
-        './src/views/Grants.vue',
-        './src/views/MyGrants.vue',
-        './src/components/GrantsTable.vue',
-
         // Grant Finder: search modals
         './src/components/Modals/AddKeyword.vue',
         './src/components/Modals/SavedSearchPanel.vue',
