@@ -94,7 +94,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions } from 'vuex';
 import { required, email } from 'vuelidate/lib/validators';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
@@ -134,19 +134,15 @@ export default {
       },
     },
   },
-  watch: {
-    showModal() {
-      this.$bvModal.show('add-tenant-modal');
-    },
-  },
   computed: {
-    ...mapGetters({
-    }),
     newTerminologyEnabled() {
       return newTerminologyEnabled();
     },
   },
-  mounted() {
+  watch: {
+    showModal() {
+      this.$bvModal.show('add-tenant-modal');
+    },
   },
   methods: {
     ...mapActions({

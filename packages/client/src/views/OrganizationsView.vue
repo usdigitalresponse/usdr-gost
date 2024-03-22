@@ -75,9 +75,6 @@ export default {
       editingOrganization: null,
     };
   },
-  mounted() {
-    this.setup();
-  },
   computed: {
     ...mapGetters({
       organizations: 'tenants/tenants',
@@ -99,6 +96,9 @@ export default {
     showModal() {
       this.$bvModal.show('add-tenant-modal');
     },
+  },
+  mounted() {
+    this.setup();
   },
   methods: {
     ...mapActions({

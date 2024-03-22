@@ -35,12 +35,15 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions } from 'vuex';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
-    tenant: Object,
+    tenant: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
@@ -55,12 +58,6 @@ export default {
       this.formData.displayName = this.tenant && this.tenant.display_name;
       this.showDialog = Boolean(this.tenant !== null);
     },
-  },
-  computed: {
-    ...mapGetters({
-    }),
-  },
-  mounted() {
   },
   methods: {
     ...mapActions({
