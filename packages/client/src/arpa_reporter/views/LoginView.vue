@@ -36,7 +36,7 @@ import _ from 'lodash-checkit';
 import { apiURL } from '../../helpers/fetchApi';
 
 export default {
-  name: 'Login',
+  name: 'LoginView',
   data() {
     const message = _.get(this, '$route.query.message', null);
     const messageClass = message ? 'alert alert-danger' : '';

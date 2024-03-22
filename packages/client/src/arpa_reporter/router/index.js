@@ -2,9 +2,9 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 import HomeView from '@/arpa_reporter/views/HomeView.vue';
+import LoginView from '@/arpa_reporter/views/LoginView.vue';
 import Agencies from '../views/Agencies.vue';
 import Agency from '../views/Agency.vue';
-import Login from '../views/Login.vue';
 import NewTemplate from '../views/NewTemplate.vue';
 import NewUpload from '../views/NewUpload.vue';
 import Upload from '../views/Upload.vue';
@@ -22,7 +22,7 @@ import store from '../store/index';
 Vue.use(VueRouter);
 
 const routes = [
-  { path: '/login', name: 'Login', component: Login },
+  { path: '/login', name: 'Login', component: LoginView },
   {
     path: '/',
     name: 'Home',
