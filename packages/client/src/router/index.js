@@ -102,7 +102,7 @@ export const routes = [
         path: '/tenants',
         name: 'tenants',
         redirect: newTerminologyEnabled() ? '/organizations' : undefined,
-        component: () => import('../views/Organizations.vue'),
+        component: () => import('@/views/OrganizationsView.vue'),
         meta: {
           requiresAuth: true,
         },
@@ -110,7 +110,7 @@ export const routes = [
       {
         path: '/organizations',
         name: 'organizations',
-        component: () => import('../views/Organizations.vue'),
+        component: () => import('@/views/OrganizationsView.vue'),
         meta: {
           requiresAuth: true,
           requiresNewTerminologyEnabled: true,

@@ -99,11 +99,6 @@ module.exports = {
         './src/components/Modals/EditUser.vue',
         './src/components/Modals/ImportUsers.vue',
 
-        // Grant Finder: organizations
-        './src/views/Organizations.vue',
-        './src/components/Modals/AddOrganization.vue',
-        './src/components/Modals/EditOrganization.vue',
-
         // Grant Finder: grant details
         './src/views/GrantDetails.vue',
         './src/components/Modals/GrantDetailsLegacy.vue',
