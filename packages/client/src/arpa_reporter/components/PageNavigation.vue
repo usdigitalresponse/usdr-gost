@@ -170,7 +170,7 @@ import AlertBox from './AlertBox.vue';
 import { titleize } from '../helpers/form-helpers';
 
 export default {
-  name: 'Navigation',
+  name: 'PageNavigation',
   components: {
     AlertBox,
   },

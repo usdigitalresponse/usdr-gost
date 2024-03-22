@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Navigation />
+    <PageNavigation />
   </div>
 </template>
 
@@ -8,12 +8,12 @@
 import '../../arpa_reporter/scss/index.scss';
 import 'bootstrap/dist/js/bootstrap.min';
 
-import Navigation from './components/Navigation.vue';
+import PageNavigation from '@/arpa_reporter/components/PageNavigation.vue';
 
 export default {
   name: 'App',
   components: {
-    Navigation,
+    PageNavigation,
   },
 };
 </script>
