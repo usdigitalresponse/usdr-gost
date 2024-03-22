@@ -3,13 +3,19 @@
     <h2>Agencies</h2>
 
     <div class="mb-4">
-      <router-link to="/agencies/new" class="btn btn-primary">
+      <router-link
+        to="/agencies/new"
+        class="btn btn-primary"
+      >
         Create New Agency
       </router-link>
     </div>
 
     <div>
-      <table v-if="agencies" class="table table-striped">
+      <table
+        v-if="agencies"
+        class="table table-striped"
+      >
         <thead>
           <tr>
             <th>Agency Code</th>
@@ -19,11 +25,17 @@
         </thead>
 
         <tbody>
-          <tr v-for="agency in agencies" :key="agency.code">
+          <tr
+            v-for="agency in agencies"
+            :key="agency.code"
+          >
             <td>{{ agency.code }}</td>
             <td>{{ agency.name }}</td>
             <td>
-              <router-link :to="`/agencies/${agency.id}`" class="btn btn-sm btn-secondary">
+              <router-link
+                :to="`/agencies/${agency.id}`"
+                class="btn btn-sm btn-secondary"
+              >
                 Edit
               </router-link>
             </td>
