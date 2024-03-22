@@ -47,7 +47,7 @@ export default {
       clearTimeout(this.copySuccessTimeout);
       this.copySuccessTimeout = setTimeout(
         () => { this.copySuccessTimeout = null; },
-        2500,
+        1000,
       );
     },
   },
