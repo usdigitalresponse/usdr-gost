@@ -27,6 +27,7 @@
     "migrate:up": "knex migrate:up",
     "parse-output-templates": "node src/scripts/parseOutputTemplates.mjs",
     "pre-commit": "yarn lint",
+    "send-debug-email": "node src/scripts/sendDebugEmail.js",
     "serve": "nodemon src",
     "start:dev": "nodemon src",
     "start": "node src",
