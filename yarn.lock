@@ -6799,9 +6799,9 @@ dc-polyfill@^0.1.4:
   integrity sha512-8iwEduR2jR9wWYggeaYtYZWRiUe3XZPyAQtMTL1otv8X3kfR8xUIVb4l5awHEeyDrH6Je7N324lKzMKlMMN6Yw==
 
 dd-trace@^4.11.1:
-  version "4.31.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.31.0.tgz#df2733e943662c666c9bc8887bc3e7fcbf653ae8"
-  integrity sha512-jpXdG5xr+ozOoSPsSadoawIPwyYOCfDnn7XxZ1m7XXUsQe35IwvfC1do4lfNQDo4u5nQRdbsw3I69WRhyUUxjw==
+  version "4.32.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.32.0.tgz#af277fa0ee3c0f9bac222506147634eadb77b7c8"
+  integrity sha512-KtoglIygzG+iHoy33qt0TW8L8N0dIlt17v1vs3nR+ZQgfE99uA0Z4JYJLtTSHiXhl+w9Ixza66H8ClpIf5NTBQ==
   dependencies:
     "@datadog/native-appsec" "7.1.0"
     "@datadog/native-iast-rewriter" "2.3.0"
@@ -16176,9 +16176,9 @@ webpack-chain@^6.5.1:
     javascript-stringify "^2.0.1"
 
 webpack-dev-middleware@^5.3.1:
-  version "5.3.3"
-  resolved "https://registry.yarnpkg.com/webpack-dev-middleware/-/webpack-dev-middleware-5.3.3.tgz#efae67c2793908e7311f1d9b06f2a08dcc97e51f"
-  integrity sha512-hj5CYrY0bZLB+eTO+x/j67Pkrquiy7kWepMHmUMoPsmcUaeEnQJqFzHJOyxgWlq746/wUuA64p9ta34Kyb01pA==
+  version "5.3.4"
+  resolved "https://registry.yarnpkg.com/webpack-dev-middleware/-/webpack-dev-middleware-5.3.4.tgz#eb7b39281cbce10e104eb2b8bf2b63fce49a3517"
+  integrity sha512-BVdTqhhs+0IfoeAf7EoH5WE+exCmqGerHfDM0IL096Px60Tq2Mn9MAbnaGUe6HiMa41KMCYF19gyzZmBcq/o4Q==
   dependencies:
     colorette "^2.0.10"
     memfs "^3.4.3"

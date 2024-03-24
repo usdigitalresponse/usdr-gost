@@ -1,27 +1,50 @@
 <template>
-<section class="container-fluid">
-  <b-row>
-    <b-col class="m-2"><h2 class="h4">{{newTerminologyEnabled ? 'Organizations' : 'Tenants'}}</h2></b-col>
-    <b-col></b-col>
-    <b-col class="d-flex justify-content-end">
-      <div>
-        <b-button variant="primary" size="sm" @click="openAddOrganizationModal">Add</b-button>
-      </div>
-    </b-col>
-  </b-row>
-  <b-table sticky-header="600px" hover :items="formattedOrganizations" :fields="fields">
+  <section class="container-fluid">
+    <b-row>
+      <b-col class="m-2">
+        <h2 class="h4">
+          {{ newTerminologyEnabled ? 'Organizations' : 'Tenants' }}
+        </h2>
+      </b-col>
+      <b-col />
+      <b-col class="d-flex justify-content-end">
+        <div>
+          <b-button
+            variant="primary"
+            size="sm"
+            @click="openAddOrganizationModal"
+          >
+            Add
+          </b-button>
+        </div>
+      </b-col>
+    </b-row>
+    <b-table
+      sticky-header="600px"
+      hover
+      :items="formattedOrganizations"
+      :fields="fields"
+    >
       <template #cell(display_name)="row">
-        {{row.item.display_name}}
+        {{ row.item.display_name }}
       </template>
       <template #cell(actions)="row">
-      <b-button class="mr-1 border-0" size="sm" variant="outline-primary" @click="openEditOrganizationModal(row.item)">
-        <b-icon icon="pencil-fill" aria-hidden="true"></b-icon>
-      </b-button>
-    </template>
-  </b-table>
-  <EditOrganizationModal :tenant.sync="editingOrganization"/>
-  <AddOrganizationModal :showModal.sync="showAddOrganizationModal"/>
-</section>
+        <b-button
+          class="mr-1 border-0"
+          size="sm"
+          variant="outline-primary"
+          @click="openEditOrganizationModal(row.item)"
+        >
+          <b-icon
+            icon="pencil-fill"
+            aria-hidden="true"
+          />
+        </b-button>
+      </template>
+    </b-table>
+    <EditOrganizationModal :tenant.sync="editingOrganization" />
+    <AddOrganizationModal :show-modal.sync="showAddOrganizationModal" />
+  </section>
 </template>
 
 <script>
@@ -52,9 +75,6 @@ export default {
       editingOrganization: null,
     };
   },
-  mounted() {
-    this.setup();
-  },
   computed: {
     ...mapGetters({
       organizations: 'tenants/tenants',
@@ -76,6 +96,9 @@ export default {
     showModal() {
       this.$bvModal.show('add-tenant-modal');
     },
+  },
+  mounted() {
+    this.setup();
   },
   methods: {
     ...mapActions({
