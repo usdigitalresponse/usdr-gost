@@ -80,11 +80,6 @@ module.exports = {
         // ARPA Reporter: annual performance reporter
         './src/views/ArpaAnnualPerformanceReporter.vue',
 
-        // Grant Finder: app files
-        './src/App.vue',
-        './src/main.js',
-        './src/components/Layout.vue',
-
         // Grant Finder: search modals
         './src/components/Modals/AddKeyword.vue',
         './src/components/Modals/SavedSearchPanel.vue',
@@ -103,11 +98,6 @@ module.exports = {
         './src/components/Modals/AddUser.vue',
         './src/components/Modals/EditUser.vue',
         './src/components/Modals/ImportUsers.vue',
-
-        // Grant Finder: organizations
-        './src/views/Organizations.vue',
-        './src/components/Modals/AddOrganization.vue',
-        './src/components/Modals/EditOrganization.vue',
 
         // Grant Finder: grant details
         './src/views/GrantDetails.vue',
