@@ -4,34 +4,42 @@
       id="profile-settings-modal"
       ref="modal"
       title="Profile Settings"
+      ok-only
       @show="resetModal"
       @hidden="resetModal"
-      ok-only
     >
       <h6>Change Agency: </h6>
       <b-form>
-        <v-select :options="agencies" label="name" :value="formData.selectedAgency" @input="onAgencyChangeSubmit">
+        <v-select
+          :options="agencies"
+          label="name"
+          :value="formData.selectedAgency"
+          @input="onAgencyChangeSubmit"
+        >
           <template #search="{attributes, events}">
             <input
               class="vs__search"
               :required="!formData.selectedAgency"
               v-bind="attributes"
               v-on="events"
-            />
+            >
           </template>
         </v-select>
       </b-form>
-      <hr />
+      <hr>
       <h6>Email Notifications: </h6>
-      <b-form-group label="" v-slot="{ ariaDescribedby }">
-      <b-form-checkbox-group
-        v-model="selected"
-        :options="options"
-        :aria-describedby="ariaDescribedby"
-        @change="onUserSubscriptionChangeSubmit"
-        switches
-        stacked
-      ></b-form-checkbox-group>
+      <b-form-group
+        v-slot="{ ariaDescribedby }"
+        label=""
+      >
+        <b-form-checkbox-group
+          v-model="selected"
+          :options="options"
+          :aria-describedby="ariaDescribedby"
+          switches
+          stacked
+          @change="onUserSubscriptionChangeSubmit"
+        />
       </b-form-group>
     </b-modal>
   </div>
@@ -61,14 +69,6 @@ export default {
     formData: {
     },
   },
-  watch: {
-    showModal() {
-      this.$bvModal.show('profile-settings-modal');
-    },
-    settingsSelectedAgency() {
-      this.formData.selectedAgency = this.settingsSelectedAgency;
-    },
-  },
   computed: {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
@@ -79,6 +79,14 @@ export default {
         return [];
       }
       return this.loggedInUser.agency.subagencies;
+    },
+  },
+  watch: {
+    showModal() {
+      this.$bvModal.show('profile-settings-modal');
+    },
+    settingsSelectedAgency() {
+      this.formData.selectedAgency = this.settingsSelectedAgency;
     },
   },
   mounted() {
