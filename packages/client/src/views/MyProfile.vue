@@ -1,39 +1,71 @@
 <template>
   <main>
-    <b-breadcrumb :items="breadcrumb_items"></b-breadcrumb>
-    <section style="max-width: 516px;" class="mx-auto my-5 px-2">
+    <b-breadcrumb :items="breadcrumb_items" />
+    <section
+      style="max-width: 516px;"
+      class="mx-auto my-5 px-2"
+    >
       <h2>My Profile</h2>
       <section style="margin-top: 4rem;">
         <b-row>
           <b-col>
-            <UserAvatar :user-name="loggedInUser.name" :color="loggedInUser.avatar_color" />
+            <UserAvatar
+              :user-name="loggedInUser.name"
+              :color="loggedInUser.avatar_color"
+            />
           </b-col>
           <b-col cols="7">
-            <p class="mb-2 h6"><b>{{ loggedInUser.name }}</b></p>
-            <p class="mb-2">{{ loggedInUser.email }}</p>
-            <p class="mb-2">{{ loggedInUser.agency_name }}</p>
+            <p class="mb-2 h6">
+              <b>{{ loggedInUser.name }}</b>
+            </p>
+            <p class="mb-2">
+              {{ loggedInUser.email }}
+            </p>
+            <p class="mb-2">
+              {{ loggedInUser.agency_name }}
+            </p>
           </b-col>
           <b-col class="text-end">
-            <b-button variant="primary" size="md" @click="$bvModal.show('edit-user-modal')">
-              <b-icon icon="pencil-fill" scale="0.8"></b-icon>
+            <b-button
+              variant="primary"
+              size="md"
+              @click="$bvModal.show('edit-user-modal')"
+            >
+              <b-icon
+                icon="pencil-fill"
+                scale="0.8"
+              />
               <span class="ml-1">Edit</span>
             </b-button>
           </b-col>
         </b-row>
       </section>
       <section style="margin-top: 3.5rem;">
-        <h3 style="margin-bottom: 1.5rem;">Email Notifications</h3>
-        <b-row  v-for="pref in prefs" :key="pref.key" >
+        <h3 style="margin-bottom: 1.5rem;">
+          Email Notifications
+        </h3>
+        <b-row
+          v-for="pref in prefs"
+          :key="pref.key"
+        >
           <b-col cols="11">
-            <p class="mb-0">{{ pref.name }}</p>
-            <p class="pref-description">{{ pref.description }}</p>
+            <p class="mb-0">
+              {{ pref.name }}
+            </p>
+            <p class="pref-description">
+              {{ pref.description }}
+            </p>
           </b-col>
           <b-col cols="1">
-            <b-form-checkbox switch v-model="pref.checked" @change="onUpdateEmailPreference(pref)"></b-form-checkbox>
+            <b-form-checkbox
+              v-model="pref.checked"
+              switch
+              @change="onUpdateEmailPreference(pref)"
+            />
           </b-col>
         </b-row>
       </section>
-      <EditUserModal/>
+      <EditUserModal />
     </section>
   </main>
 </template>

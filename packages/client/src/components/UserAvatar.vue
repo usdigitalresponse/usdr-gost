@@ -1,5 +1,9 @@
 <template>
-  <b-avatar :text="initials" :size="size" :style="colorStyles" />
+  <b-avatar
+    :text="initials"
+    :size="size"
+    :style="colorStyles"
+  />
 </template>
 
 <script>
