@@ -39,7 +39,7 @@ import StandardForm from '../components/StandardForm.vue';
 import { post } from '../store/index';
 
 export default {
-  name: 'User',
+  name: 'UserView',
   components: {
     StandardForm,
   },

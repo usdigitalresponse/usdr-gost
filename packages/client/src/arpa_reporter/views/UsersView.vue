@@ -59,7 +59,7 @@ import { VueGoodTable } from 'vue-good-table';
 import { getJson } from '../store/index';
 
 export default {
-  name: 'Users',
+  name: 'UsersView',
   components: {
     VueGoodTable,
   },
