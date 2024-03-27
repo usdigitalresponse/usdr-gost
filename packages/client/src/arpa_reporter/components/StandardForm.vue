@@ -1,36 +1,53 @@
 <template>
   <div>
-    <div class="form-group row" v-for="col in cols" :key="col.field">
-      <label :for="col.field" class="col-sm-2 col-form-label">{{ col.label }}</label>
+    <div
+      v-for="col in cols"
+      :key="col.field"
+      class="form-group row"
+    >
+      <label
+        :for="col.field"
+        class="col-sm-2 col-form-label"
+      >{{ col.label }}</label>
 
-      <div class="col-sm-10" >
+      <div class="col-sm-10">
         <select
           v-if="col.selectItems && col.selectItems.length > 0"
-          class="form-control"
           :id="col.field"
           v-model="record[col.field]"
+          class="form-control"
           :readonly="col.readonly"
           :class="classesForField(col.field)"
           :aria-describedby="`feedback-${col.field}`"
+        >
+          <option
+            v-for="opt in col.selectItems"
+            :key="opt.value"
+            :value="opt.value"
           >
-          <option v-for="opt in col.selectItems" :key="opt.value" :value="opt.value">
             {{ opt.label }}
           </option>
         </select>
 
         <input
           v-else
-          :type="col.inputType || 'text'"
-          class="form-control"
           :id="col.field"
           v-model="record[col.field]"
+          :type="col.inputType || 'text'"
+          class="form-control"
           :readonly="col.readonly"
           :class="classesForField(col.field)"
           :aria-describedby="`feedback-${col.field}`"
-          />
+        >
 
-        <div :id="`feedback-${col.field}`" class="invalid-feedback">
-          <span v-for="error in errors[col.field]" :key="error">
+        <div
+          :id="`feedback-${col.field}`"
+          class="invalid-feedback"
+        >
+          <span
+            v-for="error in errors[col.field]"
+            :key="error"
+          >
             {{ error }}
           </span>
         </div>
@@ -38,10 +55,22 @@
     </div>
 
     <div class="form-group row">
-      <div class="col-sm-2"></div>
+      <div class="col-sm-2" />
       <div class="col-sm-10">
-        <button class="btn btn-primary" v-on:click="validateAndSave()" :disabled="disabled">Save</button>
-        <button class="btn btn-secondary ml-2" v-on:click="$emit('reset')" :disabled="disabled">Reset</button>
+        <button
+          class="btn btn-primary"
+          :disabled="disabled"
+          @click="validateAndSave()"
+        >
+          Save
+        </button>
+        <button
+          class="btn btn-secondary ml-2"
+          :disabled="disabled"
+          @click="$emit('reset')"
+        >
+          Reset
+        </button>
       </div>
     </div>
   </div>
