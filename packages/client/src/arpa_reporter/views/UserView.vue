@@ -2,12 +2,19 @@
   <div>
     <h2>User</h2>
 
-    <div v-if="user === null" class="spinner-grow text-primary" role="status">
+    <div
+      v-if="user === null"
+      class="spinner-grow text-primary"
+      role="status"
+    >
       <span class="sr-only">Loading...</span>
     </div>
 
     <div v-else>
-      <div class="form-group row" v-if="!isNew">
+      <div
+        v-if="!isNew"
+        class="form-group row"
+      >
         <div class="col-sm-2">
           Created:
         </div>
@@ -16,7 +23,13 @@
         </div>
       </div>
 
-      <StandardForm :initialRecord="user" :cols="cols" @save="onSave" @reset="onReset" :key="formKey" />
+      <StandardForm
+        :key="formKey"
+        :initial-record="user"
+        :cols="cols"
+        @save="onSave"
+        @reset="onReset"
+      />
     </div>
   </div>
 </template>
@@ -26,7 +39,10 @@ import StandardForm from '../components/StandardForm.vue';
 import { post } from '../store/index';
 
 export default {
-  name: 'User',
+  name: 'UserView',
+  components: {
+    StandardForm,
+  },
   data() {
     return {
       user: null,
@@ -62,6 +78,14 @@ export default {
         this.$store.state.agencies.map((a) => ({ label: a.name, value: a.id })),
       );
     },
+  },
+  watch: {
+    userId() {
+      this.loadUser();
+    },
+  },
+  async mounted() {
+    this.loadUser();
   },
   methods: {
     async loadUser() {
@@ -112,17 +136,6 @@ export default {
     onReset() {
       this.formKey = Date.now();
     },
-  },
-  watch: {
-    userId() {
-      this.loadUser();
-    },
-  },
-  async mounted() {
-    this.loadUser();
-  },
-  components: {
-    StandardForm,
   },
 };
 </script>
