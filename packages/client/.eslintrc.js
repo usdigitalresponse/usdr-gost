@@ -56,10 +56,6 @@ module.exports = {
         './src/arpa_reporter/views/ReportingPeriod.vue',
         './src/arpa_reporter/views/ReportingPeriods.vue',
 
-        // ARPA Reporter: subrecipient views
-        './src/arpa_reporter/views/Subrecipient.vue',
-        './src/arpa_reporter/views/Subrecipients.vue',
-
         // ARPA Reporter: upload views
         './src/arpa_reporter/views/Upload.vue',
         './src/arpa_reporter/views/Uploads.vue',
