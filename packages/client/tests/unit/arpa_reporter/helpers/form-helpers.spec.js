@@ -31,7 +31,7 @@ describe('failing validations', () => {
     const record = { content: '][' };
     const { messages } = validate(columns, record);
     expect(messages[0]).to.equal(
-      'Content Unexpected token ] in JSON at position 0',
+      'Content Unexpected token \']\', "][" is not valid JSON',
     );
   });
   it('can require a pattern', () => {

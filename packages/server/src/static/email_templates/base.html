@@ -488,15 +488,15 @@
                                                             role="presentation"
                                                             style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                                                             <tr style="border-collapse:collapse">
-                                                                {{#notifications_url}}
+                                                                {{# notifications_url_safe }}
                                                                 <td align="center" style="padding:0;Margin:0">
                                                                     <p
                                                                         style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:21px;color:#999999;font-size:14px;">
-                                                                        <u style="text-decoration:none;" ><a style="color:#0068D6;text-decoration:none;" href="{{notifications_url}}" utm-content="change notification preferences">Change
+                                                                        <u style="text-decoration:none;" ><a style="color:#0068D6;text-decoration:none;" href="{{& notifications_url_safe }}" utm-content="change notification preferences">Change
                                                                                 notification preferences</a></u>
                                                                     </p>
                                                                 </td>
-                                                                {{/notifications_url}}
+                                                                {{/ notifications_url_safe }}
                                                             </tr>
                                                         </table>
                                                     </td>
