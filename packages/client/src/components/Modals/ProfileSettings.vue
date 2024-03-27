@@ -69,14 +69,6 @@ export default {
     formData: {
     },
   },
-  watch: {
-    showModal() {
-      this.$bvModal.show('profile-settings-modal');
-    },
-    settingsSelectedAgency() {
-      this.formData.selectedAgency = this.settingsSelectedAgency;
-    },
-  },
   computed: {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
@@ -87,6 +79,14 @@ export default {
         return [];
       }
       return this.loggedInUser.agency.subagencies;
+    },
+  },
+  watch: {
+    showModal() {
+      this.$bvModal.show('profile-settings-modal');
+    },
+    settingsSelectedAgency() {
+      this.formData.selectedAgency = this.settingsSelectedAgency;
     },
   },
   mounted() {

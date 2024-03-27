@@ -111,6 +111,12 @@ export default {
       loggedInUser: 'users/loggedInUser',
     }),
   },
+  beforeMount() {
+    this.prefs.forEach((pref) => {
+      // eslint-disable-next-line no-param-reassign
+      pref.checked = this.loggedInUser.emailPreferences[pref.key] === 'SUBSCRIBED';
+    });
+  },
   methods: {
     ...mapActions({
       updateEmailSubscriptionPreferences: 'users/updateEmailSubscriptionPreferencesForLoggedInUser',
@@ -124,12 +130,6 @@ export default {
         preferences: updatedPreferences,
       });
     },
-  },
-  beforeMount() {
-    this.prefs.forEach((pref) => {
-      // eslint-disable-next-line no-param-reassign
-      pref.checked = this.loggedInUser.emailPreferences[pref.key] === 'SUBSCRIBED';
-    });
   },
 };
 </script>
