@@ -21,10 +21,18 @@
 export default {
   name: 'DownloadButton',
   props: {
-    href: String,
-    customClass: String,
-    classes: Object,
-    disabled: Boolean,
+    href: {
+      type: String,
+      required: true,
+    },
+    classes: {
+      type: Object,
+      default: () => {},
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {

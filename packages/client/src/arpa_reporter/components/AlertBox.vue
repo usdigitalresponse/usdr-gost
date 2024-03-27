@@ -21,8 +21,14 @@
 export default {
   name: 'AlertBox',
   props: {
-    text: String,
-    level: String,
+    text: {
+      type: String,
+      default: '',
+    },
+    level: {
+      type: String,
+      default: 'primary',
+    },
   },
   computed: {
     classes() {

@@ -14,7 +14,10 @@ import { apiURL } from '@/helpers/fetchApi';
 export default {
   name: 'DownloadFileButton',
   props: {
-    upload: Object,
+    upload: {
+      type: Object,
+      required: true,
+    },
     small: {
       type: Boolean,
       default: true,

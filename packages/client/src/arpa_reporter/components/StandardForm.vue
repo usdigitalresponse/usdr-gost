@@ -82,8 +82,14 @@ import moment from 'moment';
 export default {
   name: 'StandardForm',
   props: {
-    initialRecord: Object,
-    cols: Array,
+    initialRecord: {
+      type: Object,
+      required: true,
+    },
+    cols: {
+      type: Array,
+      required: true,
+    },
     /* example: {
       label: 'Person name',
       field: 'person_name',
@@ -95,7 +101,10 @@ export default {
         label: 'Bob', value: 'Robert'
       ]
     } */
-    disabled: Boolean,
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
