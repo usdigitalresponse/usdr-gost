@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import Organizations from '@/views/Organizations.vue';
+import OrganizationsView from '@/views/OrganizationsView.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -22,7 +22,7 @@ afterEach(() => {
   wrapper = undefined;
 });
 
-describe('Organizations.vue', () => {
+describe('OrganizationsView.vue', () => {
   describe('when the view is loaded', () => {
     beforeEach(() => {
       store = new Vuex.Store({
@@ -33,7 +33,7 @@ describe('Organizations.vue', () => {
           ...noOpActions,
         },
       });
-      wrapper = shallowMount(Organizations, {
+      wrapper = shallowMount(OrganizationsView, {
         store,
         localVue,
         stubs,

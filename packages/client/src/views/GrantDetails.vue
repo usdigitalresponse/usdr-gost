@@ -141,10 +141,12 @@
                   <strong>{{ agency.interested_code_name }}</strong>
                 </p>
                 <p v-if="agency.user_email">
-                    <a :href="`mailto:${ agency.user_email }`" class="text-muted">
-                      <small><b-icon icon="envelope-fill"></b-icon> {{ agency.user_email }}</small>
-                    </a>
-                  </p>
+                  <small>
+                    <CopyButton :copy-text="agency.user_email">
+                      {{ agency.user_email }}
+                    </CopyButton>
+                  </small>
+                </p>
               </div>
               <b-button-close
                 @click="unmarkGrantAsInterested(agency)"
@@ -170,6 +172,7 @@ import { titleize } from '@/helpers/form-helpers';
 import { gtagEvent } from '@/helpers/gtag';
 import { DateTime } from 'luxon';
 import UserAvatar from '@/components/UserAvatar.vue';
+import CopyButton from '@/components/CopyButton.vue';
 
 const HEADER = '__HEADER__';
 const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
@@ -181,6 +184,7 @@ export default {
   },
   components: {
     UserAvatar,
+    CopyButton,
   },
   data() {
     return {
