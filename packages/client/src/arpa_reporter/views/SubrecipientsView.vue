@@ -101,7 +101,7 @@ import { VueGoodTable } from 'vue-good-table';
 import { getJson, post } from '../store/index';
 
 export default {
-  name: 'Subrecipients',
+  name: 'SubrecipientsView',
   components: {
     VueGoodTable,
   },

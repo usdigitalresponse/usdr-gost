@@ -54,7 +54,7 @@ import StandardForm from '../components/StandardForm.vue';
 import { getJson, post } from '../store/index';
 
 export default {
-  name: 'Subrecipient',
+  name: 'SubrecipientView',
   components: {
     StandardForm,
   },
