@@ -2,7 +2,10 @@
   <div>
     <h2>Users</h2>
     <div class="mb-4">
-      <router-link to="/users/new" class="btn btn-primary">
+      <router-link
+        to="/users/new"
+        class="btn btn-primary"
+      >
         Create New User
       </router-link>
     </div>
@@ -14,15 +17,22 @@
         enabled: true,
         placeholder: 'Filter users...'
       }"
-      styleClass="vgt-table table table-striped table-bordered"
-      >
+      style-class="vgt-table table table-striped table-bordered"
+    >
       <div slot="emptystate">
         No Users
       </div>
 
-      <template slot="table-row" slot-scope="props">
+      <template
+        slot="table-row"
+        slot-scope="props"
+      >
         <span v-if="props.column.field === 'edit'">
-          <router-link tag="button" :to="`/users/${props.row.id}`" class="btn btn-sm btn-secondary">Edit</router-link>
+          <router-link
+            tag="button"
+            :to="`/users/${props.row.id}`"
+            class="btn btn-sm btn-secondary"
+          >Edit</router-link>
         </span>
 
         <span v-else-if="props.column.field === 'agency_id' && props.row.agency_id">
@@ -34,7 +44,7 @@
         </span>
 
         <span v-else>
-          {{props.formattedRow[props.column.field]}}
+          {{ props.formattedRow[props.column.field] }}
         </span>
       </template>
     </vue-good-table>
@@ -50,6 +60,9 @@ import { getJson } from '../store/index';
 
 export default {
   name: 'Users',
+  components: {
+    VueGoodTable,
+  },
   data() {
     return {
       users: [],
@@ -98,6 +111,9 @@ export default {
       });
     },
   },
+  async mounted() {
+    this.loadUsers();
+  },
   methods: {
     async loadUsers() {
       const result = await getJson('/api/users');
@@ -112,12 +128,6 @@ export default {
 
       this.loading = false;
     },
-  },
-  async mounted() {
-    this.loadUsers();
-  },
-  components: {
-    VueGoodTable,
   },
 };
 </script>
