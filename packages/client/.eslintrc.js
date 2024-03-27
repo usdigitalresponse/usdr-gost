@@ -44,11 +44,6 @@ module.exports = {
         './src/arpa_reporter/components/DownloadTemplateBtn.vue',
         './src/arpa_reporter/components/StandardForm.vue',
 
-        // ARPA Reporter: home/login/validation views
-        './src/arpa_reporter/views/Home.vue',
-        './src/arpa_reporter/views/Login.vue',
-        './src/arpa_reporter/views/Validation.vue',
-
         // ARPA Reporter: new views
         './src/arpa_reporter/views/NewTemplate.vue',
         './src/arpa_reporter/views/NewUpload.vue',
