@@ -94,11 +94,6 @@ module.exports = {
         './src/views/GrantDetails.vue',
         './src/components/Modals/GrantDetailsLegacy.vue',
 
-        // Grant Finder: profile
-        './src/views/MyProfile.vue',
-        './src/components/Modals/ProfileSettings.vue',
-        './src/components/UserAvatar.vue',
-
         // Grant Finder: dashboard
         './src/views/Dashboard.vue',
         './src/views/RecentActivity.vue',
