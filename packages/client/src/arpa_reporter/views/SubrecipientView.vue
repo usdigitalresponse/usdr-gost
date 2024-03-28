@@ -2,8 +2,12 @@
   <div>
     <h2>Subrecipient {{ recipientId }}</h2>
 
-    <div v-if="!recipient" class="spinner-grow text-primary" role="status">
-        <span class="sr-only">Loading...</span>
+    <div
+      v-if="!recipient"
+      class="spinner-grow text-primary"
+      role="status"
+    >
+      <span class="sr-only">Loading...</span>
     </div>
 
     <div v-else>
@@ -33,7 +37,12 @@
         </div>
       </div>
 
-      <StandardForm :initialRecord="JSON.parse(recipient.record)" :cols="cols" @save="updateRecipient" @reset="loadRecipient" />
+      <StandardForm
+        :initial-record="JSON.parse(recipient.record)"
+        :cols="cols"
+        @save="updateRecipient"
+        @reset="loadRecipient"
+      />
     </div>
   </div>
 </template>
@@ -45,7 +54,10 @@ import StandardForm from '../components/StandardForm.vue';
 import { getJson, post } from '../store/index';
 
 export default {
-  name: 'Subrecipient',
+  name: 'SubrecipientView',
+  components: {
+    StandardForm,
+  },
   data() {
     return {
       recipient: null,
@@ -75,6 +87,14 @@ export default {
         };
       });
     },
+  },
+  watch: {
+    recipientId() {
+      this.loadRecipient();
+    },
+  },
+  async mounted() {
+    this.loadRecipient();
   },
   methods: {
     async loadRecipient() {
@@ -131,17 +151,6 @@ export default {
     humanDate(date) {
       return date && moment(date).local().format('MMM Do YYYY, h:mm:ss A');
     },
-  },
-  async mounted() {
-    this.loadRecipient();
-  },
-  watch: {
-    recipientId() {
-      this.loadRecipient();
-    },
-  },
-  components: {
-    StandardForm,
   },
 };
 </script>

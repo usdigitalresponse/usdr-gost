@@ -4,6 +4,8 @@ import VueRouter from 'vue-router';
 import HomeView from '@/arpa_reporter/views/HomeView.vue';
 import LoginView from '@/arpa_reporter/views/LoginView.vue';
 import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
+import SubrecipientView from '@/arpa_reporter/views/SubrecipientView.vue';
+import SubrecipientsView from '@/arpa_reporter/views/SubrecipientsView.vue';
 import Agencies from '../views/Agencies.vue';
 import Agency from '../views/Agency.vue';
 import NewTemplate from '../views/NewTemplate.vue';
@@ -12,8 +14,6 @@ import Upload from '../views/Upload.vue';
 import Uploads from '../views/Uploads.vue';
 import ReportingPeriod from '../views/ReportingPeriod.vue';
 import ReportingPeriods from '../views/ReportingPeriods.vue';
-import Subrecipient from '../views/Subrecipient.vue';
-import Subrecipients from '../views/Subrecipients.vue';
 import User from '../views/User.vue';
 import Users from '../views/Users.vue';
 import store from '../store/index';
@@ -79,13 +79,13 @@ const routes = [
   {
     path: '/subrecipients',
     name: 'Subrecipients',
-    component: Subrecipients,
+    component: SubrecipientsView,
     meta: { requiresLogin: true },
   },
   {
     path: '/subrecipients/:id',
     name: 'Subrecipient',
-    component: Subrecipient,
+    component: SubrecipientView,
     meta: { requiresLogin: true },
   },
   {
