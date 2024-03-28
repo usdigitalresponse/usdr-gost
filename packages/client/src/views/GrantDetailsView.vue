@@ -3,11 +3,11 @@
     <div v-if="loading">
       Loading...
     </div>
-    <div v-if="!selectedGrant && !loading">
+    <div v-if="!currentGrant && !loading">
       No grant found
     </div>
     <b-container
-      v-if="selectedGrant && !loading"
+      v-if="currentGrant && !loading"
       fluid
     >
       <div class="grant-details-container">
@@ -26,7 +26,7 @@
         </div>
         <!-- Left page column: headline -->
         <h2 class="grant-details-headline m-0">
-          {{ selectedGrant.title }}
+          {{ currentGrant.title }}
         </h2>
 
         <!-- Left page column: table data, and grant description -->
@@ -54,7 +54,7 @@
           <!-- eslint-disable vue/no-v-html -- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
           <div
             style="white-space: pre-line"
-            v-html="selectedGrant.description"
+            v-html="currentGrant.description"
           />
         </div>
 
@@ -64,7 +64,7 @@
             variant="primary"
             block
             class="mb-3"
-            :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
+            :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
             target="_blank"
             rel="noopener noreferrer"
             data-dd-action-name="view on grants.gov"
@@ -253,12 +253,6 @@ export default {
       }
     });
   },
-  props: {
-    selectedGrant: {
-      type: Object,
-      required: true,
-    },
-  },
   data() {
     return {
       isFirstPageLoad: false,
@@ -301,6 +295,9 @@ export default {
       selectedAgency: 'users/selectedAgency',
       currentGrant: 'grants/currentGrant',
     }),
+    grantId() {
+      return this.$route.params.id;
+    },
     interestedOptions() {
       return [
         { name: 'Interested', status_code: HEADER },
@@ -314,68 +311,68 @@ export default {
     tableData() {
       return [{
         name: 'Opportunity Number',
-        value: this.selectedGrant.grant_number,
+        value: this.currentGrant.grant_number,
       }, {
         name: 'Open Date',
-        value: this.formatDate(this.selectedGrant.open_date),
+        value: this.formatDate(this.currentGrant.open_date),
       }, {
         name: 'Close Date',
         value: this.closeDateDisplay,
         displayMuted: this.closeDateDisplayMuted,
       }, {
         name: 'Grant ID',
-        value: this.selectedGrant.grant_id,
+        value: this.currentGrant.grant_id,
       }, {
         name: 'Agency Code',
-        value: this.selectedGrant.agency_code,
+        value: this.currentGrant.agency_code,
       }, {
         name: 'Award Ceiling',
-        value: formatCurrency(this.selectedGrant.award_ceiling),
+        value: formatCurrency(this.currentGrant.award_ceiling),
       }, {
         name: 'Category of Funding Activity',
-        value: this.selectedGrant.funding_activity_categories?.join(', '),
+        value: this.currentGrant.funding_activity_categories?.join(', '),
       }, {
         name: 'Opportunity Category',
-        value: this.selectedGrant.opportunity_category,
+        value: this.currentGrant.opportunity_category,
       }, {
         name: 'Opportunity Status',
-        value: titleize(this.selectedGrant.opportunity_status),
+        value: titleize(this.currentGrant.opportunity_status),
       }, {
         name: 'Appropriation Bill',
-        value: this.selectedGrant.bill,
+        value: this.currentGrant.bill,
       }, {
         name: 'Cost Sharing',
-        value: this.selectedGrant.cost_sharing,
+        value: this.currentGrant.cost_sharing,
       },
       ];
     },
     closeDateDisplay() {
       // If we have an explainer text instead of a real close date, display that instead
-      if (this.selectedGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
-        return this.selectedGrant.close_date_explanation ?? NOT_AVAILABLE_TEXT;
+      if (this.currentGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
+        return this.currentGrant.close_date_explanation ?? NOT_AVAILABLE_TEXT;
       }
-      return this.formatDate(this.selectedGrant.close_date);
+      return this.formatDate(this.currentGrant.close_date);
     },
     closeDateDisplayMuted() {
-      return this.selectedGrant.close_date === FAR_FUTURE_CLOSE_DATE && !this.selectedGrant.close_date_explanation;
+      return this.currentGrant.close_date === FAR_FUTURE_CLOSE_DATE && !this.currentGrant.close_date_explanation;
     },
     visibleInterestedAgencies() {
-      return this.selectedGrant.interested_agencies
+      return this.currentGrant.interested_agencies
         .filter((agency) => String(agency.agency_id) === this.selectedAgencyId || this.isAbleToUnmark(agency.agency_id));
     },
     alreadyViewed() {
-      if (!this.selectedGrant) {
+      if (!this.currentGrant) {
         return false;
       }
-      return this.selectedGrant.viewed_by_agencies.find(
+      return this.currentGrant.viewed_by_agencies.find(
         (viewed) => viewed.agency_id.toString() === this.selectedAgencyId,
       );
     },
     interested() {
-      if (!this.selectedGrant) {
+      if (!this.currentGrant) {
         return undefined;
       }
-      return this.selectedGrant.interested_agencies.find(
+      return this.currentGrant.interested_agencies.find(
         (interested) => interested.agency_id.toString() === this.selectedAgencyId,
       );
     },
@@ -386,22 +383,6 @@ export default {
       return this.agencies.filter(
         (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
       );
-    },
-  },
-  watch: {
-    async selectedGrant() {
-      this.showDialog = Boolean(this.selectedGrant);
-      if (this.selectedGrant) {
-        this.fetchAgencies();
-        if (!this.alreadyViewed) {
-          try {
-            await this.markGrantAsViewed();
-          } catch (e) {
-            console.log(e);
-          }
-        }
-        this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
-      }
     },
   },
   created() {
@@ -440,7 +421,7 @@ export default {
       this.isFirstPageLoad = true;
     },
     async markGrantAsViewed() {
-      await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.selectedAgencyId });
+      await this.markGrantAsViewedAction({ grantId: this.currentGrant.grant_id, agencyId: this.selectedAgencyId });
     },
     async markGrantAsInterested() {
       if (this.selectedInterestedCode !== null) {
@@ -449,7 +430,7 @@ export default {
           await this.unmarkGrantAsInterested(existingAgencyRecord);
         }
         await this.markGrantAsInterestedAction({
-          grantId: this.selectedGrant.grant_id,
+          grantId: this.currentGrant.grant_id,
           agencyId: this.selectedAgencyId,
           interestedCode: this.selectedInterestedCode,
         });
@@ -464,32 +445,32 @@ export default {
     },
     async unmarkGrantAsInterested(agency) {
       await this.unmarkGrantAsInterestedAction({
-        grantId: this.selectedGrant.grant_id,
+        grantId: this.currentGrant.grant_id,
         agencyIds: [agency.agency_id],
         interestedCode: agency.interested_code_id,
       });
-      this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
+      this.currentGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.currentGrant.grant_id });
       const eventName = 'remove team status for grant';
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
     },
     async assignAgenciesToGrant() {
       await this.assignAgenciesToGrantAction({
-        grantId: this.selectedGrant.grant_id,
+        grantId: this.currentGrant.grant_id,
         agencyIds: this.assignedAgencies.map((agency) => agency.id).concat(this.selectedAgencyToAssign.id),
       });
       const eventName = 'assign team to grant';
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
       this.selectedAgencyToAssign = null;
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.currentGrant.grant_id });
     },
     async unassignAgenciesToGrant(agency) {
       await this.unassignAgenciesToGrantAction({
-        grantId: this.selectedGrant.grant_id,
+        grantId: this.currentGrant.grant_id,
         agencyIds: [agency.id],
       });
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.currentGrant.grant_id });
       const eventName = 'remove team assignment from grant';
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
@@ -497,15 +478,8 @@ export default {
     isAbleToUnmark(agencyId) {
       return this.agencies.some((agency) => agency.id === agencyId);
     },
-    resetSelectedGrant() {
-      this.$emit('update:selectedGrant', null);
-      this.assignedAgencies = [];
-      this.selectedAgencyToAssign = null;
-    },
     async fetchData() {
-      await this.fetchGrantDetails({ grantId: this.$route.params.id }).then(() => {
-        this.selectedGrant = this.currentGrant;
-      });
+      await this.fetchGrantDetails({ grantId: this.grantId });
     },
     copyUrl() {
       gtagEvent('copy btn clicked');
