@@ -254,7 +254,10 @@ export default {
     });
   },
   props: {
-    selectedGrant: Object,
+    selectedGrant: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {

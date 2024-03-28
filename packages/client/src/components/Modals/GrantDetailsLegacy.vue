@@ -196,7 +196,10 @@ import { titleize } from '../../helpers/form-helpers';
 
 export default {
   props: {
-    selectedGrant: Object,
+    selectedGrant: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
