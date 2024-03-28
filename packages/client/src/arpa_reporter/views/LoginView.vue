@@ -4,21 +4,30 @@
     <form @submit="login">
       <div class="form-group">
         <input
-          class="form-control"
           id="email"
+          v-model="email"
+          class="form-control"
           name="email"
           placeholder="Email address"
-          v-model="email"
           autofocus
-        />
+        >
       </div>
       <div class="form-group">
-        <button class="btn btn-primary" type="Submit" @click="login">
+        <button
+          class="btn btn-primary"
+          type="Submit"
+          @click="login"
+        >
           Send email with login link
         </button>
       </div>
     </form>
-    <div :class="messageClass" v-if="message">{{ message }}</div>
+    <div
+      v-if="message"
+      :class="messageClass"
+    >
+      {{ message }}
+    </div>
   </div>
 </template>
 
@@ -27,7 +36,7 @@ import _ from 'lodash-checkit';
 import { apiURL } from '../../helpers/fetchApi';
 
 export default {
-  name: 'Login',
+  name: 'LoginView',
   data() {
     const message = _.get(this, '$route.query.message', null);
     const messageClass = message ? 'alert alert-danger' : '';

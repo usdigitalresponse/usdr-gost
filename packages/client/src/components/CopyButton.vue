@@ -54,11 +54,15 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+@import '@/scss/colors-semantic-tokens.scss';
+
 .copy-button {
   cursor: pointer;
+  color: $info-default;
 }
-.copy-button:hover svg {
-  fill: #305CE0;
+.copy-button:hover {
+  color: $info-hover;
+  text-decoration: underline;
 }
 </style>
