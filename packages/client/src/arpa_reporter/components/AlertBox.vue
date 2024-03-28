@@ -1,8 +1,17 @@
 <template>
-  <div class="alert alert-dismissable col-md-6" v-bind:class="classes" role="alert">
+  <div
+    class="alert alert-dismissable col-md-6"
+    :class="classes"
+    role="alert"
+  >
     {{ text }}
 
-    <button type="button" class="close" aria-label="Close" v-on:click="$emit('dismiss')">
+    <button
+      type="button"
+      class="close"
+      aria-label="Close"
+      @click="$emit('dismiss')"
+    >
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -12,8 +21,14 @@
 export default {
   name: 'AlertBox',
   props: {
-    text: String,
-    level: String,
+    text: {
+      type: String,
+      default: '',
+    },
+    level: {
+      type: String,
+      default: 'primary',
+    },
   },
   computed: {
     classes() {

@@ -11,7 +11,7 @@
       class="spinner-border spinner-border-sm"
       role="status"
       aria-hidden="true"
-    ></span>
+    />
     <span v-if="isLoading"> Loading...</span>
     <span v-else> <slot /></span>
   </a>
@@ -21,22 +21,18 @@
 export default {
   name: 'DownloadButton',
   props: {
-    href: String,
-    customClass: String,
-    classes: Object,
-    disabled: Boolean,
-  },
-  mounted() {
-    // Browsers don't report feedback when a link with the download attribute
-    // has been resolved.  Instead of doing something heavy-handed to work
-    // around this, we just assume that loading has resolved once the window
-    // regains focus.
-    // see also:
-    // https://stackoverflow.com/questions/1106377/detect-when-a-browser-receives-a-file-download
-    window.addEventListener('focus', this.clearLoadingState);
-  },
-  destroyed() {
-    window.removeEventListener('focus', this.clearLoadingState);
+    href: {
+      type: String,
+      required: true,
+    },
+    classes: {
+      type: Object,
+      default: () => {},
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -50,6 +46,18 @@ export default {
         disabled: this.disabled || this.isLoading,
       };
     },
+  },
+  mounted() {
+    // Browsers don't report feedback when a link with the download attribute
+    // has been resolved.  Instead of doing something heavy-handed to work
+    // around this, we just assume that loading has resolved once the window
+    // regains focus.
+    // see also:
+    // https://stackoverflow.com/questions/1106377/detect-when-a-browser-receives-a-file-download
+    window.addEventListener('focus', this.clearLoadingState);
+  },
+  destroyed() {
+    window.removeEventListener('focus', this.clearLoadingState);
   },
   methods: {
     clearLoadingState() {
