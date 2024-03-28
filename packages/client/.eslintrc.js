@@ -77,13 +77,6 @@ module.exports = {
         './src/components/Modals/SearchPanel.vue',
         './src/components/SearchFilter.vue',
 
-        // Grant Finder: teams
-        './src/views/Teams.vue',
-        './src/components/Modals/AddTeam.vue',
-        './src/components/Modals/EditTeam.vue',
-        './src/components/Modals/ImportTeams.vue',
-        './src/components/Uploader.vue',
-
         // Grant Finder: users
         './src/views/Users.vue',
         './src/components/Modals/AddUser.vue',
