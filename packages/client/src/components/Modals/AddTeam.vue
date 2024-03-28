@@ -194,7 +194,6 @@ export default {
       },
     },
   },
-  watch: {},
   computed: {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
@@ -211,8 +210,6 @@ export default {
     newTerminologyEnabled() {
       return newTerminologyEnabled();
     },
-  },
-  mounted() {
   },
   methods: {
     ...mapActions({

@@ -196,6 +196,15 @@ export default {
       code: {},
     },
   },
+  computed: {
+    ...mapGetters({
+      agencies: 'agencies/agencies',
+      userRole: 'users/userRole',
+    }),
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
+    },
+  },
   watch: {
     agency() {
       this.formData.warningThreshold = this.agency && this.agency.warning_threshold;
@@ -207,17 +216,6 @@ export default {
       this.formData.code = this.agency && this.agency.code;
       this.showDialog = Boolean(this.agency !== null);
     },
-  },
-  computed: {
-    ...mapGetters({
-      agencies: 'agencies/agencies',
-      userRole: 'users/userRole',
-    }),
-    newTerminologyEnabled() {
-      return newTerminologyEnabled();
-    },
-  },
-  mounted() {
   },
   methods: {
     ...mapActions({

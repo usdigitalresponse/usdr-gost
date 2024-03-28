@@ -124,9 +124,6 @@ export default {
       editingTeam: null,
     };
   },
-  mounted() {
-    this.setup();
-  },
   computed: {
     ...mapGetters({
       teams: 'agencies/agencies',
@@ -146,6 +143,9 @@ export default {
     selectedTeam() {
       this.setup();
     },
+  },
+  mounted() {
+    this.setup();
   },
   methods: {
     ...mapActions({
