@@ -337,6 +337,7 @@ export default {
         agencyIds: [row.item.agency_id],
         interestedCode: this.selectedInterestedCode,
       });
+      // eslint-disable-next-line vue/no-mutating-props -- fix would be slightly involved, but this code is deprecated and should be removed soon, so not fixing
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
       datadogRum.addAction('remove team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
     },
