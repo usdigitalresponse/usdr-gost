@@ -4,23 +4,26 @@
       id="import-agencies-modal"
       ref="modal"
       :title="`Bulk Import ${newTerminologyEnabled ? 'Teams' : 'Agencies'}`"
+      ok-only="true"
       @show="resetModal"
       @hidden="resetModal"
-      ok-only="true"
     >
       <div>
         <ul>
           <li>Download the bulk import Excel template file by clicking <a href="./agencyImportTemplate.xlsx">here.</a></li>
-          <li>Add new {{newTerminologyEnabled ? 'teams' : 'agencies'}} to the Excel file and save it. Make sure that parent {{newTerminologyEnabled ? 'team' : 'agency'}} rows are above all their children {{newTerminologyEnabled ? 'team' : 'agency'}} rows.</li>
+          <li>Add new {{ newTerminologyEnabled ? 'teams' : 'agencies' }} to the Excel file and save it. Make sure that parent {{ newTerminologyEnabled ? 'team' : 'agency' }} rows are above all their children {{ newTerminologyEnabled ? 'team' : 'agency' }} rows.</li>
           <li>Select your newly edited bulk import file using the <i>Choose File</i> button below, and click <i>Upload</i>.</li>
           <li>When the import is finished, the status of the import, including any errors, will be displayed below.</li>
         </ul>
-        <Uploader :uploadRecordType="'agencies'" @importStatus="setStatus" />
+        <Uploader
+          :upload-record-type="'agencies'"
+          @importStatus="setStatus"
+        />
       </div>
       <hr>
       <div>
-      <h5>Import Status</h5>
-        <div v-html="importStatus"/>
+        <h5>Import Status</h5>
+        <div v-html="importStatus" />
       </div>
     </b-modal>
   </div>
@@ -32,21 +35,21 @@ import Uploader from '@/components/Uploader.vue';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
+  components: {
+    Uploader,
+  },
   props: {
     showUploadModal: Boolean,
     importStatus: String,
   },
-  components: {
-    Uploader,
+  computed: {
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
+    },
   },
   watch: {
     showUploadModal() {
       this.$bvModal.show('import-agencies-modal');
-    },
-  },
-  computed: {
-    newTerminologyEnabled() {
-      return newTerminologyEnabled();
     },
   },
   methods: {
