@@ -4,6 +4,7 @@
     "hashicorp.terraform",
     "ms-azuretools.vscode-docker",
     "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode"
+    "esbenp.prettier-vscode",
+    "redhat.vscode-yaml"
   ]
 }
