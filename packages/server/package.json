@@ -6,7 +6,7 @@
   "author": "Pol Abellas, Rafael A <rafael.polabellas@dematic.com>",
   "license": "Apache-2.0",
   "engines": {
-    "node": "16.14.0",
+    "node": "20.11.1",
     "yarn": ">=1.22.4",
     "npm": "please-use-yarn"
   },
@@ -89,7 +89,6 @@
     "@commitlint/config-conventional": "^11.0.0",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
-    "api": "^4.2.1",
     "aws-sdk-mock": "5.8.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
