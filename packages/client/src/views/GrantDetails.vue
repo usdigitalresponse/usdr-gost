@@ -289,21 +289,6 @@ export default {
       copyUrlSuccessTimeout: null,
     };
   },
-  created() {
-    // watch the params of the route to fetch the data again
-    this.$watch(
-      () => this.$route.params,
-      () => {
-        this.loading = true;
-        this.fetchData().then(() => {
-          this.loading = false;
-        });
-      },
-      // fetch the data when the view is created and the data is
-      // already being observed
-      { immediate: true },
-    );
-  },
   computed: {
     ...mapGetters({
       agency: 'users/agency',
@@ -418,6 +403,21 @@ export default {
         this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
       }
     },
+  },
+  created() {
+    // watch the params of the route to fetch the data again
+    this.$watch(
+      () => this.$route.params,
+      () => {
+        this.loading = true;
+        this.fetchData().then(() => {
+          this.loading = false;
+        });
+      },
+      // fetch the data when the view is created and the data is
+      // already being observed
+      { immediate: true },
+    );
   },
   methods: {
     ...mapActions({

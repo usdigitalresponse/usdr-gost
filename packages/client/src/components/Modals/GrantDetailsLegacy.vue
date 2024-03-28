@@ -255,8 +255,6 @@ export default {
       debouncedSearchInput: null,
     };
   },
-  mounted() {
-  },
   computed: {
     ...mapGetters({
       agency: 'users/agency',
