@@ -90,10 +90,6 @@ module.exports = {
         './src/components/Modals/EditUser.vue',
         './src/components/Modals/ImportUsers.vue',
 
-        // Grant Finder: grant details
-        './src/views/GrantDetails.vue',
-        './src/components/Modals/GrantDetailsLegacy.vue',
-
         // Grant Finder: dashboard
         './src/views/Dashboard.vue',
         './src/views/RecentActivity.vue',
