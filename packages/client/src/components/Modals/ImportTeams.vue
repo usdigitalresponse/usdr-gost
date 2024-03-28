@@ -14,7 +14,7 @@
           <li>Select your newly edited bulk import file using the <i>Choose File</i> button below, and click <i>Upload</i>.</li>
           <li>When the import is finished, the status of the import, including any errors, will be displayed below.</li>
         </ul>
-        <Uploader
+        <RecordUploader
           :upload-record-type="'agencies'"
           @importStatus="setStatus"
         />
@@ -44,12 +44,12 @@
 
 <script>
 import { mapActions } from 'vuex';
-import Uploader from '@/components/Uploader.vue';
+import RecordUploader from '@/components/RecordUploader.vue';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   components: {
-    Uploader,
+    RecordUploader,
   },
   props: {
     show: Boolean,
