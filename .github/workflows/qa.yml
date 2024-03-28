@@ -34,7 +34,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -76,7 +76,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -106,7 +106,7 @@ jobs:
         run: npx nyc report --reporter text --cwd packages/server > packages/server/coverage.txt
       - name: Generate coverage markdown report
         id: coverage-markdown
-        uses: fingerprintjs/action-coverage-report-md@b7fcda0d2891d215c6808d32ca249e43f55abe3f # v1.0.6
+        uses: fingerprintjs/action-coverage-report-md@cd6bbc2dbc7b03844f0ec825caa2cea3e0205621 # v2.0.0
         with:
           textReportPath: 'packages/server/coverage.txt'
           srcBasePath: 'packages/server/'
@@ -123,7 +123,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -148,7 +148,7 @@ jobs:
         run: npx nyc report --reporter text --cwd packages/client > packages/client/coverage.txt
       - name: Generate coverage markdown report
         id: coverage-markdown
-        uses: fingerprintjs/action-coverage-report-md@b7fcda0d2891d215c6808d32ca249e43f55abe3f # v1.0.6
+        uses: fingerprintjs/action-coverage-report-md@cd6bbc2dbc7b03844f0ec825caa2cea3e0205621 # v2.0.0
         with:
           textReportPath: 'packages/client/coverage.txt'
           srcBasePath: 'packages/client/'
@@ -178,7 +178,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -230,7 +230,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -256,7 +256,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'

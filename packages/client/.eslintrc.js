@@ -100,10 +100,6 @@ module.exports = {
         './src/views/UpcomingClosingDates.vue',
         './src/components/ActivityTable.vue',
         './src/components/ClosingDatesTable.vue',
-
-        // DELETE -- no longer used
-        './src/views/EligibilityCodes.vue',
-        './src/views/Keywords.vue',
       ],
       rules: {
         // List of essential rules we previously had turned off
