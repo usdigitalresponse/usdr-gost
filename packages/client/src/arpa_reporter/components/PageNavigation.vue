@@ -1,33 +1,50 @@
 <template>
-  <div class="container-fluid" style="width: 90%">
+  <div
+    class="container-fluid"
+    style="width: 90%"
+  >
     <nav class="row navbar navbar-expand navbar-light bg-light">
-      <a class="navbar-brand" href="#">
+      <a
+        class="navbar-brand"
+        href="#"
+      >
         {{ applicationTitle }}
         <span v-if="agencyName"> : {{ agencyName }}</span>
       </a>
 
-      <span class="navbar-text" v-if="viewPeriod">Reporting Period Ending:</span>
+      <span
+        v-if="viewPeriod"
+        class="navbar-text"
+      >Reporting Period Ending:</span>
 
-      <div class="collapse navbar-collapse" id="navbarNavDropdown" v-if="viewPeriod">
+      <div
+        v-if="viewPeriod"
+        id="navbarNavDropdown"
+        class="collapse navbar-collapse"
+      >
         <ul class="navbar-nav mr-auto">
           <li class="nav-item dropdown active">
             <a
+              id="periodDropdown"
               class="nav-link dropdown-toggle"
               href="#"
-              id="periodDropdown"
               role="button"
               data-toggle="dropdown"
               aria-haspopup="true"
-              aria-expanded="false">
+              aria-expanded="false"
+            >
               {{ viewPeriod.name }}
             </a>
 
-            <div class="dropdown-menu" aria-labelledby="periodDropdown">
+            <div
+              class="dropdown-menu"
+              aria-labelledby="periodDropdown"
+            >
               <a
-                class="dropdown-item"
                 v-for="period in viewablePeriods"
                 :key="period.id"
-                >
+                class="dropdown-item"
+              >
                 <div @click="() => setViewPeriodID(period.id)">
                   {{ period.name }}
                 </div>
@@ -39,50 +56,109 @@
         <span class="navbar-text">{{ email }}</span>
 
         <ul class="navbar-nav">
-          <li class="nav-item" v-if="loggedIn">
-            <a href="#" @click="logout" class="nav-link">Logout</a>
+          <li
+            v-if="loggedIn"
+            class="nav-item"
+          >
+            <a
+              href="#"
+              class="nav-link"
+              @click="logout"
+            >Logout</a>
           </li>
         </ul>
       </div>
     </nav>
 
-    <ul class="row nav nav-tabs mb-2" v-if="loggedIn">
+    <ul
+      v-if="loggedIn"
+      class="row nav nav-tabs mb-2"
+    >
       <li class="nav-item">
-        <router-link :class="navLinkClass('/')" to="/">Dashboard</router-link>
+        <router-link
+          :class="navLinkClass('/')"
+          to="/"
+        >
+          Dashboard
+        </router-link>
       </li>
 
       <li class="nav-item">
-        <router-link :class="navLinkClass('/uploads')" to="/uploads">Uploads</router-link>
+        <router-link
+          :class="navLinkClass('/uploads')"
+          to="/uploads"
+        >
+          Uploads
+        </router-link>
       </li>
 
-      <li class="nav-item" v-if="role === 'admin'">
-        <router-link :class="navLinkClass('/agencies')" to="/agencies">Agencies</router-link>
+      <li
+        v-if="role === 'admin'"
+        class="nav-item"
+      >
+        <router-link
+          :class="navLinkClass('/agencies')"
+          to="/agencies"
+        >
+          Agencies
+        </router-link>
       </li>
 
-      <li class="nav-item" v-if="role === 'admin'">
-        <router-link :class="navLinkClass('/subrecipients')" to="/subrecipients">
+      <li
+        v-if="role === 'admin'"
+        class="nav-item"
+      >
+        <router-link
+          :class="navLinkClass('/subrecipients')"
+          to="/subrecipients"
+        >
           Subrecipients
         </router-link>
       </li>
 
-      <li class="nav-item" v-if="role === 'admin'">
-        <router-link :class="navLinkClass('/users')" to="/users">Users</router-link>
+      <li
+        v-if="role === 'admin'"
+        class="nav-item"
+      >
+        <router-link
+          :class="navLinkClass('/users')"
+          to="/users"
+        >
+          Users
+        </router-link>
       </li>
 
-      <li class="nav-item" v-if="role === 'admin'">
-        <router-link :class="navLinkClass('/reporting_periods')" to="/reporting_periods">
+      <li
+        v-if="role === 'admin'"
+        class="nav-item"
+      >
+        <router-link
+          :class="navLinkClass('/reporting_periods')"
+          to="/reporting_periods"
+        >
           Reporting Periods
         </router-link>
       </li>
 
-      <li class="nav-item" v-if="role === 'admin'">
-        <router-link :class="navLinkClass('/validation')" to="/validation">
+      <li
+        v-if="role === 'admin'"
+        class="nav-item"
+      >
+        <router-link
+          :class="navLinkClass('/validation')"
+          to="/validation"
+        >
           Validation
         </router-link>
       </li>
     </ul>
 
-    <AlertBox v-for="(alert, alertId) in alerts" :key="alertId" v-bind="alert" v-on:dismiss="dismissAlert(alertId)" />
+    <AlertBox
+      v-for="(alert, alertId) in alerts"
+      :key="alertId"
+      v-bind="alert"
+      @dismiss="dismissAlert(alertId)"
+    />
 
     <router-view />
   </div>
@@ -94,7 +170,7 @@ import AlertBox from './AlertBox.vue';
 import { titleize } from '../helpers/form-helpers';
 
 export default {
-  name: 'Navigation',
+  name: 'PageNavigation',
   components: {
     AlertBox,
   },
