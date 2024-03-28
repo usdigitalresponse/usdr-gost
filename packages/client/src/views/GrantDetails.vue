@@ -6,14 +6,28 @@
     <div v-if="!selectedGrant && !loading">
       No grant found
     </div>
-    <b-container fluid v-if="selectedGrant && !loading">
+    <b-container
+      v-if="selectedGrant && !loading"
+      fluid
+    >
       <div class="grant-details-container">
         <div class="grant-details-back-link">
-          <router-link v-if="isFirstPageLoad" :to="{ name: 'grants' }">Browse Grants</router-link>
-          <a href="#" @click="$router.back()" v-else>Back</a>
+          <router-link
+            v-if="isFirstPageLoad"
+            :to="{ name: 'grants' }"
+          >
+            Browse Grants
+          </router-link>
+          <a
+            v-else
+            href="#"
+            @click="$router.back()"
+          >Back</a>
         </div>
         <!-- Left page column: headline -->
-        <h2 class="grant-details-headline m-0">{{ selectedGrant.title }}</h2>
+        <h2 class="grant-details-headline m-0">
+          {{ selectedGrant.title }}
+        </h2>
 
         <!-- Left page column: table data, and grant description -->
         <div class="grant-details-content">
@@ -34,9 +48,14 @@
               </span>
             </template>
           </b-table>
-          <h3 class="mb-3">Description</h3>
+          <h3 class="mb-3">
+            Description
+          </h3>
           <!-- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
-          <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
+          <div
+            style="white-space: pre-line"
+            v-html="selectedGrant.description"
+          />
         </div>
 
         <!-- Right page column: main print/copy/grants.gov buttons -->
@@ -51,7 +70,11 @@
             data-dd-action-name="view on grants.gov"
             @click="onOpenGrantsGov"
           >
-            <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2" />
+            <b-icon
+              icon="box-arrow-up-right"
+              aria-hidden="true"
+              class="mr-2"
+            />
             Apply on Grants.gov
           </b-button>
           <div class="d-flex">
@@ -61,7 +84,11 @@
               data-dd-action-name="print btn"
               @click="printPage"
             >
-              <b-icon icon="printer-fill" aria-hidden="true" class="mr-2" />
+              <b-icon
+                icon="printer-fill"
+                aria-hidden="true"
+                class="mr-2"
+              />
               Print
             </b-button>
             <b-button
@@ -70,7 +97,11 @@
               data-dd-action-name="copy btn"
               @click="copyUrl"
             >
-              <b-icon :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'" aria-hidden="true" class="mr-2" />
+              <b-icon
+                :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'"
+                aria-hidden="true"
+                class="mr-2"
+              />
               <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
               <span v-else>Link Copied</span>
             </b-button>
@@ -81,11 +112,13 @@
         <div class="grant-details-secondary-actions">
           <!-- Assign grant section -->
           <div class="mb-5">
-            <h3 class="mb-3">Assign Grant</h3>
+            <h3 class="mb-3">
+              Assign Grant
+            </h3>
             <div class="d-flex print-d-none">
               <v-select
-                class="flex-grow-1 mr-3"
                 v-model="selectedAgencyToAssign"
+                class="flex-grow-1 mr-3"
                 :options="unassignedAgencies"
                 label="name"
                 track-by="id"
@@ -94,30 +127,46 @@
                 data-dd-action-name="select team for grant assignment"
                 @close="$refs.assignSubmitButton.focus()"
               />
-              <b-button ref="assignSubmitButton" variant="outline-primary" @click="assignAgenciesToGrant" :disabled="!selectedAgencyToAssign" data-dd-action-name="assign team">
+              <b-button
+                ref="assignSubmitButton"
+                variant="outline-primary"
+                :disabled="!selectedAgencyToAssign"
+                data-dd-action-name="assign team"
+                @click="assignAgenciesToGrant"
+              >
                 Submit
               </b-button>
             </div>
-            <div v-for="agency in assignedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
+            <div
+              v-for="agency in assignedAgencies"
+              :key="agency.id"
+              class="d-flex justify-content-between align-items-start my-3"
+            >
               <div class="mr-3">
-                <p class="m-0">{{ agency.name }}</p>
-                <p class="m-0 text-muted"><small>{{ formatDateTime(agency.created_at) }}</small></p>
+                <p class="m-0">
+                  {{ agency.name }}
+                </p>
+                <p class="m-0 text-muted">
+                  <small>{{ formatDateTime(agency.created_at) }}</small>
+                </p>
               </div>
               <b-button-close
-                @click="unassignAgenciesToGrant(agency)"
                 data-dd-action-name="remove team assignment"
                 class="print-d-none"
+                @click="unassignAgenciesToGrant(agency)"
               />
             </div>
           </div>
 
           <!-- Team status section -->
           <div class="mb-5">
-            <h3 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h3>
+            <h3 class="mb-3">
+              {{ newTerminologyEnabled ? 'Team': 'Agency' }} Status
+            </h3>
             <div class="d-flex print-d-none">
               <v-select
-                class="flex-grow-1 mr-3"
                 v-model="selectedInterestedCode"
+                class="flex-grow-1 mr-3"
                 :reduce="(option) => option.id"
                 :options="interestedOptions"
                 label="name"
@@ -128,12 +177,26 @@
                 data-dd-action-name="select team status"
                 @close="$refs.statusSubmitButton.focus()"
               />
-              <b-button ref="statusSubmitButton" variant="outline-primary" @click="markGrantAsInterested" :disabled="!selectedInterestedCode" data-dd-action-name="submit team status">
+              <b-button
+                ref="statusSubmitButton"
+                variant="outline-primary"
+                :disabled="!selectedInterestedCode"
+                data-dd-action-name="submit team status"
+                @click="markGrantAsInterested"
+              >
                 Submit
               </b-button>
             </div>
-            <div v-for="agency in visibleInterestedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
-              <UserAvatar :user-name="agency.user_name" :color="agency.user_avatar_color" size="2.5rem" />
+            <div
+              v-for="agency in visibleInterestedAgencies"
+              :key="agency.id"
+              class="d-flex justify-content-between align-items-start my-3"
+            >
+              <UserAvatar
+                :user-name="agency.user_name"
+                :color="agency.user_avatar_color"
+                size="2.5rem"
+              />
               <div class="mx-3">
                 <p class="m-0">
                   <strong>{{ agency.user_name }}</strong> updated
@@ -149,14 +212,13 @@
                 </p>
               </div>
               <b-button-close
-                @click="unmarkGrantAsInterested(agency)"
                 data-dd-action-name="remove team status"
                 class="print-d-none"
+                @click="unmarkGrantAsInterested(agency)"
               />
             </div>
           </div>
         </div>
-
       </div>
     </b-container>
   </section>
@@ -179,12 +241,20 @@ const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
 const NOT_AVAILABLE_TEXT = 'Not available';
 
 export default {
-  props: {
-    selectedGrant: Object,
-  },
   components: {
     UserAvatar,
     CopyButton,
+  },
+  beforeRouteEnter(to, from, next) {
+    const isFirstPageLoad = from.name === null && from.path === '/';
+    next((vm) => {
+      if (isFirstPageLoad) {
+        vm.setFirstPageLoad();
+      }
+    });
+  },
+  props: {
+    selectedGrant: Object,
   },
   data() {
     return {
@@ -215,14 +285,6 @@ export default {
       loading: true,
       copyUrlSuccessTimeout: null,
     };
-  },
-  beforeRouteEnter(to, from, next) {
-    const isFirstPageLoad = from.name === null && from.path === '/';
-    next((vm) => {
-      if (isFirstPageLoad) {
-        vm.setFirstPageLoad();
-      }
-    });
   },
   created() {
     // watch the params of the route to fetch the data again
