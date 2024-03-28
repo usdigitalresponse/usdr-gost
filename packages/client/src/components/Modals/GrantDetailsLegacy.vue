@@ -57,6 +57,7 @@
         Description:
       </p>
       <div style="max-height: 170px; overflow-y: scroll">
+        <!-- eslint-disable vue/no-v-html -- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
         <div
           style="white-space: pre-line"
           v-html="selectedGrant.description"
