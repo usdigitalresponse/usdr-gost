@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import Navigation from '../../../../src/arpa_reporter/components/Navigation.vue';
+import PageNavigation from '@/arpa_reporter/components/PageNavigation.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-describe('Navigation.vue', () => {
+describe('PageNavigation.vue', () => {
   let store;
   let $route;
   beforeEach(() => {
@@ -23,7 +23,7 @@ describe('Navigation.vue', () => {
   });
 
   it('renders the nav element', () => {
-    const wrapper = shallowMount(Navigation, {
+    const wrapper = shallowMount(PageNavigation, {
       store,
       localVue,
       stubs: ['router-link', 'router-view'],
@@ -37,7 +37,7 @@ describe('Navigation.vue', () => {
   });
 
   it('include title', () => {
-    const wrapper = shallowMount(Navigation, {
+    const wrapper = shallowMount(PageNavigation, {
       store,
       localVue,
       stubs: ['router-link', 'router-view'],
