@@ -6837,7 +6837,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "P",
       "humanColName": "Recipient SAM.gov Registration?",
