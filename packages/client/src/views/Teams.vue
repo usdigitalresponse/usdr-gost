@@ -66,10 +66,7 @@
     </b-table>
     <EditTeamModal :agency.sync="editingTeam" />
     <AddTeamModal :show-dialog.sync="showAddTeamModal" />
-    <ImportTeamsModal
-      :show-upload-modal.sync="showUploadTeamsModal"
-      :import-status="'Nothing imported yet.'"
-    />
+    <ImportTeamsModal :show-upload-modal.sync="showUploadTeamsModal" />
   </section>
 </template>
 

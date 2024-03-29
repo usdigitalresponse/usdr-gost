@@ -23,7 +23,21 @@
       <hr>
       <div>
         <h5>Import Status</h5>
-        <div v-html="importStatus" />
+        <div v-if="importResult">
+          <ul>
+            <li>{{ importResult.added }}</li>
+            <li>{{ importResult.notAdded }}</li>
+            <li
+              v-for="error in importResult.errors"
+              :key="error"
+            >
+              {{ error }}
+            </li>
+          </ul>
+        </div>
+        <div v-else>
+          Nothing imported yet.
+        </div>
       </div>
     </b-modal>
   </div>
@@ -40,7 +54,11 @@ export default {
   },
   props: {
     showUploadModal: Boolean,
-    importStatus: String,
+  },
+  data() {
+    return {
+      importResult: null,
+    };
   },
   computed: {
     newTerminologyEnabled() {
@@ -56,20 +74,13 @@ export default {
     ...mapActions({
       fetchAgencies: 'agencies/fetchAgencies',
     }),
-    setStatus(theStatus) {
-      const statusObj = theStatus.ret.status;
-      const added = `Successful: ${statusObj.agencies.added} ${this.newTerminologyEnabled ? 'teams' : 'agencies'} added`;
-      const notAdded = `Unsuccessful: ${statusObj.agencies.errored} ${this.newTerminologyEnabled ? 'teams' : 'agencies'} not added`;
-      let errs = '';
-      if (statusObj.errors.length > 0) {
-        errs = '<ul>';
-        // eslint-disable-next-line no-restricted-syntax
-        for (const err of statusObj.errors) {
-          errs = errs.concat(`<li>${err}</li>`);
-        }
-        errs = errs.concat('</ul>');
-      }
-      this.importStatus = `<ul><li>${added}</li><li>${notAdded}</li>${errs}</ul>`;
+    setStatus(status) {
+      const { agencies, errors } = status.ret.status;
+      this.importResult = {
+        added: `Successful: ${agencies.added} ${this.newTerminologyEnabled ? 'teams' : 'agencies'} added`,
+        notAdded: `Unsuccessful: ${agencies.errored} ${this.newTerminologyEnabled ? 'teams' : 'agencies'} not added`,
+        errors,
+      };
     },
     resetModal() {
       this.formData = {};
