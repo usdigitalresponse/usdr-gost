@@ -92,12 +92,6 @@ export default {
         errors,
       };
     },
-    async handleSubmit() {
-      // Hide the modal manually
-      this.$nextTick(() => {
-        this.$bvModal.hide('import-agencies-modal');
-      });
-    },
   },
 };
 </script>

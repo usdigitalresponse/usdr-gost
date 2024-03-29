@@ -67,12 +67,6 @@ export default {
       this.fetchUsers();
       this.$emit('update:showUploadModal', false);
     },
-    async handleSubmit() {
-      // Hide the modal manually
-      this.$nextTick(() => {
-        this.$bvModal.hide('import-users-modal');
-      });
-    },
   },
 };
 </script>
