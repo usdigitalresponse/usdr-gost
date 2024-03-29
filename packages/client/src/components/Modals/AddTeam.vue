@@ -4,10 +4,9 @@
     <b-modal
       id="add-agency-modal"
       ref="modal"
-      v-model="showDialog"
+      v-model="modalVisible"
       :title="newTerminologyEnabled ? 'Add Team' : 'Add Agency'"
       :ok-disabled="$v.formData.$invalid"
-      @hidden="resetModal"
       @ok="handleOk"
     >
       <form
@@ -149,7 +148,7 @@ import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
-    showDialog: Boolean,
+    show: Boolean,
   },
   data() {
     return {
@@ -198,6 +197,10 @@ export default {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
     }),
+    modalVisible: {
+      get() { return this.show; },
+      set(value) { this.$emit('update:show', value); },
+    },
     agencies() {
       if (!this.loggedInUser) {
         return [];
@@ -215,9 +218,6 @@ export default {
     ...mapActions({
       createAgency: 'agencies/createAgency',
     }),
-    resetModal() {
-      this.$emit('update:showDialog', false);
-    },
     handleOk(bvModalEvt) {
       bvModalEvt.preventDefault();
       this.handleSubmit();
@@ -234,7 +234,7 @@ export default {
       // TODO(mbroussard): this can potentially fail if e.g. name or code is not unique, and we don't
       // do anything useful to handle such an error in the UI right now.
       await this.createAgency(body);
-      this.resetModal();
+      this.modalVisible = false;
     },
   },
 };

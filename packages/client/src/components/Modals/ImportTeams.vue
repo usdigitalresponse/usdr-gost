@@ -3,10 +3,9 @@
     <b-modal
       id="import-agencies-modal"
       ref="modal"
+      v-model="modalVisible"
       :title="`Bulk Import ${newTerminologyEnabled ? 'Teams' : 'Agencies'}`"
       ok-only="true"
-      @show="resetModal"
-      @hidden="resetModal"
     >
       <div>
         <ul>
@@ -53,7 +52,7 @@ export default {
     Uploader,
   },
   props: {
-    showUploadModal: Boolean,
+    show: Boolean,
   },
   data() {
     return {
@@ -61,6 +60,17 @@ export default {
     };
   },
   computed: {
+    modalVisible: {
+      get() { return this.show; },
+      set(value) {
+        if (!value) {
+          // Reset result and refetch teams when closing
+          this.importResult = null;
+          this.fetchAgencies();
+        }
+        this.$emit('update:show', value);
+      },
+    },
     newTerminologyEnabled() {
       return newTerminologyEnabled();
     },
@@ -81,11 +91,6 @@ export default {
         notAdded: `Unsuccessful: ${agencies.errored} ${this.newTerminologyEnabled ? 'teams' : 'agencies'} not added`,
         errors,
       };
-    },
-    resetModal() {
-      this.formData = {};
-      this.fetchAgencies();
-      this.$emit('update:showUploadModal', false);
     },
     async handleSubmit() {
       // Hide the modal manually

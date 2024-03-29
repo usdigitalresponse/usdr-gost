@@ -64,16 +64,17 @@
         </b-button>
       </template>
     </b-table>
-    <EditTeamModal :agency.sync="editingTeam" />
-    <AddTeamModal :show-dialog.sync="showAddTeamModal" />
-    <ImportTeamsModal :show-upload-modal.sync="showUploadTeamsModal" />
+    <EditTeamModal
+      :show.sync="showEditTeamModal"
+      :agency="editingTeam"
+    />
+    <AddTeamModal :show.sync="showAddTeamModal" />
+    <ImportTeamsModal :show.sync="showUploadTeamsModal" />
   </section>
 </template>
 
 <script>
-
 import { mapActions, mapGetters } from 'vuex';
-
 import EditTeamModal from '@/components/Modals/EditTeam.vue';
 import AddTeamModal from '@/components/Modals/AddTeam.vue';
 import ImportTeamsModal from '@/components/Modals/ImportTeams.vue';

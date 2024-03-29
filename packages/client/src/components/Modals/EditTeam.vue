@@ -4,10 +4,9 @@
     <b-modal
       id="edit-agency-modal"
       ref="modal"
-      v-model="showDialog"
+      v-model="modalVisible"
       :title="newTerminologyEnabled ? 'Edit Team' : 'Edit Agency'"
       :ok-disabled="$v.formData.$invalid"
-      @hidden="resetModal"
       @ok="handleOk"
     >
       <h3>{{ agency && agency.name }}</h3>
@@ -163,6 +162,7 @@ import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
+    show: Boolean,
     agency: {
       type: Object,
       default: null,
@@ -170,7 +170,6 @@ export default {
   },
   data() {
     return {
-      showDialog: false,
       formData: {
         warningThreshold: null,
         dangerThreshold: null,
@@ -204,6 +203,10 @@ export default {
       agencies: 'agencies/agencies',
       userRole: 'users/userRole',
     }),
+    modalVisible: {
+      get() { return this.show; },
+      set(value) { this.$emit('update:show', value); },
+    },
     newTerminologyEnabled() {
       return newTerminologyEnabled();
     },
@@ -217,7 +220,6 @@ export default {
       this.formData.name = this.agency && this.agency.name;
       this.formData.abbreviation = this.agency && this.agency.abbreviation;
       this.formData.code = this.agency && this.agency.code;
-      this.showDialog = Boolean(this.agency !== null);
     },
   },
   methods: {
@@ -229,9 +231,6 @@ export default {
       updateAgencyParent: 'agencies/updateAgencyParent',
       deleteAgency: 'agencies/deleteAgency',
     }),
-    resetModal() {
-      this.$emit('update:agency', null);
-    },
     handleOk(bvModalEvt) {
       bvModalEvt.preventDefault();
       this.handleSubmit();
@@ -258,7 +257,7 @@ export default {
           warningThreshold: this.formData.warningThreshold,
           dangerThreshold: this.formData.dangerThreshold,
         }).then(() => {
-          this.resetModal();
+          this.modalVisible = false;
         }).catch(async (e) => {
           await this.$bvModal.msgBoxOk(`Could not delete ${this.newTerminologyEnabled ? 'team' : 'agency'}: ${e.message}`, {
             title: 'Error',
@@ -299,8 +298,7 @@ export default {
         }
       }
       if (ok) {
-        this.resetModal();
-        this.$bvModal.hide();
+        this.modalVisible = false;
       }
     },
   },
