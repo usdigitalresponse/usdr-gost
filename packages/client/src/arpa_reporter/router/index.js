@@ -1,11 +1,11 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
+import AgenciesView from '@/arpa_reporter/views/AgenciesView.vue';
+import AgencyView from '@/arpa_reporter/views/AgencyView.vue';
 import HomeView from '@/arpa_reporter/views/HomeView.vue';
 import LoginView from '@/arpa_reporter/views/LoginView.vue';
 import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
-import Agencies from '../views/Agencies.vue';
-import Agency from '../views/Agency.vue';
 import NewTemplate from '../views/NewTemplate.vue';
 import NewUpload from '../views/NewUpload.vue';
 import Upload from '../views/Upload.vue';
@@ -55,13 +55,13 @@ const routes = [
   {
     path: '/agencies',
     name: 'Agencies',
-    component: Agencies,
+    component: AgenciesView,
     meta: { requiresLogin: true },
   },
   {
     path: '/agencies/:id',
     name: 'Agency',
-    component: Agency,
+    component: AgencyView,
     meta: { requiresLogin: true },
   },
   {
