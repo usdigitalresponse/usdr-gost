@@ -1,86 +1,185 @@
 <!-- eslint-disable max-len -->
 <template>
-  <b-modal v-model="showDialog" ok-only :title="selectedGrant && selectedGrant.grant_number"
-     @hide="resetSelectedGrant" scrollable size="xl" ok-title="Close" data-dd-action-name= "close grant details modal button">
+  <b-modal
+    v-model="showDialog"
+    ok-only
+    :title="selectedGrant && selectedGrant.grant_number"
+    scrollable
+    size="xl"
+    ok-title="Close"
+    data-dd-action-name="close grant details modal button"
+    @hide="resetSelectedGrant"
+  >
     <div v-if="selectedGrant">
       <b-row class="mb-3 d-flex align-items-baseline">
         <b-col cols="8">
-          <h1 class="mb-0 h2">{{ selectedGrant.title }}</h1>
+          <h1 class="mb-0 h2">
+            {{ selectedGrant.title }}
+          </h1>
         </b-col>
-        <b-col cols="4" class="text-right">
-          <b-button :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
-            target="_blank" rel="noopener noreferrer" variant="primary" data-dd-action-name="view on grants.gov">
-            <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2"></b-icon>View on Grants.gov
+        <b-col
+          cols="4"
+          class="text-right"
+        >
+          <b-button
+            :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="primary"
+            data-dd-action-name="view on grants.gov"
+          >
+            <b-icon
+              icon="box-arrow-up-right"
+              aria-hidden="true"
+              class="mr-2"
+            />View on Grants.gov
           </b-button>
         </b-col>
       </b-row>
-      <p><span class="data-label">Valid from:</span> {{ new
+      <p>
+        <span class="data-label">Valid from:</span> {{ new
           Date(selectedGrant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
-      }}-{{ new
-    Date(selectedGrant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
-}}</p>
-      <div v-for="field in dialogFields" :key="field">
+        }}-{{ new
+          Date(selectedGrant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' })
+        }}
+      </p>
+      <div
+        v-for="field in dialogFields"
+        :key="field"
+      >
         <p><span class="data-label">{{ titleize(field) }}:</span> {{ selectedGrant[field] }}</p>
       </div>
       <p>
         <span class="data-label">Category of Funding Activity:</span>
         {{ selectedGrant['funding_activity_categories']?.join(', ') }}
       </p>
-      <p class="data-label">Description:</p>
+      <p class="data-label">
+        Description:
+      </p>
       <div style="max-height: 170px; overflow-y: scroll">
-        <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
+        <!-- eslint-disable vue/no-v-html -- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
+        <div
+          style="white-space: pre-line"
+          v-html="selectedGrant.description"
+        />
       </div>
-      <br />
+      <br>
       <b-row class="ml-2 mb-2 d-flex align-items-baseline">
-        <h2 class="h4">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h2>
+        <h2 class="h4">
+          {{ newTerminologyEnabled ? 'Team': 'Agency' }} Status
+        </h2>
         <b-col class="text-right">
           <b-row v-if="!interested">
             <b-col cols="9">
-              <b-form-select v-model="selectedInterestedCode" data-dd-action-name="select team status">
+              <b-form-select
+                v-model="selectedInterestedCode"
+                data-dd-action-name="select team status"
+              >
                 <b-form-select-option-group label="Interested">
-                  <b-form-select-option v-for="code in interestedCodes.interested" :key="code.id" :value="code.id">
-                    {{ code.name }}</b-form-select-option>
+                  <b-form-select-option
+                    v-for="code in interestedCodes.interested"
+                    :key="code.id"
+                    :value="code.id"
+                  >
+                    {{ code.name }}
+                  </b-form-select-option>
                 </b-form-select-option-group>
                 <b-form-select-option-group label="Applied">
-                  <b-form-select-option v-for="code in interestedCodes.result" :key="code.id" :value="code.id">
-                    {{ code.name }}</b-form-select-option>
+                  <b-form-select-option
+                    v-for="code in interestedCodes.result"
+                    :key="code.id"
+                    :value="code.id"
+                  >
+                    {{ code.name }}
+                  </b-form-select-option>
                 </b-form-select-option-group>
                 <b-form-select-option-group label="Not Applying">
-                  <b-form-select-option v-for="code in interestedCodes.rejections" :key="code.id" :value="code.id">
-                    {{ code.name }}</b-form-select-option>
+                  <b-form-select-option
+                    v-for="code in interestedCodes.rejections"
+                    :key="code.id"
+                    :value="code.id"
+                  >
+                    {{ code.name }}
+                  </b-form-select-option>
                 </b-form-select-option-group>
               </b-form-select>
             </b-col>
-            <b-button variant="outline-primary" @click="markGrantAsInterested" data-dd-action-name="submit team status">Submit</b-button>
+            <b-button
+              variant="outline-primary"
+              data-dd-action-name="submit team status"
+              @click="markGrantAsInterested"
+            >
+              Submit
+            </b-button>
           </b-row>
         </b-col>
       </b-row>
-      <br />
-      <b-table :items="selectedGrant.interested_agencies" :fields="interestedAgenciesFields">
+      <br>
+      <b-table
+        :items="selectedGrant.interested_agencies"
+        :fields="interestedAgenciesFields"
+      >
         <template #cell(actions)="row">
           <b-row
-            v-if="(String(row.item.agency_id) === selectedAgencyId) || isAbleToUnmark(row.item.agency_id)">
-            <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unmarkGrantAsInterested(row)" data-dd-action-name="remove team status">
-              <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+            v-if="(String(row.item.agency_id) === selectedAgencyId) || isAbleToUnmark(row.item.agency_id)"
+          >
+            <b-button
+              variant="outline-danger"
+              class="mr-1 border-0"
+              size="sm"
+              data-dd-action-name="remove team status"
+              @click="unmarkGrantAsInterested(row)"
+            >
+              <b-icon
+                icon="trash-fill"
+                aria-hidden="true"
+              />
             </b-button>
           </b-row>
         </template>
       </b-table>
-      <br />
+      <br>
       <b-row class="ml-2 mb-2 d-flex align-items-baseline">
-        <h2 class="h4">Assigned {{newTerminologyEnabled ? 'Teams': 'Agencies'}}</h2>
-          <v-select v-model="selectedAgencies" :options="agencies" :multiple="true" :close-on-select="false"
-            data-dd-action-name="select team for grant assignment"
-            :clear-on-select="false" :placeholder="`Select ${newTerminologyEnabled ? 'teams': 'agencies'}`" label="name" track-by="id"
-            style="width: 300px; margin: 0 16px;" :show-labels="false"
-          >
-          </v-select>
-          <b-button variant="outline-primary" @click="assignAgenciesToGrant" data-dd-action-name="assign team">Assign</b-button>
+        <h2 class="h4">
+          Assigned {{ newTerminologyEnabled ? 'Teams': 'Agencies' }}
+        </h2>
+        <v-select
+          v-model="selectedAgencies"
+          :options="agencies"
+          :multiple="true"
+          :close-on-select="false"
+          data-dd-action-name="select team for grant assignment"
+          :clear-on-select="false"
+          :placeholder="`Select ${newTerminologyEnabled ? 'teams': 'agencies'}`"
+          label="name"
+          track-by="id"
+          style="width: 300px; margin: 0 16px;"
+          :show-labels="false"
+        />
+        <b-button
+          variant="outline-primary"
+          data-dd-action-name="assign team"
+          @click="assignAgenciesToGrant"
+        >
+          Assign
+        </b-button>
       </b-row>
-      <b-table :items="assignedAgencies" :fields="assignedAgenciesFields">
+      <b-table
+        :items="assignedAgencies"
+        :fields="assignedAgenciesFields"
+      >
         <template #cell(actions)="row">
-          <b-button variant="outline-danger" class="mr-1 border-0" size="sm" @click="unassignAgenciesToGrant(row)" data-dd-action-name="remove team assignment">
-            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+          <b-button
+            variant="outline-danger"
+            class="mr-1 border-0"
+            size="sm"
+            data-dd-action-name="remove team assignment"
+            @click="unassignAgenciesToGrant(row)"
+          >
+            <b-icon
+              icon="trash-fill"
+              aria-hidden="true"
+            />
           </b-button>
         </template>
       </b-table>
@@ -97,7 +196,10 @@ import { titleize } from '../../helpers/form-helpers';
 
 export default {
   props: {
-    selectedGrant: Object,
+    selectedGrant: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
@@ -152,8 +254,6 @@ export default {
       searchInput: null,
       debouncedSearchInput: null,
     };
-  },
-  mounted() {
   },
   computed: {
     ...mapGetters({
@@ -237,6 +337,7 @@ export default {
         agencyIds: [row.item.agency_id],
         interestedCode: this.selectedInterestedCode,
       });
+      // eslint-disable-next-line vue/no-mutating-props -- fix would be slightly involved, but this code is deprecated and should be removed soon, so not fixing
       this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
       datadogRum.addAction('remove team status for grant', { team: { id: this.selectedAgencyId }, status: this.selectedInterestedCode, grant: { id: this.selectedGrant.grant_id } });
     },
