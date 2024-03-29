@@ -2,12 +2,22 @@
   <div>
     <h2>Agency</h2>
 
-    <div v-if="agency === null" class="spinner-grow text-primary" role="status">
+    <div
+      v-if="agency === null"
+      class="spinner-grow text-primary"
+      role="status"
+    >
       <span class="sr-only">Loading...</span>
     </div>
 
     <div v-else>
-      <StandardForm :initialRecord="agency" :cols="cols" @save="onSave" @reset="onReset" :key="formKey" />
+      <StandardForm
+        :key="formKey"
+        :initial-record="agency"
+        :cols="cols"
+        @save="onSave"
+        @reset="onReset"
+      />
     </div>
   </div>
 </template>
@@ -18,7 +28,10 @@ import StandardForm from '../components/StandardForm.vue';
 import { post } from '../store/index';
 
 export default {
-  name: 'Agency',
+  name: 'AgencyView',
+  components: {
+    StandardForm,
+  },
   data() {
     return {
       formKey: Date.now(),
@@ -43,6 +56,14 @@ export default {
         { label: 'Agency Name', field: 'name', required: true },
       ];
     },
+  },
+  watch: {
+    agencyId() {
+      this.onReset();
+    },
+  },
+  async mounted() {
+    this.$store.dispatch('updateAgencies');
   },
   methods: {
     async onSave(updatedAgency) {
@@ -74,17 +95,6 @@ export default {
     onReset() {
       this.formKey = Date.now();
     },
-  },
-  watch: {
-    agencyId() {
-      this.onReset();
-    },
-  },
-  async mounted() {
-    this.$store.dispatch('updateAgencies');
-  },
-  components: {
-    StandardForm,
   },
 };
 </script>
