@@ -1,5 +1,9 @@
 <template>
-  <DownloadButton :href="href" :classes="classes" :disabled="isDisabled">
+  <DownloadButton
+    :href="href"
+    :classes="classes"
+    :disabled="isDisabled"
+  >
     Download Empty Template
   </DownloadButton>
 </template>
@@ -10,11 +14,11 @@ import DownloadButton from './DownloadButton.vue';
 
 export default {
   name: 'DownloadTemplateBtn',
-  props: {
-    block: Boolean,
-  },
   components: {
     DownloadButton,
+  },
+  props: {
+    block: Boolean,
   },
   computed: {
     periodId() {

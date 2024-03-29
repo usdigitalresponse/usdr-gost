@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import Agencies from '../../../../src/arpa_reporter/views/Agencies.vue';
+import AgenciesView from '@/arpa_reporter/views/AgenciesView.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-describe('Agencies.vue', () => {
+describe('AgenciesView.vue', () => {
   it('renders project list', () => {
     const store = new Vuex.Store({
       state: {
@@ -17,7 +17,7 @@ describe('Agencies.vue', () => {
         ],
       },
     });
-    const wrapper = mount(Agencies, {
+    const wrapper = mount(AgenciesView, {
       store,
       localVue,
       stubs: ['router-link', 'router-view'],
