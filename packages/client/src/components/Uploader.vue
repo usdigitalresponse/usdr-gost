@@ -45,7 +45,10 @@ import { apiURL } from '@/helpers/fetchApi';
 export default {
   name: 'Uploader',
   props: {
-    uploadRecordType: String,
+    uploadRecordType: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {

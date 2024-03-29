@@ -163,7 +163,10 @@ import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
-    agency: Object,
+    agency: {
+      type: Object,
+      default: null,
+    },
   },
   data() {
     return {
