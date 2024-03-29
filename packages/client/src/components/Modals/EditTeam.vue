@@ -1,156 +1,154 @@
 <!-- eslint-disable max-len -->
 <template>
-  <div>
-    <b-modal
-      id="edit-agency-modal"
-      ref="modal"
-      v-model="modalVisible"
-      :title="newTerminologyEnabled ? 'Edit Team' : 'Edit Agency'"
-      :ok-disabled="$v.formData.$invalid"
-      @ok="handleOk"
+  <b-modal
+    id="edit-agency-modal"
+    ref="modal"
+    v-model="modalVisible"
+    :title="newTerminologyEnabled ? 'Edit Team' : 'Edit Agency'"
+    :ok-disabled="$v.formData.$invalid"
+    @ok="handleOk"
+  >
+    <h3>{{ agency && agency.name }}</h3>
+    <form
+      ref="form"
+      @submit.stop.prevent="handleSubmit"
     >
-      <h3>{{ agency && agency.name }}</h3>
+      <b-form-group
+        label-for="name-input"
+      >
+        <template slot="label">
+          Name
+        </template>
+        <b-form-input
+          id="name-input"
+          v-model="formData.name"
+          autofocus
+          type="text"
+          min="2"
+          required
+        />
+      </b-form-group>
+      <b-form-group
+        label-for="abbreviation-input"
+      >
+        <template slot="label">
+          Abbreviation
+        </template>
+        <template slot="description">
+          This is used for displaying lists of {{ newTerminologyEnabled ? 'teams' : 'agencies' }} in compact form (e.g. in a table).
+        </template>
+        <b-form-input
+          id="abbreviation-input"
+          v-model="formData.abbreviation"
+          type="text"
+          min="2"
+          max="8"
+          required
+        />
+      </b-form-group>
+      <b-form-group
+        label-for="code-input"
+      >
+        <template slot="label">
+          Code
+        </template>
+        <template slot="description">
+          This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across {{ newTerminologyEnabled ? 'teams' : 'agencies' }}.
+        </template>
+        <b-form-input
+          id="code-input"
+          v-model="formData.code"
+          type="text"
+          min="2"
+          max="8"
+        />
+      </b-form-group>
+      <b-form-group
+        label-for="agency-input"
+      >
+        <template slot="label">
+          Parent {{ newTerminologyEnabled ? 'Team' : 'Agency' }}
+        </template>
+        <v-select
+          v-model="formData.parentAgency"
+          :options="agencies"
+          label="name"
+          :value="formData.parentAgency"
+        >
+          <template #search="{attributes, events}">
+            <input
+              class="vs__search"
+              v-bind="attributes"
+              v-on="events"
+            >
+          </template>
+        </v-select>
+      </b-form-group>
+      <b-form-group
+        :state="!$v.formData.warningThreshold.$invalid"
+        label-for="warningThreshold-input"
+        invalid-feedback="Warning Threshold must be 2 or greater"
+      >
+        <template slot="label">
+          Close Date <span class="text-warning">Warning</span> Threshold
+        </template>
+        <template slot="description">
+          How many days out to show grant close dates with <span class="text-warning">warning</span> status
+        </template>
+        <b-form-input
+          id="warningThreshold-input"
+          v-model="formData.warningThreshold"
+          autofocus
+          type="number"
+          min="2"
+          :state="!$v.formData.warningThreshold.$invalid"
+          required
+        />
+      </b-form-group>
+      <b-form-group
+        label-for="dangerThreshold-input"
+        invalid-feedback="Danger Threshold must be greater than zero and less than Warning Threshold"
+      >
+        <template slot="label">
+          Close Date <span class="text-danger">Danger</span> Threshold
+        </template>
+        <template slot="description">
+          How many days out to show grant close dates with <span class="text-danger">danger</span> status
+        </template>
+        <b-form-input
+          id="dangerThreshold-input"
+          v-model="formData.dangerThreshold"
+          type="number"
+          min="1"
+          :state="!$v.formData.dangerThreshold.$invalid"
+          required
+        />
+      </b-form-group>
       <form
         ref="form"
-        @submit.stop.prevent="handleSubmit"
+        @click="handleDelete"
       >
-        <b-form-group
-          label-for="name-input"
+        <span
+          id="disabled-wrapper"
+          class="d-inline-block"
+          tabindex="0"
         >
-          <template slot="label">
-            Name
-          </template>
-          <b-form-input
-            id="name-input"
-            v-model="formData.name"
-            autofocus
-            type="text"
-            min="2"
-            required
-          />
-        </b-form-group>
-        <b-form-group
-          label-for="abbreviation-input"
+          <b-button
+            :disabled="userRole !== 'admin'"
+            variant="outline-danger"
+          > Delete {{ newTerminologyEnabled ? 'Team' : 'Agency' }}
+          </b-button>
+        </span>
+        <b-tooltip
+          v-if="userRole !== 'admin'"
+          target="disabled-wrapper"
+          triggers="hover"
         >
-          <template slot="label">
-            Abbreviation
-          </template>
-          <template slot="description">
-            This is used for displaying lists of {{ newTerminologyEnabled ? 'teams' : 'agencies' }} in compact form (e.g. in a table).
-          </template>
-          <b-form-input
-            id="abbreviation-input"
-            v-model="formData.abbreviation"
-            type="text"
-            min="2"
-            max="8"
-            required
-          />
-        </b-form-group>
-        <b-form-group
-          label-for="code-input"
-        >
-          <template slot="label">
-            Code
-          </template>
-          <template slot="description">
-            This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across {{ newTerminologyEnabled ? 'teams' : 'agencies' }}.
-          </template>
-          <b-form-input
-            id="code-input"
-            v-model="formData.code"
-            type="text"
-            min="2"
-            max="8"
-          />
-        </b-form-group>
-        <b-form-group
-          label-for="agency-input"
-        >
-          <template slot="label">
-            Parent {{ newTerminologyEnabled ? 'Team' : 'Agency' }}
-          </template>
-          <v-select
-            v-model="formData.parentAgency"
-            :options="agencies"
-            label="name"
-            :value="formData.parentAgency"
-          >
-            <template #search="{attributes, events}">
-              <input
-                class="vs__search"
-                v-bind="attributes"
-                v-on="events"
-              >
-            </template>
-          </v-select>
-        </b-form-group>
-        <b-form-group
-          :state="!$v.formData.warningThreshold.$invalid"
-          label-for="warningThreshold-input"
-          invalid-feedback="Warning Threshold must be 2 or greater"
-        >
-          <template slot="label">
-            Close Date <span class="text-warning">Warning</span> Threshold
-          </template>
-          <template slot="description">
-            How many days out to show grant close dates with <span class="text-warning">warning</span> status
-          </template>
-          <b-form-input
-            id="warningThreshold-input"
-            v-model="formData.warningThreshold"
-            autofocus
-            type="number"
-            min="2"
-            :state="!$v.formData.warningThreshold.$invalid"
-            required
-          />
-        </b-form-group>
-        <b-form-group
-          label-for="dangerThreshold-input"
-          invalid-feedback="Danger Threshold must be greater than zero and less than Warning Threshold"
-        >
-          <template slot="label">
-            Close Date <span class="text-danger">Danger</span> Threshold
-          </template>
-          <template slot="description">
-            How many days out to show grant close dates with <span class="text-danger">danger</span> status
-          </template>
-          <b-form-input
-            id="dangerThreshold-input"
-            v-model="formData.dangerThreshold"
-            type="number"
-            min="1"
-            :state="!$v.formData.dangerThreshold.$invalid"
-            required
-          />
-        </b-form-group>
-        <form
-          ref="form"
-          @click="handleDelete"
-        >
-          <span
-            id="disabled-wrapper"
-            class="d-inline-block"
-            tabindex="0"
-          >
-            <b-button
-              :disabled="userRole !== 'admin'"
-              variant="outline-danger"
-            > Delete {{ newTerminologyEnabled ? 'Team' : 'Agency' }}
-            </b-button>
-          </span>
-          <b-tooltip
-            v-if="userRole !== 'admin'"
-            target="disabled-wrapper"
-            triggers="hover"
-          >
-            You cannot delete a {{ newTerminologyEnabled ? 'team' : 'agency' }} with children. Reassign child {{ newTerminologyEnabled ? 'teams' : 'agencies' }} to continue deletion.
-          </b-tooltip>
-        </form>
+          You cannot delete a {{ newTerminologyEnabled ? 'team' : 'agency' }} with children. Reassign child {{ newTerminologyEnabled ? 'teams' : 'agencies' }} to continue deletion.
+        </b-tooltip>
       </form>
-    </b-modal>
-  </div>
+    </form>
+  </b-modal>
 </template>
 
 <script>

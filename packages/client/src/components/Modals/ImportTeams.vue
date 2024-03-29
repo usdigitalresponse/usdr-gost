@@ -1,45 +1,43 @@
 <template>
-  <div>
-    <b-modal
-      id="import-agencies-modal"
-      ref="modal"
-      v-model="modalVisible"
-      :title="`Bulk Import ${newTerminologyEnabled ? 'Teams' : 'Agencies'}`"
-      ok-only
-    >
-      <div>
+  <b-modal
+    id="import-agencies-modal"
+    ref="modal"
+    v-model="modalVisible"
+    :title="`Bulk Import ${newTerminologyEnabled ? 'Teams' : 'Agencies'}`"
+    ok-only
+  >
+    <div>
+      <ul>
+        <li>Download the bulk import Excel template file by clicking <a href="./agencyImportTemplate.xlsx">here.</a></li>
+        <li>Add new {{ newTerminologyEnabled ? 'teams' : 'agencies' }} to the Excel file and save it. Make sure that parent {{ newTerminologyEnabled ? 'team' : 'agency' }} rows are above all their children {{ newTerminologyEnabled ? 'team' : 'agency' }} rows.</li>
+        <li>Select your newly edited bulk import file using the <i>Choose File</i> button below, and click <i>Upload</i>.</li>
+        <li>When the import is finished, the status of the import, including any errors, will be displayed below.</li>
+      </ul>
+      <RecordUploader
+        :upload-record-type="'agencies'"
+        @importStatus="setStatus"
+      />
+    </div>
+    <hr>
+    <div>
+      <h5>Import Status</h5>
+      <div v-if="importResult">
         <ul>
-          <li>Download the bulk import Excel template file by clicking <a href="./agencyImportTemplate.xlsx">here.</a></li>
-          <li>Add new {{ newTerminologyEnabled ? 'teams' : 'agencies' }} to the Excel file and save it. Make sure that parent {{ newTerminologyEnabled ? 'team' : 'agency' }} rows are above all their children {{ newTerminologyEnabled ? 'team' : 'agency' }} rows.</li>
-          <li>Select your newly edited bulk import file using the <i>Choose File</i> button below, and click <i>Upload</i>.</li>
-          <li>When the import is finished, the status of the import, including any errors, will be displayed below.</li>
+          <li>{{ importResult.added }}</li>
+          <li>{{ importResult.notAdded }}</li>
+          <li
+            v-for="error in importResult.errors"
+            :key="error"
+          >
+            {{ error }}
+          </li>
         </ul>
-        <RecordUploader
-          :upload-record-type="'agencies'"
-          @importStatus="setStatus"
-        />
       </div>
-      <hr>
-      <div>
-        <h5>Import Status</h5>
-        <div v-if="importResult">
-          <ul>
-            <li>{{ importResult.added }}</li>
-            <li>{{ importResult.notAdded }}</li>
-            <li
-              v-for="error in importResult.errors"
-              :key="error"
-            >
-              {{ error }}
-            </li>
-          </ul>
-        </div>
-        <div v-else>
-          Nothing imported yet.
-        </div>
+      <div v-else>
+        Nothing imported yet.
       </div>
-    </b-modal>
-  </div>
+    </div>
+  </b-modal>
 </template>
 
 <script>
