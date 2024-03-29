@@ -5,7 +5,7 @@
       ref="modal"
       v-model="modalVisible"
       :title="`Bulk Import ${newTerminologyEnabled ? 'Teams' : 'Agencies'}`"
-      ok-only="true"
+      ok-only
     >
       <div>
         <ul>

@@ -4,9 +4,9 @@
       id="import-users-modal"
       ref="modal"
       title="Bulk Import Users"
+      ok-only
       @show="resetModal"
       @hidden="resetModal"
-      ok-only="true"
     >
       <div>
         <ul>
