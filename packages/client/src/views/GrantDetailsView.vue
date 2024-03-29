@@ -3,17 +3,31 @@
     <div v-if="loading">
       Loading...
     </div>
-    <div v-if="!selectedGrant && !loading">
+    <div v-if="!currentGrant && !loading">
       No grant found
     </div>
-    <b-container fluid v-if="selectedGrant && !loading">
+    <b-container
+      v-if="currentGrant && !loading"
+      fluid
+    >
       <div class="grant-details-container">
         <div class="grant-details-back-link">
-          <router-link v-if="isFirstPageLoad" :to="{ name: 'grants' }">Browse Grants</router-link>
-          <a href="#" @click="$router.back()" v-else>Back</a>
+          <router-link
+            v-if="isFirstPageLoad"
+            :to="{ name: 'grants' }"
+          >
+            Browse Grants
+          </router-link>
+          <a
+            v-else
+            href="#"
+            @click="$router.back()"
+          >Back</a>
         </div>
         <!-- Left page column: headline -->
-        <h2 class="grant-details-headline m-0">{{ selectedGrant.title }}</h2>
+        <h2 class="grant-details-headline m-0">
+          {{ currentGrant.title }}
+        </h2>
 
         <!-- Left page column: table data, and grant description -->
         <div class="grant-details-content">
@@ -34,9 +48,14 @@
               </span>
             </template>
           </b-table>
-          <h3 class="mb-3">Description</h3>
-          <!-- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
-          <div style="white-space: pre-line" v-html="selectedGrant.description"></div>
+          <h3 class="mb-3">
+            Description
+          </h3>
+          <!-- eslint-disable vue/no-v-html -- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
+          <div
+            style="white-space: pre-line"
+            v-html="currentGrant.description"
+          />
         </div>
 
         <!-- Right page column: main print/copy/grants.gov buttons -->
@@ -45,13 +64,17 @@
             variant="primary"
             block
             class="mb-3"
-            :href="`https://www.grants.gov/search-results-detail/${selectedGrant.grant_id}`"
+            :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
             target="_blank"
             rel="noopener noreferrer"
             data-dd-action-name="view on grants.gov"
             @click="onOpenGrantsGov"
           >
-            <b-icon icon="box-arrow-up-right" aria-hidden="true" class="mr-2" />
+            <b-icon
+              icon="box-arrow-up-right"
+              aria-hidden="true"
+              class="mr-2"
+            />
             Apply on Grants.gov
           </b-button>
           <div class="d-flex">
@@ -61,7 +84,11 @@
               data-dd-action-name="print btn"
               @click="printPage"
             >
-              <b-icon icon="printer-fill" aria-hidden="true" class="mr-2" />
+              <b-icon
+                icon="printer-fill"
+                aria-hidden="true"
+                class="mr-2"
+              />
               Print
             </b-button>
             <b-button
@@ -70,7 +97,11 @@
               data-dd-action-name="copy btn"
               @click="copyUrl"
             >
-              <b-icon :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'" aria-hidden="true" class="mr-2" />
+              <b-icon
+                :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'"
+                aria-hidden="true"
+                class="mr-2"
+              />
               <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
               <span v-else>Link Copied</span>
             </b-button>
@@ -81,11 +112,13 @@
         <div class="grant-details-secondary-actions">
           <!-- Assign grant section -->
           <div class="mb-5">
-            <h3 class="mb-3">Assign Grant</h3>
+            <h3 class="mb-3">
+              Assign Grant
+            </h3>
             <div class="d-flex print-d-none">
               <v-select
-                class="flex-grow-1 mr-3"
                 v-model="selectedAgencyToAssign"
+                class="flex-grow-1 mr-3"
                 :options="unassignedAgencies"
                 label="name"
                 track-by="id"
@@ -94,30 +127,46 @@
                 data-dd-action-name="select team for grant assignment"
                 @close="$refs.assignSubmitButton.focus()"
               />
-              <b-button ref="assignSubmitButton" variant="outline-primary" @click="assignAgenciesToGrant" :disabled="!selectedAgencyToAssign" data-dd-action-name="assign team">
+              <b-button
+                ref="assignSubmitButton"
+                variant="outline-primary"
+                :disabled="!selectedAgencyToAssign"
+                data-dd-action-name="assign team"
+                @click="assignAgenciesToGrant"
+              >
                 Submit
               </b-button>
             </div>
-            <div v-for="agency in assignedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
+            <div
+              v-for="agency in assignedAgencies"
+              :key="agency.id"
+              class="d-flex justify-content-between align-items-start my-3"
+            >
               <div class="mr-3">
-                <p class="m-0">{{ agency.name }}</p>
-                <p class="m-0 text-muted"><small>{{ formatDateTime(agency.created_at) }}</small></p>
+                <p class="m-0">
+                  {{ agency.name }}
+                </p>
+                <p class="m-0 text-muted">
+                  <small>{{ formatDateTime(agency.created_at) }}</small>
+                </p>
               </div>
               <b-button-close
-                @click="unassignAgenciesToGrant(agency)"
                 data-dd-action-name="remove team assignment"
                 class="print-d-none"
+                @click="unassignAgenciesToGrant(agency)"
               />
             </div>
           </div>
 
           <!-- Team status section -->
           <div class="mb-5">
-            <h3 class="mb-3">{{newTerminologyEnabled ? 'Team': 'Agency'}} Status</h3>
+            <h3 class="mb-3">
+              {{ newTerminologyEnabled ? 'Team': 'Agency' }} Status
+            </h3>
             <div class="d-flex print-d-none">
               <v-select
-                class="flex-grow-1 mr-3"
                 v-model="selectedInterestedCode"
+                class="flex-grow-1 mr-3"
                 :reduce="(option) => option.id"
                 :options="interestedOptions"
                 label="name"
@@ -128,12 +177,26 @@
                 data-dd-action-name="select team status"
                 @close="$refs.statusSubmitButton.focus()"
               />
-              <b-button ref="statusSubmitButton" variant="outline-primary" @click="markGrantAsInterested" :disabled="!selectedInterestedCode" data-dd-action-name="submit team status">
+              <b-button
+                ref="statusSubmitButton"
+                variant="outline-primary"
+                :disabled="!selectedInterestedCode"
+                data-dd-action-name="submit team status"
+                @click="markGrantAsInterested"
+              >
                 Submit
               </b-button>
             </div>
-            <div v-for="agency in visibleInterestedAgencies" :key="agency.id" class="d-flex justify-content-between align-items-start my-3">
-              <UserAvatar :user-name="agency.user_name" :color="agency.user_avatar_color" size="2.5rem" />
+            <div
+              v-for="agency in visibleInterestedAgencies"
+              :key="agency.id"
+              class="d-flex justify-content-between align-items-start my-3"
+            >
+              <UserAvatar
+                :user-name="agency.user_name"
+                :color="agency.user_avatar_color"
+                size="2.5rem"
+              />
               <div class="mx-3">
                 <p class="m-0">
                   <strong>{{ agency.user_name }}</strong> updated
@@ -141,20 +204,21 @@
                   <strong>{{ agency.interested_code_name }}</strong>
                 </p>
                 <p v-if="agency.user_email">
-                    <a :href="`mailto:${ agency.user_email }`" class="text-muted">
-                      <small><b-icon icon="envelope-fill"></b-icon> {{ agency.user_email }}</small>
-                    </a>
-                  </p>
+                  <small>
+                    <CopyButton :copy-text="agency.user_email">
+                      {{ agency.user_email }}
+                    </CopyButton>
+                  </small>
+                </p>
               </div>
               <b-button-close
-                @click="unmarkGrantAsInterested(agency)"
                 data-dd-action-name="remove team status"
                 class="print-d-none"
+                @click="unmarkGrantAsInterested(agency)"
               />
             </div>
           </div>
         </div>
-
       </div>
     </b-container>
   </section>
@@ -170,17 +234,24 @@ import { titleize } from '@/helpers/form-helpers';
 import { gtagEvent } from '@/helpers/gtag';
 import { DateTime } from 'luxon';
 import UserAvatar from '@/components/UserAvatar.vue';
+import CopyButton from '@/components/CopyButton.vue';
 
 const HEADER = '__HEADER__';
 const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
 const NOT_AVAILABLE_TEXT = 'Not available';
 
 export default {
-  props: {
-    selectedGrant: Object,
-  },
   components: {
     UserAvatar,
+    CopyButton,
+  },
+  beforeRouteEnter(to, from, next) {
+    const isFirstPageLoad = from.name === null && from.path === '/';
+    next((vm) => {
+      if (isFirstPageLoad) {
+        vm.setFirstPageLoad();
+      }
+    });
   },
   data() {
     return {
@@ -212,13 +283,107 @@ export default {
       copyUrlSuccessTimeout: null,
     };
   },
-  beforeRouteEnter(to, from, next) {
-    const isFirstPageLoad = from.name === null && from.path === '/';
-    next((vm) => {
-      if (isFirstPageLoad) {
-        vm.setFirstPageLoad();
+  computed: {
+    ...mapGetters({
+      agency: 'users/agency',
+      selectedAgencyId: 'users/selectedAgencyId',
+      agencies: 'agencies/agencies',
+      currentTenant: 'users/currentTenant',
+      users: 'users/users',
+      interestedCodes: 'grants/interestedCodes',
+      loggedInUser: 'users/loggedInUser',
+      selectedAgency: 'users/selectedAgency',
+      currentGrant: 'grants/currentGrant',
+    }),
+    grantId() {
+      return this.$route.params.id;
+    },
+    interestedOptions() {
+      return [
+        { name: 'Interested', status_code: HEADER },
+        ...this.interestedCodes.interested,
+        { name: 'Applied', status_code: HEADER },
+        ...this.interestedCodes.result,
+        { name: 'Not Applying', status_code: HEADER },
+        ...this.interestedCodes.rejections,
+      ];
+    },
+    tableData() {
+      return [{
+        name: 'Opportunity Number',
+        value: this.currentGrant.grant_number,
+      }, {
+        name: 'Open Date',
+        value: this.formatDate(this.currentGrant.open_date),
+      }, {
+        name: 'Close Date',
+        value: this.closeDateDisplay,
+        displayMuted: this.closeDateDisplayMuted,
+      }, {
+        name: 'Grant ID',
+        value: this.currentGrant.grant_id,
+      }, {
+        name: 'Agency Code',
+        value: this.currentGrant.agency_code,
+      }, {
+        name: 'Award Ceiling',
+        value: formatCurrency(this.currentGrant.award_ceiling),
+      }, {
+        name: 'Category of Funding Activity',
+        value: this.currentGrant.funding_activity_categories?.join(', '),
+      }, {
+        name: 'Opportunity Category',
+        value: this.currentGrant.opportunity_category,
+      }, {
+        name: 'Opportunity Status',
+        value: titleize(this.currentGrant.opportunity_status),
+      }, {
+        name: 'Appropriation Bill',
+        value: this.currentGrant.bill,
+      }, {
+        name: 'Cost Sharing',
+        value: this.currentGrant.cost_sharing,
+      },
+      ];
+    },
+    closeDateDisplay() {
+      // If we have an explainer text instead of a real close date, display that instead
+      if (this.currentGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
+        return this.currentGrant.close_date_explanation ?? NOT_AVAILABLE_TEXT;
       }
-    });
+      return this.formatDate(this.currentGrant.close_date);
+    },
+    closeDateDisplayMuted() {
+      return this.currentGrant.close_date === FAR_FUTURE_CLOSE_DATE && !this.currentGrant.close_date_explanation;
+    },
+    visibleInterestedAgencies() {
+      return this.currentGrant.interested_agencies
+        .filter((agency) => String(agency.agency_id) === this.selectedAgencyId || this.isAbleToUnmark(agency.agency_id));
+    },
+    alreadyViewed() {
+      if (!this.currentGrant) {
+        return false;
+      }
+      return this.currentGrant.viewed_by_agencies.find(
+        (viewed) => viewed.agency_id.toString() === this.selectedAgencyId,
+      );
+    },
+    interested() {
+      if (!this.currentGrant) {
+        return undefined;
+      }
+      return this.currentGrant.interested_agencies.find(
+        (interested) => interested.agency_id.toString() === this.selectedAgencyId,
+      );
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
+    },
+    unassignedAgencies() {
+      return this.agencies.filter(
+        (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
+      );
+    },
   },
   created() {
     // watch the params of the route to fetch the data again
@@ -234,121 +399,6 @@ export default {
       // already being observed
       { immediate: true },
     );
-  },
-  computed: {
-    ...mapGetters({
-      agency: 'users/agency',
-      selectedAgencyId: 'users/selectedAgencyId',
-      agencies: 'agencies/agencies',
-      currentTenant: 'users/currentTenant',
-      users: 'users/users',
-      interestedCodes: 'grants/interestedCodes',
-      loggedInUser: 'users/loggedInUser',
-      selectedAgency: 'users/selectedAgency',
-      currentGrant: 'grants/currentGrant',
-    }),
-    interestedOptions() {
-      return [
-        { name: 'Interested', status_code: HEADER },
-        ...this.interestedCodes.interested,
-        { name: 'Applied', status_code: HEADER },
-        ...this.interestedCodes.result,
-        { name: 'Not Applying', status_code: HEADER },
-        ...this.interestedCodes.rejections,
-      ];
-    },
-    tableData() {
-      return [{
-        name: 'Opportunity Number',
-        value: this.selectedGrant.grant_number,
-      }, {
-        name: 'Open Date',
-        value: this.formatDate(this.selectedGrant.open_date),
-      }, {
-        name: 'Close Date',
-        value: this.closeDateDisplay,
-        displayMuted: this.closeDateDisplayMuted,
-      }, {
-        name: 'Grant ID',
-        value: this.selectedGrant.grant_id,
-      }, {
-        name: 'Agency Code',
-        value: this.selectedGrant.agency_code,
-      }, {
-        name: 'Award Ceiling',
-        value: formatCurrency(this.selectedGrant.award_ceiling),
-      }, {
-        name: 'Category of Funding Activity',
-        value: this.selectedGrant.funding_activity_categories?.join(', '),
-      }, {
-        name: 'Opportunity Category',
-        value: this.selectedGrant.opportunity_category,
-      }, {
-        name: 'Opportunity Status',
-        value: titleize(this.selectedGrant.opportunity_status),
-      }, {
-        name: 'Appropriation Bill',
-        value: this.selectedGrant.bill,
-      }, {
-        name: 'Cost Sharing',
-        value: this.selectedGrant.cost_sharing,
-      },
-      ];
-    },
-    closeDateDisplay() {
-      // If we have an explainer text instead of a real close date, display that instead
-      if (this.selectedGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
-        return this.selectedGrant.close_date_explanation ?? NOT_AVAILABLE_TEXT;
-      }
-      return this.formatDate(this.selectedGrant.close_date);
-    },
-    closeDateDisplayMuted() {
-      return this.selectedGrant.close_date === FAR_FUTURE_CLOSE_DATE && !this.selectedGrant.close_date_explanation;
-    },
-    visibleInterestedAgencies() {
-      return this.selectedGrant.interested_agencies
-        .filter((agency) => String(agency.agency_id) === this.selectedAgencyId || this.isAbleToUnmark(agency.agency_id));
-    },
-    alreadyViewed() {
-      if (!this.selectedGrant) {
-        return false;
-      }
-      return this.selectedGrant.viewed_by_agencies.find(
-        (viewed) => viewed.agency_id.toString() === this.selectedAgencyId,
-      );
-    },
-    interested() {
-      if (!this.selectedGrant) {
-        return undefined;
-      }
-      return this.selectedGrant.interested_agencies.find(
-        (interested) => interested.agency_id.toString() === this.selectedAgencyId,
-      );
-    },
-    newTerminologyEnabled() {
-      return newTerminologyEnabled();
-    },
-    unassignedAgencies() {
-      return this.agencies.filter(
-        (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
-      );
-    },
-  },
-  watch: {
-    async selectedGrant() {
-      this.showDialog = Boolean(this.selectedGrant);
-      if (this.selectedGrant) {
-        this.fetchAgencies();
-        if (!this.alreadyViewed) {
-          try {
-            await this.markGrantAsViewed();
-          } catch (e) {
-            console.log(e);
-          }
-        }
-        this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
-      }
-    },
   },
   methods: {
     ...mapActions({
@@ -371,7 +421,7 @@ export default {
       this.isFirstPageLoad = true;
     },
     async markGrantAsViewed() {
-      await this.markGrantAsViewedAction({ grantId: this.selectedGrant.grant_id, agencyId: this.selectedAgencyId });
+      await this.markGrantAsViewedAction({ grantId: this.currentGrant.grant_id, agencyId: this.selectedAgencyId });
     },
     async markGrantAsInterested() {
       if (this.selectedInterestedCode !== null) {
@@ -380,7 +430,7 @@ export default {
           await this.unmarkGrantAsInterested(existingAgencyRecord);
         }
         await this.markGrantAsInterestedAction({
-          grantId: this.selectedGrant.grant_id,
+          grantId: this.currentGrant.grant_id,
           agencyId: this.selectedAgencyId,
           interestedCode: this.selectedInterestedCode,
         });
@@ -395,32 +445,32 @@ export default {
     },
     async unmarkGrantAsInterested(agency) {
       await this.unmarkGrantAsInterestedAction({
-        grantId: this.selectedGrant.grant_id,
+        grantId: this.currentGrant.grant_id,
         agencyIds: [agency.agency_id],
         interestedCode: agency.interested_code_id,
       });
-      this.selectedGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.selectedGrant.grant_id });
+      this.currentGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.currentGrant.grant_id });
       const eventName = 'remove team status for grant';
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
     },
     async assignAgenciesToGrant() {
       await this.assignAgenciesToGrantAction({
-        grantId: this.selectedGrant.grant_id,
+        grantId: this.currentGrant.grant_id,
         agencyIds: this.assignedAgencies.map((agency) => agency.id).concat(this.selectedAgencyToAssign.id),
       });
       const eventName = 'assign team to grant';
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
       this.selectedAgencyToAssign = null;
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.currentGrant.grant_id });
     },
     async unassignAgenciesToGrant(agency) {
       await this.unassignAgenciesToGrantAction({
-        grantId: this.selectedGrant.grant_id,
+        grantId: this.currentGrant.grant_id,
         agencyIds: [agency.id],
       });
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.selectedGrant.grant_id });
+      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.currentGrant.grant_id });
       const eventName = 'remove team assignment from grant';
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
@@ -428,15 +478,8 @@ export default {
     isAbleToUnmark(agencyId) {
       return this.agencies.some((agency) => agency.id === agencyId);
     },
-    resetSelectedGrant() {
-      this.$emit('update:selectedGrant', null);
-      this.assignedAgencies = [];
-      this.selectedAgencyToAssign = null;
-    },
     async fetchData() {
-      await this.fetchGrantDetails({ grantId: this.$route.params.id }).then(() => {
-        this.selectedGrant = this.currentGrant;
-      });
+      await this.fetchGrantDetails({ grantId: this.grantId });
     },
     copyUrl() {
       gtagEvent('copy btn clicked');

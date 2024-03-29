@@ -2,7 +2,7 @@ import VueRouter from 'vue-router';
 
 import { myProfileEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import LoginView from '@/views/LoginView.vue';
-import Layout from '../components/Layout.vue';
+import BaseLayout from '@/components/BaseLayout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
 
 import store from '../store';
@@ -31,7 +31,7 @@ export const routes = [
       }
       return { name: 'grants' };
     },
-    component: Layout,
+    component: BaseLayout,
     meta: {
       requiresAuth: true,
     },
@@ -71,7 +71,7 @@ export const routes = [
       {
         path: '/grants/:id',
         name: 'grantDetail',
-        component: () => import('../views/GrantDetails.vue'),
+        component: () => import('@/views/GrantDetailsView.vue'),
         meta: {
           hideLayoutTabs: true,
           requiresAuth: true,
@@ -102,7 +102,7 @@ export const routes = [
         path: '/tenants',
         name: 'tenants',
         redirect: newTerminologyEnabled() ? '/organizations' : undefined,
-        component: () => import('../views/Organizations.vue'),
+        component: () => import('@/views/OrganizationsView.vue'),
         meta: {
           requiresAuth: true,
         },
@@ -110,7 +110,7 @@ export const routes = [
       {
         path: '/organizations',
         name: 'organizations',
-        component: () => import('../views/Organizations.vue'),
+        component: () => import('@/views/OrganizationsView.vue'),
         meta: {
           requiresAuth: true,
           requiresNewTerminologyEnabled: true,
