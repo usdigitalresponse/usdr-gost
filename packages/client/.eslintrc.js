@@ -90,21 +90,12 @@ module.exports = {
         './src/views/GrantDetails.vue',
         './src/components/Modals/GrantDetailsLegacy.vue',
 
-        // Grant Finder: profile
-        './src/views/MyProfile.vue',
-        './src/components/Modals/ProfileSettings.vue',
-        './src/components/UserAvatar.vue',
-
         // Grant Finder: dashboard
         './src/views/Dashboard.vue',
         './src/views/RecentActivity.vue',
         './src/views/UpcomingClosingDates.vue',
         './src/components/ActivityTable.vue',
         './src/components/ClosingDatesTable.vue',
-
-        // DELETE -- no longer used
-        './src/views/EligibilityCodes.vue',
-        './src/views/Keywords.vue',
       ],
       rules: {
         // List of essential rules we previously had turned off

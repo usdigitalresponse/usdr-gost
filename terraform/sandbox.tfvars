@@ -16,7 +16,7 @@ website_managed_waf_rules = {}
 website_feature_flags = {
   myProfileEnabled           = true,
   newTerminologyEnabled      = false,
-  newGrantsDetailPageEnabled = false,
+  newGrantsDetailPageEnabled = true,
 }
 
 // ECS Cluster
