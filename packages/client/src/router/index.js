@@ -71,7 +71,7 @@ export const routes = [
       {
         path: '/grants/:id',
         name: 'grantDetail',
-        component: () => import('../views/GrantDetails.vue'),
+        component: () => import('@/views/GrantDetailsView.vue'),
         meta: {
           hideLayoutTabs: true,
           requiresAuth: true,
@@ -128,7 +128,7 @@ export const routes = [
         path: '/agencies',
         name: 'agencies',
         redirect: newTerminologyEnabled() ? '/teams' : undefined,
-        component: () => import('../views/Teams.vue'),
+        component: () => import('@/views/TeamsView.vue'),
         meta: {
           requiresAuth: true,
         },
@@ -136,7 +136,7 @@ export const routes = [
       {
         path: '/teams',
         name: 'teams',
-        component: () => import('../views/Teams.vue'),
+        component: () => import('@/views/TeamsView.vue'),
         meta: {
           requiresAuth: true,
           requiresNewTerminologyEnabled: true,

@@ -1,115 +1,154 @@
 <!-- eslint-disable max-len -->
 <template>
-  <div>
-    <b-modal
-      id="edit-agency-modal"
-      v-model="showDialog"
-      ref="modal"
-      :title="newTerminologyEnabled ? 'Edit Team' : 'Edit Agency'"
-      @hidden="resetModal"
-      @ok="handleOk"
-      :ok-disabled="$v.formData.$invalid"
+  <b-modal
+    id="edit-agency-modal"
+    ref="modal"
+    v-model="modalVisible"
+    :title="newTerminologyEnabled ? 'Edit Team' : 'Edit Agency'"
+    :ok-disabled="$v.formData.$invalid"
+    @ok="handleOk"
+  >
+    <h3>{{ agency && agency.name }}</h3>
+    <form
+      ref="form"
+      @submit.stop.prevent="handleSubmit"
     >
-    <h3>{{this.agency && this.agency.name}}</h3>
-      <form ref="form" @submit.stop.prevent="handleSubmit">
       <b-form-group
-          label-for="name-input"
+        label-for="name-input"
       >
-          <template slot="label">Name</template>
-          <b-form-input
-              autofocus
-              id="name-input"
-              type="text"
-              min=2
-              v-model="formData.name"
-              required
-            ></b-form-input>
-        </b-form-group>
-        <b-form-group
-          label-for="abbreviation-input"
+        <template slot="label">
+          Name
+        </template>
+        <b-form-input
+          id="name-input"
+          v-model="formData.name"
+          autofocus
+          type="text"
+          min="2"
+          required
+        />
+      </b-form-group>
+      <b-form-group
+        label-for="abbreviation-input"
+      >
+        <template slot="label">
+          Abbreviation
+        </template>
+        <template slot="description">
+          This is used for displaying lists of {{ newTerminologyEnabled ? 'teams' : 'agencies' }} in compact form (e.g. in a table).
+        </template>
+        <b-form-input
+          id="abbreviation-input"
+          v-model="formData.abbreviation"
+          type="text"
+          min="2"
+          max="8"
+          required
+        />
+      </b-form-group>
+      <b-form-group
+        label-for="code-input"
+      >
+        <template slot="label">
+          Code
+        </template>
+        <template slot="description">
+          This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across {{ newTerminologyEnabled ? 'teams' : 'agencies' }}.
+        </template>
+        <b-form-input
+          id="code-input"
+          v-model="formData.code"
+          type="text"
+          min="2"
+          max="8"
+        />
+      </b-form-group>
+      <b-form-group
+        label-for="agency-input"
+      >
+        <template slot="label">
+          Parent {{ newTerminologyEnabled ? 'Team' : 'Agency' }}
+        </template>
+        <v-select
+          v-model="formData.parentAgency"
+          :options="agencies"
+          label="name"
+          :value="formData.parentAgency"
         >
-          <template slot="label">Abbreviation</template>
-          <template slot="description">This is used for displaying lists of {{newTerminologyEnabled ? 'teams' : 'agencies'}} in compact form (e.g. in a table).</template>
-          <b-form-input
-              id="abbreviation-input"
-              type="text"
-              min=2
-              max=8
-              v-model="formData.abbreviation"
-              required
-            ></b-form-input>
-        </b-form-group>
-        <b-form-group
-          label-for="code-input"
-        >
-          <template slot="label">Code</template>
-          <template slot="description">This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across {{newTerminologyEnabled ? 'teams' : 'agencies'}}.</template>
-          <b-form-input
-              id="code-input"
-              type="text"
-              min=2
-              max=8
-              v-model="formData.code"
-            ></b-form-input>
-        </b-form-group>
-        <b-form-group
-          label-for="agency-input"
-        >
-          <template slot="label">Parent {{newTerminologyEnabled ? 'Team' : 'Agency'}}</template>
-          <v-select :options="agencies" label="name" :value="this.formData.parentAgency" v-model="formData.parentAgency">
-            <template #search="{attributes, events}">
-              <input
-                class="vs__search"
-                v-bind="attributes"
-                v-on="events"
-              />
-            </template>
-          </v-select>
-        </b-form-group>
-        <b-form-group
+          <template #search="{attributes, events}">
+            <input
+              class="vs__search"
+              v-bind="attributes"
+              v-on="events"
+            >
+          </template>
+        </v-select>
+      </b-form-group>
+      <b-form-group
+        :state="!$v.formData.warningThreshold.$invalid"
+        label-for="warningThreshold-input"
+        invalid-feedback="Warning Threshold must be 2 or greater"
+      >
+        <template slot="label">
+          Close Date <span class="text-warning">Warning</span> Threshold
+        </template>
+        <template slot="description">
+          How many days out to show grant close dates with <span class="text-warning">warning</span> status
+        </template>
+        <b-form-input
+          id="warningThreshold-input"
+          v-model="formData.warningThreshold"
+          autofocus
+          type="number"
+          min="2"
           :state="!$v.formData.warningThreshold.$invalid"
-          label-for="warningThreshold-input"
-          invalid-feedback="Warning Threshold must be 2 or greater"
+          required
+        />
+      </b-form-group>
+      <b-form-group
+        label-for="dangerThreshold-input"
+        invalid-feedback="Danger Threshold must be greater than zero and less than Warning Threshold"
+      >
+        <template slot="label">
+          Close Date <span class="text-danger">Danger</span> Threshold
+        </template>
+        <template slot="description">
+          How many days out to show grant close dates with <span class="text-danger">danger</span> status
+        </template>
+        <b-form-input
+          id="dangerThreshold-input"
+          v-model="formData.dangerThreshold"
+          type="number"
+          min="1"
+          :state="!$v.formData.dangerThreshold.$invalid"
+          required
+        />
+      </b-form-group>
+      <form
+        ref="form"
+        @click="handleDelete"
+      >
+        <span
+          id="disabled-wrapper"
+          class="d-inline-block"
+          tabindex="0"
         >
-        <template slot="label">Close Date <span class="text-warning">Warning</span> Threshold</template>
-        <template slot="description">How many days out to show grant close dates with <span class="text-warning">warning</span> status</template>
-          <b-form-input
-            autofocus
-            id="warningThreshold-input"
-            type="number"
-            min=2
-            v-model="formData.warningThreshold"
-            :state="!$v.formData.warningThreshold.$invalid"
-            required
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group
-          label-for="dangerThreshold-input"
-          invalid-feedback="Danger Threshold must be greater than zero and less than Warning Threshold"
+          <b-button
+            :disabled="userRole !== 'admin'"
+            variant="outline-danger"
+          > Delete {{ newTerminologyEnabled ? 'Team' : 'Agency' }}
+          </b-button>
+        </span>
+        <b-tooltip
+          v-if="userRole !== 'admin'"
+          target="disabled-wrapper"
+          triggers="hover"
         >
-        <template slot="label">Close Date <span class="text-danger">Danger</span> Threshold</template>
-        <template slot="description">How many days out to show grant close dates with <span class="text-danger">danger</span> status</template>
-          <b-form-input
-            id="dangerThreshold-input"
-            type="number"
-            min=1
-            v-model="formData.dangerThreshold"
-            :state="!$v.formData.dangerThreshold.$invalid"
-            required
-          ></b-form-input>
-        </b-form-group>
-        <form ref="form" @click="handleDelete">
-          <span id="disabled-wrapper" class="d-inline-block" tabindex="0">
-            <b-button v-bind:disabled="userRole !== 'admin'" variant="outline-danger"> Delete {{newTerminologyEnabled ? 'Team' : 'Agency'}}
-            </b-button>
-          </span>
-          <b-tooltip v-if="userRole !== 'admin'" target="disabled-wrapper" triggers="hover">
-            You cannot delete a {{newTerminologyEnabled ? 'team' : 'agency'}} with children. Reassign child {{newTerminologyEnabled ? 'teams' : 'agencies'}} to continue deletion.
-          </b-tooltip>
-        </form>
+          You cannot delete a {{ newTerminologyEnabled ? 'team' : 'agency' }} with children. Reassign child {{ newTerminologyEnabled ? 'teams' : 'agencies' }} to continue deletion.
+        </b-tooltip>
       </form>
-    </b-modal>
-  </div>
+    </form>
+  </b-modal>
 </template>
 
 <script>
@@ -121,11 +160,14 @@ import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
-    agency: Object,
+    show: Boolean,
+    agency: {
+      type: Object,
+      default: null,
+    },
   },
   data() {
     return {
-      showDialog: false,
       formData: {
         warningThreshold: null,
         dangerThreshold: null,
@@ -154,6 +196,19 @@ export default {
       code: {},
     },
   },
+  computed: {
+    ...mapGetters({
+      agencies: 'agencies/agencies',
+      userRole: 'users/userRole',
+    }),
+    modalVisible: {
+      get() { return this.show; },
+      set(value) { this.$emit('update:show', value); },
+    },
+    newTerminologyEnabled() {
+      return newTerminologyEnabled();
+    },
+  },
   watch: {
     agency() {
       this.formData.warningThreshold = this.agency && this.agency.warning_threshold;
@@ -163,19 +218,7 @@ export default {
       this.formData.name = this.agency && this.agency.name;
       this.formData.abbreviation = this.agency && this.agency.abbreviation;
       this.formData.code = this.agency && this.agency.code;
-      this.showDialog = Boolean(this.agency !== null);
     },
-  },
-  computed: {
-    ...mapGetters({
-      agencies: 'agencies/agencies',
-      userRole: 'users/userRole',
-    }),
-    newTerminologyEnabled() {
-      return newTerminologyEnabled();
-    },
-  },
-  mounted() {
   },
   methods: {
     ...mapActions({
@@ -186,9 +229,6 @@ export default {
       updateAgencyParent: 'agencies/updateAgencyParent',
       deleteAgency: 'agencies/deleteAgency',
     }),
-    resetModal() {
-      this.$emit('update:agency', null);
-    },
     handleOk(bvModalEvt) {
       bvModalEvt.preventDefault();
       this.handleSubmit();
@@ -215,7 +255,7 @@ export default {
           warningThreshold: this.formData.warningThreshold,
           dangerThreshold: this.formData.dangerThreshold,
         }).then(() => {
-          this.resetModal();
+          this.modalVisible = false;
         }).catch(async (e) => {
           await this.$bvModal.msgBoxOk(`Could not delete ${this.newTerminologyEnabled ? 'team' : 'agency'}: ${e.message}`, {
             title: 'Error',
@@ -256,8 +296,7 @@ export default {
         }
       }
       if (ok) {
-        this.resetModal();
-        this.$bvModal.hide();
+        this.modalVisible = false;
       }
     },
   },
