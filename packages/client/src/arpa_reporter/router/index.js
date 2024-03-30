@@ -7,6 +7,8 @@ import HomeView from '@/arpa_reporter/views/HomeView.vue';
 import LoginView from '@/arpa_reporter/views/LoginView.vue';
 import SubrecipientView from '@/arpa_reporter/views/SubrecipientView.vue';
 import SubrecipientsView from '@/arpa_reporter/views/SubrecipientsView.vue';
+import UserView from '@/arpa_reporter/views/UserView.vue';
+import UsersView from '@/arpa_reporter/views/UsersView.vue';
 import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
 import NewTemplate from '../views/NewTemplate.vue';
 import NewUpload from '../views/NewUpload.vue';
@@ -14,8 +16,6 @@ import Upload from '../views/Upload.vue';
 import Uploads from '../views/Uploads.vue';
 import ReportingPeriod from '../views/ReportingPeriod.vue';
 import ReportingPeriods from '../views/ReportingPeriods.vue';
-import User from '../views/User.vue';
-import Users from '../views/Users.vue';
 import store from '../store/index';
 
 Vue.use(VueRouter);
@@ -91,13 +91,13 @@ const routes = [
   {
     path: '/users',
     name: 'Users',
-    component: Users,
+    component: UsersView,
     meta: { requiresLogin: true },
   },
   {
     path: '/users/:id',
     name: 'User',
-    component: User,
+    component: UserView,
     meta: { requiresLogin: true },
   },
   {
