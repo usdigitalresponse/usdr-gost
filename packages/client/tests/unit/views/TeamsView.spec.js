@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import Teams from '@/views/Teams.vue';
+import TeamsView from '@/views/TeamsView.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -23,7 +23,7 @@ afterEach(() => {
   wrapper = undefined;
 });
 
-describe('Teams.vue', () => {
+describe('TeamsView.vue', () => {
   describe('when a non-admin loads the page', () => {
     beforeEach(() => {
       store = new Vuex.Store({
@@ -35,7 +35,7 @@ describe('Teams.vue', () => {
           ...noOpActions,
         },
       });
-      wrapper = shallowMount(Teams, {
+      wrapper = shallowMount(TeamsView, {
         store,
         localVue,
         stubs,
@@ -74,7 +74,7 @@ describe('Teams.vue', () => {
             ...noOpActions,
           },
         });
-        wrapper = shallowMount(Teams, {
+        wrapper = shallowMount(TeamsView, {
           store,
           localVue,
           stubs,
@@ -111,7 +111,7 @@ describe('Teams.vue', () => {
             ...noOpActions,
           },
         });
-        wrapper = shallowMount(Teams, {
+        wrapper = shallowMount(TeamsView, {
           store,
           localVue,
           stubs,
