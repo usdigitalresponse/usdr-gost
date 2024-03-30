@@ -1,25 +1,29 @@
 <template>
   <div class="uploader">
     <div>
-      <div v-if="error" class="mt-3 alert alert-danger" role="alert">
+      <div
+        v-if="error"
+        class="mt-3 alert alert-danger"
+        role="alert"
+      >
         {{ error }}
       </div>
 
       <form
+        ref="form"
         method="post"
         encType="multipart/form-data"
-        ref="form"
         @submit.prevent="onSubmit"
       >
         <div class="form-group">
           <input
+            id="spreadsheet"
+            ref="files"
             class="form-control-file"
             type="file"
-            id="spreadsheet"
             name="spreadsheet"
             @change="changeFiles"
-            ref="files"
-          />
+          >
         </div>
         <div class="form-group">
           <button
@@ -39,9 +43,12 @@
 import { apiURL } from '@/helpers/fetchApi';
 
 export default {
-  name: 'Uploader',
+  name: 'RecordUploader',
   props: {
-    uploadRecordType: String,
+    uploadRecordType: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
