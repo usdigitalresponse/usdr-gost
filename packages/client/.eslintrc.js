@@ -44,10 +44,6 @@ module.exports = {
         './src/arpa_reporter/views/ReportingPeriod.vue',
         './src/arpa_reporter/views/ReportingPeriods.vue',
 
-        // ARPA Reporter: upload views
-        './src/arpa_reporter/views/Upload.vue',
-        './src/arpa_reporter/views/Uploads.vue',
-
         // ARPA Reporter: annual performance reporter
         './src/views/ArpaAnnualPerformanceReporter.vue',
 
