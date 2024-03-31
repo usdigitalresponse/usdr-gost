@@ -48,9 +48,6 @@ module.exports = {
         './src/arpa_reporter/views/Upload.vue',
         './src/arpa_reporter/views/Uploads.vue',
 
-        // ARPA Reporter: annual performance reporter
-        './src/views/ArpaAnnualPerformanceReporter.vue',
-
         // Grant Finder: search modals
         './src/components/Modals/AddKeyword.vue',
         './src/components/Modals/SavedSearchPanel.vue',
