@@ -125,6 +125,16 @@ module "arpa_treasury_report_security_group" {
   allow_all_egress = true
 }
 
+module "grant_digest_scheduled_task_security_group" {
+  source  = "cloudposse/security-group/aws"
+  version = "2.2.0"
+
+  namespace        = var.namespace
+  vpc_id           = data.aws_ssm_parameter.vpc_id.value
+  attributes       = ["grant_digest_scheduled_task"]
+  allow_all_egress = true
+}
+
 resource "aws_ecs_cluster" "default" {
   count = anytrue([var.api_enabled]) ? 1 : 0
 
@@ -163,6 +173,7 @@ module "api" {
     module.consume_grants_to_postgres_security_group.id,
     module.arpa_audit_report_security_group.id,
     module.arpa_treasury_report_security_group.id,
+    module.grant_digest_scheduled_task_security_group.id,
   ]
 
   # Cluster
@@ -170,17 +181,18 @@ module "api" {
   ecs_cluster_name = join("", aws_ecs_cluster.default[*].name)
 
   # Task configuration
-  docker_tag                        = var.api_container_image_tag
-  default_desired_task_count        = var.api_default_desired_task_count
-  autoscaling_desired_count_minimum = var.api_minumum_task_count
-  autoscaling_desired_count_maximum = var.api_maximum_task_count
-  enable_grants_scraper             = var.api_enable_grants_scraper
-  enable_grants_digest              = var.api_enable_grants_digest
-  enable_new_team_terminology       = var.api_enable_new_team_terminology
-  enable_my_profile                 = var.api_enable_my_profile
-  enable_saved_search_grants_digest = var.api_enable_saved_search_grants_digest
-  unified_service_tags              = local.unified_service_tags
-  datadog_environment_variables     = var.api_datadog_environment_variables
+  docker_tag                         = var.api_container_image_tag
+  default_desired_task_count         = var.api_default_desired_task_count
+  autoscaling_desired_count_minimum  = var.api_minumum_task_count
+  autoscaling_desired_count_maximum  = var.api_maximum_task_count
+  enable_grants_scraper              = var.api_enable_grants_scraper
+  enable_grants_digest               = var.api_enable_grants_digest
+  enable_new_team_terminology        = var.api_enable_new_team_terminology
+  enable_my_profile                  = var.api_enable_my_profile
+  enable_saved_search_grants_digest  = var.api_enable_saved_search_grants_digest
+  enable_grant_digest_scheduled_task = var.api_enable_grant_digest_scheduled_task
+  unified_service_tags               = local.unified_service_tags
+  datadog_environment_variables      = var.api_datadog_environment_variables
   api_container_environment = merge(var.api_container_environment, {
     ARPA_AUDIT_REPORT_SQS_QUEUE_URL    = module.arpa_audit_report.sqs_queue_url
     ARPA_TREASURY_REPORT_SQS_QUEUE_URL = module.arpa_treasury_report.sqs_queue_url
@@ -426,6 +438,53 @@ resource "aws_iam_role_policy" "api_task-publish_to_arpa_treasury_report_queue" 
   policy      = data.aws_iam_policy_document.publish_to_arpa_treasury_report_queue.json
 }
 
+module "grant_digest_scheduled_task" {
+  source  = "./modules/scheduled_ecs_task"
+  enabled = var.api_enabled && var.api_enable_grant_digest_scheduled_task
+
+  name_prefix = "${var.namespace}-grant-digest-scheduled-task"
+  description = "Executes an ECS task that sends grants digest emails, between 9am - 10am ET"
+
+  # Schedule
+  schedule_expression          = "cron(0 9 * * ? *)"
+  schedule_expression_timezone = "America/New_York"
+  flexible_time_window         = { hours = 1 }
+  # Until we have more robust email retry handling, we'll limit to 1 attempt to avoid sending multiple duplicate emails to a portion of the audience
+  retry_policy_max_attempts  = 1
+  retry_policy_max_event_age = { hours = 4 }
+
+  // Permissions
+  task_role_arn            = join("", aws_ecs_task_definition.default[*].task_role_arn)
+  task_execution_role_arn  = join("", aws_ecs_task_definition.default[*].execution_role_arn)
+  permissions_boundary_arn = local.permissions_boundary_arn
+
+  // Task settings
+  cluster_arn             = join("", data.aws_ecs_cluster.default[*].arn)
+  task_definition_arn     = join("", aws_ecs_task_definition.default[*].arn)
+  task_revision           = "LATEST"
+  launch_type             = "FARGATE"
+  enable_ecs_managed_tags = true
+  enable_execute_command  = false
+
+  task_override = jsonencode({
+    containerOverrides = [
+      {
+        name = "api"
+        command = [
+          "node",
+          "./src/scripts/sendGrantDigestEmail.js"
+        ]
+      },
+    ]
+  })
+
+  network_configuration = {
+    assign_public_ip = false
+    security_groups  = [module.grant_digest_scheduled_task_security_group.id]
+    subnets          = local.private_subnet_ids
+  }
+}
+
 module "postgres" {
   enabled                  = var.postgres_enabled
   source                   = "./modules/gost_postgres"
@@ -436,10 +495,11 @@ module "postgres" {
   vpc_id          = data.aws_ssm_parameter.vpc_id.value
   subnet_ids      = local.private_subnet_ids
   ingress_security_groups = {
-    from_api                  = module.api_to_postgres_security_group.id
-    from_consume_grants       = module.consume_grants_to_postgres_security_group.id
-    from_arpa_audit_report    = module.arpa_audit_report_security_group.id
-    from_arpa_treasury_report = module.arpa_treasury_report_security_group.id
+    from_api                         = module.api_to_postgres_security_group.id
+    from_consume_grants              = module.consume_grants_to_postgres_security_group.id
+    from_arpa_audit_report           = module.arpa_audit_report_security_group.id
+    from_arpa_treasury_report        = module.arpa_treasury_report_security_group.id
+    from_grant_digest_scheduled_task = module.grant_digest_scheduled_task_security_group.id
   }
 
   prevent_destroy           = var.postgres_prevent_destroy
