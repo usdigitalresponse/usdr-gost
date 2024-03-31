@@ -104,7 +104,7 @@ import { getJson } from '../store/index';
 import { shortUuid } from '../helpers/short-uuid';
 
 export default {
-  name: 'Uploads',
+  name: 'UploadsView',
   components: {
     VueGoodTable,
     DownloadFileButton,

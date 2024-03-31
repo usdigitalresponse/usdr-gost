@@ -294,7 +294,7 @@ import { getJson, post } from '../store/index';
 import { shortUuid } from '../helpers/short-uuid';
 
 export default {
-  name: 'Upload',
+  name: 'UploadView',
   components: {
     AlertBox,
     DownloadFileButton,
