@@ -103,11 +103,6 @@ export default {
       },
     },
   },
-  watch: {
-    showModal() {
-      this.$bvModal.show('add-user-modal');
-    },
-  },
   computed: {
     ...mapGetters({
       roles: 'roles/roles',
@@ -127,6 +122,11 @@ export default {
     },
     newTerminologyEnabled() {
       return newTerminologyEnabled();
+    },
+  },
+  watch: {
+    showModal() {
+      this.$bvModal.show('add-user-modal');
     },
   },
   mounted() {

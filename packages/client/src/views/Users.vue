@@ -100,9 +100,6 @@ export default {
       showUploadUsersModal: false,
     };
   },
-  mounted() {
-    this.fetchUsers();
-  },
   computed: {
     ...mapGetters({
       loggedInUser: 'users/loggedInUser',
@@ -126,6 +123,9 @@ export default {
     selectedAgency() {
       this.setup();
     },
+  },
+  mounted() {
+    this.fetchUsers();
   },
   methods: {
     ...mapActions({
