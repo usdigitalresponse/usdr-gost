@@ -1,14 +1,27 @@
 <template>
   <div>
     <div class="row">
-      <AlertBox v-if="alert" :text="alert.text" :level="alert.level" v-on:dismiss="clearAlert" />
+      <AlertBox
+        v-if="alert"
+        :text="alert.text"
+        :level="alert.level"
+        @dismiss="clearAlert"
+      />
     </div>
 
     <div class="row">
-      <h4 v-if="errors.length > 0" class="col text-danger">Validation Results</h4>
+      <h4
+        v-if="errors.length > 0"
+        class="col text-danger"
+      >
+        Validation Results
+      </h4>
     </div>
 
-    <div v-if="errors.length > 0" class="row">
+    <div
+      v-if="errors.length > 0"
+      class="row"
+    >
       <div class="col">
         <table class="table table-sm table-bordered table-striped col-sm-12 col-md-6">
           <thead>
@@ -22,7 +35,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr :key="n" v-for="(error, n) in errors">
+            <tr
+              v-for="(error, n) in errors"
+              :key="n"
+            >
               <td>{{ n + 1 }}</td>
               <td :class="{ 'table-danger': error.severity === 'err', 'table-warning': error.severity !== 'err' }">
                 {{ error.severity === 'err' ? 'Error' : 'Warning' }}
@@ -38,10 +54,15 @@
     </div>
 
     <div class="row">
-      <h4 class="col">Upload {{ shortUploadId }} details:</h4>
+      <h4 class="col">
+        Upload {{ shortUploadId }} details:
+      </h4>
     </div>
 
-    <div v-if="upload" class="row">
+    <div
+      v-if="upload"
+      class="row"
+    >
       <div class="col-sm-12 col-md-6 mb-sm-3 mb-md-1">
         <ul class="list-group">
           <li class="list-group-item">
@@ -54,12 +75,18 @@
             {{ reportingPeriodName }}
           </li>
 
-          <li class="list-group-item" :class="{ 'list-group-item-warning': !upload.agency_id }">
+          <li
+            class="list-group-item"
+            :class="{ 'list-group-item-warning': !upload.agency_id }"
+          >
             <span class="font-weight-bold">Agency: </span>
             {{ upload.agency_code || 'Not set' }}
           </li>
 
-          <li class="list-group-item" :class="{ 'list-group-item-warning': !upload.ec_code }">
+          <li
+            class="list-group-item"
+            :class="{ 'list-group-item-warning': !upload.ec_code }"
+          >
             <span class="font-weight-bold">EC Code: </span>
             {{ upload.ec_code || 'Not set' }}
           </li>
@@ -69,47 +96,93 @@
             {{ displayTs(upload.created_at) }} ({{ fromNow(upload.created_at) }}) by {{ upload.created_by }}
           </li>
 
-          <li class="list-group-item" :class="{ 'list-group-item-warning': !upload.notes }">
+          <li
+            class="list-group-item"
+            :class="{ 'list-group-item-warning': !upload.notes }"
+          >
             <span class="font-weight-bold">Notes: </span>
             {{ upload.notes || 'Not set' }}
           </li>
 
-          <li class="list-group-item d-flex" :class="validatedLiClass">
+          <li
+            class="list-group-item d-flex"
+            :class="validatedLiClass"
+          >
             <span class="font-weight-bold warning mr-2">Validation: </span>
             <span v-if="upload.invalidated_at">
-                <b-icon icon="x-circle-fill" variant="danger"></b-icon> Invalidated on {{ displayTs(upload.invalidated_at) }} ({{ fromNow(upload.invalidated_at) }}) by {{ upload.validated_by_email }}
+              <b-icon
+                icon="x-circle-fill"
+                variant="danger"
+              /> Invalidated on {{ displayTs(upload.invalidated_at) }} ({{ fromNow(upload.invalidated_at) }}) by {{ upload.validated_by_email }}
             </span>
             <span v-else-if="upload.validated_at">
-                <b-icon icon="check-lg" variant="success"></b-icon> Validated on {{ displayTs(upload.validated_at) }} ({{ fromNow(upload.validated_at) }}) by {{ upload.validated_by_email }}
+              <b-icon
+                icon="check-lg"
+                variant="success"
+              /> Validated on {{ displayTs(upload.validated_at) }} ({{ fromNow(upload.validated_at) }}) by {{ upload.validated_by_email }}
             </span>
             <span v-else>
               Not Validated
             </span>
-
           </li>
           <li class="list-group-item float-right">
-            <span v-if="validating" class="float-right">
-                <button class="btn btn-primary ml-2" @click="validateUpload" :disabled="validating">
-                    Validating...
-                </button>
+            <span
+              v-if="validating"
+              class="float-right"
+            >
+              <button
+                class="btn btn-primary ml-2"
+                :disabled="validating"
+                @click="validateUpload"
+              >
+                Validating...
+              </button>
             </span>
-            <span v-else-if="upload.validated_at" class="mt-2 float-right">
-                <DownloadFileButton :upload="upload" :small="false" />
-                <button class="btn btn-outline-primary ml-2" @click="invalidateUpload" :disabled="upload.invalidated_at">
-                    Invalidate
-                </button>
-                <button class="btn btn-outline-primary ml-2" @click="validateUpload" :disabled="validating">
-                    Re-validate
-                </button>
+            <span
+              v-else-if="upload.validated_at"
+              class="mt-2 float-right"
+            >
+              <DownloadFileButton
+                :upload="upload"
+                :small="false"
+              />
+              <button
+                class="btn btn-outline-primary ml-2"
+                :disabled="upload.invalidated_at"
+                @click="invalidateUpload"
+              >
+                Invalidate
+              </button>
+              <button
+                class="btn btn-outline-primary ml-2"
+                :disabled="validating"
+                @click="validateUpload"
+              >
+                Re-validate
+              </button>
             </span>
-            <span v-else class="float-right">
-                <DownloadFileButton :upload="upload" :small="false" />
-                <button class="btn btn-outline-primary ml-2" @click="invalidateUpload" :disabled="upload.invalidated_at">
-                    Invalidate
-                </button>
-                <button class="btn btn-primary ml-2" @click="validateUpload" :disabled="validating">
-                    Validate
-                </button>
+            <span
+              v-else
+              class="float-right"
+            >
+              <DownloadFileButton
+                :upload="upload"
+                :small="false"
+              />
+              <button
+                class="btn btn-outline-primary ml-2"
+                :disabled="upload.invalidated_at"
+                @click="invalidateUpload"
+              >
+                Invalidate
+              </button>
+              <button
+                class="btn btn-primary ml-2"
+                :disabled="validating"
+                @click="validateUpload"
+              >
+                Validate
+              </button>
             </span>
 
             <!--
@@ -123,7 +196,10 @@
         </ul>
       </div>
 
-      <div class="col-sm-12 col-md-6" v-if="upload.agency_code && upload.ec_code">
+      <div
+        v-if="upload.agency_code && upload.ec_code"
+        class="col-sm-12 col-md-6"
+      >
         <h4>
           All from agency
           <span class="text-primary bg-light">{{ upload.agency_code }}</span>
@@ -138,7 +214,9 @@
           </p>
           <p v-else>
             Upload
-            <router-link :to="`/uploads/${seriesExported.id}`">{{ seriesExported.id }}</router-link>
+            <router-link :to="`/uploads/${seriesExported.id}`">
+              {{ seriesExported.id }}
+            </router-link>
             will be used for Treasury reporting.
           </p>
         </template>
@@ -149,7 +227,8 @@
             <span class="text-danger">does not</span>
             have a valid upload with code
             <span>{{ upload.ec_code }}</span>
-            to use in Treasury reporting for period {{ upload.reporting_period_id }}.</p>
+            to use in Treasury reporting for period {{ upload.reporting_period_id }}.
+          </p>
         </template>
 
         <table class="table table-sm table-stripped">
@@ -165,18 +244,31 @@
             <tr
               v-for="sUpload in series"
               :key="sUpload.id"
-              :class="{ 'table-success': seriesExported && seriesExported.id == sUpload.id }">
+              :class="{ 'table-success': seriesExported && seriesExported.id == sUpload.id }"
+            >
               <template v-if="sUpload.id === upload.id">
                 <td>{{ upload.id }}</td>
-                <td colspan="2">This upload</td>
+                <td colspan="2">
+                  This upload
+                </td>
               </template>
 
               <template v-else>
-                <td><router-link :to="`/uploads/${sUpload.id}`">{{ sUpload.id }}</router-link></td>
+                <td>
+                  <router-link :to="`/uploads/${sUpload.id}`">
+                    {{ sUpload.id }}
+                  </router-link>
+                </td>
                 <td>{{ displayTs(sUpload.created_at) }}</td>
-                <td v-if="sUpload.validated_at">{{ displayTs(sUpload.validated_at) }}</td>
-                <td v-else-if="sUpload.invalidated_at">Invalidated {{ displayTs(sUpload.invalidated_at) }}</td>
-                <td v-else>Not Validated</td>
+                <td v-if="sUpload.validated_at">
+                  {{ displayTs(sUpload.validated_at) }}
+                </td>
+                <td v-else-if="sUpload.invalidated_at">
+                  Invalidated {{ displayTs(sUpload.invalidated_at) }}
+                </td>
+                <td v-else>
+                  Not Validated
+                </td>
               </template>
             </tr>
           </tbody>
@@ -184,7 +276,10 @@
       </div>
     </div>
 
-    <div v-else class="row">
+    <div
+      v-else
+      class="row"
+    >
       <span class="col">Loading...</span>
     </div>
   </div>
@@ -237,6 +332,14 @@ export default {
       const reportingPeriod = this.$store.state.reportingPeriods.find((per) => per.id === this.upload.reporting_period_id);
       return reportingPeriod ? reportingPeriod.name : `ID: ${this.upload.reporting_period_id}`;
     },
+  },
+  watch: {
+    uploadId() {
+      this.onLoad();
+    },
+  },
+  async mounted() {
+    this.onLoad();
   },
   methods: {
     titleize,
@@ -350,14 +453,6 @@ export default {
       await this.loadUpload();
       this.initialValidation();
     },
-  },
-  watch: {
-    uploadId() {
-      this.onLoad();
-    },
-  },
-  async mounted() {
-    this.onLoad();
   },
 };
 </script>
