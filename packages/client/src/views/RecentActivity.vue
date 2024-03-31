@@ -2,30 +2,57 @@
   <section class="container">
     <b-card class="border-0">
       <div class="d-flex">
-        <h2 class="card-title gutter-title1 row h4">Recent Activity</h2>
+        <h2 class="card-title gutter-title1 row h4">
+          Recent Activity
+        </h2>
         <div class="justify-content-end left-margin">
-          <b-button @click="exportCSV" variant="outline-secondary">
-            <b-icon icon="download" class="mr-1 mb-1" font-scale="0.9" aria-hidden="true" />
+          <b-button
+            variant="outline-secondary"
+            @click="exportCSV"
+          >
+            <b-icon
+              icon="download"
+              class="mr-1 mb-1"
+              font-scale="0.9"
+              aria-hidden="true"
+            />
             Export to CSV
           </b-button>
         </div>
       </div>
-      <ActivityTable id="activity-table" :grants-interested="grantsInterested" :on-row-clicked="onRowClicked" :on-row-selected="onRowSelected"/>
+      <ActivityTable
+        id="activity-table"
+        :grants-interested="grantsInterested"
+        :on-row-clicked="onRowClicked"
+        :on-row-selected="onRowSelected"
+      />
       <div class="d-flex">
-        <b-pagination-nav class="m-0" use-router no-page-detect :value="currentPage" :number-of-pages="numberOfPages" :link-gen="linkGen" first-number
-                      last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last" aria-controls="activity-table"/>
-        <div class="my-1 rounded py-1 px-2 page-item">{{ totalInterestedGrants }} total event{{ totalInterestedGrants == 1 ? '' : 's' }}</div>
+        <b-pagination-nav
+          class="m-0"
+          use-router
+          no-page-detect
+          :value="currentPage"
+          :number-of-pages="numberOfPages"
+          :link-gen="linkGen"
+          first-number
+          last-number
+          first-text="First"
+          prev-text="Prev"
+          next-text="Next"
+          last-text="Last"
+          aria-controls="activity-table"
+        />
+        <div class="my-1 rounded py-1 px-2 page-item">
+          {{ totalInterestedGrants }} total event{{ totalInterestedGrants == 1 ? '' : 's' }}
+        </div>
       </div>
     </b-card>
-    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy
+      v-if="!newGrantsDetailPageEnabled"
+      :selected-grant.sync="selectedGrant"
+    />
   </section>
 </template>
-<style scoped>
-   .gutter-title1.row {
-    margin-left: +4px;
-  }
-</style>
-
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
@@ -35,13 +62,13 @@ import ActivityTable from '@/components/ActivityTable.vue';
 
 export default {
   components: { ActivityTable, GrantDetailsLegacy },
+  mixins: [resizableTableMixin],
   data() {
     return {
       perPage: 10,
       selectedGrant: null,
     };
   },
-  mixins: [resizableTableMixin],
   mounted() {
     this.setup();
   },
@@ -109,6 +136,12 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+   .gutter-title1.row {
+    margin-left: +4px;
+  }
+</style>
 
 <style scoped>
 .left-margin {

@@ -1,21 +1,40 @@
 <!-- eslint-disable max-len -->
 <template>
-  <section class='m-3'>
+  <section class="m-3">
     <div class="px-5">
       <b-container fluid>
         <div class="row">
-          <b-col cols="1"></b-col>
+          <b-col cols="1" />
           <b-col>
             <b-card>
               <div class="card-block text-left">
-                <h4 class="card-title gutter-title1 row">Recent Activity</h4>
-                <span id="noRecentActivityMessage" class="gutter-title1 row" v-if="!grantsInterested?.length">Your {{newTerminologyEnabled ? 'team' : 'agency'}} has no recent activity.</span>
+                <h4 class="card-title gutter-title1 row">
+                  Recent Activity
+                </h4>
+                <span
+                  v-if="!grantsInterested?.length"
+                  id="noRecentActivityMessage"
+                  class="gutter-title1 row"
+                >Your {{ newTerminologyEnabled ? 'team' : 'agency' }} has no recent activity.</span>
               </div>
-              <ActivityTable :grants-interested="grantsInterested" :on-row-clicked="onRowClicked" :on-row-selected="onRowSelected"/>
+              <ActivityTable
+                :grants-interested="grantsInterested"
+                :on-row-clicked="onRowClicked"
+                :on-row-selected="onRowSelected"
+              />
               <div v-if="totalInterestedGrants > 4">
-                <b-row align-v="center" >
-                  <b-navbar toggleable="sm py-0" bg-transparent class="gutter-activity row">
-                    <b-link class="nav-link active" to="RecentActivity">See All Activity</b-link>
+                <b-row align-v="center">
+                  <b-navbar
+                    toggleable="sm py-0"
+                    bg-transparent
+                    class="gutter-activity row"
+                  >
+                    <b-link
+                      class="nav-link active"
+                      to="RecentActivity"
+                    >
+                      See All Activity
+                    </b-link>
                   </b-navbar>
                 </b-row>
               </div>
@@ -24,49 +43,52 @@
           <b-col>
             <b-card>
               <div class="card-block text-left">
-                <h2 class="card-title gutter-title2 row h4">Upcoming Closing Dates</h2>
-                <span id="noUpcomingCloseDates" class="gutter-title2 row" v-if="!closestGrants?.length">Your {{newTerminologyEnabled ? 'team' : 'agency'}} has no upcoming close dates.</span>
+                <h2 class="card-title gutter-title2 row h4">
+                  Upcoming Closing Dates
+                </h2>
+                <span
+                  v-if="!closestGrants?.length"
+                  id="noUpcomingCloseDates"
+                  class="gutter-title2 row"
+                >Your {{ newTerminologyEnabled ? 'team' : 'agency' }} has no upcoming close dates.</span>
               </div>
-              <ClosingDatesTable :closest-grants="closestGrants" :on-row-clicked="onRowClicked" :on-row-selected="onRowSelected"
-                                 :danger-threshold="this.selectedTeam?.danger_threshold" :warning-threshold="this.selectedTeam?.warning_threshold" />
+              <ClosingDatesTable
+                :closest-grants="closestGrants"
+                :on-row-clicked="onRowClicked"
+                :on-row-selected="onRowSelected"
+                :danger-threshold="selectedTeam?.danger_threshold"
+                :warning-threshold="selectedTeam?.warning_threshold"
+              />
               <div v-if="totalUpcomingGrants > 3">
                 <b-row align-v="center">
-                  <b-navbar toggleable="sm py-0" bg-transparent class="gutter-upcoming row">
-                    <b-link class="nav-link active" to="UpcomingClosingDates">See All Upcoming</b-link>
+                  <b-navbar
+                    toggleable="sm py-0"
+                    bg-transparent
+                    class="gutter-upcoming row"
+                  >
+                    <b-link
+                      class="nav-link active"
+                      to="UpcomingClosingDates"
+                    >
+                      See All Upcoming
+                    </b-link>
                   </b-navbar>
                 </b-row>
               </div>
             </b-card>
           </b-col>
-          <b-col cols="1"></b-col>
+          <b-col cols="1" />
         </div>
       </b-container>
     </div>
-    <br/>
+    <br>
 
-    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy
+      v-if="!newGrantsDetailPageEnabled"
+      :selected-grant.sync="selectedGrant"
+    />
   </section>
 </template>
-
-<style scoped>
-  .gutter-activity.row {
-    margin-left: -10px;
-    margin-top: -8px;
-    margin-bottom: -6px;
-  }
-  .gutter-upcoming.row {
-    margin-left: -2px;
-    margin-top: -8px;
-    margin-bottom: -6px;
-  }
-  .gutter-title1.row {
-    margin-left: +4px;
-  }
-  .gutter-title2.row {
-    margin-left: +10px;
-  }
-
-</style>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
@@ -78,6 +100,8 @@ import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/fea
 
 export default {
   components: { ClosingDatesTable, ActivityTable, GrantDetailsLegacy },
+
+  mixins: [resizableTableMixin],
   data() {
     return {
       perPage: 4,
@@ -86,8 +110,6 @@ export default {
       selectedGrant: null,
     };
   },
-
-  mixins: [resizableTableMixin],
   async mounted() {
     await this.setup();
   },
@@ -150,3 +172,23 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  .gutter-activity.row {
+    margin-left: -10px;
+    margin-top: -8px;
+    margin-bottom: -6px;
+  }
+  .gutter-upcoming.row {
+    margin-left: -2px;
+    margin-top: -8px;
+    margin-bottom: -6px;
+  }
+  .gutter-title1.row {
+    margin-left: +4px;
+  }
+  .gutter-title2.row {
+    margin-left: +10px;
+  }
+
+</style>

@@ -13,10 +13,14 @@
   >
     <template #cell(title)="data">
       <div>{{ data.value }}</div>
-      <div class="color-gray">{{ data.item.interested_agencies.join(', ') }}</div>
+      <div class="color-gray">
+        {{ data.item.interested_agencies.join(', ') }}
+      </div>
     </template>
     <template #cell(close_date)="data">
-      <div :class="styleDate(data.value)">{{ formatDate(data.value) }}</div>
+      <div :class="styleDate(data.value)">
+        {{ formatDate(data.value) }}
+      </div>
     </template>
   </b-table>
 </template>
