@@ -55,9 +55,6 @@ export default {
       selectedGrant: null,
     };
   },
-  async mounted() {
-    await this.setup();
-  },
   computed: {
     ...mapGetters({
       currentGrant: 'grants/currentGrant',
@@ -92,6 +89,9 @@ export default {
     currentPage() {
       this.setup();
     },
+  },
+  async mounted() {
+    await this.setup();
   },
   methods: {
     ...mapActions({

@@ -69,9 +69,6 @@ export default {
       selectedGrant: null,
     };
   },
-  mounted() {
-    this.setup();
-  },
   computed: {
     ...mapGetters({
       grants: 'grants/grants',
@@ -103,6 +100,9 @@ export default {
     currentPage() {
       this.setup();
     },
+  },
+  mounted() {
+    this.setup();
   },
   methods: {
     ...mapActions({
@@ -138,12 +138,9 @@ export default {
 </script>
 
 <style scoped>
-   .gutter-title1.row {
-    margin-left: +4px;
-  }
-</style>
-
-<style scoped>
+.gutter-title1.row {
+  margin-left: +4px;
+}
 .left-margin {
   margin-left: auto;
 }

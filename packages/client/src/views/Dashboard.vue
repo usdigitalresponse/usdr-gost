@@ -100,7 +100,6 @@ import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/fea
 
 export default {
   components: { ClosingDatesTable, ActivityTable, GrantDetailsLegacy },
-
   mixins: [resizableTableMixin],
   data() {
     return {
@@ -109,9 +108,6 @@ export default {
       currentPage: 1,
       selectedGrant: null,
     };
-  },
-  async mounted() {
-    await this.setup();
   },
   computed: {
     ...mapGetters({
@@ -144,6 +140,9 @@ export default {
         this.onRowSelected([this.currentGrant]);
       }
     },
+  },
+  async mounted() {
+    await this.setup();
   },
   methods: {
     ...mapActions({
@@ -190,5 +189,4 @@ export default {
   .gutter-title2.row {
     margin-left: +10px;
   }
-
 </style>
