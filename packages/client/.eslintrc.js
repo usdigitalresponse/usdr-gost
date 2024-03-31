@@ -57,12 +57,6 @@ module.exports = {
         './src/components/Modals/SearchPanel.vue',
         './src/components/SearchFilter.vue',
 
-        // Grant Finder: users
-        './src/views/Users.vue',
-        './src/components/Modals/AddUser.vue',
-        './src/components/Modals/EditUser.vue',
-        './src/components/Modals/ImportUsers.vue',
-
         // Grant Finder: dashboard
         './src/views/Dashboard.vue',
         './src/views/RecentActivity.vue',
