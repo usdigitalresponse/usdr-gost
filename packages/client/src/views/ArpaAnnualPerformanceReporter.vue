@@ -1,76 +1,94 @@
 <template>
-    <div class="container-fluid mt-3">
-      <h2>Annual Report Generator</h2>
-      <p>
-        Upload all of your Annual Performance Report workbooks below and then
-        click Generate Report.
-        <br>
-        After generating the report, a download link will appear.
-        <a download href="./ARPA_Annual_Performance_Report_Workbook.xlsx">
-          (workbook template)
-        </a>
-      </p>
-
-      <div
-        class="drop-zone"
-        @dragenter.prevent
-        @dragover.prevent
-        @drop.prevent="onDrop"
-        @change="onChange"
+  <div class="container-fluid mt-3">
+    <h2>Annual Report Generator</h2>
+    <p>
+      Upload all of your Annual Performance Report workbooks below and then
+      click Generate Report.
+      <br>
+      After generating the report, a download link will appear.
+      <a
+        download
+        href="./ARPA_Annual_Performance_Report_Workbook.xlsx"
       >
-        <div class="drop-zone-child">
-          <input
-            id="file-input"
-            type="file"
-            multiple
-            accept=".xlsx, .xlsm, .xls"
-            ref="file"
-          />
-          <label for="file-input">
-            Drag and drop files or <span class="underline pointer">click here to upload</span>.
-          </label>
-        </div>
-      </div>
-      <div class="text-danger text-center" v-if="errorMessages.length">
-        <p v-for="msg in errorMessages" :key="msg">{{msg}}</p>
-      </div>
-      <div class="mt-2">
-        <div class="text-center">
-          <b-overlay
-            :show="busy"
-            rounded
-            opacity="0.6"
-            spinner-variant="primary"
-            class="d-inline-block"
-          >
-            <button
-              class="btn btn-primary px-5 py-2"
-              :class="{disabled: !fileList.length}"
-              :disabled="!fileList.length"
-              type="button"
-              @click="post"
-            >{{ reportGenerated ? 'Regenerate Report' : 'Generate Report' }}</button>
-          </b-overlay>
-          <br>
-          <a
-            id="download-link"
-            href="#"
-            class="mt-2 btn btn-success d-inline-block"
-            :class="{visible: reportGenerated && !busy, invisible: !reportGenerated || busy}"
-          >Download Annual Report Template</a>
-        </div>
-        <h4>Files Uploaded:</h4>
-        <ul class="overflow-scroll">
-          <li :key="file.name" v-for="file in fileList">
-            {{file.name}}&nbsp;
-            <div
-              class="d-inline-block border border-white rounded px-2 py-1 bg-danger text-white pointer"
-              @click="removeFile(file.name)"
-            >X</div>
-          </li>
-        </ul>
+        (workbook template)
+      </a>
+    </p>
+
+    <div
+      class="drop-zone"
+      @dragenter.prevent
+      @dragover.prevent
+      @drop.prevent="onDrop"
+      @change="onChange"
+    >
+      <div class="drop-zone-child">
+        <input
+          id="file-input"
+          ref="file"
+          type="file"
+          multiple
+          accept=".xlsx, .xlsm, .xls"
+        >
+        <label for="file-input">
+          Drag and drop files or <span class="underline pointer">click here to upload</span>.
+        </label>
       </div>
     </div>
+    <div
+      v-if="errorMessages.length"
+      class="text-danger text-center"
+    >
+      <p
+        v-for="msg in errorMessages"
+        :key="msg"
+      >
+        {{ msg }}
+      </p>
+    </div>
+    <div class="mt-2">
+      <div class="text-center">
+        <b-overlay
+          :show="busy"
+          rounded
+          opacity="0.6"
+          spinner-variant="primary"
+          class="d-inline-block"
+        >
+          <button
+            class="btn btn-primary px-5 py-2"
+            :class="{disabled: !fileList.length}"
+            :disabled="!fileList.length"
+            type="button"
+            @click="post"
+          >
+            {{ reportGenerated ? 'Regenerate Report' : 'Generate Report' }}
+          </button>
+        </b-overlay>
+        <br>
+        <a
+          id="download-link"
+          href="#"
+          class="mt-2 btn btn-success d-inline-block"
+          :class="{visible: reportGenerated && !busy, invisible: !reportGenerated || busy}"
+        >Download Annual Report Template</a>
+      </div>
+      <h4>Files Uploaded:</h4>
+      <ul class="overflow-scroll">
+        <li
+          v-for="file in fileList"
+          :key="file.name"
+        >
+          {{ file.name }}&nbsp;
+          <div
+            class="d-inline-block border border-white rounded px-2 py-1 bg-danger text-white pointer"
+            @click="removeFile(file.name)"
+          >
+            X
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 <script>
 import { apiURL } from '@/helpers/fetchApi';
