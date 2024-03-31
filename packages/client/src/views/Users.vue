@@ -1,26 +1,58 @@
 <template>
   <section class="container-fluid">
     <b-row>
-      <b-col class="m-2"><h2 class="h4">Users</h2></b-col>
+      <b-col class="m-2">
+        <h2 class="h4">
+          Users
+        </h2>
+      </b-col>
       <b-col class="d-flex justify-content-end">
         <div>
-          <b-button variant="primary" size="sm" class="mr-1" @click="openAddUserModal">Add</b-button>
-          <b-button variant="outline-primary" size="sm" @click="openUploadUsersModal">Bulk Import</b-button>
+          <b-button
+            variant="primary"
+            size="sm"
+            class="mr-1"
+            @click="openAddUserModal"
+          >
+            Add
+          </b-button>
+          <b-button
+            variant="outline-primary"
+            size="sm"
+            @click="openUploadUsersModal"
+          >
+            Bulk Import
+          </b-button>
         </div>
       </b-col>
     </b-row>
-    <b-table hover :items="formattedUsers" :fields="fields">
+    <b-table
+      hover
+      :items="formattedUsers"
+      :fields="fields"
+    >
       <template #cell(actions)="row">
         <div v-if="row.item.email !== loggedInUser.email">
-          <b-button v-if="userRole === 'admin'" variant="danger" class="mr-1" size="sm"
-            @click="deleteUser(row.item.id)">
-            <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+          <b-button
+            v-if="userRole === 'admin'"
+            variant="danger"
+            class="mr-1"
+            size="sm"
+            @click="deleteUser(row.item.id)"
+          >
+            <b-icon
+              icon="trash-fill"
+              aria-hidden="true"
+            />
           </b-button>
         </div>
       </template>
     </b-table>
-    <AddUserModal :showModal.sync="showAddUserModal" />
-    <ImportUsersModal :showUploadModal.sync="showUploadUsersModal" :importStatus="'Nothing imported yet.'"/>
+    <AddUserModal :show-modal.sync="showAddUserModal" />
+    <ImportUsersModal
+      :show-upload-modal.sync="showUploadUsersModal"
+      :import-status="'Nothing imported yet.'"
+    />
   </section>
 </template>
 

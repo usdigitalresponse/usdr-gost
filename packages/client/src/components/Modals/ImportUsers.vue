@@ -15,12 +15,15 @@
           <li>Select your newly edited bulk import file using the <i>Choose File</i> button below, and click <i>Upload</i>.</li>
           <li>When the import is finished, the status of the import, including any errors, will be displayed below.</li>
         </ul>
-        <RecordUploader :uploadRecordType="'users'" @importStatus="setStatus" />
+        <RecordUploader
+          :upload-record-type="'users'"
+          @importStatus="setStatus"
+        />
       </div>
       <hr>
       <div>
-      <h5>Import Status</h5>
-        <div v-html="importStatus"/>
+        <h5>Import Status</h5>
+        <div v-html="importStatus" />
       </div>
     </b-modal>
   </div>
@@ -31,12 +34,12 @@ import { mapActions } from 'vuex';
 import RecordUploader from '@/components/RecordUploader.vue';
 
 export default {
+  components: {
+    RecordUploader,
+  },
   props: {
     showUploadModal: Boolean,
     importStatus: String,
-  },
-  components: {
-    RecordUploader,
   },
   watch: {
     showUploadModal() {

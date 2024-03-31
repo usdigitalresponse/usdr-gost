@@ -4,12 +4,15 @@
       id="add-user-modal"
       ref="modal"
       title="Add User"
+      :ok-disabled="$v.formData.$invalid"
       @show="resetModal"
       @hidden="resetModal"
       @ok="handleOk"
-      :ok-disabled="$v.formData.$invalid"
     >
-      <form ref="form" @submit.stop.prevent="handleSubmit">
+      <form
+        ref="form"
+        @submit.stop.prevent="handleSubmit"
+      >
         <b-form-group
           :state="!$v.formData.email.$invalid"
           label="Email"
@@ -20,7 +23,7 @@
             id="email-input"
             v-model="formData.email"
             required
-          ></b-form-input>
+          />
         </b-form-group>
         <b-form-group
           :state="!$v.formData.name.$invalid"
@@ -32,7 +35,7 @@
             id="name-input"
             v-model="formData.name"
             required
-          ></b-form-input>
+          />
         </b-form-group>
         <b-form-group
           :state="!$v.formData.role.$invalid"
@@ -41,8 +44,10 @@
           invalid-feedback="Please select your role"
         >
           <b-form-select
-          id="role-select"
-          v-model="formData.role" :options="formattedRoles"></b-form-select>
+            id="role-select"
+            v-model="formData.role"
+            :options="formattedRoles"
+          />
         </b-form-group>
         <b-form-group
           :state="!$v.formData.agency.$invalid"
@@ -51,8 +56,10 @@
           :invalid-feedback="`Please select your ${newTerminologyEnabled ? 'team' : 'agency'}`"
         >
           <b-form-select
-          id="agency-select"
-          v-model="formData.agency" :options="formattedAgencies"></b-form-select>
+            id="agency-select"
+            v-model="formData.agency"
+            :options="formattedAgencies"
+          />
         </b-form-group>
       </form>
     </b-modal>
