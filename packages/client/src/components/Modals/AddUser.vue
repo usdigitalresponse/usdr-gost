@@ -3,10 +3,9 @@
     <b-modal
       id="add-user-modal"
       ref="modal"
+      v-model="modalVisible"
       title="Add User"
       :ok-disabled="$v.formData.$invalid"
-      @show="resetModal"
-      @hidden="resetModal"
       @ok="handleOk"
     >
       <form
@@ -73,7 +72,7 @@ import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
-    showModal: Boolean,
+    show: Boolean,
   },
   data() {
     return {
@@ -108,6 +107,10 @@ export default {
       roles: 'roles/roles',
       agencies: 'agencies/agencies',
     }),
+    modalVisible: {
+      get() { return this.show; },
+      set(value) { this.$emit('update:show', value); },
+    },
     formattedRoles() {
       return this.roles.map((role) => ({
         value: role.id,
@@ -143,10 +146,6 @@ export default {
       fetchRoles: 'roles/fetchRoles',
       fetchAgencies: 'agencies/fetchAgencies',
     }),
-    resetModal() {
-      this.formData = {};
-      this.$emit('update:showModal', false);
-    },
     handleOk(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
@@ -166,11 +165,7 @@ export default {
           level: 'err',
         });
       }
-      // Push the name to submitted names
-      // Hide the modal manually
-      this.$nextTick(() => {
-        this.$bvModal.hide('add-user-modal');
-      });
+      this.modalVisible = false;
     },
   },
 };

@@ -3,10 +3,9 @@
     <b-modal
       id="import-users-modal"
       ref="modal"
+      v-model="modalVisible"
       title="Bulk Import Users"
       ok-only
-      @show="resetModal"
-      @hidden="resetModal"
     >
       <div>
         <ul>
@@ -38,12 +37,19 @@ export default {
     RecordUploader,
   },
   props: {
-    showUploadModal: Boolean,
+    show: Boolean,
     importStatus: String,
   },
-  watch: {
-    showUploadModal() {
-      this.$bvModal.show('import-users-modal');
+  computed: {
+    modalVisible: {
+      get() { return this.show; },
+      set(value) {
+        if (!value) {
+          // Reset result and refetch users when closing
+          this.fetchUsers();
+        }
+        this.$emit('update:show', value);
+      },
     },
   },
   methods: {
@@ -64,11 +70,6 @@ export default {
         errs = errs.concat('</ul>');
       }
       this.importStatus = `<ul><li>${added}</li><li>${notAdded}</li>${errs}</ul>`;
-    },
-    resetModal() {
-      this.formData = {};
-      this.fetchUsers();
-      this.$emit('update:showUploadModal', false);
     },
   },
 };

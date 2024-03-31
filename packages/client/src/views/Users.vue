@@ -48,9 +48,9 @@
         </div>
       </template>
     </b-table>
-    <AddUserModal :show-modal.sync="showAddUserModal" />
+    <AddUserModal :show.sync="showAddUserModal" />
     <ImportUsersModal
-      :show-upload-modal.sync="showUploadUsersModal"
+      :show.sync="showUploadUsersModal"
       :import-status="'Nothing imported yet.'"
     />
   </section>
