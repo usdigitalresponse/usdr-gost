@@ -7,20 +7,20 @@
     </p>
 
     <form
+      ref="form"
       method="post"
       encType="multipart/form-data"
-      ref="form"
       @submit.prevent="uploadTemplate"
     >
       <div class="form-group">
         <input
+          id="template"
+          ref="files"
           class="form-control"
           type="file"
-          id="template"
           name="template"
           @change="changeFiles"
-          ref="files"
-        />
+        >
       </div>
       <div class="form-group">
         <button
@@ -31,7 +31,11 @@
         >
           {{ uploadButtonLabel }}
         </button>
-        <a class="ml-3" href="#" @click="cancelUpload">Cancel</a>
+        <a
+          class="ml-3"
+          href="#"
+          @click="cancelUpload"
+        >Cancel</a>
       </div>
     </form>
   </div>
