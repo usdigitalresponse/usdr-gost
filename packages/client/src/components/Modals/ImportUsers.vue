@@ -22,7 +22,21 @@
       <hr>
       <div>
         <h5>Import Status</h5>
-        <div v-html="importStatus" />
+        <div v-if="importResult">
+          <ul>
+            <li>{{ importResult.added }}</li>
+            <li>{{ importResult.notAdded }}</li>
+            <li
+              v-for="error in importResult.errors"
+              :key="error"
+            >
+              {{ error }}
+            </li>
+          </ul>
+        </div>
+        <div v-else>
+          Nothing imported yet.
+        </div>
       </div>
     </b-modal>
   </div>
@@ -38,7 +52,11 @@ export default {
   },
   props: {
     show: Boolean,
-    importStatus: String,
+  },
+  data() {
+    return {
+      importResult: null,
+    };
   },
   computed: {
     modalVisible: {
@@ -46,6 +64,7 @@ export default {
       set(value) {
         if (!value) {
           // Reset result and refetch users when closing
+          this.importResult = null;
           this.fetchUsers();
         }
         this.$emit('update:show', value);
@@ -56,20 +75,13 @@ export default {
     ...mapActions({
       fetchUsers: 'users/fetchUsers',
     }),
-    setStatus(theStatus) {
-      const statusObj = theStatus.ret.status;
-      const added = `Successful: ${statusObj.users.added} users added`;
-      const notAdded = `Unsucessful: ${statusObj.users.errored} users not added`;
-      let errs = '';
-      if (statusObj.errors.length > 0) {
-        errs = '<ul>';
-        // eslint-disable-next-line no-restricted-syntax
-        for (const err of statusObj.errors) {
-          errs = errs.concat(`<li>${err}</li>`);
-        }
-        errs = errs.concat('</ul>');
-      }
-      this.importStatus = `<ul><li>${added}</li><li>${notAdded}</li>${errs}</ul>`;
+    setStatus(status) {
+      const { users, errors } = status.ret.status;
+      this.importResult = {
+        added: `Successful: ${users.added} users added`,
+        notAdded: `Unsuccessful: ${users.errored} users not added`,
+        errors,
+      };
     },
   },
 };

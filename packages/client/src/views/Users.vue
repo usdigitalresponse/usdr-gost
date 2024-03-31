@@ -49,10 +49,7 @@
       </template>
     </b-table>
     <AddUserModal :show.sync="showAddUserModal" />
-    <ImportUsersModal
-      :show.sync="showUploadUsersModal"
-      :import-status="'Nothing imported yet.'"
-    />
+    <ImportUsersModal :show.sync="showUploadUsersModal" />
   </section>
 </template>
 
