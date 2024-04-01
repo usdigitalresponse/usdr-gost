@@ -155,6 +155,8 @@ async function loadRecordsForUpload(upload) {
                     }
                 }
                 formattedRow[fieldId] = value;
+                // eslint-disable-next-line no-underscore-dangle
+                formattedRow.__rowNum__ = row.__rowNum__;
             });
             records.push({
                 type, subcategory, upload, content: formattedRow,
