@@ -2,14 +2,28 @@
   <div class="filter-container d-flex">
     <div class="align-self-end">
       <div class="align-self-end">
-        <h2 class="mb-0 h4">{{ selectedSearch === null ? "All Grants" : searchName }} </h2>
+        <h2 class="mb-0 h4">
+          {{ selectedSearch === null ? "All Grants" : searchName }}
+        </h2>
         <span v-if="selectedSearch !== null">
-          <a href="#" :class="{ inactiveLink: isDisabled }" v-on:click.prevent="editFilter">Edit</a> |
-          <a href="#" :class="{ inactiveLink: isDisabled }" v-on:click.prevent="clearAll" >Clear</a>
+          <a
+            href="#"
+            :class="{ inactiveLink: isDisabled }"
+            @click.prevent="editFilter"
+          >Edit</a> |
+          <a
+            href="#"
+            :class="{ inactiveLink: isDisabled }"
+            @click.prevent="clearAll"
+          >Clear</a>
         </span>
       </div>
-      <span class="filter-item" v-for="(item, idx) in $props.filterKeys" :key="idx">
-        {{ item.label }}: <strong >{{ formatValue(item.value)}}</strong><span v-if="idx != $props.filterKeys.length - 1">;</span>
+      <span
+        v-for="(item, idx) in $props.filterKeys"
+        :key="idx"
+        class="filter-item"
+      >
+        {{ item.label }}: <strong>{{ formatValue(item.value) }}</strong><span v-if="idx != $props.filterKeys.length - 1">;</span>
       </span>
     </div>
   </div>

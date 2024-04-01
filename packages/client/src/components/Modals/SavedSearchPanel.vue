@@ -1,81 +1,131 @@
 <template>
   <div class="saved-search-panel">
-    <b-button @click="initManageSearches" variant="primary" size="sm" :disabled="isDisabled">
+    <b-button
+      variant="primary"
+      size="sm"
+      :disabled="isDisabled"
+      @click="initManageSearches"
+    >
       My Saved Searches
     </b-button>
     <b-sidebar
       id="saved-search-panel"
-      model="displaySavedSearchPanel"
       ref="savedSearchPanel"
+      model="displaySavedSearchPanel"
       bg-variant="white"
       width="480px"
-      @hidden="cancel"
       backdrop
       right
       shadow
+      @hidden="cancel"
     >
-    <template #header>
-      <div class="saved-search-title">Saved Searches</div>
-      <b-button-close type="button" class="close" @click="initViewResults">
-      </b-button-close>
-    </template>
-    <div class="saved-search-empty-state" v-if="emptyState">
-      <h4>No saved searches</h4>
-      <div>Save search criteria to easily apply or share a search</div>
-      <b-button @click="newSavedSearch" variant="outline-primary" size="sm">
-        New Search
-      </b-button>
-    </div>
-    <b-table
-      id="saved-searches-table"
-      :items="savedSearches.data"
-      :fields="savedSearchFields"
-      hover
-      thead-class="saved-search-table-header-class"
-      @row-clicked="onRowClicked"
-    >
-      <template #cell(searchinfo)="data">
-        <div>
-          <b-row>
-            <b-col cols="10"><b>{{  data.item.name }}</b></b-col>
-            <b-col cols="1">
-              <b-dropdown class="saved-search-settings-dropdown" size="sm"  variant="link" toggle-class="text-decoration-none" no-caret>
-                <template #button-content>
-                  <b-icon icon="three-dots-vertical" class="text-dark" font-scale="1"></b-icon>
-                </template>
-                <b-dropdown-item :searchId="data.item.id" @click.stop="editSavedSearch">Edit</b-dropdown-item>
-                <b-dropdown-item @click.stop="deleteSavedSearch" :searchId="data.item.id">Delete</b-dropdown-item>
-              </b-dropdown>
-            </b-col>
-          </b-row>
-          <b-row>
-            <b-col cols="9">
-              <!-- TODO: Change this to updatedAt -->
-              Last used {{ new Intl.DateTimeFormat("en-US", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(data.item.createdAt)) }}
-            </b-col>
-          </b-row>
-          <b-row>
-            <b-col cols="9">
-              <div v-for="(field, idx) of formatCriteria(data.item.criteria)" :key="idx">
-                {{ field.label }}: {{ field.value }}
-              </div>
-            </b-col>
-          </b-row>
+      <template #header>
+        <div class="saved-search-title">
+          Saved Searches
+        </div>
+        <b-button-close
+          type="button"
+          class="close"
+          @click="initViewResults"
+        />
+      </template>
+      <div
+        v-if="emptyState"
+        class="saved-search-empty-state"
+      >
+        <h4>No saved searches</h4>
+        <div>Save search criteria to easily apply or share a search</div>
+        <b-button
+          variant="outline-primary"
+          size="sm"
+          @click="newSavedSearch"
+        >
+          New Search
+        </b-button>
+      </div>
+      <b-table
+        id="saved-searches-table"
+        :items="savedSearches.data"
+        :fields="savedSearchFields"
+        hover
+        thead-class="saved-search-table-header-class"
+        @row-clicked="onRowClicked"
+      >
+        <template #cell(searchinfo)="data">
+          <div>
+            <b-row>
+              <b-col cols="10">
+                <b>{{ data.item.name }}</b>
+              </b-col>
+              <b-col cols="1">
+                <b-dropdown
+                  class="saved-search-settings-dropdown"
+                  size="sm"
+                  variant="link"
+                  toggle-class="text-decoration-none"
+                  no-caret
+                >
+                  <template #button-content>
+                    <b-icon
+                      icon="three-dots-vertical"
+                      class="text-dark"
+                      font-scale="1"
+                    />
+                  </template>
+                  <b-dropdown-item
+                    :search-id="data.item.id"
+                    @click.stop="editSavedSearch"
+                  >
+                    Edit
+                  </b-dropdown-item>
+                  <b-dropdown-item
+                    :search-id="data.item.id"
+                    @click.stop="deleteSavedSearch"
+                  >
+                    Delete
+                  </b-dropdown-item>
+                </b-dropdown>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col cols="9">
+                <!-- TODO: Change this to updatedAt -->
+                Last used {{ new Intl.DateTimeFormat("en-US", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(data.item.createdAt)) }}
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col cols="9">
+                <div
+                  v-for="(field, idx) of formatCriteria(data.item.criteria)"
+                  :key="idx"
+                >
+                  {{ field.label }}: {{ field.value }}
+                </div>
+              </b-col>
+            </b-row>
+          </div>
+        </template>
+      </b-table>
+      <template #footer="{ hide }">
+        <div class="d-flex text-light align-items-center px-3 py-2 saved-search-footer-div">
+          <b-pagination
+            v-model="currentPage"
+            class="m-0 saved-search-pagination"
+            :total-rows="totalRows"
+            :per-page="perPage"
+            aria-controls="saved-searches-table"
+            size="sm"
+          />
+          <b-button
+            size="sm"
+            variant="outline-primary"
+            class="borderless-button"
+            @click="hide"
+          >
+            Close
+          </b-button>
         </div>
       </template>
-    </b-table>
-    <template #footer="{ hide }">
-     <div class="d-flex text-light align-items-center px-3 py-2 saved-search-footer-div">
-      <b-pagination
-        class="m-0 saved-search-pagination"
-        v-model="currentPage"
-        :total-rows="totalRows"
-        :per-page="perPage"
-        aria-controls="saved-searches-table"
-        size="sm" />
-      <b-button size="sm" @click="hide" variant="outline-primary" class="borderless-button">Close</b-button>
-     </div>
-    </template>
     </b-sidebar>
   </div>
 </template>
@@ -87,12 +137,12 @@ import { VBToggle } from 'bootstrap-vue';
 import { formatFilterDisplay } from '@/helpers/filters';
 
 export default {
+  directives: {
+    'v-b-toggle': VBToggle,
+  },
   props: {
     showModal: Boolean,
     isDisabled: Boolean,
-  },
-  directives: {
-    'v-b-toggle': VBToggle,
   },
   data() {
     return {

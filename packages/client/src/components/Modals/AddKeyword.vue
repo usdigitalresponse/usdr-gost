@@ -4,12 +4,15 @@
       id="add-keyword-modal"
       ref="modal"
       title="Add Keyword"
+      :ok-disabled="$v.formData.$invalid"
       @show="resetModal"
       @hidden="resetModal"
       @ok="handleOk"
-      :ok-disabled="$v.formData.$invalid"
     >
-      <form ref="form" @submit.stop.prevent="handleSubmit">
+      <form
+        ref="form"
+        @submit.stop.prevent="handleSubmit"
+      >
         <b-form-group
           :state="!($v.formData.searchTerm.$invalid && $v.$dirty)"
           label="Search Term"
@@ -20,21 +23,25 @@
             id="searchTerm-input"
             v-model="formData.searchTerm"
             :state="!($v.formData.searchTerm.$invalid && $v.$dirty)"
-            @change="$v.$touch()"
             required
-          ></b-form-input>
+            @change="$v.$touch()"
+          />
         </b-form-group>
         <b-form-group
           label="Type"
           label-for="type-select"
         >
-            <b-form-select
-              id="type-select"
-              v-model="formData.type"
-            >
-                <b-form-select-option value="include">Include this keyword in searches</b-form-select-option>
-                <b-form-select-option value="exclude">Exclude this keyword in searches</b-form-select-option>
-            </b-form-select>
+          <b-form-select
+            id="type-select"
+            v-model="formData.type"
+          >
+            <b-form-select-option value="include">
+              Include this keyword in searches
+            </b-form-select-option>
+            <b-form-select-option value="exclude">
+              Exclude this keyword in searches
+            </b-form-select-option>
+          </b-form-select>
         </b-form-group>
       </form>
     </b-modal>
