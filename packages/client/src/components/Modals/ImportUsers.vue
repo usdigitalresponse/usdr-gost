@@ -4,9 +4,9 @@
       id="import-users-modal"
       ref="modal"
       title="Bulk Import Users"
+      ok-only
       @show="resetModal"
       @hidden="resetModal"
-      ok-only="true"
     >
       <div>
         <ul>
@@ -15,7 +15,7 @@
           <li>Select your newly edited bulk import file using the <i>Choose File</i> button below, and click <i>Upload</i>.</li>
           <li>When the import is finished, the status of the import, including any errors, will be displayed below.</li>
         </ul>
-        <Uploader :uploadRecordType="'users'" @importStatus="setStatus" />
+        <RecordUploader :uploadRecordType="'users'" @importStatus="setStatus" />
       </div>
       <hr>
       <div>
@@ -28,7 +28,7 @@
 
 <script>
 import { mapActions } from 'vuex';
-import Uploader from '@/components/Uploader.vue';
+import RecordUploader from '@/components/RecordUploader.vue';
 
 export default {
   props: {
@@ -36,7 +36,7 @@ export default {
     importStatus: String,
   },
   components: {
-    Uploader,
+    RecordUploader,
   },
   watch: {
     showUploadModal() {
@@ -66,12 +66,6 @@ export default {
       this.formData = {};
       this.fetchUsers();
       this.$emit('update:showUploadModal', false);
-    },
-    async handleSubmit() {
-      // Hide the modal manually
-      this.$nextTick(() => {
-        this.$bvModal.hide('import-users-modal');
-      });
     },
   },
 };

@@ -44,17 +44,9 @@ module.exports = {
         './src/arpa_reporter/views/ReportingPeriod.vue',
         './src/arpa_reporter/views/ReportingPeriods.vue',
 
-        // ARPA Reporter: subrecipient views
-        './src/arpa_reporter/views/Subrecipient.vue',
-        './src/arpa_reporter/views/Subrecipients.vue',
-
         // ARPA Reporter: upload views
         './src/arpa_reporter/views/Upload.vue',
         './src/arpa_reporter/views/Uploads.vue',
-
-        // ARPA Reporter: user views
-        './src/arpa_reporter/views/User.vue',
-        './src/arpa_reporter/views/Users.vue',
 
         // ARPA Reporter: annual performance reporter
         './src/views/ArpaAnnualPerformanceReporter.vue',
@@ -64,13 +56,6 @@ module.exports = {
         './src/components/Modals/SavedSearchPanel.vue',
         './src/components/Modals/SearchPanel.vue',
         './src/components/SearchFilter.vue',
-
-        // Grant Finder: teams
-        './src/views/Teams.vue',
-        './src/components/Modals/AddTeam.vue',
-        './src/components/Modals/EditTeam.vue',
-        './src/components/Modals/ImportTeams.vue',
-        './src/components/Uploader.vue',
 
         // Grant Finder: users
         './src/views/Users.vue',
