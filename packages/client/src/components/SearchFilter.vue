@@ -40,6 +40,18 @@ export default {
       validator: (value) => value.every((item) => typeof item.label === 'string'),
     },
   },
+  computed: {
+    ...mapGetters({
+      selectedSearch: 'grants/selectedSearch',
+    }),
+    searchName() {
+      const search = this.selectedSearch;
+      if (!search) {
+        return 'OPE';
+      }
+      return this.selectedSearch.name;
+    },
+  },
   methods: {
     ...mapActions({
       removeFilter: 'grants/removeFilter',
@@ -68,18 +80,6 @@ export default {
       }
       this.clearSelectedSearch();
       this.$emit('filter-removed');
-    },
-  },
-  computed: {
-    ...mapGetters({
-      selectedSearch: 'grants/selectedSearch',
-    }),
-    searchName() {
-      const search = this.selectedSearch;
-      if (!search) {
-        return 'OPE';
-      }
-      return this.selectedSearch.name;
     },
   },
 };

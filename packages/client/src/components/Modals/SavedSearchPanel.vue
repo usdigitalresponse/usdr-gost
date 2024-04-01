@@ -73,14 +73,12 @@
                     />
                   </template>
                   <b-dropdown-item
-                    :search-id="data.item.id"
-                    @click.stop="editSavedSearch"
+                    @click.stop="editSavedSearch(data.item)"
                   >
                     Edit
                   </b-dropdown-item>
                   <b-dropdown-item
-                    :search-id="data.item.id"
-                    @click.stop="deleteSavedSearch"
+                    @click.stop="deleteSavedSearch(data.item)"
                   >
                     Delete
                   </b-dropdown-item>
@@ -153,6 +151,19 @@ export default {
     };
   },
   validations: {},
+  computed: {
+    ...mapGetters({
+      savedSearches: 'grants/savedSearches',
+      displaySavedSearchPanel: 'grants/displaySavedSearchPanel',
+      selectedSearchId: 'grants/selectedSearchId',
+    }),
+    totalRows() {
+      return this.savedSearches && this.savedSearches.pagination ? this.savedSearches.pagination.total : 0;
+    },
+    emptyState() {
+      return this.savedSearches.data && this.savedSearches.data.length === 0;
+    },
+  },
   watch: {
     displaySavedSearchPanel() {
       if (this.displaySavedSearchPanel) {
@@ -169,19 +180,6 @@ export default {
         perPage: this.perPage,
         currentPage: this.currentPage,
       });
-    },
-  },
-  computed: {
-    ...mapGetters({
-      savedSearches: 'grants/savedSearches',
-      displaySavedSearchPanel: 'grants/displaySavedSearchPanel',
-      selectedSearchId: 'grants/selectedSearchId',
-    }),
-    totalRows() {
-      return this.savedSearches && this.savedSearches.pagination ? this.savedSearches.pagination.total : 0;
-    },
-    emptyState() {
-      return this.savedSearches.data && this.savedSearches.data.length === 0;
     },
   },
   mounted() {
@@ -210,15 +208,15 @@ export default {
         this.$root.$emit('bv::toggle::collapse', 'saved-search-panel');
       }
     },
-    editSavedSearch(e) {
-      const searchId = e.target.getAttribute('searchid');
+    editSavedSearch(item) {
+      const searchId = item.id;
       this.initEditSearch(searchId);
     },
     newSavedSearch() {
       this.initNewSearch();
     },
-    async deleteSavedSearch(e) {
-      const searchId = `${e.target.getAttribute('searchid')}`;
+    async deleteSavedSearch(item) {
+      const searchId = item.id;
       await this.deleteSavedSearchAPI({ searchId });
       if (this.selectedSearchId === Number(searchId)) {
         this.clearSelectedSearch();

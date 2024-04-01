@@ -290,9 +290,11 @@ export default {
     'v-b-toggle': VBToggle,
   },
   props: {
-    SearchType: String,
     showModal: Boolean,
-    searchId: Number,
+    searchId: {
+      type: Number,
+      default: null,
+    },
     isDisabled: Boolean,
   },
   data() {
@@ -324,22 +326,6 @@ export default {
   validations: {
     formData: {},
   },
-  watch: {
-    displaySearchPanel() {
-      if (this.displaySearchPanel) {
-        this.initFormState();
-        this.showSideBar();
-      } else {
-        this.$refs.searchPanelSideBar.hide();
-      }
-    },
-    isEditMode() {
-      this.initFormState();
-    },
-  },
-  mounted() {
-    this.setup();
-  },
   computed: {
     ...mapGetters({
       eligibilityCodes: 'grants/eligibilityCodes',
@@ -362,6 +348,22 @@ export default {
     invalidTitleFeedback() {
       return 'Search Title is required';
     },
+  },
+  watch: {
+    displaySearchPanel() {
+      if (this.displaySearchPanel) {
+        this.initFormState();
+        this.showSideBar();
+      } else {
+        this.$refs.searchPanelSideBar.hide();
+      }
+    },
+    isEditMode() {
+      this.initFormState();
+    },
+  },
+  mounted() {
+    this.setup();
   },
   methods: {
     ...mapActions({
