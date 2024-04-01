@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import User from '../../../../src/arpa_reporter/views/User.vue';
+import UserView from '@/arpa_reporter/views/UserView.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -15,7 +15,7 @@ const mocks = {
   },
 };
 
-describe('User.vue', () => {
+describe('UserView.vue', () => {
   let store;
 
   beforeEach(() => {
@@ -32,7 +32,7 @@ describe('User.vue', () => {
     });
   });
   it('renders new user form', async () => {
-    const wrapper = mount(User, { store, localVue, mocks });
+    const wrapper = mount(UserView, { store, localVue, mocks });
     const loading = wrapper.find('div[role="status"]');
     expect(loading.text()).to.include('Loading');
 
