@@ -83,5 +83,9 @@ async function main() {
 }
 
 if (require.main === module) {
+    process.on('SIGINT', () => {
+        console.log('Exiting.');
+        process.exit();
+    });
     main().then(() => process.exit());
 }
