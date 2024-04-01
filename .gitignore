@@ -117,6 +117,9 @@ dist
 # Locally-persisted postgres development data
 docker/postgres/persistence
 
+# Local persisted mailpit db
+docker/mailpit
+
 # Localstack generated local volume
 volume/
 
