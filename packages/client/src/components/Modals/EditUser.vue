@@ -5,18 +5,35 @@
     header-class="heading"
     footer-class="footer"
     ok-title="Save"
+    :ok-disabled="$v.formData.$invalid"
     @show="resetModal"
     @hidden="resetModal"
     @ok="handleOk"
-    :ok-disabled="$v.formData.$invalid"
-    >
+  >
     <div class="text-center my-3">
-      <UserAvatar :userName="formData.name" :color="formData.avatarColor" />
+      <UserAvatar
+        :user-name="formData.name"
+        :color="formData.avatarColor"
+      />
     </div>
     <b-form>
-      <b-form-group label="Avatar color" label-for="avatar-color">
-        <b-form-radio-group id="avatar-color" class="color-picker" v-model="formData.avatarColor" buttons>
-          <b-form-radio v-for="color in avatarColors" :key="color" :value="color" button :style="{ backgroundColor: color}" />
+      <b-form-group
+        label="Avatar color"
+        label-for="avatar-color"
+      >
+        <b-form-radio-group
+          id="avatar-color"
+          v-model="formData.avatarColor"
+          class="color-picker"
+          buttons
+        >
+          <b-form-radio
+            v-for="color in avatarColors"
+            :key="color"
+            :value="color"
+            button
+            :style="{ backgroundColor: color}"
+          />
         </b-form-radio-group>
       </b-form-group>
 
@@ -27,13 +44,13 @@
         invalid-feedback="Please enter your preferred first and last name"
       >
         <b-form-input
-          type="text"
           id="name-input"
           v-model="formData.name"
-          @keydown.enter.native="handleSubmit"
+          type="text"
           required
           trim
           autofocus
+          @keydown.enter.native="handleSubmit"
         />
       </b-form-group>
     </b-form>
