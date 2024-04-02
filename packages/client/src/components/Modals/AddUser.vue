@@ -3,13 +3,15 @@
     <b-modal
       id="add-user-modal"
       ref="modal"
+      v-model="modalVisible"
       title="Add User"
-      @show="resetModal"
-      @hidden="resetModal"
-      @ok="handleOk"
       :ok-disabled="$v.formData.$invalid"
+      @ok="handleOk"
     >
-      <form ref="form" @submit.stop.prevent="handleSubmit">
+      <form
+        ref="form"
+        @submit.stop.prevent="handleSubmit"
+      >
         <b-form-group
           :state="!$v.formData.email.$invalid"
           label="Email"
@@ -20,7 +22,7 @@
             id="email-input"
             v-model="formData.email"
             required
-          ></b-form-input>
+          />
         </b-form-group>
         <b-form-group
           :state="!$v.formData.name.$invalid"
@@ -32,7 +34,7 @@
             id="name-input"
             v-model="formData.name"
             required
-          ></b-form-input>
+          />
         </b-form-group>
         <b-form-group
           :state="!$v.formData.role.$invalid"
@@ -41,8 +43,10 @@
           invalid-feedback="Please select your role"
         >
           <b-form-select
-          id="role-select"
-          v-model="formData.role" :options="formattedRoles"></b-form-select>
+            id="role-select"
+            v-model="formData.role"
+            :options="formattedRoles"
+          />
         </b-form-group>
         <b-form-group
           :state="!$v.formData.agency.$invalid"
@@ -51,8 +55,10 @@
           :invalid-feedback="`Please select your ${newTerminologyEnabled ? 'team' : 'agency'}`"
         >
           <b-form-select
-          id="agency-select"
-          v-model="formData.agency" :options="formattedAgencies"></b-form-select>
+            id="agency-select"
+            v-model="formData.agency"
+            :options="formattedAgencies"
+          />
         </b-form-group>
       </form>
     </b-modal>
@@ -66,7 +72,7 @@ import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
-    showModal: Boolean,
+    show: Boolean,
   },
   data() {
     return {
@@ -96,16 +102,15 @@ export default {
       },
     },
   },
-  watch: {
-    showModal() {
-      this.$bvModal.show('add-user-modal');
-    },
-  },
   computed: {
     ...mapGetters({
       roles: 'roles/roles',
       agencies: 'agencies/agencies',
     }),
+    modalVisible: {
+      get() { return this.show; },
+      set(value) { this.$emit('update:show', value); },
+    },
     formattedRoles() {
       return this.roles.map((role) => ({
         value: role.id,
@@ -122,6 +127,11 @@ export default {
       return newTerminologyEnabled();
     },
   },
+  watch: {
+    showModal() {
+      this.$bvModal.show('add-user-modal');
+    },
+  },
   mounted() {
     if (this.roles.length === 0) {
       this.fetchRoles();
@@ -136,10 +146,6 @@ export default {
       fetchRoles: 'roles/fetchRoles',
       fetchAgencies: 'agencies/fetchAgencies',
     }),
-    resetModal() {
-      this.formData = {};
-      this.$emit('update:showModal', false);
-    },
     handleOk(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
@@ -159,11 +165,7 @@ export default {
           level: 'err',
         });
       }
-      // Push the name to submitted names
-      // Hide the modal manually
-      this.$nextTick(() => {
-        this.$bvModal.hide('add-user-modal');
-      });
+      this.modalVisible = false;
     },
   },
 };
