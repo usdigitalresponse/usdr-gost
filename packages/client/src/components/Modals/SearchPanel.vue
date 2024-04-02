@@ -1,236 +1,269 @@
 <template>
-    <div class="search-panel">
-      <b-button @click="initNewSearch" variant="outline-primary" size="sm" :disabled="isDisabled">
-        New Search
-      </b-button>
+  <div class="search-panel">
+    <b-button
+      variant="outline-primary"
+      size="sm"
+      :disabled="isDisabled"
+      @click="initNewSearch"
+    >
+      New Search
+    </b-button>
 
-      <b-form class="search-form" @keyup.enter="onEnter" @submit.prevent="onSubmit" @reset="cancel">
-        <b-sidebar
-          id="search-panel"
-          class="search-side-panel"
-          ref="searchPanelSideBar"
-          bg-variant="white"
-          @shown="onShown"
-          @hidden="cancel"
-          width="480px"
-          backdrop
-          right
-          shadow
+    <b-form
+      class="search-form"
+      @keyup.enter="onEnter"
+      @submit.prevent="onSubmit"
+      @reset="cancel"
+    >
+      <b-sidebar
+        id="search-panel"
+        ref="searchPanelSideBar"
+        class="search-side-panel"
+        bg-variant="white"
+        width="480px"
+        backdrop
+        right
+        shadow
+        @shown="onShown"
+        @hidden="cancel"
+      >
+        <template #header>
+          <div class="search-panel-title">
+            {{ panelTitle }}
+          </div>
+          <b-button-close
+            class="close"
+            type="reset"
+            @click="cancel"
+          />
+        </template>
+        <b-form-group
+          id="search-title-group"
+          label="Search Title"
+          label-for="search-title"
+          description="ex. Infrastructure"
+          :invalid-feedback="invalidTitleFeedback"
+          :state="searchTitleState"
         >
-          <template #header>
-            <div class="search-panel-title">{{ panelTitle }}</div>
-            <b-button-close class="close" type="reset" @click="cancel" />
-          </template>
-            <b-form-group
-              id="search-title-group"
-              label="Search Title"
-              label-for="search-title"
-              description="ex. Infrastructure"
-              :invalid-feedback="invalidTitleFeedback"
-              :state="searchTitleState"
+          <b-form-input
+            id="search-title"
+            v-model="formData.searchTitle"
+            type="text"
+            aria-describedby="input-live-feedback"
+            required
+            trim
+          />
+        </b-form-group>
+        <b-form-group
+          id="include-input-group"
+          label="Include Keywords"
+          label-for="include-input"
+          description="Separate keywords with comma"
+        >
+          <b-form-input
+            id="include-input"
+            v-model="formData.criteria.includeKeywords"
+            type="text"
+            trim
+          />
+        </b-form-group>
+        <b-form-group
+          id="exclude-input-group"
+          label="Exclude Keywords"
+          label-for="exclude-input"
+          description="Separate keywords with comma"
+        >
+          <b-form-input
+            id="exclude-input"
+            v-model="formData.criteria.excludeKeywords"
+            type="text"
+            trim
+          />
+        </b-form-group>
+        <b-form-group
+          id="opportunity-number-input-group"
+          label="Opportunity #"
+          label-for="opportunity-number-input"
+        >
+          <b-form-input
+            id="opportunity-number-input"
+            v-model="formData.criteria.opportunityNumber"
+            type="text"
+            trim
+          />
+        </b-form-group>
+        <b-form-group
+          id="opportunity-status-group"
+          v-slot="{ ariaDescribedby }"
+          label="Opportunity Status"
+        >
+          <b-form-checkbox-group
+            id="opportunity-status"
+            v-model="formData.criteria.opportunityStatuses"
+            :options="opportunityStatusOptions"
+            :aria-describedby="ariaDescribedby"
+            inline
+          />
+        </b-form-group>
+        <b-form-group
+          id="funding-type-group"
+          label="Funding Type"
+          label-for="funding-type"
+        >
+          <v-select
+            id="funding-type"
+            v-model="formData.criteria.fundingTypes"
+            :options="fundingTypeOptions"
+            label="name"
+            track-by="code"
+            :multiple="true"
+            :close-on-select="false"
+            :searchable="false"
+            select-label=""
+          />
+        </b-form-group>
+        <b-form-group
+          id="eligibility-group"
+          label="Eligibility"
+          label-for="eligibility"
+        >
+          <v-select
+            id="eligibility"
+            v-model="formData.criteria.eligibility"
+            :options="eligibilityCodes"
+            label="label"
+            track-by="code"
+            :multiple="true"
+            :close-on-select="false"
+            :searchable="true"
+            select-label=""
+          />
+        </b-form-group>
+        <b-form-group
+          id="opportunity-category-group"
+          label="Opportunity Category"
+          label-for="opportunity-category"
+        >
+          <v-select
+            id="opportunity-category"
+            v-model="formData.criteria.opportunityCategories"
+            :options="opportunityCategoryOptions"
+            :multiple="true"
+            :close-on-select="false"
+            :searchable="false"
+          />
+        </b-form-group>
+        <b-form-group
+          id="bill-group"
+          label="Appropriation Bill"
+          label-for="bill"
+        >
+          <v-select
+            id="bill"
+            v-model="formData.criteria.bill"
+            :options="billOptions"
+            :multiple="false"
+            :close-on-select="true"
+            :clear-on-select="false"
+            :searchable="false"
+            placeholder="All Bills"
+            :show-labels="false"
+            :clearable="false"
+          />
+        </b-form-group>
+        <b-form-group
+          id="category-of-funding-activity-group"
+          label="Category of Funding Activity"
+          label-for="category-of-funding-activity"
+        >
+          <v-select
+            id="category-of-funding-activity"
+            v-model="formData.criteria.fundingActivityCategories"
+            :options="fundingActivityCategories"
+            :multiple="true"
+            :close-on-select="false"
+            label="name"
+          />
+        </b-form-group>
+        <b-form-group
+          id="agency-group"
+          label="Agency Code"
+          label-for="agency"
+        >
+          <b-form-input
+            id="agency"
+            v-model="formData.criteria.agency"
+            type="text"
+            trim
+          />
+        </b-form-group>
+        <b-form-group
+          id="posted-within-group"
+          label="Posted Within"
+          label-for="posted-within"
+        >
+          <v-select
+            id="posted-within"
+            v-model="formData.criteria.postedWithin"
+            :options="postedWithinOptions"
+            :multiple="false"
+            :close-on-select="true"
+            :clear-on-select="false"
+            :searchable="false"
+            placeholder="All Time"
+            :show-labels="false"
+            :clearable="false"
+          />
+        </b-form-group>
+        <b-form-group
+          id="cost-sharing-group"
+          v-slot="{ ariaDescribedby }"
+          label="Cost Sharing"
+          row
+        >
+          <b-form-radio-group class="search-fields-radio-group">
+            <b-form-radio
+              v-model="formData.criteria.costSharing"
+              :aria-describedby="ariaDescribedby"
+              name="cost-sharing"
+              value="Yes"
             >
-              <b-form-input
-                id="search-title"
-                type="text"
-                aria-describedby="input-live-feedback"
-                v-model="formData.searchTitle"
-                required
-                trim
-              />
-            </b-form-group>
-            <b-form-group
-              id="include-input-group"
-              label="Include Keywords"
-              label-for="include-input"
-              description="Separate keywords with comma"
+              Yes
+            </b-form-radio>
+            <b-form-radio
+              v-model="formData.criteria.costSharing"
+              :aria-describedby="ariaDescribedby"
+              name="cost-sharing"
+              value="No"
             >
-              <b-form-input
-                id="include-input"
-                type="text"
-                v-model="formData.criteria.includeKeywords"
-                trim
-              />
-            </b-form-group>
-            <b-form-group
-              id="exclude-input-group"
-              label="Exclude Keywords"
-              label-for="exclude-input"
-              description="Separate keywords with comma"
+              No
+            </b-form-radio>
+          </b-form-radio-group>
+        </b-form-group>
+        <template #footer>
+          <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
+            <b-button
+              size="sm"
+              type="reset"
+              variant="outline-primary"
+              class="borderless-button"
             >
-              <b-form-input
-                id="exclude-input"
-                type="text"
-                v-model="formData.criteria.excludeKeywords"
-                trim
-              />
-            </b-form-group>
-            <b-form-group
-              id="opportunity-number-input-group"
-              label="Opportunity #"
-              label-for="opportunity-number-input"
+              Cancel
+            </b-button>
+            <b-button
+              size="sm"
+              type="submit"
+              variant="primary"
+              :disabled="!saveEnabled"
             >
-              <b-form-input
-                id="opportunity-number-input"
-                type="text"
-                v-model="formData.criteria.opportunityNumber"
-                trim
-              />
-            </b-form-group>
-            <b-form-group
-              id="opportunity-status-group"
-              label="Opportunity Status"
-              v-slot="{ ariaDescribedby }"
-            >
-              <b-form-checkbox-group
-                id="opportunity-status"
-                v-model="formData.criteria.opportunityStatuses"
-                :options="opportunityStatusOptions"
-                :aria-describedby="ariaDescribedby"
-                inline
-              >
-              </b-form-checkbox-group>
-            </b-form-group>
-            <b-form-group
-              id="funding-type-group"
-              label="Funding Type"
-              label-for="funding-type"
-            >
-              <v-select
-                id="funding-type"
-                v-model="formData.criteria.fundingTypes"
-                :options="fundingTypeOptions"
-                label="name"
-                track-by="code"
-                :multiple="true"
-                :close-on-select="false"
-                :searchable="false"
-                selectLabel=""
-              />
-            </b-form-group>
-            <b-form-group
-              id="eligibility-group"
-              label="Eligibility"
-              label-for="eligibility"
-            >
-              <v-select
-                id="eligibility"
-                v-model="formData.criteria.eligibility"
-                :options="eligibilityCodes"
-                label="label"
-                track-by="code"
-                :multiple="true"
-                :close-on-select="false"
-                :searchable="true"
-                selectLabel=""
-              />
-            </b-form-group>
-            <b-form-group
-              id="opportunity-category-group"
-              label="Opportunity Category"
-              label-for="opportunity-category"
-            >
-              <v-select
-                id="opportunity-category"
-                v-model="formData.criteria.opportunityCategories"
-                :options="opportunityCategoryOptions"
-                :multiple="true"
-                :close-on-select="false"
-                :searchable="false"
-              />
-            </b-form-group>
-            <b-form-group
-              id="bill-group"
-              label="Appropriation Bill"
-              label-for="bill"
-            >
-              <v-select
-                id="bill"
-                v-model="formData.criteria.bill"
-                :options="billOptions"
-                :multiple="false"
-                :close-on-select="true"
-                :clear-on-select="false"
-                :searchable="false"
-                placeholder="All Bills"
-                :show-labels="false"
-                :clearable="false"
-              />
-            </b-form-group>
-            <b-form-group
-              id="category-of-funding-activity-group"
-              label="Category of Funding Activity"
-              label-for="category-of-funding-activity"
-            >
-              <v-select
-                id="category-of-funding-activity"
-                v-model="formData.criteria.fundingActivityCategories"
-                :options="fundingActivityCategories"
-                :multiple="true"
-                :close-on-select="false"
-                label="name"
-              />
-            </b-form-group>
-            <b-form-group
-              id="agency-group"
-              label="Agency Code"
-              label-for="agency"
-            >
-              <b-form-input
-                id="agency"
-                type="text"
-                v-model="formData.criteria.agency"
-                trim
-              />
-            </b-form-group>
-            <b-form-group
-              id="posted-within-group"
-              label="Posted Within"
-              label-for="posted-within"
-            >
-              <v-select
-                id="posted-within"
-                v-model="formData.criteria.postedWithin"
-                :options="postedWithinOptions"
-                :multiple="false"
-                :close-on-select="true"
-                :clear-on-select="false"
-                :searchable="false"
-                placeholder="All Time"
-                :show-labels="false"
-                :clearable="false"
-              />
-            </b-form-group>
-            <b-form-group
-              id="cost-sharing-group"
-              label="Cost Sharing"
-              v-slot="{ ariaDescribedby }"
-              row
-            >
-              <b-form-radio-group class="search-fields-radio-group">
-                <b-form-radio
-                  v-model="formData.criteria.costSharing"
-                  :aria-describedby="ariaDescribedby"
-                  name="cost-sharing"
-                  value="Yes"
-                >Yes</b-form-radio>
-                <b-form-radio
-                  v-model="formData.criteria.costSharing"
-                  :aria-describedby="ariaDescribedby"
-                  name="cost-sharing"
-                  value="No"
-                >No</b-form-radio>
-              </b-form-radio-group>
-            </b-form-group>
-          <template #footer>
-            <div class="d-flex text-light align-items-center px-3 py-2 sidebar-footer">
-              <b-button size="sm" type="reset" variant="outline-primary" class="borderless-button">Cancel</b-button>
-              <b-button size="sm" type="submit" variant="primary" :disabled="!saveEnabled">Save and View Results</b-button>
-            </div>
-          </template>
-        </b-sidebar>
-      </b-form>
-    </div>
-  </template>
+              Save and View Results
+            </b-button>
+          </div>
+        </template>
+      </b-sidebar>
+    </b-form>
+  </div>
+</template>
 <script>
 
 import { mapActions, mapGetters } from 'vuex';
@@ -253,14 +286,16 @@ const defaultCriteria = {
 };
 
 export default {
-  props: {
-    SearchType: String,
-    showModal: Boolean,
-    searchId: Number,
-    isDisabled: Boolean,
-  },
   directives: {
     'v-b-toggle': VBToggle,
+  },
+  props: {
+    showModal: Boolean,
+    searchId: {
+      type: Number,
+      default: null,
+    },
+    isDisabled: Boolean,
   },
   data() {
     return {
@@ -291,22 +326,6 @@ export default {
   validations: {
     formData: {},
   },
-  watch: {
-    displaySearchPanel() {
-      if (this.displaySearchPanel) {
-        this.initFormState();
-        this.showSideBar();
-      } else {
-        this.$refs.searchPanelSideBar.hide();
-      }
-    },
-    isEditMode() {
-      this.initFormState();
-    },
-  },
-  mounted() {
-    this.setup();
-  },
   computed: {
     ...mapGetters({
       eligibilityCodes: 'grants/eligibilityCodes',
@@ -329,6 +348,22 @@ export default {
     invalidTitleFeedback() {
       return 'Search Title is required';
     },
+  },
+  watch: {
+    displaySearchPanel() {
+      if (this.displaySearchPanel) {
+        this.initFormState();
+        this.showSideBar();
+      } else {
+        this.$refs.searchPanelSideBar.hide();
+      }
+    },
+    isEditMode() {
+      this.initFormState();
+    },
+  },
+  mounted() {
+    this.setup();
   },
   methods: {
     ...mapActions({
