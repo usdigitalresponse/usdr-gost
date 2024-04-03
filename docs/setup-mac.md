@@ -22,11 +22,6 @@ To use [NVM](https://nvm.sh/), follow the install directions at <https://github.
 If using [Nodenv](https://github.com/nodenv/nodenv) follow the instructions [here](https://github.com/nodenv/nodenv#installation) to install, then run run `nodenv install`.
 
 ***Make sure to use new terminals after completing install***
-
-### Gmail Setup
-
-See [./setup-gmail.md](./setup-gmail.md) for instructions on setting up Gmail to send emails.
-
 ## Installation
 
 1. Install dependencies

@@ -96,7 +96,7 @@ function addBaseBranding(emailHTML, brandDetails) {
     return brandedHTML;
 }
 
-function sendPassCode(email, passcode, httpOrigin, redirectTo) {
+async function sendPassCode(email, passcode, httpOrigin, redirectTo) {
     if (!httpOrigin) {
         throw new Error('must specify httpOrigin in sendPassCode');
     }
@@ -132,7 +132,7 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
         console.log(`${BLUE}${message}`);
         console.log(`${BLUE}${'-'.repeat(message.length)}`);
     }
-    return module.exports.deliverEmail({
+    await module.exports.deliverEmail({
         toAddress: email,
         emailHTML,
         emailPlain: `Your link to access USDR's Grants tool is ${href}. It expires in ${expiryMinutes} minutes`,
@@ -162,7 +162,7 @@ async function sendReportErrorEmail(user, reportType) {
         },
     );
 
-    return module.exports.deliverEmail({
+    await module.exports.deliverEmail({
         toAddress: user.email,
         ccAddress: HELPDESK_EMAIL,
         emailHTML,
@@ -295,7 +295,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
             subject: emailSubject,
         },
     ));
-    asyncBatch(inputs, module.exports.deliverEmail, 2);
+    await asyncBatch(inputs, module.exports.deliverEmail, 2);
 }
 
 async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
@@ -311,7 +311,7 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
         const agencies = await db.getAgenciesByIds(agencyIds);
         await asyncBatch(
             agencies,
-            (agency) => { module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId); },
+            async (agency) => { await module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId); },
             2,
         );
     } catch (err) {
@@ -386,7 +386,7 @@ async function sendGrantDigest({
             },
         ),
     );
-    asyncBatch(inputs, module.exports.deliverEmail, 2);
+    await asyncBatch(inputs, module.exports.deliverEmail, 2);
 }
 
 async function getAndSendGrantForSavedSearch({
@@ -478,7 +478,7 @@ async function sendAsyncReportEmail(recipient, signedUrl, reportType) {
         },
     );
 
-    return module.exports.deliverEmail({
+    await module.exports.deliverEmail({
         toAddress: recipient,
         emailHTML,
         emailPlain: `Your ${reportType} report is ready for download. Paste this link into your browser to download it: ${signedUrl} This link will remain active for 7 days.`,
