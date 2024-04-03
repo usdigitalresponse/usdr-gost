@@ -6,13 +6,17 @@
       <div class="col">
         <DownloadTemplateBtn />
 
-        <router-link to="/new_upload" class="btn btn-primary ml-2">
+        <router-link
+          to="/new_upload"
+          class="btn btn-primary ml-2"
+        >
           Submit Workbook
         </router-link>
       </div>
     </div>
 
     <vue-good-table
+      ref="uploadsTable"
       :columns="columns"
       :rows="rows"
       :group-options="groupOptions"
@@ -20,29 +24,54 @@
         enabled: true,
         initialSortBy: defaultSortOrder
       }"
-      styleClass="vgt-table table table-striped table-bordered"
-      ref="uploadsTable"
+      style-class="vgt-table table table-striped table-bordered"
+    >
+      <div
+        slot="table-actions"
+        class="p-1"
       >
-
-      <div slot="table-actions" class="p-1">
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" id="onlyExported" v-model="onlyExported">
-          <label class="form-check-label" for="onlyExported">Only exported to treasury?</label>
+          <input
+            id="onlyExported"
+            v-model="onlyExported"
+            class="form-check-input"
+            type="checkbox"
+          >
+          <label
+            class="form-check-label"
+            for="onlyExported"
+          >Only exported to treasury?</label>
         </div>
 
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" id="groupByAgency" v-model="groupByAgency">
-          <label class="form-check-label" for="groupByAgency">Group by agency?</label>
+          <input
+            id="groupByAgency"
+            v-model="groupByAgency"
+            class="form-check-input"
+            type="checkbox"
+          >
+          <label
+            class="form-check-label"
+            for="groupByAgency"
+          >Group by agency?</label>
         </div>
 
-        <button class="btn btn-secondary btn-sm" @click="resetFilters">Reset Filters</button>
+        <button
+          class="btn btn-secondary btn-sm"
+          @click="resetFilters"
+        >
+          Reset Filters
+        </button>
       </div>
 
       <div slot="emptystate">
         No uploads
       </div>
 
-      <template slot="table-row" slot-scope="props">
+      <template
+        slot="table-row"
+        slot-scope="props"
+      >
         <span v-if="props.column.field === 'id'">
           <router-link :to="`/uploads/${props.row.id}`">
             {{ shortUuid(props.row.id) }}
@@ -55,10 +84,9 @@
         </span>
 
         <span v-else>
-          {{props.formattedRow[props.column.field]}}
+          {{ props.formattedRow[props.column.field] }}
         </span>
       </template>
-
     </vue-good-table>
   </div>
 </template>
@@ -76,7 +104,12 @@ import { getJson } from '../store/index';
 import { shortUuid } from '../helpers/short-uuid';
 
 export default {
-  name: 'Uploads',
+  name: 'UploadsView',
+  components: {
+    VueGoodTable,
+    DownloadFileButton,
+    DownloadTemplateBtn,
+  },
   data() {
     return {
       groupByAgency: false,
@@ -227,6 +260,17 @@ export default {
       return this.$store.state.viewPeriodID;
     },
   },
+  watch: {
+    async periodId() {
+      this.$store.dispatch('updateUploads');
+      this.loadExportedUploads();
+    },
+    onlyExported() { this.loadExportedUploads(); },
+  },
+  async mounted() {
+    this.$store.dispatch('updateUploads');
+    this.$store.dispatch('updateAgencies');
+  },
   methods: {
     resetFilters() {
       this.$refs.uploadsTable.reset();
@@ -247,22 +291,6 @@ export default {
         this.exportedUploads = result.exportedUploads;
       }
     },
-  },
-  watch: {
-    async periodId() {
-      this.$store.dispatch('updateUploads');
-      this.loadExportedUploads();
-    },
-    onlyExported() { this.loadExportedUploads(); },
-  },
-  async mounted() {
-    this.$store.dispatch('updateUploads');
-    this.$store.dispatch('updateAgencies');
-  },
-  components: {
-    VueGoodTable,
-    DownloadFileButton,
-    DownloadTemplateBtn,
   },
 };
 </script>
