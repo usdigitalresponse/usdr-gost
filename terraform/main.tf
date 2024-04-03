@@ -125,16 +125,6 @@ module "arpa_treasury_report_security_group" {
   allow_all_egress = true
 }
 
-module "grant_digest_scheduled_task_security_group" {
-  source  = "cloudposse/security-group/aws"
-  version = "2.2.0"
-
-  namespace        = var.namespace
-  vpc_id           = data.aws_ssm_parameter.vpc_id.value
-  attributes       = ["grant_digest_scheduled_task"]
-  allow_all_egress = true
-}
-
 resource "aws_ecs_cluster" "default" {
   count = anytrue([var.api_enabled]) ? 1 : 0
 
@@ -173,7 +163,6 @@ module "api" {
     module.consume_grants_to_postgres_security_group.id,
     module.arpa_audit_report_security_group.id,
     module.arpa_treasury_report_security_group.id,
-    module.grant_digest_scheduled_task_security_group.id,
   ]
 
   # Cluster
@@ -452,7 +441,6 @@ module "postgres" {
     from_consume_grants              = module.consume_grants_to_postgres_security_group.id
     from_arpa_audit_report           = module.arpa_audit_report_security_group.id
     from_arpa_treasury_report        = module.arpa_treasury_report_security_group.id
-    from_grant_digest_scheduled_task = module.grant_digest_scheduled_task_security_group.id
   }
 
   prevent_destroy           = var.postgres_prevent_destroy
