@@ -11,7 +11,7 @@ const email = require('../lib/email');
  * robust email infrastructure. See here for context:
  * https://github.com/usdigitalresponse/usdr-gost/issues/2133
  */
-async function main() {
+exports.main = async function main() {
     if (process.env.ENABLE_GRANT_DIGEST_SCHEDULED_TASK !== 'true') {
         return;
     }
@@ -26,8 +26,8 @@ async function main() {
             await email.buildAndSendUserSavedSearchGrantDigest();
         }
     });
-}
+};
 
 if (require.main === module) {
-    main().then(() => process.exit());
+    exports.main().then(() => process.exit());
 }
