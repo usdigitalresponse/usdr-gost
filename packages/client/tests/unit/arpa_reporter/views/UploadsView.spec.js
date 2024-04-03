@@ -2,12 +2,12 @@
 import { expect } from 'chai';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
-import Uploads from '../../../../src/arpa_reporter/views/Uploads.vue';
+import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-describe('Uploads.vue', () => {
+describe('UploadsView.vue', () => {
   it('renders', () => {
     const store = new Vuex.Store({
       state: {
@@ -20,7 +20,7 @@ describe('Uploads.vue', () => {
       },
     });
 
-    const wrapper = mount(Uploads, {
+    const wrapper = mount(UploadsView, {
       store,
       localVue,
       stubs: ['router-link'],
@@ -69,7 +69,7 @@ describe('Uploads.vue', () => {
       },
     });
 
-    const wrapper = mount(Uploads, {
+    const wrapper = mount(UploadsView, {
       store,
       localVue,
       stubs: ['router-link'],
