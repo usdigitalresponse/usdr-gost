@@ -256,7 +256,6 @@ export default {
   data() {
     return {
       isFirstPageLoad: false,
-      showDialog: false,
       orderBy: '',
       assignedAgenciesFields: [
         {
@@ -383,6 +382,21 @@ export default {
       return this.agencies.filter(
         (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
       );
+    },
+  },
+  watch: {
+    async currentGrant() {
+      if (this.currentGrant) {
+        this.fetchAgencies();
+        if (!this.alreadyViewed) {
+          try {
+            await this.markGrantAsViewed();
+          } catch (e) {
+            console.log(e);
+          }
+        }
+        this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.currentGrant.grant_id });
+      }
     },
   },
   created() {

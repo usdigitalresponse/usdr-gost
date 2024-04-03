@@ -73,11 +73,6 @@ export default {
       return newTerminologyEnabled();
     },
   },
-  watch: {
-    showUploadModal() {
-      this.$bvModal.show('import-agencies-modal');
-    },
-  },
   methods: {
     ...mapActions({
       fetchAgencies: 'agencies/fetchAgencies',

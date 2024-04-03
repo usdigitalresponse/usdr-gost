@@ -370,11 +370,11 @@ async function validateRules({
 
     // go through every rule type we have
     for (const [type, typeRules] of Object.entries(rules)) {
-    // find records of the given rule type
+        // find records of the given rule type
         const tRecords = records.filter((rec) => rec.type === type).map((r) => r.content);
 
         // for each of those records, generate a list of rule violations
-        for (const [recordIdx, record] of tRecords.entries()) {
+        for (const record of tRecords) {
             let recordErrors;
             try {
                 // TODO: Consider refactoring this to take better advantage of async parallelization
@@ -408,7 +408,8 @@ async function validateRules({
             // each rule violation gets assigned a row in a sheet; they already set their column
             recordErrors.forEach((error) => {
                 error.tab = type;
-                error.row = 13 + recordIdx; // TODO: how do we know the data starts at row 13?
+                // eslint-disable-next-line no-underscore-dangle
+                error.row = record.__rowNum__ + 1; // xlsx __rowNum__ is 0-indexed
 
                 // save each rule violation in the overall list
                 errors.push(error);

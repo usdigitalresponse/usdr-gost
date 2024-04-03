@@ -2,12 +2,22 @@
   <div>
     <h2>Reporting Period</h2>
 
-    <div v-if="reportingPeriod === null" class="spinner-grow text-primary" role="status">
+    <div
+      v-if="reportingPeriod === null"
+      class="spinner-grow text-primary"
+      role="status"
+    >
       <span class="sr-only">Loading...</span>
     </div>
 
     <div v-else>
-      <StandardForm :initialRecord="reportingPeriod" :cols="cols" @save="onSave" @reset="onReset" :key="formKey" />
+      <StandardForm
+        :key="formKey"
+        :initial-record="reportingPeriod"
+        :cols="cols"
+        @save="onSave"
+        @reset="onReset"
+      />
     </div>
   </div>
 </template>
@@ -19,6 +29,9 @@ import { post } from '../store/index';
 
 export default {
   name: 'ReportingPeriod',
+  components: {
+    StandardForm,
+  },
   data: () => ({ formKey: Date.now() }),
   computed: {
     reportingPeriodId() {
@@ -77,9 +90,6 @@ export default {
     onReset() {
       this.formKey = Date.now();
     },
-  },
-  components: {
-    StandardForm,
   },
 };
 </script>

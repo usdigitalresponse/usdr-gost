@@ -3,9 +3,12 @@
     <h2>Reporting Periods</h2>
 
     <div class="mb-4">
-      <router-link to="/reporting_periods/new" class="btn btn-primary"
-        >Create New Reporting Period</router-link
+      <router-link
+        to="/reporting_periods/new"
+        class="btn btn-primary"
       >
+        Create New Reporting Period
+      </router-link>
     </div>
 
     <table class="mt-3 table table-striped">
@@ -15,27 +18,35 @@
           <th>Start Date</th>
           <th>End Date</th>
           <th>Template</th>
-          <th></th>
+          <th />
           <th>Certified At</th>
-          <th></th>
+          <th />
         </tr>
       </thead>
-      <tbody :key="n" v-for="(p, n) in reportingPeriods">
+      <tbody
+        v-for="(p, n) in reportingPeriods"
+        :key="n"
+      >
         <tr :key="n">
           <td>{{ p.name }}</td>
           <td>{{ formatDate(p.start_date) }}</td>
           <td>{{ formatDate(p.end_date) }}</td>
           <td>{{ p.template_filename }}</td>
           <td>
-            <router-link v-if="!p.certified_at" :to="`/new_template/${p.id}`">Upload Template</router-link>
+            <router-link
+              v-if="!p.certified_at"
+              :to="`/new_template/${p.id}`"
+            >
+              Upload Template
+            </router-link>
           </td>
           <td>
             <span v-if="isCurrentReportingPeriod(p)">
               <button
-                  class="btn btn-primary"
-                  data-toggle="modal"
-                  data-target="#certify-reporting-period"
-                  :disabled="certifying"
+                class="btn btn-primary"
+                data-toggle="modal"
+                data-target="#certify-reporting-period"
+                :disabled="certifying"
               >{{ certifyLabel }}</button>
             </span>
             <span v-else-if="p.certified_at">
@@ -43,18 +54,40 @@
             </span>
           </td>
           <td>
-            <router-link v-if="!p.certified_at" :to="`/reporting_periods/${p.id}`" class="btn btn-sm btn-secondary">Edit</router-link>
+            <router-link
+              v-if="!p.certified_at"
+              :to="`/reporting_periods/${p.id}`"
+              class="btn btn-sm btn-secondary"
+            >
+              Edit
+            </router-link>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <div class="modal fade" tabindex="-1" role="dialog" id="certify-reporting-period">
-      <div class="modal-dialog" role="document">
+    <div
+      id="certify-reporting-period"
+      class="modal fade"
+      tabindex="-1"
+      role="dialog"
+    >
+      <div
+        class="modal-dialog"
+        role="document"
+      >
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Certify Reporting Period</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" ref="closeModal">
+            <h5 class="modal-title">
+              Certify Reporting Period
+            </h5>
+            <button
+              ref="closeModal"
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -62,8 +95,20 @@
             <p>Certify the <b>{{ currentPeriod.name }}</b> period?</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" @click="handleCertify">Certify</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="handleCertify"
+            >
+              Certify
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       </div>
