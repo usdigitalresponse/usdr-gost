@@ -437,10 +437,10 @@ module "postgres" {
   vpc_id          = data.aws_ssm_parameter.vpc_id.value
   subnet_ids      = local.private_subnet_ids
   ingress_security_groups = {
-    from_api                         = module.api_to_postgres_security_group.id
-    from_consume_grants              = module.consume_grants_to_postgres_security_group.id
-    from_arpa_audit_report           = module.arpa_audit_report_security_group.id
-    from_arpa_treasury_report        = module.arpa_treasury_report_security_group.id
+    from_api                  = module.api_to_postgres_security_group.id
+    from_consume_grants       = module.consume_grants_to_postgres_security_group.id
+    from_arpa_audit_report    = module.arpa_audit_report_security_group.id
+    from_arpa_treasury_report = module.arpa_treasury_report_security_group.id
   }
 
   prevent_destroy           = var.postgres_prevent_destroy
