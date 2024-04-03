@@ -1,16 +1,17 @@
-module "grants_scraper" {
+module "grant_digest_scheduled_task" {
   source  = "../scheduled_ecs_task"
-  enabled = var.enabled && var.enable_grants_scraper
+  enabled = var.enabled && var.enable_grant_digest_scheduled_task
 
-  name_prefix = "${var.namespace}-grants_scraper-"
-  description = "Executes an ECS task that scrapes grants data daily, between 1:30am - 2:30am ET."
+  name_prefix = "${var.namespace}-grant-digest-scheduled-task"
+  description = "Executes an ECS task that sends grants digest emails, between 9am - 10am ET"
 
-  // Schedule
-  schedule_expression          = "cron(30 1 * * ? *)"
+  # Schedule
+  schedule_expression          = "cron(0 9 * * ? *)"
   schedule_expression_timezone = "America/New_York"
   flexible_time_window         = { hours = 1 }
-  retry_policy_max_attempts    = 10
-  retry_policy_max_event_age   = { hours = 4 }
+  # Until we have more robust email retry handling, we'll limit to 1 attempt to avoid sending multiple duplicate emails to a portion of the audience
+  retry_policy_max_attempts  = 1
+  retry_policy_max_event_age = { hours = 4 }
 
   // Permissions
   task_role_arn            = join("", aws_ecs_task_definition.default[*].task_role_arn)
@@ -31,14 +32,7 @@ module "grants_scraper" {
         name = "api"
         command = [
           "node",
-          "-e",
-          "require('./src/lib/grantscraper').run().then(() => { process.exit(0); }).catch((err) => { console.log(err); process.exit(1); });"
-        ]
-        environment = [
-          {
-            name  = "ENABLE_GRANTS_SCRAPER",
-            value = "true"
-          },
+          "./src/scripts/sendGrantDigestEmail.js"
         ]
       },
     ]
