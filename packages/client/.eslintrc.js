@@ -40,10 +40,6 @@ module.exports = {
         './src/arpa_reporter/views/NewTemplate.vue',
         './src/arpa_reporter/views/NewUpload.vue',
 
-        // ARPA Reporter: upload views
-        './src/arpa_reporter/views/Upload.vue',
-        './src/arpa_reporter/views/Uploads.vue',
-
         // Grant Finder: dashboard
         './src/views/Dashboard.vue',
         './src/views/RecentActivity.vue',
