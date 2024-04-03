@@ -119,7 +119,7 @@ export const routes = [
       {
         path: '/users',
         name: 'users',
-        component: () => import('../views/Users.vue'),
+        component: () => import('@/views/UsersView.vue'),
         meta: {
           requiresAuth: true,
         },

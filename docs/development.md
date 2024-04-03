@@ -66,6 +66,10 @@ See [here](../docker/README.md) for more information about commands to use when 
 
    **NOTE:** if you get `Error: Invalid login: 534-5.7.9 Application-specific password required.` then you'll need to set an App Password (<https://myaccount.google.com/apppasswords>) (See Step 4)
 
+## Email
+
+If you need to work on emails, see the [instructions for setting up sending of debug emails in dev](./setup-email.md).
+
 ## Linting
 
 ### VSCode

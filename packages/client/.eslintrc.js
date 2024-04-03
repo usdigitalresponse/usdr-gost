@@ -40,25 +40,9 @@ module.exports = {
         './src/arpa_reporter/views/NewTemplate.vue',
         './src/arpa_reporter/views/NewUpload.vue',
 
-        // ARPA Reporter: reporting period views
-        './src/arpa_reporter/views/ReportingPeriod.vue',
-        './src/arpa_reporter/views/ReportingPeriods.vue',
-
         // ARPA Reporter: upload views
         './src/arpa_reporter/views/Upload.vue',
         './src/arpa_reporter/views/Uploads.vue',
-
-        // Grant Finder: search modals
-        './src/components/Modals/AddKeyword.vue',
-        './src/components/Modals/SavedSearchPanel.vue',
-        './src/components/Modals/SearchPanel.vue',
-        './src/components/SearchFilter.vue',
-
-        // Grant Finder: users
-        './src/views/Users.vue',
-        './src/components/Modals/AddUser.vue',
-        './src/components/Modals/EditUser.vue',
-        './src/components/Modals/ImportUsers.vue',
 
         // Grant Finder: dashboard
         './src/views/Dashboard.vue',
