@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import Dashboard from '@/views/Dashboard.vue';
+import DashboardView from '@/views/DashboardView.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -34,7 +34,7 @@ afterEach(() => {
   wrapper = undefined;
 });
 
-describe('Dashboard.vue', () => {
+describe('DashboardView.vue', () => {
   describe('when user has no interested grants"', () => {
     beforeEach(() => {
       store = new Vuex.Store({
@@ -45,7 +45,7 @@ describe('Dashboard.vue', () => {
           ...noOpActions,
         },
       });
-      wrapper = shallowMount(Dashboard, {
+      wrapper = shallowMount(DashboardView, {
         store,
         localVue,
         stubs,
