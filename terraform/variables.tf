@@ -202,6 +202,10 @@ variable "api_enable_saved_search_grants_digest" {
   type = bool
 }
 
+variable "api_enable_grant_digest_scheduled_task" {
+  type = bool
+}
+
 variable "api_log_retention_in_days" {
   type = number
 }
