@@ -1,34 +1,26 @@
 # Email Setup
 
-## Ethereal Mail Setup (sandboxed email environment)
+## Mailpit Usage (outgoing email capture and viewing)
 
-[Ethereal](https://ethereal.email/) is the recommended way to set up your development environment to work on emails. 
+Mailpit is an SMTP sandbox service, which should already be running if you set up [via Docker](../docker/README.md). Emails the system sends are "trapped" by this service so you can view them in a web UI. This ensures your development setup will never actually send anything outbound, making it a safe way to test email sending in development. 
 
-Ethereal is a free "fake" SMTP sandbox service. You can instantly create a temporary email account that pretends it can send and receive emails. Emails received and "sent" by this temporary account can be viewed in the messages inbox, but the address will never actually send anything outbound. This makes it a much safer way to test email sending in development. 
+Once you trigger an email (for example, by sending a login email from http://localhost:8080/login) you can view the email in the Mailpit web UI by going to http://localhost:8025/.
 
-1. Go to [Ethereal](https://ethereal.email/) and click "Create Ethereal Account". 
+![Mailpit Inbox](./img/setup-email-mailpit-inbox.png)
 
-   ![Ethereal homepage](./img/setup-email-ethereal.png)
+![Mailpit Message](./img/setup-email-mailpit-message.png)
 
-2. Find the SMTP Configuration details for the new account on the created page. 
+Mailpit's web UI also offers helpful utilities for viewing HTML source, checking basic mail client compatibility, and more. 
 
-   ![SMTP configuration details](./img/setup-email-smtp-configuration.png)
+## Send Debug Email
 
-3. Update your `NODEMAILER_*` environment variables in your `server/.env` file with the SMTP details. 
-   - `NODEMAILER_HOST=smtp.ethereal.email`
-   - `NODEMAILER_PORT=587`
-   - `NODEMAILER_SECURE=false` — Ethereal doesn't use a secure SMTP connection, so you'll turn secure off here
-   - `NODEMAILER_EMAIL={{ email }}` — set the new email address from Ethereal's SMTP details here
-   - `NODEMAILER_EMAIL_PW={{ password }}` — set the new password from Ethereal's SMTP details here
-4. Rebuild your app docker container so it picks up the new environment variables
-   - `docker compose down app`
-   - `docker compose up -d`
-5. Use the send debug email tool to send a demo of any email type for your Ethereal email to capture
-   - `docker compose exec app yarn workspace server run send-debug-email`
-6. Click over to the "Messages" tab on Ethereal to see your inbox and view the message
+If you need to work on changes to emails (e.g., a grant digest email), it can be complex to trigger them in development. To simplify development, you can use the `send-debug-email` command: 
 
-   ![Ethereal inbox](./img/setup-email-ethereal-inbox.png)
-   ![Ehtereal message](./img/setup-email-ethereal-welcome.png)
+`docker compose exec app yarn workspace server run send-debug-email`
+
+![Send Debug Email Tool](./img/setup-email-send-debug-email.png)
+
+![Debug Email Received](./img/setup-email-send-debug-received.png)
 
 ## Gmail Setup (DANGER — live email environment)
 
