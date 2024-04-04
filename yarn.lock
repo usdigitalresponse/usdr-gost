@@ -368,9 +368,9 @@
     tslib "^2.6.2"
 
 "@aws-sdk/client-sqs@^3.345.0":
-  version "3.540.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sqs/-/client-sqs-3.540.0.tgz#d1f99d101ea3b91af3f62b013f4654ecd642e75f"
-  integrity sha512-PYyFIUZwN1LcrUtHQ/KJqNUgPgY3bNGjVp/SbwJ8cKGALBUvUNN6E7VpEDYglY1X/CuMolxK00TFZOSR9O056Q==
+  version "3.547.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sqs/-/client-sqs-3.547.0.tgz#5763d2e12fd81a79f2c8adcc7015f30f17b32021"
+  integrity sha512-88XFtUsSlXqzUxhqrckczA9CSV/xwxBmea6geQekNqwL8rzKA77Bgb6gRKSZ73DiSx7PVj9NP3gs0/A62qwKtQ==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
@@ -380,7 +380,7 @@
     "@aws-sdk/middleware-host-header" "3.535.0"
     "@aws-sdk/middleware-logger" "3.535.0"
     "@aws-sdk/middleware-recursion-detection" "3.535.0"
-    "@aws-sdk/middleware-sdk-sqs" "3.535.0"
+    "@aws-sdk/middleware-sdk-sqs" "3.547.0"
     "@aws-sdk/middleware-user-agent" "3.540.0"
     "@aws-sdk/region-config-resolver" "3.535.0"
     "@aws-sdk/types" "3.535.0"
@@ -779,10 +779,10 @@
     "@smithy/util-config-provider" "^2.3.0"
     tslib "^2.6.2"
 
-"@aws-sdk/middleware-sdk-sqs@3.535.0":
-  version "3.535.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-sdk-sqs/-/middleware-sdk-sqs-3.535.0.tgz#56d289303abeb714a709dc798f145b3cf20264f4"
-  integrity sha512-E6En+QI7AFp5DsUhhA+DexMRjrJmYYte/wkArY47+6gw8VO6z7WYW6KtrhUP2OyJRYMil7o/1z76+j69vc2PBQ==
+"@aws-sdk/middleware-sdk-sqs@3.547.0":
+  version "3.547.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-sdk-sqs/-/middleware-sdk-sqs-3.547.0.tgz#76f650f46705d5ccf39141962081020ce759c8da"
+  integrity sha512-jxlJmw36QGY2IAwCBFVE3YYdrkO5N3Grio4vGYkGq/gGTzM1EhjghRCS2eVc1wiyavOS+kwChkskRSsBcP6zEg==
   dependencies:
     "@aws-sdk/types" "3.535.0"
     "@smithy/smithy-client" "^2.5.0"
@@ -2394,25 +2394,25 @@
     debug "^3.1.0"
     lodash.once "^4.1.1"
 
-"@datadog/browser-core@5.13.0":
-  version "5.13.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.13.0.tgz#62ed411dc45d026b93eda04d82a430df65227708"
-  integrity sha512-5WciDj4IqpfaFZViJNXxovmDQiwoPZ/UWq4WMW7YafG22XNjrc6XbL5PWuAaG6fqcYFW0peE8g56ji5O78vMSA==
+"@datadog/browser-core@5.14.0":
+  version "5.14.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.14.0.tgz#86ea04e264d3a2af655059576e9a523a2cbf8125"
+  integrity sha512-sr02NfURpidS+FW9JaIDwqG8JfeqNy2GjPhzxZ7q3IITktX0wNxEq+IhwJDfB+2G/2iT9t7WgFBshx/e3Rb0Ow==
 
-"@datadog/browser-rum-core@5.13.0":
-  version "5.13.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.13.0.tgz#8abf7756a97c87a526ae441cc5b0e3e2cd59e71f"
-  integrity sha512-MbDbg+ciQlYd2c0gE21Jw1P4R/liLIzPQW96iJGpUBG67ScfYjKyNS0GnKtLwak9rcQJInv3FODhgr2DUfm88w==
+"@datadog/browser-rum-core@5.14.0":
+  version "5.14.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.14.0.tgz#599fd4f21c4269f28ebe1ccd6efb9ac89d842c67"
+  integrity sha512-DwpHwU+7LhuDwUKnOuQczM/QlsgCZofQyPOTEih2Rj9yrVpf6Z1lNQg9TCPNqGLAKs+Q1HqP1fJYa+tBCmgbhw==
   dependencies:
-    "@datadog/browser-core" "5.13.0"
+    "@datadog/browser-core" "5.14.0"
 
 "@datadog/browser-rum@^5.5.0":
-  version "5.13.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.13.0.tgz#ffdbb472e55d2f6081f59dd479e98777790c1569"
-  integrity sha512-3xRyKp4rnMWMNhoy/pd8uDpQsNO3dh3nivNk5MzaxKo+mLsJUGFtj9nIq/jN38jl1tOEFbFMcgvCo15bkdHeQw==
+  version "5.14.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.14.0.tgz#a6fbd5729c9e26104832f8eb774b33b8efdde55d"
+  integrity sha512-IijqDr1zDWJdNcbasjOMoriXDSf4ILbtt9DJF6+UMidQ32CNoCr524IK0d+9Qoea1uhEDIxIsA5lDN+v8zb6sg==
   dependencies:
-    "@datadog/browser-core" "5.13.0"
-    "@datadog/browser-rum-core" "5.13.0"
+    "@datadog/browser-core" "5.14.0"
+    "@datadog/browser-rum-core" "5.14.0"
 
 "@datadog/native-appsec@7.1.0":
   version "7.1.0"
@@ -12312,10 +12312,10 @@ pg-connection-string@2.5.0:
   resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.5.0.tgz#538cadd0f7e603fc09a12590f3b8a452c2c0cf34"
   integrity sha512-r5o/V/ORTA6TmUnyWZR9nCj1klXCO2CEKNRlVuJptZe85QuhFayC7WeMic7ndayT5IRIR0S0xFxFi2ousartlQ==
 
-pg-connection-string@^2.6.3:
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.6.3.tgz#0393c04b00262bca1d656694f9193aaba9f17fb4"
-  integrity sha512-77FxhhKJQH+xJx6tDqkhhMa0nZvv3U1HYLDQgwZxZafVD583++O5LXn5oo5HaQZ0vXwYcZA1koYAJM3JvD6Gtw==
+pg-connection-string@^2.6.4:
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.6.4.tgz#f543862adfa49fa4e14bc8a8892d2a84d754246d"
+  integrity sha512-v+Z7W/0EO707aNMaAEfiGnGL9sxxumwLl2fJvCQtMn9Fxsg+lPpPkdcyBSv/KFgpGdYkMfn+EI1Or2EHjpgLCA==
 
 pg-int8@1.0.1:
   version "1.0.1"
@@ -12362,11 +12362,11 @@ pg-types@^2.1.0:
     postgres-interval "^1.1.0"
 
 pg@^8.7.1:
-  version "8.11.4"
-  resolved "https://registry.yarnpkg.com/pg/-/pg-8.11.4.tgz#4b22f5cfe0cc51f0c563dbf7e021705a710a3009"
-  integrity sha512-pWb7JKPxGk1UFbtq7jQ0m3IfPpb7LLACCEyN8/u9DYEom+Q/BSKy+4TRl4+Hh003AOYhppB/z+QK87/hx/bk0w==
+  version "8.11.5"
+  resolved "https://registry.yarnpkg.com/pg/-/pg-8.11.5.tgz#e722b0a5f1ed92931c31758ebec3ddf878dd4128"
+  integrity sha512-jqgNHSKL5cbDjFlHyYsCXmQDrfIX/3RsNwYqpd4N0Kt8niLuNoRNH+aazv6cOd43gPh9Y4DjQCtb+X0MH0Hvnw==
   dependencies:
-    pg-connection-string "^2.6.3"
+    pg-connection-string "^2.6.4"
     pg-pool "^3.6.2"
     pg-protocol "^1.6.1"
     pg-types "^2.1.0"

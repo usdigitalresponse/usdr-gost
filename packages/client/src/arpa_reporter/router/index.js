@@ -10,10 +10,10 @@ import SubrecipientsView from '@/arpa_reporter/views/SubrecipientsView.vue';
 import UserView from '@/arpa_reporter/views/UserView.vue';
 import UsersView from '@/arpa_reporter/views/UsersView.vue';
 import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
+import UploadView from '@/arpa_reporter/views/UploadView.vue';
+import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
 import NewTemplate from '../views/NewTemplate.vue';
 import NewUpload from '../views/NewUpload.vue';
-import Upload from '../views/Upload.vue';
-import Uploads from '../views/Uploads.vue';
 import ReportingPeriod from '../views/ReportingPeriod.vue';
 import ReportingPeriods from '../views/ReportingPeriods.vue';
 import store from '../store/index';
@@ -43,13 +43,13 @@ const routes = [
   {
     path: '/uploads',
     name: 'Uploads',
-    component: Uploads,
+    component: UploadsView,
     meta: { requiresLogin: true },
   },
   {
     path: '/uploads/:id',
     name: 'Upload',
-    component: Upload,
+    component: UploadView,
     meta: { requiresLogin: true },
   },
   {

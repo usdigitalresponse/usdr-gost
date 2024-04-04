@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { mount, createLocalVue } from '@vue/test-utils';
 import moment from 'moment';
 import Vuex from 'vuex';
-import Upload from '../../../../src/arpa_reporter/views/Upload.vue';
+import UploadView from '@/arpa_reporter/views/UploadView.vue';
 
 const mocks = {
   $route: {
@@ -17,7 +17,7 @@ const mocks = {
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-describe('Upload.vue', () => {
+describe('UploadView.vue', () => {
   it('renders with an upload - validated', async () => {
     const store = new Vuex.Store({
       state: {
@@ -59,7 +59,7 @@ describe('Upload.vue', () => {
       validated_by_email: null,
     };
 
-    const wrapper = mount(Upload, {
+    const wrapper = mount(UploadView, {
       store,
       localVue,
       stubs: ['router-link'],
@@ -113,7 +113,7 @@ describe('Upload.vue', () => {
       validated_by_email: null,
     };
 
-    const wrapper = mount(Upload, {
+    const wrapper = mount(UploadView, {
       store,
       localVue,
       stubs: ['router-link'],
