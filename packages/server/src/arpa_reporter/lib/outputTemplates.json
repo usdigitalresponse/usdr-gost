@@ -189,6 +189,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -204,12 +214,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -353,6 +363,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -368,12 +388,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -503,6 +523,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -518,12 +548,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -655,6 +685,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -670,12 +710,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -821,6 +861,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -836,12 +886,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -983,6 +1033,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -998,12 +1058,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1140,6 +1200,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -1155,12 +1225,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1294,6 +1364,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -1309,12 +1389,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1443,6 +1523,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -1458,12 +1548,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1562,6 +1652,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -1577,12 +1677,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1682,6 +1782,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -1697,12 +1807,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1798,6 +1908,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -1813,12 +1933,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -1919,6 +2039,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -1934,12 +2064,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -2197,6 +2327,16 @@
         "required": "Conditional"
       },
       {
+        "fieldId": "Project_Start_Date__c",
+        "fieldName": "Project Start Date",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Project_End_Date__c",
+        "fieldName": "Project End Date",
+        "required": "Conditional"
+      },
+      {
         "fieldId": "Adopted_Budget__c",
         "fieldName": "Adopted Budget",
         "required": "Optional"
@@ -2212,12 +2352,12 @@
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Obligations__c",
+        "fieldId": "Q1_2024_Obligations__c",
         "fieldName": "Current Period Obligations",
         "required": "Required"
       },
       {
-        "fieldId": "Q4_2023_Expenditures__c",
+        "fieldId": "Q1_2024_Expenditures__c",
         "fieldName": "Current Period Expenditures",
         "required": "Required"
       },
@@ -2633,6 +2773,16 @@
         "fieldId": "Description__c",
         "fieldName": "SubAward Description",
         "required": "Required"
+      },
+      {
+        "fieldId": "Edited_Subaward_Amount_Explanation__c",
+        "fieldName": "Edited Award Amount Explanation",
+        "required": "Conditional"
+      },
+      {
+        "fieldId": "Loan_Expiration_Date__c",
+        "fieldName": "Loan Expiration Date",
+        "required": "Conditional"
       }
     ]
   }
