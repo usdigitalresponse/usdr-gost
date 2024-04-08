@@ -2631,10 +2631,10 @@
     "@datadog/browser-core" "5.14.0"
     "@datadog/browser-rum-core" "5.14.0"
 
-"@datadog/native-appsec@7.1.0":
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-7.1.0.tgz#e8e6254236ac6fd7d4fb8b1156b34de64ec3e174"
-  integrity sha512-5FATunIxmvuSGDwPmbXfOi21wC7rjfbdLX4QiT5LR+iRLjRLT5iETqwdTsqy0WOQIHmxdWuddRvuakAg3921aA==
+"@datadog/native-appsec@7.1.1":
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-7.1.1.tgz#eee96ae4c309e5b811611e968668f6744452c584"
+  integrity sha512-1XVrCY4g1ArN79SQANMtiIkaxKSPfgdAGv0VAM4Pz+NQuxKfl+2xQPXjQPm87LI1KQIO6MU6qzv3sUUSesb9lA==
   dependencies:
     node-gyp-build "^3.9.0"
 
@@ -6835,11 +6835,11 @@ dc-polyfill@^0.1.4:
   integrity sha512-8iwEduR2jR9wWYggeaYtYZWRiUe3XZPyAQtMTL1otv8X3kfR8xUIVb4l5awHEeyDrH6Je7N324lKzMKlMMN6Yw==
 
 dd-trace@^4.11.1:
-  version "4.33.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.33.0.tgz#b4172018834e84aabc991213084532adb0628cbe"
-  integrity sha512-hO+2cIIiZJ8lbjRiIMs5mdMXNcTyi/D/kGreEnh/HuZPptngsF7HpDRFxhVls1hFOg1y4uYqYCUcTT5U0KXrHA==
+  version "4.34.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.34.0.tgz#ac1875a22d240303ba88e40ad80f674e27a07ed0"
+  integrity sha512-LXzLfYLB8XdYK4FraadkhP6xUiy2WhI1VuBTFW/NG+2da8vUIEKCDHJzjOSZQmJ4ye0uq7AXqKjqhJhm1cUw2A==
   dependencies:
-    "@datadog/native-appsec" "7.1.0"
+    "@datadog/native-appsec" "7.1.1"
     "@datadog/native-iast-rewriter" "2.3.0"
     "@datadog/native-iast-taint-tracking" "1.7.0"
     "@datadog/native-metrics" "^2.0.0"
