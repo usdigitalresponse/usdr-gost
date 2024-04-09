@@ -6,7 +6,7 @@ const XLSX = require('xlsx');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const { log } = require('../../lib/logging');
 const aws = require('../../lib/gost-aws');
-const { ec } = require('./format');
+const { currencyNumeric, ec } = require('./format');
 
 const { getPreviousReportingPeriods, getAllReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
@@ -135,8 +135,22 @@ async function createObligationSheet(periodId, domain, tenantId, logger = log) {
     }))).flat();
 
     logger.fields.sheet.rowCount = rows.length;
+    // add currency formatting to specific columns
+    const rowsFormatted = rows.map((row) => ({
+        ...row,
+        [COLUMN.EC_BUDGET]: currencyNumeric(row[COLUMN.EC_BUDGET]),
+        [COLUMN.EC_TCO]: currencyNumeric(row[COLUMN.EC_TCO]),
+        [COLUMN.EC_TCE]: currencyNumeric(row[COLUMN.EC_TCE]),
+        [COLUMN.EC_CPO]: currencyNumeric(row[COLUMN.EC_CPO]),
+        [COLUMN.EC_CPE]: currencyNumeric(row[COLUMN.EC_CPE]),
+        [COLUMN.E50K_OBLIGATION]: currencyNumeric(row[COLUMN.E50K_OBLIGATION]),
+        [COLUMN.E50K_TEA]: currencyNumeric(row[COLUMN.E50K_TEA]),
+        [COLUMN.E_CPO]: currencyNumeric(row[COLUMN.E_CPO]),
+        [COLUMN.E_CPE]: currencyNumeric(row[COLUMN.E_CPE]),
+    }));
+
     logger.info('finished building rows for spreadsheet');
-    return rows;
+    return rowsFormatted;
 }
 
 async function createProjectSummaries(periodId, domain, tenantId, logger = log) {
@@ -229,7 +243,14 @@ async function createProjectSummaries(periodId, domain, tenantId, logger = log) 
     logger.fields.sheet.rowCount = rowsByProject.size;
     logger.fields.sheet.totalRecords = { all: allrecordsCounter, ecRecords: ecRecordsCounter };
     logger.info('finished building rows for spreadsheet');
-    return Array.from(rowsByProject.values());
+    return Array.from(rowsByProject.values()).map((row) => ({
+        ...row,
+        'Adopted Budget': currencyNumeric(row['Adopted Budget']),
+        'Total Cumulative Obligations': currencyNumeric(row['Total Cumulative Obligations']),
+        'Total Cumulative Expenditures': currencyNumeric(row['Total Cumulative Expenditures']),
+        'Current Period Obligations': currencyNumeric(row['Current Period Obligations']),
+        'Current Period Expenditures': currencyNumeric(row['Current Period Expenditures']),
+    }));
 }
 
 function getRecordsByProject(records) {
@@ -333,9 +354,21 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
         return row;
     });
 
-    logger.fields.sheet.rowCount = rows.length;
+    // add currency formatting to specific columns not in the unformatted columns var
+    const unformattedColumns = ['Project ID', 'Project Description', 'Project Expenditure Category Group', 'Project Expenditure Category'];
+    const rowsFormatted = rows.map((row) => Object.entries(row).reduce((accumulator, currentValue) => {
+        const [key, value] = currentValue;
+        if (unformattedColumns.indexOf(key) !== -1) {
+            accumulator[key] = value;
+        } else {
+            accumulator[key] = currencyNumeric(value);
+        }
+        return accumulator;
+    }, {}));
+
+    logger.fields.sheet.rowCount = rowsFormatted.length;
     logger.info('finished building rows for spreadsheet');
-    return rows;
+    return rowsFormatted;
 }
 
 /**
@@ -415,9 +448,19 @@ async function createReportsGroupedBySubAward(periodId, tenantId, dateFormat = R
         return row;
     });
 
-    logger.fields.sheet.rowCount = rows.length;
+    // add currency formatting to all columns that are not SubAward ID
+    const rowsFormatted = rows.map((row) => Object.entries(row).reduce((accumulator, currentValue) => {
+        const [key, value] = currentValue;
+        if (key === 'SubAward ID') {
+            accumulator[key] = value;
+        } else {
+            accumulator[key] = currencyNumeric(value);
+        }
+        return accumulator;
+    }, {}));
+    logger.fields.sheet.rowCounter = rowsFormatted.length;
     logger.info('finished building rows for spreadsheet');
-    return rows;
+    return rowsFormatted;
 }
 
 async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
@@ -455,9 +498,14 @@ async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
         return row;
     });
 
-    logger.fields.sheet.rowCount = rows.length;
+    // add currency formatting to the Evidence Based Total Spend
+    const rowsFormatted = rows.map((row) => ({
+        ...row,
+        'Evidence Based Total Spend': currencyNumeric(row['Evidence Based Total Spend']),
+    }));
+    logger.fields.sheet.rowCount = rowsFormatted.length;
     logger.info('finished building rows for spreadsheet');
-    return rows;
+    return rowsFormatted;
 }
 
 /*
@@ -497,7 +545,6 @@ function sortHeadersWithDates(data, expectedOrderWithoutDate, expectedOrderWithD
                 .map((date) => `${date.format(REPORTING_DATE_FORMAT)} ${x[0]}`)).flat(),
     ];
 
-    debugger;
     return headers;
 }
 
