@@ -39,7 +39,7 @@ export const routes = [
       {
         path: '/dashboard',
         name: 'dashboard',
-        component: () => import('../views/Dashboard.vue'),
+        component: () => import('@/views/DashboardView.vue'),
         meta: {
           requiresAuth: true,
         },
@@ -47,7 +47,7 @@ export const routes = [
       {
         path: '/RecentActivity',
         name: 'RecentActivity',
-        component: () => import('../views/RecentActivity.vue'),
+        component: () => import('@/views/RecentActivityView.vue'),
         meta: {
           requiresAuth: true,
         },
@@ -55,7 +55,7 @@ export const routes = [
       {
         path: '/UpcomingClosingDates',
         name: 'UpcomingClosingDates',
-        component: () => import('../views/UpcomingClosingDates.vue'),
+        component: () => import('@/views/UpcomingClosingDatesView.vue'),
         meta: {
           requiresAuth: true,
         },

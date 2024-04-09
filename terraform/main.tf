@@ -170,17 +170,18 @@ module "api" {
   ecs_cluster_name = join("", aws_ecs_cluster.default[*].name)
 
   # Task configuration
-  docker_tag                        = var.api_container_image_tag
-  default_desired_task_count        = var.api_default_desired_task_count
-  autoscaling_desired_count_minimum = var.api_minumum_task_count
-  autoscaling_desired_count_maximum = var.api_maximum_task_count
-  enable_grants_scraper             = var.api_enable_grants_scraper
-  enable_grants_digest              = var.api_enable_grants_digest
-  enable_new_team_terminology       = var.api_enable_new_team_terminology
-  enable_my_profile                 = var.api_enable_my_profile
-  enable_saved_search_grants_digest = var.api_enable_saved_search_grants_digest
-  unified_service_tags              = local.unified_service_tags
-  datadog_environment_variables     = var.api_datadog_environment_variables
+  docker_tag                         = var.api_container_image_tag
+  default_desired_task_count         = var.api_default_desired_task_count
+  autoscaling_desired_count_minimum  = var.api_minumum_task_count
+  autoscaling_desired_count_maximum  = var.api_maximum_task_count
+  enable_grants_scraper              = var.api_enable_grants_scraper
+  enable_grants_digest               = var.api_enable_grants_digest
+  enable_new_team_terminology        = var.api_enable_new_team_terminology
+  enable_my_profile                  = var.api_enable_my_profile
+  enable_saved_search_grants_digest  = var.api_enable_saved_search_grants_digest
+  enable_grant_digest_scheduled_task = var.api_enable_grant_digest_scheduled_task
+  unified_service_tags               = local.unified_service_tags
+  datadog_environment_variables      = var.api_datadog_environment_variables
   api_container_environment = merge(var.api_container_environment, {
     ARPA_AUDIT_REPORT_SQS_QUEUE_URL    = module.arpa_audit_report.sqs_queue_url
     ARPA_TREASURY_REPORT_SQS_QUEUE_URL = module.arpa_treasury_report.sqs_queue_url

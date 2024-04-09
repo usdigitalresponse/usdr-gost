@@ -1,26 +1,44 @@
 <template>
   <section class="container">
     <b-card class="border-0">
-      <h4 class="card-title gutter">Upcoming Closing Dates</h4>
-      <ClosingDatesTable id="upcomingGrants" :on-row-clicked="onRowClicked" :on-row-selected="onRowSelected"
-                         :closest-grants="closestGrants" :danger-threshold="this.selectedAgency?.danger_threshold" :warning-threshold="this.selectedAgency?.warning_threshold"/>
+      <h4 class="card-title gutter">
+        Upcoming Closing Dates
+      </h4>
+      <ClosingDatesTable
+        id="upcomingGrants"
+        :on-row-clicked="onRowClicked"
+        :on-row-selected="onRowSelected"
+        :closest-grants="closestGrants"
+        :danger-threshold="selectedAgency?.danger_threshold"
+        :warning-threshold="selectedAgency?.warning_threshold"
+      />
       <div class="d-flex gutter">
-        <b-pagination-nav class="m-0" use-router no-page-detect :value="currentPage" :number-of-pages="numberOfPages"
-                          :link-gen="linkGen" first-number
-                      last-number first-text="First" prev-text="Prev" next-text="Next" last-text="Last"
-                      aria-controls="upcomingGrants"/>
-        <div class="my-1 rounded py-1 px-2 page-item">{{ totalUpcomingGrants }} total date{{ totalUpcomingGrants == 1 ? '' : 's' }}</div>
+        <b-pagination-nav
+          class="m-0"
+          use-router
+          no-page-detect
+          :value="currentPage"
+          :number-of-pages="numberOfPages"
+          :link-gen="linkGen"
+          first-number
+          last-number
+          first-text="First"
+          prev-text="Prev"
+          next-text="Next"
+          last-text="Last"
+          aria-controls="upcomingGrants"
+        />
+        <div class="my-1 rounded py-1 px-2 page-item">
+          {{ totalUpcomingGrants }} total date{{ totalUpcomingGrants == 1 ? '' : 's' }}
+        </div>
       </div>
     </b-card>
-    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy
+      v-if="!newGrantsDetailPageEnabled"
+      :selected-grant.sync="selectedGrant"
+    />
   </section>
 </template>
-<style scoped>
-.gutter {
-  margin-left: .75rem;
-}
-</style>
-
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
@@ -30,15 +48,12 @@ import ClosingDatesTable from '@/components/ClosingDatesTable.vue';
 
 export default {
   components: { ClosingDatesTable, GrantDetailsLegacy },
+  mixins: [resizableTableMixin],
   data() {
     return {
       perPage: 10,
       selectedGrant: null,
     };
-  },
-  mixins: [resizableTableMixin],
-  async mounted() {
-    await this.setup();
   },
   computed: {
     ...mapGetters({
@@ -75,6 +90,9 @@ export default {
       this.setup();
     },
   },
+  async mounted() {
+    await this.setup();
+  },
   methods: {
     ...mapActions({
       fetchGrantDetails: 'grants/fetchGrantDetails',
@@ -103,3 +121,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.gutter {
+  margin-left: .75rem;
+}
+</style>
