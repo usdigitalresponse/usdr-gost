@@ -2,15 +2,15 @@
   <div class="upload">
     <h1>Submit Workbook</h1>
     <FormulateForm
+      v-model="values"
       name="new-upload"
       :form-errors="formErrors"
-      v-model="values"
       :schema="schema"
       @submit="onSubmit"
     >
-    <FormulateErrors
-      class="alert alert-danger"
-    />
+      <FormulateErrors
+        class="alert alert-danger"
+      />
     </FormulateForm>
   </div>
 </template>
