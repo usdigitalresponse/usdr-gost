@@ -83,7 +83,8 @@
   ],
   "Yes/No Questions": [
     "Yes",
-    "No"
+    "No",
+    "N/A"
   ],
   "Types": [
     "Contract: Purchase Order",
