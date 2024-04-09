@@ -34,6 +34,8 @@ provider "datadog" {
   app_key  = var.datadog_app_key
 }
 
+data "aws_region" "current" {}
+
 data "aws_caller_identity" "current" {}
 
 data "aws_ssm_parameter" "vpc_id" {
@@ -205,7 +207,8 @@ module "api" {
   postgres_db_name         = module.postgres.default_db_name
 
   # Email
-  notifications_email_address = "grants-notifications@${var.website_domain_name}"
+  notifications_email_address   = "grants-notifications@${var.website_domain_name}"
+  ses_configuration_set_default = aws_ses_configuration_set.default.name
 }
 
 module "consume_grants" {
@@ -267,14 +270,15 @@ module "arpa_audit_report" {
   stop_timeout_seconds  = 120
   consumer_task_command = ["node", "./src/scripts/arpaAuditReport.js"]
   consumer_container_environment = {
-    API_DOMAIN          = "https://${local.api_domain_name}"
-    AUDIT_REPORT_BUCKET = module.api.arpa_audit_reports_bucket_id
-    DATA_DIR            = "/var/data"
-    LOG_LEVEL           = "DEBUG"
-    LOG_SRC_ENABLED     = "false"
-    NODE_OPTIONS        = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
-    NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
-    WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
+    API_DOMAIN                    = "https://${local.api_domain_name}"
+    AUDIT_REPORT_BUCKET           = module.api.arpa_audit_reports_bucket_id
+    DATA_DIR                      = "/var/data"
+    LOG_LEVEL                     = "DEBUG"
+    LOG_SRC_ENABLED               = "false"
+    NODE_OPTIONS                  = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
+    NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
+    SES_CONFIGURATION_SET_DEFAULT = aws_ses_configuration_set.default.name
+    WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
   }
   datadog_environment_variables = {
     DD_LOGS_INJECTION    = "true"
@@ -356,14 +360,15 @@ module "arpa_treasury_report" {
   stop_timeout_seconds  = 120
   consumer_task_command = ["node", "./src/scripts/arpaTreasuryReport.js"]
   consumer_container_environment = {
-    API_DOMAIN          = "https://${local.api_domain_name}"
-    AUDIT_REPORT_BUCKET = module.api.arpa_audit_reports_bucket_id
-    DATA_DIR            = "/var/data"
-    LOG_LEVEL           = "DEBUG"
-    LOG_SRC_ENABLED     = "false"
-    NODE_OPTIONS        = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
-    NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
-    WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
+    API_DOMAIN                    = "https://${local.api_domain_name}"
+    AUDIT_REPORT_BUCKET           = module.api.arpa_audit_reports_bucket_id
+    DATA_DIR                      = "/var/data"
+    LOG_LEVEL                     = "DEBUG"
+    LOG_SRC_ENABLED               = "false"
+    NODE_OPTIONS                  = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
+    NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
+    SES_CONFIGURATION_SET_DEFAULT = aws_ses_configuration_set.default.name
+    WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
   }
   datadog_environment_variables = {
     DD_LOGS_INJECTION    = "true"

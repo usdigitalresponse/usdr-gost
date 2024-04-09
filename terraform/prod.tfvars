@@ -12,6 +12,7 @@ datadog_monitor_notification_handles = [
   "thendrickson@usdigitalresponse.org",
   "asridhar@usdigitalresponse.org",
 ]
+ses_datadog_events_enabled = true
 
 // Website
 website_enabled     = true

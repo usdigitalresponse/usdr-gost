@@ -150,6 +150,11 @@ variable "notifications_email_address" {
   }
 }
 
+variable "ses_configuration_set_default" {
+  description = "Name of the configuration set that should be used for all emails sent through SES."
+  type        = string
+}
+
 variable "ses_sandbox_mode_email_recipients" {
   description = "List of email addresses to verify so that they may receive emails when SES is in sandbox mode. ONLY USE THIS FOR DEVELOPMENT PURPOSES!"
   type        = list(string)
