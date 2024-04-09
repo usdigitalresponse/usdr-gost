@@ -38,13 +38,6 @@ module.exports = {
 
         // ARPA Reporter: annual performance reporter
         './src/views/ArpaAnnualPerformanceReporter.vue',
-
-        // Grant Finder: dashboard
-        './src/views/Dashboard.vue',
-        './src/views/RecentActivity.vue',
-        './src/views/UpcomingClosingDates.vue',
-        './src/components/ActivityTable.vue',
-        './src/components/ClosingDatesTable.vue',
       ],
       rules: {
         // List of essential rules we previously had turned off

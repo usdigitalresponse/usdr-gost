@@ -14,36 +14,78 @@
   >
     <template #cell(icon)="list">
       <div class="gutter-icon row">
-        <b-icon v-if="list.item.interested === statuses.rejected" icon="x-circle-fill" scale="1" variant="danger"></b-icon>
-        <b-icon v-if="list.item.interested === statuses.interested" icon="check-circle-fill" scale="1" variant="success"></b-icon>
-        <b-icon v-if="list.item.interested === statuses.assigned" icon="arrow-right-circle-fill" scale="1"></b-icon>
-        <b-icon v-if="list.item.interested === statuses.awarded" icon="award-fill" scale="1" class="color-yellow"></b-icon>
-        <b-icon v-if="list.item.interested === statuses.applied" icon="check-circle-fill" scale="1" class="color-green"></b-icon>
+        <b-icon
+          v-if="list.item.interested === statuses.rejected"
+          icon="x-circle-fill"
+          scale="1"
+          variant="danger"
+        />
+        <b-icon
+          v-if="list.item.interested === statuses.interested"
+          icon="check-circle-fill"
+          scale="1"
+          variant="success"
+        />
+        <b-icon
+          v-if="list.item.interested === statuses.assigned"
+          icon="arrow-right-circle-fill"
+          scale="1"
+        />
+        <b-icon
+          v-if="list.item.interested === statuses.awarded"
+          icon="award-fill"
+          scale="1"
+          class="color-yellow"
+        />
+        <b-icon
+          v-if="list.item.interested === statuses.applied"
+          icon="check-circle-fill"
+          scale="1"
+          class="color-green"
+        />
         <b-iconstack v-if="list.item.interested === statuses.lost">
-          <b-icon stacked icon="award-fill" scale="1" class="color-yellow"></b-icon>
-          <b-icon stacked icon="x-lg" scale="1.2"></b-icon>
+          <b-icon
+            stacked
+            icon="award-fill"
+            scale="1"
+            class="color-yellow"
+          />
+          <b-icon
+            stacked
+            icon="x-lg"
+            scale="1.2"
+          />
         </b-iconstack>
       </div>
     </template>
     <template #cell(agencyAndGrant)="agencies">
-      <div>{{ agencies.item.agency }}
-        <span v-if="agencies.item.interested === statuses.rejected" class="color-red"> <strong> rejected </strong> </span>
+      <div>
+        {{ agencies.item.agency }}
+        <span
+          v-if="agencies.item.interested === statuses.rejected"
+          class="color-red"
+        > <strong> rejected </strong> </span>
         <span v-if="agencies.item.interested === statuses.interested"> is
-            <span class="color-green">
-              <strong> interested </strong>
-              </span> in
-            </span>
+          <span class="color-green">
+            <strong> interested </strong>
+          </span> in
+        </span>
         <span v-if="agencies.item.interested === statuses.assigned"> was<strong> assigned </strong> </span>
         <span v-if="agencies.item.interested === statuses.awarded"> was<strong><span
-          class="color-yellow"> awarded </span></strong> </span>
+          class="color-yellow"
+        > awarded </span></strong> </span>
         <span v-if="agencies.item.interested === statuses.applied"><strong><span
-          class="color-green"> applied </span></strong>for </span>
+          class="color-green"
+        > applied </span></strong>for </span>
         <span v-if="agencies.item.interested === statuses.lost"><strong><span
-          class="color-yellow"> lost </span></strong> </span>{{ agencies.item.grant }}
+          class="color-yellow"
+        > lost </span></strong> </span>{{ agencies.item.grant }}
       </div>
     </template>
     <template #cell(date)="dates">
-      <div class="color-gray">{{ dates.item.date }}</div>
+      <div class="color-gray">
+        {{ dates.item.date }}
+      </div>
     </template>
   </b-table>
 </template>

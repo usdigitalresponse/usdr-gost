@@ -1,5 +1,9 @@
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
+data "aws_ecs_cluster" "default" {
+  count        = var.enabled ? 1 : 0
+  cluster_name = var.ecs_cluster_name
+}
 
 terraform {
   required_version = "1.3.6"
