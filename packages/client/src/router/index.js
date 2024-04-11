@@ -144,7 +144,7 @@ export const routes = [
       {
         path: '/my-profile',
         name: 'myProfile',
-        component: () => import('../views/MyProfile.vue'),
+        component: () => import('../views/MyProfileView.vue'),
         meta: {
           requiresAuth: true,
           requiresMyProfileEnabled: true,
