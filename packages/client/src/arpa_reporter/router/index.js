@@ -8,6 +8,7 @@ import LoginView from '@/arpa_reporter/views/LoginView.vue';
 import NewTemplateView from '@/arpa_reporter/views/NewTemplateView.vue';
 import NewUploadView from '@/arpa_reporter/views/NewUploadView.vue';
 import ReportingPeriodView from '@/arpa_reporter/views/ReportingPeriodView.vue';
+import ReportingPeriodsView from '@/arpa_reporter/views/ReportingPeriodsView.vue';
 import SubrecipientView from '@/arpa_reporter/views/SubrecipientView.vue';
 import SubrecipientsView from '@/arpa_reporter/views/SubrecipientsView.vue';
 import UserView from '@/arpa_reporter/views/UserView.vue';
@@ -15,7 +16,6 @@ import UsersView from '@/arpa_reporter/views/UsersView.vue';
 import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
 import UploadView from '@/arpa_reporter/views/UploadView.vue';
 import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
-import ReportingPeriods from '../views/ReportingPeriods.vue';
 import store from '../store/index';
 
 Vue.use(VueRouter);
@@ -67,7 +67,7 @@ const routes = [
   {
     path: '/reporting_periods',
     name: 'ReportingPeriods',
-    component: ReportingPeriods,
+    component: ReportingPeriodsView,
     meta: { requiresLogin: true },
   },
   {

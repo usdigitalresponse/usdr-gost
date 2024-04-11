@@ -123,7 +123,6 @@ const moment = require('moment');
 const _ = require('lodash');
 
 export default {
-  name: 'ReportingPeriods',
   data() {
     return {
       certifying: false,
