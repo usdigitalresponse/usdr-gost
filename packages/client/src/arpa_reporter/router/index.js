@@ -16,7 +16,7 @@ import UsersView from '@/arpa_reporter/views/UsersView.vue';
 import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
 import UploadView from '@/arpa_reporter/views/UploadView.vue';
 import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
-import store from '../store/index';
+import store from '@/arpa_reporter/store';
 
 Vue.use(VueRouter);
 
