@@ -6,6 +6,7 @@ import AgencyView from '@/arpa_reporter/views/AgencyView.vue';
 import HomeView from '@/arpa_reporter/views/HomeView.vue';
 import LoginView from '@/arpa_reporter/views/LoginView.vue';
 import NewTemplateView from '@/arpa_reporter/views/NewTemplateView.vue';
+import NewUploadView from '@/arpa_reporter/views/NewUploadView.vue';
 import SubrecipientView from '@/arpa_reporter/views/SubrecipientView.vue';
 import SubrecipientsView from '@/arpa_reporter/views/SubrecipientsView.vue';
 import UserView from '@/arpa_reporter/views/UserView.vue';
@@ -13,7 +14,6 @@ import UsersView from '@/arpa_reporter/views/UsersView.vue';
 import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
 import UploadView from '@/arpa_reporter/views/UploadView.vue';
 import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
-import NewUpload from '../views/NewUpload.vue';
 import ReportingPeriod from '../views/ReportingPeriod.vue';
 import ReportingPeriods from '../views/ReportingPeriods.vue';
 import store from '../store/index';
@@ -31,7 +31,7 @@ const routes = [
   {
     path: '/new_upload',
     name: 'NewUpload',
-    component: NewUpload,
+    component: NewUploadView,
     meta: { requiresLogin: true },
   },
   {
