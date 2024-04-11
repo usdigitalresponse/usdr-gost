@@ -2,7 +2,6 @@ import VueRouter from 'vue-router';
 
 import BaseLayout from '@/components/BaseLayout.vue';
 import { myProfileEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
-import ArpaAnnualPerformanceReporterView from '@/views/ArpaAnnualPerformanceReporterView.vue';
 import LoginView from '@/views/LoginView.vue';
 
 import store from '../store';
@@ -16,7 +15,7 @@ export const routes = [
   {
     path: '/arpa-annual-performance-reporter',
     name: 'annualReporter',
-    component: ArpaAnnualPerformanceReporterView,
+    component: () => import('@/views/ArpaAnnualPerformanceReporterView.vue'),
     meta: {
       requiresAuth: true,
     },

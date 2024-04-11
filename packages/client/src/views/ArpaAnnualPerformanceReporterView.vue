@@ -94,7 +94,6 @@
 import { apiURL } from '@/helpers/fetchApi';
 
 export default {
-  name: 'AnnualRollup',
   data() {
     return {
       // easier dupe checking
