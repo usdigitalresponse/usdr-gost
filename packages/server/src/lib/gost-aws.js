@@ -63,11 +63,14 @@ async function sendEmail(message) {
     if (!process.env.NOTIFICATIONS_EMAIL) throw new Error('NOTIFICATIONS_EMAIL is not set');
 
     const transport = getSESClient();
+    const source = message.fromName
+        ? `"${message.fromName}" <${process.env.NOTIFICATIONS_EMAIL}>`
+        : process.env.NOTIFICATIONS_EMAIL;
     const params = {
         Destination: {
             ToAddresses: [message.toAddress],
         },
-        Source: process.env.NOTIFICATIONS_EMAIL,
+        Source: source,
         Message: {
             Subject: {
                 Charset: 'UTF-8',
