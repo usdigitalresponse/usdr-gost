@@ -16,6 +16,8 @@ const ASYNC_REPORT_TYPES = {
     treasury: 'treasury',
 };
 const HELPDESK_EMAIL = 'grants-helpdesk@usdigitalresponse.org';
+const GRANT_FINDER_EMAIL_FROM_NAME = 'USDR Federal Grant Finder';
+const ARPA_EMAIL_FROM_NAME = 'UDSR ARPA Reporter';
 
 async function deliverEmail({
     fromName,
@@ -133,6 +135,7 @@ async function sendPassCode(email, passcode, httpOrigin, redirectTo) {
         console.log(`${BLUE}${'-'.repeat(message.length)}`);
     }
     await module.exports.deliverEmail({
+        fromName: GRANT_FINDER_EMAIL_FROM_NAME,
         toAddress: email,
         emailHTML,
         emailPlain: `Your link to access USDR's Grants tool is ${href}. It expires in ${expiryMinutes} minutes`,
@@ -163,6 +166,7 @@ async function sendReportErrorEmail(user, reportType) {
     );
 
     await module.exports.deliverEmail({
+        fromName: ARPA_EMAIL_FROM_NAME,
         toAddress: user.email,
         ccAddress: HELPDESK_EMAIL,
         emailHTML,
@@ -193,6 +197,7 @@ function sendWelcomeEmail(email, httpOrigin) {
     );
 
     return module.exports.deliverEmail({
+        fromName: GRANT_FINDER_EMAIL_FROM_NAME,
         toAddress: email,
         emailHTML,
         emailPlain: `Visit USDR's Grants Tool at: ${httpOrigin}.`,
@@ -289,6 +294,7 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const inputs = [];
     assignees.forEach((assignee) => inputs.push(
         {
+            fromName: GRANT_FINDER_EMAIL_FROM_NAME,
             toAddress: assignee.email,
             emailHTML,
             emailPlain,
@@ -378,7 +384,7 @@ async function sendGrantDigest({
     recipients.forEach(
         (recipient) => inputs.push(
             {
-                fromName: 'USDR Federal Grant Finder',
+                fromName: GRANT_FINDER_EMAIL_FROM_NAME,
                 toAddress: recipient.trim(),
                 emailHTML,
                 emailPlain,
@@ -479,6 +485,7 @@ async function sendAsyncReportEmail(recipient, signedUrl, reportType) {
     );
 
     await module.exports.deliverEmail({
+        fromName: ARPA_EMAIL_FROM_NAME,
         toAddress: recipient,
         emailHTML,
         emailPlain: `Your ${reportType} report is ready for download. Paste this link into your browser to download it: ${signedUrl} This link will remain active for 7 days.`,
