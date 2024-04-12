@@ -62,7 +62,7 @@ async function sendEmail(message) {
     if (process.env.SUPPRESS_EMAIL) return;
     if (!process.env.NOTIFICATIONS_EMAIL) throw new Error('NOTIFICATIONS_EMAIL is not set');
 
-    const transport = getSESClient();
+    const transport = module.exports.getSESClient();
     const source = message.fromName
         ? `"${message.fromName}" <${process.env.NOTIFICATIONS_EMAIL}>`
         : process.env.NOTIFICATIONS_EMAIL;
@@ -122,6 +122,7 @@ function getSQSClient() {
 module.exports = {
     getS3Client,
     getSignedUrl,
+    getSESClient,
     sendEmail,
     getSQSClient,
 };
