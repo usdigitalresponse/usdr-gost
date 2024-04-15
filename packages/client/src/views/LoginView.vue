@@ -67,8 +67,9 @@
 
 <script>
 /* eslint-disable import/no-unresolved */
+import _ from 'lodash';
 import { apiURL } from '@/helpers/fetchApi';
-import _ from 'lodash-checkit';
+import { isValidEmail } from '@/helpers/form-helpers'
 
 export default {
   name: 'LoginView',
@@ -91,7 +92,7 @@ export default {
         this.messageClass = 'alert alert-danger';
         return;
       }
-      if (!_.isEmail(this.email)) {
+      if (!isValidEmail(this.email)) {
         this.message = `'${this.email}' is not a valid email address`;
         this.messageClass = 'alert alert-danger';
         return;
