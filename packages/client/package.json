@@ -2,19 +2,21 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "engines": {
     "node": "20.11.1",
     "yarn": ">=1.22.4",
     "npm": "please-use-yarn"
   },
   "scripts": {
-    "build": "vue-cli-service build",
+    "build": "vite build",
     "coverage": "nyc yarn test",
+    "dev": "vite",
     "env": "export $(cat .env)",
-    "lint": "vue-cli-service lint",
-    "serve": "vue-cli-service --inspect ../../node_modules/@vue/cli-service/bin/vue-cli-service.js serve",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
+    "serve": "vite preview",
     "start": "yarn run serve",
-    "test": "vue-cli-service test:unit"
+    "test": "TODO"
   },
   "dependencies": {
     "@braid/vue-formulate": "^2.5.3",
@@ -62,6 +64,7 @@
     "standard": "^16.0.3",
     "typescript": "^4.7.2",
     "vite": "^5.2.8",
-    "vite-plugin-vue2": "^2.0.3"
+    "vite-plugin-vue2": "^2.0.3",
+    "vue-template-compiler": "2.7.14"
   }
 }

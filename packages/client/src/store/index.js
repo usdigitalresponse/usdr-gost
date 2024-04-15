@@ -12,7 +12,7 @@ import alerts from './modules/alerts';
 
 Vue.use(Vuex);
 
-const debug = process.env.NODE_ENV !== 'production';
+const debug = import.meta.env.NODE_ENV !== 'production';
 
 export default new Vuex.Store({
   strict: debug,

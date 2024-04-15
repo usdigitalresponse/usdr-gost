@@ -165,7 +165,7 @@ export const routes = [
 ];
 
 const router = new VueRouter({
-  base: process.env.BASE_URL,
+  base: import.meta.BASE_URL,
   mode: 'history',
   routes,
 });
