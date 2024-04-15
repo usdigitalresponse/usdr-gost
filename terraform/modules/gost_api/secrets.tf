@@ -48,27 +48,33 @@ module "decrypt_secrets_policy" {
 
   name = "decrypt-secrets"
 
-  iam_policy_statements = {
-    DecryptWithKMS = {
-      effect = "Allow"
-      actions = [
-        "kms:Decrypt",
-      ]
-      resources = [
-        data.aws_kms_key.ssm.arn,
+  iam_policy = [
+    {
+      statements = [
+        {
+          sid    = "DecryptWithKMS"
+          effect = "Allow"
+          actions = [
+            "kms:Decrypt",
+          ]
+          resources = [
+            data.aws_kms_key.ssm.arn,
+          ]
+        },
+        {
+          sid    = "GetSecretParameters"
+          effect = "Allow"
+          actions = [
+            "ssm:GetParameters",
+            "secretsmanager:GetSecretValue",
+          ]
+          resources = compact([
+            join("", data.aws_ssm_parameter.datadog_api_key[*].arn),
+            join("", aws_ssm_parameter.postgres_connection_string[*].arn),
+            join("", aws_ssm_parameter.cookie_secret[*].arn),
+          ])
+        }
       ]
     }
-    GetSecretParameters = {
-      effect = "Allow"
-      actions = [
-        "ssm:GetParameters",
-        "secretsmanager:GetSecretValue",
-      ]
-      resources = compact([
-        join("", data.aws_ssm_parameter.datadog_api_key[*].arn),
-        join("", aws_ssm_parameter.postgres_connection_string[*].arn),
-        join("", aws_ssm_parameter.cookie_secret[*].arn),
-      ])
-    }
-  }
+  ]
 }
