@@ -18,7 +18,7 @@ import store from './store';
 import './assets/fix-sticky-headers.css';
 import './assets/adjust-vue-select.css';
 
-const fetchApi = require('@/helpers/fetchApi');
+import * as fetchApi from '@/helpers/fetchApi';
 
 if (window.APP_CONFIG?.GOOGLE_TAG_ID) {
   store.watch((state) => state.users.loggedInUser, (newUser) => setUserForGoogleAnalytics(newUser));

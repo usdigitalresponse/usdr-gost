@@ -1,6 +1,5 @@
-const fetchApi = require('@/helpers/fetchApi');
-
-const { formatFilterDisplay } = require('@/helpers/filters');
+import * as fetchApi from '@/helpers/fetchApi'
+import { formatFilterDisplay } from '@/helpers/filters';
 
 const tableModes = {
   VIEW: 'view',

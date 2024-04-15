@@ -1,5 +1,5 @@
 // https://github.com/bootstrap-vue/bootstrap-vue/issues/1496
-module.exports = {
+export default {
   data() {
     return {
       gripElement: null,

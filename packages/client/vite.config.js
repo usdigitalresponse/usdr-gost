@@ -10,4 +10,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  proxy: {
+    '/api': process.env.GOST_API_URL || 'http://localhost:3000',
+  },
 })
