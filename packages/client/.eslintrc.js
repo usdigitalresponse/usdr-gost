@@ -2,15 +2,12 @@ module.exports = {
   root: true,
   env: {
     node: true,
-    es6: true,
+    es2022: true,
   },
   extends: [
     'plugin:vue/recommended',
     '@vue/airbnb',
   ],
-  parserOptions: {
-    parser: 'babel-eslint',
-  },
   rules: {
     // TODO: enable these lint rules over time
     'max-len': 'off',
