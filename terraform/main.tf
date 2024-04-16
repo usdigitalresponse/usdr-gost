@@ -175,7 +175,6 @@ module "api" {
   autoscaling_desired_count_minimum  = var.api_minumum_task_count
   autoscaling_desired_count_maximum  = var.api_maximum_task_count
   enable_grants_scraper              = var.api_enable_grants_scraper
-  enable_grants_digest               = var.api_enable_grants_digest
   enable_new_team_terminology        = var.api_enable_new_team_terminology
   enable_my_profile                  = var.api_enable_my_profile
   enable_saved_search_grants_digest  = var.api_enable_saved_search_grants_digest

@@ -10,7 +10,6 @@ const fixtures = require('../db/seeds/fixtures');
 const db = require('../../src/db');
 const awsTransport = require('../../src/lib/gost-aws');
 const emailConstants = require('../../src/lib/email/constants');
-const knex = require('../../src/db/connection');
 
 const {
     TEST_EMAIL_RECIPIENT,
@@ -316,28 +315,6 @@ describe('Email sender', () => {
             expect(sendFake.firstCall.firstArg.emailHTML).contains(body);
         });
     });
-    context('saved search grant digest email', () => {
-        beforeEach(async () => {
-            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
-            this.clock = this.clockFn('2021-08-06');
-        });
-        afterEach(async () => {
-            this.clock.restore();
-        });
-        it('buildAndSendGrantDigest sends grants for all subscribed agencies', async () => {
-            const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'sendGrantDigest', sendFake);
-
-            /* ensure that admin user is subscribed to all notifications */
-            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
-
-            await email.buildAndSendGrantDigest();
-
-            /* only fixtures.agency.accountancy has eligibility-codes, keywords, and users that match an existing grant */
-            expect(sendFake.calledOnce).to.equal(true);
-            await knex('email_subscriptions').del();
-        });
-    });
     context('grant digest email', () => {
         beforeEach(async () => {
             this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
@@ -345,19 +322,6 @@ describe('Email sender', () => {
         });
         afterEach(async () => {
             this.clock.restore();
-        });
-        it('buildAndSendGrantDigest sends grants for all subscribed agencies', async () => {
-            const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'sendGrantDigest', sendFake);
-
-            /* ensure that admin user is subscribed to all notifications */
-            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
-
-            await email.buildAndSendGrantDigest();
-
-            /* only fixtures.agency.accountancy has eligibility-codes, keywords, and users that match an existing grant */
-            expect(sendFake.calledOnce).to.equal(true);
-            await knex('email_subscriptions').del();
         });
         it('sendGrantDigest sends no email when there are no grants to send', async () => {
             const sendFake = sinon.fake.returns('foo');

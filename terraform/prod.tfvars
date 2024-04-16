@@ -64,7 +64,6 @@ api_default_desired_task_count         = 3
 api_minumum_task_count                 = 2
 api_maximum_task_count                 = 5
 api_enable_grants_scraper              = false
-api_enable_grants_digest               = false
 api_enable_new_team_terminology        = true
 api_enable_my_profile                  = true
 api_enable_saved_search_grants_digest  = true
