@@ -170,8 +170,8 @@
       >
         <AlertBox
           v-for="(alert, alertId) in alerts"
-          :key="alertId"
           v-bind="alert"
+          :key="alertId"
           @dismiss="dismissAlert(alertId)"
         />
       </section>

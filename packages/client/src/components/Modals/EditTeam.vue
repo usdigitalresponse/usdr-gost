@@ -77,8 +77,8 @@
         >
           <template #search="{attributes, events}">
             <input
-              class="vs__search"
               v-bind="attributes"
+              class="vs__search"
               v-on="events"
             >
           </template>
