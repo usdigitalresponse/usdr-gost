@@ -17,26 +17,22 @@
       :rows="rows"
       style-class="vgt-table table table-striped table-bordered"
     >
-      <div
-        slot="table-actions"
-        class="form-check from-check-inline p-2"
-      >
-        <button
-          class="btn btn-secondary btn-sm ml-2"
-          @click="resetFilters"
-        >
-          Reset Filters
-        </button>
-      </div>
+      <template #table-actions>
+        <div class="form-check from-check-inline p-2">
+          <button
+            class="btn btn-secondary btn-sm ml-2"
+            @click="resetFilters"
+          >
+            Reset Filters
+          </button>
+        </div>
+      </template>
 
-      <div slot="emptystate">
+      <template #emptystate>
         No Recipients
-      </div>
+      </template>
 
-      <template
-        slot="table-row"
-        slot-scope="props"
-      >
+      <template #table-row="props">
         <div :class="{strikethrough: props.row.archived_at && props.column.field !== 'edit'}">
           <span v-if="props.column.field === 'upload_id'">
             <router-link :to="`/uploads/${props.row.upload_id}`">
