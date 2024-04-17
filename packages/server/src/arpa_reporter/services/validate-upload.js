@@ -143,18 +143,27 @@ function validateIdentifier(recipient, recipientExists) {
     // As of Q1, 2023 we require a UEI for all entities of type subrecipient and/or contractor.
     // For beneficiaries or older records, we require a UEI OR a TIN/EIN
     // See https://github.com/usdigitalresponse/usdr-gost/issues/1027
+
+    // As of Q1, 2024 we require the following logic:
+    // https://github.com/usdigitalresponse/usdr-gost/issues/2944
+    // UEI is required when subrecipient type = Subrecipient
+    // If Entity Type = Subrecipient and there is no UEI, the error should generate, and the message should say: "UEI is required for all new subrecipients"
+
+    // Either a UEI or TIN is required (does not matter which one) when subrecipient type = Beneficiary or Contractor
+    // The validation should be updated so if Entity Type = Contractor or Beneficiary and there is not a UEI or a TIN,
+    // an error should generate the following error message shows: "At least one of UEI or TIN/EIN must be set, but both are missing"
+    // If either a UEI or TIN is submitted for beneficiary or contractor, or both are submitted, no error generates.
     const hasUEI = Boolean(recipient.Unique_Entity_Identifier__c);
     const hasTIN = Boolean(recipient.EIN__c);
     const entityType = recipient.Entity_Type_2__c;
-    const isContractorOrSubrecipient = (entityType.includes('Contractor') || entityType.includes('Subrecipient'));
+    const isContractorOrBeneficiary = (entityType.includes('Contractor') || entityType.includes('Beneficiary'));
 
-    if (isContractorOrSubrecipient && !recipientExists && !hasUEI) {
+    if (entityType === 'Subrecipient' && !recipientExists && !hasUEI) {
         errors.push(new ValidationError(
             'UEI is required for all new subrecipients and contractors',
             { col: 'C', severity: 'err' },
         ));
-    } else if (!isContractorOrSubrecipient && !hasUEI && !hasTIN) {
-        // If this entity is not new, or is not a subrecipient or contractor, then it must have a TIN OR a UEI (same as the old logic)
+    } else if (isContractorOrBeneficiary && !recipientExists && !hasUEI && !hasTIN) {
         errors.push(new ValidationError(
             'At least one of UEI or TIN/EIN must be set, but both are missing',
             { col: 'C, D', severity: 'err' },
