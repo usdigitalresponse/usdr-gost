@@ -160,7 +160,7 @@ function validateIdentifier(recipient, recipientExists) {
 
     if (entityType === 'Subrecipient' && !recipientExists && !hasUEI) {
         errors.push(new ValidationError(
-            'UEI is required for all new subrecipients and contractors',
+            'UEI is required for all new subrecipients',
             { col: 'C', severity: 'err' },
         ));
     } else if (isContractorOrBeneficiary && !recipientExists && !hasUEI && !hasTIN) {
