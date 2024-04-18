@@ -157,13 +157,14 @@ function validateIdentifier(recipient, recipientExists) {
     const hasTIN = Boolean(recipient.EIN__c);
     const entityType = recipient.Entity_Type_2__c;
     const isContractorOrBeneficiary = (entityType.includes('Contractor') || entityType.includes('Beneficiary'));
+    const isSubrecipient = entityType.includes('Subrecipient');
 
-    if (entityType === 'Subrecipient' && !recipientExists && !hasUEI) {
+    if (isSubrecipient && !recipientExists && !hasUEI) {
         errors.push(new ValidationError(
             'UEI is required for all new subrecipients',
             { col: 'C', severity: 'err' },
         ));
-    } else if (isContractorOrBeneficiary && !recipientExists && !hasUEI && !hasTIN) {
+    } else if (isContractorOrBeneficiary && !hasUEI && !hasTIN) {
         errors.push(new ValidationError(
             'At least one of UEI or TIN/EIN must be set, but both are missing',
             { col: 'C, D', severity: 'err' },

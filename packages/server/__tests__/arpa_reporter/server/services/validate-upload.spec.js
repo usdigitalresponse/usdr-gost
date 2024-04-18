@@ -243,7 +243,7 @@ describe('validateIdentifier', () => {
         assert.deepStrictEqual(errors, [
             new ValidationError(
                 'At least one of UEI or TIN/EIN must be set, but both are missing',
-                { col: 'CD', severity: 'err' },
+                { col: 'C, D', severity: 'err' },
             ),
         ]);
     });
@@ -259,7 +259,7 @@ describe('validateIdentifier', () => {
         assert.deepStrictEqual(errors, [
             new ValidationError(
                 'At least one of UEI or TIN/EIN must be set, but both are missing',
-                { col: 'CD', severity: 'err' },
+                { col: 'C, D', severity: 'err' },
             ),
         ]);
     });
@@ -274,7 +274,7 @@ describe('validateIdentifier', () => {
         const errors = validateIdentifier(recipient, recipientExists);
         assert.deepStrictEqual(errors, [
             new ValidationError(
-                'UEI is required for all new subrecipients and contractors',
+                'UEI is required for all new subrecipients',
                 { col: 'C', severity: 'err' },
             ),
         ]);
@@ -481,7 +481,7 @@ describe('validateSubrecipientRecord', () => {
         });
         assert.deepStrictEqual(errors, [
             new ValidationError(
-                'UEI is required for all new subrecipients and contractors',
+                'UEI is required for all new subrecipients',
                 { col: 'C', severity: 'err' },
             ),
         ]);
