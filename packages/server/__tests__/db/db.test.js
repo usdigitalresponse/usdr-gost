@@ -797,53 +797,6 @@ describe('db', () => {
         });
     });
 
-    context('getAgenciesSubscribedToDigest', () => {
-        beforeEach(() => {
-            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
-            this.clock = this.clockFn('2021-08-06');
-        });
-        afterEach(() => {
-            this.clock.restore();
-        });
-        it('returns agencies with keywords and eligibility codes setup with explicit subscriptions setup', async () => {
-            /* ensure that admin user is subscribed to all notifications */
-            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
-
-            /* ensure that staff user is not subscribed to any notifications */
-            const emailUnsubscribePreference = Object.assign(
-                ...Object.values(emailConstants.notificationType).map(
-                    (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
-                ),
-            );
-            await db.setUserEmailSubscriptionPreference(fixtures.users.staffUser.id, fixtures.users.staffUser.agency_id, emailUnsubscribePreference);
-
-            const result = await db.getAgenciesSubscribedToDigest();
-            expect(result.length).to.equal(1);
-            expect(result[0].name).to.equal('State Board of Accountancy');
-            expect(result[0].recipients.length).to.equal(1);
-            expect(result[0].recipients[0]).to.equal(fixtures.users.adminUser.email);
-
-            await knex('email_subscriptions').del();
-        });
-        it('returns agencies with keywords and eligibility codes setup with default subscribed', async () => {
-            /* ensure that staff user is not subscribed to any notifications */
-            const emailUnsubscribePreference = Object.assign(
-                ...Object.values(emailConstants.notificationType).map(
-                    (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
-                ),
-            );
-            await db.setUserEmailSubscriptionPreference(fixtures.users.staffUser.id, fixtures.users.staffUser.agency_id, emailUnsubscribePreference);
-
-            const result = await db.getAgenciesSubscribedToDigest();
-            expect(result.length).to.equal(1);
-            expect(result[0].name).to.equal('State Board of Accountancy');
-            expect(result[0].recipients.length).to.equal(1);
-            expect(result[0].recipients[0]).to.equal(fixtures.users.adminUser.email);
-
-            await knex('email_subscriptions').del();
-        });
-    });
-
     context('getNewGrantsForAgency', () => {
         beforeEach(() => {
             this.clockFn = (date) => sinon.useFakeTimers(new Date(date));

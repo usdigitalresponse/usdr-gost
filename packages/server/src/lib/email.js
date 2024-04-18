@@ -439,28 +439,6 @@ async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
     console.log(`Successfully built and sent grants digest emails for ${inputs.length} saved searches on ${openDate}`);
 }
 
-async function buildAndSendGrantDigest() {
-    const openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
-    console.log(`Building and sending Grants Digest email for all agencies on ${openDate}`);
-    /*
-    1. get all agencies with notificaiton turned on (temporarily get all agencies with a custom keyword)
-    2. for each agency
-        call sendGrantDigest
-    */
-    const agencies = await db.getAgenciesSubscribedToDigest(openDate);
-    const inputs = [];
-    agencies.forEach((agency) => inputs.push({
-        name: agency.name,
-        matchedGrants: agency.matched_grants,
-        matchedGrantsTotal: agency.matched_grants.length,
-        recipients: agency.recipients,
-        openDate,
-    }));
-    await asyncBatch(inputs, module.exports.sendGrantDigest, 2);
-
-    console.log(`Successfully built and sent grants digest emails for ${openDate}`);
-}
-
 async function sendAsyncReportEmail(recipient, signedUrl, reportType) {
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
 
@@ -495,7 +473,6 @@ module.exports = {
     buildGrantDetail,
     sendGrantAssignedNotficationForAgency,
     buildAndSendUserSavedSearchGrantDigest,
-    buildAndSendGrantDigest,
     getAndSendGrantForSavedSearch,
     sendGrantDigest,
     getGrantDetail,
