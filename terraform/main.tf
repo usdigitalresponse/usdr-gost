@@ -208,7 +208,7 @@ module "api" {
 
   # Email
   notifications_email_address   = "grants-notifications@${var.website_domain_name}"
-  ses_configuration_set_default = aws_ses_configuration_set.default.name
+  ses_configuration_set_default = aws_sesv2_configuration_set.default.configuration_set_name
 }
 
 module "consume_grants" {
@@ -277,7 +277,7 @@ module "arpa_audit_report" {
     LOG_SRC_ENABLED               = "false"
     NODE_OPTIONS                  = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
     NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
-    SES_CONFIGURATION_SET_DEFAULT = aws_ses_configuration_set.default.name
+    SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
     WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
   }
   datadog_environment_variables = {
@@ -367,7 +367,7 @@ module "arpa_treasury_report" {
     LOG_SRC_ENABLED               = "false"
     NODE_OPTIONS                  = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
     NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
-    SES_CONFIGURATION_SET_DEFAULT = aws_ses_configuration_set.default.name
+    SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
     WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
   }
   datadog_environment_variables = {

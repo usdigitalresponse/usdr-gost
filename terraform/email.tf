@@ -6,11 +6,11 @@ resource "aws_route53_record" "mail_redirect" {
   ttl     = 86400
 }
 
-resource "aws_ses_configuration_set" "default" {
-  name = "${var.namespace}-default"
+resource "aws_sesv2_configuration_set" "default" {
+  configuration_set_name = "${var.namespace}-default"
 
   delivery_options {
-    tls_policy = "Require"
+    tls_policy = "REQUIRE"
   }
 
   tracking_options {
@@ -23,24 +23,27 @@ data "aws_sns_topic" "datadog_forwarder" {
   name  = "datadog-forwarder"
 }
 
-resource "aws_ses_event_destination" "default" {
+resource "aws_sesv2_configuration_set_event_destination" "default" {
   count                  = var.ses_datadog_events_enabled ? 1 : 0
-  name                   = "DatadogForwarderSNSTopic"
-  configuration_set_name = aws_ses_configuration_set.default.name
-  enabled                = true
+  event_destination_name = "DatadogForwarderSNSTopic"
+  configuration_set_name = aws_sesv2_configuration_set.default.configuration_set_name
 
-  sns_destination {
-    topic_arn = join("", data.aws_sns_topic.datadog_forwarder[*].arn)
+  event_destination {
+    sns_destination {
+      topic_arn = join("", data.aws_sns_topic.datadog_forwarder[*].arn)
+    }
+    enabled = true
+    matching_event_types = [
+      "SEND",
+      "REJECT",
+      "BOUNCE",
+      "COMPLAINT",
+      "DELIVERY",
+      "OPEN",
+      "CLICK",
+      "RENDERING_FAILURE",
+      "DELIVERY_DELAY",
+      "SUBSCRIPTION"
+    ]
   }
-
-  matching_types = [
-    "send",
-    "open",
-    "click",
-    "renderingFailure",
-    "bounce",
-    "complaint",
-    "delivery",
-    "reject",
-  ]
 }
