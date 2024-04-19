@@ -1,12 +1,10 @@
 import { expect } from 'chai';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import Vuelidate from 'vuelidate';
 import EditOrganization from '@/components/Modals/EditOrganization.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
-localVue.use(Vuelidate);
 
 let wrapper;
 const stubs = ['b-modal', 'b-form-group', 'b-form-input'];

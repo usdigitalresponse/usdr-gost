@@ -47,7 +47,6 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-// import { required, numeric, minValue } from 'vuelidate/lib/validators';
 
 export default {
   props: {
@@ -64,10 +63,6 @@ export default {
         selectedAgency: null,
       },
     };
-  },
-  validations: {
-    formData: {
-    },
   },
   computed: {
     ...mapGetters({

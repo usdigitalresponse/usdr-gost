@@ -10,7 +10,6 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import vSelect from 'vue-select';
-import Vuelidate from 'vuelidate';
 import { setUserForGoogleAnalytics } from '@/helpers/gtag';
 import App from './App.vue';
 import router from './router';
@@ -32,7 +31,6 @@ store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser
 Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
-Vue.use(Vuelidate);
 Vue.use(VueRouter);
 Vue.component('VSelect', vSelect);
 
