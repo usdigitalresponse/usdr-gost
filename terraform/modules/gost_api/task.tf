@@ -51,7 +51,6 @@ module "api_container_definition" {
       ENABLE_GRANT_DIGEST_SCHEDULED_TASK = var.enable_grant_digest_scheduled_task ? "true" : "false"
       ENABLE_GRANTS_SCRAPER              = "false"
       ENABLE_NEW_TEAM_TERMINOLOGY        = var.enable_new_team_terminology ? "true" : "false"
-      ENABLE_MY_PROFILE                  = var.enable_my_profile ? "true" : "false"
       GRANTS_SCRAPER_DATE_RANGE          = 7
       GRANTS_SCRAPER_DELAY               = 1000
       NODE_OPTIONS                       = "--max_old_space_size=1024"

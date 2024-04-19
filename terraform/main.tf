@@ -176,7 +176,6 @@ module "api" {
   autoscaling_desired_count_maximum  = var.api_maximum_task_count
   enable_grants_scraper              = var.api_enable_grants_scraper
   enable_new_team_terminology        = var.api_enable_new_team_terminology
-  enable_my_profile                  = var.api_enable_my_profile
   enable_saved_search_grants_digest  = var.api_enable_saved_search_grants_digest
   enable_grant_digest_scheduled_task = var.api_enable_grant_digest_scheduled_task
   unified_service_tags               = local.unified_service_tags
