@@ -748,7 +748,7 @@ async function processSQSMessageRequest(message) {
         await generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id, requestData.periodId);
     } catch (err) {
         log.error({ err }, 'failed to generate and send audit report');
-        await email.sendReportErrorEmail(user, 'Audit');
+        await email.sendReportErrorEmail(user, email.ASYNC_REPORT_TYPES.audit);
         return false;
     }
 

@@ -54,6 +54,9 @@ async function sendEmail(message) {
         subject: message.subject,
         // text: 'Hello world?', // plain text body
         html: message.body, // html body
+        headers: {
+            'X-SES-MESSAGE-TAGS': message.tags.join(', '),
+        },
     };
     if (message.ccAddress) {
         params.cc = message.ccAddress;

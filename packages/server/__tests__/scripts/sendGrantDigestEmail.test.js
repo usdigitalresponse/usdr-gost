@@ -5,13 +5,13 @@ const sendGrantDigestEmail = require('../../src/scripts/sendGrantDigestEmail').m
 
 describe('sendGrantDigestEmail script', () => {
     const sandbox = sinon.createSandbox();
-    let buildAndSendUserSavedSearchGrantDigestFake;
+    let buildAndSendGrantDigestEmailsFake;
 
     beforeEach(() => {
         process.env.ENABLE_GRANT_DIGEST_SCHEDULED_TASK = 'true';
         process.env.ENABLE_SAVED_SEARCH_GRANTS_DIGEST = 'true';
-        buildAndSendUserSavedSearchGrantDigestFake = sandbox.fake();
-        sandbox.replace(email, 'buildAndSendUserSavedSearchGrantDigest', buildAndSendUserSavedSearchGrantDigestFake);
+        buildAndSendGrantDigestEmailsFake = sandbox.fake();
+        sandbox.replace(email, 'buildAndSendGrantDigestEmails', buildAndSendGrantDigestEmailsFake);
     });
 
     afterEach(() => {
@@ -20,18 +20,18 @@ describe('sendGrantDigestEmail script', () => {
 
     it('triggers sending digest emails when flags are on', async () => {
         await sendGrantDigestEmail();
-        expect(buildAndSendUserSavedSearchGrantDigestFake.called).to.equal(true);
+        expect(buildAndSendGrantDigestEmailsFake.called).to.equal(true);
     });
 
     it('triggers no emails when scheduled task flag is off', async () => {
         process.env.ENABLE_GRANT_DIGEST_SCHEDULED_TASK = 'false';
         await sendGrantDigestEmail();
-        expect(buildAndSendUserSavedSearchGrantDigestFake.called).to.equal(false);
+        expect(buildAndSendGrantDigestEmailsFake.called).to.equal(false);
     });
 
     it('skips buildAndSendUserSavedSearchGrantDigest when that email flag is off', async () => {
         process.env.ENABLE_SAVED_SEARCH_GRANTS_DIGEST = 'false';
         await sendGrantDigestEmail();
-        expect(buildAndSendUserSavedSearchGrantDigestFake.called).to.equal(false);
+        expect(buildAndSendGrantDigestEmailsFake.called).to.equal(false);
     });
 });

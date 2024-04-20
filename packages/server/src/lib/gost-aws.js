@@ -87,6 +87,18 @@ async function sendEmail(message) {
                 },
             },
         },
+        Tags: message.tags.map((tag) => {
+            // Tags must be strings of format 'name=value'
+            const match = tag.match(/(?<name>\w+)=(?<value>\w+)/);
+            if (!match) {
+                return null;
+            }
+
+            return {
+                Name: match.groups.name,
+                Value: match.groups.value,
+            };
+        }).filter((tagObj) => !!tagObj),
     };
     if (message.ccAddress) {
         params.Destination.CcAddresses = [message.ccAddress];

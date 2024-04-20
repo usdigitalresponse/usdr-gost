@@ -1,8 +1,10 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
+const moment = require('moment');
 const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const email = require('../../src/lib/email');
 const emailConstants = require('../../src/lib/email/constants');
+const emailService = require('../../src/lib/email/service-email');
 
 describe('`/api/users` endpoint', () => {
     const agencies = {
@@ -367,7 +369,8 @@ describe('`/api/users` endpoint', () => {
 
     context('GET /users/:userId/sendDigestEmail (admin send digest email for a specific user)', () => {
         beforeEach(async () => {
-            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            // Set clock to given date in local time zone
+            this.clockFn = (date) => sinon.useFakeTimers(moment(date).toDate());
             this.clock = this.clockFn('2021-08-06');
         });
         afterEach(async () => {
@@ -376,48 +379,48 @@ describe('`/api/users` endpoint', () => {
         });
         context('by a user with admin role', () => {
             it('Sends an email based on this user\'s saved searches', async () => {
-                const deliverEmailSpy = sinon.fake.returns('foo');
-                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const sendEmailSpy = sinon.fake();
+                sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendEmailSpy }));
                 const response = await fetchApi(
                     `/users/2/sendDigestEmail`,
                     agencies.own,
                     { ...fetchOptions.admin },
                 );
                 expect(response.statusText).to.equal('OK');
-                expect(deliverEmailSpy.calledOnce).to.equal(true);
+                expect(sendEmailSpy.calledOnce).to.equal(true);
             });
             it('Sends an email based on this user\'s saved searches date specified', async () => {
-                const deliverEmailSpy = sinon.fake.returns('foo');
-                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const sendEmailSpy = sinon.fake();
+                sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendEmailSpy }));
                 const response = await fetchApi(
                     `/users/2/sendDigestEmail?date=2021-08-05`,
                     agencies.own,
                     { ...fetchOptions.admin },
                 );
                 expect(response.statusText).to.equal('OK');
-                expect(deliverEmailSpy.calledOnce).to.equal(true);
+                expect(sendEmailSpy.calledOnce).to.equal(true);
             });
             it('Sends an email based on this user\'s saved searches at a time without grants', async () => {
-                const deliverEmailSpy = sinon.fake.returns('foo');
-                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const sendEmailSpy = sinon.fake();
+                sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendEmailSpy }));
                 const response = await fetchApi(
                     `/users/2/sendDigestEmail?date=1985-08-06`,
                     agencies.own,
                     { ...fetchOptions.admin },
                 );
                 expect(response.statusText).to.equal('OK');
-                expect(deliverEmailSpy.calledOnce).to.equal(false);
+                expect(sendEmailSpy.calledOnce).to.equal(false);
             });
             it('Sends an email based on this user\'s saved searches without admin rights', async () => {
-                const deliverEmailSpy = sinon.fake.returns('foo');
-                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const sendEmailSpy = sinon.fake();
+                sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendEmailSpy }));
                 const response = await fetchApi(
                     `/users/2/sendDigestEmail`,
                     agencies.own,
                     { ...fetchOptions.nonUSDRAdmin },
                 );
                 expect(response.statusText).to.equal('Forbidden');
-                expect(deliverEmailSpy.calledOnce).to.equal(false);
+                expect(sendEmailSpy.calledOnce).to.equal(false);
             });
         });
         context('When the user is not subscribed', () => {
@@ -454,15 +457,15 @@ describe('`/api/users` endpoint', () => {
                 );
             });
             it('updates this user\'s own agency', async () => {
-                const deliverEmailSpy = sinon.fake.returns('foo');
-                sinon.replace(email, 'deliverEmail', deliverEmailSpy);
+                const sendEmailSpy = sinon.fake();
+                sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendEmailSpy }));
                 const response = await fetchApi(
                     `/users/2/sendDigestEmail`,
                     agencies.own,
                     { ...fetchOptions.admin },
                 );
                 expect(response.statusText).to.equal('Bad Request');
-                expect(deliverEmailSpy.calledOnce).to.equal(false);
+                expect(sendEmailSpy.calledOnce).to.equal(false);
             });
         });
     });

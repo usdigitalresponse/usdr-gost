@@ -188,6 +188,13 @@ async function getUser(id) {
     return user;
 }
 
+async function getUserIdForEmail(email) {
+    const [user] = await knex('users')
+        .select('users.id')
+        .where('email', email);
+    return user ? user.id : null;
+}
+
 async function getAgencyCriteriaForAgency(agencyId) {
     const eligibilityCodes = await getAgencyEligibilityCodes(agencyId);
     const enabledECodes = eligibilityCodes.filter((e) => e.enabled);
@@ -1667,6 +1674,7 @@ module.exports = {
     getSubscribersForNotification,
     getUsersEmailAndName,
     getUser,
+    getUserIdForEmail,
     getAgencyCriteriaForAgency,
     isSubOrganization,
     getRoles,

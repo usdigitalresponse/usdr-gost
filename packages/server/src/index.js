@@ -30,7 +30,7 @@ if (process.env.ENABLE_SAVED_SEARCH_GRANTS_DIGEST === 'true' && process.env.ENAB
     const generateSavedSearchGrantDigestCron = new CronJob(
         // once per day at 13:00 UTC
         // one hour after the old grant digest
-        '0 0 13 * * *', emailService.buildAndSendUserSavedSearchGrantDigest,
+        '0 0 13 * * *', emailService.buildAndSendGrantDigestEmails,
     );
     generateSavedSearchGrantDigestCron.start();
 }
