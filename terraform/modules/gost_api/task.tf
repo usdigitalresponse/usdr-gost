@@ -47,7 +47,6 @@ module "api_container_definition" {
       API_DOMAIN                         = "https://${var.domain_name}"
       AUDIT_REPORT_BUCKET                = module.arpa_audit_reports_bucket.bucket_id
       DATA_DIR                           = "/var/data"
-      ENABLE_GRANTS_DIGEST               = var.enable_grants_digest ? "true" : "false"
       ENABLE_SAVED_SEARCH_GRANTS_DIGEST  = var.enable_saved_search_grants_digest ? "true" : "false"
       ENABLE_GRANT_DIGEST_SCHEDULED_TASK = var.enable_grant_digest_scheduled_task ? "true" : "false"
       ENABLE_GRANTS_SCRAPER              = "false"

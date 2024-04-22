@@ -126,39 +126,13 @@ async function getUsersEmailAndName(ids) {
 }
 
 async function getUser(id) {
-    // Temporary check for avatar_column until migration is applied in prod. Clean up ticket: #2259
-    const avatarColorExists = await knex.schema.hasColumn('users', 'avatar_color');
-
-    const [user] = avatarColorExists ? await knex('users')
+    const [user] = await knex('users')
         .select(
             'users.id',
             'users.email',
             'users.name',
             'users.role_id',
-            'users.avatar_color', // adds column
-            'roles.name as role_name',
-            'roles.rules as role_rules',
-            'users.agency_id',
-            'agencies.name as agency_name',
-            'agencies.abbreviation as agency_abbreviation',
-            'agencies.parent as agency_parent_id_id',
-            'agencies.warning_threshold as agency_warning_threshold',
-            'agencies.danger_threshold as agency_danger_threshold',
-            'tenants.id as tenant_id',
-            'tenants.display_name as tenant_display_name',
-            'tenants.main_agency_id as tenant_main_agency_id',
-            'users.tags',
-            'users.tenant_id',
-        )
-        .leftJoin('roles', 'roles.id', 'users.role_id')
-        .leftJoin('agencies', 'agencies.id', 'users.agency_id')
-        .leftJoin('tenants', 'tenants.id', 'users.tenant_id')
-        .where('users.id', id) : await knex('users')
-        .select(
-            'users.id',
-            'users.email',
-            'users.name',
-            'users.role_id',
+            'users.avatar_color',
             'roles.name as role_name',
             'roles.rules as role_rules',
             'users.agency_id',
@@ -359,20 +333,6 @@ function deleteKeyword(id) {
     return knex(TABLES.keywords)
         .where('id', id)
         .del();
-}
-
-async function getNewGrantsById(asOf) {
-    const open_date = asOf || moment().subtract(1, 'day').format('YYYY-MM-DD');
-
-    const rows = await knex(TABLES.grants)
-        .where({ open_date });
-
-    const grantsById = rows.reduce((obj, item) => {
-        obj[item.grant_id] = item;
-        return obj;
-    }, {});
-
-    return grantsById;
 }
 
 async function getNewGrantsForAgency(agency) {
@@ -1243,77 +1203,6 @@ async function getAgenciesByIds(agencyIds) {
     return result;
 }
 
-async function getAgenciesSubscribedToDigest(asOf) {
-    const open_date = asOf || moment().subtract(1, 'day').format('YYYY-MM-DD');
-
-    const query = knex.raw(
-        `
-        WITH enabled_codes AS (
-            SELECT
-                a.id AS agency_id,
-                ec.code,
-                COALESCE(aec.enabled, TRUE) as enabled
-            FROM
-                eligibility_codes ec
-            CROSS JOIN agencies a
-            LEFT JOIN agency_eligibility_codes aec ON ec.code = aec.code
-                AND a.id = aec.agency_id
-        ),
-        agency_data AS (
-            SELECT
-                a.id,
-                a.name,
-                array_agg(DISTINCT aec.code) AS codes,
-                array_agg(DISTINCT k.search_term) AS term,
-                array_agg(DISTINCT u.email) AS emails
-            FROM
-                agencies a
-            JOIN enabled_codes aec ON aec.agency_id = a.id
-                AND aec.enabled = TRUE
-            JOIN keywords k ON k.agency_id = a.id
-            JOIN users u ON u.agency_id = a.id
-            LEFT JOIN email_subscriptions es ON es.user_id = u.id
-                AND es.notification_type = '${emailConstants.notificationType.grantDigest}'
-            WHERE (
-                es.status = '${emailConstants.emailSubscriptionStatus.subscribed}'
-                OR es.status is NULL
-            )
-        GROUP BY
-            a.id
-        )
-        SELECT
-            ad.id,
-            ad.name,
-            ad.emails AS user_emails,
-            array_agg(DISTINCT g.grant_id) AS matched_grant_ids
-        FROM
-            grants g
-            JOIN agency_data ad ON g.eligibility_codes ~ array_to_string(ad.codes, '|')
-                AND g.description ~* array_to_string(ad.term, '|')
-        WHERE
-            g.open_date = :open_date
-        GROUP BY
-            ad.id,
-            ad.name,
-            ad.emails;
-        `,
-        { open_date },
-    );
-
-    const result = await query;
-    const newGrantsById = await module.exports.getNewGrantsById(open_date);
-
-    result.rows.forEach((r) => {
-        r.recipients = r.user_emails;
-        r.matched_grants = r.matched_grant_ids.reduce((arr, grantId) => {
-            arr.push(newGrantsById[grantId]);
-            return arr;
-        }, []);
-    });
-
-    return result.rows;
-}
-
 async function getTenantAgencies(tenantId) {
     return knex(TABLES.agencies)
         .select('*')
@@ -1789,7 +1678,6 @@ module.exports = {
     getAgency,
     getAgenciesByIds,
     getAgencyTree,
-    getAgenciesSubscribedToDigest,
     getTenantAgencies,
     getTenant,
     getTenants,
@@ -1813,7 +1701,6 @@ module.exports = {
     getGrantsNew,
     buildPaginationParams,
     buildOrderingParams,
-    getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,
     getClosestGrants,
