@@ -46,12 +46,7 @@ function buildBaseUrlSafe() {
 
 function buildNotificationsUrlSafe() {
     const notificationsUrl = new URL(process.env.WEBSITE_DOMAIN);
-    if (process.env.ENABLE_MY_PROFILE === 'true') {
-        notificationsUrl.pathname = 'my-profile';
-    } else {
-        notificationsUrl.pathname = 'grants';
-        notificationsUrl.searchParams.set('manageSettings', 'true');
-    }
+    notificationsUrl.pathname = 'my-profile';
     notificationsUrl.searchParams.set('utm_source', 'usdr-grants');
     notificationsUrl.searchParams.set('utm_medium', 'email');
     notificationsUrl.searchParams.set('utm_content', 'change notification preferences');
