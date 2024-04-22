@@ -26,14 +26,6 @@ if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
     job.start();
 }
 
-if (process.env.ENABLE_GRANTS_DIGEST === 'true' && process.env.ENABLE_GRANT_DIGEST_SCHEDULED_TASK !== 'true') {
-    const generateGrantDigestCron = new CronJob(
-        // once per day at 12:00 UTC
-        '0 0 12 * * *', emailService.buildAndSendGrantDigest,
-    );
-    generateGrantDigestCron.start();
-}
-
 if (process.env.ENABLE_SAVED_SEARCH_GRANTS_DIGEST === 'true' && process.env.ENABLE_GRANT_DIGEST_SCHEDULED_TASK !== 'true') {
     const generateSavedSearchGrantDigestCron = new CronJob(
         // once per day at 13:00 UTC
