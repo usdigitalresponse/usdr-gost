@@ -101,6 +101,23 @@ describe('Email module', () => {
                 (msg) => msg.startsWith('NOTIFICATIONS_EMAIL is not set'),
             );
         });
+
+        it('correctly formats from email without name', async () => {
+            const sendSpy = sandbox.spy();
+            sandbox.stub(awsTransport, 'getSESClient').returns({ send: sendSpy });
+            await awsTransport.sendEmail(testEmail);
+            const source = sendSpy.args[0][0].input.Source;
+            expect(source).to.equal('fake@example.org');
+        });
+
+        it('correctly formats from email with name', async () => {
+            const sendSpy = sandbox.spy();
+            sandbox.stub(awsTransport, 'getSESClient').returns({ send: sendSpy });
+            const fromNameEmail = { ...testEmail, fromName: 'From Name' };
+            await awsTransport.sendEmail(fromNameEmail);
+            const source = sendSpy.args[0][0].input.Source;
+            expect(source).to.equal('"From Name" <fake@example.org>');
+        });
     });
     context('Nodemailer', () => {
         beforeEach(() => {
