@@ -76,6 +76,8 @@ on:
         value: ${{ jobs.do.outputs.plan_outcome }}
       plan-output:
         value: ${{ jobs.do.outputs.plan_output }}
+      plan-summary-markdown:
+        value: ${{ jobs.do.outputs.plan_summary_md }}
 
 jobs:
   do:
@@ -96,6 +98,7 @@ jobs:
       plan_exitcode: ${{ steps.plan.outputs.exitcode }}
       plan_outcome: ${{ steps.plan.outcome }}
       plan_output: ${{ steps.show_plan.outputs.stdout || steps.show_plan.outputs.stderr }}
+      plan_summary_md: ${{ steps.plan_summary_md.outputs.stdout || steps.plan_summary_md.outputs.stderr }}
     env:
       ARTIFACTS_KEY: terraform-${{ inputs.environment-key }}-${{ inputs.ref }}
       AWS_DEFAULT_REGION: ${{ inputs.aws-region }}
@@ -119,6 +122,8 @@ jobs:
       - name: Output URL for this job
         id: job_url
         run: echo "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }}"
+      - name: Set up tf-summarize
+        uses: kishaningithub/setup-tf-summarize@b752490b135f74e59d82e656a1dab7f11a937f84 # v2.0.0
       - name: Validate workflow configuration
         if: inputs.upload-artifacts && (env.GPG_PASSPHRASE == '')
         run: |
@@ -197,6 +202,13 @@ jobs:
       - name: Generate plaintext plan
         id: show_plan
         run: terraform show tfplan
+      - name: Generate JSON plan
+        run: terraform show -json tfplan > tfplan.json
+      - name: Generate plan summary as markdown table
+        id: plan_summary_md
+        run: |
+          tf-summarize -md tfplan.json
+          rm tfplan.json
       - name: Encrypt terraform plan file
         id: encrypt_plan
         if: success() && inputs.upload-artifacts
