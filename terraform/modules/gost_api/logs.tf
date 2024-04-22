@@ -12,21 +12,26 @@ module "write_api_logs_policy" {
 
   name = "write-logs"
 
-  iam_policy_statements = {
-    WriteLogs = {
-      effect = "Allow"
-      actions = [
-        "logs:CreateLogStream",
-        "logs:DescribeLogStreams",
-        "logs:PutLogEvents",
+  iam_policy = [
+    {
+      statements = [
+        {
+          sid    = "WriteLogs"
+          effect = "Allow"
+          actions = [
+            "logs:CreateLogStream",
+            "logs:DescribeLogStreams",
+            "logs:PutLogEvents",
+          ]
+          resources = flatten([
+            for arn in aws_cloudwatch_log_group.default[*].arn :
+            [
+              arn,
+              "${arn}:log-stream:*"
+            ]
+          ])
+        }
       ]
-      resources = flatten([
-        for arn in aws_cloudwatch_log_group.default[*].arn :
-        [
-          arn,
-          "${arn}:log-stream:*"
-        ]
-      ])
     }
-  }
+  ]
 }
