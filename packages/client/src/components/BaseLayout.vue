@@ -1,8 +1,8 @@
 <template>
   <div>
     <b-navbar
-      :type="navBarType"
-      :variant="navBarVariant"
+      type="light"
+      variant="white"
       class="header-dropshadow py-1"
     >
       <b-navbar-brand
@@ -10,14 +10,7 @@
         class="d-flex align-items-center"
       >
         <b-img
-          v-if="myProfileEnabled"
           :src="require('../assets/usdr_logo_standard_wide.svg')"
-          style="height: 2.5rem;"
-          alt="United States Digital Response - Home"
-        />
-        <b-img
-          v-else
-          :src="require('../assets/usdr_logo_white_wide.svg')"
           style="height: 2.5rem;"
           alt="United States Digital Response - Home"
         />
@@ -32,14 +25,13 @@
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
           <b-nav-item-dropdown
-            v-if="loggedInUser && myProfileEnabled"
+            v-if="loggedInUser"
             right
             no-caret
             menu-class="w-100"
           >
             <!-- Using 'button-content' slot -->
             <template
-              v-if="myProfileEnabled"
               #button-content
             >
               <div
@@ -66,12 +58,6 @@
                   />
                 </p>
               </div>
-            </template>
-            <template
-              v-else
-              #button-content
-            >
-              <em>{{ loggedInUser.email }}</em>
             </template>
             <b-dropdown-item :to="{ name: 'myProfile' }">
               <b-icon
@@ -124,43 +110,6 @@
             </b-dropdown-item-button>
           </b-nav-item-dropdown>
 
-          <b-nav-text v-if="!myProfileEnabled">
-            <b-badge>{{ selectedTeam ? selectedTeam.name : '' }}</b-badge>
-          </b-nav-text>
-
-          <b-nav-item-dropdown
-            v-if="loggedInUser && !myProfileEnabled"
-            right
-          >
-            <!-- Using 'button-content' slot -->
-            <template #button-content>
-              <em>{{ loggedInUser.email }}</em>
-            </template>
-            <b-dropdown-item-button
-              href="#"
-              @click="settingsClicked"
-            >
-              Settings
-            </b-dropdown-item-button>
-            <b-dropdown-item-button
-              href="#"
-              @click="giveFeedback"
-            >
-              Give Feedback
-            </b-dropdown-item-button>
-            <b-dropdown-item-button
-              href="#"
-              @click="trainingGuide"
-            >
-              Training Guide
-            </b-dropdown-item-button>
-            <b-dropdown-item-button
-              href="#"
-              @click="logout"
-            >
-              Sign Out
-            </b-dropdown-item-button>
-          </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
@@ -230,14 +179,12 @@
 
       <router-view />
     </div>
-    <ProfileSettingsModal :show-modal.sync="showProfileSettingModal" />
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-import { myProfileEnabled, newTerminologyEnabled } from '@/helpers/featureFlags';
-import ProfileSettingsModal from '@/components/Modals/ProfileSettings.vue';
+import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import AlertBox from '../arpa_reporter/components/AlertBox.vue';
 import UserAvatar from './UserAvatar.vue';
 
@@ -245,12 +192,10 @@ export default {
   name: 'BaseLayout',
   components: {
     AlertBox,
-    ProfileSettingsModal,
     UserAvatar,
   },
   data() {
     return {
-      showProfileSettingModal: false,
       showOptInEmailBanner: true,
     };
   },
@@ -267,17 +212,8 @@ export default {
     newTerminologyEnabled() {
       return newTerminologyEnabled();
     },
-    myProfileEnabled() {
-      return myProfileEnabled();
-    },
     showTabs() {
       return !(this.$route.meta.hideLayoutTabs === true);
-    },
-    navBarType() {
-      return myProfileEnabled() ? 'light' : 'dark';
-    },
-    navBarVariant() {
-      return myProfileEnabled() ? 'white' : 'dark';
     },
   },
   methods: {
@@ -286,9 +222,6 @@ export default {
       this.$store
         .dispatch('users/logout')
         .then(() => this.$router.push({ path: '/login' }));
-    },
-    settingsClicked() {
-      this.showProfileSettingModal = true;
     },
     giveFeedback() {
       window.open('https://usdr.link/grants/feedback');

@@ -19,7 +19,7 @@ const defaultRoute = {
     hideLayoutTabs: false,
   },
 };
-const stubs = ['b-nav-item-dropdown', 'b-navbar', 'b-navbar-nav', 'b-collapse', 'b-navbar-brand', 'b-img', 'b-nav-item', 'b-dropdown-item-button', 'b-col', 'b-nav', 'router-view', 'b-badge', 'b-nav-text'];
+const stubs = ['b-nav-item-dropdown', 'b-navbar', 'b-navbar-nav', 'b-collapse', 'b-navbar-brand', 'b-img', 'b-nav-item', 'b-dropdown-item', 'b-dropdown-item-button', 'b-col', 'b-nav', 'router-view', 'b-badge', 'b-nav-text'];
 const noOpGetters = {
   'users/selectedAgency': () => {},
   'users/loggedInUser': () => {},
@@ -27,7 +27,7 @@ const noOpGetters = {
   'alerts/alerts': () => [],
 };
 
-describe('Layout.vue', () => {
+describe('BaseLayout.vue', () => {
   describe('when Layout view is loaded', () => {
     beforeEach(() => {
       store = new Vuex.Store({
@@ -87,12 +87,12 @@ describe('Layout.vue', () => {
       wrapper.get('b-nav-item-dropdown-stub');
     });
     it('should have the correct options', () => {
-      const options = wrapper.findAllComponents('b-dropdown-item-button-stub');
+      const options = wrapper.findAll('.dropdown-item-text');
       expect(options.length).to.eql(4);
-      expect(options.at(0).text()).to.eql('Settings');
-      expect(options.at(1).text()).to.eql('Give Feedback');
-      expect(options.at(2).text()).to.eql('Training Guide');
-      expect(options.at(3).text()).to.eql('Sign Out');
+      expect(options.at(0).text()).to.eql('My profile');
+      expect(options.at(1).text()).to.eql('Give feedback');
+      expect(options.at(2).text()).to.eql('Training guide');
+      expect(options.at(3).text()).to.eql('Sign out');
     });
   });
   describe('when user is admin', () => {
@@ -142,28 +142,6 @@ describe('Layout.vue', () => {
     it('should show Organizations tab', () => {
       const navItem = wrapper.get('b-nav-item-stub[to="/organizations"]');
       expect(navItem.text()).to.eql('Organizations');
-    });
-  });
-  describe('when a team is selected', () => {
-    beforeEach(() => {
-      store = new Vuex.Store({
-        getters: {
-          ...noOpGetters,
-          'users/selectedAgency': () => ({ name: 'Test Team Name' }),
-        },
-      });
-      wrapper = shallowMount(BaseLayout, {
-        localVue,
-        store,
-        mocks: {
-          $route: defaultRoute,
-        },
-        stubs,
-      });
-    });
-    it('should show the team name badge', () => {
-      const badge = wrapper.get('b-badge-stub');
-      expect(badge.text()).to.eql('Test Team Name');
     });
   });
 });

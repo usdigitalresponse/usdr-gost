@@ -1,6 +1,6 @@
 import VueRouter from 'vue-router';
 
-import { myProfileEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
+import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import LoginView from '@/views/LoginView.vue';
 import BaseLayout from '@/components/BaseLayout.vue';
 import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
@@ -148,7 +148,6 @@ export const routes = [
         component: () => import('../views/MyProfile.vue'),
         meta: {
           requiresAuth: true,
-          requiresMyProfileEnabled: true,
           hideLayoutTabs: true,
         },
       },
@@ -185,8 +184,7 @@ router.beforeEach((to, from, next) => {
   } else if (to.name === 'login' && authenticated) {
     next({ name: 'grants' });
   } else if (
-    (to.meta.requiresMyProfileEnabled && !myProfileEnabled())
-    || (to.meta.requiresNewTerminologyEnabled && !newTerminologyEnabled())
+    (to.meta.requiresNewTerminologyEnabled && !newTerminologyEnabled())
     || (to.meta.requiresNewGrantsDetailPageEnabled && !newGrantsDetailPageEnabled())
   ) {
     if (authenticated) {
