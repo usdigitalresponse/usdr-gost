@@ -117,10 +117,9 @@
 </template>
 
 <script>
+import moment from 'moment';
+import _ from 'lodash';
 import { post } from '../store/index';
-
-const moment = require('moment');
-const _ = require('lodash');
 
 export default {
   name: 'ReportingPeriods',

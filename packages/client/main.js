@@ -11,11 +11,11 @@ import VueRouter from 'vue-router';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import vSelect from 'vue-select';
 import { setUserForGoogleAnalytics } from '@/helpers/gtag';
-import App from './App.vue';
-import router from './router';
-import store from './store';
-import './assets/fix-sticky-headers.css';
-import './assets/adjust-vue-select.css';
+import App from '@/App.vue';
+import router from '@/router';
+import store from '@/store';
+import '@/assets/fix-sticky-headers.css';
+import '@/assets/adjust-vue-select.css';
 
 import * as fetchApi from '@/helpers/fetchApi';
 

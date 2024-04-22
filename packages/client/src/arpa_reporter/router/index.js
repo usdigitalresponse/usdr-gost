@@ -110,9 +110,7 @@ const routes = [
 
 const router = new VueRouter({
   mode: 'history',
-  base: import.meta.VUE_APP_IS_GOST
-    ? `${import.meta.BASE_URL}arpa_reporter/`
-    : import.meta.BASE_URL,
+  base: '/arpa_reporter/',
   routes,
 });
 

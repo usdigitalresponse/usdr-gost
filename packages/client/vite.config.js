@@ -16,5 +16,13 @@ export default defineConfig({
     proxy: {
       '/api': process.env.GOST_API_URL || 'http://localhost:3000',
     },
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        arpa_reporter: path.resolve(__dirname, 'arpa_reporter/index.html'),
+      },
     },
+  },
 })
