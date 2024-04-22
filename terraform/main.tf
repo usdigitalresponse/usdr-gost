@@ -213,6 +213,7 @@ module "consume_grants" {
   source                   = "./modules/gost_consume_grants"
   namespace                = var.namespace
   permissions_boundary_arn = local.permissions_boundary_arn
+  depends_on               = [aws_ecs_cluster.default]
 
   # Networking
   subnet_ids         = local.private_subnet_ids
@@ -254,6 +255,7 @@ module "arpa_audit_report" {
   source                   = "./modules/sqs_consumer_task"
   namespace                = "${var.namespace}-arpa_audit_report"
   permissions_boundary_arn = local.permissions_boundary_arn
+  depends_on               = [aws_ecs_cluster.default]
 
   # Networking
   subnet_ids         = local.private_subnet_ids
@@ -342,6 +344,7 @@ module "arpa_treasury_report" {
   source                   = "./modules/sqs_consumer_task"
   namespace                = "${var.namespace}-treasury_report"
   permissions_boundary_arn = local.permissions_boundary_arn
+  depends_on               = [aws_ecs_cluster.default]
 
   # Networking
   subnet_ids         = local.private_subnet_ids
