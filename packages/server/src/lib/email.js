@@ -16,8 +16,9 @@ const ASYNC_REPORT_TYPES = {
     treasury: 'treasury',
 };
 const HELPDESK_EMAIL = 'grants-helpdesk@usdigitalresponse.org';
+const GENERIC_FROM_NAME = 'USDR Grants';
 const GRANT_FINDER_EMAIL_FROM_NAME = 'USDR Federal Grant Finder';
-const ARPA_EMAIL_FROM_NAME = 'UDSR ARPA Reporter';
+const ARPA_EMAIL_FROM_NAME = 'USDR ARPA Reporter';
 
 async function deliverEmail({
     fromName,
@@ -130,7 +131,7 @@ async function sendPassCode(email, passcode, httpOrigin, redirectTo) {
         console.log(`${BLUE}${'-'.repeat(message.length)}`);
     }
     await module.exports.deliverEmail({
-        fromName: GRANT_FINDER_EMAIL_FROM_NAME,
+        fromName: GENERIC_FROM_NAME,
         toAddress: email,
         emailHTML,
         emailPlain: `Your link to access USDR's Grants tool is ${href}. It expires in ${expiryMinutes} minutes`,
@@ -192,7 +193,7 @@ function sendWelcomeEmail(email, httpOrigin) {
     );
 
     return module.exports.deliverEmail({
-        fromName: GRANT_FINDER_EMAIL_FROM_NAME,
+        fromName: GENERIC_FROM_NAME,
         toAddress: email,
         emailHTML,
         emailPlain: `Visit USDR's Grants Tool at: ${httpOrigin}.`,
