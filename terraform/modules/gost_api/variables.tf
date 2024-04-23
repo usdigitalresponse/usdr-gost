@@ -168,12 +168,6 @@ variable "enable_new_team_terminology" {
   default     = false
 }
 
-variable "enable_my_profile" {
-  description = "When true, sets the ENABLE_MY_PROFILE environment variable to true in the API container."
-  type        = bool
-  default     = false
-}
-
 variable "enable_saved_search_grants_digest" {
   description = "When true, sets the ENABLE_SAVED_SEARCH_GRANTS_DIGEST environment variable to true in the API container."
   type        = bool

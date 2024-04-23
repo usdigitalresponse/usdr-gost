@@ -190,10 +190,6 @@ variable "api_enable_new_team_terminology" {
   type = bool
 }
 
-variable "api_enable_my_profile" {
-  type = bool
-}
-
 variable "api_enable_saved_search_grants_digest" {
   type = bool
 }
