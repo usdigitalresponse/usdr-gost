@@ -98,7 +98,7 @@ jobs:
       plan_exitcode: ${{ steps.plan.outputs.exitcode }}
       plan_outcome: ${{ steps.plan.outcome }}
       plan_output: ${{ steps.show_plan.outputs.stdout || steps.show_plan.outputs.stderr }}
-      plan_summary_md: ${{ steps.plan_summary_md.outputs.stdout || steps.plan_summary_md.outputs.stderr }}
+      plan_summary_md: ${{ steps.plan_summary.outputs.markdown_table }}
     env:
       ARTIFACTS_KEY: terraform-${{ inputs.environment-key }}-${{ inputs.ref }}
       AWS_DEFAULT_REGION: ${{ inputs.aws-region }}
@@ -204,11 +204,15 @@ jobs:
         run: terraform show tfplan
       - name: Generate JSON plan
         run: terraform show -json tfplan > tfplan.json
-      - name: Generate plan summary as markdown table
-        id: plan_summary_md
+      - name: Generate plan summary
+        id: plan_summary
         run: |
-          tf-summarize -md tfplan.json
+          SUMMARIZED_PLAN_MD=$(tf-summarize -md tfplan.json)
+          echo "markdown_table<<ENDOFTFPLANSUMMARYMARKDOWN" >> $GITHUB_OUTPUT
+          echo "$SUMMARIZED_PLAN_MD" >> $GITHUB_OUTPUT
+          echo "ENDOFTFPLANSUMMARYMARKDOWN" >> $GITHUB_OUTPUT
           rm tfplan.json
+          echo "$SUMMARIZED_PLAN_MD"
       - name: Encrypt terraform plan file
         id: encrypt_plan
         if: success() && inputs.upload-artifacts
