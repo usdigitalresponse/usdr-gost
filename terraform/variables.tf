@@ -48,6 +48,12 @@ variable "datadog_draft" {
   default     = true
 }
 
+variable "ses_datadog_events_enabled" {
+  description = "Whether to send email events to Datadog in order to collect email metrics."
+  type        = bool
+  default     = false
+}
+
 // Common
 variable "permissions_boundary_policy_name" {
   description = "Name of the permissions boundary for service roles"
