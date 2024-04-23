@@ -287,11 +287,11 @@
 
 <script>
 import moment from 'moment';
-import { titleize } from '../helpers/form-helpers';
-import AlertBox from '../components/AlertBox.vue';
-import DownloadFileButton from '../components/DownloadFileButton.vue';
-import { getJson, post } from '../store/index';
-import { shortUuid } from '../helpers/short-uuid';
+import { titleize } from '@/helpers/form-helpers';
+import AlertBox from '@/arpa_reporter/components/AlertBox.vue';
+import DownloadFileButton from '@/arpa_reporter/components/DownloadFileButton.vue';
+import { getJson, post } from '@/arpa_reporter/store';
+import { shortUuid } from '@/arpa_reporter/helpers/short-uuid';
 
 export default {
   name: 'UploadView',

@@ -97,11 +97,11 @@ import moment from 'moment';
 import 'vue-good-table/dist/vue-good-table.css';
 import { VueGoodTable } from 'vue-good-table';
 
-import DownloadFileButton from '../components/DownloadFileButton.vue';
-import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
+import DownloadFileButton from '@/arpa_reporter/components/DownloadFileButton.vue';
+import DownloadTemplateBtn from '@/arpa_reporter/components/DownloadTemplateBtn.vue';
 
-import { getJson } from '../store/index';
-import { shortUuid } from '../helpers/short-uuid';
+import { getJson } from '@/arpa_reporter/store';
+import { shortUuid } from '@/arpa_reporter/helpers/short-uuid';
 
 export default {
   name: 'UploadsView',

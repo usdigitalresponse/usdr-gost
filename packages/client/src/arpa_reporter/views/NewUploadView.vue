@@ -19,7 +19,7 @@
 import Vue from 'vue';
 import VueFormulate from '@braid/vue-formulate';
 import _ from 'lodash';
-import { postForm } from '../store';
+import { postForm } from '@/arpa_reporter/store';
 
 Vue.use(VueFormulate, {
   classes: {

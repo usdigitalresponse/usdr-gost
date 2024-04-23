@@ -4,7 +4,7 @@ import BaseLayout from '@/components/BaseLayout.vue';
 import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import LoginView from '@/views/LoginView.vue';
 
-import store from '../store';
+import store from '@/store';
 
 export const routes = [
   {

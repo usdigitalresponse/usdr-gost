@@ -35,8 +35,8 @@
 </template>
 
 <script>
-import StandardForm from '../components/StandardForm.vue';
-import { post } from '../store/index';
+import StandardForm from '@/arpa_reporter/components/StandardForm.vue';
+import { post } from '@/arpa_reporter/store';
 
 export default {
   name: 'UserView',

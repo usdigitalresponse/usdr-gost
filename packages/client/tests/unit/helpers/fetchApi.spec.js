@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { apiURL } from '../../../src/helpers/fetchApi';
+import { apiURL } from '@/helpers/fetchApi';
 
 describe('apiURL()', () => {
   const setupConfigRestore = function () {

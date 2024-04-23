@@ -50,8 +50,8 @@
 <script>
 import moment from 'moment';
 
-import StandardForm from '../components/StandardForm.vue';
-import { getJson, post } from '../store/index';
+import StandardForm from '@/arpa_reporter/components/StandardForm.vue';
+import { getJson, post } from '@/arpa_reporter/store';
 
 export default {
   name: 'SubrecipientView',

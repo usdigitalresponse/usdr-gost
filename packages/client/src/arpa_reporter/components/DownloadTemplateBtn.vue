@@ -10,7 +10,7 @@
 
 <script>
 import { apiURL } from '@/helpers/fetchApi';
-import DownloadButton from './DownloadButton.vue';
+import DownloadButton from '@/arpa_reporter/components/DownloadButton.vue';
 
 export default {
   name: 'DownloadTemplateBtn',

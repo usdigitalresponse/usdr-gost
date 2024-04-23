@@ -1,14 +1,14 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import grants from './modules/grants';
-import users from './modules/users';
-import roles from './modules/roles';
-import agencies from './modules/agencies';
-import dashboard from './modules/dashboard';
-import organization from './modules/organization';
-import tenants from './modules/tenants';
-import alerts from './modules/alerts';
+import grants from '@/store/modules/grants';
+import users from '@/store/modules/users';
+import roles from '@/store/modules/roles';
+import agencies from '@/store/modules/agencies';
+import dashboard from '@/store/modules/dashboard';
+import organization from '@/store/modules/organization';
+import tenants from '@/store/modules/tenants';
+import alerts from '@/store/modules/alerts';
 
 Vue.use(Vuex);
 

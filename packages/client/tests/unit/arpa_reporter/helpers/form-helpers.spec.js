@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { validate } from '../../../../src/arpa_reporter/helpers/form-helpers';
+import { validate } from '@/arpa_reporter/helpers/form-helpers';
 
 describe('failing validations', () => {
   it('can require an attribute', () => {
