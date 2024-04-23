@@ -214,7 +214,7 @@ describe('Email sender', () => {
 
             expect(sendFake.calledOnce).to.equal(true);
             expect(_.omit(sendFake.firstCall.args[0], ['body'])).to.deep.equal({
-                fromName: 'USDR Federal Grant Finder',
+                fromName: 'USDR Grants',
                 ccAddress: undefined,
                 toAddress: 'staff.user@test.com',
                 subject: 'USDR Grants Tool Access Link',
@@ -233,7 +233,7 @@ describe('Email sender', () => {
 
             expect(sendFake.calledOnce).to.equal(true);
             expect(_.omit(sendFake.firstCall.args[0], ['body'])).to.deep.equal({
-                fromName: 'USDR Federal Grant Finder',
+                fromName: 'USDR Grants',
                 ccAddress: undefined,
                 toAddress: 'sub.staff.user@test.com',
                 subject: 'Welcome to USDR Grants Tool',
@@ -298,7 +298,7 @@ describe('Email sender', () => {
             expect(sendFake.firstCall.firstArg.subject).to.equal('Your audit report is ready for download');
             expect(sendFake.firstCall.firstArg.text).to.equal('Your audit report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org This link will remain active for 7 days.');
             expect(sendFake.firstCall.firstArg.toAddress).to.equal('usdr.volunteer@test.com');
-            expect(sendFake.firstCall.firstArg.fromName).to.equal('UDSR ARPA Reporter');
+            expect(sendFake.firstCall.firstArg.fromName).to.equal('USDR ARPA Reporter');
             expect(sendFake.firstCall.firstArg.body).contains('https://example.usdigitalresponse.org');
             expect(sendFake.firstCall.firstArg.tags).to.deep.equal([
                 'notification_type=audit_report',
@@ -316,7 +316,7 @@ describe('Email sender', () => {
             expect(sendFake.firstCall.firstArg.subject).to.equal('Your treasury report is ready for download');
             expect(sendFake.firstCall.firstArg.text).to.equal('Your treasury report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org This link will remain active for 7 days.');
             expect(sendFake.firstCall.firstArg.toAddress).to.equal('admin.user@test.com');
-            expect(sendFake.firstCall.firstArg.fromName).to.equal('UDSR ARPA Reporter');
+            expect(sendFake.firstCall.firstArg.fromName).to.equal('USDR ARPA Reporter');
             expect(sendFake.firstCall.firstArg.body).contains('https://example.usdigitalresponse.org');
             expect(sendFake.firstCall.firstArg.tags).to.deep.equal([
                 'notification_type=treasury_report',
@@ -344,7 +344,7 @@ describe('Email sender', () => {
             expect(sendFake.firstCall.firstArg.subject).to.equal(`Audit report generation has failed for Test Tenant`);
             expect(sendFake.firstCall.firstArg.text).to.equal(body);
             expect(sendFake.firstCall.firstArg.toAddress).to.equal(user.email);
-            expect(sendFake.firstCall.firstArg.fromName).to.equal('UDSR ARPA Reporter');
+            expect(sendFake.firstCall.firstArg.fromName).to.equal('USDR ARPA Reporter');
             expect(sendFake.firstCall.firstArg.ccAddress).to.equal('grants-helpdesk@usdigitalresponse.org');
             expect(sendFake.firstCall.firstArg.body).contains(body);
             // Not an actual user so no user tags
