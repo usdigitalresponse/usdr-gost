@@ -55,6 +55,8 @@ async function sendEmail(message) {
         // text: 'Hello world?', // plain text body
         html: message.body, // html body
         headers: {
+            // This is the correct header for tags if sending to an AWS SES SMTP endpoint.
+            // Any other SMTP server will probably ignore this header.
             'X-SES-MESSAGE-TAGS': message.tags.join(', '),
         },
     };
