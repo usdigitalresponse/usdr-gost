@@ -21,9 +21,6 @@ on:
       tf-validate-output:
         type: string
         required: true
-      source-job-url:
-        type: string
-        required: true
       pr-number:
         type: string
         required: false
@@ -70,8 +67,6 @@ jobs:
 
           ### Output
 
-          View all Terraform output [here](${{ env.TF_JOB_URL }}).
-
           <details>
           <summary>Validation Output</summary>
 
@@ -91,7 +86,6 @@ jobs:
           *Pusher: @${{ env.GH_ACTOR }}, Action: `${{ env.GH_ACTION }}`, Workflow: [`${{ env.GH_WORKFLOW }}`](${{ env.GH_SERVER}}/${{ env.GH_REPO }}/actions/runs/${{ env.GH_RUN_ID }})*
           ENDOFREPORT
         env:
-          TF_JOB_URL: ${{ inputs.source-job-url }}
           TF_FMT_OUTCOME: ${{ inputs.tf-fmt-outcome }}
           TF_INIT_OUTCOME: ${{ inputs.tf-init-outcome }}
           TF_VALIDATE_OUTCOME: ${{ inputs.tf-validate-outcome }}

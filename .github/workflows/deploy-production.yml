@@ -102,7 +102,6 @@ jobs:
     with:
       write-summary: true
       write-comment: false
-      source-job-url: ${{ needs.tf-plan.outputs.job-url }}
       tf-fmt-outcome: ${{ needs.tf-plan.outputs.fmt-outcome }}
       tf-init-outcome: ${{ needs.tf-plan.outputs.init-outcome }}
       tf-plan-outcome: ${{ needs.tf-plan.outputs.plan-outcome }}

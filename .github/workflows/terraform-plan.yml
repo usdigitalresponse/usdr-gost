@@ -58,8 +58,6 @@ on:
       gpg-passphrase:
         required: true
     outputs:
-      job-url:
-        value: ${{ jobs.do.outputs.job_url }}
       artifacts-key:
         value: ${{ jobs.do.outputs.artifacts-key }}
       fmt-outcome:
@@ -89,7 +87,6 @@ jobs:
       run:
         working-directory: terraform
     outputs:
-      job_url: "${{ steps.job_url.outputs.stdout }}"
       artifacts-key: ${{ env.ARTIFACTS_KEY }}
       fmt_outcome: ${{ steps.fmt.outcome }}
       init_outcome: ${{ steps.init.outcome }}
@@ -119,9 +116,6 @@ jobs:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
           persist-credentials: 'false'
-      - name: Output URL for this job
-        id: job_url
-        run: echo "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }}"
       - name: Set up tf-summarize
         uses: kishaningithub/setup-tf-summarize@b752490b135f74e59d82e656a1dab7f11a937f84 # v2.0.0
       - name: Validate workflow configuration
