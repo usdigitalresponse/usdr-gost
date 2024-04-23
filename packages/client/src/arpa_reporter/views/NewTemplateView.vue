@@ -45,7 +45,6 @@
 import { postForm } from '../store';
 
 export default {
-  name: 'NewTemplate',
   data() {
     return {
       reportingPeriodId: this.$route.params.id,

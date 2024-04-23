@@ -1,9 +1,8 @@
 import VueRouter from 'vue-router';
 
+import BaseLayout from '@/components/BaseLayout.vue';
 import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import LoginView from '@/views/LoginView.vue';
-import BaseLayout from '@/components/BaseLayout.vue';
-import ArpaAnnualPerformanceReporter from '../views/ArpaAnnualPerformanceReporter.vue';
 
 import store from '../store';
 
@@ -16,7 +15,7 @@ export const routes = [
   {
     path: '/arpa-annual-performance-reporter',
     name: 'annualReporter',
-    component: ArpaAnnualPerformanceReporter,
+    component: () => import('@/views/ArpaAnnualPerformanceReporterView.vue'),
     meta: {
       requiresAuth: true,
     },
@@ -145,7 +144,7 @@ export const routes = [
       {
         path: '/my-profile',
         name: 'myProfile',
-        component: () => import('../views/MyProfile.vue'),
+        component: () => import('../views/MyProfileView.vue'),
         meta: {
           requiresAuth: true,
           hideLayoutTabs: true,
