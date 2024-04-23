@@ -47,7 +47,7 @@ async function sendGrantAssigned() {
     });
 }
 
-async function sendAsyncReport() {
+async function sendAuditReport() {
     await email.sendAsyncReportEmail(
         'test@example.com',
         `${process.env.API_DOMAIN}/api/audit_report/fake_key`,
@@ -55,10 +55,24 @@ async function sendAsyncReport() {
     );
 }
 
-async function sendReportError() {
+async function sendTreasuryReport() {
+    await email.sendAsyncReportEmail(
+        'test@example.com',
+        `${process.env.API_DOMAIN}/api/treasury_report/fake_key`,
+        email.ASYNC_REPORT_TYPES.treasury,
+    );
+}
+
+async function sendAuditReportError() {
     const userId = seedUsers.find((seedUser) => seedUser.email === 'admin@example.com').id;
     const user = await db.getUser(userId);
     await email.sendReportErrorEmail(user, email.ASYNC_REPORT_TYPES.audit);
+}
+
+async function sendTreasuryReportError() {
+    const userId = seedUsers.find((seedUser) => seedUser.email === 'admin@example.com').id;
+    const user = await db.getUser(userId);
+    await email.sendReportErrorEmail(user, email.ASYNC_REPORT_TYPES.treasury);
 }
 
 const emailTypes = {
@@ -66,8 +80,10 @@ const emailTypes = {
     'login passcode': sendPassCode,
     'grant digest': sendGrantDigest,
     'grant assigned': sendGrantAssigned,
-    'report generation completed': sendAsyncReport,
-    'report generation failed': sendReportError,
+    'audit report generation completed': sendAuditReport,
+    'treasury report generation completed': sendTreasuryReport,
+    'audit report generation failed': sendAuditReportError,
+    'treasury report generation failed': sendTreasuryReportError,
 };
 
 async function main() {
