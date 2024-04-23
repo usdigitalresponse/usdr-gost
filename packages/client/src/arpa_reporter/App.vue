@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import '../../arpa_reporter/scss/index.scss';
+import '@/arpa_reporter/scss/index.scss';
 import 'bootstrap/dist/js/bootstrap.min';
 
 import PageNavigation from '@/arpa_reporter/components/PageNavigation.vue';
