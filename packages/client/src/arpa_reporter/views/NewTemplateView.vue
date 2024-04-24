@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { postForm } from '../store';
+import { postForm } from '@/arpa_reporter/store';
 
 export default {
   data() {

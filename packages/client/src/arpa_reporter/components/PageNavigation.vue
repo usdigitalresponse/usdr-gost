@@ -166,8 +166,8 @@
 
 <script>
 import moment from 'moment';
-import AlertBox from './AlertBox.vue';
-import { titleize } from '../helpers/form-helpers';
+import AlertBox from '@/arpa_reporter/components/AlertBox.vue';
+import { titleize } from '@/helpers/form-helpers';
 
 export default {
   name: 'PageNavigation',

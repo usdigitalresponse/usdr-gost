@@ -5,7 +5,7 @@ import Vuex from 'vuex';
 import moment from 'moment';
 import _ from 'lodash';
 
-import { apiURL } from '../../helpers/fetchApi';
+import { apiURL } from '@/helpers/fetchApi';
 
 Vue.use(Vuex);
 

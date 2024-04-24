@@ -33,7 +33,7 @@
 
 <script>
 import _ from 'lodash-checkit';
-import { apiURL } from '../../helpers/fetchApi';
+import { apiURL } from '@/helpers/fetchApi';
 
 export default {
   name: 'LoginView',

@@ -98,7 +98,7 @@ import moment from 'moment';
 import 'vue-good-table/dist/vue-good-table.css';
 import { VueGoodTable } from 'vue-good-table';
 
-import { getJson, post } from '../store/index';
+import { getJson, post } from '@/arpa_reporter/store';
 
 export default {
   name: 'SubrecipientsView',

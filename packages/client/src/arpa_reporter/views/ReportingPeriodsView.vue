@@ -117,7 +117,7 @@
 </template>
 
 <script>
-import { post } from '../store/index';
+import { post } from '@/arpa_reporter/store';
 
 const moment = require('moment');
 const _ = require('lodash');
