@@ -33,7 +33,7 @@ resource "aws_sesv2_configuration_set_event_destination" "default" {
       topic_arn = join("", data.aws_sns_topic.datadog_forwarder[*].arn)
     }
     enabled = true
-    matching_event_types = [
+    matching_event_types = sort([
       "SEND",
       "REJECT",
       "BOUNCE",
@@ -43,7 +43,7 @@ resource "aws_sesv2_configuration_set_event_destination" "default" {
       "CLICK",
       "RENDERING_FAILURE",
       "DELIVERY_DELAY",
-      "SUBSCRIPTION"
-    ]
+      "SUBSCRIPTION",
+    ])
   }
 }

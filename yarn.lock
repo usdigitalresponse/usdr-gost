@@ -2394,25 +2394,25 @@
     debug "^3.1.0"
     lodash.once "^4.1.1"
 
-"@datadog/browser-core@5.15.0":
-  version "5.15.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.15.0.tgz#b770906216e0ecd09c8d98c349cac1fb264475ad"
-  integrity sha512-vZeHK0aEqyQqJOal8skaGrGi788Tt+MSP+pH/+J56/Bj4tjLggeIw2SPN+j7XSS+3Q5atk1ZRoEMwvHVV7/s7Q==
+"@datadog/browser-core@5.16.0":
+  version "5.16.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.16.0.tgz#50cc87d3b89a943d677a421b41886865da4690ce"
+  integrity sha512-8SXjJ034T15ihdYU/9cC1UBKr8aUVAAW8MsL0imll8imjBYo95ZCovbf6e24iZ7hYCdjk26+w3WpHQkARrUNsw==
 
-"@datadog/browser-rum-core@5.15.0":
-  version "5.15.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.15.0.tgz#216aea17df8e80a05feef47b4d184b520bdb5f31"
-  integrity sha512-f8TghTfjEqEo/AexyfM0OCZ3aUOcN6+xg9XRohVC+kmmboo+7GcMLgNfW9zkEoCJvNOheSFN2xPZbNE6iUD3LA==
+"@datadog/browser-rum-core@5.16.0":
+  version "5.16.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.16.0.tgz#690b2e48e5e81ca4513d7b73c37de6bbecc4eb1f"
+  integrity sha512-avG+PRdJuMAAlGu1Ciwru18m/sKGik+XnwujnHMXf85+eSIngMwFlHFTZHDu24F6xq8WaxL53G7cVIGJBx/OUg==
   dependencies:
-    "@datadog/browser-core" "5.15.0"
+    "@datadog/browser-core" "5.16.0"
 
 "@datadog/browser-rum@^5.5.0":
-  version "5.15.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.15.0.tgz#3464ff035fd057544f62821928df7b80a61903d9"
-  integrity sha512-bvY8Pgb92uB9+x7oVQTLq5P/fyMBTn+xoEzYJbMmJCEhKL1QPqtYdiRqTNhOLnemZFJ5OaaFNg9az68xJ/O0gg==
+  version "5.16.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.16.0.tgz#5d458a07ef4dbb674131f7076b0dad7e51a076d2"
+  integrity sha512-AlKKylyILojF6Hx0Sf/HWbjpHo5BLMIPIrekC5fDNrtD7iK3EYaEIe1XNw4MbZ3RLuYVlqOFXIXdnPCvo5/7nQ==
   dependencies:
-    "@datadog/browser-core" "5.15.0"
-    "@datadog/browser-rum-core" "5.15.0"
+    "@datadog/browser-core" "5.16.0"
+    "@datadog/browser-rum-core" "5.16.0"
 
 "@datadog/native-appsec@7.1.1":
   version "7.1.1"
@@ -6617,9 +6617,9 @@ dc-polyfill@^0.1.4:
   integrity sha512-8iwEduR2jR9wWYggeaYtYZWRiUe3XZPyAQtMTL1otv8X3kfR8xUIVb4l5awHEeyDrH6Je7N324lKzMKlMMN6Yw==
 
 dd-trace@^4.11.1:
-  version "4.34.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.34.0.tgz#ac1875a22d240303ba88e40ad80f674e27a07ed0"
-  integrity sha512-LXzLfYLB8XdYK4FraadkhP6xUiy2WhI1VuBTFW/NG+2da8vUIEKCDHJzjOSZQmJ4ye0uq7AXqKjqhJhm1cUw2A==
+  version "4.35.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.35.0.tgz#01f7beb53ab9a114fde65255547cc1ce156b2d2b"
+  integrity sha512-O4fnZbh1fZFxYzEKllncRZms2H/dYi4KmP09zMGNduBhwrkl2zU4OTuVcigKQTpOivu1rKee4NNdGo1/IJ8zMw==
   dependencies:
     "@datadog/native-appsec" "7.1.1"
     "@datadog/native-iast-rewriter" "2.3.0"

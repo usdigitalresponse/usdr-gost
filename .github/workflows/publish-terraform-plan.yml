@@ -12,7 +12,7 @@ on:
       tf-plan-outcome:
         type: string
         required: true
-      tf-plan-output:
+      tf-plan-summary:
         type: string
         required: true
       tf-validate-outcome:
@@ -49,14 +49,6 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
-      - name: Reformat Plan
-        run: |
-          PLAN=$(echo "$PLAN_RAW_OUTPUT" | sed -E 's/^([[:space:]]+)([-+])/\2\1/g')
-          echo "PLAN_REFORMATTED<<EOF" >> $GITHUB_ENV
-          echo "$PLAN" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-        env:
-          PLAN_RAW_OUTPUT: ${{ inputs.tf-plan-output }}
       - name: Write the report markdown file
         run: |
           REPORT_FILE=$(mktemp -t summary.md.XXXXX)
@@ -85,11 +77,9 @@ jobs:
           </details>
 
           <details>
-          <summary>Plan Output</summary>
+          <summary>Plan Summary</summary>
 
-          ```diff
-          ${{ env.TF_PLAN_OUTPUT }}
-          ```
+          ${{ env.TF_PLAN_SUMMARY }}
 
           </details>
 
@@ -101,7 +91,7 @@ jobs:
           TF_VALIDATE_OUTCOME: ${{ inputs.tf-validate-outcome }}
           TF_VALIDATE_OUTPUT: ${{ inputs.tf-validate-output }}
           TF_PLAN_OUTCOME: ${{ inputs.tf-plan-outcome }}
-          TF_PLAN_OUTPUT: ${{ env.PLAN_REFORMATTED }}
+          TF_PLAN_SUMMARY: ${{ inputs.tf-plan-summary }}
           GH_ACTOR: ${{ github.actor }}
           GH_ACTION: ${{ github.event_name }}
           GH_WORKFLOW: ${{ github.workflow }}
