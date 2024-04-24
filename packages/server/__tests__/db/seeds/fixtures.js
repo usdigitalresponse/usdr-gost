@@ -11,8 +11,12 @@ const tenants = {
         id: 0,
         display_name: 'SBA',
     },
-    FS: {
+    USDR: {
         id: 1,
+        display_name: 'USDR',
+    },
+    FS: {
+        id: 2,
         display_name: 'FS',
     },
 };
@@ -33,6 +37,14 @@ const agencies = {
         name: 'State Board of Sub Accountancy',
         parent: 0,
         tenant_id: tenants.SBA.id,
+    },
+    usdr: {
+        id: 2,
+        abbreviation: 'USDR',
+        code: 'USDR',
+        name: 'United States Digital Response',
+        parent: null,
+        tenant_id: tenants.USDR.id,
     },
     fleetServices: {
         id: 4,
@@ -68,6 +80,14 @@ const users = {
         role_id: roles.staffRole.id,
         id: 3,
         tenant_id: agencies.subAccountancy.tenant_id,
+    },
+    usdrUser: {
+        email: 'usdr.volunteer@test.com',
+        name: 'USDR user',
+        agency_id: agencies.usdr.id,
+        role_id: roles.staffRole.id,
+        id: 4,
+        tenant_id: agencies.usdr.tenant_id,
     },
 };
 

@@ -4,11 +4,16 @@ const { log } = require('./logging');
 const USDR_TENANT_ID = 1;
 const USDR_AGENCY_ID = 0;
 const USDR_EMAIL_DOMAIN = 'usdigitalresponse.org';
+
+function isUSDR(user) {
+    return user.tenant_id === USDR_TENANT_ID;
+}
+
 function isUSDRSuperAdmin(user) {
     // Note: this function assumes an augmented user object from db.getUser(), not just a raw DB row
     // (necessary for role_name field)
     return (
-        user.tenant_id === USDR_TENANT_ID
+        isUSDR(user)
         && user.agency_id === USDR_AGENCY_ID
         && user.role_name === 'admin'
         // TODO: Right now there are a bunch of non-USDR users in USDR tenant in prod, so we need to
@@ -142,5 +147,5 @@ async function isMicrosoftSafeLinksRequest(req, res, next) {
 }
 
 module.exports = {
-    requireAdminUser, requireUser, isAuthorizedForAgency, isUserAuthorized, isUSDRSuperAdmin, requireUSDRSuperAdminUser, getAdminAuthInfo, isMicrosoftSafeLinksRequest,
+    requireAdminUser, requireUser, isAuthorizedForAgency, isUserAuthorized, isUSDR, isUSDRSuperAdmin, requireUSDRSuperAdminUser, getAdminAuthInfo, isMicrosoftSafeLinksRequest,
 };

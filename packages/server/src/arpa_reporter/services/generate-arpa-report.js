@@ -1129,7 +1129,7 @@ async function processSQSMessageRequest(message) {
         await generateAndSendEmail(user.email, requestData.periodId, requestData.tenantId);
     } catch (err) {
         log.error({ err }, 'failed to generate and send treasury report');
-        await email.sendReportErrorEmail(user, 'Treasury');
+        await email.sendReportErrorEmail(user, email.ASYNC_REPORT_TYPES.treasury);
         return false;
     }
 
