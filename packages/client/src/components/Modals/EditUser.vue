@@ -5,7 +5,7 @@
     header-class="heading"
     footer-class="footer"
     ok-title="Save"
-    :ok-disabled="$v.formData.$invalid"
+    :ok-disabled="v$.formData.$invalid"
     @show="resetModal"
     @hidden="resetModal"
     @ok="handleOk"
@@ -38,7 +38,7 @@
       </b-form-group>
 
       <b-form-group
-        :state="!$v.formData.name.$invalid"
+        :state="!v$.formData.name.$invalid"
         label="Name"
         label-for="name-input"
         invalid-feedback="Please enter your preferred first and last name"
@@ -59,13 +59,17 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-import { required, minLength } from 'vuelidate/lib/validators';
+import { useVuelidate } from '@vuelidate/core';
+import { required, minLength } from '@vuelidate/validators';
 import { avatarColors } from '@/helpers/constants';
 import UserAvatar from '@/components/UserAvatar.vue';
 
 export default {
   components: {
     UserAvatar,
+  },
+  setup() {
+    return { v$: useVuelidate() };
   },
   data() {
     return {
@@ -108,7 +112,7 @@ export default {
     async handleSubmit() {
       this.formData.id = this.loggedInUser.id;
       // Exit when the form isn't valid
-      if (this.$v.formData.$invalid) {
+      if (this.v$.formData.$invalid) {
         return;
       }
       try {
