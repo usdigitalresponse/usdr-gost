@@ -323,9 +323,6 @@ export default {
       ],
     };
   },
-  validations: {
-    formData: {},
-  },
   computed: {
     ...mapGetters({
       eligibilityCodes: 'grants/eligibilityCodes',
