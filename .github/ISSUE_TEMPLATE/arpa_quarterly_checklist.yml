@@ -12,9 +12,9 @@ body:
     validations:
       required: false
   - type: textarea
-    id: checklist
+    id: Checklist
     attributes:
-      label: checklist
+      label: Checklist
       description: Adjust the provided checklist as needed
       placeholder: Add checklist here
       value: |
