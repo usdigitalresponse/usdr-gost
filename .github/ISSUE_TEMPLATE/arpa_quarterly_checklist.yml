@@ -1,66 +1,26 @@
 name: ARPA Quarterly Checklist
-description: File an issue for the ARPA quarterly Checklist
-title: "[STORY]: "
+description: File an issue for quarterly ARPA updates
+title: "ARPA Quarterly Version Update"
 projects: "Grants Team Agile Planning"
 assignees:
   - usdr-grants
-labels: ["story"]
+labels: ["arpa quarterly reporter"]
 body:
   - type: markdown
     attributes:
-      value: Thanks for taking the time to fill out this issue! Ensure that the title includes the prefix "[STORY]"
+      value: Update for the current quarter
     validations:
       required: false
   - type: textarea
-    id: user-story
+    id: checklist
     attributes:
-      label: Full User Story
-      description: User can be a partner persona or USDR admin role
-      placeholder: As a... I want to... so I can..."
-    validations:
-      required: true
-  - type: textarea
-    id: context
-    attributes:
-      label: Why is this issue important?
-      description: Provide any additional context and/or business rationale for why this work is needed
-      placeholder: "This work is important because..."
-    validations:
-      required: true
-  - type: textarea
-    id: action-plan
-    attributes:
-      label: Action Plan
-      description: Adjust the provided action plan as needed
-      placeholder: Add action plan here!
+      label: checklist
+      description: Adjust the provided checklist as needed
+      placeholder: Add checklist here
       value: |
-          - [ ] Initial design drafted
-          - [ ] Initial acceptance criteria drafted
-          - [ ] High level technical approach & feature flag use determined
-          - [ ] Designs & Acceptance criteria finalized
-          - [ ] Eng task breakout complete
-          - [ ] Assessment of whether partner training & communication actions are needed
-          - [ ] Acceptance criteria testing completed & passed in staging
-          - [ ] Feature flags enabled in production
-          - [ ] Feature flags are removed once the feature is deemed stable
-    validations:
-      required: false
-  - type: textarea
-    id: engineering-tasks
-    attributes:
-      label: Engineering Tasks
-      description: Link to engineering task issues needed to execute this story.
-      placeholder: Add tasks here!
-      value: "Add links to engineering tasks"
-    validations:
-      required: false
-  - type: textarea
-    id: acceptance-criteria
-    attributes:
-      label: Acceptance Criteria
-      description: >
-        Please provide a detailed and results-oriented acceptance criteria that will enable anyone reading it to test and verify if the implementation is successful in meeting stated behavior. 
-        While acceptance criteria should not be over-specific in how the solution is implemented, it should clarify user-oriented results of the work and behavior expectations. 
-      value: "Expected behavior includes…"
+          - [ ] Download updated zip file and guidance document from Treausury and add to google drive folder
+          - [ ] Update input template and add to google drive folder
+          - [ ] Run script to update the output file (instructions here - https://github.com/usdigitalresponse/usdr-gost/blob/main/docs/common-tasks/updating-output-templates.md)
+          - [ ] Run script to update the input file (instructions here - https://github.com/usdigitalresponse/usdr-gost/blob/main/docs/common-tasks/updating-output-templates.md)          - [ ] Identify if any other changes are needed to the tool (i.e. upload validation, field mappings, adjustments to audit report, etc)
     validations:
       required: false
