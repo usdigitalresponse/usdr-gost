@@ -1,4 +1,4 @@
-const fetchApi = require('@/helpers/fetchApi');
+import * as fetchApi from '@/helpers/fetchApi';
 
 function initialState() {
   return {
