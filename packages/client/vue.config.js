@@ -1,3 +1,4 @@
+/* eslint-disable import/no-commonjs */
 // This will be used to branch behaviors in ARPA Reporter code based on running
 // in GOST environment.
 process.env.VUE_APP_IS_GOST = true;

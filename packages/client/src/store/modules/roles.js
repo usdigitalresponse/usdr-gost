@@ -1,4 +1,4 @@
-const fetchApi = require('@/helpers/fetchApi');
+import * as fetchApi from '@/helpers/fetchApi';
 
 function initialState() {
   return {
@@ -13,8 +13,8 @@ export default {
     roles: (state) => state.roles,
   },
   actions: {
-    fetchRoles({ commit }) {
-      fetchApi.get('/api/organizations/:organizationId/roles').then((data) => commit('SET_ROLES', data));
+    fetchRoles({ commit, rootGetters }) {
+      fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/roles`).then((data) => commit('SET_ROLES', data));
     },
   },
   mutations: {
