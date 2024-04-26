@@ -40,6 +40,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { apiURL } from '@/helpers/fetchApi';
 
 export default {
@@ -58,6 +59,9 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      organizationId: 'users/selectedAgencyId',
+    }),
     uploadButtonLabel() {
       return this.uploading ? 'Uploading...' : 'Upload';
     },
@@ -80,7 +84,7 @@ export default {
       const formData = new FormData();
       formData.append('spreadsheet', file);
       try {
-        const url = apiURL(`/api/organizations/:organizationId/${this.uploadRecordType}/import`);
+        const url = apiURL(`/api/organizations/${this.organizationId}/${this.uploadRecordType}/import`);
         const options = {
           method: 'POST',
           credentials: 'include',
