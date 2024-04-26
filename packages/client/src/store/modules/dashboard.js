@@ -31,10 +31,10 @@ export default {
     totalInterestedGrantsByAgencies: (state) => state.totalInterestedGrantsByAgencies,
   },
   actions: {
-    async fetchDashboard({ commit }) {
+    async fetchDashboard({ commit, rootGetters }) {
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const timestampQueryString = twentyFourHoursAgo.toISOString();
-      const result = await fetchApi.get(`/api/organizations/:organizationId/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&grantsCreatedFromTs=${timestampQueryString}&grantsUpdatedFromTs=${timestampQueryString}&totalInterestedGrantsByAgencies=true`);
+      const result = await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/dashboard?totalGrants=true&totalViewedGrants=true&totalInterestedGrants=true&grantsCreatedFromTs=${timestampQueryString}&grantsUpdatedFromTs=${timestampQueryString}&totalInterestedGrantsByAgencies=true`);
       if (result.totalGrants) {
         commit('SET_TOTAL_GRANTS', result.totalGrants);
       }

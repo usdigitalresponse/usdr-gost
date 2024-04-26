@@ -53,23 +53,23 @@ export default {
       commit('SET_SELECTED_AGENCY', agencyId);
       localStorage.setItem('selectedAgencyId', agencyId);
     },
-    fetchUsers({ commit }) {
-      return fetchApi.get('/api/organizations/:organizationId/users')
+    fetchUsers({ commit, rootGetters }) {
+      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/users`)
         .then((data) => commit('SET_USERS', data));
     },
-    async createUser({ dispatch }, user) {
-      await fetchApi.post('/api/organizations/:organizationId/users', user);
+    async createUser({ dispatch, rootGetters }, user) {
+      await fetchApi.post(`/api/organizations/${rootGetters['users/selectedAgencyId']}/users`, user);
       await dispatch('fetchUsers');
     },
-    async updateUser({ commit }, user) {
+    async updateUser({ commit, rootGetters }, user) {
       const { id, name, avatarColor } = user;
-      const data = await fetchApi.patch(`/api/organizations/:organizationId/users/${id}`, { name, avatar_color: avatarColor });
+      const data = await fetchApi.patch(`/api/organizations/${rootGetters['users/selectedAgencyId']}/users/${id}`, { name, avatar_color: avatarColor });
       commit('SET_LOGGED_IN_USER', data.user);
     },
-    async deleteUser({ dispatch, commit }, userId) {
+    async deleteUser({ dispatch, commit, rootGetters }, userId) {
       try {
         await fetchApi.deleteRequest(
-          `/api/organizations/:organizationId/users/${userId}`,
+          `/api/organizations/${rootGetters['users/selectedAgencyId']}/users/${userId}`,
         );
       } catch (error) {
         commit('alerts/addAlert', {
@@ -79,9 +79,9 @@ export default {
       }
       await dispatch('fetchUsers');
     },
-    async updateEmailSubscriptionPreferencesForLoggedInUser({ commit, getters }, { preferences }) {
+    async updateEmailSubscriptionPreferencesForLoggedInUser({ commit, getters, rootGetters }, { preferences }) {
       const data = await fetchApi.put(
-        `/api/organizations/:organizationId/users/${getters.loggedInUser.id}/email_subscription`,
+        `/api/organizations/${rootGetters['users/selectedAgencyId']}/users/${getters.loggedInUser.id}/email_subscription`,
         {
           preferences,
         },

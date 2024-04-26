@@ -13,17 +13,17 @@ export default {
     agencies: (state) => state.agencies,
   },
   actions: {
-    fetchAgencies({ commit }) {
-      fetchApi.get('/api/organizations/:organizationId/agencies').then((data) => commit('SET_AGENCIES', data));
+    fetchAgencies({ commit, rootGetters }) {
+      fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/agencies`).then((data) => commit('SET_AGENCIES', data));
     },
-    async createAgency({ dispatch }, body) {
-      await fetchApi.post('/api/organizations/:organizationId/agencies/', body);
+    async createAgency({ dispatch, rootGetters }, body) {
+      await fetchApi.post(`/api/organizations/${rootGetters['users/selectedAgencyId']}/agencies/`, body);
       dispatch('fetchAgencies');
     },
-    async deleteAgency({ dispatch }, {
+    async deleteAgency({ dispatch, rootGetters }, {
       agencyId, parent, name, abbreviation, warningThreshold, dangerThreshold,
     }) {
-      await fetchApi.deleteRequest(`/api/organizations/:organizationId/agencies/del/${agencyId}`, {
+      await fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/agencies/del/${agencyId}`, {
         parent,
         name,
         abbreviation,
@@ -32,34 +32,34 @@ export default {
       });
       dispatch('fetchAgencies');
     },
-    async updateThresholds({ dispatch }, { agencyId, warningThreshold, dangerThreshold }) {
-      await fetchApi.put(`/api/organizations/:organizationId/agencies/${agencyId}`, {
+    async updateThresholds({ dispatch, rootGetters }, { agencyId, warningThreshold, dangerThreshold }) {
+      await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/agencies/${agencyId}`, {
         // Currently, agencies are seeded into db; only thresholds are mutable.
         warningThreshold,
         dangerThreshold,
       });
       dispatch('fetchAgencies');
     },
-    async updateAgencyName({ dispatch }, { agencyId, name }) {
-      await fetchApi.put(`/api/organizations/:organizationId/agencies/name/${agencyId}`, {
+    async updateAgencyName({ dispatch, rootGetters }, { agencyId, name }) {
+      await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/agencies/name/${agencyId}`, {
         name,
       });
       dispatch('fetchAgencies');
     },
-    async updateAgencyAbbr({ dispatch }, { agencyId, abbreviation }) {
-      await fetchApi.put(`/api/organizations/:organizationId/agencies/abbr/${agencyId}`, {
+    async updateAgencyAbbr({ dispatch, rootGetters }, { agencyId, abbreviation }) {
+      await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/agencies/abbr/${agencyId}`, {
         abbreviation,
       });
       dispatch('fetchAgencies');
     },
-    async updateAgencyCode({ dispatch }, { agencyId, code }) {
-      await fetchApi.put(`/api/organizations/:organizationId/agencies/code/${agencyId}`, {
+    async updateAgencyCode({ dispatch, rootGetters }, { agencyId, code }) {
+      await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/agencies/code/${agencyId}`, {
         code,
       });
       dispatch('fetchAgencies');
     },
-    async updateAgencyParent({ dispatch }, { agencyId, parentId }) {
-      await fetchApi.put(`/api/organizations/:organizationId/agencies/parent/${agencyId}`, {
+    async updateAgencyParent({ dispatch, rootGetters }, { agencyId, parentId }) {
+      await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/agencies/parent/${agencyId}`, {
         parentId,
       });
       dispatch('fetchAgencies');

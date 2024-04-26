@@ -121,7 +121,7 @@ export default {
     displaySavedSearchPanel: (state) => state.tableMode === tableModes.MANAGE,
   },
   actions: {
-    fetchGrants({ commit }, {
+    fetchGrants({ commit, rootGetters }, {
       currentPage, perPage, orderBy, orderDesc, searchTerm, interestedByMe,
       assignedToAgency, aging, positiveInterest, result, rejected, interestedByAgency,
       opportunityStatuses, opportunityCategories, costSharing,
@@ -134,10 +134,10 @@ export default {
         .filter(([key, value]) => value || typeof value === 'number')
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join('&');
-      return fetchApi.get(`/api/organizations/:organizationId/grants?${query}`)
+      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
     },
-    fetchGrantsNext({ commit }, {
+    fetchGrantsNext({ commit, rootGetters }, {
       currentPage, perPage, orderBy, orderDesc,
     }) {
       const pagination = { currentPage, perPage };
@@ -145,77 +145,77 @@ export default {
       const filters = { ...this.state.grants.searchFormFilters };
       const { criteriaQuery, paginationQuery, orderingQuery } = buildGrantsNextQuery({ filters, ordering, pagination });
 
-      return fetchApi.get(`/api/organizations/:organizationId/grants/next?${paginationQuery}&${orderingQuery}&${criteriaQuery}`)
+      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/next?${paginationQuery}&${orderingQuery}&${criteriaQuery}`)
         .then((data) => commit('SET_GRANTS', data));
     },
     // Retrieves grants that the user's team (or any subteam) has interacted with (either by setting status or assigning to a user).
     // Sorted in descending order by the date on which the interaction occurred (recently interacted with are first).
-    fetchGrantsInterested({ commit }, { perPage, currentPage }) {
-      return fetchApi.get(`/api/organizations/:organizationId/grants/grantsInterested/${perPage}/${currentPage}`)
+    fetchGrantsInterested({ commit, rootGetters }, { perPage, currentPage }) {
+      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/grantsInterested/${perPage}/${currentPage}`)
         .then((data) => commit('SET_GRANTS_INTERESTED', data));
     },
     // Retrieves grants that the user's team (or any subteam) is interested in and that have closing dates in the future.
     // Sorted in ascending order by the closing date (grants that close soonest are first).
-    fetchClosestGrants({ commit }, { perPage, currentPage }) {
-      return fetchApi.get(`/api/organizations/:organizationId/grants/closestGrants/${perPage}/${currentPage}`)
+    fetchClosestGrants({ commit, rootGetters }, { perPage, currentPage }) {
+      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/closestGrants/${perPage}/${currentPage}`)
         .then((data) => commit('SET_CLOSEST_GRANTS', data));
     },
-    fetchGrantDetails({ commit }, { grantId }) {
-      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/grantDetails`)
+    fetchGrantDetails({ commit, rootGetters }, { grantId }) {
+      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/grantDetails`)
         .then((data) => commit('SET_GRANT_CURRENT', data));
     },
-    markGrantAsViewed(context, { grantId, agencyId }) {
-      return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/view/${agencyId}`);
+    markGrantAsViewed({ rootGetters }, { grantId, agencyId }) {
+      return fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/view/${agencyId}`);
     },
-    getGrantAssignedAgencies(context, { grantId }) {
-      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`);
+    getGrantAssignedAgencies({ rootGetters }, { grantId }) {
+      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/assign/agencies`);
     },
-    getInterestedAgencies(context, { grantId }) {
-      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/interested`);
+    getInterestedAgencies({ rootGetters }, { grantId }) {
+      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested`);
     },
-    assignAgenciesToGrant(context, { grantId, agencyIds }) {
-      return fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
+    assignAgenciesToGrant({ rootGetters }, { grantId, agencyIds }) {
+      return fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/assign/agencies`, {
         agencyIds,
       });
     },
-    unassignAgenciesToGrant(context, { grantId, agencyIds }) {
-      return fetchApi.deleteRequest(`/api/organizations/:organizationId/grants/${grantId}/assign/agencies`, {
+    unassignAgenciesToGrant({ rootGetters }, { grantId, agencyIds }) {
+      return fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/assign/agencies`, {
         agencyIds,
       });
     },
-    unmarkGrantAsInterested(context, {
+    unmarkGrantAsInterested({ rootGetters }, {
       grantId, agencyIds, interestedCode, agencyId,
     }) {
-      return fetchApi.deleteRequest(`/api/organizations/:organizationId/grants/${grantId}/interested/${agencyId}`, {
+      return fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested/${agencyId}`, {
         agencyIds,
         interestedCode,
       });
     },
-    fetchInterestedAgencies(context, { grantId }) {
-      return fetchApi.get(`/api/organizations/:organizationId/grants/${grantId}/interested`);
+    fetchInterestedAgencies({ rootGetters }, { grantId }) {
+      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested`);
     },
-    async markGrantAsInterested({ commit }, { grantId, agencyId, interestedCode }) {
-      const interestedAgencies = await fetchApi.put(`/api/organizations/:organizationId/grants/${grantId}/interested/${agencyId}`, {
+    async markGrantAsInterested({ commit, rootGetters }, { grantId, agencyId, interestedCode }) {
+      const interestedAgencies = await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested/${agencyId}`, {
         interestedCode,
       });
       commit('UPDATE_GRANT', { grantId, data: { interested_agencies: interestedAgencies } });
     },
-    fetchEligibilityCodes({ commit }) {
-      fetchApi.get('/api/organizations/:organizationId/eligibility-codes')
+    fetchEligibilityCodes({ commit, rootGetters }) {
+      fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/eligibility-codes`)
         .then((data) => commit('SET_ELIGIBILITY_CODES', data));
     },
-    fetchSearchConfig({ commit }) {
-      fetchApi.get('/api/organizations/:organizationId/search-config')
+    fetchSearchConfig({ commit, rootGetters }) {
+      fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/search-config`)
         .then((data) => commit('SET_SEARCH_CONFIG', data));
     },
-    fetchInterestedCodes({ commit }) {
-      fetchApi.get('/api/organizations/:organizationId/interested-codes')
+    fetchInterestedCodes({ commit, rootGetters }) {
+      fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/interested-codes`)
         .then((data) => commit('SET_INTERESTED_CODES', data));
     },
-    async setEligibilityCodeEnabled(context, { code, enabled }) {
-      await fetchApi.put(`/api/organizations/:organizationId/eligibility-codes/${code}/enable/${enabled}`);
+    async setEligibilityCodeEnabled({ rootGetters }, { code, enabled }) {
+      await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/eligibility-codes/${code}/enable/${enabled}`);
     },
-    async fetchSavedSearches({ commit }, {
+    async fetchSavedSearches({ commit, rootGetters }, {
       currentPage, perPage,
     }) {
       // TODO: Add pagination URL parameters.
@@ -225,17 +225,17 @@ export default {
         .filter(([key, value]) => value || typeof value === 'number')
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join('&');
-      const data = await fetchApi.get(`/api/organizations/:organizationId/grants-saved-search?${paginationQuery}`);
+      const data = await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants-saved-search?${paginationQuery}`);
       commit('SET_SAVED_SEARCHES', data);
     },
-    async createSavedSearch(context, { searchInfo }) {
-      return fetchApi.post('/api/organizations/:organizationId/grants-saved-search', searchInfo);
+    async createSavedSearch({ rootGetters }, { searchInfo }) {
+      return fetchApi.post(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants-saved-search`, searchInfo);
     },
-    async updateSavedSearch(context, { searchId, searchInfo }) {
-      await fetchApi.put(`/api/organizations/:organizationId/grants-saved-search/${searchId}`, searchInfo);
+    async updateSavedSearch({ rootGetters }, { searchId, searchInfo }) {
+      await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants-saved-search/${searchId}`, searchInfo);
     },
-    async deleteSavedSearch(context, { searchId }) {
-      await fetchApi.deleteRequest(`/api/organizations/:organizationId/grants-saved-search/${searchId}`);
+    async deleteSavedSearch({ rootGetters }, { searchId }) {
+      await fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants-saved-search/${searchId}`);
     },
     changeSelectedSearchId({ commit }, searchId) {
       commit('SET_SELECTED_SEARCH_ID', searchId);
@@ -243,20 +243,20 @@ export default {
     changeEditingSearchId({ commit }, searchId) {
       commit('SET_EDITING_SEARCH_ID', searchId);
     },
-    exportCSV({
+    exportCSV({ rootGetters }, {
       currentPage, perPage, orderBy, orderDesc,
     }) {
       const pagination = { currentPage, perPage };
       const ordering = { orderBy, orderDesc };
       const filters = { ...this.state.grants.searchFormFilters };
       const { criteriaQuery, paginationQuery, orderingQuery } = buildGrantsNextQuery({ filters, ordering, pagination });
-      const navUrl = fetchApi.apiURL(fetchApi.addOrganizationId(
-        `/api/organizations/:organizationId/grants/exportCSVNew?${paginationQuery}&${orderingQuery}&${criteriaQuery}`,
-      ));
+      const navUrl = fetchApi.apiURL(
+        `/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/exportCSVNew?${paginationQuery}&${orderingQuery}&${criteriaQuery}`,
+      );
       window.location = navUrl;
     },
-    exportCSVRecentActivities() {
-      window.location = fetchApi.apiURL(fetchApi.addOrganizationId('/api/organizations/:organizationId/grants/exportCSVRecentActivities'));
+    exportCSVRecentActivities({ rootGetters }) {
+      window.location = fetchApi.apiURL(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/exportCSVRecentActivities`);
     },
     applyFilters(context, filters) {
       context.commit('APPLY_FILTERS', filters);
