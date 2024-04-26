@@ -150,7 +150,6 @@ export default {
       savedSearchFields: [{ key: 'searchinfo', label: 'Saved Search' }],
     };
   },
-  validations: {},
   computed: {
     ...mapGetters({
       savedSearches: 'grants/savedSearches',
