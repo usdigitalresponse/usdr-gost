@@ -45,11 +45,21 @@
         </div>
       </form>
       <div
-        v-if="message"
-        :class="messageClass"
+        v-if="serverResponse"
         class="mt-3"
+        :class="{
+          'alert alert-success': serverResponse.success,
+          'alert alert-danger': !serverResponse.success,
+        }"
       >
-        {{ message }}
+        {{ serverResponse.message }}
+      </div>
+      <div
+        v-for="error of v$.$errors"
+        :key="error.$uid"
+        class="mt-3 alert alert-danger"
+      >
+        {{ error.$message }}
       </div>
       <hr class="my-4">
       <p>
@@ -68,64 +78,64 @@
 <script>
 /* eslint-disable import/no-unresolved */
 import { apiURL } from '@/helpers/fetchApi';
-import _ from 'lodash-checkit';
+import { useVuelidate } from '@vuelidate/core';
+import { required, email, helpers } from '@vuelidate/validators';
 
 export default {
   name: 'LoginView',
+  setup() {
+    return { v$: useVuelidate() };
+  },
   data() {
-    const message = _.get(this, '$route.query.message', null);
-    const messageClass = message ? 'alert alert-danger' : '';
-    const redirectTo = _.get(this, '$route.query.redirect_to', null);
+    const serverResponse = this.$route.query.message && {
+      message: this.$route.query.message,
+      success: false, // If message is present in the URL, it's because of an error (e.g., invalid token)
+    };
     return {
       email: '',
-      message,
-      messageClass,
-      redirectTo,
+      serverResponse,
     };
   },
+  validations: {
+    email: {
+      required: helpers.withMessage('Please enter an email address', required),
+      email: helpers.withMessage('Please enter a valid email address', email),
+    },
+  },
   methods: {
-    login(e) {
-      e.preventDefault();
-      if (!this.email) {
-        this.message = 'Email cannot be blank';
-        this.messageClass = 'alert alert-danger';
+    async login(event) {
+      event.preventDefault();
+      this.serverResponse = null;
+      if (!(await this.v$.$validate())) {
         return;
       }
-      if (!_.isEmail(this.email)) {
-        this.message = `'${this.email}' is not a valid email address`;
-        this.messageClass = 'alert alert-danger';
-        return;
-      }
+      this.v$.$reset();
 
-      const bodyRaw = { email: this.email };
-      if (this.redirectTo) {
-        bodyRaw.redirect_to = this.redirectTo;
-      }
-
-      const body = JSON.stringify(bodyRaw);
+      const body = JSON.stringify({
+        email: this.email,
+        redirect_to: this.$route.query.redirect_to || this.$router.resolve('/').href,
+      });
       const headers = {
         'Content-Type': 'application/json',
       };
-      let resStatus = 0;
       fetch(apiURL('/api/sessions'), { method: 'POST', headers, body })
         .then((r) => {
-          resStatus = r.status;
           if (!r.ok) throw new Error(`login: ${r.statusText} (${r.status})`);
           return r;
         })
         .then((r) => r.json())
         .then((r) => {
-          this.email = '';
-          this.message = r.message;
-          this.messageClass = r.success
-            ? 'alert alert-success'
-            : 'alert alert-danger';
+          this.serverResponse = {
+            message: r.message,
+            success: r.success,
+          };
         })
-        .catch((err) => {
-          this.message = resStatus === 500
-            ? 'There was a problem at USDR. Try again in a minute or two, and if you still receive the same error, contact the USDR team.'
-            : err.message;
-          this.messageClass = 'alert alert-danger';
+        .catch((error) => {
+          this.serverResponse = {
+            message: error.message
+              || 'There was a problem at USDR. Try again in a minute or two, and if you still receive the same error, contact the USDR team.',
+            success: false,
+          };
         });
     },
   },

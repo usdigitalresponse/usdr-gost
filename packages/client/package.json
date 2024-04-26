@@ -26,7 +26,6 @@
     "core-js": "^3.21.1",
     "jquery": "3.6.0",
     "lodash": "^4.17.21",
-    "lodash-checkit": "^2.3.3",
     "luxon": "^3.4.3",
     "moment": "^2.29.2",
     "numeral": "^2.0.6",
