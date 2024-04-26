@@ -10722,7 +10722,7 @@ locate-path@^6.0.0:
   dependencies:
     p-locate "^5.0.0"
 
-lodash-checkit@^2.3.3, lodash-checkit@^2.4.1:
+lodash-checkit@^2.4.1:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/lodash-checkit/-/lodash-checkit-2.4.1.tgz#8b09c6b359a5d4de86f752ff9c231f1db5d23fd4"
   integrity sha512-OAg5CqY04/dnsO8izxXqlleuj7z/dOk6yV0pm0TVtRaUwG5v2PGw4XWSIG/dLK0UWYk7g0/TCk8OCf50oVwv6w==
