@@ -1,3 +1,4 @@
+/* eslint-disable import/no-commonjs */
 module.exports = {
   root: true,
   env: {
@@ -28,6 +29,7 @@ module.exports = {
     'no-restricted-syntax': 'off',
 
     'import/prefer-default-export': 'off',
+    'import/no-commonjs': 'error',
     'import-alias/import-alias': [
       'error',
       {
