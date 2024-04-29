@@ -26,7 +26,7 @@ describe('EditOrganization.vue', () => {
     });
     it('should have the title Edit Organization', () => {
       const heading = wrapper.get('#edit-tenant-modal');
-      expect(heading.attributes().title).to.eql('Edit Organization');
+      expect(heading.attributes().title).toEqual('Edit Organization');
     });
   });
 });

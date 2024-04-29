@@ -30,10 +30,10 @@ describe('PageNavigation.vue', () => {
       mocks: { $route },
     });
     const navbars = wrapper.findAll('nav.navbar');
-    expect(navbars.length).to.equal(1); // has one navbar element
+    expect(navbars.length).toBe(1);
 
     const navs = wrapper.findAll('ul.nav');
-    expect(navs.length).to.equal(1); // has one nav element
+    expect(navs.length).toBe(1);
   });
 
   it('include title', () => {

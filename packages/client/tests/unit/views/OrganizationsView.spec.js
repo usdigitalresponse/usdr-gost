@@ -44,7 +44,7 @@ describe('OrganizationsView.vue', () => {
     });
     it('should show the Organizations heading', () => {
       const heading = wrapper.find('h2');
-      expect(heading.text()).to.eql('Organizations');
+      expect(heading.text()).toEqual('Organizations');
     });
   });
 });

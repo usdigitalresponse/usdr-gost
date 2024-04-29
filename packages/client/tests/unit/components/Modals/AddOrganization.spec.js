@@ -26,7 +26,7 @@ describe('AddOrganization.vue', () => {
     });
     it('should have the title Add Organization', () => {
       const heading = wrapper.get('#add-tenant-modal');
-      expect(heading.attributes().title).to.eql('Add Organization');
+      expect(heading.attributes().title).toEqual('Add Organization');
     });
   });
 });

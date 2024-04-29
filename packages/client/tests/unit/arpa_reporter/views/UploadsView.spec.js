@@ -85,7 +85,7 @@ describe('UploadsView.vue', () => {
     await wrapper.vm.$nextTick();
     await t.vm.$nextTick();
     const tableHtml = t.html();
-    expect(tableHtml.indexOf('11111111') < tableHtml.indexOf('00000000')).to.equal(true);
+    expect(tableHtml.indexOf('11111111') < tableHtml.indexOf('00000000')).toBe(true);
   });
 });
 

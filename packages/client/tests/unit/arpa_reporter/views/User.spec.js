@@ -38,7 +38,7 @@ describe('UserView.vue', () => {
 
     await wrapper.setData({ user: {} });
     const form = wrapper.findComponent({ name: 'StandardForm' });
-    expect(form.exists()).to.equal(true);
+    expect(form.exists()).toBe(true);
   });
 });
 

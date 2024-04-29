@@ -33,8 +33,8 @@ describe('featureFlags', () => {
           window.APP_CONFIG = { featureFlags: expectedFeatureFlags };
           const actualFeatureFlags = getFeatureFlags();
           expect(actualFeatureFlags.useFoo).to.be.true;
-          expect(actualFeatureFlags.numberFlag).to.equal(1234);
-          expect(actualFeatureFlags).to.eql(expectedFeatureFlags);
+          expect(actualFeatureFlags.numberFlag).toBe(1234);
+          expect(actualFeatureFlags).toEqual(expectedFeatureFlags);
         });
         it('Ignores session storage overrides when JSON is malformed', () => {
           window.sessionStorage.setItem('featureFlags', 'i}am]not,JS;ON>{');
@@ -42,8 +42,8 @@ describe('featureFlags', () => {
           window.APP_CONFIG = { featureFlags: expectedFeatureFlags };
           const actualFeatureFlags = getFeatureFlags();
           expect(actualFeatureFlags.useFoo).to.be.true;
-          expect(actualFeatureFlags.numberFlag).to.equal(1234);
-          expect(actualFeatureFlags).to.eql(expectedFeatureFlags);
+          expect(actualFeatureFlags.numberFlag).toBe(1234);
+          expect(actualFeatureFlags).toEqual(expectedFeatureFlags);
         });
         it('Overrides feature flag values from session storage', () => {
           const defaultFeatureFlags = { useFoo: true, numberFlag: 1234 };
@@ -52,10 +52,10 @@ describe('featureFlags', () => {
           window.sessionStorage.setItem('featureFlags', JSON.stringify(overriddenFeatureFlags));
           const actualFeatureFlags = getFeatureFlags();
           expect(actualFeatureFlags.useFoo).to.be.false;
-          expect(actualFeatureFlags.numberFlag).to.equal(1234);
-          expect(actualFeatureFlags.stringFlag).to.equal('hi!');
-          expect(actualFeatureFlags).to.not.eql(defaultFeatureFlags);
-          expect(actualFeatureFlags).to.eql({ useFoo: false, numberFlag: 1234, stringFlag: 'hi!' });
+          expect(actualFeatureFlags.numberFlag).toBe(1234);
+          expect(actualFeatureFlags.stringFlag).toBe('hi!');
+          expect(actualFeatureFlags).not.toEqual(defaultFeatureFlags);
+          expect(actualFeatureFlags).toEqual({ useFoo: false, numberFlag: 1234, stringFlag: 'hi!' });
         });
       });
     });

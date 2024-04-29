@@ -34,7 +34,7 @@ describe('AddTeam.vue', () => {
     });
     it('should have the title Add Team', () => {
       const heading = wrapper.get('#add-agency-modal');
-      expect(heading.attributes().title).to.eql('Add Team');
+      expect(heading.attributes().title).toEqual('Add Team');
     });
   });
 });

@@ -39,7 +39,7 @@ describe('EditTeam.vue', () => {
     });
     it('should have the title Edit Team', () => {
       const heading = wrapper.get('#edit-agency-modal');
-      expect(heading.attributes().title).to.eql('Edit Team');
+      expect(heading.attributes().title).toEqual('Edit Team');
     });
   });
 });

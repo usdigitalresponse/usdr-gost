@@ -48,18 +48,18 @@ describe('gtag', () => {
     it('does not error when called and GA not enabled', () => {
       delete window.gtag;
       delete window.APP_CONFIG.GOOGLE_TAG_ID;
-      expect(() => setUserForGoogleAnalytics(user)).to.not.throw();
+      expect(() => setUserForGoogleAnalytics(user)).not.toThrow();
       expect(observedGtagArgs).to.be.null;
     });
     it('enables GA debug mode when instructed via APP_CONFIG', () => {
       window.APP_CONFIG.GOOGLE_ANALYTICS_DEBUG = true;
       setUserForGoogleAnalytics(user);
-      expect(observedGtagArgs[2]).to.have.property('debug_mode', true);
+      expect(observedGtagArgs[2]).toHaveProperty('debug_mode');
     });
     it('disables GA debug mode when not instructed via APP_CONFIG', () => {
       window.APP_CONFIG.GOOGLE_ANALYTICS_DEBUG = undefined;
       setUserForGoogleAnalytics(user);
-      expect(observedGtagArgs[2]).to.not.have.property('debug_mode');
+      expect(observedGtagArgs[2]).not.toHaveProperty('debug_mode');
     });
   });
 });
