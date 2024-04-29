@@ -40,7 +40,7 @@ describe('server/lib/format', () => {
     });
     it('passes through non-string values', () => {
       expect(capitalizeFirstLetter(123)).toBe(123);
-      expect(capitalizeFirstLetter([])).toBe([]);
+      expect(capitalizeFirstLetter([])).toEqual([]);
     });
   });
 
@@ -60,7 +60,7 @@ describe('server/lib/format', () => {
     });
     it('passes through non-numeric values', () => {
       expect(capitalizeFirstLetter('123')).toBe('123');
-      expect(capitalizeFirstLetter([])).toBe([]);
+      expect(capitalizeFirstLetter([])).toEqual([]);
     });
   });
 
@@ -109,7 +109,7 @@ describe('server/lib/format', () => {
     });
     it('passes through non-string values', () => {
       expect(capitalizeFirstLetter(123)).toBe(123);
-      expect(capitalizeFirstLetter([])).toBe([]);
+      expect(capitalizeFirstLetter([])).toEqual([]);
     });
   });
 
