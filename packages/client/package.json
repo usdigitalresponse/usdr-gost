@@ -23,7 +23,6 @@
     "@vuelidate/validators": "^2.0.4",
     "bootstrap": "^4.6.1",
     "bootstrap-vue": "^2.19.0",
-    "core-js": "^3.21.1",
     "jquery": "3.6.0",
     "lodash": "^4.17.21",
     "luxon": "^3.4.3",
