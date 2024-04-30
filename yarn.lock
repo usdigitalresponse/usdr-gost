@@ -319,14 +319,14 @@
     tslib "^2.6.2"
 
 "@aws-sdk/client-ses@^3.312.0":
-  version "3.564.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ses/-/client-ses-3.564.0.tgz#414864363423d010782072ed18014d4d236762db"
-  integrity sha512-3AArBRnIHdxoKurSO2iJ3/dBDclx8O+Q9PCJXZdryFxaiLZdLD9Vfe0/4rU8odObQ7lcIkhs4JiqQKJL5rFcpQ==
+  version "3.565.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-ses/-/client-ses-3.565.0.tgz#92c8b72e21522d0b84d4f2400e96dba5e1bb96da"
+  integrity sha512-6xtj62iNd+K5TR2TeP0UDQSAmakuhMCQVj4BTLPfE1JFGHiUQqHgXyg+jTPIDeHCBbinr+duocU4W53PpyF6vQ==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
     "@aws-sdk/core" "3.556.0"
-    "@aws-sdk/credential-provider-node" "3.564.0"
+    "@aws-sdk/credential-provider-node" "3.565.0"
     "@aws-sdk/middleware-host-header" "3.535.0"
     "@aws-sdk/middleware-logger" "3.535.0"
     "@aws-sdk/middleware-recursion-detection" "3.535.0"
