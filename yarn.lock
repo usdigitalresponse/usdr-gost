@@ -6744,9 +6744,9 @@ dc-polyfill@^0.1.4:
   integrity sha512-8iwEduR2jR9wWYggeaYtYZWRiUe3XZPyAQtMTL1otv8X3kfR8xUIVb4l5awHEeyDrH6Je7N324lKzMKlMMN6Yw==
 
 dd-trace@^4.11.1:
-  version "4.35.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.35.0.tgz#01f7beb53ab9a114fde65255547cc1ce156b2d2b"
-  integrity sha512-O4fnZbh1fZFxYzEKllncRZms2H/dYi4KmP09zMGNduBhwrkl2zU4OTuVcigKQTpOivu1rKee4NNdGo1/IJ8zMw==
+  version "4.36.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.36.0.tgz#43050d26cdbfd28b2a5a3b0789b8ec5a3d6c6710"
+  integrity sha512-laJAgOoz9ly+6h7pcizAjl28oKZYndZr1VMzxuJRpgSIjmeXfCOuILTtF4cY7OC1LKSGH43wjHRAP6FYw9793g==
   dependencies:
     "@datadog/native-appsec" "7.1.1"
     "@datadog/native-iast-rewriter" "2.3.0"
