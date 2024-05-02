@@ -41,3 +41,6 @@ postgres_apply_changes_immediately = true
 
 // Consume Grants
 consume_grants_source_event_bus_name = "default"
+
+// Email
+email_enable_tracking = false
