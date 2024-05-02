@@ -908,6 +908,21 @@
     "@smithy/util-config-provider" "^2.3.0"
     tslib "^2.6.2"
 
+"@aws-sdk/middleware-sdk-s3@3.567.0":
+  version "3.567.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-sdk-s3/-/middleware-sdk-s3-3.567.0.tgz#aca0f81f81ee0830399d74b20802f87cd9b0768c"
+  integrity sha512-isJJt3sdQ3V+kBk2gZvG6wVx/PYHSixGs2ahzQT5OOQfmUBBjm4O7bQKmCkfGYEU16vRl38BLiQokS/YSKIGVw==
+  dependencies:
+    "@aws-sdk/types" "3.567.0"
+    "@aws-sdk/util-arn-parser" "3.567.0"
+    "@smithy/node-config-provider" "^2.3.0"
+    "@smithy/protocol-http" "^3.3.0"
+    "@smithy/signature-v4" "^2.3.0"
+    "@smithy/smithy-client" "^2.5.1"
+    "@smithy/types" "^2.12.0"
+    "@smithy/util-config-provider" "^2.3.0"
+    tslib "^2.6.2"
+
 "@aws-sdk/middleware-sdk-sqs@3.552.0":
   version "3.552.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-sdk-sqs/-/middleware-sdk-sqs-3.552.0.tgz#18e3eae0682804814efefc14d2cd5acdb909637f"
@@ -1007,13 +1022,13 @@
     tslib "^2.6.2"
 
 "@aws-sdk/s3-request-presigner@^3.312.0":
-  version "3.565.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.565.0.tgz#8c0320a56ab59098607351bd66899d6385f21131"
-  integrity sha512-T4YNERzd6wmWCwhzeedgA2P0GmB1gTOioQrRqN8sYgvUtiplEFPLdgExyOedy9fE+oUvdTgUHFGv8gaU+UzwTw==
+  version "3.567.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.567.0.tgz#6ae6e59914ed9d976ce6cb31e675acc4a80ef9ac"
+  integrity sha512-Ht8ziM+ZcD3WiEwTgFNdJ7dU7cezroT974VXVOwzcwNWwi4Vod7WfQARoR0Rz8vVDlwl3YlC+olnSk1dEyoIAw==
   dependencies:
-    "@aws-sdk/signature-v4-multi-region" "3.556.0"
-    "@aws-sdk/types" "3.535.0"
-    "@aws-sdk/util-format-url" "3.535.0"
+    "@aws-sdk/signature-v4-multi-region" "3.567.0"
+    "@aws-sdk/types" "3.567.0"
+    "@aws-sdk/util-format-url" "3.567.0"
     "@smithy/middleware-endpoint" "^2.5.1"
     "@smithy/protocol-http" "^3.3.0"
     "@smithy/smithy-client" "^2.5.1"
@@ -1027,6 +1042,18 @@
   dependencies:
     "@aws-sdk/middleware-sdk-s3" "3.556.0"
     "@aws-sdk/types" "3.535.0"
+    "@smithy/protocol-http" "^3.3.0"
+    "@smithy/signature-v4" "^2.3.0"
+    "@smithy/types" "^2.12.0"
+    tslib "^2.6.2"
+
+"@aws-sdk/signature-v4-multi-region@3.567.0":
+  version "3.567.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/signature-v4-multi-region/-/signature-v4-multi-region-3.567.0.tgz#1626c06e3c38e85c85364bcdbfdf3686eb617306"
+  integrity sha512-LYoWyMSaI/tOhcyOFgUjsYKEab67D0Scu5JaFbjDV15UZYfpitlWq5TEuEJvSeyn3+y+yDEHT3sxu4RTd9ya7g==
+  dependencies:
+    "@aws-sdk/middleware-sdk-s3" "3.567.0"
+    "@aws-sdk/types" "3.567.0"
     "@smithy/protocol-http" "^3.3.0"
     "@smithy/signature-v4" "^2.3.0"
     "@smithy/types" "^2.12.0"
@@ -1077,6 +1104,13 @@
   dependencies:
     tslib "^2.6.2"
 
+"@aws-sdk/util-arn-parser@3.567.0":
+  version "3.567.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/util-arn-parser/-/util-arn-parser-3.567.0.tgz#0193076a01818c6f2fe1ebd76496ede4da8f0e35"
+  integrity sha512-d9WZWPrymGAFLVGe0qysH3cv576NsHDWP9F4ZIiJrM/71pB4/C9XXKfRVZXyexO6KMDEr2Lv0Jx1Lb+FF4ZsqQ==
+  dependencies:
+    tslib "^2.6.2"
+
 "@aws-sdk/util-endpoints@3.540.0":
   version "3.540.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/util-endpoints/-/util-endpoints-3.540.0.tgz#a7fea1d2a5e64623353aaa6ee32dbb86ab9cd3f8"
@@ -1103,6 +1137,16 @@
   integrity sha512-ElbNkm0bddu53CuW44Iuux1ZbTV50fydbSh/4ypW3LrmUvHx193ogj0HXQ7X26kmmo9rXcsrLdM92yIeTjidVg==
   dependencies:
     "@aws-sdk/types" "3.535.0"
+    "@smithy/querystring-builder" "^2.2.0"
+    "@smithy/types" "^2.12.0"
+    tslib "^2.6.2"
+
+"@aws-sdk/util-format-url@3.567.0":
+  version "3.567.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/util-format-url/-/util-format-url-3.567.0.tgz#823785d1287ea7df011f9fc9fcf06ed896e16591"
+  integrity sha512-zqfuUrSFVYoT02mWnHaP0I7TRjjS3ZE8GhAVyHRUvVOv/O2dFWopFI9jFtMsT21vns7c9yQ1ACH/Kcn3s9t2EQ==
+  dependencies:
+    "@aws-sdk/types" "3.567.0"
     "@smithy/querystring-builder" "^2.2.0"
     "@smithy/types" "^2.12.0"
     tslib "^2.6.2"
