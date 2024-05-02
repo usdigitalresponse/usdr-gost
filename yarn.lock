@@ -365,24 +365,24 @@
     tslib "^2.6.2"
 
 "@aws-sdk/client-sqs@^3.345.0":
-  version "3.565.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sqs/-/client-sqs-3.565.0.tgz#0024ca5b0dcbc675c3c45f4bd3c8678a77fd193a"
-  integrity sha512-hjuCcdXMTZe2mev7Ru6Q4wHJZ1YzMp6QDepnroOQP6vF2LaTs8NXQYBgjhAudAHYeyKbo4DK/j0yO67mYdbjow==
+  version "3.567.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sqs/-/client-sqs-3.567.0.tgz#e84df6f01f6bae9edc898f79c1b7204ab2263010"
+  integrity sha512-0S8LcsMYDm4At8CGL+KbzH8411J0zaoMJ9+bvYsN43BMrAt5/90KmmnSzwnCAqjQgpYW6N/5ZIhgR3+TvFHq/g==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/core" "3.556.0"
-    "@aws-sdk/credential-provider-node" "3.565.0"
-    "@aws-sdk/middleware-host-header" "3.535.0"
-    "@aws-sdk/middleware-logger" "3.535.0"
-    "@aws-sdk/middleware-recursion-detection" "3.535.0"
-    "@aws-sdk/middleware-sdk-sqs" "3.552.0"
-    "@aws-sdk/middleware-user-agent" "3.540.0"
-    "@aws-sdk/region-config-resolver" "3.535.0"
-    "@aws-sdk/types" "3.535.0"
-    "@aws-sdk/util-endpoints" "3.540.0"
-    "@aws-sdk/util-user-agent-browser" "3.535.0"
-    "@aws-sdk/util-user-agent-node" "3.535.0"
+    "@aws-sdk/core" "3.567.0"
+    "@aws-sdk/credential-provider-node" "3.567.0"
+    "@aws-sdk/middleware-host-header" "3.567.0"
+    "@aws-sdk/middleware-logger" "3.567.0"
+    "@aws-sdk/middleware-recursion-detection" "3.567.0"
+    "@aws-sdk/middleware-sdk-sqs" "3.567.0"
+    "@aws-sdk/middleware-user-agent" "3.567.0"
+    "@aws-sdk/region-config-resolver" "3.567.0"
+    "@aws-sdk/types" "3.567.0"
+    "@aws-sdk/util-endpoints" "3.567.0"
+    "@aws-sdk/util-user-agent-browser" "3.567.0"
+    "@aws-sdk/util-user-agent-node" "3.567.0"
     "@smithy/config-resolver" "^2.2.0"
     "@smithy/core" "^1.4.2"
     "@smithy/fetch-http-handler" "^2.5.0"
@@ -908,12 +908,12 @@
     "@smithy/util-config-provider" "^2.3.0"
     tslib "^2.6.2"
 
-"@aws-sdk/middleware-sdk-sqs@3.552.0":
-  version "3.552.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-sdk-sqs/-/middleware-sdk-sqs-3.552.0.tgz#18e3eae0682804814efefc14d2cd5acdb909637f"
-  integrity sha512-s3xy3FJSj5Bpxfk8o48SQ8DCDqZ03V3nlpblrFpCbOfdMFkxkdFkTE3F+bx+uAL+iFfW46lHvsukTb95AZJzZQ==
+"@aws-sdk/middleware-sdk-sqs@3.567.0":
+  version "3.567.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/middleware-sdk-sqs/-/middleware-sdk-sqs-3.567.0.tgz#27ce367a5564dc257efb702d9aecdbf5187ecf23"
+  integrity sha512-jQnno42ERijEKj9r0ZFZHchPw2NYPFYj8ekGKZAAACXz61EpxbTzPQSbbUh9Xsm00E7xHCJ7eM/wSLhUIRLOdQ==
   dependencies:
-    "@aws-sdk/types" "3.535.0"
+    "@aws-sdk/types" "3.567.0"
     "@smithy/smithy-client" "^2.5.1"
     "@smithy/types" "^2.12.0"
     "@smithy/util-hex-encoding" "^2.2.0"
