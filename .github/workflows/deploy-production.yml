@@ -184,7 +184,7 @@ jobs:
       - name: Upload release assets
         run: |
           WEBSITE_TAR_FILE="client-dist.tar.gz"
-          tar -czf "$WEBSITE_TAR_FILE" -C $(dirname "$WEBSITE_DIST_PATH") .
+          tar -czf "$WEBSITE_TAR_FILE" -C $(dirname "$WEBSITE_DIST_PATH") ./dist
           gh release upload --clobber "$RELEASE_TAG" \
             "$WEBSITE_TAR_FILE#Client website bundle" \
             "$PROVENANCE_FILE#Server Docker image provenance attestations" \
