@@ -1,12 +1,10 @@
 import { expect } from 'chai';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import Vuelidate from 'vuelidate';
 import EditTeam from '@/components/Modals/EditTeam.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
-localVue.use(Vuelidate);
 
 let store;
 let wrapper;

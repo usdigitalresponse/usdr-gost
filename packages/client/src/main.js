@@ -10,15 +10,13 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import vSelect from 'vue-select';
-import Vuelidate from 'vuelidate';
 import { setUserForGoogleAnalytics } from '@/helpers/gtag';
 import App from '@/App.vue';
 import router from '@/router';
 import store from '@/store';
+import * as fetchApi from '@/helpers/fetchApi';
 import '@/assets/fix-sticky-headers.css';
 import '@/assets/adjust-vue-select.css';
-
-const fetchApi = require('@/helpers/fetchApi');
 
 if (window.APP_CONFIG?.GOOGLE_TAG_ID) {
   store.watch((state) => state.users.loggedInUser, (newUser) => setUserForGoogleAnalytics(newUser));
@@ -32,7 +30,6 @@ store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser
 Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
-Vue.use(Vuelidate);
 Vue.use(VueRouter);
 Vue.component('VSelect', vSelect);
 

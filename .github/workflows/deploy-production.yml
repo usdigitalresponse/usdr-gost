@@ -162,7 +162,7 @@ jobs:
       RELEASE_TAG: ${{ github.ref_name }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        uses: step-security/harden-runner@a4aa98b93cab29d9b1101a6143fb8bce00e2eac4 # v2.7.1
         with:
           disable-sudo: true
           egress-policy: block
@@ -170,21 +170,21 @@ jobs:
             api.github.com:443
             uploads.github.com:443
             github.com:443
-      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
       - name: Download website build artifacts
-        uses: actions/download-artifact@9c19ed7fe5d278cd354c7dfd5d3b88589c7e2395 # v4.1.6
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: ${{ needs.build.outputs.website-artifacts-key }}
           path: ${{ needs.build.outputs.website-artifacts-path }}
       - name: Download docker build attestation artifacts
-        uses: actions/download-artifact@9c19ed7fe5d278cd354c7dfd5d3b88589c7e2395 # v4.1.6
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: ${{ needs.build.outputs.server-attestation-artifacts-key }}
           path: ${{ needs.build.outputs.server-attestation-artifacts-path }}
       - name: Upload release assets
         run: |
           WEBSITE_TAR_FILE="client-dist.tar.gz"
-          tar -czf "$WEBSITE_TAR_FILE" -C $(dirname "$WEBSITE_DIST_PATH") .
+          tar -czf "$WEBSITE_TAR_FILE" -C $(dirname "$WEBSITE_DIST_PATH") ./dist
           gh release upload --clobber "$RELEASE_TAG" \
             "$WEBSITE_TAR_FILE#Client website bundle" \
             "$PROVENANCE_FILE#Server Docker image provenance attestations" \

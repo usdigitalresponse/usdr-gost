@@ -5,7 +5,7 @@
       ref="modal"
       v-model="modalVisible"
       title="Add User"
-      :ok-disabled="$v.formData.$invalid"
+      :ok-disabled="v$.formData.$invalid"
       @ok="handleOk"
     >
       <form
@@ -13,7 +13,7 @@
         @submit.stop.prevent="handleSubmit"
       >
         <b-form-group
-          :state="!$v.formData.email.$invalid"
+          :state="!v$.formData.email.$invalid"
           label="Email"
           label-for="email-input"
           invalid-feedback="Please enter a valid email address"
@@ -25,7 +25,7 @@
           />
         </b-form-group>
         <b-form-group
-          :state="!$v.formData.name.$invalid"
+          :state="!v$.formData.name.$invalid"
           label="Name"
           label-for="name-input"
           invalid-feedback="Please enter your preferred first and last name"
@@ -37,7 +37,7 @@
           />
         </b-form-group>
         <b-form-group
-          :state="!$v.formData.role.$invalid"
+          :state="!v$.formData.role.$invalid"
           label="Role"
           label-for="role-select"
           invalid-feedback="Please select your role"
@@ -49,7 +49,7 @@
           />
         </b-form-group>
         <b-form-group
-          :state="!$v.formData.agency.$invalid"
+          :state="!v$.formData.agency.$invalid"
           :label="newTerminologyEnabled ? 'Team' : 'Agency'"
           label-for="agency-select"
           :invalid-feedback="`Please select your ${newTerminologyEnabled ? 'team' : 'agency'}`"
@@ -67,12 +67,16 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { required, minLength, email } from 'vuelidate/lib/validators';
+import { useVuelidate } from '@vuelidate/core';
+import { required, minLength, email } from '@vuelidate/validators';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
     show: Boolean,
+  },
+  setup() {
+    return { v$: useVuelidate() };
   },
   data() {
     return {
@@ -154,7 +158,7 @@ export default {
     },
     async handleSubmit() {
       // Exit when the form isn't valid
-      if (this.$v.formData.$invalid) {
+      if (this.v$.formData.$invalid) {
         return;
       }
       try {

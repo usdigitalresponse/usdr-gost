@@ -117,10 +117,9 @@
 </template>
 
 <script>
+import _ from 'lodash';
+import moment from 'moment';
 import { post } from '@/arpa_reporter/store';
-
-const moment = require('moment');
-const _ = require('lodash');
 
 export default {
   data() {

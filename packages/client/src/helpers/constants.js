@@ -1,4 +1,4 @@
-const billOptions = [
+export const billOptions = [
   'All Bills',
   'Bipartisan Safer Communities Act',
   'Consumer Product Safety Commission',
@@ -35,7 +35,7 @@ const billOptions = [
 ];
 
 // Mapping of available avatar background colors to foreground text colors
-const avatarColors = {
+export const avatarColors = {
   '#44337A': '#FFF',
   '#086F83': '#FFF',
   '#234E52': '#FFF',
@@ -56,13 +56,7 @@ const avatarColors = {
   '#FCD663': '#000',
 };
 
-const defaultCloseDateThresholds = {
+export const defaultCloseDateThresholds = {
   warning: 30,
   danger: 15,
-};
-
-module.exports = {
-  billOptions,
-  avatarColors,
-  defaultCloseDateThresholds,
 };
