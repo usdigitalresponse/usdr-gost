@@ -103,9 +103,6 @@ async function sendEmail(message) {
     if (message.ccAddress) {
         params.Destination.CcAddresses = [message.ccAddress];
     }
-    if (process.env.SES_CONFIGURATION_SET_DEFAULT) {
-        params.ConfigurationSetName = process.env.SES_CONFIGURATION_SET_DEFAULT;
-    }
     const command = new SendEmailCommand(params);
     try {
         const data = await transport.send(command);

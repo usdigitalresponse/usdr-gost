@@ -19,7 +19,6 @@ const {
     AWS_DEFAULT_REGION,
     AWS_REGION,
     NOTIFICATIONS_EMAIL,
-    SES_CONFIGURATION_SET_DEFAULT,
 
     NODEMAILER_HOST,
     NODEMAILER_PORT,
@@ -42,7 +41,6 @@ describe('Email module', () => {
         process.env.AWS_DEFAULT_REGION = AWS_DEFAULT_REGION;
         process.env.AWS_REGION = AWS_REGION;
         process.env.NOTIFICATIONS_EMAIL = NOTIFICATIONS_EMAIL;
-        process.env.SES_CONFIGURATION_SET_DEFAULT = SES_CONFIGURATION_SET_DEFAULT;
         process.env.NODEMAILER_HOST = NODEMAILER_HOST;
         process.env.NODEMAILER_PORT = NODEMAILER_PORT;
         process.env.NODEMAILER_EMAIL = NODEMAILER_EMAIL;
@@ -62,7 +60,6 @@ describe('Email module', () => {
         delete process.env.AWS_REGION;
         delete process.env.AWS_DEFAULT_REGION;
         delete process.env.NOTIFICATIONS_EMAIL;
-        delete process.env.SES_CONFIGURATION_SET_DEFAULT;
     }
 
     const sandbox = sinon.createSandbox();
@@ -89,7 +86,6 @@ describe('Email module', () => {
             process.env.AWS_DEFAULT_REGION = 'us-west-2';
             process.env.AWS_REGION = 'us-west-2';
             process.env.NOTIFICATIONS_EMAIL = 'fake@example.org';
-            process.env.SES_CONFIGURATION_SET_DEFAULT = 'default-configuration-set';
         });
 
         it('Fails when NOTIFICATIONS_EMAIL is missing', async () => {
@@ -105,22 +101,6 @@ describe('Email module', () => {
             expect(err.message).to.be.a('string').and.satisfy(
                 (msg) => msg.startsWith('NOTIFICATIONS_EMAIL is not set'),
             );
-        });
-
-        it('sends configuration set name if SES_CONFIGURATION_SET_DEFAULT is set', async () => {
-            const sendSpy = sandbox.spy();
-            sandbox.stub(awsTransport, 'getSESClient').returns({ send: sendSpy });
-            await awsTransport.sendEmail(testEmail);
-            expect(sendSpy.called).is.true;
-            expect(sendSpy.args[0][0].input.ConfigurationSetName).to.equal('default-configuration-set');
-        });
-        it('does not require a configuration set name', async () => {
-            delete process.env.SES_CONFIGURATION_SET_DEFAULT;
-            const sendSpy = sandbox.spy();
-            sandbox.stub(awsTransport, 'getSESClient').returns({ send: sendSpy });
-            await awsTransport.sendEmail(testEmail);
-            expect(sendSpy.called).is.true;
-            expect(sendSpy.args[0][0].input).to.not.have.property('ConfigurationSetName');
         });
 
         it('correctly formats from email without name', async () => {
