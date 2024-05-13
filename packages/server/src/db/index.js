@@ -816,7 +816,7 @@ async function enhanceGrantData(tenantId, data) {
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
         .andWhere('agencies.tenant_id', tenantId);
 
-    const viewedBy = await viewedByQuery.select(
+    const viewedBy = await viewedByQuery.distinct(
         `${TABLES.grants_viewed}.grant_id`,
         `${TABLES.grants_viewed}.agency_id`,
         `${TABLES.agencies}.name as agency_name`,
@@ -984,7 +984,12 @@ async function getGrants({
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
         .andWhere('agencies.tenant_id', tenantId);
 
-    const viewedBy = await viewedByQuery.select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
+    const viewedBy = await viewedByQuery.distinct(
+        `${TABLES.grants_viewed}.grant_id`,
+        `${TABLES.grants_viewed}.agency_id`,
+        `${TABLES.agencies}.name as agency_name`,
+        `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+    );
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), tenantId });
 
     const dataWithAgency = data.map((grant) => {
