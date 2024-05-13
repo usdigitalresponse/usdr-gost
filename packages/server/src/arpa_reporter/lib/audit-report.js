@@ -308,11 +308,12 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
         projectLogger.debug('populating row from records in project');
 
         // set values for columns that are common across all records of projectId
+        const lastProjectRecord = projectRecords[projectRecords.length - 1];
         const row = {
             'Project ID': projectId,
-            'Project Description': projectRecords[0].content.Project_Description__c,
-            'Project Expenditure Category Group': ec(projectRecords[0].type),
-            'Project Expenditure Category': projectRecords[0].subcategory,
+            'Project Description': lastProjectRecord.content.Project_Description__c,
+            'Project Expenditure Category Group': ec(lastProjectRecord.type),
+            'Project Expenditure Category': lastProjectRecord.subcategory,
             'Capital Expenditure Amount': 0,
         };
 
@@ -748,7 +749,7 @@ async function processSQSMessageRequest(message) {
         await generateAndSendEmail(ARPA_REPORTER_BASE_URL, user.email, user.tenant_id, requestData.periodId);
     } catch (err) {
         log.error({ err }, 'failed to generate and send audit report');
-        await email.sendReportErrorEmail(user, 'Audit');
+        await email.sendReportErrorEmail(user, email.ASYNC_REPORT_TYPES.audit);
         return false;
     }
 

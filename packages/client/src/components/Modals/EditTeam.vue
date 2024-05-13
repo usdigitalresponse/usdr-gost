@@ -5,7 +5,7 @@
     ref="modal"
     v-model="modalVisible"
     :title="newTerminologyEnabled ? 'Edit Team' : 'Edit Agency'"
-    :ok-disabled="$v.formData.$invalid"
+    :ok-disabled="v$.formData.$invalid"
     @ok="handleOk"
   >
     <h3>{{ agency && agency.name }}</h3>
@@ -85,7 +85,7 @@
         </v-select>
       </b-form-group>
       <b-form-group
-        :state="!$v.formData.warningThreshold.$invalid"
+        :state="!v$.formData.warningThreshold.$invalid"
         label-for="warningThreshold-input"
         invalid-feedback="Warning Threshold must be 2 or greater"
       >
@@ -101,7 +101,7 @@
           autofocus
           type="number"
           min="2"
-          :state="!$v.formData.warningThreshold.$invalid"
+          :state="!v$.formData.warningThreshold.$invalid"
           required
         />
       </b-form-group>
@@ -120,7 +120,7 @@
           v-model="formData.dangerThreshold"
           type="number"
           min="1"
-          :state="!$v.formData.dangerThreshold.$invalid"
+          :state="!v$.formData.dangerThreshold.$invalid"
           required
         />
       </b-form-group>
@@ -153,9 +153,8 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import {
-  required, numeric, minValue,
-} from 'vuelidate/lib/validators';
+import { useVuelidate } from '@vuelidate/core';
+import { required, numeric, minValue } from '@vuelidate/validators';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
@@ -165,6 +164,9 @@ export default {
       type: Object,
       default: null,
     },
+  },
+  setup() {
+    return { v$: useVuelidate() };
   },
   data() {
     return {
@@ -234,7 +236,7 @@ export default {
       this.handleSubmit();
     },
     async handleDelete() {
-      if (this.$v.formData.$invalid) {
+      if (this.v$.formData.$invalid) {
         return;
       }
       const msgBoxConfirmResult = await this.$bvModal.msgBoxConfirm(
@@ -265,7 +267,7 @@ export default {
       }
     },
     async handleSubmit() {
-      if (this.$v.formData.$invalid) {
+      if (this.v$.formData.$invalid) {
         return;
       }
       // TODO(mbroussard): This feels kinda screwy that we do multiple requests (always, since we

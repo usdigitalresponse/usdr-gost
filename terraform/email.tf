@@ -19,12 +19,12 @@ resource "aws_sesv2_configuration_set" "default" {
 }
 
 data "aws_sns_topic" "datadog_forwarder" {
-  count = var.ses_datadog_events_enabled ? 1 : 0
+  count = var.email_enable_tracking && var.ses_datadog_events_enabled ? 1 : 0
   name  = "datadog-forwarder"
 }
 
 resource "aws_sesv2_configuration_set_event_destination" "default" {
-  count                  = var.ses_datadog_events_enabled ? 1 : 0
+  count                  = var.email_enable_tracking && var.ses_datadog_events_enabled ? 1 : 0
   event_destination_name = "DatadogForwarderSNSTopic"
   configuration_set_name = aws_sesv2_configuration_set.default.configuration_set_name
 

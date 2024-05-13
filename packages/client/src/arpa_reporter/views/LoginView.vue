@@ -23,54 +23,62 @@
       </div>
     </form>
     <div
-      v-if="message"
-      :class="messageClass"
+      v-if="serverResponse"
+      :class="{
+        'alert alert-success': serverResponse.success,
+        'alert alert-danger': !serverResponse.success,
+      }"
     >
-      {{ message }}
+      {{ serverResponse.message }}
+    </div>
+    <div
+      v-for="error of v$.$errors"
+      :key="error.$uid"
+      class="alert alert-danger"
+    >
+      {{ error.$message }}
     </div>
   </div>
 </template>
 
 <script>
-import _ from 'lodash-checkit';
-import { apiURL } from '../../helpers/fetchApi';
+import { apiURL } from '@/helpers/fetchApi';
+import { useVuelidate } from '@vuelidate/core';
+import { required, email, helpers } from '@vuelidate/validators';
 
 export default {
   name: 'LoginView',
+  setup() {
+    return { v$: useVuelidate() };
+  },
   data() {
-    const message = _.get(this, '$route.query.message', null);
-    const messageClass = message ? 'alert alert-danger' : '';
+    const serverResponse = this.$route.query.message && {
+      message: this.$route.query.message,
+      success: false, // If message is present in the URL, it's because of an error (e.g., invalid token)
+    };
     return {
       email: '',
-      message,
-      messageClass,
+      serverResponse,
     };
   },
+  validations: {
+    email: {
+      required: helpers.withMessage('Please enter an email address', required),
+      email: helpers.withMessage('Please enter a valid email address', email),
+    },
+  },
   methods: {
-    login(event) {
+    async login(event) {
       event.preventDefault();
-      if (!this.email) {
-        this.message = 'Email cannot be blank';
-        this.messageClass = 'alert alert-danger';
+      this.serverResponse = null;
+      if (!(await this.v$.$validate())) {
         return;
       }
-      if (!_.isEmail(this.email)) {
-        this.message = `'${this.email}' is not a valid email address`;
-        this.messageClass = 'alert alert-danger';
-        return;
-      }
-
-      const redirectTo = (
-        // If we got to the login page via a redirect, a post-login redirect URL will already be specified
-        this.$route.query.redirect_to
-        // If we went to the login page directly, we default to redirecting to the homepage.
-        // This gets a full relative URL including any VueRouter base prefix, if configured (such as in GOST)
-        || this.$router.resolve('/').href
-      );
+      this.v$.$reset();
 
       const body = JSON.stringify({
         email: this.email,
-        redirect_to: redirectTo,
+        redirect_to: this.$route.query.redirect_to || this.$router.resolve('/').href,
       });
       const headers = {
         'Content-Type': 'application/json',
@@ -82,16 +90,18 @@ export default {
         })
         .then((r) => r.json())
         .then((r) => {
-          this.email = '';
-          this.message = r.message;
-          this.messageClass = r.success
-            ? 'alert alert-success'
-            : 'alert alert-danger';
+          this.serverResponse = {
+            message: r.message,
+            success: r.success,
+          };
         })
         .catch((error) => {
           console.log('error:', error.message);
-          this.message = error.message;
-          this.messageClass = 'alert alert-danger';
+          this.serverResponse = {
+            message: error.message
+              || 'There was a problem at USDR. Try again in a minute or two, and if you still receive the same error, contact the USDR team.',
+            success: false,
+          };
         });
     },
   },

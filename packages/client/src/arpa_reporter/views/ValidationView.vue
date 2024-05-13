@@ -107,7 +107,7 @@
 import 'vue-good-table/dist/vue-good-table.css';
 import { VueGoodTable } from 'vue-good-table';
 
-import { post } from '../store/index';
+import { post } from '@/arpa_reporter/store';
 
 export default {
   name: 'ValidationView',

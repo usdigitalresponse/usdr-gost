@@ -1,6 +1,8 @@
 import { expect } from 'chai';
 
+// eslint-disable-next-line import-alias/import-alias
 import { ecCodes } from '../../../../../../server/src/arpa_reporter/lib/arpa-ec-codes';
+// eslint-disable-next-line import-alias/import-alias
 import {
   capitalizeFirstLetter,
   currency,

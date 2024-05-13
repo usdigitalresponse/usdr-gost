@@ -126,9 +126,9 @@ router.get('/:userId/sendDigestEmail', requireUSDRSuperAdminUser, async (req, re
     }
 
     try {
-        await email.buildAndSendUserSavedSearchGrantDigest(
+        await email.buildAndSendGrantDigestEmails(
             user.id,
-            req.query.date ? moment(new Date(req.query.date)).format('YYYY-MM-DD') : undefined,
+            req.query.date ? moment(req.query.date).format('YYYY-MM-DD') : undefined,
         );
     } catch (e) {
         console.error(`Unable to kick-off digest email for user '${user.id}' due to error '${e}' stack: ${e.stack}`);

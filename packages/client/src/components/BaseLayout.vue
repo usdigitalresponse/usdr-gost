@@ -109,7 +109,6 @@
               </p>
             </b-dropdown-item-button>
           </b-nav-item-dropdown>
-
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
@@ -185,8 +184,8 @@
 <script>
 import { mapGetters } from 'vuex';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
-import AlertBox from '../arpa_reporter/components/AlertBox.vue';
-import UserAvatar from './UserAvatar.vue';
+import AlertBox from '@/arpa_reporter/components/AlertBox.vue';
+import UserAvatar from '@/components/UserAvatar.vue';
 
 export default {
   name: 'BaseLayout',

@@ -178,7 +178,7 @@ describe('`/api/grants` endpoint', () => {
         const assignEndpoint = `333816/assign/agencies`;
         context('by a user with admin role', () => {
             it('assigns this user\'s own agency to a grant', async () => {
-                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmails');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'put',
@@ -189,7 +189,7 @@ describe('`/api/grants` endpoint', () => {
                 expect(emailSpy.called).to.equal(true);
             });
             it('assigns subagencies of this user\'s own agency to a grant', async () => {
-                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmails');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.ownSub, {
                     ...fetchOptions.admin,
                     method: 'put',
@@ -200,7 +200,7 @@ describe('`/api/grants` endpoint', () => {
                 expect(emailSpy.called).to.equal(true);
             });
             it('forbids requests for any agency outside this user\'s hierarchy', async () => {
-                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmails');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'put',
@@ -212,7 +212,7 @@ describe('`/api/grants` endpoint', () => {
         });
         context('by a user with staff role', () => {
             it('assigns this user\'s own agency to a grant', async () => {
-                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmails');
                 const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.own, {
                     ...fetchOptions.staff,
                     method: 'put',
@@ -223,7 +223,7 @@ describe('`/api/grants` endpoint', () => {
                 expect(emailSpy.called).to.equal(true);
             });
             it('forbids requests for any agency except this user\'s own agency', async () => {
-                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
+                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmails');
                 let response = await fetchApi(`/grants/${assignEndpoint}`, agencies.ownSub, {
                     ...fetchOptions.staff,
                     method: 'put',

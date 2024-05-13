@@ -1,12 +1,17 @@
+/* eslint-disable import/no-commonjs */
 module.exports = {
   root: true,
   env: {
     node: true,
     es6: true,
   },
+  plugins: [
+    'import-alias',
+  ],
   extends: [
     'plugin:vue/recommended',
     '@vue/airbnb',
+    'plugin:import/recommended',
   ],
   parserOptions: {
     parser: 'babel-eslint',
@@ -24,6 +29,15 @@ module.exports = {
     'no-restricted-syntax': 'off',
 
     'import/prefer-default-export': 'off',
+    'import/no-commonjs': 'error',
+    'import-alias/import-alias': [
+      'error',
+      {
+        aliases: [
+          { alias: '@', matcher: '^@/' },
+        ],
+      },
+    ],
   },
   overrides: [
     {

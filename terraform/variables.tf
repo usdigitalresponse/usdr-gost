@@ -247,3 +247,9 @@ variable "consume_grants_datadog_environment_variables" {
   type    = map(string)
   default = {}
 }
+
+# Email
+variable "email_enable_tracking" {
+  description = "Feature flag for email tracking. When false, disables link rewriting for click tracking in emails."
+  type        = bool
+}

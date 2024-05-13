@@ -84,3 +84,6 @@ consume_grants_source_event_bus_name = "default"
 consume_grants_datadog_environment_variables = {
   DD_PROFILING_ENABLED = true,
 }
+
+// Email
+email_enable_tracking = false

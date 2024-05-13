@@ -40,9 +40,11 @@ describe('db', () => {
                 'DRY RUN :: Begin migrating legacy agency criteria to saved searches',
                 'DRY RUN :: Migrating agency criteria for agency 0',
                 'DRY RUN :: No agency criteria to migrate for agency 1',
+                'DRY RUN :: No agency criteria to migrate for agency 2',
                 'DRY RUN :: Migrating agency criteria for agency 4',
                 'DRY RUN :: Migrating agency criteria for users 1,2 belonging to agency 0',
                 'DRY RUN :: No agency criteria to migrate for users 3 belonging to agency 1',
+                'DRY RUN :: No agency criteria to migrate for users 4 belonging to agency 2',
                 'DRY RUN :: No users to migrate for agency 4',
                 'DRY RUN :: Would have inserted approximately 2 saved searches. Note: there may be duplicates.',
                 'DRY RUN :: Done migrating legacy agency criteria to saved searches',
@@ -64,9 +66,11 @@ describe('db', () => {
                 'Begin migrating legacy agency criteria to saved searches',
                 'Migrating agency criteria for agency 0',
                 'No agency criteria to migrate for agency 1',
+                'No agency criteria to migrate for agency 2',
                 'Migrating agency criteria for agency 4',
                 'Migrating agency criteria for users 1,2 belonging to agency 0',
                 'No agency criteria to migrate for users 3 belonging to agency 1',
+                'No agency criteria to migrate for users 4 belonging to agency 2',
                 'No users to migrate for agency 4',
                 'Inserted 2 saved searches',
                 'Done migrating legacy agency criteria to saved searches',
@@ -109,9 +113,11 @@ describe('db', () => {
                 'Begin migrating legacy agency criteria to saved searches',
                 'Migrating agency criteria for agency 0',
                 'No agency criteria to migrate for agency 1',
+                'No agency criteria to migrate for agency 2',
                 'Migrating agency criteria for agency 4',
                 'Migrating agency criteria for users 1,2 belonging to agency 0',
                 'No agency criteria to migrate for users 3 belonging to agency 1',
+                'No agency criteria to migrate for users 4 belonging to agency 2',
                 'No users to migrate for agency 4',
                 'Inserted 1 saved searches', // This would have been 2 if not for the duplication mechanism.
                 'Done migrating legacy agency criteria to saved searches',
@@ -794,6 +800,17 @@ describe('db', () => {
                 998,
             ]);
             expect(result).to.have.lengthOf(0);
+        });
+    });
+
+    context('getUserIdForEmail', () => {
+        it('returns id when user exists', async () => {
+            const result = await db.getUserIdForEmail(fixtures.users.adminUser.email);
+            expect(result).to.equal(fixtures.users.adminUser.id);
+        });
+        it('returns null when user does not exist', async () => {
+            const result = await db.getUserIdForEmail('notauser@google.com');
+            expect(result).to.be.null;
         });
     });
 

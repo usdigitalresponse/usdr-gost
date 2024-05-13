@@ -96,9 +96,9 @@
 </template>
 
 <script>
-import AlertBox from '../components/AlertBox.vue';
-import DownloadTemplateBtn from '../components/DownloadTemplateBtn.vue';
-import { getJson } from '../store/index';
+import AlertBox from '@/arpa_reporter/components/AlertBox.vue';
+import DownloadTemplateBtn from '@/arpa_reporter/components/DownloadTemplateBtn.vue';
+import { getJson } from '@/arpa_reporter/store';
 
 export default {
   name: 'HomeView',

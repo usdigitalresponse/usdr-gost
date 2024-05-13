@@ -5,7 +5,7 @@
     ref="modal"
     v-model="modalVisible"
     :title="newTerminologyEnabled ? 'Add Team' : 'Add Agency'"
-    :ok-disabled="$v.formData.$invalid"
+    :ok-disabled="v$.formData.$invalid"
     @ok="handleOk"
   >
     <form
@@ -13,7 +13,7 @@
       @submit.stop.prevent="handleSubmit"
     >
       <b-form-group
-        :state="!$v.formData.name.$invalid"
+        :state="!v$.formData.name.$invalid"
         label-for="name-input"
         invalid-feedback="Required"
       >
@@ -29,7 +29,7 @@
         />
       </b-form-group>
       <b-form-group
-        :state="!$v.formData.abbreviation.$invalid"
+        :state="!v$.formData.abbreviation.$invalid"
         label-for="abbreviation-input"
         invalid-feedback="Required"
       >
@@ -49,7 +49,7 @@
         />
       </b-form-group>
       <b-form-group
-        :state="!$v.formData.code.$invalid"
+        :state="!v$.formData.code.$invalid"
         label-for="code-input"
         invalid-feedback="Required"
       >
@@ -69,7 +69,7 @@
         />
       </b-form-group>
       <b-form-group
-        :state="!$v.formData.parentAgency.$invalid"
+        :state="!v$.formData.parentAgency.$invalid"
         label-for="agency-input"
         :invalid-feedback="newTerminologyEnabled ? 'Must select a parent team' : 'Must select a parent agency'"
       >
@@ -93,7 +93,7 @@
         </v-select>
       </b-form-group>
       <b-form-group
-        :state="!$v.formData.warningThreshold.$invalid"
+        :state="!v$.formData.warningThreshold.$invalid"
         label-for="warningThreshold-input"
         invalid-feedback="Warning Threshold must be 2 or greater"
       >
@@ -112,7 +112,7 @@
         />
       </b-form-group>
       <b-form-group
-        :state="!$v.formData.dangerThreshold.$invalid"
+        :state="!v$.formData.dangerThreshold.$invalid"
         label-for="dangerThreshold-input"
         invalid-feedback="Danger Threshold must be greater than 0 and less than Warning Threshold"
       >
@@ -136,17 +136,21 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import { useVuelidate } from '@vuelidate/core';
 import {
   required,
   requiredUnless,
   numeric,
   minValue,
-} from 'vuelidate/lib/validators';
+} from '@vuelidate/validators';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
     show: Boolean,
+  },
+  setup() {
+    return { v$: useVuelidate() };
   },
   data() {
     return {
@@ -221,7 +225,7 @@ export default {
       this.handleSubmit();
     },
     async handleSubmit() {
-      if (this.$v.formData.$invalid) {
+      if (this.v$.formData.$invalid) {
         return;
       }
       const body = {

@@ -44,7 +44,7 @@ describe('audit report generation', () => {
         expect(sendFake.calledOnce).to.equal(true);
         expect(sendFake.firstCall.args[0]).to.equal('foo@example.com');
         expect(sendFake.firstCall.args[1]).to.equal(`${process.env.API_DOMAIN}/api/audit_report/1/99/example.xlsx`);
-        expect(sendFake.firstCall.args[2]).to.equal('audit');
+        expect(sendFake.firstCall.args[2]).to.equal(email.ASYNC_REPORT_TYPES.audit);
     });
     it('generateAndSendEmail generates a report, uploads to s3, and sends an email', async () => {
         const sendFake = sandbox.fake.returns('foo');

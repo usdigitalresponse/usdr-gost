@@ -1,4 +1,4 @@
-import { getFeatureFlags } from './utils';
+import { getFeatureFlags } from '@/helpers/featureFlags/utils';
 
 export function newTerminologyEnabled() {
   return getFeatureFlags().newTerminologyEnabled === true;

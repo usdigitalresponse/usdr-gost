@@ -8,9 +8,9 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
 
 import Vue from 'vue';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
-import App from './App.vue';
-import router from './router/index';
-import store, { get } from './store/index';
+import App from '@/arpa_reporter/App.vue';
+import router from '@/arpa_reporter/router';
+import store, { get } from '@/arpa_reporter/store';
 
 Vue.config.productionTip = false;
 

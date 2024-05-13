@@ -152,10 +152,10 @@ import { titleize } from '@/helpers/form-helpers';
 import { daysUntil } from '@/helpers/dates';
 import { defaultCloseDateThresholds } from '@/helpers/constants';
 import { formatCurrency } from '@/helpers/currency';
-import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
-import SearchPanel from './Modals/SearchPanel.vue';
-import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
-import SearchFilter from './SearchFilter.vue';
+import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
+import SearchPanel from '@/components/Modals/SearchPanel.vue';
+import SavedSearchPanel from '@/components/Modals/SavedSearchPanel.vue';
+import SearchFilter from '@/components/SearchFilter.vue';
 
 const DEFAULT_CURRENT_PAGE = 1;
 const DEFAULT_ORDER_BY = 'rank';

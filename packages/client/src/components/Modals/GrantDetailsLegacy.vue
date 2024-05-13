@@ -192,7 +192,7 @@ import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
-import { titleize } from '../../helpers/form-helpers';
+import { titleize } from '@/helpers/form-helpers';
 
 export default {
   props: {
