@@ -1039,9 +1039,15 @@ async function getClosestGrants({
 }
 
 async function markGrantAsViewed({ grantId, agencyId, userId }) {
-    const result = await knex(TABLES.grants_viewed)
-        .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
-    return result;
+    return knex(TABLES.grants_viewed)
+        .insert({
+            agency_id: agencyId,
+            grant_id: grantId,
+            user_id: userId,
+            updated_at: knex.fn.now(),
+        })
+        .onConflict(['grant_id', 'agency_id', 'user_id'])
+        .merge(); // upsert the new updated timestamp if user has already viewed
 }
 
 function getGrantAssignedAgencies({ grantId, tenantId }) {
