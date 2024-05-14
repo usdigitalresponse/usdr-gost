@@ -1044,7 +1044,7 @@ async function markGrantAsViewed({ grantId, agencyId, userId }) {
             agency_id: agencyId,
             grant_id: grantId,
             user_id: userId,
-            updated_at: knex.fn.now(),
+            updated_at: new Date(),
         })
         .onConflict(['grant_id', 'agency_id', 'user_id'])
         .merge(); // upsert the new updated timestamp if user has already viewed
