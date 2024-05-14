@@ -1033,44 +1033,6 @@ async function getClosestGrants({
         .paginate({ currentPage, perPage, isLengthAware: true });
 }
 
-async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
-    const rows = await knex(TABLES.grants)
-        .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
-        .modify((qb) => {
-            if (createdTsBounds && createdTsBounds.fromTs) {
-                qb.where('created_at', '>=', createdTsBounds.fromTs);
-            }
-            if (updatedTsBounds && updatedTsBounds.fromTs) {
-                qb.where('updated_at', '>=', updatedTsBounds.fromTs);
-            }
-        })
-        .count();
-    return rows[0].count;
-}
-
-async function getTotalViewedGrants() {
-    const rows = await knex(TABLES.grants_viewed).count();
-    return rows[0].count;
-}
-
-async function getTotalInterestedGrantsByAgencies(agencyId) {
-    const agencies = await getAgencyTree(agencyId);
-    const rows = await knex(TABLES.grants_interested)
-        .select(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`,
-            knex.raw(`SUM(CASE WHEN status_code = 'Rejected' THEN 1 ELSE 0 END) rejections`),
-            knex.raw(`SUM(CASE WHEN status_code = 'Interested' THEN 1 ELSE 0 END) interested`),
-            knex.raw('SUM(award_ceiling::numeric) total_grant_money'),
-            knex.raw(`SUM(CASE WHEN status_code = 'Interested' THEN award_ceiling::numeric ELSE 0 END) total_interested_grant_money`),
-            knex.raw(`SUM(CASE WHEN status_code = 'Rejected' THEN award_ceiling::numeric ELSE 0 END) total_rejected_grant_money`))
-        .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
-        .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
-        .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`)
-        .count(`${TABLES.interested_codes}.status_code`)
-        .whereIn('agencies.id', agencies.map((a) => a.id))
-        .groupBy(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
-    return rows;
-}
-
 async function markGrantAsViewed({ grantId, agencyId, userId }) {
     const result = await knex(TABLES.grants_viewed)
         .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
@@ -1164,18 +1126,6 @@ async function getGrantsInterested({ agencyId, perPage, currentPage }) {
         })
         .orderBy('created_at', 'DESC')
         .paginate({ currentPage, perPage, isLengthAware: true });
-}
-
-async function getTotalInterestedGrants(agencyId) {
-    const rows = await knex(TABLES.grants_interested)
-        .whereNot('interested_code_id', null)
-        .andWhere('agency_id', agencyId)
-        .count();
-    const rows2 = await knex(TABLES.assigned_grants_agency)
-        .whereNot('assigned_by', null)
-        .andWhere('agency_id', agencyId)
-        .count();
-    return +rows[0].count + +rows2[0].count;
 }
 
 async function unmarkGrantAsInterested({ grantId, agencyIds }) {
@@ -1713,10 +1663,6 @@ module.exports = {
     getSingleGrantDetails,
     getClosestGrants,
     getGrant,
-    getTotalGrants,
-    getTotalViewedGrants,
-    getTotalInterestedGrants,
-    getTotalInterestedGrantsByAgencies,
     markGrantAsViewed,
     getInterestedAgencies,
     getInterestedCodes,
