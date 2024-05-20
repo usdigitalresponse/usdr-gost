@@ -1,5 +1,4 @@
 // import { nextTick } from 'vue';
-import { expect } from 'chai';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
@@ -25,7 +24,7 @@ describe('UploadsView.vue', () => {
       localVue,
       stubs: ['router-link'],
     });
-    expect(wrapper.text()).to.include('No uploads');
+    expect(wrapper.text()).toContain('No uploads');
   });
 
   it('renders with data and defaults to descending sorting', async () => {
@@ -74,7 +73,7 @@ describe('UploadsView.vue', () => {
       localVue,
       stubs: ['router-link'],
     });
-    expect(wrapper.text()).to.include('00000000');
+    expect(wrapper.text()).toContain('00000000');
 
     // const validatedCol = wrapper.find('#vgt-table').findAll('th').at(6);
     const t = wrapper.findComponent({ ref: 'uploadsTable' });
@@ -85,7 +84,7 @@ describe('UploadsView.vue', () => {
     await wrapper.vm.$nextTick();
     await t.vm.$nextTick();
     const tableHtml = t.html();
-    expect(tableHtml.indexOf('11111111') < tableHtml.indexOf('00000000')).to.equal(true);
+    expect(tableHtml.indexOf('11111111') < tableHtml.indexOf('00000000')).toBe(true);
   });
 });
 

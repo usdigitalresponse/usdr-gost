@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import TeamsView from '@/views/TeamsView.vue';
@@ -46,19 +44,19 @@ describe('TeamsView.vue', () => {
     });
     it('should show the Teams heading', () => {
       const heading = wrapper.find('h2');
-      expect(heading.text()).to.eql('Teams');
+      expect(heading.text()).toEqual('Teams');
     });
     it('should not allow user to import teams', () => {
       const bulkImportButtons = wrapper.findAll('#bulkTeamImportButton');
-      expect(bulkImportButtons.length).to.eql(0);
+      expect(bulkImportButtons.length).toEqual(0);
     });
     it('should not allow user to add a team', () => {
       const addButtons = wrapper.findAll('#addTeamButton');
-      expect(addButtons.length).to.eql(0);
+      expect(addButtons.length).toEqual(0);
     });
     it('should not allow user to edit a team', () => {
       const editButtons = wrapper.findAll('[icon="pencil-fill"]');
-      expect(editButtons.length).to.eql(0);
+      expect(editButtons.length).toEqual(0);
     });
   });
   describe('when an admin loads the page', () => {
@@ -82,15 +80,15 @@ describe('TeamsView.vue', () => {
       });
       it('should allow user to import teams', () => {
         const bulkImportButton = wrapper.get('#bulkTeamImportButton');
-        expect(bulkImportButton.text()).to.include('Bulk Import');
+        expect(bulkImportButton.text()).toContain('Bulk Import');
       });
       it('should allow user to add a team', () => {
         const addButton = wrapper.get('#addTeamButton');
-        expect(addButton.text()).to.include('Add');
+        expect(addButton.text()).toContain('Add');
       });
       it.skip('should not be able to edit a team', () => {
         const editButtons = wrapper.findAll('[icon="pencil-fill"]');
-        expect(editButtons.length).to.eql(0);
+        expect(editButtons.length).toEqual(0);
       });
     });
     describe('and there is one team', () => {
@@ -119,7 +117,7 @@ describe('TeamsView.vue', () => {
       });
       it.skip('should allow user to edit a team', () => {
         const editButtons = wrapper.findAll('[icon="pencil-fill"]');
-        expect(editButtons.length).to.eql(1);
+        expect(editButtons.length).toEqual(1);
       });
     });
   });

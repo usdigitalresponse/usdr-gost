@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import DashboardView from '@/views/DashboardView.vue';
@@ -56,11 +54,11 @@ describe('DashboardView.vue', () => {
     });
     it('should show the no recent activity message', () => {
       const noRecentActivityMessage = wrapper.find('#noRecentActivityMessage');
-      expect(noRecentActivityMessage.text()).to.include('Your team has no recent activity.');
+      expect(noRecentActivityMessage.text()).toContain('Your team has no recent activity.');
     });
     it('should show the no recent activity message', () => {
       const noRecentActivityMessage = wrapper.find('#noUpcomingCloseDates');
-      expect(noRecentActivityMessage.text()).to.include('Your team has no upcoming close dates.');
+      expect(noRecentActivityMessage.text()).toContain('Your team has no upcoming close dates.');
     });
   });
 });

@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import UserView from '@/arpa_reporter/views/UserView.vue';
@@ -34,11 +33,11 @@ describe('UserView.vue', () => {
   it('renders new user form', async () => {
     const wrapper = mount(UserView, { store, localVue, mocks });
     const loading = wrapper.find('div[role="status"]');
-    expect(loading.text()).to.include('Loading');
+    expect(loading.text()).toContain('Loading');
 
     await wrapper.setData({ user: {} });
     const form = wrapper.findComponent({ name: 'StandardForm' });
-    expect(form.exists()).to.equal(true);
+    expect(form.exists()).toBe(true);
   });
 });
 

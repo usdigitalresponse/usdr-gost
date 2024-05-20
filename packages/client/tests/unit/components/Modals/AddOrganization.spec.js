@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import AddOrganization from '@/components/Modals/AddOrganization.vue';
@@ -26,7 +25,7 @@ describe('AddOrganization.vue', () => {
     });
     it('should have the title Add Organization', () => {
       const heading = wrapper.get('#add-tenant-modal');
-      expect(heading.attributes().title).to.eql('Add Organization');
+      expect(heading.attributes().title).toEqual('Add Organization');
     });
   });
 });

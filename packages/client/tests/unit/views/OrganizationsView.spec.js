@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import OrganizationsView from '@/views/OrganizationsView.vue';
@@ -44,7 +42,7 @@ describe('OrganizationsView.vue', () => {
     });
     it('should show the Organizations heading', () => {
       const heading = wrapper.find('h2');
-      expect(heading.text()).to.eql('Organizations');
+      expect(heading.text()).toEqual('Organizations');
     });
   });
 });

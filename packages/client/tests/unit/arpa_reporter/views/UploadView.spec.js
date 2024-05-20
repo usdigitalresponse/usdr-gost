@@ -1,5 +1,4 @@
 // import { nextTick } from 'vue';
-import { expect } from 'chai';
 import { mount, createLocalVue } from '@vue/test-utils';
 import moment from 'moment';
 import Vuex from 'vuex';
@@ -68,8 +67,8 @@ describe('UploadView.vue', () => {
     await wrapper.setData({ upload });
     await wrapper.vm.$nextTick();
     const dateStr = moment(date).format('LTS ll');
-    expect(wrapper.text()).to.include('Upload 00000000');
-    expect(wrapper.text()).to.include(`Validated on ${dateStr}`);
+    expect(wrapper.text()).toContain('Upload 00000000');
+    expect(wrapper.text()).toContain(`Validated on ${dateStr}`);
   });
 
   it('renders with an upload - invalidated', async () => {
@@ -122,7 +121,7 @@ describe('UploadView.vue', () => {
     await wrapper.setData({ upload });
     await wrapper.vm.$nextTick();
     const dateStr = moment(date).format('LTS ll');
-    expect(wrapper.text()).to.include('Upload 00000000');
-    expect(wrapper.text()).to.include(`Invalidated on ${dateStr}`);
+    expect(wrapper.text()).toContain('Upload 00000000');
+    expect(wrapper.text()).toContain(`Invalidated on ${dateStr}`);
   });
 });

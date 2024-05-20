@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import AddTeam from '@/components/Modals/AddTeam.vue';
@@ -34,7 +33,7 @@ describe('AddTeam.vue', () => {
     });
     it('should have the title Add Team', () => {
       const heading = wrapper.get('#add-agency-modal');
-      expect(heading.attributes().title).to.eql('Add Team');
+      expect(heading.attributes().title).toEqual('Add Team');
     });
   });
 });
