@@ -1,16 +1,13 @@
-import { useFakeTimers } from 'sinon';
-
 import { daysUntil } from '@/helpers/dates';
 
 describe('dates', () => {
   describe('daysUntil()', () => {
-    let clock;
     beforeEach(() => {
-      // Set Date.now() to 2021-01-15T22:00:00 in local timezone
-      clock = useFakeTimers(new Date('2021-01-15T22:00:00'));
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2021-01-15T22:00:00'))
     });
     afterEach(() => {
-      clock.restore();
+      vi.restoreAllMocks()
     });
 
     describe('when called with date in the past', () => {
