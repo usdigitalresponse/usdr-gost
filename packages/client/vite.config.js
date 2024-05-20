@@ -13,5 +13,15 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    coverage: {
+      provider: 'istanbul',
+      include: ['src/**'],
+      reporter: [
+        ['text', { file: process.env.CI ? 'coverage.txt' : null }], // Direct to file in CI; direct to stdout otherwise
+        'html',
+        'clover',
+        'json',
+      ],
+    },
   },
 });

@@ -9,7 +9,6 @@
   },
   "scripts": {
     "build": "vue-cli-service build",
-    "coverage": "nyc yarn test",
     "env": "export $(cat .env)",
     "lint": "vue-cli-service lint",
     "serve": "vue-cli-service --inspect ../../node_modules/@vue/cli-service/bin/vue-cli-service.js serve",
@@ -43,6 +42,7 @@
     "@babel/core": "^7.18.13",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
+    "@vitest/coverage-istanbul": "^1.6.0",
     "@vue/cli": "~5.0.1",
     "@vue/cli-plugin-babel": "~5.0.4",
     "@vue/cli-plugin-eslint": "~5.0.1",
