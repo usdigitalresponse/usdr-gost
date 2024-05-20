@@ -5,7 +5,7 @@ module.exports = {
   ],
   env: {
     test: {
-      plugins: [['babel-plugin-istanbul']],
+      plugins: [],
     },
   },
 };
