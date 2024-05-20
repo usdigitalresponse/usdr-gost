@@ -15,17 +15,17 @@ describe('featureFlags', () => {
         });
 
         it('when window.APP_CONFIG does not exist', () => {
-          expect(getFeatureFlags()).toBeInstanceOf(Object).that.is.empty;
+          expect(getFeatureFlags()).toEqual({});
         });
 
         it('when window.APP_CONFIG.featureFlags does not exist', () => {
           window.APP_CONFIG = {};
-          expect(getFeatureFlags()).toBeInstanceOf(Object).that.is.empty;
+          expect(getFeatureFlags()).toEqual({});
         });
 
         it('when window.APP_CONFIG.featureFlags is actually an empty object', () => {
           window.APP_CONFIG = { featureFlags: {} };
-          expect(getFeatureFlags()).toBeInstanceOf(Object).that.is.empty;
+          expect(getFeatureFlags()).toEqual({});
         });
       });
 
