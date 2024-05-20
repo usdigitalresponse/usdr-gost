@@ -1,3 +1,6 @@
+import {
+  describe, beforeEach, afterEach, it, expect,
+} from 'vitest';
 import { apiURL } from '@/helpers/fetchApi';
 
 describe('apiURL()', () => {

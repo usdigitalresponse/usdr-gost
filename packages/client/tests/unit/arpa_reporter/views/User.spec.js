@@ -1,3 +1,6 @@
+import {
+  describe, beforeEach, it, expect,
+} from 'vitest';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import UserView from '@/arpa_reporter/views/UserView.vue';

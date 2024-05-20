@@ -1,3 +1,6 @@
+import {
+  describe, beforeEach, it, expect,
+} from 'vitest';
 import { setUserForGoogleAnalytics } from '@/helpers/gtag';
 
 const user = {

@@ -1,13 +1,16 @@
+import {
+  describe, beforeEach, afterEach, expect, it, vi,
+} from 'vitest';
 import { daysUntil } from '@/helpers/dates';
 
 describe('dates', () => {
   describe('daysUntil()', () => {
     beforeEach(() => {
-      vi.useFakeTimers()
-      vi.setSystemTime(new Date('2021-01-15T22:00:00'))
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2021-01-15T22:00:00'));
     });
     afterEach(() => {
-      vi.restoreAllMocks()
+      vi.restoreAllMocks();
     });
 
     describe('when called with date in the past', () => {

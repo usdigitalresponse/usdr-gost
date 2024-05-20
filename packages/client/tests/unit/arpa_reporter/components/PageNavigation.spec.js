@@ -1,3 +1,6 @@
+import {
+  describe, beforeEach, it, expect,
+} from 'vitest';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import PageNavigation from '@/arpa_reporter/components/PageNavigation.vue';

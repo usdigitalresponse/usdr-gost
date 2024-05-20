@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import VueRouter from 'vue-router';
 import { createLocalVue } from '@vue/test-utils';
 

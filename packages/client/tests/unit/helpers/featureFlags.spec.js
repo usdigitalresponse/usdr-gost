@@ -1,3 +1,6 @@
+import {
+  describe, beforeEach, it, expect,
+} from 'vitest';
 import { getFeatureFlags } from '@/helpers/featureFlags/utils';
 
 describe('featureFlags', () => {

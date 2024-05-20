@@ -1,4 +1,4 @@
-// import { nextTick } from 'vue';
+import { describe, it, expect } from 'vitest';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import UploadsView from '@/arpa_reporter/views/UploadsView.vue';

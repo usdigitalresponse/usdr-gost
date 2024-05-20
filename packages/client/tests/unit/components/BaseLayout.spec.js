@@ -1,3 +1,6 @@
+import {
+  describe, beforeEach, afterEach, it, expect,
+} from 'vitest';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import BaseLayout from '@/components/BaseLayout.vue';

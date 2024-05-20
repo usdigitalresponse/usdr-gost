@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { formatCurrency } from '@/helpers/currency';
 
 describe('currency helpers', () => {
