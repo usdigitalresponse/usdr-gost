@@ -141,7 +141,7 @@ jobs:
       - name: Prepare test execution environment
         run: cp packages/client/.env.example packages/client/.env
       - name: Run unit tests with coverage
-        run: yarn workspace client vitest --run --coverage
+        run: yarn workspace client test --run --coverage
         env:
           CI: "true"
       - name: Generate coverage markdown report
