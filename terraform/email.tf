@@ -48,6 +48,7 @@ resource "aws_sesv2_configuration_set_event_destination" "default" {
 module "mail_redirect_ssl_certificate" {
   source  = "cloudposse/acm-request-certificate/aws"
   version = "0.18.0"
+  context = module.this.context
 
   # Certificate will be installed into CloudFront
   # CloudFront SSL certificates must be managed in us-east-1
@@ -61,12 +62,11 @@ module "mail_redirect_ssl_certificate" {
   wait_for_certificate_issued       = true
 }
 
-# Can't alias our custom tracking domain directly to the AWS tracking domain because there's nowhere to upload our cert
-# Interject a CDN to provide the cert
 resource "aws_route53_record" "mail_redirect" {
   zone_id = data.aws_ssm_parameter.public_dns_zone_id.value
   name    = local.tracking_redirect_domain
   type    = "A"
+  ttl     = 60 # 1 minute, in seconds (TODO: make this 86400 once confirmed stable)
 
   alias {
     name                   = aws_cloudfront_distribution.email_tracking.domain_name
@@ -81,7 +81,7 @@ resource "aws_cloudfront_distribution" "email_tracking" {
   ]
 
   enabled = true
-  comment = "CDN for email tracking"
+  comment = "GOST mail redirect CDN."
   aliases = [local.tracking_redirect_domain]
 
   // Optimized for North America
@@ -100,11 +100,12 @@ resource "aws_cloudfront_distribution" "email_tracking" {
   }
 
   default_cache_behavior {
+    target_origin_id       = "awstrack"
     allowed_methods        = ["GET", "HEAD", "OPTIONS"]
     cached_methods         = ["GET", "HEAD"]
     compress               = true
-    target_origin_id       = "awstrack"
     viewer_protocol_policy = "allow-all"
+
     forwarded_values {
       headers      = ["Host"]
       query_string = false
