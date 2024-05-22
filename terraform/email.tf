@@ -48,9 +48,7 @@ resource "aws_sesv2_configuration_set_event_destination" "default" {
 module "mail_redirect_ssl_certificate" {
   source  = "cloudposse/acm-request-certificate/aws"
   version = "0.18.0"
-  context = module.this.context
 
-  # Certificate will be installed into CloudFront
   # CloudFront SSL certificates must be managed in us-east-1
   providers = {
     aws = aws.us-east-1
@@ -80,8 +78,8 @@ resource "aws_cloudfront_distribution" "email_tracking" {
     module.mail_redirect_ssl_certificate,
   ]
 
-  enabled = true
   comment = "GOST mail redirect CDN."
+  enabled = true
   aliases = [local.tracking_redirect_domain]
 
   // Optimized for North America
