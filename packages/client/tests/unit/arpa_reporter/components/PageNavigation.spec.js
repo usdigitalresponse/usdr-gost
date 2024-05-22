@@ -1,4 +1,6 @@
-import { expect } from 'chai';
+import {
+  describe, beforeEach, it, expect,
+} from 'vitest';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import PageNavigation from '@/arpa_reporter/components/PageNavigation.vue';
@@ -30,10 +32,10 @@ describe('PageNavigation.vue', () => {
       mocks: { $route },
     });
     const navbars = wrapper.findAll('nav.navbar');
-    expect(navbars.length).to.equal(1); // has one navbar element
+    expect(navbars.length).toBe(1); // has one navbar element
 
     const navs = wrapper.findAll('ul.nav');
-    expect(navs.length).to.equal(1); // has one nav element
+    expect(navs.length).toBe(1); // has one nav element
   });
 
   it('include title', () => {
@@ -44,7 +46,7 @@ describe('PageNavigation.vue', () => {
       mocks: { $route },
     });
     const r = wrapper.find('a.navbar-brand');
-    expect(r.text()).to.include('ARPA Reporter');
+    expect(r.text()).toContain('ARPA Reporter');
   });
 });
 

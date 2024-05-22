@@ -20,9 +20,12 @@ We expect all pull requests to have associated unit tests.
 
 We make use the following technologies for creating them:
 
-- [Mocha](https://mochajs.org/) - test runner
-- [Chai](https://www.chaijs.com/) - assertion library
-- [Sinon](https://sinonjs.org/) - mocking library
+- Server
+  - [Mocha](https://mochajs.org/) - test runner
+  - [Chai](https://www.chaijs.com/) - assertion library
+  - [Sinon](https://sinonjs.org/) - mocking library
+- Client
+  - [Vitest](https://vitest.dev/) - integrated runner, assertions, and mocking
 
 ### Integration Tests
 
@@ -84,14 +87,16 @@ Client-side tests are not as well developed as server-side tests. Work is active
 
 ### Background - Client
 
-Client-side tests live in [../packages/client/tests](../packages/client/src/__tests__).
+Client-side tests live in [../packages/client/tests](../packages/client/tests). 
 
-These make use of (the now-in-maintenance-mode) [vue-cli-service](https://cli.vuejs.org/), as well as the `@vue/cli-plugin-unit-mocha` plugin to run Mocha tests.
+Tests can be run in watch mode by running `yarn test` in the `packages/client` directory. 
+[Vitest](https://vitest.dev/) has some great quality of live features you should make sure to check 
+out for your development workflow: 
 
-The current tests are mostly tests of the state in the [Vuex](https://vuex.vuejs.org/) store.
+- Instant startup (no compilation step needed)
+- Watch mode automatically re-runs tests for changed files
+- Built-in jest-compatible expectations, snapshots, etc.
+- Built-in mocks, spies, timer replacements, etc.
+- IDE integration for VSCode and others
 
-```sh
-> yarn test
-...
-> yarn test:e2e
-```
+Coverage for your tests can be run with `yarn test --coverage`. 

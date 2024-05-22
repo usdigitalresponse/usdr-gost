@@ -34,7 +34,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -76,7 +76,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -123,7 +123,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -141,17 +141,15 @@ jobs:
       - name: Prepare test execution environment
         run: cp packages/client/.env.example packages/client/.env
       - name: Run unit tests with coverage
-        run: yarn workspace client coverage
+        run: yarn workspace client test --run --coverage
         env:
           CI: "true"
-      - name: Generate coverage text report
-        run: npx nyc report --reporter text --cwd packages/client > packages/client/coverage.txt
       - name: Generate coverage markdown report
         id: coverage-markdown
         uses: fingerprintjs/action-coverage-report-md@cd6bbc2dbc7b03844f0ec825caa2cea3e0205621 # v2.0.0
         with:
-          textReportPath: 'packages/client/coverage.txt'
-          srcBasePath: 'packages/client/'
+          textReportPath: 'packages/client/coverage/coverage.txt'
+          srcBasePath: 'packages/client/src'
 
   test-e2e:
     name: Test end-to-end integration
@@ -178,7 +176,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -230,7 +228,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -256,7 +254,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # v4.1.5
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
