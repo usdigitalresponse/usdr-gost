@@ -132,6 +132,10 @@ export default {
     },
   },
   watch: {
+    modalVisible() {
+      // Reset form data when modal is shown
+      Object.assign(this.formData, this.$options.data.apply(this).formData);
+    },
     showModal() {
       this.$bvModal.show('add-user-modal');
     },

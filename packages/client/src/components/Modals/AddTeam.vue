@@ -216,6 +216,12 @@ export default {
       return newTerminologyEnabled();
     },
   },
+  watch: {
+    modalVisible() {
+      // Reset form data when modal is shown
+      Object.assign(this.formData, this.$options.data.apply(this).formData);
+    },
+  },
   methods: {
     ...mapActions({
       createAgency: 'agencies/createAgency',
