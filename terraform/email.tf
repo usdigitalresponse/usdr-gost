@@ -64,7 +64,6 @@ resource "aws_route53_record" "mail_redirect" {
   zone_id = data.aws_ssm_parameter.public_dns_zone_id.value
   name    = local.tracking_redirect_domain
   type    = "A"
-  ttl     = 60 # 1 minute, in seconds (TODO: make this 86400 once confirmed stable)
 
   alias {
     name                   = aws_cloudfront_distribution.email_tracking.domain_name
