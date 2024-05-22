@@ -1,4 +1,6 @@
-import { expect } from 'chai';
+import {
+  describe, beforeEach, it, expect,
+} from 'vitest';
 import { setUserForGoogleAnalytics } from '@/helpers/gtag';
 
 const user = {
@@ -21,7 +23,7 @@ describe('gtag', () => {
     });
     it('works when called with non-null user', () => {
       setUserForGoogleAnalytics(user);
-      expect(observedGtagArgs).to.have.deep.ordered.members([
+      expect(observedGtagArgs).toEqual(expect.arrayContaining([
         'config',
         gtagId,
         {
@@ -30,11 +32,11 @@ describe('gtag', () => {
             organization_id: 9,
             team_id: 8,
           },
-        }]);
+        }]));
     });
     it('works when called with null user', () => {
       setUserForGoogleAnalytics(null);
-      expect(observedGtagArgs).to.have.deep.ordered.members([
+      expect(observedGtagArgs).toEqual(expect.arrayContaining([
         'config',
         gtagId,
         {
@@ -43,23 +45,23 @@ describe('gtag', () => {
             organization_id: undefined,
             team_id: undefined,
           },
-        }]);
+        }]));
     });
     it('does not error when called and GA not enabled', () => {
       delete window.gtag;
       delete window.APP_CONFIG.GOOGLE_TAG_ID;
-      expect(() => setUserForGoogleAnalytics(user)).to.not.throw();
-      expect(observedGtagArgs).to.be.null;
+      expect(() => setUserForGoogleAnalytics(user)).not.toThrow();
+      expect(observedGtagArgs).toBeNull();
     });
     it('enables GA debug mode when instructed via APP_CONFIG', () => {
       window.APP_CONFIG.GOOGLE_ANALYTICS_DEBUG = true;
       setUserForGoogleAnalytics(user);
-      expect(observedGtagArgs[2]).to.have.property('debug_mode', true);
+      expect(observedGtagArgs[2]).toHaveProperty('debug_mode', true);
     });
     it('disables GA debug mode when not instructed via APP_CONFIG', () => {
       window.APP_CONFIG.GOOGLE_ANALYTICS_DEBUG = undefined;
       setUserForGoogleAnalytics(user);
-      expect(observedGtagArgs[2]).to.not.have.property('debug_mode');
+      expect(observedGtagArgs[2]).not.toHaveProperty('debug_mode');
     });
   });
 });

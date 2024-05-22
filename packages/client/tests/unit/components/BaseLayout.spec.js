@@ -1,5 +1,6 @@
-import { expect } from 'chai';
-
+import {
+  describe, beforeEach, afterEach, it, expect,
+} from 'vitest';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import BaseLayout from '@/components/BaseLayout.vue';
@@ -47,23 +48,23 @@ describe('BaseLayout.vue', () => {
     });
     it('should show the Grants heading', () => {
       const layoutHeader = wrapper.get('h1');
-      expect(layoutHeader.text()).to.include('Federal Grant Finder');
+      expect(layoutHeader.text()).toContain('Federal Grant Finder');
     });
     it('should show My Grants tab', () => {
       const navItem = wrapper.get('[to="/my-grants"]');
-      expect(navItem.text()).to.eql('My Grants');
+      expect(navItem.text()).toEqual('My Grants');
     });
     it('should show Browse Grants tab', () => {
       const navItem = wrapper.get('[to="/grants"]');
-      expect(navItem.text()).to.eql('Browse Grants');
+      expect(navItem.text()).toEqual('Browse Grants');
     });
     it('should show Dashboard tab', () => {
       const navItem = wrapper.get('[to="/dashboard"]');
-      expect(navItem.text()).to.eql('Dashboard');
+      expect(navItem.text()).toEqual('Dashboard');
     });
     it('should show Teams tab', () => {
       const navItem = wrapper.get('[to="/teams"]');
-      expect(navItem.text()).to.eql('Teams');
+      expect(navItem.text()).toEqual('Teams');
     });
   });
   describe('when user is logged in', () => {
@@ -88,11 +89,11 @@ describe('BaseLayout.vue', () => {
     });
     it('should have the correct options', () => {
       const options = wrapper.findAll('.dropdown-item-text');
-      expect(options.length).to.eql(4);
-      expect(options.at(0).text()).to.eql('My profile');
-      expect(options.at(1).text()).to.eql('Give feedback');
-      expect(options.at(2).text()).to.eql('Training guide');
-      expect(options.at(3).text()).to.eql('Sign out');
+      expect(options.length).toEqual(4);
+      expect(options.at(0).text()).toEqual('My profile');
+      expect(options.at(1).text()).toEqual('Give feedback');
+      expect(options.at(2).text()).toEqual('Training guide');
+      expect(options.at(3).text()).toEqual('Sign out');
     });
   });
   describe('when user is admin', () => {
@@ -115,7 +116,7 @@ describe('BaseLayout.vue', () => {
 
     it('should show Users tab', () => {
       const navItem = wrapper.get('[to="/users"]');
-      expect(navItem.text()).to.eql('Users');
+      expect(navItem.text()).toEqual('Users');
     });
   });
   describe('when user is super admin', () => {
@@ -141,7 +142,7 @@ describe('BaseLayout.vue', () => {
 
     it('should show Organizations tab', () => {
       const navItem = wrapper.get('b-nav-item-stub[to="/organizations"]');
-      expect(navItem.text()).to.eql('Organizations');
+      expect(navItem.text()).toEqual('Organizations');
     });
   });
 });
