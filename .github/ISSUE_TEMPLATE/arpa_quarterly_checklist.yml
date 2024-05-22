@@ -1,0 +1,26 @@
+name: ARPA Quarterly Checklist
+description: File an issue for quarterly ARPA updates
+title: "ARPA Quarterly Version Update"
+projects: "Grants Team Agile Planning"
+assignees:
+  - usdr-grants
+labels: ["arpa quarterly reporter"]
+body:
+  - type: markdown
+    attributes:
+      value: Update for the current quarter
+    validations:
+      required: false
+  - type: textarea
+    id: Checklist
+    attributes:
+      label: Checklist
+      description: Adjust the provided checklist as needed
+      placeholder: Add checklist here
+      value: |
+          - [ ] Download updated zip file and guidance document from Treausury and add to google drive folder
+          - [ ] Update input template and add to google drive folder
+          - [ ] Run script to update the output file (instructions here - https://github.com/usdigitalresponse/usdr-gost/blob/main/docs/common-tasks/updating-output-templates.md)
+          - [ ] Run script to update the input file (instructions here - https://github.com/usdigitalresponse/usdr-gost/blob/main/docs/common-tasks/updating-output-templates.md)          - [ ] Identify if any other changes are needed to the tool (i.e. upload validation, field mappings, adjustments to audit report, etc)
+    validations:
+      required: false
