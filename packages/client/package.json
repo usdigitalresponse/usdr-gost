@@ -9,11 +9,9 @@
     "npm": "please-use-yarn"
   },
   "scripts": {
-    "build": "vue-cli-service build",
-    "env": "export $(cat .env)",
-    "lint": "vue-cli-service lint",
-    "serve": "vue-cli-service --inspect ../../node_modules/@vue/cli-service/bin/vue-cli-service.js serve",
-    "start": "yarn run serve",
+    "build": "vite build",
+    "dev": "vite",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
     "test": "vitest"
   },
   "dependencies": {
