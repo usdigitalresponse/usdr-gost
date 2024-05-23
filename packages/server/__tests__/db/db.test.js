@@ -1063,4 +1063,68 @@ describe('db', () => {
             expect(interestResult.length).to.equal(0);
         });
     });
+
+    context('markGrantAsViewed', () => {
+        beforeEach(() => {
+            this.clock = sinon.useFakeTimers(new Date('2024-01-01'));
+        });
+
+        afterEach(() => {
+            this.clock.restore();
+        });
+
+        it('adds a viewed record for a user', async () => {
+            await db.markGrantAsViewed({
+                grantId: fixtures.grants.healthAide.grant_id,
+                agencyId: fixtures.users.subStaffUser.agency_id,
+                userId: fixtures.users.subStaffUser.id,
+            });
+
+            const viewedRecords = await knex(TABLES.grants_viewed)
+                .where({ grant_id: fixtures.grants.healthAide.grant_id });
+            expect(viewedRecords.length).to.equal(1);
+            expect(viewedRecords[0].agency_id).to.equal(fixtures.users.subStaffUser.agency_id);
+            expect(viewedRecords[0].user_id).to.equal(fixtures.users.subStaffUser.id);
+            expect(viewedRecords[0].updated_at.getTime()).to.equal(new Date('2024-01-01').getTime());
+        });
+
+        it('updates a viewed record for the same user', async () => {
+            const viewedArgs = {
+                grantId: fixtures.grants.healthAide.grant_id,
+                agencyId: fixtures.users.subStaffUser.agency_id,
+                userId: fixtures.users.subStaffUser.id,
+            };
+            await db.markGrantAsViewed(viewedArgs);
+            this.clock.tick('24:00:00');
+            await db.markGrantAsViewed(viewedArgs);
+
+            const viewedRecords = await knex(TABLES.grants_viewed)
+                .where({ grant_id: fixtures.grants.healthAide.grant_id });
+            expect(viewedRecords.length).to.equal(1);
+            expect(viewedRecords[0].agency_id).to.equal(fixtures.users.subStaffUser.agency_id);
+            expect(viewedRecords[0].user_id).to.equal(fixtures.users.subStaffUser.id);
+            expect(viewedRecords[0].updated_at.getTime()).to.equal(new Date('2024-01-02').getTime());
+        });
+
+        it('adds a viewed records for multiple users in an agency', async () => {
+            await db.markGrantAsViewed({
+                grantId: fixtures.grants.healthAide.grant_id,
+                agencyId: fixtures.users.subStaffUser.agency_id,
+                userId: fixtures.users.subStaffUser.id,
+            });
+            await db.markGrantAsViewed({
+                grantId: fixtures.grants.healthAide.grant_id,
+                agencyId: fixtures.users.usdrUser.agency_id,
+                userId: fixtures.users.usdrUser.id,
+            });
+
+            const viewedRecords = await knex(TABLES.grants_viewed)
+                .where({ grant_id: fixtures.grants.healthAide.grant_id });
+            expect(viewedRecords.length).to.equal(2);
+            const subStaffUserViewedRecord = viewedRecords.find((record) => record.user_id === fixtures.users.subStaffUser.id);
+            const usdrUserViewedRecord = viewedRecords.find((record) => record.user_id === fixtures.users.usdrUser.id);
+            expect(subStaffUserViewedRecord.updated_at.getTime()).to.equal(new Date('2024-01-01').getTime());
+            expect(usdrUserViewedRecord.updated_at.getTime()).to.equal(new Date('2024-01-01').getTime());
+        });
+    });
 });

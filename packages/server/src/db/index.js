@@ -816,7 +816,7 @@ async function enhanceGrantData(tenantId, data) {
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
         .andWhere('agencies.tenant_id', tenantId);
 
-    const viewedBy = await viewedByQuery.select(
+    const viewedBy = await viewedByQuery.distinct(
         `${TABLES.grants_viewed}.grant_id`,
         `${TABLES.grants_viewed}.agency_id`,
         `${TABLES.agencies}.name as agency_name`,
@@ -984,7 +984,12 @@ async function getGrants({
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
         .andWhere('agencies.tenant_id', tenantId);
 
-    const viewedBy = await viewedByQuery.select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
+    const viewedBy = await viewedByQuery.distinct(
+        `${TABLES.grants_viewed}.grant_id`,
+        `${TABLES.grants_viewed}.agency_id`,
+        `${TABLES.agencies}.name as agency_name`,
+        `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+    );
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), tenantId });
 
     const dataWithAgency = data.map((grant) => {
@@ -1034,9 +1039,15 @@ async function getClosestGrants({
 }
 
 async function markGrantAsViewed({ grantId, agencyId, userId }) {
-    const result = await knex(TABLES.grants_viewed)
-        .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
-    return result;
+    return knex(TABLES.grants_viewed)
+        .insert({
+            agency_id: agencyId,
+            grant_id: grantId,
+            user_id: userId,
+            updated_at: new Date(),
+        })
+        .onConflict(['grant_id', 'agency_id', 'user_id'])
+        .merge(); // upsert the new updated timestamp if user has already viewed
 }
 
 function getGrantAssignedAgencies({ grantId, tenantId }) {
