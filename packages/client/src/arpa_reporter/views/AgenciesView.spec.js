@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { describe, it, expect } from 'vitest';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import AgenciesView from '@/arpa_reporter/views/AgenciesView.vue';
@@ -23,8 +23,8 @@ describe('AgenciesView.vue', () => {
       stubs: ['router-link', 'router-view'],
     });
     const r = wrapper.find('tbody');
-    expect(r.text()).to.include('Agency 1');
-    expect(r.text()).to.include('Agency 2');
+    expect(r.text()).toContain('Agency 1');
+    expect(r.text()).toContain('Agency 2');
   });
 });
 

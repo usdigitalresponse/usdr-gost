@@ -1,7 +1,9 @@
-import { expect } from 'chai';
+import {
+  describe, beforeEach, afterEach, it, expect,
+} from 'vitest';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import AddOrganization from '@/components/Modals/AddOrganization.vue';
+import EditOrganization from '@/components/Modals/EditOrganization.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -13,10 +15,10 @@ afterEach(() => {
   wrapper = undefined;
 });
 
-describe('AddOrganization.vue', () => {
+describe('EditOrganization.vue', () => {
   describe('when the modal is loaded', () => {
     beforeEach(() => {
-      wrapper = shallowMount(AddOrganization, {
+      wrapper = shallowMount(EditOrganization, {
         localVue,
         stubs,
         computed: {
@@ -24,9 +26,9 @@ describe('AddOrganization.vue', () => {
         },
       });
     });
-    it('should have the title Add Organization', () => {
-      const heading = wrapper.get('#add-tenant-modal');
-      expect(heading.attributes().title).to.eql('Add Organization');
+    it('should have the title Edit Organization', () => {
+      const heading = wrapper.get('#edit-tenant-modal');
+      expect(heading.attributes().title).toEqual('Edit Organization');
     });
   });
 });

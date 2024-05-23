@@ -86,4 +86,4 @@ consume_grants_datadog_environment_variables = {
 }
 
 // Email
-email_enable_tracking = false
+email_enable_tracking = true

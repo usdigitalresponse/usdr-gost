@@ -1,4 +1,6 @@
-import { expect } from 'chai';
+import {
+  describe, beforeEach, it, expect,
+} from 'vitest';
 import { getFeatureFlags } from '@/helpers/featureFlags/utils';
 
 describe('featureFlags', () => {
@@ -13,17 +15,17 @@ describe('featureFlags', () => {
         });
 
         it('when window.APP_CONFIG does not exist', () => {
-          expect(getFeatureFlags()).to.be.an('object').that.is.empty;
+          expect(getFeatureFlags()).toEqual({});
         });
 
         it('when window.APP_CONFIG.featureFlags does not exist', () => {
           window.APP_CONFIG = {};
-          expect(getFeatureFlags()).to.be.an('object').that.is.empty;
+          expect(getFeatureFlags()).toEqual({});
         });
 
         it('when window.APP_CONFIG.featureFlags is actually an empty object', () => {
           window.APP_CONFIG = { featureFlags: {} };
-          expect(getFeatureFlags()).to.be.an('object').that.is.empty;
+          expect(getFeatureFlags()).toEqual({});
         });
       });
 
@@ -32,18 +34,18 @@ describe('featureFlags', () => {
           const expectedFeatureFlags = { useFoo: true, numberFlag: 1234 };
           window.APP_CONFIG = { featureFlags: expectedFeatureFlags };
           const actualFeatureFlags = getFeatureFlags();
-          expect(actualFeatureFlags.useFoo).to.be.true;
-          expect(actualFeatureFlags.numberFlag).to.equal(1234);
-          expect(actualFeatureFlags).to.eql(expectedFeatureFlags);
+          expect(actualFeatureFlags.useFoo).toBe(true);
+          expect(actualFeatureFlags.numberFlag).toBe(1234);
+          expect(actualFeatureFlags).toEqual(expectedFeatureFlags);
         });
         it('Ignores session storage overrides when JSON is malformed', () => {
           window.sessionStorage.setItem('featureFlags', 'i}am]not,JS;ON>{');
           const expectedFeatureFlags = { useFoo: true, numberFlag: 1234 };
           window.APP_CONFIG = { featureFlags: expectedFeatureFlags };
           const actualFeatureFlags = getFeatureFlags();
-          expect(actualFeatureFlags.useFoo).to.be.true;
-          expect(actualFeatureFlags.numberFlag).to.equal(1234);
-          expect(actualFeatureFlags).to.eql(expectedFeatureFlags);
+          expect(actualFeatureFlags.useFoo).toBe(true);
+          expect(actualFeatureFlags.numberFlag).toBe(1234);
+          expect(actualFeatureFlags).toEqual(expectedFeatureFlags);
         });
         it('Overrides feature flag values from session storage', () => {
           const defaultFeatureFlags = { useFoo: true, numberFlag: 1234 };
@@ -51,11 +53,11 @@ describe('featureFlags', () => {
           const overriddenFeatureFlags = { useFoo: false, stringFlag: 'hi!' };
           window.sessionStorage.setItem('featureFlags', JSON.stringify(overriddenFeatureFlags));
           const actualFeatureFlags = getFeatureFlags();
-          expect(actualFeatureFlags.useFoo).to.be.false;
-          expect(actualFeatureFlags.numberFlag).to.equal(1234);
-          expect(actualFeatureFlags.stringFlag).to.equal('hi!');
-          expect(actualFeatureFlags).to.not.eql(defaultFeatureFlags);
-          expect(actualFeatureFlags).to.eql({ useFoo: false, numberFlag: 1234, stringFlag: 'hi!' });
+          expect(actualFeatureFlags.useFoo).toBe(false);
+          expect(actualFeatureFlags.numberFlag).toBe(1234);
+          expect(actualFeatureFlags.stringFlag).toBe('hi!');
+          expect(actualFeatureFlags).not.toEqual(defaultFeatureFlags);
+          expect(actualFeatureFlags).toEqual({ useFoo: false, numberFlag: 1234, stringFlag: 'hi!' });
         });
       });
     });
