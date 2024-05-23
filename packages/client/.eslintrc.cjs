@@ -3,7 +3,7 @@ module.exports = {
   root: true,
   env: {
     node: true,
-    es6: true,
+    es2022: true,
   },
   plugins: [
     'import-alias',
@@ -13,9 +13,6 @@ module.exports = {
     '@vue/airbnb',
     'plugin:import/recommended',
   ],
-  parserOptions: {
-    parser: 'babel-eslint',
-  },
   rules: {
     // TODO: enable these lint rules over time
     'max-len': 'off',
