@@ -28,6 +28,11 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  region = "us-east-1"
+  alias  = "us-east-1"
+}
+
 provider "datadog" {
   validate = can(coalesce(var.datadog_api_key)) && can(coalesce(var.datadog_app_key))
   api_key  = var.datadog_api_key
