@@ -91,7 +91,7 @@ jobs:
       fmt_outcome: ${{ steps.fmt.outcome }}
       init_outcome: ${{ steps.init.outcome }}
       validate_outcome: ${{ steps.validate.outcome }}
-      validate_output: ${{ steps.validate.outputs.stdout }}
+      validate_output: ${{ steps.validate.outputs.stdout || steps.validate.outputs.stderr }}
       plan_exitcode: ${{ steps.plan.outputs.exitcode }}
       plan_outcome: ${{ steps.plan.outcome }}
       plan_output: ${{ steps.show_plan.outputs.stdout || steps.show_plan.outputs.stderr }}
