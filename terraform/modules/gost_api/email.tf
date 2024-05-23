@@ -32,7 +32,6 @@ module "send_emails_policy" {
           resources = concat(
             [
               data.aws_ses_domain_identity.notifications.arn,
-              "arn:aws:ses:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:configuration-set/${var.ses_configuration_set_default}",
               data.aws_sesv2_configuration_set.default.arn,
             ],
             values(aws_ses_email_identity.sandbox_mode_recipients)[*].arn,
