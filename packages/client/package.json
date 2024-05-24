@@ -9,7 +9,7 @@
     "npm": "please-use-yarn"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && rm dist/deploy-config.js",
     "dev": "vite",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
     "test": "vitest"
