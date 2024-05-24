@@ -45,6 +45,7 @@ export default defineConfig({
         arpa_reporter: path.resolve(__dirname, 'arpa_reporter/index.html'),
       },
     },
+    sourcemap: true,
   },
   test: {
     environment: 'jsdom',
