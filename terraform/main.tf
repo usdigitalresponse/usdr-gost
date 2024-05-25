@@ -65,7 +65,7 @@ data "aws_ssm_parameter" "public_dns_zone_id" {
 module "website" {
   enabled                  = var.website_enabled
   source                   = "./modules/gost_website"
-  namespace                = var.namespace
+  namespace                = var.namespace.invalid
   permissions_boundary_arn = local.permissions_boundary_arn
 
   dns_zone_id       = data.aws_ssm_parameter.public_dns_zone_id.value

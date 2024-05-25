@@ -1,7 +1,3 @@
-variable "this_will_break" {
-  type = unsupported
-}
-
 variable "namespace" {
   type = string
 }
