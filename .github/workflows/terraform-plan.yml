@@ -93,18 +93,18 @@ jobs:
       validate_outcome: ${{ steps.validate.outcome }}
       validate_output: |-
         stdout:
-        ${{ steps.validate.outputs.stderr }}
+        ${{ steps.validate.outputs.stdout }}
         -------------------------------------
         stderr:
-        ${{ steps.validate.outputs.stdout }}
+        ${{ steps.validate.outputs.stderr }}
       plan_exitcode: ${{ steps.plan.outputs.exitcode }}
       plan_outcome: ${{ steps.plan.outcome }}
       plan_output: |-
         stdout:
-        ${{ steps.show_plan.outputs.stderr }}
+        ${{ steps.show_plan.outputs.stdout }}
         -------------------------------------
         stderr:
-        ${{ steps.show_plan.outputs.stdout }}
+        ${{ steps.show_plan.outputs.stderr }}
       plan_summary_md: ${{ steps.plan_summary.outputs.markdown_table }}
     env:
       ARTIFACTS_KEY: terraform-${{ inputs.environment-key }}-${{ inputs.ref }}
