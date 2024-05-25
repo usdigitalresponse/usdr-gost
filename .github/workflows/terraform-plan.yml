@@ -91,10 +91,20 @@ jobs:
       fmt_outcome: ${{ steps.fmt.outcome }}
       init_outcome: ${{ steps.init.outcome }}
       validate_outcome: ${{ steps.validate.outcome }}
-      validate_output: ${{ steps.validate.outputs.stdout || steps.validate.outputs.stderr }}
+      validate_output: |-
+        stdout:
+        ${{ steps.validate.outputs.stderr }}
+        -------------------------------------
+        stderr:
+        ${{ steps.validate.outputs.stdout }}
       plan_exitcode: ${{ steps.plan.outputs.exitcode }}
       plan_outcome: ${{ steps.plan.outcome }}
-      plan_output: ${{ steps.show_plan.outputs.stdout || steps.show_plan.outputs.stderr }}
+      plan_output: |-
+        stdout:
+        ${{ steps.show_plan.outputs.stderr }}
+        -------------------------------------
+        stderr:
+        ${{ steps.show_plan.outputs.stdout }}
       plan_summary_md: ${{ steps.plan_summary.outputs.markdown_table }}
     env:
       ARTIFACTS_KEY: terraform-${{ inputs.environment-key }}-${{ inputs.ref }}
