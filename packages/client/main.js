@@ -9,7 +9,7 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
-import vSelect from 'vue-select';
+import { VueSelect } from 'vue-select';
 import { setUserForGoogleAnalytics } from '@/helpers/gtag';
 import App from '@/App.vue';
 import router from '@/router';
@@ -31,7 +31,7 @@ Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
 Vue.use(VueRouter);
-Vue.component('VSelect', vSelect);
+Vue.component('VSelect', VueSelect);
 
 Vue.config.productionTip = false;
 Vue.prototype.$negative_keywords_enabled = import.meta.env.VUE_APP_NEGATIVE_KEYWORDS_ENABLED === 'true';
