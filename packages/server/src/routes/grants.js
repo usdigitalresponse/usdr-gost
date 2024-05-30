@@ -348,6 +348,28 @@ router.get('/:grantId/assign/agencies', requireUser, async (req, res) => {
     res.json(response);
 });
 
+router.post('/:grantId/assign/agencies', requireUser, async (req, res) => {
+    const { user } = req.session;
+    const { grantId } = req.params;
+    const { agencyIds } = req.body;
+
+    const inSameTenant = await db.inTenant(user.tenant_id, agencyIds);
+    if (!inSameTenant) {
+        res.sendStatus(403);
+        return;
+    }
+
+    await db.assignGrantsToAgencies({ grantId, agencyIds, userId: user.id });
+    try {
+        await email.sendGrantAssignedEmails({ grantId, agencyIds, userId: user.id });
+    } catch {
+        res.sendStatus(500);
+        return;
+    }
+
+    res.json({});
+});
+
 router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { user } = req.session;
     const { grantId } = req.params;
