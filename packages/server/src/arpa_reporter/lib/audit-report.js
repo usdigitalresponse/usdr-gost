@@ -312,7 +312,7 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
         const lastProjectRecord = projectSheetRecords[projectSheetRecords.length - 1];
         const row = {
             'Project ID': projectId,
-            'Project Description': lastProjectRecord?.content.Project_Description__c,
+            'Project Description': lastProjectRecord?.content.Project_Description__c ?? '[project not listed in any upload]',
             'Project Expenditure Category Group': ec(lastProjectRecord?.type),
             'Project Expenditure Category': lastProjectRecord?.subcategory,
             'Capital Expenditure Amount': 0,
