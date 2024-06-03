@@ -540,17 +540,6 @@ function validateSubawardRefs(awardsGT50k, projects, subrecipients, errors) {
     return usedSubrecipients;
 }
 
-function validateSubrecipientRefs(subrecipients, usedSubrecipients, errors) {
-    // Make sure that every subrecip included in this upload was referenced by at least one subaward
-    for (const subRecipId of Object.keys(subrecipients)) {
-        if (!(subRecipId && usedSubrecipients.has(subRecipId))) {
-            errors.push(betaValidationWarning(
-                `Subrecipient with id ${subRecipId} has no related subawards and can be ommitted.`,
-            ));
-        }
-    }
-}
-
 function validateExpenditureRefs(expendituresGT50k, awardsGT50k, errors) {
     // Make sure each expenditure references a valid subward
     for (const expenditure of expendituresGT50k) {
@@ -578,13 +567,12 @@ async function validateReferences({ records }) {
         );
     }
 
-    const usedSubrecipients = validateSubawardRefs(
+    validateSubawardRefs(
         sortedRecords.awardsGT50k,
         sortedRecords.projects,
         sortedRecords.subrecipients,
         errors,
     );
-    validateSubrecipientRefs(sortedRecords.subrecipients, usedSubrecipients, errors);
     validateExpenditureRefs(sortedRecords.expendituresGT50k, sortedRecords.awardsGT50k, errors);
 
     return errors;
