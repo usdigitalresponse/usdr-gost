@@ -174,7 +174,7 @@ export default {
       return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested`);
     },
     assignAgenciesToGrant({ rootGetters }, { grantId, agencyIds }) {
-      return fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/assign/agencies`, {
+      return fetchApi.post(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/assign/agencies`, {
         agencyIds,
       });
     },
