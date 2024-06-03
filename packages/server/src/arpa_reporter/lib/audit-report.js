@@ -6,7 +6,7 @@ const XLSX = require('xlsx');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const { log } = require('../../lib/logging');
 const aws = require('../../lib/gost-aws');
-const { currencyNumeric, ec } = require('./format');
+const { EXPENDITURE_CATEGORIES, currencyNumeric, ec } = require('./format');
 
 const { getPreviousReportingPeriods, getAllReportingPeriods, getReportingPeriod } = require('../db/reporting-periods');
 const { getCurrentReportingPeriodID } = require('../db/settings');
@@ -308,12 +308,13 @@ async function createReportsGroupedByProject(periodId, tenantId, dateFormat = RE
         projectLogger.debug('populating row from records in project');
 
         // set values for columns that are common across all records of projectId
-        const lastProjectRecord = projectRecords[projectRecords.length - 1];
+        const projectSheetRecords = projectRecords.filter((record) => Object.keys(EXPENDITURE_CATEGORIES).includes(record.type));
+        const lastProjectRecord = projectSheetRecords[projectSheetRecords.length - 1];
         const row = {
             'Project ID': projectId,
-            'Project Description': lastProjectRecord.content.Project_Description__c,
-            'Project Expenditure Category Group': ec(lastProjectRecord.type),
-            'Project Expenditure Category': lastProjectRecord.subcategory,
+            'Project Description': lastProjectRecord?.content.Project_Description__c ?? '[project not listed in any upload]',
+            'Project Expenditure Category Group': ec(lastProjectRecord?.type),
+            'Project Expenditure Category': lastProjectRecord?.subcategory,
             'Capital Expenditure Amount': 0,
         };
 
