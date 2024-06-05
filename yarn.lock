@@ -861,9 +861,9 @@
     tslib "^2.6.2"
 
 "@aws-sdk/s3-request-presigner@^3.312.0":
-  version "3.588.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.588.0.tgz#c152c95835926957740f3d435014f521eae7f9fa"
-  integrity sha512-yZBNzRBayL3H2yUQzkoHdiGRDqCfxhfOYYgwW0ZP9UkI6GF/kIkeuvCH5IANGxtXKNRvz8sGW+xjsVOMN6S7Yg==
+  version "3.590.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.590.0.tgz#2a6d0d965f8b978cfbb18366c2dfae49656a6fd9"
+  integrity sha512-bb8NEG2IUHqFQJsLzr1nlkTZYyokeo3bGbHwMBKZHbdF+OXrQx0kQUcaDCXYWmeydSfHXxweQEJ2U5i1YEvT/A==
   dependencies:
     "@aws-sdk/signature-v4-multi-region" "3.587.0"
     "@aws-sdk/types" "3.577.0"
