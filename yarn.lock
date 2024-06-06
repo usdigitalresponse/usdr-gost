@@ -2495,10 +2495,10 @@
     "@datadog/browser-core" "5.20.0"
     "@datadog/browser-rum-core" "5.20.0"
 
-"@datadog/native-appsec@7.1.1":
-  version "7.1.1"
-  resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-7.1.1.tgz#eee96ae4c309e5b811611e968668f6744452c584"
-  integrity sha512-1XVrCY4g1ArN79SQANMtiIkaxKSPfgdAGv0VAM4Pz+NQuxKfl+2xQPXjQPm87LI1KQIO6MU6qzv3sUUSesb9lA==
+"@datadog/native-appsec@8.0.1":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@datadog/native-appsec/-/native-appsec-8.0.1.tgz#be06be92d79d7462aa64ee3a33108133083134fc"
+  integrity sha512-SpWkoo7K4+pwxFze1ogRF1qBaKm8sZjWfZKnQ8Ex67f6L5odLjWOoiiIAs5rp01sLKGXjxU8IJf+X9j4PvI2zQ==
   dependencies:
     node-gyp-build "^3.9.0"
 
@@ -6962,11 +6962,11 @@ dc-polyfill@^0.1.4:
   integrity sha512-UV33cugmCC49a5uWAApM+6Ev9ZdvIUMTrtCO9fj96TPGOQiea54oeO3tiEVdVeo3J9N2UdJEmbS4zOkkEA35uQ==
 
 dd-trace@^4.11.1:
-  version "4.38.1"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.38.1.tgz#a45bf982d29d26821dfc983b48b5b9e08b3ae0a5"
-  integrity sha512-xESTxe3TvpIMAinL+XlkjkZLFcEXamayHS6zUsu3+TEUMIIKVJP35djfPKGWT80YgkOrTR+08r/GkIIznBpcrg==
+  version "4.39.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.39.0.tgz#062e8e1e243e57adb480311d4dab7f33c3be373d"
+  integrity sha512-pybzkWRsZU390HApl94EYx65h2vYvO3c3guAKodGRgHwtIN4MZ+I5uKgJUQMMcVjYfoZ892RN5jN2JdlwOjtFQ==
   dependencies:
-    "@datadog/native-appsec" "7.1.1"
+    "@datadog/native-appsec" "8.0.1"
     "@datadog/native-iast-rewriter" "2.3.1"
     "@datadog/native-iast-taint-tracking" "2.1.0"
     "@datadog/native-metrics" "^2.0.0"
@@ -6979,17 +6979,14 @@ dd-trace@^4.11.1:
     ignore "^5.2.4"
     import-in-the-middle "^1.7.4"
     int64-buffer "^0.1.9"
-    ipaddr.js "^2.1.0"
     istanbul-lib-coverage "3.2.0"
     jest-docblock "^29.7.0"
     koalas "^1.0.2"
     limiter "1.1.5"
     lodash.sortby "^4.7.0"
     lru-cache "^7.14.0"
-    methods "^1.1.2"
     module-details-from-path "^1.0.3"
     msgpack-lite "^0.1.26"
-    node-abort-controller "^3.1.1"
     opentracing ">=0.12.1"
     path-to-regexp "^0.1.2"
     pprof-format "^2.1.0"
@@ -9742,7 +9739,7 @@ ipaddr.js@1.9.1:
   resolved "https://registry.yarnpkg.com/ipaddr.js/-/ipaddr.js-1.9.1.tgz#bff38543eeb8984825079ff3a2a8e6cbd46781b3"
   integrity sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==
 
-ipaddr.js@^2.0.1, ipaddr.js@^2.1.0:
+ipaddr.js@^2.0.1:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/ipaddr.js/-/ipaddr.js-2.2.0.tgz#d33fa7bac284f4de7af949638c9d68157c6b92e8"
   integrity sha512-Ag3wB2o37wslZS19hZqorUnrnzSkpOVy+IiiDEiTqNubEYpYuHWIf6K4psgN2ZWKExS4xhVCrRVfb/wfW8fWJA==
@@ -11569,7 +11566,7 @@ no-case@^3.0.4:
     lower-case "^2.0.2"
     tslib "^2.0.3"
 
-node-abort-controller@^3.0.1, node-abort-controller@^3.1.1:
+node-abort-controller@^3.0.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/node-abort-controller/-/node-abort-controller-3.1.1.tgz#a94377e964a9a37ac3976d848cb5c765833b8548"
   integrity sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==
