@@ -70,7 +70,7 @@ api_datadog_environment_variables = {
 }
 api_container_environment = {
   NEW_GRANT_DETAILS_PAGE_ENABLED = true,
-  SHARE_TERMINOLOGY_ENABLED = true,
+  SHARE_TERMINOLOGY_ENABLED      = true,
 }
 
 // Postgres
