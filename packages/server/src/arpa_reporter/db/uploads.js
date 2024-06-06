@@ -64,7 +64,8 @@ function usedForTreasuryExport(periodId, tenantId = useTenantId(), trns = knex) 
                 .andOn('uploads.agency_id', '=', 'agency_max_val.agency_id')
                 .andOn('uploads.ec_code', '=', 'agency_max_val.ec_code')
                 .andOn('uploads.reporting_period_id', '=', 'agency_max_val.reporting_period_id');
-        });
+        })
+        .orderBy('created_at', 'asc');
 }
 
 /*  getUploadSummaries() returns a knex promise containing an array of
