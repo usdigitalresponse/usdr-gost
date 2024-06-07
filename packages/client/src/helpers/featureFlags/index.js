@@ -7,3 +7,7 @@ export function newTerminologyEnabled() {
 export function newGrantsDetailPageEnabled() {
   return getFeatureFlags().newGrantsDetailPageEnabled === true;
 }
+
+export function shareTerminologyEnabled() {
+  return getFeatureFlags().shareTerminologyEnabled === true;
+}
