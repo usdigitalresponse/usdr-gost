@@ -143,7 +143,7 @@ async function sendPassCodeEmail(email, passcode, httpOrigin, redirectTo) {
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
         body_title: 'Login Passcode',
-        body_detail: `<p>Your link to access USDR's Grants Tool is <a href=${href}>${href}</a>.
+        body_detail: `<p>Your link to access USDR's Grants Tool is <a ses:no-track href=${href}>${href}</a>.
         It expires in ${expiryMinutes} minutes</p>`,
     });
 
