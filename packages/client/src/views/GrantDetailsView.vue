@@ -132,7 +132,7 @@
                 variant="outline-primary"
                 :disabled="!selectedAgencyToAssign"
                 data-dd-action-name="assign team"
-                @click="assignAgenciesToGrant"
+                @click="assignAgencyToGrant(selectedAgencyToAssign)"
               >
                 Submit
               </b-button>
@@ -153,7 +153,7 @@
               <b-button-close
                 data-dd-action-name="remove team assignment"
                 class="print-d-none"
-                @click="unassignAgenciesToGrant(agency)"
+                @click="unassignAgencyToGrant(agency)"
               />
             </div>
           </div>
@@ -468,18 +468,18 @@ export default {
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
     },
-    async assignAgenciesToGrant() {
+    async assignAgencyToGrant(agency) {
       await this.assignAgenciesToGrantAction({
         grantId: this.currentGrant.grant_id,
-        agencyIds: this.assignedAgencies.map((agency) => agency.id).concat(this.selectedAgencyToAssign.id),
+        agencyIds: [agency.id],
       });
+      this.selectedAgencyToAssign = null;
+      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.currentGrant.grant_id });
       const eventName = 'assign team to grant';
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
-      this.selectedAgencyToAssign = null;
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.currentGrant.grant_id });
     },
-    async unassignAgenciesToGrant(agency) {
+    async unassignAgencyToGrant(agency) {
       await this.unassignAgenciesToGrantAction({
         grantId: this.currentGrant.grant_id,
         agencyIds: [agency.id],

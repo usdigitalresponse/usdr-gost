@@ -348,7 +348,7 @@ router.get('/:grantId/assign/agencies', requireUser, async (req, res) => {
     res.json(response);
 });
 
-router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
+router.post('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { user } = req.session;
     const { grantId } = req.params;
     const { agencyIds } = req.body;
