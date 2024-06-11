@@ -21,6 +21,12 @@ export const routes = [
     },
   },
   {
+    // This is required in dev (and is harmless in production) to ensure `/arpa_reporter` loads the
+    // ARPA SPA rather than the Grants SPA (see https://github.com/vitejs/vite/issues/2958#issuecomment-1146492483 for some context)
+    path: '/arpa_reporter',
+    redirect: () => { window.location.href = '/arpa_reporter/'; },
+  },
+  {
     path: '/',
     name: 'layout',
     redirect: (to) => {
@@ -180,7 +186,7 @@ export const routes = [
 ];
 
 const router = new VueRouter({
-  base: process.env.BASE_URL,
+  base: import.meta.env.BASE_URL,
   mode: 'history',
   routes,
 });
