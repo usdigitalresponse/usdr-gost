@@ -72,6 +72,7 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import { shareTerminologyEnabled } from '@/helpers/featureFlags';
 import EditUserModal from '@/components/Modals/EditUser.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 
@@ -81,6 +82,10 @@ export default {
     UserAvatar,
   },
   data() {
+    const shareTerminologyEnabledFlag = shareTerminologyEnabled() === true;
+    const grantAssignmentDescription = 'Send me notifications if a grant has been assigned to my USDR Grants team.';
+    const grantShareDescription = 'Send me an email notification when someone shares a grant with my team.';
+
     return {
       prefs: [
         {
@@ -89,9 +94,9 @@ export default {
           description: 'Send me a daily email if new grants match my saved search(es).',
         },
         {
-          name: 'Grants Assignment',
+          name: shareTerminologyEnabledFlag ? 'Shared Grants' : 'Grants Assignment',
           key: 'GRANT_ASSIGNMENT',
-          description: 'Send me notifications if a grant has been assigned to my USDR Grants team.',
+          description: shareTerminologyEnabledFlag ? grantShareDescription : grantAssignmentDescription,
         },
       ],
       breadcrumb_items: [
