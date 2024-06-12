@@ -45,14 +45,14 @@ describe('`/api/grants` endpoint', () => {
         NV1: {
             assigned_by_name: 'nv.gov Admin User 1',
             assigned_by_email: 'admin1@nv.example.com',
-            assigned_by_avatar_color: '#198754'
+            assigned_by_avatar_color: '#198754',
         },
         NV2: {
             assigned_by_name: 'nv.gov User 2',
             assigned_by_email: 'user2@nv.example.com',
-            assigned_by_avatar_color: '#FD7E14'
-        }
-    }
+            assigned_by_avatar_color: '#FD7E14',
+        },
+    };
 
     let testServer;
     let fetchApi;
@@ -156,9 +156,9 @@ describe('`/api/grants` endpoint', () => {
                 const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.offLimits, fetchOptions.admin);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
-            it('includes assigned by information for the grant to an agency', async() => {
-                expect(json.find((a)=> a.assigned_by_name === assignedBy.NV1.assigned_by_name)).to.be.ok;
-                expect(json.find((a)=> a.assigned_by_name === assignedBy.NV2.assigned_by_name)).to.be.ok;
+            it('includes assigned by information for the grant to an agency', async () => {
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV1.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV2.assigned_by_name)).to.be.ok;
             });
         });
         context('by a user with staff role', () => {
@@ -184,9 +184,9 @@ describe('`/api/grants` endpoint', () => {
                 const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.ownSub, fetchOptions.staff);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
-            it('includes assigned by information for the grant to an agency', async() => {
-                expect(json.find((a)=> a.assigned_by_name === assignedBy.NV1.assigned_by_name)).to.be.ok;
-                expect(json.find((a)=> a.assigned_by_name === assignedBy.NV2.assigned_by_name)).to.be.ok;
+            it('includes assigned by information for the grant to an agency', async () => {
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV1.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV2.assigned_by_name)).to.be.ok;
             });
         });
         context('by a user with admin role in another organization', () => {
