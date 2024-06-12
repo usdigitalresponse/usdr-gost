@@ -77,9 +77,9 @@
 
 <script>
 /* eslint-disable import/no-unresolved */
-import { apiURL } from '@/helpers/fetchApi';
 import { useVuelidate } from '@vuelidate/core';
 import { required, email, helpers } from '@vuelidate/validators';
+import { apiURL } from '@/helpers/fetchApi';
 
 export default {
   name: 'LoginView',
