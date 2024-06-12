@@ -6,6 +6,13 @@ import LoginView from '@/views/LoginView.vue';
 
 import store from '@/store';
 
+const myGrantsTabs = [
+  shareTerminologyEnabled() ? 'shared-with-your-team' : 'assigned',
+  'interested',
+  'not-applying',
+  'applied',
+];
+
 export const routes = [
   {
     path: '/login',
@@ -79,14 +86,14 @@ export const routes = [
       },
       {
         path: '/my-grants',
-        redirect: '/my-grants/interested',
+        redirect: { name: 'myGrants', params: { tab: myGrantsTabs[0] } },
       },
       {
         path: '/my-grants/:tab',
         name: 'myGrants',
         component: () => import('../views/MyGrantsView.vue'),
         meta: {
-          tabNames: [shareTerminologyEnabled() ? 'shared-with-your-team' : 'assigned', 'interested', 'not-applying', 'applied'],
+          tabNames: myGrantsTabs,
           requiresAuth: true,
         },
         beforeEnter: (to, _, next) => {
@@ -100,7 +107,7 @@ export const routes = [
       {
         path: '/my-grants/assigned',
         name: 'assigned',
-        redirect: shareTerminologyEnabled() ? '/my-grants/shared-with-your-team' : undefined,
+        redirect: { name: 'shared-with-your-team' },
         meta: {
           requiresAuth: true,
         },

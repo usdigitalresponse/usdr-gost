@@ -7,16 +7,9 @@
       style="margin-top: 1.5rem"
       lazy
     >
-      <b-tab v-if="shareTerminologyEnabled" title="Shared With Your Team">
+      <b-tab :title="shareTerminologyEnabled ? 'Shared With Your Team' : 'Assigned'">
         <GrantsTable
-          search-title="Shared With Your Team"
-          :show-assigned-to-agency="selectedAgencyId"
-          :show-search-controls="false"
-        />
-      </b-tab>
-      <b-tab v-else title="Assigned">
-        <GrantsTable
-          search-title="Assigned"
+          :search-title="shareTerminologyEnabled ? 'Shared With Your Team' : 'Assigned'"
           :show-assigned-to-agency="selectedAgencyId"
           :show-search-controls="false"
         />
