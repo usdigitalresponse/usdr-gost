@@ -19,12 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - uses: step-security/harden-runner@f086349bfa2bd1361f7909c78558e816508cdc10 # v2.8.0
+      - uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
         with:
           disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
+            api.deps.dev:443
             api.github.com:443
+            api.securityscorecards.dev:443
             github.com:443
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
@@ -40,7 +42,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: step-security/harden-runner@f086349bfa2bd1361f7909c78558e816508cdc10 # v2.8.0
+      - uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
         with:
           disable-sudo: true
           egress-policy: audit
@@ -65,7 +67,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: step-security/harden-runner@f086349bfa2bd1361f7909c78558e816508cdc10 # v2.8.0
+      - uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
         with:
           disable-sudo: true
           egress-policy: block
@@ -77,4 +79,4 @@ jobs:
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Ensure GitHub action versions are pinned to SHAs
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@2f2ebc6d914ab515939dc13f570f91baeb2c194c # v3.0.6
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@76d1d8e0b075d7190b5d59b86da91c7bdbcc99b2 # v3.0.7
