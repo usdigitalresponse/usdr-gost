@@ -60,7 +60,6 @@ api_enabled                            = true
 api_default_desired_task_count         = 1
 api_minumum_task_count                 = 1
 api_maximum_task_count                 = 5
-api_enable_grants_scraper              = false
 api_enable_new_team_terminology        = true
 api_enable_saved_search_grants_digest  = true
 api_enable_grant_digest_scheduled_task = true
