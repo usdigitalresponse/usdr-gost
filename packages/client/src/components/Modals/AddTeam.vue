@@ -17,7 +17,7 @@
         label-for="name-input"
         invalid-feedback="Required"
       >
-        <template slot="label">
+        <template #label>
           Name
         </template>
         <b-form-input
@@ -33,10 +33,10 @@
         label-for="abbreviation-input"
         invalid-feedback="Required"
       >
-        <template slot="label">
+        <template #label>
           Abbreviation
         </template>
-        <template slot="description">
+        <template #description>
           This is used for displaying lists of {{ newTerminologyEnabled ? 'teams' : 'agencies' }} in compact form (e.g. in a table).
         </template>
         <b-form-input
@@ -53,10 +53,10 @@
         label-for="code-input"
         invalid-feedback="Required"
       >
-        <template slot="label">
+        <template #label>
           Code
         </template>
-        <template slot="description">
+        <template #description>
           This should match the Agency Code field in ARPA Reporter workbook uploads. If not using ARPA Reporter, you can set this the same as Abbreviation. This field must be unique across {{ newTerminologyEnabled ? 'teams' : 'agencies' }}.
         </template>
         <b-form-input
@@ -73,7 +73,7 @@
         label-for="agency-input"
         :invalid-feedback="newTerminologyEnabled ? 'Must select a parent team' : 'Must select a parent agency'"
       >
-        <template slot="label">
+        <template #label>
           Parent {{ newTerminologyEnabled ? 'Team' : 'Agency' }}
         </template>
         <v-select
@@ -97,10 +97,10 @@
         label-for="warningThreshold-input"
         invalid-feedback="Warning Threshold must be 2 or greater"
       >
-        <template slot="label">
+        <template #label>
           Close Date <span class="text-warning">Warning</span> Threshold
         </template>
-        <template slot="description">
+        <template #description>
           How many days out to show grant close dates with <span class="text-warning">warning</span> status
         </template>
         <b-form-input
@@ -116,10 +116,10 @@
         label-for="dangerThreshold-input"
         invalid-feedback="Danger Threshold must be greater than 0 and less than Warning Threshold"
       >
-        <template slot="label">
+        <template #label>
           Close Date <span class="text-danger">Danger</span> Threshold
         </template>
-        <template slot="description">
+        <template #description>
           How many days out to show grant close dates with <span class="text-danger">danger</span> status
         </template>
         <b-form-input

@@ -26,52 +26,48 @@
       }"
       style-class="vgt-table table table-striped table-bordered"
     >
-      <div
-        slot="table-actions"
-        class="p-1"
-      >
-        <div class="form-check form-check-inline">
-          <input
-            id="onlyExported"
-            v-model="onlyExported"
-            class="form-check-input"
-            type="checkbox"
+      <template #table-actions>
+        <div class="p-1">
+          <div class="form-check form-check-inline">
+            <input
+              id="onlyExported"
+              v-model="onlyExported"
+              class="form-check-input"
+              type="checkbox"
+            >
+            <label
+              class="form-check-label"
+              for="onlyExported"
+            >Only exported to treasury?</label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input
+              id="groupByAgency"
+              v-model="groupByAgency"
+              class="form-check-input"
+              type="checkbox"
+            >
+            <label
+              class="form-check-label"
+              for="groupByAgency"
+            >Group by agency?</label>
+          </div>
+
+          <button
+            class="btn btn-secondary btn-sm"
+            @click="resetFilters"
           >
-          <label
-            class="form-check-label"
-            for="onlyExported"
-          >Only exported to treasury?</label>
+            Reset Filters
+          </button>
         </div>
+      </template>
 
-        <div class="form-check form-check-inline">
-          <input
-            id="groupByAgency"
-            v-model="groupByAgency"
-            class="form-check-input"
-            type="checkbox"
-          >
-          <label
-            class="form-check-label"
-            for="groupByAgency"
-          >Group by agency?</label>
-        </div>
-
-        <button
-          class="btn btn-secondary btn-sm"
-          @click="resetFilters"
-        >
-          Reset Filters
-        </button>
-      </div>
-
-      <div slot="emptystate">
+      <template #emptystate>
         No uploads
-      </div>
+      </template>
 
-      <template
-        slot="table-row"
-        slot-scope="props"
-      >
+      <template #table-row="props">
         <span v-if="props.column.field === 'id'">
           <router-link :to="`/uploads/${props.row.id}`">
             {{ shortUuid(props.row.id) }}
