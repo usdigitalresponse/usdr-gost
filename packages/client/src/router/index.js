@@ -95,6 +95,23 @@ export const routes = [
         redirect: { name: 'myGrants', params: { tab: myGrantsTabs[0] } },
       },
       {
+        path: '/my-grants/assigned',
+        name: 'assigned',
+        redirect: { name: shareTerminologyEnabled? 'shared-with-your-team' : undefined },
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: '/my-grants/shared-with-your-team',
+        name: 'shared-with-your-team',
+        component: () => import('@/views/MyGrantsView.vue'),
+        meta: {
+          requiresAuth: true,
+          requiresShareTerminologyEnabled: true,
+        },
+      },
+      {
         path: '/my-grants/:tab',
         name: 'myGrants',
         component: () => import('../views/MyGrantsView.vue'),
@@ -108,23 +125,6 @@ export const routes = [
           } else {
             next('/404');
           }
-        },
-      },
-      {
-        path: '/my-grants/assigned',
-        name: 'assigned',
-        redirect: { name: 'shared-with-your-team' },
-        meta: {
-          requiresAuth: true,
-        },
-      },
-      {
-        path: '/my-grants/shared-with-your-team',
-        name: 'shared-with-your-team',
-        component: () => import('@/views/MyGrantsView.vue'),
-        meta: {
-          requiresAuth: true,
-          requiresShareTerminologyEnabled: true,
         },
       },
       {
