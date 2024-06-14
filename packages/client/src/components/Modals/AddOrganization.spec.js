@@ -1,12 +1,8 @@
 import {
   describe, beforeEach, afterEach, it, expect,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
 import AddOrganization from '@/components/Modals/AddOrganization.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 let wrapper;
 const stubs = ['b-modal', 'b-form-group', 'b-form-input'];
@@ -19,8 +15,9 @@ describe('AddOrganization.vue', () => {
   describe('when the modal is loaded', () => {
     beforeEach(() => {
       wrapper = shallowMount(AddOrganization, {
-        localVue,
-        stubs,
+        global: {
+          stubs,
+        },
         computed: {
           newTerminologyEnabled: () => true,
         },

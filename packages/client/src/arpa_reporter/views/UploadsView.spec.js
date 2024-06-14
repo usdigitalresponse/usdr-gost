@@ -1,10 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 describe('UploadsView.vue', () => {
   it('renders', () => {
@@ -20,9 +17,10 @@ describe('UploadsView.vue', () => {
     });
 
     const wrapper = mount(UploadsView, {
-      store,
-      localVue,
-      stubs: ['router-link'],
+      global: {
+        plugins: [store],
+        stubs: ['router-link'],
+      },
     });
     expect(wrapper.text()).toContain('No uploads');
   });
@@ -69,9 +67,10 @@ describe('UploadsView.vue', () => {
     });
 
     const wrapper = mount(UploadsView, {
-      store,
-      localVue,
-      stubs: ['router-link'],
+      global: {
+        plugins: [store],
+        stubs: ['router-link'],
+      },
     });
     expect(wrapper.text()).toContain('00000000');
 

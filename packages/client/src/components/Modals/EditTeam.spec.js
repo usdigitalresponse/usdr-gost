@@ -1,12 +1,9 @@
 import {
   describe, beforeEach, afterEach, it, expect,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import EditTeam from '@/components/Modals/EditTeam.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 let store;
 let wrapper;
@@ -31,9 +28,10 @@ describe('EditTeam.vue', () => {
         },
       });
       wrapper = shallowMount(EditTeam, {
-        localVue,
-        store,
-        stubs,
+        global: {
+          plugins: [store],
+          stubs,
+        },
         computed: {
           newTerminologyEnabled: () => true,
         },

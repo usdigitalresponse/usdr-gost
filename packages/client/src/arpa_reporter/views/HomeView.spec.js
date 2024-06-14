@@ -1,12 +1,9 @@
 import {
   describe, beforeEach, afterEach, it, expect,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import HomeView from '@/arpa_reporter/views/HomeView.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 let store;
 let wrapper;
@@ -29,8 +26,9 @@ describe('HomeView.vue', () => {
           },
         });
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
+          global: {
+            plugins: [store],
+          },
         });
       });
       it('should show the Welcome text', () => {
@@ -56,9 +54,10 @@ describe('HomeView.vue', () => {
           },
         });
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
-          mocks: { $route: route },
+          global: {
+            plugins: [store],
+            mocks: { $route: route },
+          },
         });
       });
       it('should show the submit workbook button', () => {
@@ -79,9 +78,10 @@ describe('HomeView.vue', () => {
         });
         route = { query: { } };
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
-          mocks: { $route: route },
+          global: {
+            plugins: [store],
+            mocks: { $route: route },
+          },
         });
       });
       it('should show the submit workbook button', () => {
@@ -109,9 +109,10 @@ describe('HomeView.vue', () => {
         });
         route = { query: { sync_treasury_download: true } };
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
-          mocks: { $route: route },
+          global: {
+            plugins: [store],
+            mocks: { $route: route },
+          },
         });
       });
       it('should show the Send Treasury Report button', () => {
@@ -130,9 +131,10 @@ describe('HomeView.vue', () => {
         });
         route = { query: { sync_audit_download: true } };
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
-          mocks: { $route: route },
+          global: {
+            plugins: [store],
+            mocks: { $route: route },
+          },
         });
       });
       it('should show the Send Treasury Report button', () => {
@@ -153,9 +155,10 @@ describe('HomeView.vue', () => {
         });
         route = { query: { } };
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
-          mocks: { $route: route },
+          global: {
+            plugins: [store],
+            mocks: { $route: route },
+          },
         });
       });
       it('should not show the submit workbook button', () => {

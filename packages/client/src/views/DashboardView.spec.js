@@ -1,12 +1,9 @@
 import {
   describe, beforeEach, afterEach, it, expect,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import DashboardView from '@/views/DashboardView.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 let store;
 let wrapper;
@@ -47,9 +44,10 @@ describe('DashboardView.vue', () => {
         },
       });
       wrapper = shallowMount(DashboardView, {
-        store,
-        localVue,
-        stubs,
+        global: {
+          plugins: [store],
+          stubs,
+        },
         computed: {
           newTerminologyEnabled: () => true,
         },

@@ -1,12 +1,9 @@
 import {
   describe, beforeEach, afterEach, it, expect,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import BaseLayout from '@/components/BaseLayout.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 let store;
 let wrapper;
@@ -35,12 +32,13 @@ describe('BaseLayout.vue', () => {
         getters: { ...noOpGetters },
       });
       wrapper = shallowMount(BaseLayout, {
-        localVue,
-        store,
-        mocks: {
-          $route: defaultRoute,
+        global: {
+          plugins: [store],
+          mocks: {
+            $route: defaultRoute,
+          },
+          stubs,
         },
-        stubs,
         computed: {
           newTerminologyEnabled: () => true,
         },
@@ -76,12 +74,13 @@ describe('BaseLayout.vue', () => {
         },
       });
       wrapper = shallowMount(BaseLayout, {
-        localVue,
-        store,
-        mocks: {
-          $route: defaultRoute,
+        global: {
+          plugins: [store],
+          mocks: {
+            $route: defaultRoute,
+          },
+          stubs,
         },
-        stubs,
       });
     });
     it('should have a dropdown', () => {
@@ -105,12 +104,13 @@ describe('BaseLayout.vue', () => {
         },
       });
       wrapper = shallowMount(BaseLayout, {
-        localVue,
-        store,
-        mocks: {
-          $route: defaultRoute,
+        global: {
+          plugins: [store],
+          mocks: {
+            $route: defaultRoute,
+          },
+          stubs,
         },
-        stubs,
       });
     });
 
@@ -128,12 +128,13 @@ describe('BaseLayout.vue', () => {
         },
       });
       wrapper = shallowMount(BaseLayout, {
-        localVue,
-        store,
-        mocks: {
-          $route: defaultRoute,
+        global: {
+          plugins: [store],
+          mocks: {
+            $route: defaultRoute,
+          },
+          stubs,
         },
-        stubs,
         computed: {
           newTerminologyEnabled: () => true,
         },
