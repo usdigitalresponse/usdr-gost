@@ -97,7 +97,7 @@ export const routes = [
       {
         path: '/my-grants/assigned',
         name: 'assigned',
-        redirect: { name: shareTerminologyEnabled? 'shared-with-your-team' : undefined },
+        redirect: { name: shareTerminologyEnabled ? 'shared-with-your-team' : undefined },
         meta: {
           requiresAuth: true,
         },
