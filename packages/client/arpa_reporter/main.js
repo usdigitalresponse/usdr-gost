@@ -8,6 +8,8 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
 
 import { createApp } from 'vue';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import Vuex from 'vuex';
+import VueRouter from 'vue-router';
 import App from '@/arpa_reporter/App.vue';
 import router from '@/arpa_reporter/router';
 import store, { get } from '@/arpa_reporter/store';
@@ -18,6 +20,8 @@ const app = createApp({
   ...App,
 });
 
+app.use(VueRouter);
+app.use(Vuex);
 app.use(BootstrapVue);
 app.use(IconsPlugin);
 

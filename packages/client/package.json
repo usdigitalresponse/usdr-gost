@@ -37,7 +37,7 @@
     "vue-multiselect": "^2.1.6",
     "vue-router": "^3.5.2",
     "vue-select": "^3.16.0",
-    "vuex": "^3.6.2"
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.26.0",
