@@ -7,8 +7,6 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
 }
 
 import { createApp } from 'vue';
-import VueRouter from 'vue-router';
-import Vuex from 'vuex';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import { VueSelect } from 'vue-select';
 import { setUserForGoogleAnalytics } from '@/helpers/gtag';
@@ -27,16 +25,12 @@ store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser
   id: newUser.id, agency_id: newUser.agency_id, role: newUser.role.name, organization_id: newUser.tenant_id,
 }));
 
-const app = createApp({
-  router,
-  store,
-  ...App,
-});
+const app = createApp(App);
 
+app.use(router);
+app.use(store);
 app.use(BootstrapVue);
 app.use(IconsPlugin);
-app.use(VueRouter);
-app.use(Vuex);
 app.component('VSelect', VueSelect);
 
 fetchApi.get('/api/sessions')
