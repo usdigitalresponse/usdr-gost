@@ -1,17 +1,15 @@
 import {
   describe, beforeEach, afterEach, it, expect, vi,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import DashboardView from '@/views/DashboardView.vue';
 
 vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
   ...await importOriginal(),
   newGrantsDetailPageEnabled: () => true,
+  newTerminologyEnabled: () => true,
 }));
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 let store;
 let wrapper;
@@ -43,7 +41,7 @@ afterEach(() => {
 describe('DashboardView.vue', () => {
   describe('when user has no interested grants"', () => {
     beforeEach(() => {
-      store = new Vuex.Store({
+      store = createStore({
         getters: {
           ...noOpGetters,
         },
@@ -52,11 +50,9 @@ describe('DashboardView.vue', () => {
         },
       });
       wrapper = shallowMount(DashboardView, {
-        store,
-        localVue,
-        stubs,
-        computed: {
-          newTerminologyEnabled: () => true,
+        global: {
+          plugins: [store],
+          stubs,
         },
       });
     });

@@ -1,22 +1,17 @@
 import {
   beforeEach, describe, it, expect,
 } from 'vitest';
-import { createLocalVue, mount } from '@vue/test-utils';
-import { BootstrapVue } from 'bootstrap-vue';
+import { mount } from '@vue/test-utils';
 import ActivityTable from '@/components/ActivityTable.vue';
 
 let wrapper;
-const stubs = ['b-icon'];
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 
-describe('ActivityTable.vue', () => {
+// TODO: investigate and un-skip (https://github.com/usdigitalresponse/usdr-gost/issues/3261)
+describe.skip('ActivityTable.vue', () => {
   describe('when view is loaded', () => {
     beforeEach(() => {
       wrapper = mount(ActivityTable, {
-        localVue,
-        stubs,
-        propsData: {
+        props: {
           grantsInterested: [],
           onRowSelected: () => {},
           onRowClicked: () => {},

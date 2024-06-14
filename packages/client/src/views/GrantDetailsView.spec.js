@@ -3,15 +3,11 @@ import GrantDetailsView from '@/views/GrantDetailsView.vue';
 import {
   describe, it, expect, vi,
 } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
-import { BootstrapVue } from 'bootstrap-vue';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 describe('GrantDetailsView', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  localVue.use(BootstrapVue);
-  const store = new Vuex.Store({
+  const store = createStore({
     getters: {
       'users/agency': () => null,
       'users/selectedAgencyId': () => null,
@@ -43,10 +39,11 @@ describe('GrantDetailsView', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(GrantDetailsView, {
-      localVue,
-      store,
-      mocks: {
-        $route,
+      global: {
+        plugins: [store],
+        mocks: {
+          $route,
+        },
       },
     });
     expect(wrapper.exists()).toBe(true);

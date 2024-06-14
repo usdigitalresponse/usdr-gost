@@ -3,9 +3,8 @@ import UpcomingClosingDatesView from '@/views/UpcomingClosingDatesView.vue';
 import {
   describe, it, expect, vi,
 } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
-import { BootstrapVue } from 'bootstrap-vue';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
   ...await importOriginal(),
@@ -13,10 +12,7 @@ vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
 }));
 
 describe('UpcomingClosingDatesView', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  localVue.use(BootstrapVue);
-  const store = new Vuex.Store({
+  const store = createStore({
     getters: {
       'grants/currentGrant': () => {},
       'grants/totalUpcomingGrants': () => null,
@@ -34,10 +30,11 @@ describe('UpcomingClosingDatesView', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(UpcomingClosingDatesView, {
-      localVue,
-      store,
-      mocks: {
-        $route,
+      global: {
+        plugins: [store],
+        mocks: {
+          $route,
+        },
       },
     });
     expect(wrapper.exists()).toBe(true);

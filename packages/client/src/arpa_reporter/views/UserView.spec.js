@@ -1,12 +1,9 @@
 import {
   describe, beforeEach, it, expect,
 } from 'vitest';
-import { mount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { mount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import UserView from '@/arpa_reporter/views/UserView.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 const mocks = {
   $route: {
@@ -21,7 +18,7 @@ describe('UserView.vue', () => {
   let store;
 
   beforeEach(() => {
-    store = new Vuex.Store({
+    store = createStore({
       state: {
         agencies: [{ name: 'A1' }, { name: 'A2' }],
       },
@@ -34,12 +31,17 @@ describe('UserView.vue', () => {
     });
   });
   it('renders new user form', async () => {
-    const wrapper = mount(UserView, { store, localVue, mocks });
+    const wrapper = mount(UserView, {
+      global: {
+        plugins: [store],
+        mocks,
+      },
+    });
     const loading = wrapper.find('div[role="status"]');
     expect(loading.text()).toContain('Loading');
 
     await wrapper.setData({ user: {} });
-    const form = wrapper.findComponent({ name: 'StandardForm' });
+    const form = wrapper.find('standardform');
     expect(form.exists()).toBe(true);
   });
 });

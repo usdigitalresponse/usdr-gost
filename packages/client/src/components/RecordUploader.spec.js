@@ -6,7 +6,7 @@ import { shallowMount } from '@vue/test-utils';
 describe('RecordUploader component', () => {
   it('renders', () => {
     const wrapper = shallowMount(RecordUploader, {
-      propsData: {
+      props: {
         uploadRecordType: 'user',
       },
     });
