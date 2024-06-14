@@ -1,4 +1,4 @@
-import VueRouter from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import BaseLayout from '@/components/BaseLayout.vue';
 import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
@@ -159,7 +159,7 @@ export const routes = [
     ],
   },
   {
-    path: '*',
+    path: '/:pathMatch(.*)*',
     component: () => import('../views/NotFoundView.vue'),
     name: 'notFound',
     meta: {
@@ -168,9 +168,8 @@ export const routes = [
   },
 ];
 
-const router = new VueRouter({
-  base: import.meta.env.BASE_URL,
-  mode: 'history',
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 });
 

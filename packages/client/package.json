@@ -35,7 +35,7 @@
     "vue": "^3.4.27",
     "vue-good-table": "^2.21.11",
     "vue-multiselect": "^2.1.6",
-    "vue-router": "^3.5.2",
+    "vue-router": "^4.3.3",
     "vue-select": "^3.16.0",
     "vuex": "^4.0.2"
   },
