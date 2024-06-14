@@ -27,8 +27,6 @@ store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser
 
 const app = createApp(App);
 
-app.use(router);
-app.use(store);
 app.use(BootstrapVue);
 app.use(IconsPlugin);
 app.component('VSelect', VueSelect);
@@ -39,6 +37,9 @@ fetchApi.get('/api/sessions')
       store.dispatch('users/login', data.user);
       store.dispatch('grants/fetchInterestedCodes');
     }
+    // With the current session setup, we need router to initialize only after session info has been loaded into the store
+    app.use(store);
+    app.use(router);
     app.mount('#app');
   })
   .catch((e) => {
