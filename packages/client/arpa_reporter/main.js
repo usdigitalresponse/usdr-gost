@@ -14,8 +14,6 @@ import store, { get } from '@/arpa_reporter/store';
 
 const app = createApp(App);
 
-app.use(router);
-app.use(store);
 app.use(BootstrapVue);
 app.use(IconsPlugin);
 
@@ -27,6 +25,9 @@ async function main() {
     await store.dispatch('login', data.user);
   }
 
+  // With the current session setup, we need router to initialize only after session info has been loaded into the store
+  app.use(store);
+  app.use(router);
   app.mount('#app');
 }
 
