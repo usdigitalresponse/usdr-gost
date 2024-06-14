@@ -6,7 +6,7 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
   datadogRum.setGlobalContextProperty('app', 'finder');
 }
 
-import Vue from 'vue';
+import { createApp } from 'vue';
 import VueRouter from 'vue-router';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import { VueSelect } from 'vue-select';
@@ -26,15 +26,16 @@ store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser
   id: newUser.id, agency_id: newUser.agency_id, role: newUser.role.name, organization_id: newUser.tenant_id,
 }));
 
-// Install BootstrapVue
-Vue.use(BootstrapVue);
-// Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin);
-Vue.use(VueRouter);
-Vue.component('VSelect', VueSelect);
+const app = createApp({
+  router,
+  store,
+  ...App,
+});
 
-Vue.config.productionTip = false;
-Vue.prototype.$negative_keywords_enabled = import.meta.env.VUE_APP_NEGATIVE_KEYWORDS_ENABLED === 'true';
+app.use(BootstrapVue);
+app.use(IconsPlugin);
+app.use(VueRouter);
+app.component('VSelect', VueSelect);
 
 fetchApi.get('/api/sessions')
   .then((data) => {
@@ -42,11 +43,7 @@ fetchApi.get('/api/sessions')
       store.dispatch('users/login', data.user);
       store.dispatch('grants/fetchInterestedCodes');
     }
-    new Vue({
-      router,
-      store,
-      render: (h) => h(App),
-    }).$mount('#app');
+    app.mount('#app');
   })
   .catch((e) => {
     store.dispatch('users/logout');
