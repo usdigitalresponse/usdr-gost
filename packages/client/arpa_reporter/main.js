@@ -6,17 +6,20 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
   datadogRum.setGlobalContextProperty('app', 'arpa-reporter');
 }
 
-import Vue from 'vue';
+import { createApp } from 'vue';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import App from '@/arpa_reporter/App.vue';
 import router from '@/arpa_reporter/router';
 import store, { get } from '@/arpa_reporter/store';
 
-Vue.config.productionTip = false;
+const app = createApp({
+  router,
+  store,
+  ...App,
+});
 
-Vue.use(BootstrapVue);
-// Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin);
+app.use(BootstrapVue);
+app.use(IconsPlugin);
 
 async function main() {
   const session = await get('/api/sessions');
@@ -26,11 +29,7 @@ async function main() {
     await store.dispatch('login', data.user);
   }
 
-  new Vue({
-    router,
-    store,
-    render: (h) => h(App),
-  }).$mount('#app');
+  app.mount('#app');
 }
 
 main();
