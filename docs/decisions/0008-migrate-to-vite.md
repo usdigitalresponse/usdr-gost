@@ -1,7 +1,7 @@
 # 0008. Migrate to Vite
 
 Date: 2024-04-24
-Status: Proposed <!-- Proposed | Accepted | Rejected | Superceded -->
+Status: Accepted <!-- Proposed | Accepted | Rejected | Superceded -->
 
 ## Context and Problem Statement
 

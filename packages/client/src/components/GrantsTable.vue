@@ -146,8 +146,8 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import { datadogRum } from '@datadog/browser-rum';
+import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import { titleize } from '@/helpers/form-helpers';
 import { daysUntil } from '@/helpers/dates';
 import { defaultCloseDateThresholds } from '@/helpers/constants';

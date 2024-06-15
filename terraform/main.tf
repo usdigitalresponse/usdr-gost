@@ -181,7 +181,6 @@ module "api" {
   default_desired_task_count         = var.api_default_desired_task_count
   autoscaling_desired_count_minimum  = var.api_minumum_task_count
   autoscaling_desired_count_maximum  = var.api_maximum_task_count
-  enable_grants_scraper              = var.api_enable_grants_scraper
   enable_new_team_terminology        = var.api_enable_new_team_terminology
   enable_saved_search_grants_digest  = var.api_enable_saved_search_grants_digest
   enable_grant_digest_scheduled_task = var.api_enable_grant_digest_scheduled_task
