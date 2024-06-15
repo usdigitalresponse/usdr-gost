@@ -49,10 +49,7 @@ module "api_container_definition" {
       DATA_DIR                           = "/var/data"
       ENABLE_SAVED_SEARCH_GRANTS_DIGEST  = var.enable_saved_search_grants_digest ? "true" : "false"
       ENABLE_GRANT_DIGEST_SCHEDULED_TASK = var.enable_grant_digest_scheduled_task ? "true" : "false"
-      ENABLE_GRANTS_SCRAPER              = "false"
       ENABLE_NEW_TEAM_TERMINOLOGY        = var.enable_new_team_terminology ? "true" : "false"
-      GRANTS_SCRAPER_DATE_RANGE          = 7
-      GRANTS_SCRAPER_DELAY               = 1000
       NODE_OPTIONS                       = "--max_old_space_size=1024"
       NOTIFICATIONS_EMAIL                = var.notifications_email_address
       PGSSLROOTCERT                      = "rds-combined-ca-bundle.pem"
