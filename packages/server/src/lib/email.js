@@ -251,6 +251,8 @@ function buildGrantsUrlSafe(emailNotificationType) {
     const grantsUrl = new URL(process.env.WEBSITE_DOMAIN);
     if (emailNotificationType === notificationType.grantDigest) {
         grantsUrl.pathname = 'grants';
+    } else if (process.env.SHARE_TERMINOLOGY_ENABLED === 'true' && emailNotificationType === notificationType.grantAssignment){
+        grantsUrl.pathname = 'my-grants/shared-with-your-team';
     } else {
         grantsUrl.pathname = 'my-grants';
     }
@@ -282,15 +284,29 @@ function getGrantDetail(grant, emailNotificationType) {
                 ? 'Grant Finder'
                 : 'Grants.gov',
             grants_url_safe: buildGrantsUrlSafe(emailNotificationType),
-            view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
-        },
+            view_grant_label: getGrantDetailViewGrantLabel(emailNotificationType),
+            },
     );
     return grantDetail;
 }
 
-async function buildGrantDetail(grantId, emailNotificationType) {
+function getGrantDetailViewGrantLabel(emailNotificationType) {
+    switch(emailNotificationType){
+        case(notificationType.grantDigest): return undefined
+        case(notificationType.grantAssignment): {
+            if (process.env.SHARE_TERMINOLOGY_ENABLED === 'true' ) {
+                return 'See All Grants Shared With My Team'
+            }
+            //Fall through intentionally if SHARE_TERMINOLOGY is disabled
+        }
+        default:
+            return 'View My Grants'
+    }
+}
+
+
+async function buildGrantDetail(grant, emailNotificationType) {
     // Add try catch here.
-    const grant = await db.getGrant({ grantId });
     const grantDetail = getGrantDetail(grant, emailNotificationType);
     return grantDetail;
 }
@@ -304,6 +320,7 @@ async function sendGrantAssignedEmailsForAgency(assignee_agency, grantDetail, as
         assignor_name: assignor.name,
         assignor_agency_name: assignor.agency.name,
         assignee_agency_name: assignee_agency.name,
+        grant_assigned_header: 'Grant Assigned'
     }, {
         grant_detail: grantDetail,
     });
@@ -337,6 +354,51 @@ async function sendGrantAssignedEmailsForAgency(assignee_agency, grantDetail, as
     await asyncBatch(inputs, deliverEmail, 2);
 }
 
+async function sendGrantSharedEmailsForAgency(assignee_agency, grant, grantDetail, assignorUserId) {
+    const grantAssignedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_assigned_body.html'));
+
+    const assignor = await db.getUser(assignorUserId);
+    console.log(grant)
+    const grantAssignedBody = mustache.render(grantAssignedBodyTemplate.toString(), {
+        grant_assigned_header: `${assignor.name} Shared a Grant with Your Team`,
+        assignor_name: assignor.name,
+        assignor_agency_name: assignor.agency.name,
+        assignee_agency_name: assignee_agency.name,
+    }, {
+        grant_detail: grantDetail,
+    });
+    const baseUrl = new URL(process.env.WEBSITE_DOMAIN);
+    baseUrl.pathname = 'my-grants';
+    baseUrl.searchParams.set('utm_source', 'subscription');
+    baseUrl.searchParams.set('utm_medium', 'email');
+    baseUrl.searchParams.set('utm_campaign', 'GRANT_ASSIGNMENT');
+    const emailHTML = addBaseBranding(grantAssignedBody, {
+        tool_name: 'Federal Grant Finder',
+        title: `${assignor.name} Shared a Grant with Your Team`,
+        preheader: grant.title,
+        includeNotificationsLink: true,
+    });
+
+    // TODO: add plain text version of the email
+    const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
+    const emailSubject = `${assignor.name} Shared a Grant with Your Team`;
+    const assignees = await db.getSubscribersForNotification(assignee_agency.id, notificationType.grantAssignment);
+
+    const inputs = [];
+    assignees.forEach((assignee) => inputs.push(
+        {
+            fromName: GRANT_FINDER_EMAIL_FROM_NAME,
+            toAddress: assignee.email,
+            emailHTML,
+            emailPlain,
+            subject: emailSubject,
+            emailType: tags.emailTypes.grantAssignment,
+        },
+    ));
+    await asyncBatch(inputs, deliverEmail, 2);
+}
+
+
 async function sendGrantAssignedEmails({ grantId, agencyIds, userId }) {
     /*
     1. Build the grant detail template
@@ -346,11 +408,16 @@ async function sendGrantAssignedEmails({ grantId, agencyIds, userId }) {
             i. Send email
     */
     try {
-        const grantDetail = await buildGrantDetail(grantId, notificationType.grantAssignment);
+        const grant = await db.getGrant({ grantId });
+        const grantDetail = await buildGrantDetail(grant, notificationType.grantAssignment);
         const agencies = await db.getAgenciesByIds(agencyIds);
         await asyncBatch(
             agencies,
-            async (agency) => { await sendGrantAssignedEmailsForAgency(agency, grantDetail, userId); },
+            async (agency) => {
+                process.env.SHARE_TERMINOLOGY_ENABLED === 'true' ? 
+                    await sendGrantSharedEmailsForAgency(agency, grant, grantDetail, userId) :
+                    await sendGrantAssignedEmailsForAgency(agency, grantDetail, userId);
+            },
             2,
         );
     } catch (err) {
