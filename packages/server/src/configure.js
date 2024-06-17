@@ -22,7 +22,6 @@ function configureApiRoutes(app) {
     app.use('/api/organizations/:organizationId/search-config', require('./routes/searchConfig'));
     app.use('/api/organizations/:organizationId/interested-codes', require('./routes/interestedCodes'));
     app.use('/api/organizations/:organizationId/keywords', require('./routes/keywords'));
-    app.use('/api/organizations/:organizationId/refresh', require('./routes/refresh'));
     app.use('/api/annual-reports/', require('./routes/annualReports'));
     app.use('/api/health', require('./routes/health'));
 }

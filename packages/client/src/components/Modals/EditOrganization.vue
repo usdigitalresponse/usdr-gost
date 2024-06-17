@@ -17,7 +17,7 @@
         <b-form-group
           label-for="name-input"
         >
-          <template slot="label">
+          <template #label>
             Name
           </template>
           <b-form-input

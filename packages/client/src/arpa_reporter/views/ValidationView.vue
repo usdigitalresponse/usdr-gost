@@ -80,14 +80,11 @@
         :rows="updateRows"
         style-class="vgt-table table table-striped table-bordered"
       >
-        <div slot="emptystate">
+        <template #emptystate>
           Nothing to display; adjust your filters?
-        </div>
+        </template>
 
-        <template
-          slot="table-row"
-          slot-scope="props"
-        >
+        <template #table-row="props">
           <span v-if="props.column.field === 'id'">
             <router-link :to="`/uploads/${props.row.id}`">
               {{ props.row.id }}

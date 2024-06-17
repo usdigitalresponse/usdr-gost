@@ -161,12 +161,6 @@ variable "ses_sandbox_mode_email_recipients" {
   default     = []
 }
 
-variable "enable_grants_scraper" {
-  description = "When true, provisions scheduled execution of the Grants.gov scraper."
-  type        = bool
-  default     = false
-}
-
 variable "enable_new_team_terminology" {
   description = "When true, sets the ENABLE_NEW_TEAM_TERMINOLOGY environment variable to true in the API container."
   type        = bool
