@@ -124,7 +124,7 @@ describe('`/api/grants` endpoint', () => {
                     assigned_by_email: 'user2@nv.example.com',
                     assigned_by_avatar_color: '#FD7E14',
                 },
-            };    
+            };
             let response;
             let json;
             before(async () => {
