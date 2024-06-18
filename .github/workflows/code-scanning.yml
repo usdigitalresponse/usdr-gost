@@ -79,4 +79,4 @@ jobs:
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Ensure GitHub action versions are pinned to SHAs
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@76d1d8e0b075d7190b5d59b86da91c7bdbcc99b2 # v3.0.7
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@74606c30450304eee8660aae751818321754feb1 # v3.0.9
