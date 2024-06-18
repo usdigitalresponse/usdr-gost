@@ -188,10 +188,6 @@ variable "api_default_desired_task_count" {
   type = number
 }
 
-variable "api_enable_grants_scraper" {
-  type = bool
-}
-
 variable "api_enable_new_team_terminology" {
   type = bool
 }
