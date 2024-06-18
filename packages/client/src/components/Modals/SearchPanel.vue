@@ -467,14 +467,16 @@ export default {
       }
     },
     notifyError(message) {
-      this.$bvToast.toast(message,
+      this.$bvToast.toast(
+        message,
         {
           title: 'Error Saving Search',
           variant: 'danger',
           solid: true,
           autoHideDelay: 5000,
           toaster: 'b-toaster-top-left',
-        });
+        },
+      );
     },
     showSideBar() {
       if (!this.$refs.searchPanelSideBar.isOpen) {

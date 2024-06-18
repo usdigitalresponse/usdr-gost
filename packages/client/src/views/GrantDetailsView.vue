@@ -249,11 +249,11 @@
 import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
+import { DateTime } from 'luxon';
 import { newTerminologyEnabled, shareTerminologyEnabled} from '@/helpers/featureFlags';
 import { formatCurrency } from '@/helpers/currency';
 import { titleize } from '@/helpers/form-helpers';
 import { gtagEvent } from '@/helpers/gtag';
-import { DateTime } from 'luxon';
 import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
 

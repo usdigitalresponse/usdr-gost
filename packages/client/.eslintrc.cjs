@@ -3,18 +3,29 @@ module.exports = {
   root: true,
   env: {
     node: true,
-    es6: true,
+    es2022: true,
+  },
+  parserOptions: {
+    ecmaVersion: 2022,
+    sourceType: 'module',
   },
   plugins: [
     'import-alias',
   ],
   extends: [
     'plugin:vue/recommended',
-    '@vue/airbnb',
+    'airbnb-base',
     'plugin:import/recommended',
   ],
-  parserOptions: {
-    parser: 'babel-eslint',
+  settings: {
+    "import/resolver": {
+      "custom-alias": {
+        "alias": {
+          "@": "./src"
+        },
+        "extensions": [".js", ".vue"],
+      }
+    }
   },
   rules: {
     // TODO: enable these lint rules over time
@@ -27,6 +38,13 @@ module.exports = {
     // when our version of eslint-config-airbnb was written.
     // TODO: consider upgrading eslint-config-airbnb
     'no-restricted-syntax': 'off',
+
+    'no-param-reassign': ['error', {
+      props: true,
+      ignorePropertyModificationsFor: [
+        'state', // for vuex/pinia state
+      ],
+    }],
 
     'import/prefer-default-export': 'off',
     'import/no-commonjs': 'error',

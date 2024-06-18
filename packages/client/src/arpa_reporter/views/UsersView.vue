@@ -19,14 +19,11 @@
       }"
       style-class="vgt-table table table-striped table-bordered"
     >
-      <div slot="emptystate">
+      <template #emptystate>
         No Users
-      </div>
+      </template>
 
-      <template
-        slot="table-row"
-        slot-scope="props"
-      >
+      <template #table-row="props">
         <span v-if="props.column.field === 'edit'">
           <router-link
             tag="button"
