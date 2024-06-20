@@ -736,9 +736,24 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
         after(() => {
             process.env.SHARE_TERMINOLOGY_ENABLED = originalFeatureFlagValue;
         });
+        let expectedCsvHeaders;
+        it('produces the default column headers', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = 'false';
+            expectedCsvHeaders = 'Date,Team,Grant,Status Code,Grant Assigned By,Email';
+            const agencyId = agencies.own;
+            const role = fetchOptions.staff;
 
-        it('produces the expected column headers', async () => { 
-            const expectedCsvHeaders = process.env.SHARE_TERMINOLOGY_ENABLED ? 'Date,Team,Grant,Status Code,Grant Shared By,Email' : 'Date,Team,Grant,Status Code,Grant Assigned By,Email';
+            const response = await fetchApi('/grants/exportCSVRecentActivities', agencyId, role);
+
+            expect(response.statusText).to.equal('OK');
+            expect(response.headers.get('Content-Type')).to.include('text/csv');
+            expect(response.headers.get('Content-Disposition')).to.include('attachment');
+
+            expect(await response.text()).to.contain(expectedCsvHeaders);
+        });
+        it('produces the share column headers', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = 'true';
+            expectedCsvHeaders = 'Date,Team,Grant,Status Code,Grant Shared By,Email';
             const agencyId = agencies.own;
             const role = fetchOptions.staff;
 
