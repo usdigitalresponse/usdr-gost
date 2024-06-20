@@ -34,12 +34,11 @@
           <div class="d-flex justify-content-between align-items-center">
             <b-button
               variant="primary"
-              block
-              class="mr-5"
-              style="width: fit-content; white-space: nowrap; "
+              class="mr-5 text-nowrap"
               :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
               target="_blank"
               rel="noopener noreferrer"
+              size="sm"
               data-dd-action-name="view on grants.gov"
               @click="onOpenGrantsGov"
             >
@@ -52,35 +51,33 @@
             </b-button>
             <div class="w-20 d-flex">
               <a
-                class="link-primary"
+                class="link-primary text-nowrap"
                 role="button"
                 :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
                 data-dd-action-name="copy btn"
-                style="white-space: nowrap; "
                 @click="copyUrl"
               >
                 <b-icon
                   :icon="copyUrlSuccessTimeout === null ? 'paperclip' : 'check2'"
                   aria-hidden="true"
-                  class="mr-2"
+                  class="mr-1"
                 />
                 <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
                 <span v-else>Link Copied</span>
               </a>
-              <div class="col-1 border-right border-dark p-2"/>
-              <div class="col-1 p-2"/>
+              <div class="col-1 border-right border-dark p-2" />
+              <div class="col-1 p-2" />
               <a
-                class="link-primary"
+                class="link-primary text-nowrap"
                 role="button"
                 variant="outline-primary"
                 data-dd-action-name="print btn"
-                style="white-space: nowrap; "
                 @click="printPage"
               >
                 <b-icon
                   icon="printer"
                   aria-hidden="true"
-                  class="mr-2"
+                  class="mr-1"
                 />
                 Print
               </a>
