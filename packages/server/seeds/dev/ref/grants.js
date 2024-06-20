@@ -1335,18 +1335,22 @@ const assignedGrantsAgency = [
     {
         grant_id: grants[0].grant_id,
         agency_id: usdr,
+        assigned_by: 1,
     },
     {
         grant_id: grants[0].grant_id,
         agency_id: asd,
+        assigned_by: 13,
     },
     {
         grant_id: grants[0].grant_id,
         agency_id: nevada,
+        assigned_by: 7,
     },
     {
         grant_id: grants[1].grant_id,
         agency_id: nevada,
+        assigned_by: 6,
     },
 ];
 
