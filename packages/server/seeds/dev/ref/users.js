@@ -26,6 +26,8 @@ module.exports = [
         agency_id: usdrAgency.id,
         role_id: adminRole.id,
         tenant_id: usdrTenant.id,
+        avatar_color: '#198754',
+
     },
     {
         id: 2,
@@ -34,6 +36,8 @@ module.exports = [
         agency_id: usdrAgency.id,
         role_id: adminRole.id,
         tenant_id: usdrTenant.id,
+        avatar_color: '#ED7E14',
+
     },
     {
         id: 3,
@@ -42,6 +46,7 @@ module.exports = [
         agency_id: usdrAgency.id,
         role_id: adminRole.id,
         tenant_id: usdrTenant.id,
+        avatar_color: '#ED7E17',
     },
     {
         id: 4,
@@ -50,6 +55,7 @@ module.exports = [
         agency_id: usdrAgency.id,
         role_id: adminRole.id,
         tenant_id: usdrTenant.id,
+        avatar_color: '#ED7E15',
     },
     {
         id: 5,
@@ -58,6 +64,7 @@ module.exports = [
         agency_id: usdrAgency.id,
         role_id: adminRole.id,
         tenant_id: usdrTenant.id,
+        avatar_color: '#ED7E16',
     },
     {
         id: 6,
@@ -66,6 +73,7 @@ module.exports = [
         agency_id: nevadaAgency.id,
         role_id: staffRole.id,
         tenant_id: nevadaenant.id,
+        avatar_color: '#ED7E2F',
     },
     {
         id: 7,
@@ -74,6 +82,7 @@ module.exports = [
         agency_id: nevadaAgency.id,
         role_id: staffRole.id,
         tenant_id: nevadaenant.id,
+        avatar_color: '#FD7E14',
     },
     {
         id: 8,
@@ -82,6 +91,7 @@ module.exports = [
         agency_id: nevadaAgency.id,
         role_id: staffRole.id,
         tenant_id: nevadaenant.id,
+        avatar_color: '#ED7E19',
     },
     {
         id: 9,
@@ -90,6 +100,7 @@ module.exports = [
         agency_id: procurementAgency.id,
         role_id: staffRole.id,
         tenant_id: procurementTenant.id,
+        avatar_color: '#ED7E1A',
     },
     {
         id: 10,
@@ -98,6 +109,7 @@ module.exports = [
         agency_id: procurementAgency.id,
         role_id: staffRole.id,
         tenant_id: procurementTenant.id,
+        avatar_color: '#ED7E1B',
     },
     {
         id: 11,
@@ -106,6 +118,7 @@ module.exports = [
         agency_id: procurementAgency.id,
         role_id: staffRole.id,
         tenant_id: procurementTenant.id,
+        avatar_color: '#ED7E1C',
     },
     {
         id: 12,
@@ -114,6 +127,7 @@ module.exports = [
         agency_id: dallasAgency.id,
         role_id: adminRole.id,
         tenant_id: dallasTenant.id,
+        avatar_color: '#ED7E1D',
     },
     {
         id: 13,
@@ -122,6 +136,7 @@ module.exports = [
         agency_id: nevadaAgency.id,
         role_id: adminRole.id,
         tenant_id: nevadaenant.id,
+        avatar_color: '#198754',
     },
     {
         id: 14,
@@ -130,6 +145,7 @@ module.exports = [
         agency_id: usdrSubAgency.id,
         role_id: staffRole.id,
         tenant_id: usdrTenant.id,
+        avatar_color: '#ED7E1F',
     },
     {
         id: 15,
@@ -138,6 +154,7 @@ module.exports = [
         agency_id: usdrSubAgency.id,
         role_id: adminRole.id,
         tenant_id: usdrTenant.id,
+        avatar_color: '#ED7E20',
     },
     {
         id: 16,
@@ -146,6 +163,7 @@ module.exports = [
         agency_id: usdrSubAgency.id,
         role_id: staffRole.id,
         tenant_id: usdrTenant.id,
+        avatar_color: '#ED7E21',
     },
     {
         id: 17,
@@ -154,6 +172,7 @@ module.exports = [
         agency_id: usdrAgency.id,
         role_id: adminRole.id,
         tenant_id: usdrTenant.id,
+        avatar_color: '#ED7E22',
     },
     {
         id: 18,
@@ -162,5 +181,6 @@ module.exports = [
         agency_id: usdrAgency.id,
         role_id: staffRole.id,
         tenant_id: usdrTenant.id,
+        avatar_color: '#ED7E23',
     },
 ];

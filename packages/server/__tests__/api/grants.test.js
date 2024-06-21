@@ -113,6 +113,18 @@ describe('`/api/grants` endpoint', () => {
     context('GET /api/grants/:grantId/assign/agencies', () => {
         const assignedEndpoint = `335255/assign/agencies`;
         context('by a user with admin role', () => {
+            const assignedBy = {
+                NV1: {
+                    assigned_by_name: 'nv.gov Admin User 1',
+                    assigned_by_email: 'admin1@nv.example.com',
+                    assigned_by_avatar_color: '#198754',
+                },
+                NV2: {
+                    assigned_by_name: 'nv.gov User 2',
+                    assigned_by_email: 'user2@nv.example.com',
+                    assigned_by_avatar_color: '#FD7E14',
+                },
+            };
             let response;
             let json;
             before(async () => {
@@ -143,8 +155,28 @@ describe('`/api/grants` endpoint', () => {
                 const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.offLimits, fetchOptions.admin);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
+            it('includes assigned by information for the grant to an agency', async () => {
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV1.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV2.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV1.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV2.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV1.assigned_by_avatar_color)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV2.assigned_by_avatar_color)).to.be.ok;
+            });
         });
         context('by a user with staff role', () => {
+            const assignedBy = {
+                NV1: {
+                    assigned_by_name: 'nv.gov Admin User 1',
+                    assigned_by_email: 'admin1@nv.example.com',
+                    assigned_by_avatar_color: '#198754',
+                },
+                NV2: {
+                    assigned_by_name: 'nv.gov User 2',
+                    assigned_by_email: 'user2@nv.example.com',
+                    assigned_by_avatar_color: '#FD7E14',
+                },
+            };
             let response;
             let json;
             before(async () => {
@@ -166,6 +198,14 @@ describe('`/api/grants` endpoint', () => {
             it('forbids requests for any agency except this user\'s own agency', async () => {
                 const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.ownSub, fetchOptions.staff);
                 expect(badResponse.statusText).to.equal('Forbidden');
+            });
+            it('includes assigned by information for the grant to an agency', async () => {
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV1.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV2.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV1.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV2.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV1.assigned_by_avatar_color)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV2.assigned_by_avatar_color)).to.be.ok;
             });
         });
         context('by a user with admin role in another organization', () => {
