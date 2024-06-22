@@ -251,7 +251,7 @@ function buildGrantsUrlSafe(emailNotificationType) {
     const grantsUrl = new URL(process.env.WEBSITE_DOMAIN);
     if (emailNotificationType === notificationType.grantDigest) {
         grantsUrl.pathname = 'grants';
-    } else if (process.env.SHARE_TERMINOLOGY_ENABLED === 'true' && emailNotificationType === notificationType.grantAssignment){
+    } else if (process.env.SHARE_TERMINOLOGY_ENABLED === 'true' && emailNotificationType === notificationType.grantAssignment) {
         grantsUrl.pathname = 'my-grants/shared-with-your-team';
     } else {
         grantsUrl.pathname = 'my-grants';
@@ -260,6 +260,20 @@ function buildGrantsUrlSafe(emailNotificationType) {
     grantsUrl.searchParams.set('utm_medium', 'email');
     grantsUrl.searchParams.set('utm_campaign', mustache.escape(emailNotificationType));
     return grantsUrl.toString();
+}
+
+function getGrantDetailViewGrantLabel(emailNotificationType) {
+    switch (emailNotificationType) {
+        case (notificationType.grantDigest): return undefined;
+        case (notificationType.grantAssignment): {
+            if (process.env.SHARE_TERMINOLOGY_ENABLED === 'true') {
+                return 'See All Grants Shared With My Team';
+            }
+            // Fall through intentionally if SHARE_TERMINOLOGY is disabled
+        }
+        default:
+            return 'View My Grants';
+    }
 }
 
 function getGrantDetail(grant, emailNotificationType) {
@@ -285,25 +299,10 @@ function getGrantDetail(grant, emailNotificationType) {
                 : 'Grants.gov',
             grants_url_safe: buildGrantsUrlSafe(emailNotificationType),
             view_grant_label: getGrantDetailViewGrantLabel(emailNotificationType),
-            },
+        },
     );
     return grantDetail;
 }
-
-function getGrantDetailViewGrantLabel(emailNotificationType) {
-    switch(emailNotificationType){
-        case(notificationType.grantDigest): return undefined
-        case(notificationType.grantAssignment): {
-            if (process.env.SHARE_TERMINOLOGY_ENABLED === 'true' ) {
-                return 'See All Grants Shared With My Team'
-            }
-            //Fall through intentionally if SHARE_TERMINOLOGY is disabled
-        }
-        default:
-            return 'View My Grants'
-    }
-}
-
 
 async function buildGrantDetail(grant, emailNotificationType) {
     // Add try catch here.
@@ -320,7 +319,7 @@ async function sendGrantAssignedEmailsForAgency(assignee_agency, grantDetail, as
         assignor_name: assignor.name,
         assignor_agency_name: assignor.agency.name,
         assignee_agency_name: assignee_agency.name,
-        grant_assigned_header: 'Grant Assigned'
+        grant_assigned_header: 'Grant Assigned',
     }, {
         grant_detail: grantDetail,
     });
@@ -358,7 +357,7 @@ async function sendGrantSharedEmailsForAgency(assignee_agency, grant, grantDetai
     const grantAssignedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_assigned_body.html'));
 
     const assignor = await db.getUser(assignorUserId);
-    console.log(grant)
+
     const grantAssignedBody = mustache.render(grantAssignedBodyTemplate.toString(), {
         grant_assigned_header: `${assignor.name} Shared a Grant with Your Team`,
         assignor_name: assignor.name,
@@ -398,7 +397,6 @@ async function sendGrantSharedEmailsForAgency(assignee_agency, grant, grantDetai
     await asyncBatch(inputs, deliverEmail, 2);
 }
 
-
 async function sendGrantAssignedEmails({ grantId, agencyIds, userId }) {
     /*
     1. Build the grant detail template
@@ -414,9 +412,9 @@ async function sendGrantAssignedEmails({ grantId, agencyIds, userId }) {
         await asyncBatch(
             agencies,
             async (agency) => {
-                process.env.SHARE_TERMINOLOGY_ENABLED === 'true' ? 
-                    await sendGrantSharedEmailsForAgency(agency, grant, grantDetail, userId) :
-                    await sendGrantAssignedEmailsForAgency(agency, grantDetail, userId);
+                process.env.SHARE_TERMINOLOGY_ENABLED === 'true'
+                    ? await sendGrantSharedEmailsForAgency(agency, grant, grantDetail, userId)
+                    : await sendGrantAssignedEmailsForAgency(agency, grantDetail, userId);
             },
             2,
         );

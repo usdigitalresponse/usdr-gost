@@ -312,7 +312,7 @@ describe('Email sender', () => {
 
     context('send grant shared email', () => {
         it('calls the transport function with appropriate parameters', async () => {
-            process.env.SHARE_TERMINOLOGY_ENABLED = true
+            process.env.SHARE_TERMINOLOGY_ENABLED = true;
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
@@ -347,7 +347,7 @@ describe('Email sender', () => {
             )).to.be.true;
         });
         it('is resilient to missing grant description', async () => {
-            process.env.SHARE_TERMINOLOGY_ENABLED = true
+            process.env.SHARE_TERMINOLOGY_ENABLED = true;
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
             const grant = fixtures.grants.noDescOrEligibilityCodes;
