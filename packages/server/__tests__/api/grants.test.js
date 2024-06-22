@@ -41,19 +41,6 @@ describe('`/api/grants` endpoint', () => {
         },
     };
 
-    const assignedBy = {
-        NV1: {
-            assigned_by_name: 'nv.gov Admin User 1',
-            assigned_by_email: 'admin1@nv.example.com',
-            assigned_by_avatar_color: '#198754'
-        },
-        NV2: {
-            assigned_by_name: 'nv.gov User 2',
-            assigned_by_email: 'user2@nv.example.com',
-            assigned_by_avatar_color: '#FD7E14'
-        }
-    }
-
     let testServer;
     let fetchApi;
     before(async function beforeHook() {
