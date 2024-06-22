@@ -1,10 +1,17 @@
 import VueRouter from 'vue-router';
 
 import BaseLayout from '@/components/BaseLayout.vue';
-import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
+import { shareTerminologyEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import LoginView from '@/views/LoginView.vue';
 
 import store from '@/store';
+
+const myGrantsTabs = [
+  shareTerminologyEnabled() ? 'shared-with-your-team' : 'assigned',
+  'interested',
+  'not-applying',
+  'applied',
+];
 
 export const routes = [
   {
@@ -85,14 +92,31 @@ export const routes = [
       },
       {
         path: '/my-grants',
-        redirect: '/my-grants/interested',
+        redirect: { name: 'myGrants', params: { tab: myGrantsTabs[0] } },
+      },
+      {
+        path: '/my-grants/assigned',
+        name: 'assigned',
+        redirect: { name: shareTerminologyEnabled ? 'shared-with-your-team' : undefined },
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: '/my-grants/shared-with-your-team',
+        name: 'shared-with-your-team',
+        component: () => import('@/views/MyGrantsView.vue'),
+        meta: {
+          requiresAuth: true,
+          requiresShareTerminologyEnabled: true,
+        },
       },
       {
         path: '/my-grants/:tab',
         name: 'myGrants',
         component: () => import('../views/MyGrantsView.vue'),
         meta: {
-          tabNames: ['interested', 'assigned', 'not-applying', 'applied'],
+          tabNames: myGrantsTabs,
           requiresAuth: true,
         },
         beforeEnter: (to, _, next) => {
@@ -191,6 +215,7 @@ router.beforeEach((to, from, next) => {
   } else if (
     (to.meta.requiresNewTerminologyEnabled && !newTerminologyEnabled())
     || (to.meta.requiresNewGrantsDetailPageEnabled && !newGrantsDetailPageEnabled())
+    || (to.meta.requiresShareTerminologyEnabled && !shareTerminologyEnabled())
   ) {
     if (authenticated) {
       next({ name: 'grants' });
