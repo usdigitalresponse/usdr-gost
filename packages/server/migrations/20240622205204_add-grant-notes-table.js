@@ -16,7 +16,7 @@ exports.up = function (knex) {
             table.unique(['grant_id', 'user_id'], {
                 indexName: 'idx_grant_id_user_id',
                 useConstraint: false,
-              });
+            });
         })
         .createTable('grant_notes_revisions', (table) => {
             table.increments('id').notNullable().primary();
