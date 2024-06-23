@@ -13,7 +13,10 @@ exports.up = function (knex) {
             table.foreign('grant_id').references('grants.grant_id');
             table.foreign('user_id').references('users.id');
 
-            table.unique(['grant_id', 'user_id'], 'idx_grant_id_user_id');
+            table.unique(['grant_id', 'user_id'], {
+                indexName: 'idx_grant_id_user_id',
+                useConstraint: false,
+              });
         })
         .createTable('grant_notes_revisions', (table) => {
             table.increments('id').notNullable().primary();
