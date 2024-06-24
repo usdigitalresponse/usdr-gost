@@ -59,7 +59,7 @@
       </div>
     </template>
     <template #cell(agencyAndGrant)="agencies">
-      <div>
+      <div v-if="agencies.item.interested !== statuses.assigned">
         {{ agencies.item.agency }}
         <span
           v-if="agencies.item.interested === statuses.rejected"
@@ -70,7 +70,6 @@
             <strong> interested </strong>
           </span> in
         </span>
-        <span v-if="agencies.item.interested === statuses.assigned"> was<strong> assigned </strong> </span>
         <span v-if="agencies.item.interested === statuses.awarded"> was<strong><span
           class="color-yellow"
         > awarded </span></strong> </span>
@@ -80,6 +79,12 @@
         <span v-if="agencies.item.interested === statuses.lost"><strong><span
           class="color-yellow"
         > lost </span></strong> </span>{{ agencies.item.grant }}
+      </div>
+      <div>
+        <span v-if="agencies.item.interested === statuses.assigned">
+          {{ agencies.item.assigned_by_user_name }}<strong> shared </strong> {{ agencies.item.grant }}
+          with {{ agencies.item.agency }}
+        </span>
       </div>
     </template>
     <template #cell(date)="dates">
@@ -148,6 +153,7 @@ export default {
         agency: grantsInterested.name,
         grant: grantsInterested.title,
         grant_id: grantsInterested.grant_id,
+        assigned_by_user_name: grantsInterested.assigned_by_user_name,
         interested: (() => {
           let retVal = null;
           if (grantsInterested.status_code != null) {
