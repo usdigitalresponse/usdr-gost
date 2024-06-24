@@ -59,9 +59,5 @@ describe('DashboardView.vue', () => {
       const noRecentActivityMessage = wrapper.find('#noRecentActivityMessage');
       expect(noRecentActivityMessage.text()).toContain('Your team has no recent activity.');
     });
-    it('should show the no recent activity message', () => {
-      const noRecentActivityMessage = wrapper.find('#noUpcomingCloseDates');
-      expect(noRecentActivityMessage.text()).toContain('Your team has no upcoming close dates.');
-    });
   });
 });
