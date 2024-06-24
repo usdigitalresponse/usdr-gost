@@ -317,7 +317,7 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
             { key: 'team', header: 'Team' },
             { key: 'grant', header: 'Grant' },
             { key: 'status_code', header: 'Status Code' },
-            { key: 'name', header: 'Grant Assigned By' },
+            { key: 'name', header: process.env.SHARE_TERMINOLOGY_ENABLED === 'true' ? 'Grant Shared By' : 'Grant Assigned By' },
             { key: 'email', header: 'Email' },
         ],
     });
