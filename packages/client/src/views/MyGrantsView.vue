@@ -7,17 +7,17 @@
       style="margin-top: 1.5rem"
       lazy
     >
+      <b-tab :title="shareTerminologyEnabled ? 'Shared With Your Team' : 'Assigned'">
+        <GrantsTable
+          :search-title="shareTerminologyEnabled ? 'Shared With Your Team' : 'Assigned'"
+          :show-assigned-to-agency="selectedAgencyId"
+          :show-search-controls="false"
+        />
+      </b-tab>
       <b-tab title="Interested">
         <GrantsTable
           search-title="Interested"
           show-interested
-          :show-search-controls="false"
-        />
-      </b-tab>
-      <b-tab title="Assigned">
-        <GrantsTable
-          search-title="Assigned"
-          :show-assigned-to-agency="selectedAgencyId"
           :show-search-controls="false"
         />
       </b-tab>
@@ -42,6 +42,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import GrantsTable from '@/components/GrantsTable.vue';
+import { shareTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   components: {
@@ -56,6 +57,9 @@ export default {
     ...mapGetters({
       selectedAgencyId: 'users/selectedAgencyId',
     }),
+    shareTerminologyEnabled() {
+      return shareTerminologyEnabled();
+    },
   },
   created() {
     this.$watch('$route.params.tab', (tabName) => {

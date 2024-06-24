@@ -308,6 +308,11 @@ describe('db', () => {
             expect(rows.data).to.have.lengthOf(2);
             expect(rows.data.map((r) => r.created_at.getTime())).to.have.all.members([1663117521515, 1659827033570]);
         });
+        it('includes assigned_by_user_name for assigned grants', async () => {
+            const rows = await db.getGrantsInterested({ agencyId: fixtures.users.staffUser.agency_id, perPage: 6, currentPage: 1 });
+            const record = rows.data.find((el) => el.assigned_by === 1);
+            expect(record.assigned_by_user_name).to.equal('Admin User');
+        });
     });
 
     context('getClosestGrant', () => {

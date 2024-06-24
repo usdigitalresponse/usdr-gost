@@ -47,6 +47,7 @@ website_datadog_rum_options = {
 website_feature_flags = {
   newTerminologyEnabled      = true,
   newGrantsDetailPageEnabled = true,
+  shareTerminologyEnabled    = true,
 }
 
 // Google Analytics Account ID: 233192355, Property ID: 429910307, Stream ID: 7590745080
