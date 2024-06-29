@@ -1,0 +1,124 @@
+name: Rotate RDS Aurora CA Bundle
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  BUNDLE_FILE: packages/server/rds-ca-bundle.pem
+
+jobs:
+  check:
+    name: Check Current Bundle
+    runs-on: ubuntu-latest
+    outputs:
+      expiration-rfc822: ${{ steps.get-expiration-date.outputs.value }}
+      update-required: ${{ steps.expiration-check.outputs.update-required }}
+    steps:
+      - uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.deps.dev:443
+            api.github.com:443
+            api.securityscorecards.dev:443
+            github.com:443
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          show-progress: 'false'
+          persist-credentials: 'false'
+      - name: Show certificate expiration date
+        id: get-expiration-date
+        run: |
+          EXPIRATION_DATE=$(openssl x509 -enddate -noout -in $BUNDLE_FILE | cut -d= -f 2)
+          echo "value=$EXPIRATION_DATE" >> $GITHUB_OUTPUT
+      - name: Check certificate expiration
+        id: expiration-check
+        continue-on-error: true
+        run: |
+          echo "Current CA bundle expiration: $EXPIRATION_DATE"
+          FOUR_WEEKS_IN_SECONDS=2419200
+            openssl x509 -checkend $FOUR_WEEKS_IN_SECONDS -noout -in $BUNDLE_FILE
+            if openssl x509 -checkend $FOUR_WEEKS_IN_SECONDS -noout -in other.pem; then
+              echo "update-required=false" >> $GITHUB_OUTPUT
+              echo "Expiration is more than 4 weeks, so no action is needed." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "update-required=true" >> $GITHUB_OUTPUT
+              echo "CA bundle will expire in less than 4 weeks. Please update!" >> $GITHUB_STEP_SUMMARY
+            fi
+        env:
+          EXPIRATION_DATE: ${{ steps.get-expiration-date.outputs.value }}
+
+  update:
+    name: Updated bundle pull request
+    runs-on: ubuntu-latest
+    needs:
+      - check
+    if: needs.check.outputs.update-required == 'true'
+    env:
+      BUNDLE_DOWNLOAD_URL: https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
+    steps:
+      - uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.deps.dev:443
+            api.github.com:443
+            api.securityscorecards.dev:443
+            github.com:443
+            truststore.pki.rds.amazonaws.com:443
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          show-progress: 'false'
+          persist-credentials: 'false'
+      - name: Download latest CA bundle
+        run: wget -O "$BUNDLE_FILE" "$BUNDLE_DOWNLOAD_URL"
+      - name: Format old and new CA bundle expiration dates
+        id: format-dates
+        run: |
+          echo "today=$(date --iso-8601=seconds)" >> $GITHUB_OUTPUT
+          CURRENT_EXPIRATION_DATE=$(echo "$CURRENT_EXPIRATION_RFC822" | date --iso-8601=date -f - )
+          echo "current-expiration=$CURRENT_EXPIRATION_DATE" >> $GITHUB_OUTPUT
+          NEW_EXPIRATION_DATE=$(openssl x509 -enddate -noout -in $BUNDLE_FILE | cut -d= -f 2 | date --iso-8601=date -f - )
+          echo "new-expiration=$NEW_EXPIRATION_DATE" >> $GITHUB_OUTPUT
+        env:
+          CURRENT_EXPIRATION_RFC822: ${{ needs.check.outputs.expiration-rfc822 }}
+      - name: Write the pull request description
+        id: pr-description
+        run: |
+          PR_DESCRIPTION_FILE=$(mktemp -t description.md.XXXXX)
+          echo "file=$PR_DESCRIPTION_FILE" >> $GITHUB_OUTPUT
+          cat >> $PR_DESCRIPTION_FILE << 'ENDOFPRDESCRIPTION'
+          ## RDS Aurora CA Bundle Update
+
+          This pull request replaces the current RDS Auora CA Bundle,
+          which is not valid after **${{ env.CURRENT_EXPIRATION_DATE }}**.
+
+          The new CA bundle file was downloaded from ${{ env.BUNDLE_DOWNLOAD_URL }}
+          at ${{ env.DOWNLOADED_DATE }} and will expire on **${{ env.NEW_EXPIRATION_DATE }}**.
+
+          *Pusher: @${{ env.GH_ACTOR }}, Action: `${{ env.GH_ACTION }}`, Workflow: [`${{ env.GH_WORKFLOW }}`](${{ env.GH_SERVER}}/${{ env.GH_REPO }}/actions/runs/${{ env.GH_RUN_ID }})*
+          ENDOFPRDESCRIPTION
+        env:
+          DOWNLOADED_DATE: ${{ steps.format-dates.outputs.now }}
+          CURRENT_EXPIRATION_DATE: ${{ steps.format-dates.outputs.current-expiration }}
+          NEW_EXPIRATION_DATE: ${{ steps.format-dates.outputs.new-expiration }}
+          GH_ACTOR: ${{ github.actor }}
+          GH_ACTION: ${{ github.event_name }}
+          GH_WORKFLOW: ${{ github.workflow }}
+          GH_SERVER: ${{ github.server_url }}
+          GH_REPO: ${{ github.repository }}
+          GH_RUN_ID: ${{ github.run_id }}
+      - name: Submit Pull Request
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
+        with:
+          title: "Chore [certificates] Replace RDS CA bundle expiring on ${{ steps.format-dates.outputs.current-expiration }}"
+          body-path: ${{ steps.pr-description.outputs.file }}
+          branch: chore/rds-ca-bundle-update/expires/${{ steps.format-dates.outputs.new-expiration }}
+          commit-message: "Add RDS CA bundle downloaded at ${{ steps.format-dates.outputs.now }}"
