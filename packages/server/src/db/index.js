@@ -1119,7 +1119,8 @@ async function getGrantsInterested({ agencyId, perPage, currentPage }) {
                           grants_interested.agency_id,
                           grants.title,
                           grants.grant_id,
-                          NULL AS assigned_by`))
+                          NULL AS assigned_by,
+                          NULL AS assigned_by_user_name`))
         .innerJoin('agencies', 'agencies.id', 'grants_interested.agency_id')
         .innerJoin('interested_codes', 'interested_codes.id', 'grants_interested.interested_code_id')
         .innerJoin('grants', 'grants.grant_id', 'grants_interested.grant_id')
@@ -1132,8 +1133,10 @@ async function getGrantsInterested({ agencyId, perPage, currentPage }) {
                                 assigned_grants_agency.agency_id,
                                 grants.title,
                                 grants.grant_id,
-                                assigned_grants_agency.assigned_by`))
+                                assigned_grants_agency.assigned_by,
+                                users.name AS assigned_by_user_name`))
                 .from('assigned_grants_agency')
+                .innerJoin('users', 'users.id', 'assigned_grants_agency.assigned_by')
                 .innerJoin('agencies', 'agencies.id', 'assigned_grants_agency.agency_id')
                 .innerJoin('grants', 'grants.grant_id', 'assigned_grants_agency.grant_id')
                 .whereIn('agencies.id', agencies.map((subAgency) => subAgency.id))

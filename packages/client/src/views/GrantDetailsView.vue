@@ -29,6 +29,62 @@
           {{ currentGrant.title }}
         </h2>
 
+        <!-- Left page column: main print/copy/grants.gov buttons -->
+        <div class="grant-details-main-actions print-d-none">
+          <div class="d-flex justify-content-between align-items-center">
+            <b-button
+              variant="primary"
+              class="mr-5 text-nowrap"
+              :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              size="sm"
+              data-dd-action-name="view on grants.gov"
+              @click="onOpenGrantsGov"
+            >
+              <b-icon
+                icon="box-arrow-up-right"
+                aria-hidden="true"
+                class="mr-2"
+              />
+              View on Grants.gov
+            </b-button>
+            <div class="w-20 d-flex">
+              <a
+                class="link-primary text-nowrap"
+                role="button"
+                :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
+                data-dd-action-name="copy btn"
+                @click="copyUrl"
+              >
+                <b-icon
+                  :icon="copyUrlSuccessTimeout === null ? 'paperclip' : 'check2'"
+                  aria-hidden="true"
+                  class="mr-1"
+                />
+                <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
+                <span v-else>Link Copied</span>
+              </a>
+              <div class="col-1 border-right border-dark p-2" />
+              <div class="col-1 p-2" />
+              <a
+                class="link-primary text-nowrap"
+                role="button"
+                variant="outline-primary"
+                data-dd-action-name="print btn"
+                @click="printPage"
+              >
+                <b-icon
+                  icon="printer"
+                  aria-hidden="true"
+                  class="mr-1"
+                />
+                Print
+              </a>
+            </div>
+          </div>
+        </div>
+
         <!-- Left page column: table data, and grant description -->
         <div class="grant-details-content">
           <b-table
@@ -56,56 +112,6 @@
             style="white-space: pre-line"
             v-html="currentGrant.description"
           />
-        </div>
-
-        <!-- Right page column: main print/copy/grants.gov buttons -->
-        <div class="grant-details-main-actions print-d-none">
-          <b-button
-            variant="primary"
-            block
-            class="mb-3"
-            :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
-            target="_blank"
-            rel="noopener noreferrer"
-            data-dd-action-name="view on grants.gov"
-            @click="onOpenGrantsGov"
-          >
-            <b-icon
-              icon="box-arrow-up-right"
-              aria-hidden="true"
-              class="mr-2"
-            />
-            Apply on Grants.gov
-          </b-button>
-          <div class="d-flex">
-            <b-button
-              class="w-50 flex-shrink-1 mr-3"
-              variant="outline-primary"
-              data-dd-action-name="print btn"
-              @click="printPage"
-            >
-              <b-icon
-                icon="printer-fill"
-                aria-hidden="true"
-                class="mr-2"
-              />
-              Print
-            </b-button>
-            <b-button
-              class="w-50 flex-shrink-1"
-              :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
-              data-dd-action-name="copy btn"
-              @click="copyUrl"
-            >
-              <b-icon
-                :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'"
-                aria-hidden="true"
-                class="mr-2"
-              />
-              <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
-              <span v-else>Link Copied</span>
-            </b-button>
-          </div>
         </div>
 
         <!-- Right page column: secondary assign grant section -->
@@ -565,8 +571,9 @@ export default {
   grid-template-rows: 50px auto auto;
   grid-template-areas:
     "back-link back-link"
-    "headline  main-actions"
-    "content   secondary-actions";
+    "headline  headline"
+    "main-actions secondary-actions"
+    "content  secondary-actions";
   column-gap: 90px;
   row-gap: 48px;
   .grant-details-back-link {
