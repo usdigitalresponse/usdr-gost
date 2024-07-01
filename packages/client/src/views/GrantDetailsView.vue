@@ -143,7 +143,7 @@
                 {{ shareTerminologyEnabled ? 'Share' : 'Submit' }}
               </b-button>
             </div>
-            <div v-if="!shareTerminologyEnabled">
+            <template v-if="!shareTerminologyEnabled">
               <div
                 v-for="agency in assignedAgencies"
                 :key="agency.id"
@@ -163,8 +163,8 @@
                   @click="unassignAgencyToGrant(agency)"
                 />
               </div>
-            </div>
-            <div v-if="shareTerminologyEnabled">
+            </template>
+            <template v-else>
               <div
                 v-for="agency in assignedAgencies"
 
@@ -185,7 +185,7 @@
                   </p>
                 </div>
               </div>
-            </div>
+            </template>
           </div>
           <!-- Team status section -->
           <div class="mb-5">
