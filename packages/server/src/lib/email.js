@@ -320,6 +320,7 @@ async function sendGrantAssignedEmailsForAgencyLegacy(assignee_agency, grantDeta
         assignor_agency_name: assignor.agency.name,
         assignee_agency_name: assignee_agency.name,
         grant_assigned_header: 'Grant Assigned',
+        use_share_terminology: false,
     }, {
         grant_detail: grantDetail,
     });
@@ -363,6 +364,7 @@ async function sendGrantAssignedEmailsForAgency(assignee_agency, grant, grantDet
         assignor_name: assignor.name,
         assignor_agency_name: assignor.agency.name,
         assignee_agency_name: assignee_agency.name,
+        use_share_terminology: true,
     }, {
         grant_detail: grantDetail,
     });
