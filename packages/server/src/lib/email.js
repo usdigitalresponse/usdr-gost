@@ -310,7 +310,7 @@ async function buildGrantDetail(grant, emailNotificationType) {
     return grantDetail;
 }
 
-async function sendGrantAssignedEmailsForAgency(assignee_agency, grantDetail, assignorUserId) {
+async function sendGrantAssignedEmailsForAgencyLegacy(assignee_agency, grantDetail, assignorUserId) {
     const grantAssignedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_assigned_body.html'));
 
     const assignor = await db.getUser(assignorUserId);
@@ -353,7 +353,7 @@ async function sendGrantAssignedEmailsForAgency(assignee_agency, grantDetail, as
     await asyncBatch(inputs, deliverEmail, 2);
 }
 
-async function sendGrantSharedEmailsForAgency(assignee_agency, grant, grantDetail, assignorUserId) {
+async function sendGrantAssignedEmailsForAgency(assignee_agency, grant, grantDetail, assignorUserId) {
     const grantAssignedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_assigned_body.html'));
 
     const assignor = await db.getUser(assignorUserId);
@@ -413,8 +413,8 @@ async function sendGrantAssignedEmails({ grantId, agencyIds, userId }) {
             agencies,
             async (agency) => {
                 process.env.SHARE_TERMINOLOGY_ENABLED === 'true'
-                    ? await sendGrantSharedEmailsForAgency(agency, grant, grantDetail, userId)
-                    : await sendGrantAssignedEmailsForAgency(agency, grantDetail, userId);
+                    ? await sendGrantAssignedEmailsForAgency(agency, grant, grantDetail, userId)
+                    : await sendGrantAssignedEmailsForAgencyLegacy(agency, grantDetail, userId);
             },
             2,
         );

@@ -25,6 +25,7 @@ const {
     NODEMAILER_PORT,
     NODEMAILER_EMAIL,
     NODEMAILER_EMAIL_PW,
+    SHARE_TERMINOLOGY_ENABLED,
 } = process.env;
 
 const testEmail = {
@@ -47,7 +48,7 @@ describe('Email module', () => {
         process.env.NODEMAILER_PORT = NODEMAILER_PORT;
         process.env.NODEMAILER_EMAIL = NODEMAILER_EMAIL;
         process.env.NODEMAILER_EMAIL_PW = NODEMAILER_EMAIL_PW;
-        process.env.SHARE_TERMINOLOGY_ENABLED = false;
+        process.env.SHARE_TERMINOLOGY_ENABLED = SHARE_TERMINOLOGY_ENABLED;
     }
 
     function clearNodemailerEnvironmentVariables() {
@@ -265,6 +266,8 @@ describe('Email sender', () => {
     });
     context('send grant assigned email', () => {
         it('calls the transport function with appropriate parameters', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = false;
+
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
@@ -299,6 +302,8 @@ describe('Email sender', () => {
             )).to.be.true;
         });
         it('is resilient to missing grant description', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = false;
+
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
             const grant = fixtures.grants.noDescOrEligibilityCodes;
