@@ -404,12 +404,8 @@ export default {
         (interested) => interested.agency_id.toString() === this.selectedAgencyId,
       );
     },
-    newTerminologyEnabled() {
-      return newTerminologyEnabled();
-    },
-    shareTerminologyEnabled() {
-      return shareTerminologyEnabled();
-    },
+    newTerminologyEnabled,
+    shareTerminologyEnabled,
     unassignedAgencies() {
       return this.agencies.filter(
         (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
