@@ -119,7 +119,7 @@
           <!-- Assign grant section -->
           <div class="mb-5">
             <h3 class="mb-3">
-              Assign Grant
+              {{ shareTerminologyEnabled ? 'Share Grant' : 'Assign Grant' }}
             </h3>
             <div class="d-flex print-d-none">
               <v-select
@@ -140,30 +140,53 @@
                 data-dd-action-name="assign team"
                 @click="assignAgencyToGrant(selectedAgencyToAssign)"
               >
-                Submit
+                {{ shareTerminologyEnabled ? 'Share' : 'Submit' }}
               </b-button>
             </div>
-            <div
-              v-for="agency in assignedAgencies"
-              :key="agency.id"
-              class="d-flex justify-content-between align-items-start my-3"
-            >
-              <div class="mr-3">
-                <p class="m-0">
-                  {{ agency.name }}
-                </p>
-                <p class="m-0 text-muted">
-                  <small>{{ formatDateTime(agency.created_at) }}</small>
-                </p>
+            <template v-if="!shareTerminologyEnabled">
+              <div
+                v-for="agency in assignedAgencies"
+                :key="agency.id"
+                class="d-flex justify-content-between align-items-start my-3"
+              >
+                <div class="mr-3">
+                  <p class="m-0">
+                    {{ agency.name }}
+                  </p>
+                  <p class="m-0 text-muted">
+                    <small>{{ formatDateTime(agency.created_at) }}</small>
+                  </p>
+                </div>
+                <b-button-close
+                  data-dd-action-name="remove team assignment"
+                  class="print-d-none"
+                  @click="unassignAgencyToGrant(agency)"
+                />
               </div>
-              <b-button-close
-                data-dd-action-name="remove team assignment"
-                class="print-d-none"
-                @click="unassignAgencyToGrant(agency)"
-              />
-            </div>
-          </div>
+            </template>
+            <template v-else>
+              <div
+                v-for="agency in assignedAgencies"
 
+                :key="agency.id"
+                class="d-flex justify-content-start align-items-start my-3"
+              >
+                <UserAvatar
+                  :user-name="agency.assigned_by_name"
+                  :color="agency.assigned_by_avatar_color"
+                  size="2.5rem"
+                />
+                <div class="mx-3">
+                  <p class="m-0">
+                    <strong>{{ agency.assigned_by_name }}</strong> shared to <strong>{{ agency.name }}</strong>
+                  </p>
+                  <p class="m-0 text-muted">
+                    <small>{{ formatDateTime(agency.created_at) }}</small>
+                  </p>
+                </div>
+              </div>
+            </template>
+          </div>
           <!-- Team status section -->
           <div class="mb-5">
             <h3 class="mb-3">
@@ -235,7 +258,7 @@ import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { DateTime } from 'luxon';
-import { newTerminologyEnabled } from '@/helpers/featureFlags';
+import { newTerminologyEnabled, shareTerminologyEnabled } from '@/helpers/featureFlags';
 import { formatCurrency } from '@/helpers/currency';
 import { titleize } from '@/helpers/form-helpers';
 import { gtagEvent } from '@/helpers/gtag';
@@ -381,9 +404,8 @@ export default {
         (interested) => interested.agency_id.toString() === this.selectedAgencyId,
       );
     },
-    newTerminologyEnabled() {
-      return newTerminologyEnabled();
-    },
+    newTerminologyEnabled,
+    shareTerminologyEnabled,
     unassignedAgencies() {
       return this.agencies.filter(
         (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
