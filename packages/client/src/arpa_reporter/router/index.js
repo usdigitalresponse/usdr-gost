@@ -1,5 +1,4 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import AgenciesView from '@/arpa_reporter/views/AgenciesView.vue';
 import AgencyView from '@/arpa_reporter/views/AgencyView.vue';
@@ -17,8 +16,6 @@ import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
 import UploadView from '@/arpa_reporter/views/UploadView.vue';
 import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
 import store from '@/arpa_reporter/store';
-
-Vue.use(VueRouter);
 
 const routes = [
   { path: '/login', name: 'Login', component: LoginView },
@@ -108,9 +105,8 @@ const routes = [
   },
 ];
 
-const router = new VueRouter({
-  mode: 'history',
-  base: `${import.meta.env.BASE_URL}arpa_reporter/`,
+const router = createRouter({
+  history: createWebHistory(`${import.meta.env.BASE_URL}arpa_reporter/`),
   routes,
 });
 

@@ -1,10 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import AgenciesView from '@/arpa_reporter/views/AgenciesView.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 describe('AgenciesView.vue', () => {
   it('renders project list', () => {
@@ -18,9 +15,10 @@ describe('AgenciesView.vue', () => {
       },
     });
     const wrapper = mount(AgenciesView, {
-      store,
-      localVue,
-      stubs: ['router-link', 'router-view'],
+      global: {
+        plugins: [store],
+        stubs: ['router-link', 'router-view'],
+      },
     });
     const r = wrapper.find('tbody');
     expect(r.text()).toContain('Agency 1');

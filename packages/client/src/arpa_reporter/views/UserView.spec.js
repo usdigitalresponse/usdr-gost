@@ -1,12 +1,9 @@
 import {
   describe, beforeEach, it, expect,
 } from 'vitest';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import UserView from '@/arpa_reporter/views/UserView.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 const mocks = {
   $route: {
@@ -34,7 +31,12 @@ describe('UserView.vue', () => {
     });
   });
   it('renders new user form', async () => {
-    const wrapper = mount(UserView, { store, localVue, mocks });
+    const wrapper = mount(UserView, {
+      global: {
+        plugins: [store],
+        mocks,
+      },
+    });
     const loading = wrapper.find('div[role="status"]');
     expect(loading.text()).toContain('Loading');
 

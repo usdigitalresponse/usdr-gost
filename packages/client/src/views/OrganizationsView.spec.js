@@ -1,12 +1,9 @@
 import {
   describe, beforeEach, afterEach, it, expect,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import OrganizationsView from '@/views/OrganizationsView.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 let store;
 let wrapper;
@@ -35,9 +32,10 @@ describe('OrganizationsView.vue', () => {
         },
       });
       wrapper = shallowMount(OrganizationsView, {
-        store,
-        localVue,
-        stubs,
+        global: {
+          plugins: [store],
+          stubs,
+        },
         computed: {
           newTerminologyEnabled: () => true,
         },

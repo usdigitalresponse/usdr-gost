@@ -1,14 +1,12 @@
 import {
   describe, it, beforeEach, expect, vi,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import MyProfileView from '@/views/MyProfileView.vue';
 import { shareTerminologyEnabled } from '@/helpers/featureFlags';
 
 describe('MyProfileView.vue', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
   const store = new Vuex.Store({
     getters: {
       'users/loggedInUser': () => ({
@@ -33,7 +31,11 @@ describe('MyProfileView.vue', () => {
     });
 
     it('should show assign terminology', () => {
-      const wrapper = shallowMount(MyProfileView, { store, localVue });
+      const wrapper = shallowMount(MyProfileView, {
+        global: {
+          plugins: [store],
+        },
+      });
       const text = wrapper.text();
       expect(text).toContain('Grants Assignment');
       expect(text).toContain(
@@ -48,7 +50,11 @@ describe('MyProfileView.vue', () => {
     });
 
     it('should show share terminology', () => {
-      const wrapper = shallowMount(MyProfileView, { store, localVue });
+      const wrapper = shallowMount(MyProfileView, {
+        global: {
+          plugins: [store],
+        },
+      });
       const text = wrapper.text();
       expect(text).toContain('Shared Grants');
       expect(text).toContain(

@@ -84,9 +84,9 @@
         >
           <template #search="{attributes, events}">
             <input
+              v-bind="attributes"
               class="vs__search"
               :required="!formData.parentAgency"
-              v-bind="attributes"
               v-on="events"
             >
           </template>

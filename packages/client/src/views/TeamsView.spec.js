@@ -1,12 +1,9 @@
 import {
   describe, beforeEach, afterEach, it, expect,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import TeamsView from '@/views/TeamsView.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 let store;
 let wrapper;
@@ -37,9 +34,10 @@ describe('TeamsView.vue', () => {
         },
       });
       wrapper = shallowMount(TeamsView, {
-        store,
-        localVue,
-        stubs,
+        global: {
+          plugins: [store],
+          stubs,
+        },
         computed: {
           newTerminologyEnabled: () => true,
         },
@@ -76,9 +74,10 @@ describe('TeamsView.vue', () => {
           },
         });
         wrapper = shallowMount(TeamsView, {
-          store,
-          localVue,
-          stubs,
+          global: {
+            plugins: [store],
+            stubs,
+          },
         });
       });
       it('should allow user to import teams', () => {
@@ -113,9 +112,10 @@ describe('TeamsView.vue', () => {
           },
         });
         wrapper = shallowMount(TeamsView, {
-          store,
-          localVue,
-          stubs,
+          global: {
+            plugins: [store],
+            stubs,
+          },
         });
       });
       it.skip('should allow user to edit a team', () => {
