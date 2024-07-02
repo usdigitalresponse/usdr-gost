@@ -4,7 +4,6 @@
     <div class="px-5">
       <b-container fluid>
         <div class="row">
-          <b-col cols="1" />
           <b-col>
             <b-card>
               <div class="card-block text-left">
@@ -40,43 +39,6 @@
               </div>
             </b-card>
           </b-col>
-          <b-col>
-            <b-card>
-              <div class="card-block text-left">
-                <h2 class="card-title gutter-title2 row h4">
-                  Upcoming Closing Dates
-                </h2>
-                <span
-                  v-if="!closestGrants?.length"
-                  id="noUpcomingCloseDates"
-                  class="gutter-title2 row"
-                >Your {{ newTerminologyEnabled ? 'team' : 'agency' }} has no upcoming close dates.</span>
-              </div>
-              <ClosingDatesTable
-                :closest-grants="closestGrants"
-                :on-row-clicked="onRowClicked"
-                :on-row-selected="onRowSelected"
-                :danger-threshold="selectedTeam?.danger_threshold"
-                :warning-threshold="selectedTeam?.warning_threshold"
-              />
-              <div v-if="totalUpcomingGrants > 3">
-                <b-row align-v="center">
-                  <b-navbar
-                    toggleable="sm py-0"
-                    bg-transparent
-                    class="gutter-upcoming row"
-                  >
-                    <b-link
-                      class="nav-link active"
-                      to="UpcomingClosingDates"
-                    >
-                      See All Upcoming
-                    </b-link>
-                  </b-navbar>
-                </b-row>
-              </div>
-            </b-card>
-          </b-col>
           <b-col cols="1" />
         </div>
       </b-container>
@@ -95,11 +57,10 @@ import { mapActions, mapGetters } from 'vuex';
 import resizableTableMixin from '@/mixin/resizableTable';
 import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
 import ActivityTable from '@/components/ActivityTable.vue';
-import ClosingDatesTable from '@/components/ClosingDatesTable.vue';
 import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 
 export default {
-  components: { ClosingDatesTable, ActivityTable, GrantDetailsLegacy },
+  components: { ActivityTable, GrantDetailsLegacy },
   mixins: [resizableTableMixin],
   data() {
     return {
@@ -112,9 +73,7 @@ export default {
   computed: {
     ...mapGetters({
       totalInterestedGrants: 'grants/totalInterestedGrants',
-      totalUpcomingGrants: 'grants/totalUpcomingGrants',
       selectedTeam: 'users/selectedAgency',
-      closestGrants: 'grants/closestGrants',
       grantsInterested: 'grants/grantsInterested',
       currentGrant: 'grants/currentGrant',
     }),
@@ -132,7 +91,6 @@ export default {
     async selectedGrant() {
       if (!this.selectedGrant) {
         await this.fetchGrantsInterested();
-        await this.fetchClosestGrants();
       }
     },
     currentGrant() {
@@ -148,11 +106,9 @@ export default {
     ...mapActions({
       fetchGrantsInterested: 'grants/fetchGrantsInterested',
       fetchGrantDetails: 'grants/fetchGrantDetails',
-      fetchClosestGrants: 'grants/fetchClosestGrants',
     }),
     async setup() {
       this.fetchGrantsInterested({ perPage: this.perPage, currentPage: this.currentPage });
-      this.fetchClosestGrants({ perPage: this.perPageClosest, currentPage: this.currentPage });
     },
     async onRowSelected(items) {
       const [row] = items;
@@ -175,11 +131,6 @@ export default {
 <style scoped>
   .gutter-activity.row {
     margin-left: -10px;
-    margin-top: -8px;
-    margin-bottom: -6px;
-  }
-  .gutter-upcoming.row {
-    margin-left: -2px;
     margin-top: -8px;
     margin-bottom: -6px;
   }

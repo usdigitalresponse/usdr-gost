@@ -1,7 +1,6 @@
 const express = require('express');
 // eslint-disable-next-line import/no-unresolved
 const { stringify: csvStringify } = require('csv-stringify/sync');
-const groupBy = require('lodash/groupBy');
 const db = require('../db');
 const email = require('../lib/email');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
@@ -99,24 +98,6 @@ router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
     const { user } = req.session;
     const response = await db.getSingleGrantDetails({ grantId, tenantId: user.tenant_id });
     res.json(response);
-});
-
-router.get('/closestGrants/:perPage/:currentPage', requireUser, async (req, res) => {
-    const { perPage, currentPage } = req.params;
-    const { data, pagination } = await db.getClosestGrants({ agency: req.session.selectedAgency, perPage, currentPage });
-
-    // Get interested agencies for each grant
-    const grantIds = data.map((grant) => grant.grant_id);
-    const agencies = await db.getInterestedAgencies({ grantIds, tenantId: req.session.user.tenant_id });
-    const agenciesByGrantId = groupBy(agencies, 'grant_id');
-    const enhancedData = data.map((grant) => (
-        {
-            ...grant,
-            interested_agencies: (agenciesByGrantId[grant.grant_id] || []).map((agency) => agency.agency_abbreviation || agency.agency_name),
-        }
-    ));
-
-    res.json({ data: enhancedData, pagination });
 });
 
 // For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit

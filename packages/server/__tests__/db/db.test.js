@@ -315,20 +315,6 @@ describe('db', () => {
         });
     });
 
-    context('getClosestGrant', () => {
-        it('gets closest grants', async () => {
-            const searchTimestamp = new Date('2021-11-02');
-            const result = await db.getClosestGrants({
-                agency: 0,
-                perPage: 10,
-                currentPage: 1,
-                timestampForTest: searchTimestamp,
-            });
-            expect(result.data.length).to.equal(2);
-            expect(result.data[0].grant_id).to.equal('1');
-        });
-    });
-
     context('getAgencyCriteriaForAgency', () => {
         it('gets agency criteria associated with an agency', async () => {
             const staffUserId = await db.knex(TABLES.users).where('email', fixtures.users.staffUser.email);
