@@ -126,9 +126,9 @@
     tslib "^2.6.2"
 
 "@aws-sdk/client-s3@^3.312.0":
-  version "3.606.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.606.0.tgz#ff9d7e029591387522783b7aae3d458d4cb0b473"
-  integrity sha512-IGM/E8kVk/NY/kZwLdmGRsX1QYtuPljoNutM5kBRdtGahQL5VwVAve5PElPUArcsTkfTyW+LfXpznDeeHxMCcA==
+  version "3.608.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.608.0.tgz#a1e5e688615088b694944a6a44a3f9fee4fd4d5f"
+  integrity sha512-la2R6QfUOmE4JMubxLD3OdnPTduAs5YekIvx68I5CbLudb5pbxkHDqnrWDhgK1lX4Cu19pXjgQXmS8oZMJPeLQ==
   dependencies:
     "@aws-crypto/sha1-browser" "5.2.0"
     "@aws-crypto/sha256-browser" "5.2.0"
@@ -727,9 +727,9 @@
     tslib "^2.6.2"
 
 "@aws-sdk/s3-request-presigner@^3.312.0":
-  version "3.606.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.606.0.tgz#8ccde4f65147f091961da8eb3a4dd03513cbd05b"
-  integrity sha512-ErxArdCk73MVOh5xiTWZkk76kZWCHZqCCdMnSJTD0lzTpfGbwL/eEjHIjKLJO+EsRtDKYmS8vN+qijyMvMqruw==
+  version "3.608.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/s3-request-presigner/-/s3-request-presigner-3.608.0.tgz#dd0ab4b6ac02cbebad06b4fb84fd2f3be9240a59"
+  integrity sha512-5IJskqhzkw+XA/RshAewRlFsJchl3M6I6ZTo9b9It3oFya/J/rEwpDKMt+HPS0E74Zg1mSj1bCGVXNQutmaWAA==
   dependencies:
     "@aws-sdk/signature-v4-multi-region" "3.598.0"
     "@aws-sdk/types" "3.598.0"
@@ -1399,25 +1399,25 @@
     debug "^3.1.0"
     lodash.once "^4.1.1"
 
-"@datadog/browser-core@5.21.0":
-  version "5.21.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.21.0.tgz#980e43d036a4c2074d37b887bd0ba748cca75e15"
-  integrity sha512-F0lZCwHwGCryhyRAg9x9Aeq8FsYMxA41vwyBeyFHbh+er5UrQl/LuKdrRMSxz3kpaBdHppLP920voTSvooHiug==
+"@datadog/browser-core@5.22.0":
+  version "5.22.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.22.0.tgz#d508265b4f4d2dda8eb6623c9e806372b7bf8e9c"
+  integrity sha512-Me7N+l+T5DyN4xnJmnxB93TWxj+u9YwMghvcqS3LLCxSj+fpG/aLlK9hvDG2uhZsnsQdiULrzlbjfekjijwunQ==
 
-"@datadog/browser-rum-core@5.21.0":
-  version "5.21.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.21.0.tgz#f7b50147f7dd1390f538f9516968bd7fc89e3d23"
-  integrity sha512-jHDnRX+SwXJrAFqgEJ+Eg9E6zC9R3RTYtSIIwNI+vWbuzZRC/Wb8BJmeG2focn0ooCCfdzMgpGZ0F37+0Qn0Zg==
+"@datadog/browser-rum-core@5.22.0":
+  version "5.22.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.22.0.tgz#1d52f7061f0d20a4af0f9eb18f3599cefb8e5703"
+  integrity sha512-Bb5YYCm7BV92qO89s9Nk/DCO+XPbUKraxZ9WIyHfxne71yc7s3WGyvsPxkRUiir0cc9c3F21uo8jz0HTBie6sw==
   dependencies:
-    "@datadog/browser-core" "5.21.0"
+    "@datadog/browser-core" "5.22.0"
 
 "@datadog/browser-rum@^5.5.0":
-  version "5.21.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.21.0.tgz#939d5ed4dd250b0033a9b61972d98eb38e6a934f"
-  integrity sha512-wSyaMgSCKOMtbqLiyiODTfFtq7wp79uIokhLkxwF34zq+y7Y7kqh5ZvR8tLXDlddJaKFKoNlUse5E817xd0ZjA==
+  version "5.22.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.22.0.tgz#84762f4d1168cad541f43dabcc0806be3116d54f"
+  integrity sha512-m3fVymhjuFwEJzYDuEd5ysTV5W4KqSG+l+piFXauXOdpcgPZuKHcqsMRNHqvvzsCK767+LovM8JlON0urqJ1JQ==
   dependencies:
-    "@datadog/browser-core" "5.21.0"
-    "@datadog/browser-rum-core" "5.21.0"
+    "@datadog/browser-core" "5.22.0"
+    "@datadog/browser-rum-core" "5.22.0"
 
 "@datadog/native-appsec@8.0.1":
   version "8.0.1"
