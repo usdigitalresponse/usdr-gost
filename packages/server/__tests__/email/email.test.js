@@ -25,6 +25,7 @@ const {
     NODEMAILER_PORT,
     NODEMAILER_EMAIL,
     NODEMAILER_EMAIL_PW,
+    SHARE_TERMINOLOGY_ENABLED,
 } = process.env;
 
 const testEmail = {
@@ -47,6 +48,7 @@ describe('Email module', () => {
         process.env.NODEMAILER_PORT = NODEMAILER_PORT;
         process.env.NODEMAILER_EMAIL = NODEMAILER_EMAIL;
         process.env.NODEMAILER_EMAIL_PW = NODEMAILER_EMAIL_PW;
+        process.env.SHARE_TERMINOLOGY_ENABLED = SHARE_TERMINOLOGY_ENABLED;
     }
 
     function clearNodemailerEnvironmentVariables() {
@@ -264,6 +266,8 @@ describe('Email sender', () => {
     });
     context('send grant assigned email', () => {
         it('calls the transport function with appropriate parameters', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = false;
+
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
@@ -298,6 +302,8 @@ describe('Email sender', () => {
             )).to.be.true;
         });
         it('is resilient to missing grant description', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = false;
+
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
             const grant = fixtures.grants.noDescOrEligibilityCodes;
@@ -308,6 +314,56 @@ describe('Email sender', () => {
             expect(sendFake.firstCall.args[0].body.includes('... View on')).to.equal(true);
         });
     });
+
+    context('send grant shared email', () => {
+        it('calls the transport function with appropriate parameters', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = true;
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
+
+            await email.sendGrantAssignedEmails({ grantId: '335255', agencyIds: [0, 1], userId: 1 });
+
+            // There are 3 total users in agencies 0 and 1 and none are explicitly unsubscribed for grant assignment
+            // notifications which means they are all implicitly subscribed.
+            expect(sendFake.callCount).to.equal(3);
+            expect(sendFake.calledWithMatch(
+                {
+                    fromName: 'USDR Federal Grant Finder',
+                    toAddress: 'staff.user@test.com',
+                    subject: 'Admin User Shared a Grant with Your Team',
+                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=0'],
+                },
+            )).to.be.true;
+            expect(sendFake.calledWithMatch(
+                {
+                    fromName: 'USDR Federal Grant Finder',
+                    toAddress: 'sub.staff.user@test.com',
+                    subject: 'Admin User Shared a Grant with Your Team',
+                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=1'],
+                },
+            )).to.be.true;
+            expect(sendFake.calledWithMatch(
+                {
+                    fromName: 'USDR Federal Grant Finder',
+                    toAddress: 'admin.user@test.com',
+                    subject: 'Admin User Shared a Grant with Your Team',
+                    tags: ['notification_type=grant_assignment', 'user_role=admin', 'organization_id=0', 'team_id=0'],
+                },
+            )).to.be.true;
+        });
+        it('is resilient to missing grant description', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = true;
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
+            const grant = fixtures.grants.noDescOrEligibilityCodes;
+
+            await email.sendGrantAssignedEmails({ grantId: grant.grant_id, agencyIds: [0], userId: 1 });
+
+            expect(sendFake.called).to.equal(true);
+            expect(sendFake.firstCall.args[0].body.includes('... View on')).to.equal(true);
+        });
+    });
+
     context('send async report email', () => {
         it('sendAsyncReportEmail delivers an email with the signedURL for audit report', async () => {
             const sendFake = sinon.fake.returns('foo');
