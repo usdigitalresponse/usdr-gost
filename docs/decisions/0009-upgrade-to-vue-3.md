@@ -96,6 +96,18 @@ and process for a better comparison with Vue 3.
 
 Proposed option: Upgrade to Vue 3.
 
+## Investigation of Vue 3 upgrade considerations
+
+- Performance
+  - Given that we'll likely be running the compat layer in production for a while (bootstrap-vue
+    is tied to Vue 2 for now, so we need to either wait for them to release a Vue 3 compatible 
+    version or migrate off Bootstrap), we wanted to confirm Vue 3 with the compat layer would not
+    cause any meaningful performance degradation.
+  - Overall, performance of the Vue 2 and Vue 3 setups are very comparable, and the compat layer 
+    does not seem to add any prohibitive amount of slowdown to the site.
+  - See my full 
+    [investigation notes here](https://docs.google.com/document/d/1jsQxQLhQOM54O0T5oQNFQqrmML6ngNqKFCEmQP-GCnA).
+
 ## Code Examples
 
 Proof of concept PR: https://github.com/usdigitalresponse/usdr-gost/pull/3190
