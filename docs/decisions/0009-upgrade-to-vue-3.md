@@ -107,6 +107,18 @@ Proposed option: Upgrade to Vue 3.
     does not seem to add any prohibitive amount of slowdown to the site.
   - See my full 
     [investigation notes here](https://docs.google.com/document/d/1jsQxQLhQOM54O0T5oQNFQqrmML6ngNqKFCEmQP-GCnA).
+- Deprecation warnings
+  - The Vue 3 compat helper will emit deprecation warnings in the browser console for all usages
+    of outdated Vue 2 syntax. We want to turn these into helpful signal instead of unhelpful chunder. 
+  - Bootstrap-vue related warnings should be logged to DataDog but filtered out completely from the
+    console. Upgrading or migrating off that library will be a larger long-term undertaking, and in 
+    the meantime the warnings are not helpful. 
+  - Other deprecation warnings should be logged to DataDog to allow us to build a punch list of
+    existing deprecated syntax usage. Once we have that, we can start throwing errors for new usages
+    to ensure we're not introducing new deprecated syntax; and we can ticket up the punch list to
+    upgrade historical usages of deprecated syntax. 
+  - A quick proof of concept doing this by intercepting `console.warn` can be seen here:
+    https://github.com/usdigitalresponse/usdr-gost/pull/3190/commits/58a6e5aca02a0fd89439873e2a8382f43532c6fa
 
 ## Code Examples
 
