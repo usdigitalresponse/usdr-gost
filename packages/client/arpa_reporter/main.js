@@ -11,11 +11,14 @@ import { BootstrapVue } from 'bootstrap-vue';
 import { BootstrapIcon } from '@dvuckovic/vue3-bootstrap-icons';
 import { injectBootstrapIcons } from '@dvuckovic/vue3-bootstrap-icons/utils';
 import BootstrapIcons from 'bootstrap-icons/bootstrap-icons.svg?raw';
+import installVueCompatWarningHandler from '@/helpers/vueCompatWarning';
 import App from '@/arpa_reporter/App.vue';
 import router from '@/arpa_reporter/router';
 import store, { get } from '@/arpa_reporter/store';
 
 import '@dvuckovic/vue3-bootstrap-icons/dist/style.css';
+
+installVueCompatWarningHandler();
 
 const app = createApp(App);
 

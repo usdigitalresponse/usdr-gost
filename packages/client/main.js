@@ -16,11 +16,14 @@ import { setUserForGoogleAnalytics } from '@/helpers/gtag';
 import App from '@/App.vue';
 import router from '@/router';
 import store from '@/store';
+import installVueCompatWarningHandler from '@/helpers/vueCompatWarning';
 import * as fetchApi from '@/helpers/fetchApi';
 
 import '@dvuckovic/vue3-bootstrap-icons/dist/style.css';
 import '@/assets/fix-sticky-headers.css';
 import '@/assets/adjust-vue-select.css';
+
+installVueCompatWarningHandler();
 
 if (window.APP_CONFIG?.GOOGLE_TAG_ID) {
   store.watch((state) => state.users.loggedInUser, (newUser) => setUserForGoogleAnalytics(newUser));
