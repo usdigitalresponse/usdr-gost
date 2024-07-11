@@ -1,9 +1,14 @@
 import {
-  describe, beforeEach, afterEach, it, expect,
+  describe, beforeEach, afterEach, it, expect, vi,
 } from 'vitest';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import EditOrganization from '@/components/Modals/EditOrganization.vue';
+
+vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
+  ...await importOriginal(),
+  newTerminologyEnabled: () => true,
+}));
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -19,11 +24,14 @@ describe('EditOrganization.vue', () => {
   describe('when the modal is loaded', () => {
     beforeEach(() => {
       wrapper = shallowMount(EditOrganization, {
+        propsData: {
+          tenant: {
+            id: 123,
+            display_name: 'Foo',
+          },
+        },
         localVue,
         stubs,
-        computed: {
-          newTerminologyEnabled: () => true,
-        },
       });
     });
     it('should have the title Edit Organization', () => {
