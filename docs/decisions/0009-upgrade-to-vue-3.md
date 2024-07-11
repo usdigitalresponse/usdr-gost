@@ -1,7 +1,7 @@
 # 0009. Migrate to Vue 3
 
 Date: 2024-06-11 \
-Status: Proposed <!-- Proposed | Accepted | Rejected | Superceded -->
+Status: Accepted <!-- Proposed | Accepted | Rejected | Superceded -->
 
 ## Context and Problem Statement
 
