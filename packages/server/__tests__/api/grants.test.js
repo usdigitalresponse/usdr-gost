@@ -113,6 +113,18 @@ describe('`/api/grants` endpoint', () => {
     context('GET /api/grants/:grantId/assign/agencies', () => {
         const assignedEndpoint = `335255/assign/agencies`;
         context('by a user with admin role', () => {
+            const assignedBy = {
+                NV1: {
+                    assigned_by_name: 'nv.gov Admin User 1',
+                    assigned_by_email: 'admin1@nv.example.com',
+                    assigned_by_avatar_color: '#198754',
+                },
+                NV2: {
+                    assigned_by_name: 'nv.gov User 2',
+                    assigned_by_email: 'user2@nv.example.com',
+                    assigned_by_avatar_color: '#FD7E14',
+                },
+            };
             let response;
             let json;
             before(async () => {
@@ -143,8 +155,28 @@ describe('`/api/grants` endpoint', () => {
                 const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.offLimits, fetchOptions.admin);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
+            it('includes assigned by information for the grant to an agency', async () => {
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV1.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV2.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV1.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV2.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV1.assigned_by_avatar_color)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV2.assigned_by_avatar_color)).to.be.ok;
+            });
         });
         context('by a user with staff role', () => {
+            const assignedBy = {
+                NV1: {
+                    assigned_by_name: 'nv.gov Admin User 1',
+                    assigned_by_email: 'admin1@nv.example.com',
+                    assigned_by_avatar_color: '#198754',
+                },
+                NV2: {
+                    assigned_by_name: 'nv.gov User 2',
+                    assigned_by_email: 'user2@nv.example.com',
+                    assigned_by_avatar_color: '#FD7E14',
+                },
+            };
             let response;
             let json;
             before(async () => {
@@ -166,6 +198,14 @@ describe('`/api/grants` endpoint', () => {
             it('forbids requests for any agency except this user\'s own agency', async () => {
                 const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.ownSub, fetchOptions.staff);
                 expect(badResponse.statusText).to.equal('Forbidden');
+            });
+            it('includes assigned by information for the grant to an agency', async () => {
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV1.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV2.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV1.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV2.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV1.assigned_by_avatar_color)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV2.assigned_by_avatar_color)).to.be.ok;
             });
         });
         context('by a user with admin role in another organization', () => {
@@ -729,18 +769,32 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
         });
     });
     context('GET /exportCSVRecentActivities', () => {
-        it('produces the expected column headers', async () => {
-            const expectedCsvHeaders = 'Date,Team,Grant,Status Code,Grant Assigned By,Email';
-            const agencyId = agencies.own;
-            const role = fetchOptions.staff;
+        let originalShareTerminologyEnabled;
+        before(() => {
+            originalShareTerminologyEnabled = process.env.SHARE_TERMINOLOGY_ENABLED;
+        });
 
-            const response = await fetchApi('/grants/exportCSVRecentActivities', agencyId, role);
+        after(() => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = originalShareTerminologyEnabled;
+        });
 
+        it('returns valid CSV response', async () => {
+            const response = await fetchApi('/grants/exportCSVRecentActivities', agencies.own, fetchOptions.staff);
             expect(response.statusText).to.equal('OK');
             expect(response.headers.get('Content-Type')).to.include('text/csv');
             expect(response.headers.get('Content-Disposition')).to.include('attachment');
+        });
 
-            expect(await response.text()).to.contain(expectedCsvHeaders);
+        it('includes correct column headers with share terminology disabled', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = 'false';
+            const response = await fetchApi('/grants/exportCSVRecentActivities', agencies.own, fetchOptions.staff);
+            expect(await response.text()).to.contain('Date,Team,Grant,Status Code,Grant Assigned By,Email');
+        });
+
+        it('includes correct column headers with share terminology enabled', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = 'true';
+            const response = await fetchApi('/grants/exportCSVRecentActivities', agencies.own, fetchOptions.staff);
+            expect(await response.text()).to.contain('Date,Team,Grant,Status Code,Grant Shared By,Email');
         });
     });
     context('GET /api/organizations/:orgId/grants?currentPage=:pageNumber&perPage=:grantsPerPage', () => {
