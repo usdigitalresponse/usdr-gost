@@ -4,13 +4,15 @@ import {
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import OrganizationsView from '@/views/OrganizationsView.vue';
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
+localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
 
 let store;
 let wrapper;
-const stubs = ['b-row', 'b-col', 'b-button', 'b-table', 'b-icon'];
 const noOpGetters = {
   'users/selectedAgency': () => {},
   'tenants/tenants': () => [],
@@ -37,7 +39,6 @@ describe('OrganizationsView.vue', () => {
       wrapper = shallowMount(OrganizationsView, {
         store,
         localVue,
-        stubs,
         computed: {
           newTerminologyEnabled: () => true,
         },

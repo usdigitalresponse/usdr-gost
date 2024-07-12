@@ -1,9 +1,14 @@
 import {
-  describe, beforeEach, afterEach, it, expect,
+  describe, beforeEach, afterEach, it, expect, vi,
 } from 'vitest';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import DashboardView from '@/views/DashboardView.vue';
+
+vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
+  ...await importOriginal(),
+  newGrantsDetailPageEnabled: () => true,
+}));
 
 const localVue = createLocalVue();
 localVue.use(Vuex);

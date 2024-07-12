@@ -3,10 +3,13 @@ import {
 } from 'vitest';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
 import BaseLayout from '@/components/BaseLayout.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
+localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
 
 let store;
 let wrapper;
@@ -20,7 +23,7 @@ const defaultRoute = {
     hideLayoutTabs: false,
   },
 };
-const stubs = ['b-nav-item-dropdown', 'b-navbar', 'b-navbar-nav', 'b-collapse', 'b-navbar-brand', 'b-img', 'b-nav-item', 'b-dropdown-item', 'b-dropdown-item-button', 'b-col', 'b-nav', 'router-view', 'b-badge', 'b-nav-text'];
+const stubs = ['router-view'];
 const noOpGetters = {
   'users/selectedAgency': () => {},
   'users/loggedInUser': () => {},
