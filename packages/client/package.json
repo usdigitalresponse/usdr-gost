@@ -17,6 +17,7 @@
   "dependencies": {
     "@braid/vue-formulate": "^2.5.3",
     "@datadog/browser-rum": "^5.5.0",
+    "@dvuckovic/vue3-bootstrap-icons": "^2.0.0",
     "@vitejs/plugin-vue": "^5.0.5",
     "@vue/compat": "^3.4.27",
     "@vue/compiler-sfc": "^3.4.27",

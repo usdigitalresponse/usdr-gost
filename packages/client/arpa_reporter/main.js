@@ -7,15 +7,21 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
 }
 
 import { createApp } from 'vue';
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import { BootstrapVue } from 'bootstrap-vue';
+import { BootstrapIcon } from '@dvuckovic/vue3-bootstrap-icons';
+import { injectBootstrapIcons } from '@dvuckovic/vue3-bootstrap-icons/utils';
+import BootstrapIcons from 'bootstrap-icons/bootstrap-icons.svg?raw';
 import App from '@/arpa_reporter/App.vue';
 import router from '@/arpa_reporter/router';
 import store, { get } from '@/arpa_reporter/store';
 
+import '@dvuckovic/vue3-bootstrap-icons/dist/style.css';
+
 const app = createApp(App);
 
 app.use(BootstrapVue);
-app.use(IconsPlugin);
+injectBootstrapIcons(BootstrapIcons);
+app.component('BIcon', BootstrapIcon);
 
 async function main() {
   const session = await get('/api/sessions');

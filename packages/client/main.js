@@ -7,13 +7,18 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
 }
 
 import { createApp } from 'vue';
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import { BootstrapVue } from 'bootstrap-vue';
+import { BootstrapIcon } from '@dvuckovic/vue3-bootstrap-icons';
+import { injectBootstrapIcons } from '@dvuckovic/vue3-bootstrap-icons/utils';
+import BootstrapIcons from 'bootstrap-icons/bootstrap-icons.svg?raw';
 import { VueSelect } from 'vue-select';
 import { setUserForGoogleAnalytics } from '@/helpers/gtag';
 import App from '@/App.vue';
 import router from '@/router';
 import store from '@/store';
 import * as fetchApi from '@/helpers/fetchApi';
+
+import '@dvuckovic/vue3-bootstrap-icons/dist/style.css';
 import '@/assets/fix-sticky-headers.css';
 import '@/assets/adjust-vue-select.css';
 
@@ -28,7 +33,8 @@ store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser
 const app = createApp(App);
 
 app.use(BootstrapVue);
-app.use(IconsPlugin);
+injectBootstrapIcons(BootstrapIcons);
+app.component('BIcon', BootstrapIcon);
 app.component('VSelect', VueSelect);
 
 fetchApi.get('/api/sessions')
