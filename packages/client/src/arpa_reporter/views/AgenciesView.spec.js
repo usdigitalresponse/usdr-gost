@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import {
+  describe, it, expect, vi,
+} from 'vitest';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import AgenciesView from '@/arpa_reporter/views/AgenciesView.vue';
@@ -15,6 +17,9 @@ describe('AgenciesView.vue', () => {
           { id: 1, code: '001', name: 'Agency 1' },
           { id: 2, code: '002', name: 'Agency 2' },
         ],
+      },
+      actions: {
+        updateAgencies: vi.fn(),
       },
     });
     const wrapper = mount(AgenciesView, {

@@ -114,11 +114,11 @@ jobs:
         id: commit-sha
         run: echo "long=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
+        uses: docker/setup-qemu-action@5927c834f5b4fdf503fca6f4c7eccda82949e1ee # v3.1.0
         with:
           platforms: linux/amd64,linux/arm64
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
+        uses: docker/setup-buildx-action@4fd812986e6c8c2a69e18311145f9371337f27d4 # v3.4.0
         with:
           platforms: linux/amd64,linux/arm64
       - name: Authenticate docker
@@ -154,7 +154,7 @@ jobs:
           BAKEFILE_PATH: ${{ steps.meta.outputs.bake-file }}
       - name: Build and push Docker image
         id: build-push
-        uses: docker/build-push-action@f6010ea70151369b06f0194be1051fbbdff851b2 # v6.0.2
+        uses: docker/build-push-action@1a162644f9a7e87d8f4b053101d1d9a712edc18c # v6.3.0
         with:
           context: .
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -210,7 +210,7 @@ jobs:
           INSPECT_NAME: ${{ inputs.server-image-registry }}/${{ inputs.server-image-name }}@${{ steps.build-push.outputs.digest }}
       - name: Upload attestations
         if: steps.store-attestations.outcome == 'success'
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         with:
           name: ${{ env.ATTESTATION_ARTIFACTS_KEY }}
           path: ${{ steps.store-attestations.outputs.path }}
@@ -243,7 +243,7 @@ jobs:
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Setup Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version-file: .nvmrc
           cache: yarn
@@ -276,7 +276,7 @@ jobs:
           ENDOFREPORT
           cat "$REPORT_FILE" >> $GITHUB_STEP_SUMMARY
       - name: Upload build artifact
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         with:
           name: ${{ env.ARTIFACTS_KEY }}
           path: ${{ env.ARTIFACTS_PATH }}

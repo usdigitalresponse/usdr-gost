@@ -1,5 +1,6 @@
 import {
   describe, beforeEach, it, expect,
+  vi,
 } from 'vitest';
 import { setUserForGoogleAnalytics } from '@/helpers/gtag';
 
@@ -54,9 +55,12 @@ describe('gtag', () => {
       expect(observedGtagArgs).toBeNull();
     });
     it('enables GA debug mode when instructed via APP_CONFIG', () => {
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementationOnce(vi.fn());
       window.APP_CONFIG.GOOGLE_ANALYTICS_DEBUG = true;
       setUserForGoogleAnalytics(user);
       expect(observedGtagArgs[2]).toHaveProperty('debug_mode', true);
+      expect(consoleLogSpy).toHaveBeenCalledOnce();
+      consoleLogSpy.mockRestore();
     });
     it('disables GA debug mode when not instructed via APP_CONFIG', () => {
       window.APP_CONFIG.GOOGLE_ANALYTICS_DEBUG = undefined;

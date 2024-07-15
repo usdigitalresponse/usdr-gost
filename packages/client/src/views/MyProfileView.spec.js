@@ -5,10 +5,13 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import MyProfileView from '@/views/MyProfileView.vue';
 import { shareTerminologyEnabled } from '@/helpers/featureFlags';
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
 
 describe('MyProfileView.vue', () => {
   const localVue = createLocalVue();
   localVue.use(Vuex);
+  localVue.use(BootstrapVue);
+  localVue.use(BootstrapVueIcons);
   const store = new Vuex.Store({
     getters: {
       'users/loggedInUser': () => ({

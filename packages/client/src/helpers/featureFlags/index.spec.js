@@ -1,5 +1,5 @@
 import {
-  describe, beforeEach, it, expect,
+  describe, beforeEach, it, expect, vi,
 } from 'vitest';
 import { getFeatureFlags } from '@/helpers/featureFlags/utils';
 
@@ -39,6 +39,7 @@ describe('featureFlags', () => {
           expect(actualFeatureFlags).toEqual(expectedFeatureFlags);
         });
         it('Ignores session storage overrides when JSON is malformed', () => {
+          const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementationOnce(vi.fn());
           window.sessionStorage.setItem('featureFlags', 'i}am]not,JS;ON>{');
           const expectedFeatureFlags = { useFoo: true, numberFlag: 1234 };
           window.APP_CONFIG = { featureFlags: expectedFeatureFlags };
@@ -46,6 +47,8 @@ describe('featureFlags', () => {
           expect(actualFeatureFlags.useFoo).toBe(true);
           expect(actualFeatureFlags.numberFlag).toBe(1234);
           expect(actualFeatureFlags).toEqual(expectedFeatureFlags);
+          expect(consoleErrorSpy).toHaveBeenCalledOnce();
+          consoleErrorSpy.mockRestore();
         });
         it('Overrides feature flag values from session storage', () => {
           const defaultFeatureFlags = { useFoo: true, numberFlag: 1234 };

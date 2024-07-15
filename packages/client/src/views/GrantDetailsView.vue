@@ -29,6 +29,62 @@
           {{ currentGrant.title }}
         </h2>
 
+        <!-- Left page column: main print/copy/grants.gov buttons -->
+        <div class="grant-details-main-actions print-d-none">
+          <div class="d-flex justify-content-between align-items-center">
+            <b-button
+              variant="primary"
+              class="mr-5 text-nowrap"
+              :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              size="sm"
+              data-dd-action-name="view on grants.gov"
+              @click="onOpenGrantsGov"
+            >
+              <b-icon
+                icon="box-arrow-up-right"
+                aria-hidden="true"
+                class="mr-2"
+              />
+              View on Grants.gov
+            </b-button>
+            <div class="w-20 d-flex">
+              <a
+                class="link-primary text-nowrap"
+                role="button"
+                :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
+                data-dd-action-name="copy btn"
+                @click="copyUrl"
+              >
+                <b-icon
+                  :icon="copyUrlSuccessTimeout === null ? 'paperclip' : 'check2'"
+                  aria-hidden="true"
+                  class="mr-1"
+                />
+                <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
+                <span v-else>Link Copied</span>
+              </a>
+              <div class="col-1 border-right border-dark p-2" />
+              <div class="col-1 p-2" />
+              <a
+                class="link-primary text-nowrap"
+                role="button"
+                variant="outline-primary"
+                data-dd-action-name="print btn"
+                @click="printPage"
+              >
+                <b-icon
+                  icon="printer"
+                  aria-hidden="true"
+                  class="mr-1"
+                />
+                Print
+              </a>
+            </div>
+          </div>
+        </div>
+
         <!-- Left page column: table data, and grant description -->
         <div class="grant-details-content">
           <b-table
@@ -58,62 +114,12 @@
           />
         </div>
 
-        <!-- Right page column: main print/copy/grants.gov buttons -->
-        <div class="grant-details-main-actions print-d-none">
-          <b-button
-            variant="primary"
-            block
-            class="mb-3"
-            :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
-            target="_blank"
-            rel="noopener noreferrer"
-            data-dd-action-name="view on grants.gov"
-            @click="onOpenGrantsGov"
-          >
-            <b-icon
-              icon="box-arrow-up-right"
-              aria-hidden="true"
-              class="mr-2"
-            />
-            Apply on Grants.gov
-          </b-button>
-          <div class="d-flex">
-            <b-button
-              class="w-50 flex-shrink-1 mr-3"
-              variant="outline-primary"
-              data-dd-action-name="print btn"
-              @click="printPage"
-            >
-              <b-icon
-                icon="printer-fill"
-                aria-hidden="true"
-                class="mr-2"
-              />
-              Print
-            </b-button>
-            <b-button
-              class="w-50 flex-shrink-1"
-              :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
-              data-dd-action-name="copy btn"
-              @click="copyUrl"
-            >
-              <b-icon
-                :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'"
-                aria-hidden="true"
-                class="mr-2"
-              />
-              <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
-              <span v-else>Link Copied</span>
-            </b-button>
-          </div>
-        </div>
-
         <!-- Right page column: secondary assign grant section -->
         <div class="grant-details-secondary-actions">
           <!-- Assign grant section -->
           <div class="mb-5">
             <h3 class="mb-3">
-              Assign Grant
+              {{ shareTerminologyEnabled ? 'Share Grant' : 'Assign Grant' }}
             </h3>
             <div class="d-flex print-d-none">
               <v-select
@@ -134,30 +140,53 @@
                 data-dd-action-name="assign team"
                 @click="assignAgencyToGrant(selectedAgencyToAssign)"
               >
-                Submit
+                {{ shareTerminologyEnabled ? 'Share' : 'Submit' }}
               </b-button>
             </div>
-            <div
-              v-for="agency in assignedAgencies"
-              :key="agency.id"
-              class="d-flex justify-content-between align-items-start my-3"
-            >
-              <div class="mr-3">
-                <p class="m-0">
-                  {{ agency.name }}
-                </p>
-                <p class="m-0 text-muted">
-                  <small>{{ formatDateTime(agency.created_at) }}</small>
-                </p>
+            <template v-if="!shareTerminologyEnabled">
+              <div
+                v-for="agency in assignedAgencies"
+                :key="agency.id"
+                class="d-flex justify-content-between align-items-start my-3"
+              >
+                <div class="mr-3">
+                  <p class="m-0">
+                    {{ agency.name }}
+                  </p>
+                  <p class="m-0 text-muted">
+                    <small>{{ formatDateTime(agency.created_at) }}</small>
+                  </p>
+                </div>
+                <b-button-close
+                  data-dd-action-name="remove team assignment"
+                  class="print-d-none"
+                  @click="unassignAgencyToGrant(agency)"
+                />
               </div>
-              <b-button-close
-                data-dd-action-name="remove team assignment"
-                class="print-d-none"
-                @click="unassignAgencyToGrant(agency)"
-              />
-            </div>
-          </div>
+            </template>
+            <template v-else>
+              <div
+                v-for="agency in assignedAgencies"
 
+                :key="agency.id"
+                class="d-flex justify-content-start align-items-start my-3"
+              >
+                <UserAvatar
+                  :user-name="agency.assigned_by_name"
+                  :color="agency.assigned_by_avatar_color"
+                  size="2.5rem"
+                />
+                <div class="mx-3">
+                  <p class="m-0">
+                    <strong>{{ agency.assigned_by_name }}</strong> shared to <strong>{{ agency.name }}</strong>
+                  </p>
+                  <p class="m-0 text-muted">
+                    <small>{{ formatDateTime(agency.created_at) }}</small>
+                  </p>
+                </div>
+              </div>
+            </template>
+          </div>
           <!-- Team status section -->
           <div class="mb-5">
             <h3 class="mb-3">
@@ -229,7 +258,7 @@ import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { DateTime } from 'luxon';
-import { newTerminologyEnabled } from '@/helpers/featureFlags';
+import { newTerminologyEnabled, shareTerminologyEnabled } from '@/helpers/featureFlags';
 import { formatCurrency } from '@/helpers/currency';
 import { titleize } from '@/helpers/form-helpers';
 import { gtagEvent } from '@/helpers/gtag';
@@ -375,9 +404,8 @@ export default {
         (interested) => interested.agency_id.toString() === this.selectedAgencyId,
       );
     },
-    newTerminologyEnabled() {
-      return newTerminologyEnabled();
-    },
+    newTerminologyEnabled,
+    shareTerminologyEnabled,
     unassignedAgencies() {
       return this.agencies.filter(
         (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
@@ -539,8 +567,9 @@ export default {
   grid-template-rows: 50px auto auto;
   grid-template-areas:
     "back-link back-link"
-    "headline  main-actions"
-    "content   secondary-actions";
+    "headline  headline"
+    "main-actions secondary-actions"
+    "content  secondary-actions";
   column-gap: 90px;
   row-gap: 48px;
   .grant-details-back-link {

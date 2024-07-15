@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { mount, createLocalVue } from '@vue/test-utils';
 import moment from 'moment';
 import Vuex from 'vuex';
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
 import UploadView from '@/arpa_reporter/views/UploadView.vue';
 
 const mocks = {
@@ -15,6 +16,8 @@ const mocks = {
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
+localVue.use(BootstrapVue);
+localVue.use(BootstrapVueIcons);
 
 describe('UploadView.vue', () => {
   it('renders with an upload - validated', async () => {

@@ -42,7 +42,10 @@
         </b-button>
       </template>
     </b-table>
-    <EditOrganizationModal :tenant.sync="editingOrganization" />
+    <EditOrganizationModal
+      v-if="showEditOrganizationModal"
+      :tenant.sync="editingOrganization"
+    />
     <AddOrganizationModal :show-modal.sync="showAddOrganizationModal" />
   </section>
 </template>
