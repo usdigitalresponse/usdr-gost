@@ -50,7 +50,7 @@ function mapSourceDataToGrant(source) {
     const { milestones } = source.opportunity;
     grant.open_date = milestones.post_date;
     grant.close_date = milestones.close && milestones.close.date
-        ? milestones.close.date : '2100-01-01';
+        ? milestones.close.date : '2100-01-01'; // re-think this
     grant.close_date_explanation = milestones?.close?.explanation ?? undefined;
     grant.archive_date = milestones.archive_date;
     const today = moment().startOf('day');
@@ -141,7 +141,7 @@ async function processMessages(knex, sqs, queueUrl, messages) {
         }
 
         try {
-            await upsertGrant(knex, grant);
+            await upsertGrant(knex, grant); // insert into db
             grantSaveSuccessCount += 1;
         } catch (e) {
             grantSaveErrorCount += 1;
