@@ -1019,25 +1019,6 @@ async function getSingleGrantDetails({ grantId, tenantId }) {
     return enhancedResults.length ? enhancedResults[0] : null;
 }
 
-async function getClosestGrants({
-    agency, perPage, currentPage, timestampForTest,
-}) {
-    const agencies = await getAgencyTree(agency);
-
-    // updated to no longer limit result # & specify user association
-    const timestamp = (timestampForTest || new Date()).toLocaleDateString('en-US');
-    return knex(TABLES.grants_interested)
-        .select('grants.title', 'grants.close_date', 'grants.grant_id')
-        .join('grants', 'grants.grant_id', 'grants_interested.grant_id')
-        .join('interested_codes', 'grants_interested.interested_code_id', 'interested_codes.id')
-        .whereIn('grants_interested.agency_id', agencies.map((a) => a.id))
-        .andWhere('close_date', '>=', timestamp)
-        .andWhere('interested_codes.status_code', '!=', 'Rejected')
-        .groupBy('grants.title', 'grants.close_date', 'grants.grant_id')
-        .orderBy('close_date', 'asc')
-        .paginate({ currentPage, perPage, isLengthAware: true });
-}
-
 async function markGrantAsViewed({ grantId, agencyId, userId }) {
     return knex(TABLES.grants_viewed)
         .insert({
@@ -1679,7 +1660,6 @@ module.exports = {
     buildOrderingParams,
     getNewGrantsForAgency,
     getSingleGrantDetails,
-    getClosestGrants,
     getGrant,
     markGrantAsViewed,
     getInterestedAgencies,
