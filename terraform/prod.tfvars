@@ -50,7 +50,7 @@ website_datadog_rum_options = {
 website_feature_flags = {
   newTerminologyEnabled      = true,
   newGrantsDetailPageEnabled = true,
-  shareTerminologyEnabled    = false,
+  shareTerminologyEnabled    = true,
 }
 
 // Google Analytics Account ID: 233192355, Property ID: 321194851, Stream ID: 3802896350
@@ -73,7 +73,7 @@ api_datadog_environment_variables = {
 }
 api_container_environment = {
   NEW_GRANT_DETAILS_PAGE_ENABLED = true,
-  SHARE_TERMINOLOGY_ENABLED      = false,
+  SHARE_TERMINOLOGY_ENABLED      = true,
 }
 
 // Postgres
