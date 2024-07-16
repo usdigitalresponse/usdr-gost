@@ -12,7 +12,7 @@ exports.up = function(knex) {
     table.text('fiscal_year');
     table.text('grantor_contact_name');
     table.text('grantor_contact_phone_number');
-    table.boolean('is_forecasted');
+    table.boolean('is_forecasted').notNullable().defaultTo(false);
   });
 };
 
