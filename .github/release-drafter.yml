@@ -83,7 +83,7 @@ autolabeler:
     files:
       - 'packages/server/migrations/**'
       - 'packages/server/knexfile.js'
-      - 'packages/server/rds-combined-ca-bundle.pem'
+      - 'packages/server/rds-global-bundle.pem'
   - label: terraform
     files:
       - 'terraform/**'
