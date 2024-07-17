@@ -106,7 +106,7 @@ jobs:
         run: npx nyc report --reporter text --cwd packages/server > packages/server/coverage.txt
       - name: Generate coverage markdown report
         id: coverage-markdown
-        uses: fingerprintjs/action-coverage-report-md@cd6bbc2dbc7b03844f0ec825caa2cea3e0205621 # v2.0.0
+        uses: fingerprintjs/action-coverage-report-md@72dfb7de7581612640a8e599e918b2eda98f9bba # v2.0.1
         with:
           textReportPath: 'packages/server/coverage.txt'
           srcBasePath: 'packages/server/'
@@ -146,7 +146,7 @@ jobs:
           CI: "true"
       - name: Generate coverage markdown report
         id: coverage-markdown
-        uses: fingerprintjs/action-coverage-report-md@cd6bbc2dbc7b03844f0ec825caa2cea3e0205621 # v2.0.0
+        uses: fingerprintjs/action-coverage-report-md@72dfb7de7581612640a8e599e918b2eda98f9bba # v2.0.1
         with:
           textReportPath: 'packages/client/coverage/coverage.txt'
           srcBasePath: 'packages/client/src'
