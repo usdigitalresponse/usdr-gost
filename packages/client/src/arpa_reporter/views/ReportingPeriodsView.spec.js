@@ -1,15 +1,11 @@
 import ReportingPeriodsView from '@/arpa_reporter/views/ReportingPeriodsView.vue';
 
 import { describe, it, expect } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
-import VueRouter from 'vue-router';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 describe('ReportingPeriodsView component', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  localVue.use(VueRouter);
-  const store = new Vuex.Store({
+  const store = createStore({
     state: {
       reportingPeriods: [{
         id: 234,
@@ -28,8 +24,9 @@ describe('ReportingPeriodsView component', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(ReportingPeriodsView, {
-      store,
-      localVue,
+      global: {
+        plugins: [store],
+      },
     });
     expect(wrapper.exists()).toBe(true);
   });

@@ -3,15 +3,16 @@ import SearchPanel from '@/components/Modals/SearchPanel.vue';
 import {
   describe, it, expect, vi,
 } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
-import { BootstrapVue } from 'bootstrap-vue';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
+
+vi.mock('bootstrap-vue', async () => ({
+  // SavedSearchPanel imports bootstrap-vue, which triggers an error in testing, so we'll mock it out
+  VBToggle: vi.fn(),
+}));
 
 describe('SearchPanel modal component', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  localVue.use(BootstrapVue);
-  const store = new Vuex.Store({
+  const store = createStore({
     getters: {
       'grants/displaySearchPanel': () => true,
       'grants/eligibilityCodes': () => [],
@@ -24,9 +25,10 @@ describe('SearchPanel modal component', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(SearchPanel, {
-      localVue,
-      store,
-      stubs: ['v-select'],
+      global: {
+        plugins: [store],
+        stubs: ['v-select'],
+      },
     });
     expect(wrapper.exists()).toBe(true);
   });

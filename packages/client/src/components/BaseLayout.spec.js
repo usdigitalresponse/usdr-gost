@@ -1,15 +1,14 @@
 import {
-  describe, beforeEach, afterEach, it, expect,
+  describe, beforeEach, afterEach, it, expect, vi,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
-import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import BaseLayout from '@/components/BaseLayout.vue';
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
-localVue.use(BootstrapVue);
-localVue.use(BootstrapVueIcons);
+vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
+  ...await importOriginal(),
+  newTerminologyEnabled: () => true,
+}));
 
 let store;
 let wrapper;
@@ -34,18 +33,16 @@ const noOpGetters = {
 describe('BaseLayout.vue', () => {
   describe('when Layout view is loaded', () => {
     beforeEach(() => {
-      store = new Vuex.Store({
+      store = createStore({
         getters: { ...noOpGetters },
       });
       wrapper = shallowMount(BaseLayout, {
-        localVue,
-        store,
-        mocks: {
-          $route: defaultRoute,
-        },
-        stubs,
-        computed: {
-          newTerminologyEnabled: () => true,
+        global: {
+          plugins: [store],
+          mocks: {
+            $route: defaultRoute,
+          },
+          stubs,
         },
       });
     });
@@ -72,23 +69,24 @@ describe('BaseLayout.vue', () => {
   });
   describe('when user is logged in', () => {
     beforeEach(() => {
-      store = new Vuex.Store({
+      store = createStore({
         getters: {
           ...noOpGetters,
           'users/loggedInUser': () => ({}),
         },
       });
       wrapper = shallowMount(BaseLayout, {
-        localVue,
-        store,
-        mocks: {
-          $route: defaultRoute,
+        global: {
+          plugins: [store],
+          mocks: {
+            $route: defaultRoute,
+          },
+          stubs,
         },
-        stubs,
       });
     });
     it('should have a dropdown', () => {
-      wrapper.get('b-nav-item-dropdown-stub');
+      wrapper.get('b-nav-item-dropdown');
     });
     it('should have the correct options', () => {
       const options = wrapper.findAll('.dropdown-item-text');
@@ -101,19 +99,20 @@ describe('BaseLayout.vue', () => {
   });
   describe('when user is admin', () => {
     beforeEach(() => {
-      store = new Vuex.Store({
+      store = createStore({
         getters: {
           ...noOpGetters,
           'users/userRole': () => 'admin',
         },
       });
       wrapper = shallowMount(BaseLayout, {
-        localVue,
-        store,
-        mocks: {
-          $route: defaultRoute,
+        global: {
+          plugins: [store],
+          mocks: {
+            $route: defaultRoute,
+          },
+          stubs,
         },
-        stubs,
       });
     });
 
@@ -124,27 +123,25 @@ describe('BaseLayout.vue', () => {
   });
   describe('when user is super admin', () => {
     beforeEach(() => {
-      store = new Vuex.Store({
+      store = createStore({
         getters: {
           ...noOpGetters,
           'users/loggedInUser': () => ({ isUSDRSuperAdmin: true }),
         },
       });
       wrapper = shallowMount(BaseLayout, {
-        localVue,
-        store,
-        mocks: {
-          $route: defaultRoute,
-        },
-        stubs,
-        computed: {
-          newTerminologyEnabled: () => true,
+        global: {
+          plugins: [store],
+          mocks: {
+            $route: defaultRoute,
+          },
+          stubs,
         },
       });
     });
 
     it('should show Organizations tab', () => {
-      const navItem = wrapper.get('b-nav-item-stub[to="/organizations"]');
+      const navItem = wrapper.get('[to="/organizations"]');
       expect(navItem.text()).toEqual('Organizations');
     });
   });

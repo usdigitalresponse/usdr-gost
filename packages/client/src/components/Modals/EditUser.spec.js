@@ -1,17 +1,11 @@
 import EditUser from '@/components/Modals/EditUser.vue';
 
 import { describe, it, expect } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { BootstrapVue } from 'bootstrap-vue';
+import { shallowMount } from '@vue/test-utils';
 
 describe('EditUser modal component', () => {
-  const localVue = createLocalVue();
-  localVue.use(BootstrapVue);
-
   it('renders', () => {
-    const wrapper = shallowMount(EditUser, {
-      localVue,
-    });
+    const wrapper = shallowMount(EditUser);
     expect(wrapper.exists()).toBe(true);
   });
 });

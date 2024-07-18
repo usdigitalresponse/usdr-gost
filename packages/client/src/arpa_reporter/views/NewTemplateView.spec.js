@@ -1,13 +1,11 @@
 import NewTemplateView from '@/arpa_reporter/views/NewTemplateView.vue';
 
 import { describe, it, expect } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 describe('NewTemplateView component', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  const store = new Vuex.Store({
+  const store = createStore({
     state: {
       reportingPeriods: [{
         id: 123,
@@ -23,10 +21,11 @@ describe('NewTemplateView component', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(NewTemplateView, {
-      store,
-      localVue,
-      mocks: {
-        $route,
+      global: {
+        plugins: [store],
+        mocks: {
+          $route,
+        },
       },
     });
     expect(wrapper.exists()).toBe(true);

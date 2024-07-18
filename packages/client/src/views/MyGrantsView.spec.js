@@ -1,15 +1,18 @@
 import MyGrantsView from '@/views/MyGrantsView.vue';
 
-import { describe, it, expect } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
-import { BootstrapVue } from 'bootstrap-vue';
+import {
+  describe, it, expect, vi,
+} from 'vitest';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
+
+vi.mock('bootstrap-vue', async () => ({
+  // SavedSearchPanel imports bootstrap-vue, which triggers an error in testing, so we'll mock it out
+  VBToggle: vi.fn(),
+}));
 
 describe('MyGrantsView', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  localVue.use(BootstrapVue);
-  const store = new Vuex.Store({
+  const store = createStore({
     getters: {
       'users/selectedAgencyId': () => '123',
     },
@@ -25,10 +28,11 @@ describe('MyGrantsView', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(MyGrantsView, {
-      localVue,
-      store,
-      mocks: {
-        $route,
+      global: {
+        plugins: [store],
+        mocks: {
+          $route,
+        },
       },
     });
     expect(wrapper.exists()).toBe(true);

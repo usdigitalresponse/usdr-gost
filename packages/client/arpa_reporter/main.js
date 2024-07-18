@@ -6,17 +6,25 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
   datadogRum.setGlobalContextProperty('app', 'arpa-reporter');
 }
 
-import Vue from 'vue';
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import { createApp } from 'vue';
+import { BootstrapVue } from 'bootstrap-vue';
+import { BootstrapIcon } from '@dvuckovic/vue3-bootstrap-icons';
+import { injectBootstrapIcons } from '@dvuckovic/vue3-bootstrap-icons/utils';
+import BootstrapIcons from 'bootstrap-icons/bootstrap-icons.svg?raw';
+import installVueCompatWarningHandler from '@/helpers/vueCompatWarning';
 import App from '@/arpa_reporter/App.vue';
 import router from '@/arpa_reporter/router';
 import store, { get } from '@/arpa_reporter/store';
 
-Vue.config.productionTip = false;
+import '@dvuckovic/vue3-bootstrap-icons/dist/style.css';
 
-Vue.use(BootstrapVue);
-// Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin);
+installVueCompatWarningHandler();
+
+const app = createApp(App);
+
+app.use(BootstrapVue);
+injectBootstrapIcons(BootstrapIcons);
+app.component('BIcon', BootstrapIcon);
 
 async function main() {
   const session = await get('/api/sessions');
@@ -26,11 +34,10 @@ async function main() {
     await store.dispatch('login', data.user);
   }
 
-  new Vue({
-    router,
-    store,
-    render: (h) => h(App),
-  }).$mount('#app');
+  // With the current session setup, we need router to initialize only after session info has been loaded into the store
+  app.use(store);
+  app.use(router);
+  app.mount('#app');
 }
 
 main();

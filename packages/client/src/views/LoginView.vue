@@ -6,7 +6,7 @@
     class="mx-auto border-0"
   >
     <b-card-img
-      :src="require('../assets/usdr_logo_standard_wide.svg')"
+      :src="logo"
       style="max-width: 14rem"
       alt="United States Digital Response logo"
       class="mx-auto mb-3"
@@ -80,6 +80,7 @@
 import { useVuelidate } from '@vuelidate/core';
 import { required, email, helpers } from '@vuelidate/validators';
 import { apiURL } from '@/helpers/fetchApi';
+import logo from '@/assets/usdr_logo_standard_wide.svg';
 
 export default {
   name: 'LoginView',
@@ -94,6 +95,7 @@ export default {
     return {
       email: '',
       serverResponse,
+      logo,
     };
   },
   validations: {

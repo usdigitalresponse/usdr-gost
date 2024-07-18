@@ -1,13 +1,11 @@
 import NewUploadView from '@/arpa_reporter/views/NewUploadView.vue';
 
 import { describe, it, expect } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 describe('NewUploadView component', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  const store = new Vuex.Store({
+  const store = createStore({
     getters: {
       user: () => ({
         agency: {
@@ -24,8 +22,9 @@ describe('NewUploadView component', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(NewUploadView, {
-      store,
-      localVue,
+      global: {
+        plugins: [store],
+      },
     });
     expect(wrapper.exists()).toBe(true);
   });

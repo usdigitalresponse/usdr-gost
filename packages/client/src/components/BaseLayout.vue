@@ -10,7 +10,7 @@
         class="d-flex align-items-center"
       >
         <b-img
-          :src="require('../assets/usdr_logo_standard_wide.svg')"
+          :src="logo"
           style="height: 2.5rem;"
           alt="United States Digital Response - Home"
         />
@@ -170,8 +170,8 @@
       >
         <AlertBox
           v-for="(alert, alertId) in alerts"
-          :key="alertId"
           v-bind="alert"
+          :key="alertId"
           @dismiss="dismissAlert(alertId)"
         />
       </section>
@@ -186,6 +186,7 @@ import { mapGetters } from 'vuex';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 import AlertBox from '@/arpa_reporter/components/AlertBox.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
+import logo from '@/assets/usdr_logo_standard_wide.svg';
 
 export default {
   name: 'BaseLayout',
@@ -196,6 +197,7 @@ export default {
   data() {
     return {
       showOptInEmailBanner: true,
+      logo,
     };
   },
   computed: {

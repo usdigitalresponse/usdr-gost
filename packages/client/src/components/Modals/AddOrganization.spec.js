@@ -1,12 +1,13 @@
 import {
-  describe, beforeEach, afterEach, it, expect,
+  describe, beforeEach, afterEach, it, expect, vi,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
 import AddOrganization from '@/components/Modals/AddOrganization.vue';
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
+vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
+  ...await importOriginal(),
+  newTerminologyEnabled: () => true,
+}));
 
 let wrapper;
 const stubs = ['b-modal', 'b-form-group', 'b-form-input'];
@@ -19,10 +20,8 @@ describe('AddOrganization.vue', () => {
   describe('when the modal is loaded', () => {
     beforeEach(() => {
       wrapper = shallowMount(AddOrganization, {
-        localVue,
-        stubs,
-        computed: {
-          newTerminologyEnabled: () => true,
+        global: {
+          stubs,
         },
       });
     });

@@ -1,12 +1,9 @@
 import {
   describe, beforeEach, afterEach, it, expect,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import HomeView from '@/arpa_reporter/views/HomeView.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 let store;
 let wrapper;
@@ -22,15 +19,16 @@ describe('HomeView.vue', () => {
   describe('when a non-admin loads the home page', () => {
     describe('outside the reporting period', () => {
       beforeEach(() => {
-        store = new Vuex.Store({
+        store = createStore({
           state: { },
           getters: {
             user: () => ({ role: { name: 'not an admin' } }),
           },
         });
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
+          global: {
+            plugins: [store],
+          },
         });
       });
       it('should show the Welcome text', () => {
@@ -48,7 +46,7 @@ describe('HomeView.vue', () => {
     });
     describe('during the reporting period', () => {
       beforeEach(() => {
-        store = new Vuex.Store({
+        store = createStore({
           state: { },
           getters: {
             user: () => ({ role: { name: 'non-admin' } }),
@@ -56,9 +54,10 @@ describe('HomeView.vue', () => {
           },
         });
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
-          mocks: { $route: route },
+          global: {
+            plugins: [store],
+            mocks: { $route: route },
+          },
         });
       });
       it('should show the submit workbook button', () => {
@@ -70,7 +69,7 @@ describe('HomeView.vue', () => {
   describe('when an admin loads the home page during the reporting period', () => {
     describe('without query params', () => {
       beforeEach(() => {
-        store = new Vuex.Store({
+        store = createStore({
           state: { },
           getters: {
             user: () => ({ role: { name: 'admin' } }),
@@ -79,9 +78,10 @@ describe('HomeView.vue', () => {
         });
         route = { query: { } };
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
-          mocks: { $route: route },
+          global: {
+            plugins: [store],
+            mocks: { $route: route },
+          },
         });
       });
       it('should show the submit workbook button', () => {
@@ -93,13 +93,13 @@ describe('HomeView.vue', () => {
         expect(sendTreasuryReportButton.text()).toContain('Send Treasury Report by Email');
       });
       it('should show the DownloadTemplateBtn', () => {
-        const sendAuditReportButton = wrapper.getComponent({ name: 'DownloadTemplateBtn' });
-        expect(sendAuditReportButton).toBeDefined();
+        const sendAuditReportButton = wrapper.find('downloadtemplatebtn');
+        expect(sendAuditReportButton.exists()).toBe(true);
       });
     });
     describe('with the sync_treasury_download param', () => {
       beforeEach(() => {
-        store = new Vuex.Store({
+        store = createStore({
           state: { },
           getters: {
             user: () => ({ role: { name: 'admin' } }),
@@ -109,9 +109,10 @@ describe('HomeView.vue', () => {
         });
         route = { query: { sync_treasury_download: true } };
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
-          mocks: { $route: route },
+          global: {
+            plugins: [store],
+            mocks: { $route: route },
+          },
         });
       });
       it('should show the Send Treasury Report button', () => {
@@ -121,7 +122,7 @@ describe('HomeView.vue', () => {
     });
     describe('with the sync_audit_download param', () => {
       beforeEach(() => {
-        store = new Vuex.Store({
+        store = createStore({
           state: { },
           getters: {
             user: () => ({ role: { name: 'admin' } }),
@@ -130,9 +131,10 @@ describe('HomeView.vue', () => {
         });
         route = { query: { sync_audit_download: true } };
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
-          mocks: { $route: route },
+          global: {
+            plugins: [store],
+            mocks: { $route: route },
+          },
         });
       });
       it('should show the Send Treasury Report button', () => {
@@ -144,7 +146,7 @@ describe('HomeView.vue', () => {
   describe('when an admin loads the home page outside the reporting period', () => {
     describe('without query params', () => {
       beforeEach(() => {
-        store = new Vuex.Store({
+        store = createStore({
           state: { },
           getters: {
             user: () => ({ role: { name: 'admin' } }),
@@ -153,9 +155,10 @@ describe('HomeView.vue', () => {
         });
         route = { query: { } };
         wrapper = shallowMount(HomeView, {
-          store,
-          localVue,
-          mocks: { $route: route },
+          global: {
+            plugins: [store],
+            mocks: { $route: route },
+          },
         });
       });
       it('should not show the submit workbook button', () => {

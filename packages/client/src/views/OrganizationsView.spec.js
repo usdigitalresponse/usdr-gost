@@ -1,15 +1,14 @@
 import {
-  describe, beforeEach, afterEach, it, expect,
+  describe, beforeEach, afterEach, it, expect, vi,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import OrganizationsView from '@/views/OrganizationsView.vue';
-import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
-localVue.use(BootstrapVue);
-localVue.use(BootstrapVueIcons);
+vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
+  ...await importOriginal(),
+  newTerminologyEnabled: () => true,
+}));
 
 let store;
 let wrapper;
@@ -28,7 +27,7 @@ afterEach(() => {
 describe('OrganizationsView.vue', () => {
   describe('when the view is loaded', () => {
     beforeEach(() => {
-      store = new Vuex.Store({
+      store = createStore({
         getters: {
           ...noOpGetters,
         },
@@ -37,10 +36,8 @@ describe('OrganizationsView.vue', () => {
         },
       });
       wrapper = shallowMount(OrganizationsView, {
-        store,
-        localVue,
-        computed: {
-          newTerminologyEnabled: () => true,
+        global: {
+          plugins: [store],
         },
       });
     });

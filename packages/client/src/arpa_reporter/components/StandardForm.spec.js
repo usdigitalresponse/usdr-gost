@@ -6,7 +6,7 @@ import { shallowMount } from '@vue/test-utils';
 describe('StandardForm component', () => {
   it('renders', () => {
     const wrapper = shallowMount(StandardForm, {
-      propsData: {
+      props: {
         initialRecord: {
           person_name: 'Foo',
         },
