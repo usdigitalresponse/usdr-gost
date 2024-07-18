@@ -1,226 +1,228 @@
 <template>
   <section>
-    <div v-if="loading">
-      Loading...
-    </div>
-    <div v-if="!currentGrant && !loading">
-      No grant found
-    </div>
-    <b-container
-      v-if="currentGrant && !loading"
-      fluid
-    >
-      <div class="grant-details-container">
-        <div class="grant-details-back-link">
-          <router-link
-            v-if="isFirstPageLoad"
-            :to="{ name: 'grants' }"
-          >
-            Browse Grants
-          </router-link>
-          <a
-            v-else
-            href="#"
-            @click="$router.back()"
-          >Back</a>
-        </div>
-        <!-- Left page column: headline -->
-        <h2 class="grant-details-headline m-0">
-          {{ currentGrant.title }}
-        </h2>
-
-        <!-- Left page column: table data, and grant description -->
-        <div class="grant-details-content">
-          <b-table
-            class="grant-details-table mb-5"
-            :items="tableData"
-            :fields="[
-              {key: 'name', class: 'color-gray grants-details-table-fit-content'},
-              {key: 'value', class: 'font-weight-bold'},
-            ]"
-            thead-class="d-none"
-            borderless
-            hover
-          >
-            <template #cell()="data">
-              <span :class="{'text-muted font-weight-normal': data.item.displayMuted}">
-                {{ data.value }}
-              </span>
-            </template>
-          </b-table>
-          <h3 class="mb-3">
-            Description
-          </h3>
-          <!-- eslint-disable vue/no-v-html -- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
-          <div
-            style="white-space: pre-line"
-            v-html="currentGrant.description"
-          />
-        </div>
-
-        <!-- Right page column: main print/copy/grants.gov buttons -->
-        <div class="grant-details-main-actions print-d-none">
-          <b-button
-            variant="primary"
-            block
-            class="mb-3"
-            :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
-            target="_blank"
-            rel="noopener noreferrer"
-            data-dd-action-name="view on grants.gov"
-            @click="onOpenGrantsGov"
-          >
-            <b-icon
-              icon="box-arrow-up-right"
-              aria-hidden="true"
-              class="mr-2"
-            />
-            Apply on Grants.gov
-          </b-button>
-          <div class="d-flex">
-            <b-button
-              class="w-50 flex-shrink-1 mr-3"
-              variant="outline-primary"
-              data-dd-action-name="print btn"
-              @click="printPage"
-            >
-              <b-icon
-                icon="printer-fill"
-                aria-hidden="true"
-                class="mr-2"
-              />
-              Print
-            </b-button>
-            <b-button
-              class="w-50 flex-shrink-1"
-              :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
-              data-dd-action-name="copy btn"
-              @click="copyUrl"
-            >
-              <b-icon
-                :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'"
-                aria-hidden="true"
-                class="mr-2"
-              />
-              <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
-              <span v-else>Link Copied</span>
-            </b-button>
-          </div>
-        </div>
-
-        <!-- Right page column: secondary assign grant section -->
-        <div class="grant-details-secondary-actions">
-          <!-- Assign grant section -->
-          <div class="mb-5">
-            <h3 class="mb-3">
-              Assign Grant
-            </h3>
-            <div class="d-flex print-d-none">
-              <v-select
-                v-model="selectedAgencyToAssign"
-                class="flex-grow-1 mr-3"
-                :options="unassignedAgencies"
-                label="name"
-                track-by="id"
-                :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
-                :clearable="false"
-                data-dd-action-name="select team for grant assignment"
-                @close="$refs.assignSubmitButton.focus()"
-              />
-              <b-button
-                ref="assignSubmitButton"
-                variant="outline-primary"
-                :disabled="!selectedAgencyToAssign"
-                data-dd-action-name="assign team"
-                @click="assignAgencyToGrant(selectedAgencyToAssign)"
-              >
-                Submit
-              </b-button>
-            </div>
-            <div
-              v-for="agency in assignedAgencies"
-              :key="agency.id"
-              class="d-flex justify-content-between align-items-start my-3"
-            >
-              <div class="mr-3">
-                <p class="m-0">
-                  {{ agency.name }}
-                </p>
-                <p class="m-0 text-muted">
-                  <small>{{ formatDateTime(agency.created_at) }}</small>
-                </p>
-              </div>
-              <b-button-close
-                data-dd-action-name="remove team assignment"
-                class="print-d-none"
-                @click="unassignAgencyToGrant(agency)"
-              />
-            </div>
-          </div>
-
-          <!-- Team status section -->
-          <div class="mb-5">
-            <h3 class="mb-3">
-              {{ newTerminologyEnabled ? 'Team': 'Agency' }} Status
-            </h3>
-            <div class="d-flex print-d-none">
-              <v-select
-                v-model="selectedInterestedCode"
-                class="flex-grow-1 mr-3"
-                :reduce="(option) => option.id"
-                :options="interestedOptions"
-                label="name"
-                track-by="id"
-                placeholder="Choose status"
-                :selectable="selectableOption"
-                :clearable="false"
-                data-dd-action-name="select team status"
-                @close="$refs.statusSubmitButton.focus()"
-              />
-              <b-button
-                ref="statusSubmitButton"
-                variant="outline-primary"
-                :disabled="!selectedInterestedCode"
-                data-dd-action-name="submit team status"
-                @click="markGrantAsInterested"
-              >
-                Submit
-              </b-button>
-            </div>
-            <div
-              v-for="agency in visibleInterestedAgencies"
-              :key="agency.id"
-              class="d-flex justify-content-between align-items-start my-3"
-            >
-              <UserAvatar
-                :user-name="agency.user_name"
-                :color="agency.user_avatar_color"
-                size="2.5rem"
-              />
-              <div class="mx-3">
-                <p class="m-0">
-                  <strong>{{ agency.user_name }}</strong> updated
-                  <strong>{{ agency.agency_name }}</strong> team status to
-                  <strong>{{ agency.interested_code_name }}</strong>
-                </p>
-                <p v-if="agency.user_email">
-                  <small>
-                    <CopyButton :copy-text="agency.user_email">
-                      {{ agency.user_email }}
-                    </CopyButton>
-                  </small>
-                </p>
-              </div>
-              <b-button-close
-                data-dd-action-name="remove team status"
-                class="print-d-none"
-                @click="unmarkGrantAsInterested(agency)"
-              />
-            </div>
-          </div>
-        </div>
+    <CardLayout>
+      <div v-if="loading">
+        Loading...
       </div>
-    </b-container>
+      <div v-if="!currentGrant && !loading">
+        No grant found
+      </div>
+      <b-container
+        v-if="currentGrant && !loading"
+        fluid
+      >
+        <div class="grant-details-container">
+          <CardContainer>
+            <div class="grant-details-back-link">
+              <router-link
+                v-if="isFirstPageLoad"
+                :to="{ name: 'grants' }"
+              >
+                Browse Grants
+              </router-link>
+              <a
+                v-else
+                href="#"
+                @click="$router.back()"
+              >Back</a>
+            </div>
+            <!-- Left page column: headline -->
+            <h2 class="grant-details-headline m-0">
+              {{ currentGrant.title }}
+            </h2>
+
+            <!-- Left page column: table data, and grant description -->
+            <div class="grant-details-content">
+              <b-table
+                class="grant-details-table mb-5"
+                :items="tableData"
+                :fields="[
+                  {key: 'name', class: 'color-gray grants-details-table-fit-content'},
+                  {key: 'value', class: 'font-weight-bold'},
+                ]"
+                thead-class="d-none"
+                borderless
+                hover
+              >
+                <template #cell()="data">
+                  <span :class="{'text-muted font-weight-normal': data.item.displayMuted}">
+                    {{ data.value }}
+                  </span>
+                </template>
+              </b-table>
+              <h3 class="mb-3">
+                Description
+              </h3>
+              <!-- eslint-disable vue/no-v-html -- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
+              <div
+                style="white-space: pre-line"
+                v-html="currentGrant.description"
+              />
+            </div>
+          </CardContainer>
+
+          <!-- Right page column: main print/copy/grants.gov buttons -->
+          <div class="grant-details-main-actions print-d-none">
+            <b-button
+              variant="primary"
+              block
+              class="mb-3"
+              :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-dd-action-name="view on grants.gov"
+              @click="onOpenGrantsGov"
+            >
+              <b-icon
+                icon="box-arrow-up-right"
+                aria-hidden="true"
+                class="mr-2"
+              />
+              Apply on Grants.gov
+            </b-button>
+            <div class="d-flex">
+              <b-button
+                class="w-50 flex-shrink-1 mr-3"
+                variant="outline-primary"
+                data-dd-action-name="print btn"
+                @click="printPage"
+              >
+                <b-icon
+                  icon="printer-fill"
+                  aria-hidden="true"
+                  class="mr-2"
+                />
+                Print
+              </b-button>
+              <b-button
+                class="w-50 flex-shrink-1"
+                :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
+                data-dd-action-name="copy btn"
+                @click="copyUrl"
+              >
+                <b-icon
+                  :icon="copyUrlSuccessTimeout === null ? 'files' : 'check2'"
+                  aria-hidden="true"
+                  class="mr-2"
+                />
+                <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
+                <span v-else>Link Copied</span>
+              </b-button>
+            </div>
+          </div>
+
+          <!-- Right page column: secondary assign grant section -->
+          <div class="grant-details-secondary-actions">
+            <CardContainer title="Assign Grant">
+              <!-- Assign grant section -->
+              <div class="mb-5">
+                <div class="d-flex print-d-none">
+                  <v-select
+                    v-model="selectedAgencyToAssign"
+                    class="flex-grow-1 mr-3"
+                    :options="unassignedAgencies"
+                    label="name"
+                    track-by="id"
+                    :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
+                    :clearable="false"
+                    data-dd-action-name="select team for grant assignment"
+                    @close="$refs.assignSubmitButton.focus()"
+                  />
+                  <b-button
+                    ref="assignSubmitButton"
+                    variant="outline-primary"
+                    :disabled="!selectedAgencyToAssign"
+                    data-dd-action-name="assign team"
+                    @click="assignAgencyToGrant(selectedAgencyToAssign)"
+                  >
+                    Submit
+                  </b-button>
+                </div>
+                <div
+                  v-for="agency in assignedAgencies"
+                  :key="agency.id"
+                  class="d-flex justify-content-between align-items-start my-3"
+                >
+                  <div class="mr-3">
+                    <p class="m-0">
+                      {{ agency.name }}
+                    </p>
+                    <p class="m-0 text-muted">
+                      <small>{{ formatDateTime(agency.created_at) }}</small>
+                    </p>
+                  </div>
+                  <b-button-close
+                    data-dd-action-name="remove team assignment"
+                    class="print-d-none"
+                    @click="unassignAgencyToGrant(agency)"
+                  />
+                </div>
+              </div>
+            </CardContainer>
+
+            <!-- Team status section -->
+            <CardContainer :title="`${ newTerminologyEnabled ? 'Team': 'Agency' } Status`">
+              <div class="mb-5">
+                <div class="d-flex print-d-none">
+                  <v-select
+                    v-model="selectedInterestedCode"
+                    class="flex-grow-1 mr-3"
+                    :reduce="(option) => option.id"
+                    :options="interestedOptions"
+                    label="name"
+                    track-by="id"
+                    placeholder="Choose status"
+                    :selectable="selectableOption"
+                    :clearable="false"
+                    data-dd-action-name="select team status"
+                    @close="$refs.statusSubmitButton.focus()"
+                  />
+                  <b-button
+                    ref="statusSubmitButton"
+                    variant="outline-primary"
+                    :disabled="!selectedInterestedCode"
+                    data-dd-action-name="submit team status"
+                    @click="markGrantAsInterested"
+                  >
+                    Submit
+                  </b-button>
+                </div>
+                <div
+                  v-for="agency in visibleInterestedAgencies"
+                  :key="agency.id"
+                  class="d-flex justify-content-between align-items-start my-3"
+                >
+                  <UserAvatar
+                    :user-name="agency.user_name"
+                    :color="agency.user_avatar_color"
+                    size="2.5rem"
+                  />
+                  <div class="mx-3">
+                    <p class="m-0">
+                      <strong>{{ agency.user_name }}</strong> updated
+                      <strong>{{ agency.agency_name }}</strong> team status to
+                      <strong>{{ agency.interested_code_name }}</strong>
+                    </p>
+                    <p v-if="agency.user_email">
+                      <small>
+                        <CopyButton :copy-text="agency.user_email">
+                          {{ agency.user_email }}
+                        </CopyButton>
+                      </small>
+                    </p>
+                  </div>
+                  <b-button-close
+                    data-dd-action-name="remove team status"
+                    class="print-d-none"
+                    @click="unmarkGrantAsInterested(agency)"
+                  />
+                </div>
+              </div>
+            </CardContainer>
+          </div>
+        </div>
+      </b-container>
+    </CardLayout>
   </section>
 </template>
 
@@ -235,6 +237,8 @@ import { titleize } from '@/helpers/form-helpers';
 import { gtagEvent } from '@/helpers/gtag';
 import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
+import CardContainer from '@/components/CardContainer.vue';
+import CardLayout from '@/components/CardLayout.vue';
 
 const HEADER = '__HEADER__';
 const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
@@ -244,6 +248,8 @@ export default {
   components: {
     UserAvatar,
     CopyButton,
+    CardContainer,
+    CardLayout,
   },
   beforeRouteEnter(to, from, next) {
     const isFirstPageLoad = from.name === null && from.path === '/';
