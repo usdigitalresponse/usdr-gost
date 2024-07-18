@@ -65,14 +65,6 @@ export const routes = [
         },
       },
       {
-        path: '/UpcomingClosingDates',
-        name: 'UpcomingClosingDates',
-        component: () => import('@/views/UpcomingClosingDatesView.vue'),
-        meta: {
-          requiresAuth: true,
-        },
-      },
-      {
         path: '/grants',
         name: 'grants',
         component: () => import('../views/GrantsView.vue'),
