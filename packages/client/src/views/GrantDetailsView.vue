@@ -231,7 +231,7 @@ import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
 import { DateTime } from 'luxon';
-import { newTerminologyEnabled } from '@/helpers/featureFlags';
+import { newTerminologyEnabled, shareTerminologyEnabled } from '@/helpers/featureFlags';
 import { formatCurrency } from '@/helpers/currency';
 import { titleize } from '@/helpers/form-helpers';
 import { gtagEvent } from '@/helpers/gtag';
@@ -381,9 +381,8 @@ export default {
         (interested) => interested.agency_id.toString() === this.selectedAgencyId,
       );
     },
-    newTerminologyEnabled() {
-      return newTerminologyEnabled();
-    },
+    newTerminologyEnabled,
+    shareTerminologyEnabled,
     unassignedAgencies() {
       return this.agencies.filter(
         (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
@@ -545,8 +544,9 @@ export default {
   grid-template-rows: 50px auto auto;
   grid-template-areas:
     "back-link back-link"
-    "headline  main-actions"
-    "content   secondary-actions";
+    "headline  headline"
+    "main-actions secondary-actions"
+    "content  secondary-actions";
   column-gap: 90px;
   row-gap: 48px;
   .grant-details-back-link {

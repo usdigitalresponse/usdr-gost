@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import {
+  describe, it, expect, vi,
+} from 'vitest';
 import { mount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
@@ -16,6 +18,10 @@ describe('UploadsView.vue', () => {
       getters: {
         periodNames: () => ['September, 2020', 'December, 2020'],
         agencyName: () => () => 'Test Agency',
+      },
+      actions: {
+        updateUploads: vi.fn(),
+        updateAgencies: vi.fn(),
       },
     });
 
@@ -65,6 +71,10 @@ describe('UploadsView.vue', () => {
       getters: {
         periodNames: () => ['September, 2020', 'December, 2020'],
         agencyName: () => () => 'Test Agency',
+      },
+      actions: {
+        updateUploads: vi.fn(),
+        updateAgencies: vi.fn(),
       },
     });
 

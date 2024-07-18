@@ -40,7 +40,7 @@ jobs:
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Setup Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version-file: .nvmrc
           cache: yarn
@@ -82,7 +82,7 @@ jobs:
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Setup Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version-file: .nvmrc
           cache: yarn
@@ -106,7 +106,7 @@ jobs:
         run: npx nyc report --reporter text --cwd packages/server > packages/server/coverage.txt
       - name: Generate coverage markdown report
         id: coverage-markdown
-        uses: fingerprintjs/action-coverage-report-md@cd6bbc2dbc7b03844f0ec825caa2cea3e0205621 # v2.0.0
+        uses: fingerprintjs/action-coverage-report-md@72dfb7de7581612640a8e599e918b2eda98f9bba # v2.0.1
         with:
           textReportPath: 'packages/server/coverage.txt'
           srcBasePath: 'packages/server/'
@@ -129,7 +129,7 @@ jobs:
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Setup Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version-file: .nvmrc
           cache: yarn
@@ -146,7 +146,7 @@ jobs:
           CI: "true"
       - name: Generate coverage markdown report
         id: coverage-markdown
-        uses: fingerprintjs/action-coverage-report-md@cd6bbc2dbc7b03844f0ec825caa2cea3e0205621 # v2.0.0
+        uses: fingerprintjs/action-coverage-report-md@72dfb7de7581612640a8e599e918b2eda98f9bba # v2.0.1
         with:
           textReportPath: 'packages/client/coverage/coverage.txt'
           srcBasePath: 'packages/client/src'
@@ -182,7 +182,7 @@ jobs:
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Install Node.js
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version-file: .nvmrc
           cache: yarn
@@ -234,7 +234,7 @@ jobs:
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Setup Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version-file: .nvmrc
           cache: yarn
