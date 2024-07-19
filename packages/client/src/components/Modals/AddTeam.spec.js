@@ -1,12 +1,14 @@
 import {
-  describe, beforeEach, afterEach, it, expect,
+  describe, beforeEach, afterEach, it, expect, vi,
 } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import AddTeam from '@/components/Modals/AddTeam.vue';
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
+vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
+  ...await importOriginal(),
+  newTerminologyEnabled: () => true,
+}));
 
 let store;
 let wrapper;
@@ -20,17 +22,15 @@ afterEach(() => {
 describe('AddTeam.vue', () => {
   describe('when the modal is loaded', () => {
     beforeEach(() => {
-      store = new Vuex.Store({
+      store = createStore({
         getters: {
           'users/loggedInUser': () => {},
         },
       });
       wrapper = shallowMount(AddTeam, {
-        localVue,
-        store,
-        stubs,
-        computed: {
-          newTerminologyEnabled: () => true,
+        global: {
+          plugins: [store],
+          stubs,
         },
       });
     });

@@ -94,14 +94,12 @@
         </b-form-group>
         <b-form-group
           id="opportunity-status-group"
-          v-slot="{ ariaDescribedby }"
           label="Opportunity Status"
         >
           <b-form-checkbox-group
             id="opportunity-status"
             v-model="formData.criteria.opportunityStatuses"
             :options="opportunityStatusOptions"
-            :aria-describedby="ariaDescribedby"
             inline
           />
         </b-form-group>
@@ -217,14 +215,12 @@
         </b-form-group>
         <b-form-group
           id="cost-sharing-group"
-          v-slot="{ ariaDescribedby }"
           label="Cost Sharing"
           row
         >
           <b-form-radio-group class="search-fields-radio-group">
             <b-form-radio
               v-model="formData.criteria.costSharing"
-              :aria-describedby="ariaDescribedby"
               name="cost-sharing"
               value="Yes"
             >
@@ -232,7 +228,6 @@
             </b-form-radio>
             <b-form-radio
               v-model="formData.criteria.costSharing"
-              :aria-describedby="ariaDescribedby"
               name="cost-sharing"
               value="No"
             >
@@ -479,7 +474,7 @@ export default {
       );
     },
     showSideBar() {
-      if (!this.$refs.searchPanelSideBar.isOpen) {
+      if (!this.$refs.searchPanelSideBar?.isOpen) {
         // b-sidebar does not have show() method and v-model does not
         // account for accessibility.
         // See https://bootstrap-vue.org/docs/components/sidebar#v-model

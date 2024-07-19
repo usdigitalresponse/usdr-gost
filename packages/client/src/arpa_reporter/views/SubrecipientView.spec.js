@@ -3,13 +3,11 @@ import SubrecipientView from '@/arpa_reporter/views/SubrecipientView.vue';
 import {
   describe, it, expect, vi,
 } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 describe('SubrecipientView component', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  const store = new Vuex.Store({
+  const store = createStore({
     mutations: {
       addAlert: vi.fn(),
     },
@@ -22,10 +20,11 @@ describe('SubrecipientView component', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(SubrecipientView, {
-      store,
-      localVue,
-      mocks: {
-        $route,
+      global: {
+        plugins: [store],
+        mocks: {
+          $route,
+        },
       },
     });
     expect(wrapper.exists()).toBe(true);

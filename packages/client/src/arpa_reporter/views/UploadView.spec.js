@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import moment from 'moment';
-import Vuex from 'vuex';
-import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
+import { createStore } from 'vuex';
 import UploadView from '@/arpa_reporter/views/UploadView.vue';
 
 const mocks = {
@@ -14,14 +13,9 @@ const mocks = {
   },
 };
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
-localVue.use(BootstrapVue);
-localVue.use(BootstrapVueIcons);
-
 describe('UploadView.vue', () => {
   it('renders with an upload - validated', async () => {
-    const store = new Vuex.Store({
+    const store = createStore({
       state: {
         reportingPeriods: [{
           id: 43,
@@ -62,10 +56,11 @@ describe('UploadView.vue', () => {
     };
 
     const wrapper = mount(UploadView, {
-      store,
-      localVue,
-      stubs: ['router-link'],
-      mocks,
+      global: {
+        plugins: [store],
+        stubs: ['router-link'],
+        mocks,
+      },
     });
     await wrapper.setData({ upload });
     await wrapper.vm.$nextTick();
@@ -75,7 +70,7 @@ describe('UploadView.vue', () => {
   });
 
   it('renders with an upload - invalidated', async () => {
-    const store = new Vuex.Store({
+    const store = createStore({
       state: {
         reportingPeriods: [{
           id: 43,
@@ -116,10 +111,11 @@ describe('UploadView.vue', () => {
     };
 
     const wrapper = mount(UploadView, {
-      store,
-      localVue,
-      stubs: ['router-link'],
-      mocks,
+      global: {
+        plugins: [store],
+        stubs: ['router-link'],
+        mocks,
+      },
     });
     await wrapper.setData({ upload });
     await wrapper.vm.$nextTick();

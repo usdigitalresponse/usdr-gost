@@ -3,15 +3,11 @@ import UsersView from '@/arpa_reporter/views/UsersView.vue';
 import {
   describe, it, expect, vi,
 } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
-import VueRouter from 'vue-router';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 describe('UsersView component', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  localVue.use(VueRouter);
-  const store = new Vuex.Store({
+  const store = createStore({
     mutations: {
       addAlert: vi.fn(),
     },
@@ -19,8 +15,9 @@ describe('UsersView component', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(UsersView, {
-      store,
-      localVue,
+      global: {
+        plugins: [store],
+      },
     });
     expect(wrapper.exists()).toBe(true);
   });

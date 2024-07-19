@@ -1,23 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import VueRouter from 'vue-router';
-import { createLocalVue } from '@vue/test-utils';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import { routes } from '@/router';
 
-const localVue = createLocalVue();
-localVue.use(VueRouter);
-
 describe('Router logic', () => {
   it('displays 404 page for unknown route', async () => {
-    const router = new VueRouter({ routes, mode: 'history' });
+    const router = createRouter({ routes, history: createWebHistory() });
     await router.push('/rants');
-    expect(router.currentRoute.name).toBe('notFound');
+    expect(router.currentRoute.value.name).toBe('notFound');
   });
 
   it('redirects hash URLs to non-hash URLS', async () => {
-    const router = new VueRouter({ routes, mode: 'history' });
-    await router.push('/#/grants');
-    expect(router.currentRoute.fullPath).toBe('/grants');
-    expect(router.currentRoute.name).toBe('grants');
+    const router = createRouter({ routes, history: createWebHistory() });
+    await router.push('/#/login');
+    expect(router.currentRoute.value.fullPath).toBe('/login');
+    expect(router.currentRoute.value.name).toBe('login');
   });
 });

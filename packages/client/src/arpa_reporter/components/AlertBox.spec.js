@@ -6,7 +6,7 @@ import { shallowMount } from '@vue/test-utils';
 describe('AlertBox component', () => {
   it('renders', () => {
     const wrapper = shallowMount(AlertBox, {
-      propsData: {
+      props: {
         text: 'foo',
       },
     });

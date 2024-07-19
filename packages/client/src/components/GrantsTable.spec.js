@@ -3,21 +3,21 @@ import GrantsTable from '@/components/GrantsTable.vue';
 import {
   describe, it, expect, vi,
 } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
-import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
   ...await importOriginal(),
   newGrantsDetailPageEnabled: () => true,
 }));
 
+vi.mock('bootstrap-vue', async () => ({
+  // SavedSearchPanel imports bootstrap-vue, which triggers an error in testing, so we'll mock it out
+  VBToggle: vi.fn(),
+}));
+
 describe('GrantsTable component', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  localVue.use(BootstrapVue);
-  localVue.use(BootstrapVueIcons);
-  const store = new Vuex.Store({
+  const store = createStore({
     getters: {
       'grants/grants': () => [
         {
@@ -48,15 +48,16 @@ describe('GrantsTable component', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(GrantsTable, {
-      propsData: {
+      global: {
+        plugins: [store],
+        mocks: {
+          $route,
+        },
+      },
+      props: {
         showInterested: true,
         showRejected: true,
         showResult: true,
-      },
-      localVue,
-      store,
-      mocks: {
-        $route,
       },
     });
     expect(wrapper.exists()).toBe(true);
