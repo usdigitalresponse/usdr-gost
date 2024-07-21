@@ -1,9 +1,7 @@
 <template>
-  <layout>
-    <div class="background">
-      <slot></slot>
-    </div>
-  </layout>
+  <div class="background">
+    <slot />
+  </div>
 </template>
 
 <style>
