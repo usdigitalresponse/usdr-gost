@@ -61,6 +61,7 @@ module "db" {
   auto_minor_version_upgrade = true
   engine_mode                = "provisioned"
   storage_encrypted          = true
+  ca_cert_identifier         = var.ca_cert_identifier
 
   vpc_id                         = var.vpc_id
   subnets                        = var.subnet_ids
