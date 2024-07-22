@@ -3054,11 +3054,11 @@
     pretty-format "^29.7.0"
 
 "@vue/compat@^3.4.27":
-  version "3.4.27"
-  resolved "https://registry.yarnpkg.com/@vue/compat/-/compat-3.4.27.tgz#5322a830c0704a1dc4592bbff15b0fb6683a4387"
-  integrity sha512-H2W93cPe9WXXkHiYEeX7f2Z8/znElm44fxgj8uBhgC6cxvjDUOLIcIJySs+FZvv6JM+Re/SBUnlcr4LJMaQZzw==
+  version "3.4.33"
+  resolved "https://registry.yarnpkg.com/@vue/compat/-/compat-3.4.33.tgz#7d3ac9fe4054226091afbfba429fea41c63f791b"
+  integrity sha512-j9gsPzxrFtbcsK6nHITjbLl7Jl/exG8qRKRcWhQ5oY+V5Bo4phBkmVSYVsHsZjyvUO2L4u/6Ls0q8SoulohUmQ==
   dependencies:
-    "@babel/parser" "^7.24.4"
+    "@babel/parser" "^7.24.7"
     estree-walker "^2.0.2"
     source-map-js "^1.2.0"
 
