@@ -52,7 +52,7 @@ module "api_container_definition" {
       ENABLE_NEW_TEAM_TERMINOLOGY        = var.enable_new_team_terminology ? "true" : "false"
       NODE_OPTIONS                       = "--max_old_space_size=1024"
       NOTIFICATIONS_EMAIL                = var.notifications_email_address
-      PGSSLROOTCERT                      = "rds-combined-ca-bundle.pem"
+      PGSSLROOTCERT                      = "rds-global-bundle.pem"
       SES_CONFIGURATION_SET_DEFAULT      = var.ses_configuration_set_default
       VUE_APP_GRANTS_API_URL             = module.api_gateway.apigatewayv2_api_api_endpoint
       WEBSITE_DOMAIN                     = "https://${var.website_domain_name}"
