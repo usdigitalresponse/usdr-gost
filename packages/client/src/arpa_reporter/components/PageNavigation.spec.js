@@ -1,18 +1,15 @@
 import {
   describe, beforeEach, it, expect,
 } from 'vitest';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import PageNavigation from '@/arpa_reporter/components/PageNavigation.vue';
-
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 describe('PageNavigation.vue', () => {
   let store;
   let $route;
   beforeEach(() => {
-    store = new Vuex.Store({
+    store = createStore({
       getters: {
         periodNames: () => ['September, 2020', 'December, 2020'],
         viewPeriod: () => ({ id: 1 }),
@@ -26,10 +23,11 @@ describe('PageNavigation.vue', () => {
 
   it('renders the nav element', () => {
     const wrapper = shallowMount(PageNavigation, {
-      store,
-      localVue,
-      stubs: ['router-link', 'router-view'],
-      mocks: { $route },
+      global: {
+        plugins: [store],
+        stubs: ['router-link', 'router-view'],
+        mocks: { $route },
+      },
     });
     const navbars = wrapper.findAll('nav.navbar');
     expect(navbars.length).toBe(1); // has one navbar element
@@ -40,10 +38,11 @@ describe('PageNavigation.vue', () => {
 
   it('include title', () => {
     const wrapper = shallowMount(PageNavigation, {
-      store,
-      localVue,
-      stubs: ['router-link', 'router-view'],
-      mocks: { $route },
+      global: {
+        plugins: [store],
+        stubs: ['router-link', 'router-view'],
+        mocks: { $route },
+      },
     });
     const r = wrapper.find('a.navbar-brand');
     expect(r.text()).toContain('ARPA Reporter');

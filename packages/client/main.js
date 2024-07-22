@@ -6,17 +6,24 @@ if (window.APP_CONFIG?.DD_RUM_ENABLED === true) {
   datadogRum.setGlobalContextProperty('app', 'finder');
 }
 
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import { createApp } from 'vue';
+import { BootstrapVue } from 'bootstrap-vue';
+import { BootstrapIcon } from '@dvuckovic/vue3-bootstrap-icons';
+import { injectBootstrapIcons } from '@dvuckovic/vue3-bootstrap-icons/utils';
+import BootstrapIcons from 'bootstrap-icons/bootstrap-icons.svg?raw';
 import { VueSelect } from 'vue-select';
 import { setUserForGoogleAnalytics } from '@/helpers/gtag';
 import App from '@/App.vue';
 import router from '@/router';
 import store from '@/store';
+import installVueCompatWarningHandler from '@/helpers/vueCompatWarning';
 import * as fetchApi from '@/helpers/fetchApi';
+
+import '@dvuckovic/vue3-bootstrap-icons/dist/style.css';
 import '@/assets/fix-sticky-headers.css';
 import '@/assets/adjust-vue-select.css';
+
+installVueCompatWarningHandler();
 
 if (window.APP_CONFIG?.GOOGLE_TAG_ID) {
   store.watch((state) => state.users.loggedInUser, (newUser) => setUserForGoogleAnalytics(newUser));
@@ -26,15 +33,12 @@ store.watch((state) => state.users.loggedInUser, (newUser) => datadogRum.setUser
   id: newUser.id, agency_id: newUser.agency_id, role: newUser.role.name, organization_id: newUser.tenant_id,
 }));
 
-// Install BootstrapVue
-Vue.use(BootstrapVue);
-// Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin);
-Vue.use(VueRouter);
-Vue.component('VSelect', VueSelect);
+const app = createApp(App);
 
-Vue.config.productionTip = false;
-Vue.prototype.$negative_keywords_enabled = import.meta.env.VUE_APP_NEGATIVE_KEYWORDS_ENABLED === 'true';
+app.use(BootstrapVue);
+injectBootstrapIcons(BootstrapIcons);
+app.component('BIcon', BootstrapIcon);
+app.component('VSelect', VueSelect);
 
 fetchApi.get('/api/sessions')
   .then((data) => {
@@ -42,11 +46,10 @@ fetchApi.get('/api/sessions')
       store.dispatch('users/login', data.user);
       store.dispatch('grants/fetchInterestedCodes');
     }
-    new Vue({
-      router,
-      store,
-      render: (h) => h(App),
-    }).$mount('#app');
+    // With the current session setup, we need router to initialize only after session info has been loaded into the store
+    app.use(store);
+    app.use(router);
+    app.mount('#app');
   })
   .catch((e) => {
     store.dispatch('users/logout');

@@ -1,13 +1,11 @@
 /* eslint camelcase: 0 */
 
 import Vue from 'vue';
-import Vuex from 'vuex';
+import { createStore } from 'vuex';
 import moment from 'moment';
 import _ from 'lodash';
 
 import { apiURL } from '@/helpers/fetchApi';
-
-Vue.use(Vuex);
 
 export function get(url) {
   const options = {
@@ -105,7 +103,7 @@ function randomId() {
   return Math.random().toString(16).substr(2, 10);
 }
 
-export default new Vuex.Store({
+export default createStore({
   state: {
     user: null,
     applicationSettings: {},

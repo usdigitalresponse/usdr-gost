@@ -1,13 +1,11 @@
 import DownloadTemplateBtn from '@/arpa_reporter/components/DownloadTemplateBtn.vue';
 
 import { describe, it, expect } from 'vitest';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 describe('DownloadTemplateBtn component', () => {
-  const localVue = createLocalVue();
-  localVue.use(Vuex);
-  const store = new Vuex.Store({
+  const store = createStore({
     state: {
       viewPEriodID: 123,
     },
@@ -18,9 +16,10 @@ describe('DownloadTemplateBtn component', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(DownloadTemplateBtn, {
-      store,
-      localVue,
-      propsData: {
+      global: {
+        plugins: [store],
+      },
+      props: {
         block: true,
       },
     });

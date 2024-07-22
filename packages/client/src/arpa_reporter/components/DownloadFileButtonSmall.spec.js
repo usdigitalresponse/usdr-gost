@@ -6,7 +6,7 @@ import { shallowMount } from '@vue/test-utils';
 describe('DownloadFileButtonSmall component', () => {
   it('renders', () => {
     const wrapper = shallowMount(DownloadFileButtonSmall, {
-      propsData: {
+      props: {
         upload: {
           id: 123,
         },

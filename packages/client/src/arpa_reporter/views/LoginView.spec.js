@@ -10,8 +10,10 @@ describe('LoginView component', () => {
 
   it('renders', () => {
     const wrapper = shallowMount(LoginView, {
-      mocks: {
-        $route,
+      global: {
+        mocks: {
+          $route,
+        },
       },
     });
     expect(wrapper.exists()).toBe(true);
