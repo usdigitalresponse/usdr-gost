@@ -11,7 +11,6 @@
 
     <b-form
       class="search-form"
-      @keyup.enter="onEnter"
       @submit.prevent="onSubmit"
       @reset="cancel"
     >
@@ -422,12 +421,6 @@ export default {
     },
     onShown() {
       this.initFormState();
-    },
-    async onEnter(event) {
-      const enterInOpenDropdown = event.target.closest('.vs--open');
-      if (this.saveEnabled && !enterInOpenDropdown) {
-        await this.onSubmit();
-      }
     },
     async onSubmit() {
       this.apply();
