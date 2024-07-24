@@ -156,6 +156,7 @@ import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
 import SearchPanel from '@/components/Modals/SearchPanel.vue';
 import SavedSearchPanel from '@/components/Modals/SavedSearchPanel.vue';
 import SearchFilter from '@/components/SearchFilter.vue';
+import moment from 'moment';
 
 const DEFAULT_CURRENT_PAGE = 1;
 const DEFAULT_ORDER_BY = 'rank';
@@ -279,6 +280,15 @@ export default {
         txt.innerHTML = t;
         return txt.value;
       };
+      const generateCloseDate = (date, status) => {
+        if (status === 'posted' && !date) {
+          return "Not yet issued";
+        } if (['closed', 'archived', 'posted'].includes(status) && !!date && !moment(date).isValid()) {
+          return 'See details';
+        } else {
+          return new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
+        }
+      }
       return this.grants.map((grant) => ({
         ...grant,
         title: generateTitle(grant.title),
@@ -291,7 +301,7 @@ export default {
         status: titleize(grant.opportunity_status),
         award_ceiling: grant.award_ceiling,
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
+        close_date: generateCloseDate(grant.close_date, grant.opportunity_status?.toLowerCase()),
         _cellVariants: (() => {
           const daysUntilClose = daysUntil(grant.close_date);
           if (daysUntilClose <= dangerThreshold) {
