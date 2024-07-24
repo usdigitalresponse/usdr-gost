@@ -288,7 +288,7 @@ export default {
         viewed_by: grant.viewed_by_agencies
           .map((v) => v.agency_abbreviation)
           .join(', '),
-        status: grant.opportunity_status,
+        status: titleize(grant.opportunity_status),
         award_ceiling: grant.award_ceiling,
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),

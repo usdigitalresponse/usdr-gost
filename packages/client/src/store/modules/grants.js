@@ -65,8 +65,8 @@ function buildGrantsNextQuery({ filters, ordering, pagination }) {
   criteria.fundingActivityCategories = criteria.fundingActivityCategories?.map((c) => c.code);
 
   if (!criteria.opportunityStatuses || criteria.opportunityStatuses.length === 0) {
-    // by default, only show posted opportunities
-    criteria.opportunityStatuses = ['posted'];
+    // by default, only show forecasted and posted opportunities
+    criteria.opportunityStatuses = ['forecasted', 'posted'];
   }
   const paginationQuery = Object.entries(pagination)
     // filter out undefined and nulls since api expects parameters not present as undefined
@@ -145,6 +145,7 @@ export default {
       const filters = { ...this.state.grants.searchFormFilters };
       const { criteriaQuery, paginationQuery, orderingQuery } = buildGrantsNextQuery({ filters, ordering, pagination });
 
+      // this is the call to (initially) populate the table
       return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/next?${paginationQuery}&${orderingQuery}&${criteriaQuery}`)
         .then((data) => commit('SET_GRANTS', data));
     },

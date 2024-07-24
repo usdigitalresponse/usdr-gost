@@ -58,6 +58,13 @@ function mapSourceDataToGrant(source) {
         grant.opportunity_status = 'archived';
     } else if (today.isSameOrAfter(moment(grant.close_date), 'date')) {
         grant.opportunity_status = 'closed';
+    } else if (today.isBefore(moment(grant.open_date), 'date')) {
+        // depending on how we model the estimated open date, we may need to do the 
+        // date comparison with the new field for estimated date
+        grant.opportunity_status = 'forecasted'
+        // when do we actually reference opportunity_status? This may be extraneous code
+        // because in the knex query, we are deriving the status based on 
+        // archive_date and close_date
     } else {
         grant.opportunity_status = 'posted';
     }
