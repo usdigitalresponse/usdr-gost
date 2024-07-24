@@ -269,7 +269,7 @@ const defaultCriteria = {
   includeKeywords: null,
   excludeKeywords: null,
   opportunityNumber: null,
-  opportunityStatuses: ['posted'],
+  opportunityStatuses: ['forecasted', 'posted'],
   fundingTypes: null,
   agency: null,
   bill: null,
@@ -310,6 +310,7 @@ export default {
         { code: 'O', name: 'Other' },
       ],
       opportunityStatusOptions: [
+        { text: 'Forecasted', value: 'forecasted' },
         { text: 'Posted', value: 'posted' },
         // b-form-checkbox-group doesn't handle multiple values well 'archived' is added
         // whenever 'closed' is checked, but as post processing step. See apply()
