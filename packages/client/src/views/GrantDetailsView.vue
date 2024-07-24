@@ -223,7 +223,7 @@ import GrantActivity from '@/components/GrantActivity.vue';
 
 const HEADER = '__HEADER__';
 const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
-const NOT_AVAILABLE_TEXT = 'Not available';
+const NOT_AVAILABLE_TEXT = 'Not Available';
 
 export default {
   components: {
@@ -282,7 +282,7 @@ export default {
         value: this.currentGrant.grant_number,
       }, {
         name: 'Open Date',
-        value: this.formatDate(this.currentGrant.open_date),
+        value: this.openDateDisplay,
       }, {
         name: 'Close Date',
         value: this.closeDateDisplay,
@@ -314,10 +314,20 @@ export default {
       },
       ];
     },
+    openDateDisplay() {
+      // make 'forecasted' a constant
+      if (this.currentGrant.opportunity_status === 'forecasted') {
+        // check for date validity here and in closeDateDisplay
+        return `est. ${this.formatDate(this.currentGrant.open_date)}`;
+      }
+      return this.formatDate(this.currentGrant.open_date);
+    },
     closeDateDisplay() {
       // If we have an explainer text instead of a real close date, display that instead
-      if (this.currentGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
+      if (!this.currentGrant.close_date || this.currentGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
         return this.currentGrant.close_date_explanation ?? NOT_AVAILABLE_TEXT;
+      } if (this.currentGrant.opportunity_status === 'forecasted') {
+        return `est. ${this.formatDate(this.currentGrant.close_date)}`;
       }
       return this.formatDate(this.currentGrant.close_date);
     },

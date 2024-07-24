@@ -279,6 +279,25 @@ export default {
         txt.innerHTML = t;
         return txt.value;
       };
+      const generateCloseDate = (date, status, closeDateExplanation) => {
+        const formattedDate = new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
+        const dateExists = date && date !== '2100-01-01';
+        if (!dateExists) {
+          return closeDateExplanation ? 'See details' : 'Not yet issued';
+        }
+        if (status === 'forecasted') {
+          return `est. ${formattedDate}`;
+        }
+
+        return formattedDate;
+      };
+      const generateOpenDate = (date, status) => {
+        const formattedDate = new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
+        if (status === 'forecasted') {
+          return `est. ${formattedDate}`;
+        }
+        return formattedDate;
+      };
       return this.grants.map((grant) => ({
         ...grant,
         title: generateTitle(grant.title),
@@ -288,10 +307,10 @@ export default {
         viewed_by: grant.viewed_by_agencies
           .map((v) => v.agency_abbreviation)
           .join(', '),
-        status: grant.opportunity_status,
+        status: titleize(grant.opportunity_status),
         award_ceiling: grant.award_ceiling,
-        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
+        open_date: generateOpenDate(grant.open_date, grant.opportunity_status?.toLowerCase()),
+        close_date: generateCloseDate(grant.close_date, grant.opportunity_status?.toLowerCase(), grant.close_date_explanation),
         _cellVariants: (() => {
           const daysUntilClose = daysUntil(grant.close_date);
           if (daysUntilClose <= dangerThreshold) {
