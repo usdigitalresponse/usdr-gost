@@ -443,9 +443,10 @@ module "postgres" {
   namespace                = var.namespace
   permissions_boundary_arn = local.permissions_boundary_arn
 
-  default_db_name = "gost"
-  vpc_id          = data.aws_ssm_parameter.vpc_id.value
-  subnet_ids      = local.private_subnet_ids
+  default_db_name    = "gost"
+  ca_cert_identifier = var.postgres_ca_cert_identifier
+  vpc_id             = data.aws_ssm_parameter.vpc_id.value
+  subnet_ids         = local.private_subnet_ids
   ingress_security_groups = {
     from_api                  = module.api_to_postgres_security_group.id
     from_consume_grants       = module.consume_grants_to_postgres_security_group.id

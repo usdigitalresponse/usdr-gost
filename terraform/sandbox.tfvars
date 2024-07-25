@@ -37,6 +37,7 @@ postgres_enabled                   = true
 postgres_prevent_destroy           = true
 postgres_snapshot_before_destroy   = false
 postgres_apply_changes_immediately = true
+postgres_ca_cert_identifier        = "rds-ca-rsa2048-g1"
 
 // Consume Grants
 consume_grants_source_event_bus_name = "default"
