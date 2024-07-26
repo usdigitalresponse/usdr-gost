@@ -342,7 +342,7 @@ export default {
         value: this.currentGrant.grant_number,
       }, {
         name: 'Open Date',
-        value: this.formatDate(this.currentGrant.open_date),
+        value: this.openDateDisplay,
       }, {
         name: 'Close Date',
         value: this.closeDateDisplay,
@@ -374,10 +374,30 @@ export default {
       },
       ];
     },
+    openDateDisplay() {
+      // make 'forecasted' a constant
+      if (this.currentGrant.opportunity_status === 'forecasted') {
+        // change this.currentGrant.open_date to relevant field
+        // check for date validity here and in closeDateDisplay
+        return `est. ${this.formatDate(this.currentGrant.open_date)}`
+      }
+      return this.formatDate(this.currentGrant.open_date);
+    },
     closeDateDisplay() {
       // If we have an explainer text instead of a real close date, display that instead
       if (this.currentGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
         return this.currentGrant.close_date_explanation ?? NOT_AVAILABLE_TEXT;
+      } else if (this.currentGrant.opportunity_status === 'forecasted') {
+        // if it's a valid date, `est. ${this.formatDate(this.currentGrant.close_date)}`
+        // if blank, show "Not yet issued"
+        // else, show text - estimated_synopsis_close_date_explanation
+        // change this.currentGrant.close_date to relevant field
+        if (!this.currentGrant.close_date) {
+          return 'Not yet issued';
+        } else if (moment(this.currentGrant.close_date).isValid()) {
+          return `est. ${this.formatDate(this.currentGrant.close_date)}`;
+        }
+        return this.currentGrant.estimated_synopsis_close_date_explanation; // This field is subject to change
       }
       return this.formatDate(this.currentGrant.close_date);
     },
