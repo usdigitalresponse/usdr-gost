@@ -1,12 +1,9 @@
 async function saveNoteRevision(knex, grantId, userId, text) {
     console.log(knex, grantId, userId, text);
-    // if (!knex || !grantId || !userId || !text) {
-    //     throw new Error('Invalid arguments. None of the arguments can be null or undefined.');
-    // }
 
     let grantNoteId;
 
-    await knex.transaction(async (trx) => {
+    const grantNotesRevisionId = await knex.transaction(async (trx) => {
         const existingNote = await trx('grant_notes')
             .select('id')
             .where({ grant_id: grantId, user_id: userId })
@@ -21,7 +18,7 @@ async function saveNoteRevision(knex, grantId, userId, text) {
                     user_id: userId,
                 })
                 .returning('id');
-            grantNoteId = newNoteId;
+            grantNoteId = newNoteId.id;
         }
 
         const [revisionId] = await trx('grant_notes_revisions')
@@ -31,10 +28,10 @@ async function saveNoteRevision(knex, grantId, userId, text) {
             })
             .returning('id');
 
-        return { id: revisionId };
+        return revisionId;
     });
 
-    return { id: grantNoteId };
+    return grantNotesRevisionId;
 }
 
 async function getOrganizationNotesForGrant(knex, grantId, organizationId, { afterRevision, limit = 50 } = {}) {
@@ -80,7 +77,8 @@ async function getOrganizationNotesForGrant(knex, grantId, organizationId, { aft
     const notes = await query
         .orderBy('rev.created_at', 'desc')
         .limit(limit);
-
+    console.log('notes');
+    console.log(notes.length);
     return {
         notes: notes.map((note) => ({
             id: note.latest_revision_id,
