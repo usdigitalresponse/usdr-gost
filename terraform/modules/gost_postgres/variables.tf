@@ -64,3 +64,8 @@ variable "query_logging_enabled" {
   type        = bool
   default     = false
 }
+
+variable "ca_cert_identifier" {
+  description = "Certificate Authority identifier for RDS Aurora Postgres cluster instances."
+  type        = string
+}

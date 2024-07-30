@@ -233,6 +233,11 @@ variable "postgres_query_logging_enabled" {
   type    = bool
   default = false
 }
+variable "postgres_ca_cert_identifier" {
+  description = "Certificate Authority identifier for RDS Aurora Postgres cluster instances."
+  type        = string
+  default     = "rds-ca-rsa2048-g1"
+}
 
 # Consume Grants
 variable "consume_grants_source_event_bus_name" {
