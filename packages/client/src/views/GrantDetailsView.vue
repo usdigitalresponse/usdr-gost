@@ -1,6 +1,6 @@
 <template>
-  <section>
-    <CardLayout>
+  <div class="background">
+    <section>
       <div v-if="loading">
         Loading...
       </div>
@@ -12,116 +12,123 @@
         fluid
       >
         <div class="grant-details-container">
-          <CardContainer>
-            <div class="grant-details-back-link">
-              <router-link
-                v-if="isFirstPageLoad"
-                :to="{ name: 'grants' }"
-              >
-                Browse Grants
-              </router-link>
-              <a
-                v-else
-                href="#"
-                @click="$router.back()"
-              >Back</a>
-            </div>
-            <!-- Left page column: headline -->
-            <h2 class="grant-details-headline m-0">
-              {{ currentGrant.title }}
-            </h2>
+          <div>
+            <b-card>
+              <div class="mb-5">
+                <div class="grant-details-back-link">
+                  <router-link
+                    v-if="isFirstPageLoad"
+                    :to="{ name: 'grants' }"
+                  >
+                    Browse Grants
+                  </router-link>
+                  <a
+                    v-else
+                    href="#"
+                    @click="$router.back()"
+                  >Back</a>
+                </div>
+                <!-- Left page column: headline -->
+                <h2 class="grant-details-headline m-0">
+                  {{ currentGrant.title }}
+                </h2>
 
-            <!-- Left page column: main print/copy/grants.gov buttons -->
-            <div class="grant-details-main-actions print-d-none">
-              <div class="d-flex justify-content-between align-items-center">
-                <b-button
-                  variant="primary"
-                  class="mr-5 text-nowrap"
-                  :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  size="sm"
-                  data-dd-action-name="view on grants.gov"
-                  @click="onOpenGrantsGov"
-                >
-                  <b-icon
-                    icon="box-arrow-up-right"
-                    aria-hidden="true"
-                    class="mr-2"
+                <!-- Left page column: main print/copy/grants.gov buttons -->
+                <div class="grant-details-main-actions print-d-none">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <b-button
+                      variant="primary"
+                      class="mr-5 text-nowrap"
+                      :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      size="sm"
+                      data-dd-action-name="view on grants.gov"
+                      @click="onOpenGrantsGov"
+                    >
+                      <b-icon
+                        icon="box-arrow-up-right"
+                        aria-hidden="true"
+                        class="mr-2"
+                      />
+                      View on Grants.gov
+                    </b-button>
+                    <div class="w-20 d-flex">
+                      <a
+                        class="link-primary text-nowrap"
+                        role="button"
+                        :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
+                        data-dd-action-name="copy btn"
+                        @click="copyUrl"
+                      >
+                        <b-icon
+                          :icon="copyUrlSuccessTimeout === null ? 'paperclip' : 'check2'"
+                          aria-hidden="true"
+                          class="mr-1"
+                        />
+                        <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
+                        <span v-else>Link Copied</span>
+                      </a>
+                      <div class="col-1 border-right border-dark p-2" />
+                      <div class="col-1 p-2" />
+                      <a
+                        class="link-primary text-nowrap"
+                        role="button"
+                        variant="outline-primary"
+                        data-dd-action-name="print btn"
+                        @click="printPage"
+                      >
+                        <b-icon
+                          icon="printer"
+                          aria-hidden="true"
+                          class="mr-1"
+                        />
+                        Print
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Left page column: table data, and grant description -->
+                <div class="grant-details-content">
+                  <b-table
+                    class="grant-details-table mb-5"
+                    :items="tableData"
+                    :fields="[
+                      {key: 'name', class: 'color-gray grants-details-table-fit-content'},
+                      {key: 'value', class: 'font-weight-bold'},
+                    ]"
+                    thead-class="d-none"
+                    borderless
+                    hover
+                  >
+                    <template #cell()="data">
+                      <span :class="{'text-muted font-weight-normal': data.item.displayMuted}">
+                        {{ data.value }}
+                      </span>
+                    </template>
+                  </b-table>
+                  <h3 class="mb-3">
+                    Description
+                  </h3>
+                  <!-- eslint-disable vue/no-v-html -- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
+                  <div
+                    style="white-space: pre-line"
+                    v-html="currentGrant.description"
                   />
-                  View on Grants.gov
-                </b-button>
-                <div class="w-20 d-flex">
-                  <a
-                    class="link-primary text-nowrap"
-                    role="button"
-                    :variant="copyUrlSuccessTimeout === null ? 'outline-primary' : 'outline-success'"
-                    data-dd-action-name="copy btn"
-                    @click="copyUrl"
-                  >
-                    <b-icon
-                      :icon="copyUrlSuccessTimeout === null ? 'paperclip' : 'check2'"
-                      aria-hidden="true"
-                      class="mr-1"
-                    />
-                    <span v-if="copyUrlSuccessTimeout === null">Copy Link</span>
-                    <span v-else>Link Copied</span>
-                  </a>
-                  <div class="col-1 border-right border-dark p-2" />
-                  <div class="col-1 p-2" />
-                  <a
-                    class="link-primary text-nowrap"
-                    role="button"
-                    variant="outline-primary"
-                    data-dd-action-name="print btn"
-                    @click="printPage"
-                  >
-                    <b-icon
-                      icon="printer"
-                      aria-hidden="true"
-                      class="mr-1"
-                    />
-                    Print
-                  </a>
                 </div>
               </div>
-            </div>
-
-            <!-- Left page column: table data, and grant description -->
-            <div class="grant-details-content">
-              <b-table
-                class="grant-details-table mb-5"
-                :items="tableData"
-                :fields="[
-                  {key: 'name', class: 'color-gray grants-details-table-fit-content'},
-                  {key: 'value', class: 'font-weight-bold'},
-                ]"
-                thead-class="d-none"
-                borderless
-                hover
-              >
-                <template #cell()="data">
-                  <span :class="{'text-muted font-weight-normal': data.item.displayMuted}">
-                    {{ data.value }}
-                  </span>
-                </template>
-              </b-table>
-              <h3 class="mb-3">
-                Description
-              </h3>
-              <!-- eslint-disable vue/no-v-html -- TODO: spike on removing v-html usage https://github.com/usdigitalresponse/usdr-gost/issues/2572 -->
-              <div
-                style="white-space: pre-line"
-                v-html="currentGrant.description"
-              />
-            </div>
-          </CardContainer>
+            </b-card>
+          </div>
 
           <!-- Right page column: secondary assign grant section -->
           <div class="grant-details-secondary-actions">
-            <CardContainer :title="`${shareTerminologyEnabled ? 'Share Grant' : 'Assign Grant'}`">
+            <b-card style="margin-bottom:15px">
               <!-- Assign grant section -->
               <div class="mb-5">
+                <h3 class="mb-3">
+                  {{ shareTerminologyEnabled ? 'Share Grant' : 'Assign Grant' }}
+                </h3>
                 <div class="d-flex print-d-none">
                   <v-select
                     v-model="selectedAgencyToAssign"
@@ -188,10 +195,13 @@
                   </div>
                 </template>
               </div>
-            </CardContainer>
+            </b-card>
             <!-- Team status section -->
-            <CardContainer :title="`${ newTerminologyEnabled ? 'Team': 'Agency' } Status`">
+            <b-card>
               <div class="mb-5">
+                <h3 class="mb-3">
+                  {{ newTerminologyEnabled ? 'Team': 'Agency' }} Status
+                </h3>
                 <div class="d-flex print-d-none">
                   <v-select
                     v-model="selectedInterestedCode"
@@ -247,12 +257,12 @@
                   />
                 </div>
               </div>
-            </CardContainer>
+            </b-card>
           </div>
         </div>
       </b-container>
-    </CardLayout>
-  </section>
+    </section>
+  </div>
 </template>
 
 <script>
@@ -266,8 +276,6 @@ import { titleize } from '@/helpers/form-helpers';
 import { gtagEvent } from '@/helpers/gtag';
 import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
-import CardContainer from '@/components/CardContainer.vue';
-import CardLayout from '@/components/CardLayout.vue';
 
 const HEADER = '__HEADER__';
 const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
@@ -277,8 +285,6 @@ export default {
   components: {
     UserAvatar,
     CopyButton,
-    CardContainer,
-    CardLayout,
   },
   beforeRouteEnter(to, from, next) {
     const isFirstPageLoad = from.name === null && from.path === '/';
@@ -565,18 +571,19 @@ export default {
 
 <style lang="css">
 .grant-details-container {
-  padding-right: 80px;
-  padding-left: 80px;
+  padding-right: 18px;
+  padding-left: 18px;
   padding-bottom: 80px;
+  padding-top: 15px;
   display: grid;
   grid-template-columns: 1fr 437px;
   grid-template-rows: 50px auto auto;
   grid-template-areas:
-    "back-link back-link"
-    "headline  headline"
+    "back-link secondary-actions"
+    "headline  secondary-actions"
     "main-actions secondary-actions"
     "content  secondary-actions";
-  column-gap: 90px;
+  column-gap: 20px;
   row-gap: 48px;
   .grant-details-back-link {
     grid-area: back-link;
@@ -605,6 +612,7 @@ export default {
 
   .grant-details-main-actions {
     grid-area: main-actions;
+    margin: 12px;
   }
 
   .grant-details-secondary-actions {
@@ -621,6 +629,14 @@ export default {
     white-space: nowrap;
     width: 1%;
   }
+}
+
+.background {
+  z-index: -1000;
+  top: 0;
+  left: 0;
+  height: 1000px;
+  background: rgb(244, 247, 249);
 }
 
 @media print {
