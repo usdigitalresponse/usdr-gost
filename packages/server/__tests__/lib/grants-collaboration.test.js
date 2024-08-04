@@ -1,17 +1,9 @@
 const { expect } = require('chai');
-const db = require('../../src/db');
 const knex = require('../../src/db/connection');
 const fixtures = require('../db/seeds/fixtures');
 const { saveNoteRevision, getOrganizationNotesForGrant } = require('../../src/lib/grantsCollaboration/notes');
 
-describe('db', () => {
-    before(async () => {
-        await fixtures.seed(db.knex);
-    });
-
-    after(async () => {
-        await db.knex.destroy();
-    });
+describe('Grants Collaboration', () => {
     context('saveNoteRevision', () => {
         it('creates new note', async () => {
             const result = await saveNoteRevision(knex, fixtures.grants.earFellowship.grant_id, fixtures.roles.adminRole.id, 'This is a test revision');
@@ -58,6 +50,19 @@ describe('db', () => {
             // remove createdAt to validate the rest of the structure
             delete expectedNoteStructure.notes[0].createdAt;
             delete result.notes[0].createdAt;
+
+            expect(result).to.deep.equal(expectedNoteStructure);
+        });
+
+        it('get no organization notes for grant', async () => {
+            const result = await getOrganizationNotesForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.usdr.tenant_id);
+            console.log('HELLO', result);
+            const expectedNoteStructure = {
+                notes: [],
+                pagination: {
+                    from: undefined,
+                },
+            };
 
             expect(result).to.deep.equal(expectedNoteStructure);
         });
