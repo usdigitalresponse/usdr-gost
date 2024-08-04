@@ -56,7 +56,6 @@ describe('Grants Collaboration', () => {
 
         it('get no organization notes for grant', async () => {
             const result = await getOrganizationNotesForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.usdr.tenant_id);
-            console.log('HELLO', result);
             const expectedNoteStructure = {
                 notes: [],
                 pagination: {

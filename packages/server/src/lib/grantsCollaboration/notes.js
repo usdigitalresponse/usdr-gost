@@ -1,6 +1,4 @@
 async function saveNoteRevision(knex, grantId, userId, text) {
-    console.log(knex, grantId, userId, text);
-
     let grantNoteId;
 
     const grantNotesRevisionId = await knex.transaction(async (trx) => {
@@ -77,8 +75,7 @@ async function getOrganizationNotesForGrant(knex, grantId, organizationId, { aft
     const notes = await query
         .orderBy('rev.created_at', 'desc')
         .limit(limit);
-    console.log('notes');
-    console.log(notes.length);
+
     return {
         notes: notes.map((note) => ({
             id: note.latest_revision_id,
