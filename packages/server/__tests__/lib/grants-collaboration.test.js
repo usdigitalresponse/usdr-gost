@@ -53,10 +53,56 @@ describe('Grants Collaboration', () => {
 
             expect(result).to.deep.equal(expectedNoteStructure);
         });
+        it('get existing organization notes for grant after a revision', async () => {
+            const result = await getOrganizationNotesForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, { afterRevision: 1 });
+            const expectedNoteStructure = {
+                notes: [{
+                    id: 2,
+                    createdAt: result.notes[0].createdAt, // store to pass structure check
+                    text: 'This is a test revision #2',
+                    grant: { id: fixtures.grants.earFellowship.grant_id },
+                    user: {
+                        id: fixtures.roles.adminRole.id,
+                        name: fixtures.users.adminUser.name,
+                        team: {
+                            id: fixtures.agencies.accountancy.id,
+                            name: fixtures.agencies.accountancy.name,
+                        },
+                        organization: {
+                            id: fixtures.tenants.SBA.id,
+                            name: fixtures.tenants.SBA.display_name,
+                        },
+                    },
+                }],
+                pagination: {
+                    from: 2,
+                },
+            };
+            // validate createdAt is valid time
+            expect(result.notes[0].createdAt).to.satisfy((date) => {
+                const timestamp = new Date(date).getTime();
+                return !Number.isNaN(timestamp);
+            });
 
+            // remove createdAt to validate the rest of the structure
+            delete expectedNoteStructure.notes[0].createdAt;
+            delete result.notes[0].createdAt;
+
+            expect(result).to.deep.equal(expectedNoteStructure);
+        });
+        it('get no organization notes for grant after a revision', async () => {
+            const result = await getOrganizationNotesForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, { afterRevision: 2 });
+            const expectedNoteStructure = {
+                notes: [],
+                pagination: {
+                    from: 2,
+                },
+            };
+
+            expect(result).to.deep.equal(expectedNoteStructure);
+        });
         it('get no organization notes for grant', async () => {
             const result = await getOrganizationNotesForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.usdr.tenant_id);
-            console.log('HELLO', result);
             const expectedNoteStructure = {
                 notes: [],
                 pagination: {
