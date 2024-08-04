@@ -2,6 +2,7 @@ const { expect } = require('chai');
 const knex = require('../../src/db/connection');
 const fixtures = require('../db/seeds/fixtures');
 const { saveNoteRevision, getOrganizationNotesForGrant } = require('../../src/lib/grantsCollaboration/notes');
+const { followGrant, unfollowGrant } = require('../../src/lib/grantsCollaboration/followers');
 
 describe('Grants Collaboration', () => {
     context('saveNoteRevision', () => {
@@ -111,6 +112,23 @@ describe('Grants Collaboration', () => {
             };
 
             expect(result).to.deep.equal(expectedNoteStructure);
+        });
+    });
+    context('followGrant', () => {
+        it('follows a grant', async () => {
+            await followGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.users.adminUser.id);
+        });
+        it('throws an error when trying to follow a grant twice', async () => {
+            try {
+                await followGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.users.adminUser.id);
+            } catch (err) {
+                expect(err.code).to.equal('23505');
+            }
+        });
+    });
+    context('unfollowGrant', () => {
+        it('unfollows a grant', async () => {
+            await unfollowGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.users.adminUser.id);
         });
     });
 });
