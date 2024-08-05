@@ -1,7 +1,6 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 const { getAdminAuthInfo, isMicrosoftSafeLinksRequest } = require('../../src/lib/access-helpers');
-const db = require('../../src/db');
 const fixtures = require('../db/seeds/fixtures');
 
 async function expectUnauthorized(request) {
@@ -13,13 +12,6 @@ async function expectUnauthorized(request) {
 }
 
 describe('Acces Helper Module', () => {
-    before(async () => {
-        await fixtures.seed(db.knex);
-    });
-
-    after(async () => {
-        await db.knex.destroy();
-    });
     context('getAdminAuthInfo', () => {
         it('throws error if no user ID exists in signed cookie', async () => {
             const requestFake = {
