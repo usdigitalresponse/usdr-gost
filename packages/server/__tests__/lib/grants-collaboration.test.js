@@ -1,8 +1,11 @@
-const { expect } = require('chai');
+const { expect, use } = require('chai');
+const chaiAsPromised = require('chai-as-promised');
 const knex = require('../../src/db/connection');
 const fixtures = require('../db/seeds/fixtures');
 const { saveNoteRevision, getOrganizationNotesForGrant } = require('../../src/lib/grantsCollaboration/notes');
 const { followGrant, unfollowGrant } = require('../../src/lib/grantsCollaboration/followers');
+
+use(chaiAsPromised);
 
 describe('Grants Collaboration', () => {
     context('saveNoteRevision', () => {
@@ -118,12 +121,13 @@ describe('Grants Collaboration', () => {
         it('follows a grant', async () => {
             await followGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.users.adminUser.id);
         });
-        it('throws an error when trying to follow a grant twice', async () => {
-            try {
-                await followGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.users.adminUser.id);
-            } catch (err) {
-                expect(err.code).to.equal('23505');
-            }
+        it('suppresses unique constraint violations when trying to follow a grant twice', async () => {
+            await expect(followGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.users.adminUser.id)).to.not.be.rejected;
+        });
+        it('does not suppress non-unique constraint violation errors', async () => {
+            // First ensure the test user id is invalid
+            await expect(knex('users').where({ id: 999999999 })).to.eventually.be.an('array').that.is.empty;
+            await expect(followGrant(knex, fixtures.grants.earFellowship.grant_id, 999999999)).to.be.rejected;
         });
     });
     context('unfollowGrant', () => {
