@@ -75,7 +75,6 @@ async function getOrganizationNotesForGrant(knex, grantId, organizationId, { aft
     const notes = await query
         .orderBy('rev.created_at', 'desc')
         .limit(limit);
-
     return {
         notes: notes.map((note) => ({
             id: note.latest_revision_id,
