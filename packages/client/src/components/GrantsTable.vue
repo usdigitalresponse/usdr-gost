@@ -284,17 +284,15 @@ export default {
         const formattedDate = new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
         if (['posted'].includes(status) && !date) {
           return 'Not yet issued';
-        } else if (status === 'forecasted') {
-          if (!!date) {
+        } if (status === 'forecasted') {
+          if (date) {
             return `est. ${formattedDate}`;
-          } else if (!!close_date_explanation) {
-            return "See details";
-          } else {
-            return "Not yet issued";
+          } if (close_date_explanation) {
+            return 'See details';
           }
-        } else {
-          return formattedDate;
+          return 'Not yet issued';
         }
+        return formattedDate;
       };
       const generateOpenDate = (date, status) => {
         const formattedDate = new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
