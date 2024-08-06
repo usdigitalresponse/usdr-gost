@@ -387,17 +387,12 @@ export default {
       // If we have an explainer text instead of a real close date, display that instead
       if (this.currentGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
         return this.currentGrant.close_date_explanation ?? NOT_AVAILABLE_TEXT;
-      } else if (this.currentGrant.opportunity_status === 'forecasted') {
-        // if it's a valid date, `est. ${this.formatDate(this.currentGrant.close_date)}`
-        // if blank, show "Not yet issued"
-        // else, show text - estimated_synopsis_close_date_explanation
-        // change this.currentGrant.close_date to relevant field
+      } else if (this.currentGrant.opportunity_status === 'forecasted') { // what if we check for posted status as well?
         if (!this.currentGrant.close_date) {
-          return 'Not yet issued';
-        } else if (moment(this.currentGrant.close_date).isValid()) {
+          return this.currentGrant.close_date_explanation ? this.currentGrant.close_date_explanation : "Not yet issued";
+        } else {
           return `est. ${this.formatDate(this.currentGrant.close_date)}`;
         }
-        return this.currentGrant.estimated_synopsis_close_date_explanation; // This field is subject to change
       }
       return this.formatDate(this.currentGrant.close_date);
     },

@@ -156,7 +156,7 @@ import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
 import SearchPanel from '@/components/Modals/SearchPanel.vue';
 import SavedSearchPanel from '@/components/Modals/SavedSearchPanel.vue';
 import SearchFilter from '@/components/SearchFilter.vue';
-import moment from 'moment';
+// import moment from 'moment';
 
 const DEFAULT_CURRENT_PAGE = 1;
 const DEFAULT_ORDER_BY = 'rank';
@@ -280,15 +280,29 @@ export default {
         txt.innerHTML = t;
         return txt.value;
       };
-      const generateCloseDate = (date, status) => {
-        if (status === 'posted' && !date) {
-          return "Not yet issued";
-        } if (['closed', 'archived', 'posted'].includes(status) && !!date && !moment(date).isValid()) {
-          return 'See details';
+      const generateCloseDate = (date, status, close_date_explanation) => {
+        const formattedDate = new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
+        if (['posted'].includes(status) && !date) {
+          return 'Not yet issued';
+        } else if (status === 'forecasted') {
+          if (!!date) {
+            return `est. ${formattedDate}`;
+          } else if (!!close_date_explanation) {
+            return "See details";
+          } else {
+            return "Not yet issued";
+          }
         } else {
-          return new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
+          return formattedDate;
         }
-      }
+      };
+      const generateOpenDate = (date, status) => {
+        const formattedDate = new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
+        if (status === 'forecasted') {
+          return `est. ${formattedDate}`;
+        }
+        return formattedDate;
+      };
       return this.grants.map((grant) => ({
         ...grant,
         title: generateTitle(grant.title),
@@ -300,8 +314,8 @@ export default {
           .join(', '),
         status: titleize(grant.opportunity_status),
         award_ceiling: grant.award_ceiling,
-        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        close_date: generateCloseDate(grant.close_date, grant.opportunity_status?.toLowerCase()),
+        open_date: generateOpenDate(grant.open_date, grant.opportunity_status?.toLowerCase()),
+        close_date: generateCloseDate(grant.close_date, grant.opportunity_status?.toLowerCase(), grant.close_date_explanation),
         _cellVariants: (() => {
           const daysUntilClose = daysUntil(grant.close_date);
           if (daysUntilClose <= dangerThreshold) {
