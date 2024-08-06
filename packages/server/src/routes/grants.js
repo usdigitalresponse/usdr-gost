@@ -216,7 +216,6 @@ router.get('/exportCSV', requireUser, async (req, res) => {
     // Generate CSV
     const formattedData = data.map((grant) => ({
         ...grant,
-        //opportunity_status: titleize(grant.opportunity_status),
         interested_agencies: grant.interested_agencies
             .map((v) => v.agency_abbreviation)
             .join(', '),

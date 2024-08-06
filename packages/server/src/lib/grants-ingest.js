@@ -62,9 +62,9 @@ function mapSourceDataToGrant(source) {
         // depending on how we model the estimated open date, we may need to do the 
         // date comparison with the new field for estimated date
         grant.opportunity_status = 'forecasted'
-        // This may be extraneous code
-        // because in the knex query, we are deriving the status based on 
-        // archive_date and close_date
+        // Note: in the knex query, we are deriving the status based on 
+        // archive_date and close_date. Probably we just want to pass
+        // the opportunity_status to the frontend, and not re-derive it here?
     } else {
         grant.opportunity_status = 'posted';
     }
