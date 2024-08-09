@@ -714,6 +714,7 @@ function addCsvData(qb) {
     agencyId: number
 */
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId, toCsv) {
+    // get grants for grants table
     console.log(JSON.stringify([filters, paginationParams, orderingParams, tenantId, agencyId, toCsv]));
 
     const errors = validateSearchFilters(filters);
@@ -732,6 +733,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.cfda_list',
             'grants.open_date',
             'grants.close_date',
+            'grants.close_date_explanation',
             'grants.archive_date',
             'grants.reviewer_name',
             'grants.opportunity_category',
@@ -753,6 +755,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             CASE
             WHEN grants.archive_date <= now() THEN 'archived'
             WHEN grants.close_date <= now() THEN 'closed'
+            WHEN grants.open_date > now() THEN 'forecasted'
             ELSE 'posted'
             END as opportunity_status
         `))
