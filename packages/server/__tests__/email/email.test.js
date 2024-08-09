@@ -241,7 +241,7 @@ describe('Email sender', () => {
                 toAddress: 'staff.user@test.com',
                 subject: 'USDR Grants Tool Access Link',
                 text: 'Your link to access USDR\'s Grants tool is https://api.grants.usdigitalresponse.org/api/sessions?passcode=83c7c74a-6b38-4392-84fa-d1f3993f448d. It expires in 30 minutes',
-                tags: ['notification_type=passcode', 'user_role=staff', 'organization_id=0', 'team_id=0'],
+                tags: ['notification_type=passcode', 'user_role=staff', 'organization_id=0', 'team_id=0', 'service=undefined', 'env=undefined', 'version=undefined'],
             });
             expect(sendFake.firstCall.args[0].body).contains('<title>Login Passcode</title>');
         });
@@ -260,7 +260,7 @@ describe('Email sender', () => {
                 toAddress: 'sub.staff.user@test.com',
                 subject: 'Welcome to USDR Grants Tool',
                 text: 'Visit USDR\'s Grants Tool at: https://staging.grants.usdr.dev.',
-                tags: ['notification_type=welcome', 'user_role=staff', 'organization_id=0', 'team_id=1'],
+                tags: ['notification_type=welcome', 'user_role=staff', 'organization_id=0', 'team_id=1', 'service=undefined', 'env=undefined', 'version=undefined'],
             });
         });
     });
@@ -281,7 +281,7 @@ describe('Email sender', () => {
                     fromName: 'USDR Federal Grant Finder',
                     toAddress: 'staff.user@test.com',
                     subject: 'Grant Assigned to State Board of Accountancy',
-                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=0'],
+                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=0', 'service=undefined', 'env=undefined', 'version=undefined'],
                 },
             )).to.be.true;
             expect(sendFake.calledWithMatch(
@@ -289,7 +289,7 @@ describe('Email sender', () => {
                     fromName: 'USDR Federal Grant Finder',
                     toAddress: 'sub.staff.user@test.com',
                     subject: 'Grant Assigned to State Board of Sub Accountancy',
-                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=1'],
+                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=1', 'service=undefined', 'env=undefined', 'version=undefined'],
                 },
             )).to.be.true;
             expect(sendFake.calledWithMatch(
@@ -297,7 +297,7 @@ describe('Email sender', () => {
                     fromName: 'USDR Federal Grant Finder',
                     toAddress: 'admin.user@test.com',
                     subject: 'Grant Assigned to State Board of Accountancy',
-                    tags: ['notification_type=grant_assignment', 'user_role=admin', 'organization_id=0', 'team_id=0'],
+                    tags: ['notification_type=grant_assignment', 'user_role=admin', 'organization_id=0', 'team_id=0', 'service=undefined', 'env=undefined', 'version=undefined'],
                 },
             )).to.be.true;
         });
@@ -331,7 +331,7 @@ describe('Email sender', () => {
                     fromName: 'USDR Federal Grant Finder',
                     toAddress: 'staff.user@test.com',
                     subject: 'Admin User Shared a Grant with Your Team',
-                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=0'],
+                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=0', 'service=undefined', 'env=undefined', 'version=undefined'],
                 },
             )).to.be.true;
             expect(sendFake.calledWithMatch(
@@ -339,7 +339,7 @@ describe('Email sender', () => {
                     fromName: 'USDR Federal Grant Finder',
                     toAddress: 'sub.staff.user@test.com',
                     subject: 'Admin User Shared a Grant with Your Team',
-                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=1'],
+                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=1', 'service=undefined', 'env=undefined', 'version=undefined'],
                 },
             )).to.be.true;
             expect(sendFake.calledWithMatch(
@@ -347,7 +347,7 @@ describe('Email sender', () => {
                     fromName: 'USDR Federal Grant Finder',
                     toAddress: 'admin.user@test.com',
                     subject: 'Admin User Shared a Grant with Your Team',
-                    tags: ['notification_type=grant_assignment', 'user_role=admin', 'organization_id=0', 'team_id=0'],
+                    tags: ['notification_type=grant_assignment', 'user_role=admin', 'organization_id=0', 'team_id=0', 'service=undefined', 'env=undefined', 'version=undefined'],
                 },
             )).to.be.true;
         });
@@ -381,6 +381,9 @@ describe('Email sender', () => {
                 'user_role=usdr_staff',
                 'organization_id=1',
                 'team_id=2',
+                'service=undefined',
+                'env=undefined',
+                'version=undefined',
             ]);
         });
         it('sendAsyncReportEmail delivers an email with the signedURL for treasury report', async () => {
@@ -399,6 +402,9 @@ describe('Email sender', () => {
                 'user_role=admin',
                 'organization_id=0',
                 'team_id=0',
+                'service=undefined',
+                'env=undefined',
+                'version=undefined',
             ]);
         });
     });
@@ -426,6 +432,9 @@ describe('Email sender', () => {
             // Not an actual user so no user tags
             expect(sendFake.firstCall.firstArg.tags).to.deep.equal([
                 'notification_type=audit_report_error',
+                'service=undefined',
+                'env=undefined',
+                'version=undefined',
             ]);
         });
     });
@@ -541,7 +550,7 @@ describe('Email sender', () => {
                 ccAddress: undefined,
                 toAddress: 'admin.user@test.com',
                 subject: 'New Grants Published for Simple 2 result search based on included keywords',
-                tags: ['notification_type=grant_digest', 'user_role=admin', 'organization_id=0', 'team_id=0'],
+                tags: ['notification_type=grant_digest', 'user_role=admin', 'organization_id=0', 'team_id=0', 'service=undefined', 'env=undefined', 'version=undefined'],
             });
         });
         it('Sends an email for all users\' saved searches', async () => {
