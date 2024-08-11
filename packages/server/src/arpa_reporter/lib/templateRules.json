@@ -1,7 +1,7 @@
 {
   "logic": {
     "version": {
-      "version": "v:20240404",
+      "version": "v:20240702",
       "key": "version",
       "index": 0,
       "required": false,
@@ -6510,7 +6510,8 @@
       "humanColName": "Project Name",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Project_Identification_Number__c": {
@@ -6524,7 +6525,8 @@
       "humanColName": "Project Identification Number\r\n(Assigned by recipient)",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Completion_Status__c": {
@@ -6544,7 +6546,8 @@
       "humanColName": "Status of Completion",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Adopted_Budget__c": {
@@ -6558,7 +6561,8 @@
       "humanColName": "Adopted Budget",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Total_Obligations__c": {
@@ -6572,7 +6576,8 @@
       "humanColName": "Total Cumulative \r\nObligations",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Total_Expenditures__c": {
@@ -6586,7 +6591,8 @@
       "humanColName": "Total Cumulative \r\nExpenditures",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Current_Period_Obligations__c": {
@@ -6600,7 +6606,8 @@
       "humanColName": "Current Period Obligations",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Current_Period_Expenditures__c": {
@@ -6614,7 +6621,8 @@
       "humanColName": "Current Period Expenditures",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Does_Project_Include_Capital_Expenditure__c": {
@@ -6714,7 +6722,8 @@
       "humanColName": "Project Description",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Program_Income_Earned__c": {
@@ -6728,7 +6737,8 @@
       "humanColName": "Program Income Earned",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Program_Income_Expended__c": {
@@ -6742,7 +6752,8 @@
       "humanColName": "Program Income Expended",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Primary_Project_Demographics__c": {
@@ -6931,7 +6942,8 @@
       "humanColName": "Cancelled Status of Completion Explanation",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Project_Start_Date__c": {
@@ -6945,7 +6957,8 @@
       "humanColName": "Project Start Date",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Project_End_Date__c": {
@@ -6959,7 +6972,60 @@
       "humanColName": "Project End Date",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
+      ]
+    },
+    "Admin_Estimated_Expended__c": {
+      "key": "Admin_Estimated_Expended__c",
+      "index": 29,
+      "required": "Conditional",
+      "dataType": "Currency",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AD",
+      "humanColName": "Estimated funds for administrative and legal expenses",
+      "ecCodes": [
+        "7.3"
+      ]
+    },
+    "Admin_Actual_Expended__c": {
+      "key": "Admin_Actual_Expended__c",
+      "index": 30,
+      "required": "Conditional",
+      "dataType": "Currency",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AE",
+      "humanColName": "Actual funds for administrative and legal expenses",
+      "ecCodes": [
+        "7.3"
+      ]
+    },
+    "Admin_Expended_Description__c": {
+      "key": "Admin_Expended_Description__c",
+      "index": 31,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 750,
+      "listVals": [],
+      "columnName": "AF",
+      "humanColName": "Administrative and legal expenses description",
+      "ecCodes": [
+        "7.3"
+      ]
+    },
+    "Admin_Expended_Justification__c": {
+      "key": "Admin_Expended_Justification__c",
+      "index": 32,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 750,
+      "listVals": [],
+      "columnName": "AG",
+      "humanColName": "Administrative and legal expenses explanation",
+      "ecCodes": [
+        "7.3"
       ]
     }
   },
@@ -7004,9 +7070,9 @@
       "dataType": "Multi-Select",
       "maxLength": null,
       "listVals": [
-        "Subrecipient",
-        "Contractor",
-        "Beneficiary"
+        "1. It imposes conditions on the use of funds by the agency, department, or part of government receiving funds to carry out the program",
+        "2. It governs the provision of funds from one agency, department, or part of government to another to carry out an eligible use of SLFRF funds",
+        "3. It governs the procurement of goods or services by one agency, department, or part of government from another"
       ],
       "columnName": "F",
       "humanColName": "Entity Type",
@@ -7132,7 +7198,8 @@
         "WA",
         "WV",
         "WI",
-        "WY"
+        "WY",
+        "Other"
       ],
       "columnName": "L",
       "humanColName": "State Code",
@@ -7383,9 +7450,9 @@
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
-        "Subrecipient",
-        "Contractor",
-        "Beneficiary"
+        "1. It imposes conditions on the use of funds by the agency, department, or part of government receiving funds to carry out the program",
+        "2. It governs the provision of funds from one agency, department, or part of government to another to carry out an eligible use of SLFRF funds",
+        "3. It governs the procurement of goods or services by one agency, department, or part of government from another"
       ],
       "columnName": "F",
       "humanColName": "Entity Type",
@@ -7432,7 +7499,8 @@
         "Loan - maturity prior to 12/31/26 with planned forgiveness",
         "Loan - maturity prior to 12/31/26 without planned forgiveness",
         "Loan - maturity past 12/31/26 with planned forgiveness",
-        "Loan - maturity past 12/31/26 without planned forgiveness"
+        "Loan - maturity past 12/31/26 without planned forgiveness",
+        "Interagency Agreement (IAA)"
       ],
       "columnName": "J",
       "humanColName": "SubAward Type",
@@ -7591,7 +7659,7 @@
       "index": 21,
       "required": true,
       "dataType": "Pick List",
-      "maxLength": 2,
+      "maxLength": 5,
       "listVals": [
         "AL",
         "AK",
@@ -7651,7 +7719,8 @@
         "WA",
         "WV",
         "WI",
-        "WY"
+        "WY",
+        "Other"
       ],
       "columnName": "V",
       "humanColName": "Primary Place of Performance State Code ",
@@ -7721,6 +7790,116 @@
       "listVals": [],
       "columnName": "AB",
       "humanColName": "Loan Expiration Date",
+      "ecCodes": false
+    },
+    "IAA_Basic_Conditions__c": {
+      "key": "IAA_Basic_Conditions__c",
+      "index": 28,
+      "required": "Conditional",
+      "dataType": "Multi-Select",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AC",
+      "humanColName": "IAA Basic Conditions",
+      "ecCodes": false
+    },
+    "IAA_Requirements_Attestation__c": {
+      "key": "IAA_Requirements_Attestation__c",
+      "index": 29,
+      "required": "Conditional",
+      "dataType": "Picklist",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AD",
+      "humanColName": "IAA Requirements Attestation",
+      "ecCodes": false
+    },
+    "Personnel_Cost_Estimates__c": {
+      "key": "Personnel_Cost_Estimates__c",
+      "index": 30,
+      "required": false,
+      "dataType": "Picklist",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AE",
+      "humanColName": "Personnel Cost Estimates?",
+      "ecCodes": false
+    },
+    "Personnel_Estimated_Expended": {
+      "key": "Personnel_Estimated_Expended",
+      "index": 31,
+      "required": "Conditional",
+      "dataType": "Currency",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AF",
+      "humanColName": "Estimated Personnel Expenditures",
+      "ecCodes": false
+    },
+    "Personnel_Actual_Expended": {
+      "key": "Personnel_Actual_Expended",
+      "index": 32,
+      "required": "Conditional",
+      "dataType": "Currency",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AG",
+      "humanColName": "Actual Personnel Expenditures",
+      "ecCodes": false
+    },
+    "Personnel_Expended_FTE_Count": {
+      "key": "Personnel_Expended_FTE_Count",
+      "index": 33,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 250,
+      "listVals": [],
+      "columnName": "AH",
+      "humanColName": "Personnel Expended FTE Count",
+      "ecCodes": false
+    },
+    "Personnel_Expended_Justification": {
+      "key": "Personnel_Expended_Justification",
+      "index": 34,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 750,
+      "listVals": [],
+      "columnName": "AI",
+      "humanColName": "Personnel Expended Justification",
+      "ecCodes": false
+    },
+    "Contract_Estimated_Expended": {
+      "key": "Contract_Estimated_Expended",
+      "index": 35,
+      "required": "Conditional",
+      "dataType": "Currency",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AJ",
+      "humanColName": "Contract Estimated Expended",
+      "ecCodes": false
+    },
+    "Contract_Actual_Expended": {
+      "key": "Contract_Actual_Expended",
+      "index": 36,
+      "required": "Conditional",
+      "dataType": "Currency",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AK",
+      "humanColName": "Contract Actual Expended",
+      "ecCodes": false
+    },
+    "Contract_Expended_Justification": {
+      "key": "Contract_Expended_Justification",
+      "index": 37,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 750,
+      "listVals": [],
+      "columnName": "AL",
+      "humanColName": "Contract Expended Justfiication",
       "ecCodes": false
     }
   },
