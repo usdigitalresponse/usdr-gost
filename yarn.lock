@@ -1421,18 +1421,18 @@
   dependencies:
     node-gyp-build "^3.9.0"
 
-"@datadog/native-iast-rewriter@2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@datadog/native-iast-rewriter/-/native-iast-rewriter-2.4.0.tgz#369de141ecb31118882d3339ba6e4d3487c9de97"
-  integrity sha512-vmcPM9h/jfv1vsej0tBglTah/gia4r6cwzWd4EDsSVOjuNdD+a7L2ZcCtYUxRlrETsOfuiblp6D+o921Qcb0MQ==
+"@datadog/native-iast-rewriter@2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@datadog/native-iast-rewriter/-/native-iast-rewriter-2.4.1.tgz#e8211f78c818906513fb96a549374da0382c7623"
+  integrity sha512-j3auTmyyn63e2y+SL28CGNy/l+jXQyh+pxqoGTacWaY5FW/dvo5nGQepAismgJ3qJ8VhQfVWRdxBSiT7wu9clw==
   dependencies:
     lru-cache "^7.14.0"
     node-gyp-build "^4.5.0"
 
-"@datadog/native-iast-taint-tracking@3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@datadog/native-iast-taint-tracking/-/native-iast-taint-tracking-3.0.0.tgz#a0be16f49f49c2a5917d08e5986c0fc6c877ed13"
-  integrity sha512-V+25+edlNCQSNRUvL45IajN+CFEjii9NbjfSMG6HRHbH/zeLL9FCNE+GU88dwB1bqXKNpBdrIxsfgTN65Yq9tA==
+"@datadog/native-iast-taint-tracking@3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@datadog/native-iast-taint-tracking/-/native-iast-taint-tracking-3.1.0.tgz#7b2ed7f8fad212d65e5ab03bcdea8b42a3051b2e"
+  integrity sha512-rw6qSjmxmu1yFHVvZLXFt/rVq2tUZXocNogPLB8n7MPpA0jijNGb109WokWw5ITImiW91GcGDuBW6elJDVKouQ==
   dependencies:
     node-gyp-build "^3.9.0"
 
@@ -4446,13 +4446,13 @@ dc-polyfill@^0.1.4:
   integrity sha512-UV33cugmCC49a5uWAApM+6Ev9ZdvIUMTrtCO9fj96TPGOQiea54oeO3tiEVdVeo3J9N2UdJEmbS4zOkkEA35uQ==
 
 dd-trace@^4.11.1:
-  version "4.44.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.44.0.tgz#09106a9344fce1eeec5f500d276ced86c911c1c3"
-  integrity sha512-/eUtOG8DP4a7tBhlMFOwmgozyRx16HgVJcfuqyciCnbuz4mklDHqfABEe7/5Dmc/Pkat8MCJCG4hizN79ekrNA==
+  version "4.45.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.45.0.tgz#13c63ab1f144ad0fa3338ae863ff0ea640c67a9b"
+  integrity sha512-6RoPSUIsw/BLw+xgEYNYknKVs7pW6ytQ2XB9+mcl8KsdWK5hGmYc+yEZEJWX0B6Huo6ItiXxSruabx6XOK97lw==
   dependencies:
     "@datadog/native-appsec" "8.0.1"
-    "@datadog/native-iast-rewriter" "2.4.0"
-    "@datadog/native-iast-taint-tracking" "3.0.0"
+    "@datadog/native-iast-rewriter" "2.4.1"
+    "@datadog/native-iast-taint-tracking" "3.1.0"
     "@datadog/native-metrics" "^2.0.0"
     "@datadog/pprof" "5.3.0"
     "@datadog/sketches-js" "^2.1.0"
