@@ -7070,9 +7070,10 @@
       "dataType": "Multi-Select",
       "maxLength": null,
       "listVals": [
-        "1. It imposes conditions on the use of funds by the agency, department, or part of government receiving funds to carry out the program",
-        "2. It governs the provision of funds from one agency, department, or part of government to another to carry out an eligible use of SLFRF funds",
-        "3. It governs the procurement of goods or services by one agency, department, or part of government from another"
+        "Subrecipient",
+        "Contractor",
+        "Beneficiary",
+        "IAA"
       ],
       "columnName": "F",
       "humanColName": "Entity Type",
@@ -7450,9 +7451,10 @@
       "dataType": "Pick List",
       "maxLength": null,
       "listVals": [
-        "1. It imposes conditions on the use of funds by the agency, department, or part of government receiving funds to carry out the program",
-        "2. It governs the provision of funds from one agency, department, or part of government to another to carry out an eligible use of SLFRF funds",
-        "3. It governs the procurement of goods or services by one agency, department, or part of government from another"
+        "Subrecipient",
+        "Contractor",
+        "Beneficiary",
+        "IAA"
       ],
       "columnName": "F",
       "humanColName": "Entity Type",
@@ -7798,7 +7800,11 @@
       "required": "Conditional",
       "dataType": "Multi-Select",
       "maxLength": null,
-      "listVals": [],
+      "listVals": [
+        "1. It imposes conditions on the use of funds by the agency, department, or part of government receiving funds to carry out the program",
+        "2. It governs the provision of funds from one agency, department, or part of government to another to carry out an eligible use of SLFRF funds",
+        "3. It governs the procurement of goods or services by one agency, department, or part of government from another"
+      ],
       "columnName": "AC",
       "humanColName": "IAA Basic Conditions",
       "ecCodes": false
