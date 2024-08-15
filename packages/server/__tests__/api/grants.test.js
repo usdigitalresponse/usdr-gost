@@ -4,6 +4,7 @@ const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 const db = require('../../src/db');
 const email = require('../../src/lib/email');
+const { seed } = require('../../seeds/dev/01_main');
 
 /*
     In general, these tests ...
@@ -57,8 +58,9 @@ describe('`/api/grants` endpoint', () => {
     });
 
     const sandbox = sinon.createSandbox();
-    afterEach(() => {
+    afterEach(async () => {
         sandbox.restore();
+        await seed(knex);
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', () => {
@@ -871,6 +873,19 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
                 const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=interested_agencies&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
                 expect(response.status).to.equal(400);
             });
+        });
+    });
+
+    context('PUT api/grants/:grantId/follow', () => {
+        const GRANT_ID = '335255';
+
+        it('follows a grant for current user', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/follow`, agencies.own, {
+                ...fetchOptions.staff,
+                method: 'put',
+            });
+
+            expect(resp.statusText).to.equal('OK');
         });
     });
 });
