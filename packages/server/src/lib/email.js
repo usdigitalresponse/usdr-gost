@@ -67,6 +67,9 @@ async function deliverEmail({
         tags: [
             `notification_type=${emailType}`,
             ...userTags,
+            `service=${process.env.DD_SERVICE}`,
+            `env=${process.env.DD_ENV}`,
+            `version=${process.env.DD_VERSION}`,
         ],
     });
 }
