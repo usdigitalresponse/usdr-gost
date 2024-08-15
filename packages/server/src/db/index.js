@@ -349,7 +349,8 @@ async function getNewGrantsForAgency(agency) {
         .select(knex.raw(`${TABLES.grants}.*, count(*) OVER() AS total_grants`))
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
         .modify((qb) => {
-            qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') });
+            qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') })
+              .whereNot({ opportunity_status: 'forecasted' });
         })
         .limit(3);
 
@@ -751,6 +752,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             CASE
             WHEN grants.archive_date <= now() THEN 'archived'
             WHEN grants.close_date <= now() THEN 'closed'
+            WHEN grants.open_date > now() THEN 'forecasted'
             ELSE 'posted'
             END as opportunity_status
         `))
@@ -761,6 +763,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
         .select(knex.raw(`
             count(*) OVER() AS full_count
         `))
+        .whereNot({ opportunity_status: 'forecasted' })
         .groupBy(
             'grants.grant_id',
             'grants.grant_number',
@@ -844,6 +847,7 @@ async function getGrants({
     currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
 } = {}) {
     const data = await knex(TABLES.grants)
+        .whereNot(`${TABLES.grants}.opportunity_status`, 'forecasted')
         .modify((queryBuilder) => {
             if (searchTerm && searchTerm !== 'null') {
                 queryBuilder.andWhere(
@@ -1005,14 +1009,16 @@ async function getGrants({
 async function getGrant({ grantId }) {
     const results = await knex.table(TABLES.grants)
         .select('*')
-        .where({ grant_id: grantId });
+        .where({ grant_id: grantId })
+        .whereNot({ opportunity_status: 'forecasted'});
     return results[0];
 }
 
 async function getSingleGrantDetails({ grantId, tenantId }) {
     const results = await knex.table(TABLES.grants)
         .select('*')
-        .where({ grant_id: grantId });
+        .where({ grant_id: grantId })
+        .whereNot({ opportunity_status: 'forecasted'});
     const enhancedResults = await enhanceGrantData(tenantId, results);
     return enhancedResults.length ? enhancedResults[0] : null;
 }
