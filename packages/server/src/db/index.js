@@ -23,6 +23,7 @@ const knex = require('./connection');
 const { TABLES } = require('./constants');
 const emailConstants = require('../lib/email/constants');
 const { fundingActivityCategoriesByCode } = require('../lib/fieldConfigs/fundingActivityCategories');
+const grantsCollaboration = require('../lib/grantsCollaboration');
 const helpers = require('./helpers');
 
 async function getUsers(tenantId) {
@@ -714,8 +715,6 @@ function addCsvData(qb) {
     agencyId: number
 */
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId, toCsv) {
-    console.log(JSON.stringify([filters, paginationParams, orderingParams, tenantId, agencyId, toCsv]));
-
     const errors = validateSearchFilters(filters);
     if (errors.length > 0) {
         throw new Error(`Invalid filters: ${errors.join(', ')}`);
@@ -1606,6 +1605,10 @@ function close() {
     return knex.destroy();
 }
 
+function getOrganizationNotesForGrant(...args) {
+    return grantsCollaboration.getOrganizationNotesForGrant(knex, ...args);
+}
+
 module.exports = {
     knex,
     createSavedSearch,
@@ -1667,6 +1670,7 @@ module.exports = {
     markGrantAsInterested,
     unmarkGrantAsInterested,
     getGrantAssignedAgencies,
+    getOrganizationNotesForGrant,
     assignGrantsToAgencies,
     createAgency,
     deleteAgency,
