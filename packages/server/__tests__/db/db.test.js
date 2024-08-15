@@ -774,6 +774,16 @@ describe('db', () => {
             const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
             expect(result.length).to.equal(1);
         });
+        it('does not return forecasted grants', async () => {
+            const newGrant = fixtures.grants.healthAide;
+            newGrant.grant_id = '444817';
+            newGrant.open_date = new Date('2022-06-21');
+            newGrant.opportunity_status = 'forecasted';
+            await knex(TABLES.grants).insert(Object.values([newGrant]));
+            const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
+            const forecastedGrant = result.filter((grant) => grant.grant_id === '444817');
+            expect(forecastedGrant.length).to.equal(0);
+        });
     });
 
     context('createUser', () => {
