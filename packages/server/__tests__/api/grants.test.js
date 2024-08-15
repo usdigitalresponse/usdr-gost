@@ -4,6 +4,8 @@ const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 const db = require('../../src/db');
 const email = require('../../src/lib/email');
+const users = require('../../seeds/dev/ref/users');
+const { seed } = require('../../seeds/dev/01_main');
 
 /*
     In general, these tests ...
@@ -19,6 +21,9 @@ describe('`/api/grants` endpoint', () => {
         offLimits: 0,
         dallasAdmin: 386,
     };
+
+    const adminUser = users.find((usr) => usr.email === 'admin1@nv.example.com');
+    const staffUser = users.find((usr) => usr.email === 'user1@nv.example.com');
 
     const fetchOptions = {
         admin: {
@@ -57,8 +62,9 @@ describe('`/api/grants` endpoint', () => {
     });
 
     const sandbox = sinon.createSandbox();
-    afterEach(() => {
+    afterEach(async () => {
         sandbox.restore();
+        await seed(knex);
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', () => {
@@ -871,6 +877,23 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
                 const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=interested_agencies&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
                 expect(response.status).to.equal(400);
             });
+        });
+    });
+
+    context('DELETE api/grants/:grantId/follow', () => {
+        const GRANT_ID = '335255';
+
+        beforeEach(async () => {
+            await knex('grant_followers').insert({ grant_id: GRANT_ID, user_id: staffUser.id });
+        });
+
+        it('deletes follower record for request user', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/follow`, agencies.own, {
+                ...fetchOptions.staff,
+                method: 'delete',
+            });
+
+            expect(resp.statusText).to.equal('OK');
         });
     });
 });
