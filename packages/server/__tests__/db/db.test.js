@@ -771,7 +771,7 @@ describe('db', () => {
             newGrant.opportunity_status = 'forecasted';
             await knex(TABLES.grants).insert(Object.values([newGrant]));
             const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
-            const forecastedGrant = result.filter((grant) => { grant.grant_id === '444817'});
+            const forecastedGrant = result.filter((grant) => grant.grant_id === '444817');
             expect(forecastedGrant.length).to.equal(0);
         });
     });
