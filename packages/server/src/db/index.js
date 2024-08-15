@@ -24,6 +24,7 @@ const { TABLES } = require('./constants');
 const emailConstants = require('../lib/email/constants');
 const { fundingActivityCategoriesByCode } = require('../lib/fieldConfigs/fundingActivityCategories');
 const helpers = require('./helpers');
+const grantsCollaboration = require('../lib/grantsCollaboration');
 
 async function getUsers(tenantId) {
     const users = await knex('users')
@@ -1602,6 +1603,16 @@ async function deleteSavedSearch(searchId, userId) {
     return rowsDeleted === 1;
 }
 
+/**
+ * Deletes Grant follower record by User
+ * @param  String     grantId
+ * @parm   Number     userId
+ * @return void
+ * */
+function unfollowGrant(...args) {
+    return grantsCollaboration.unfollowGrant(knex, ...args);
+}
+
 function close() {
     return knex.destroy();
 }
@@ -1667,6 +1678,7 @@ module.exports = {
     markGrantAsInterested,
     unmarkGrantAsInterested,
     getGrantAssignedAgencies,
+    unfollowGrant,
     assignGrantsToAgencies,
     createAgency,
     deleteAgency,
