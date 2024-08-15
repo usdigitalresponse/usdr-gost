@@ -22,7 +22,6 @@ describe('`/api/grants` endpoint', () => {
         dallasAdmin: 386,
     };
 
-    const adminUser = users.find((usr) => usr.email === 'admin1@nv.example.com');
     const staffUser = users.find((usr) => usr.email === 'user1@nv.example.com');
 
     const fetchOptions = {
