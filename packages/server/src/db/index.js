@@ -350,7 +350,7 @@ async function getNewGrantsForAgency(agency) {
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
         .modify((qb) => {
             qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') })
-              .whereNot({ opportunity_status: 'forecasted' });
+                .whereNot({ opportunity_status: 'forecasted' });
         })
         .limit(3);
 
@@ -1010,7 +1010,7 @@ async function getGrant({ grantId }) {
     const results = await knex.table(TABLES.grants)
         .select('*')
         .where({ grant_id: grantId })
-        .whereNot({ opportunity_status: 'forecasted'});
+        .whereNot({ opportunity_status: 'forecasted' });
     return results[0];
 }
 
@@ -1018,7 +1018,7 @@ async function getSingleGrantDetails({ grantId, tenantId }) {
     const results = await knex.table(TABLES.grants)
         .select('*')
         .where({ grant_id: grantId })
-        .whereNot({ opportunity_status: 'forecasted'});
+        .whereNot({ opportunity_status: 'forecasted' });
     const enhancedResults = await enhanceGrantData(tenantId, results);
     return enhancedResults.length ? enhancedResults[0] : null;
 }
