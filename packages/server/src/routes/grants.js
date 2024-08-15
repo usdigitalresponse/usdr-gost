@@ -422,12 +422,6 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
     res.json({});
 });
 
-/**
- * Deletes Grant follower record by User
- * @param  String     grantId
- * @parm   Number     userId
- * @return void
- * */
 router.delete('/:grantId/follow', requireUser, async (req, res) => {
     const { user } = req.session;
     const { grantId } = req.params;
