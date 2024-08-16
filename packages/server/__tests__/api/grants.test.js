@@ -1,12 +1,9 @@
-const { expect, use } = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+const { expect } = require('chai');
 const sinon = require('sinon');
 const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 const db = require('../../src/db');
 const email = require('../../src/lib/email');
-
-use(chaiAsPromised);
 
 /*
     In general, these tests ...
@@ -21,6 +18,11 @@ describe('`/api/grants` endpoint', () => {
         ownSubAlternate: 1,
         offLimits: 0,
         dallasAdmin: 386,
+    };
+
+    const tenants = {
+        own: 2,
+        offLimits: 0,
     };
 
     const fetchOptions = {
@@ -877,25 +879,13 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
         });
     });
 
-    context('PUT /:grantId/notes/revision/:agencyId', () => {
+    context('PUT /:grantId/notes/revision/:organizationId', () => {
         context('by a user with admin role', () => {
             it('saves a new note revision for a grant', async () => {
                 const grantId = 335255;
                 const text = 'This is a test note revision';
 
-                const response = await fetchApi(`/grants/${grantId}/notes/revision/${agencies.own}`, agencies.own, {
-                    ...fetchOptions.admin,
-                    method: 'put',
-                    body: JSON.stringify({ text }),
-                });
-
-                expect(response.statusText).to.equal('OK');
-            });
-            it('saves a new note revision for a grant sub agency', async () => {
-                const grantId = 335255;
-                const text = 'This is a test note revision';
-
-                const response = await fetchApi(`/grants/${grantId}/notes/revision/${agencies.ownSub}`, agencies.ownSub, {
+                const response = await fetchApi(`/grants/${grantId}/notes/revision/${tenants.own}`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ text }),
@@ -906,7 +896,7 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             it('forbids requests for agencies outside this user\'s hierarchy', async () => {
                 const grantId = 335255;
 
-                const response = await fetchApi(`/grants/${grantId}/notes/revision/${agencies.offLimits}`, agencies.offLimits, {
+                const response = await fetchApi(`/grants/${grantId}/notes/revision/${tenants.offLimits}`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ text: 'This is a test note revision' }),
