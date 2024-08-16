@@ -1,3 +1,4 @@
+const tracer = require('dd-trace').init();
 const { URL } = require('url');
 const moment = require('moment');
 const { capitalize } = require('lodash');
@@ -48,12 +49,17 @@ async function deliverEmail({
 }) {
     let userTags = [];
     const recipientId = await db.getUserIdForEmail(toAddress);
+    const activeContext = tracer.scope().active()?.context();
+    const traceId = activeContext?.toTraceId();
+    const spanId = activeContext?.toSpanId();
     if (recipientId) {
         const recipient = await db.getUser(recipientId);
         userTags = [
             `user_role=${getUserRoleTag(recipient)}`,
             `organization_id=${recipient.tenant_id}`,
             `team_id=${recipient.agency_id}`,
+            `dd_trace_id=${traceId}`,
+            `dd_span_id=${spanId}`,
         ];
     }
 
