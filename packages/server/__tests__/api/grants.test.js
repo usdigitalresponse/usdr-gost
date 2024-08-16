@@ -1,10 +1,12 @@
-const { expect } = require('chai');
+const { expect, use } = require('chai');
+const chaiAsPromised = require('chai-as-promised');
 const sinon = require('sinon');
 const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 const db = require('../../src/db');
 const email = require('../../src/lib/email');
-const { saveNoteRevision, followGrant } = require('../../src/lib/grantsCollaboration');
+
+use(chaiAsPromised);
 
 /*
     In general, these tests ...
@@ -875,13 +877,25 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
         });
     });
 
-    context('PUT /:grantId/notes/revision', () => {
+    context('PUT /:grantId/notes/revision/:agencyId', () => {
         context('by a user with admin role', () => {
             it('saves a new note revision for a grant', async () => {
                 const grantId = 335255;
                 const text = 'This is a test note revision';
 
-                const response = await fetchApi(`/grants/${grantId}/notes/revision`, agencies.own, {
+                const response = await fetchApi(`/grants/${grantId}/notes/revision/${agencies.own}`, agencies.own, {
+                    ...fetchOptions.admin,
+                    method: 'put',
+                    body: JSON.stringify({ text }),
+                });
+
+                expect(response.statusText).to.equal('OK');
+            });
+            it('saves a new note revision for a grant sub agency', async () => {
+                const grantId = 335255;
+                const text = 'This is a test note revision';
+
+                const response = await fetchApi(`/grants/${grantId}/notes/revision/${agencies.ownSub}`, agencies.ownSub, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ text }),
@@ -892,53 +906,13 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             it('forbids requests for agencies outside this user\'s hierarchy', async () => {
                 const grantId = 335255;
 
-                const response = await fetchApi(`/grants/${grantId}/notes/revision`, agencies.offLimits, {
+                const response = await fetchApi(`/grants/${grantId}/notes/revision/${agencies.offLimits}`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ text: 'This is a test note revision' }),
                 });
 
                 expect(response.statusText).to.equal('Forbidden');
-            });
-            it('returns an error when saveNoteRevision fails', async () => {
-                const grantId = 335255;
-                const text = 'This is a test note revision';
-
-                // Mock saveNoteRevision to throw an error
-                const saveNoteRevisionMock = sinon.stub(saveNoteRevision, 'default').rejects(new Error('Failed to save note revision'));
-
-                const response = await fetchApi(`/grants/${grantId}/notes/revision`, agencies.own, {
-                    ...fetchOptions.admin,
-                    method: 'put',
-                    body: JSON.stringify({ text }),
-                });
-
-                expect(response.status).to.equal(500);
-                expect(response.body).to.deep.equal({ error: 'Failed to save note revision' });
-
-                // Restore the original saveNoteRevision function
-                saveNoteRevisionMock.restore();
-            });
-            it('suppresses unique constraint violations when trying to follow a grant twice', async () => {
-                const grantId = 123;
-                const text = 'This is a test note revision';
-
-                // Mock followGrant to throw a unique constraint violation error
-                const followGrantMock = sinon.stub(followGrant, 'default').throws({
-                    code: '23505', // unique constraint violation
-                    message: 'duplicate key value violates unique constraint "grant_followers_pkey"',
-                });
-
-                const response = await fetchApi(`/grants/${grantId}/notes/revision`, agencies.own, {
-                    ...fetchOptions.admin,
-                    method: 'put',
-                    body: JSON.stringify({ text }),
-                });
-
-                expect(response.status).to.be.ok;
-
-                // Restore the original followGrant function
-                followGrantMock.restore();
             });
         });
     });

@@ -424,12 +424,17 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
     res.json({});
 });
 
-router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
+router.put('/:grantId/notes/revision/:agencyId', requireUser, async (req, res) => {
     const { grantId, agencyId } = req.params;
     const { user } = req.session;
 
     const allowed = await isUserAuthorized(user, agencyId);
-    if (user.tenant_id !== agencyId || !allowed) {
+    const tenant = await db.getTenant(user.tenant_id);
+    const mainAgencyId = tenant.main_agency_id;
+    const agencyTree = await db.getAgencyTree(mainAgencyId);
+    const agencyIdsInHierarchy = agencyTree.map((agency) => agency.id);
+
+    if (!agencyIdsInHierarchy.includes(parseInt(agencyId, 10)) || !allowed) {
         res.sendStatus(403);
         return;
     }
