@@ -115,6 +115,13 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       is_enabled           = true
     }
   }
+  processor {
+    trace_id_remapper {
+      sources    = ["mail.tags.dd_trace_id, mail.tags.dd_span_id"]
+      name       = "trace id remapper"
+      is_enabled = true
+    }
+  }
 }
 
 resource "datadog_logs_metric" "gost.ses.email_sending_event.subscription" {
@@ -140,10 +147,6 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.subscription" {
   group_by {
     path     = "@mail.tags.team_id"
     tag_name = "team-id"
-  }
-  group_by {
-    path     = "@mail.tags.organization_id"
-    tag_name = "organization-id"
   }
   group_by {
     path     = "@mail.tags.user_role"
@@ -176,10 +179,6 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.open" {
     tag_name = "team-id"
   }
   group_by {
-    path     = "@mail.tags.organization_id"
-    tag_name = "organization-id"
-  }
-  group_by {
     path     = "@mail.tags.user_role"
     tag_name = "user-role"
   }
@@ -208,10 +207,6 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.delivery_delay" {
   group_by {
     path     = "@mail.tags.team_id"
     tag_name = "team-id"
-  }
-  group_by {
-    path     = "@mail.tags.organization_id"
-    tag_name = "organization-id"
   }
   group_by {
     path     = "@mail.tags.user_role"
@@ -244,10 +239,6 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.rendering_failure" 
     tag_name = "team-id"
   }
   group_by {
-    path     = "@mail.tags.organization_id"
-    tag_name = "organization-id"
-  }
-  group_by {
     path     = "@mail.tags.user_role"
     tag_name = "user-role"
   }
@@ -276,10 +267,6 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.click" {
   group_by {
     path     = "@mail.tags.team_id"
     tag_name = "team-id"
-  }
-  group_by {
-    path     = "@mail.tags.organization_id"
-    tag_name = "organization-id"
   }
   group_by {
     path     = "@mail.tags.user_role"
@@ -312,10 +299,6 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.reject" {
     tag_name = "team-id"
   }
   group_by {
-    path     = "@mail.tags.organization_id"
-    tag_name = "organization-id"
-  }
-  group_by {
     path     = "@mail.tags.user_role"
     tag_name = "user-role"
   }
@@ -344,10 +327,6 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.complaint" {
   group_by {
     path     = "@mail.tags.team_id"
     tag_name = "team-id"
-  }
-  group_by {
-    path     = "@mail.tags.organization_id"
-    tag_name = "organization-id"
   }
   group_by {
     path     = "@mail.tags.user_role"
@@ -380,10 +359,6 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.bounce" {
     tag_name = "team-id"
   }
   group_by {
-    path     = "@mail.tags.organization_id"
-    tag_name = "organization-id"
-  }
-  group_by {
     path     = "@mail.tags.user_role"
     tag_name = "user-role"
   }
@@ -414,10 +389,6 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.send" {
     tag_name = "team-id"
   }
   group_by {
-    path     = "@mail.tags.organization_id"
-    tag_name = "organization-id"
-  }
-  group_by {
     path     = "@mail.tags.user_role"
     tag_name = "user-role"
   }
@@ -446,10 +417,6 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.delivery" {
   group_by {
     path     = "@mail.tags.team_id"
     tag_name = "team-id"
-  }
-  group_by {
-    path     = "@mail.tags.organization_id"
-    tag_name = "organization-id"
   }
   group_by {
     path     = "@mail.tags.user_role"
