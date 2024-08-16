@@ -124,8 +124,8 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
   }
 }
 
-resource "datadog_logs_metric" "gost.ses.email_sending_event.subscription" {
-  name = "gost.ses.email_sending_event.subscription"
+resource "datadog_logs_metric" "gost_ses_email_sending_event_subscription" {
+  name = "gost_ses_email_sending_event_subscription"
   compute {
     aggregation_type = "count"
   }
@@ -154,8 +154,8 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.subscription" {
   }
 }
 
-resource "datadog_logs_metric" "gost.ses.email_sending_event.open" {
-  name = "gost.ses.email_sending_event.open"
+resource "datadog_logs_metric" "gost_ses_email_sending_event_open" {
+  name = "gost_ses_email_sending_event_open"
   compute {
     aggregation_type = "count"
   }
@@ -184,8 +184,8 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.open" {
   }
 }
 
-resource "datadog_logs_metric" "gost.ses.email_sending_event.delivery_delay" {
-  name = "gost.ses.email_sending_event.delivery_delay"
+resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery_delay" {
+  name = "gost_ses_email_sending_event_delivery_delay"
   compute {
     aggregation_type = "count"
   }
@@ -214,8 +214,8 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.delivery_delay" {
   }
 }
 
-resource "datadog_logs_metric" "gost.ses.email_sending_event.rendering_failure" {
-  name = "gost.ses.email_sending_event.rendering_failure"
+resource "datadog_logs_metric" "gost_ses_email_sending_event_rendering_failure" {
+  name = "gost_ses_email_sending_event_rendering_failure"
   compute {
     aggregation_type = "count"
   }
@@ -244,8 +244,8 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.rendering_failure" 
   }
 }
 
-resource "datadog_logs_metric" "gost.ses.email_sending_event.click" {
-  name = "gost.ses.email_sending_event.click"
+resource "datadog_logs_metric" "gost_ses_email_sending_event_click" {
+  name = "gost_ses_email_sending_event_click"
   compute {
     aggregation_type = "count"
   }
@@ -274,8 +274,8 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.click" {
   }
 }
 
-resource "datadog_logs_metric" "gost.ses.email_sending_event.reject" {
-  name = "gost.ses.email_sending_event.reject"
+resource "datadog_logs_metric" "gost_ses_email_sending_event_reject" {
+  name = "gost_ses_email_sending_event_reject"
   compute {
     aggregation_type = "count"
   }
@@ -304,8 +304,8 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.reject" {
   }
 }
 
-resource "datadog_logs_metric" "gost.ses.email_sending_event.complaint" {
-  name = "gost.ses.email_sending_event.complaint"
+resource "datadog_logs_metric" "gost_ses_email_sending_event_complaint" {
+  name = "gost_ses_email_sending_event_complaint"
   compute {
     aggregation_type = "count"
   }
@@ -334,8 +334,8 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.complaint" {
   }
 }
 
-resource "datadog_logs_metric" "gost.ses.email_sending_event.bounce" {
-  name = "gost.ses.email_sending_event.bounce"
+resource "datadog_logs_metric" "gost_ses_email_sending_event_bounce" {
+  name = "gost_ses_email_sending_event_bounce"
   compute {
     aggregation_type = "count"
   }
@@ -364,8 +364,8 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.bounce" {
   }
 }
 
-resource "datadog_logs_metric" "gost.ses.email_sending_event.send" {
-  name = "gost.ses.email_sending_event.send"
+resource "datadog_logs_metric" "gost_ses_email_sending_event_send" {
+  name = "gost_ses_email_sending_event_send"
   compute {
     aggregation_type = "count"
   }
@@ -394,8 +394,8 @@ resource "datadog_logs_metric" "gost.ses.email_sending_event.send" {
   }
 }
 
-resource "datadog_logs_metric" "gost.ses.email_sending_event.delivery" {
-  name = "gost.ses.email_sending_event.delivery"
+resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery" {
+  name = "gost_ses_email_sending_event_delivery"
   compute {
     aggregation_type = "count"
   }
