@@ -58,8 +58,6 @@ async function deliverEmail({
             `user_role=${getUserRoleTag(recipient)}`,
             `organization_id=${recipient.tenant_id}`,
             `team_id=${recipient.agency_id}`,
-            `dd_trace_id=${traceId}`,
-            `dd_span_id=${spanId}`,
         ];
     }
 
@@ -76,6 +74,8 @@ async function deliverEmail({
             `service=${process.env.DD_SERVICE}`,
             `env=${process.env.DD_ENV}`,
             `version=${process.env.DD_VERSION}`,
+            `dd_trace_id=${traceId}`,
+            `dd_span_id=${spanId}`,
         ],
     });
 }
