@@ -58,6 +58,7 @@ const dropdownNamesToFieldIds = {
     ],
     'Capital Expenditure Type': ['Type_of_Capital_Expenditure__c'],
     Subrecipient: ['Entity_Type_2__c'],
+    'IAA Conditions': ['IAA_Basic_Conditions__c'],
     'Broadband Type': ['Technology_Type_Actual__c', 'Technology_Type_Planned__c'],
 };
 
