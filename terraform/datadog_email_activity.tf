@@ -17,7 +17,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "env"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map @mail.tags.env to 'env' tag"
@@ -30,7 +29,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "notification-type"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map @mail.tags.notification_type to 'notification-type' tag"
@@ -43,7 +41,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "event-type"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map 'eventType' to 'event-type' tag"
@@ -56,7 +53,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "user-role"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map mail.tags.user_role to 'user-role' tag"
@@ -69,7 +65,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "team-id"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map mail.tags.team_id to 'team-id' tag"
@@ -82,7 +77,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "organization-id"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map mail.tags.organization_id to 'organization-id' tag"
@@ -95,7 +89,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "configuration-set"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map mail.tags.ses:configuration-set to 'configuration-set' tag"
