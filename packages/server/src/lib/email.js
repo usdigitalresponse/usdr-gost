@@ -52,6 +52,13 @@ async function deliverEmail({
     const activeContext = tracer.scope().active()?.context();
     const traceId = activeContext?.toTraceId();
     const spanId = activeContext?.toSpanId();
+    const ddTraceTags = [];
+    if (traceId) {
+        ddTraceTags.push(`dd_trace_id=${traceId}`);
+        if (spanId) {
+            ddTraceTags.push(`dd_span_id=${spanId}`);
+        }
+    }
     if (recipientId) {
         const recipient = await db.getUser(recipientId);
         userTags = [
@@ -74,8 +81,7 @@ async function deliverEmail({
             `service=${process.env.DD_SERVICE}`,
             `env=${process.env.DD_ENV}`,
             `version=${process.env.DD_VERSION}`,
-            `dd_trace_id=${traceId}`,
-            `dd_span_id=${spanId}`,
+            ...ddTraceTags,
         ],
     });
 }
