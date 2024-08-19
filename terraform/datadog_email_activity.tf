@@ -1,4 +1,6 @@
 resource "datadog_logs_custom_pipeline" "email_pipeline" {
+  count = var.datadog_email_pipeline_enabled ? 1 : 0
+
   filter {
     query = "source:ses @Sns.Subject:'Amazon SES Email Event Notification'"
   }
@@ -118,6 +120,8 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_subscription" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.subscription"
   compute {
     aggregation_type = "count"
@@ -148,6 +152,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_subscription" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_open" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.open"
   compute {
     aggregation_type = "count"
@@ -178,6 +184,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_open" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery_delay" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.delivery_delay"
   compute {
     aggregation_type = "count"
@@ -208,6 +216,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery_delay" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_rendering_failure" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.rendering_failure"
   compute {
     aggregation_type = "count"
@@ -238,6 +248,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_rendering_failure" 
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_click" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.click"
   compute {
     aggregation_type = "count"
@@ -268,6 +280,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_click" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_reject" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.reject"
   compute {
     aggregation_type = "count"
@@ -298,6 +312,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_reject" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_complaint" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.complaint"
   compute {
     aggregation_type = "count"
@@ -328,6 +344,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_complaint" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_bounce" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.bounce"
   compute {
     aggregation_type = "count"
@@ -358,6 +376,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_bounce" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_send" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.send"
   compute {
     aggregation_type = "count"
@@ -388,6 +408,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_send" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.delivery"
   compute {
     aggregation_type = "count"
