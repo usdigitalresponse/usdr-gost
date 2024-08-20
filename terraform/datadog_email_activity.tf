@@ -1,11 +1,12 @@
 resource "datadog_logs_custom_pipeline" "email_pipeline" {
   count = var.datadog_email_pipeline_enabled ? 1 : 0
 
-  filter {
-    query = "source:ses @Sns.Subject:'Amazon SES Email Event Notification'"
-  }
   name       = "Email SES"
   is_enabled = true
+  filter {
+    query = "source:sns @Sns.Subject:\"Amazon SES Email Event Notification\""
+  }
+
   processor {
     service_remapper {
       sources    = ["mail.tags.service"]
