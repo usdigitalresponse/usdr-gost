@@ -54,6 +54,18 @@ variable "ses_datadog_events_enabled" {
   default     = false
 }
 
+variable "datadog_email_pipeline_enabled" {
+  description = "Whether to create Datadog logs pipeline for SES events. Should only be enabled in Staging."
+  type        = bool
+  default     = false
+}
+
+variable "datadog_email_pipeline_metrics_enabled" {
+  description = "Whether to create Datadog logs metrics for SES events. Should only be enabled in Staging."
+  type        = bool
+  default     = false
+}
+
 // Common
 variable "permissions_boundary_policy_name" {
   description = "Name of the permissions boundary for service roles"
