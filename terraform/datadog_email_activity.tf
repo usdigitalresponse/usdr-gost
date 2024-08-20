@@ -103,7 +103,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "version"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map mail.tags.version to 'version' tag"
