@@ -1,4 +1,6 @@
 resource "datadog_logs_custom_pipeline" "email_pipeline" {
+  count = var.datadog_email_pipeline_enabled ? 1 : 0
+
   filter {
     query = "source:ses @Sns.Subject:'Amazon SES Email Event Notification'"
   }
@@ -17,7 +19,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "env"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map @mail.tags.env to 'env' tag"
@@ -30,7 +31,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "notification-type"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map @mail.tags.notification_type to 'notification-type' tag"
@@ -43,7 +43,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "event-type"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map 'eventType' to 'event-type' tag"
@@ -56,7 +55,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "user-role"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map mail.tags.user_role to 'user-role' tag"
@@ -69,7 +67,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "team-id"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map mail.tags.team_id to 'team-id' tag"
@@ -82,7 +79,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "organization-id"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map mail.tags.organization_id to 'organization-id' tag"
@@ -95,7 +91,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "configuration-set"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map mail.tags.ses:configuration-set to 'configuration-set' tag"
@@ -108,7 +103,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       source_type          = "attribute"
       target               = "version"
       target_type          = "tag"
-      target_format        = "string"
       preserve_source      = true
       override_on_conflict = false
       name                 = "Map mail.tags.version to 'version' tag"
@@ -125,6 +119,8 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_subscription" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.subscription"
   compute {
     aggregation_type = "count"
@@ -155,6 +151,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_subscription" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_open" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.open"
   compute {
     aggregation_type = "count"
@@ -185,6 +183,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_open" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery_delay" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.delivery_delay"
   compute {
     aggregation_type = "count"
@@ -215,6 +215,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery_delay" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_rendering_failure" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.rendering_failure"
   compute {
     aggregation_type = "count"
@@ -245,6 +247,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_rendering_failure" 
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_click" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.click"
   compute {
     aggregation_type = "count"
@@ -275,6 +279,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_click" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_reject" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.reject"
   compute {
     aggregation_type = "count"
@@ -305,6 +311,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_reject" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_complaint" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.complaint"
   compute {
     aggregation_type = "count"
@@ -335,6 +343,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_complaint" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_bounce" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.bounce"
   compute {
     aggregation_type = "count"
@@ -365,6 +375,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_bounce" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_send" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.send"
   compute {
     aggregation_type = "count"
@@ -395,6 +407,8 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_send" {
 }
 
 resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery" {
+  count = var.datadog_email_pipeline_metrics_enabled ? 1 : 0
+
   name = "gost.ses.email_sending_event.delivery"
   compute {
     aggregation_type = "count"

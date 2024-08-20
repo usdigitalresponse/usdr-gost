@@ -786,7 +786,8 @@ async function generateProjectBaseline(records) {
                 case '3.4':
                 case '3.5':
                 case '7.1':
-                case '7.2': {
+                case '7.2':
+                case '7.3': {
                     return [
                         null, // first col is blank
                         ec(record.type),
