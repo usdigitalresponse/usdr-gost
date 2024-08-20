@@ -1,11 +1,12 @@
 resource "datadog_logs_custom_pipeline" "email_pipeline" {
   count = var.datadog_email_pipeline_enabled ? 1 : 0
 
-  filter {
-    query = "source:ses @Sns.Subject:'Amazon SES Email Event Notification'"
-  }
   name       = "Email SES"
   is_enabled = true
+  filter {
+    query = "source:sns @Sns.Subject:\"Amazon SES Email Event Notification\""
+  }
+
   processor {
     service_remapper {
       sources    = ["mail.tags.service"]
@@ -126,7 +127,7 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_subscription" {
     aggregation_type = "count"
   }
   filter {
-    query = "@Sns.Subject:'Amazon SES Email Event Notification' @eventType:Subscription service:gost"
+    query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Subscription service:gost"
   }
   group_by {
     path     = "@mail.tags.notification_type"
@@ -158,7 +159,7 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_open" {
     aggregation_type = "count"
   }
   filter {
-    query = "@Sns.Subject:'Amazon SES Email Event Notification' @eventType:Open service:gost"
+    query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Open service:gost"
   }
   group_by {
     path     = "@mail.tags.notification_type"
@@ -190,7 +191,7 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery_delay" {
     aggregation_type = "count"
   }
   filter {
-    query = "@Sns.Subject:'Amazon SES Email Event Notification' @eventType:DeliveryDelay service:gost"
+    query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:DeliveryDelay service:gost"
   }
   group_by {
     path     = "@mail.tags.notification_type"
@@ -222,7 +223,7 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_rendering_failure" 
     aggregation_type = "count"
   }
   filter {
-    query = "@Sns.Subject:'Amazon SES Email Event Notification' @eventType:RenderingFailure service:gost"
+    query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:RenderingFailure service:gost"
   }
   group_by {
     path     = "@mail.tags.notification_type"
@@ -254,7 +255,7 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_click" {
     aggregation_type = "count"
   }
   filter {
-    query = "@Sns.Subject:'Amazon SES Email Event Notification' @eventType:Click service:gost"
+    query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Click service:gost"
   }
   group_by {
     path     = "@mail.tags.notification_type"
@@ -286,7 +287,7 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_reject" {
     aggregation_type = "count"
   }
   filter {
-    query = "@Sns.Subject:'Amazon SES Email Event Notification' @eventType:Reject service:gost"
+    query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Reject service:gost"
   }
   group_by {
     path     = "@mail.tags.notification_type"
@@ -318,7 +319,7 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_complaint" {
     aggregation_type = "count"
   }
   filter {
-    query = "@Sns.Subject:'Amazon SES Email Event Notification' @eventType:Complaint service:gost"
+    query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Complaint service:gost"
   }
   group_by {
     path     = "@mail.tags.notification_type"
@@ -350,7 +351,7 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_bounce" {
     aggregation_type = "count"
   }
   filter {
-    query = "@Sns.Subject:'Amazon SES Email Event Notification' @eventType:Bounce service:gost"
+    query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Bounce service:gost"
   }
   group_by {
     path     = "@mail.tags.notification_type"
@@ -382,7 +383,7 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_send" {
     aggregation_type = "count"
   }
   filter {
-    query = "@Sns.Subject:'Amazon SES Email Event Notification' @eventType:Send service:gost"
+    query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Send service:gost"
   }
   group_by {
     path     = "@mail.tags.notification_type"
@@ -414,7 +415,7 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery" {
     aggregation_type = "count"
   }
   filter {
-    query = "@Sns.Subject:'Amazon SES Email Event Notification' @eventType:Delivery service:gost"
+    query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Delivery service:gost"
   }
   group_by {
     path     = "@mail.tags.notification_type"
