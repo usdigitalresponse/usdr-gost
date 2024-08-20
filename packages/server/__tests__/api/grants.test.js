@@ -20,11 +20,6 @@ describe('`/api/grants` endpoint', () => {
         dallasAdmin: 386,
     };
 
-    const tenants = {
-        own: 2,
-        offLimits: 0,
-    };
-
     const fetchOptions = {
         admin: {
             headers: {
@@ -879,13 +874,13 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
         });
     });
 
-    context('PUT /:grantId/notes/revision/:organizationId', () => {
+    context('PUT /:grantId/notes/revision/', () => {
         context('by a user with admin role', () => {
             it('saves a new note revision for a grant', async () => {
                 const grantId = 335255;
                 const text = 'This is a test note revision';
 
-                const response = await fetchApi(`/grants/${grantId}/notes/revision/${tenants.own}`, agencies.own, {
+                const response = await fetchApi(`/grants/${grantId}/notes/revision/`, agencies.own, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ text }),
@@ -896,7 +891,7 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             it('forbids requests for agencies outside this user\'s hierarchy', async () => {
                 const grantId = 335255;
 
-                const response = await fetchApi(`/grants/${grantId}/notes/revision/${tenants.offLimits}`, agencies.offLimits, {
+                const response = await fetchApi(`/grants/${grantId}/notes/revision/`, agencies.offLimits, {
                     ...fetchOptions.admin,
                     method: 'put',
                     body: JSON.stringify({ text: 'This is a test note revision' }),

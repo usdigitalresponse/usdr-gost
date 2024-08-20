@@ -424,18 +424,9 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
     res.json({});
 });
 
-router.put('/:grantId/notes/revision/:organizationId', requireUser, async (req, res) => {
-    const { grantId, organizationId } = req.params;
+router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
+    const { grantId } = req.params;
     const { user } = req.session;
-    const reqTenant = await db.getTenant(organizationId);
-    const reqMainAgencyId = reqTenant.main_agency_id;
-    const allowed = await isUserAuthorized(user, reqMainAgencyId);
-    const userTenant = await db.getTenant(user.tenant_id);
-
-    if (userTenant.id !== parseInt(organizationId, 10) || !allowed) {
-        res.sendStatus(403);
-        return;
-    }
 
     let trx;
 
