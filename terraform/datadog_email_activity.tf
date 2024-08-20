@@ -111,7 +111,7 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
   }
   processor {
     trace_id_remapper {
-      sources    = ["mail.tags.dd_trace_id, mail.tags.dd_span_id"]
+      sources    = ["mail.tags.dd_trace_id", "mail.tags.dd_span_id"]
       name       = "trace id remapper"
       is_enabled = true
     }
