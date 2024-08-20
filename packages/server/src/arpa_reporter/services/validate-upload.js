@@ -7,6 +7,7 @@ const { createRecipient, findRecipient, updateRecipient } = require('../db/arpa-
 const { recordsForUpload, TYPE_TO_SHEET_NAME } = require('./records');
 const { getRules } = require('./validation-rules');
 const { ecCodes } = require('../lib/arpa-ec-codes');
+const { multiselect } = require('../lib/format');
 
 const ValidationError = require('../lib/validation-error');
 
@@ -291,7 +292,7 @@ async function validateRecord({ upload, record, typeRules: rules }) {
             // make sure pick value is one of pick list values
             if (rule.listVals.length > 0) {
                 // enforce validation in lower case
-                const lcItems = rule.listVals.map((val) => val.toLowerCase());
+                const lcItems = rule.listVals.map((val) => multiselect(val.toLowerCase()));
 
                 // for pick lists, the value must be one of possible values
                 if (rule.dataType === 'Pick List' && !lcItems.includes(value)) {
@@ -307,7 +308,7 @@ async function validateRecord({ upload, record, typeRules: rules }) {
                     for (const entry of entries) {
                         if (!lcItems.includes(entry)) {
                             errors.push(new ValidationError(
-                                `Entry '${entry}' of ${key} is not one of ${lcItems.length} valid options`,
+                                `Entry '${entry}' of ${key} is not one of ${lcItems.length} valid options (${JSON.stringify(lcItems)})`,
                                 { col: rule.columnName, severity: 'err' },
                             ));
                         }
