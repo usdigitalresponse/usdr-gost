@@ -5,7 +5,7 @@ const db = require('../db');
 const email = require('../lib/email');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 const knex = require('../db/connection');
-const { saveNoteRevision, followGrant } = require('../lib/grantsCollaboration');
+const { saveNoteRevision, followGrant, unfollowGrant } = require('../lib/grantsCollaboration');
 
 const router = express.Router({ mergeParams: true });
 
@@ -428,7 +428,7 @@ router.delete('/:grantId/follow', requireUser, async (req, res) => {
     const { user } = req.session;
     const { grantId } = req.params;
 
-    await db.unfollowGrant(grantId, user.id);
+    await unfollowGrant(knex, grantId, user.id);
     res.json({});
 });
 
