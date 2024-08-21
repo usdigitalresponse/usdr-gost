@@ -23,7 +23,6 @@ const knex = require('./connection');
 const { TABLES } = require('./constants');
 const emailConstants = require('../lib/email/constants');
 const { fundingActivityCategoriesByCode } = require('../lib/fieldConfigs/fundingActivityCategories');
-const grantsCollaboration = require('../lib/grantsCollaboration');
 const helpers = require('./helpers');
 
 async function getUsers(tenantId) {
