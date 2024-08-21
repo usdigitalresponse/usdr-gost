@@ -4,6 +4,8 @@ const { stringify: csvStringify } = require('csv-stringify/sync');
 const db = require('../db');
 const email = require('../lib/email');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
+const knex = require('../db/connection');
+const { saveNoteRevision, followGrant } = require('../lib/grantsCollaboration');
 
 const router = express.Router({ mergeParams: true });
 
@@ -436,6 +438,34 @@ router.get('/:grantId/notes', requireUser, async (req, res) => {
     const rows = await db.getOrganizationNotesForGrant(grantId, user.tenant_id, { afterRevision: paginateFrom, limit: limitInt });
 
     res.json(rows);
+});
+
+router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { user } = req.session;
+
+    let trx;
+
+    try {
+        trx = await knex.transaction();
+        const noteRevisionId = await saveNoteRevision(
+            trx,
+            grantId,
+            user.id,
+            req.body.text,
+        );
+        if (noteRevisionId) {
+            await followGrant(trx, grantId, user.id);
+        }
+        await trx.commit(); // commit the transaction if no error
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        if (trx) {
+            await trx.rollback(); // rollback the transaction if error
+        }
+        res.status(500).json({ error: 'Failed to save note revision' });
+    }
 });
 
 module.exports = router;

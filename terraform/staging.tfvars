@@ -6,10 +6,12 @@ ssm_service_parameters_path_prefix    = "/gost/staging"
 ssm_deployment_parameters_path_prefix = "/gost/staging/deploy-config"
 
 // Datadog provider
-datadog_draft                        = true
-datadog_monitors_enabled             = true
-datadog_monitor_notification_handles = []
-ses_datadog_events_enabled           = true
+datadog_draft                          = true
+datadog_monitors_enabled               = true
+datadog_monitor_notification_handles   = []
+ses_datadog_events_enabled             = true
+datadog_email_pipeline_enabled         = true
+datadog_email_pipeline_metrics_enabled = true
 
 // Website
 website_enabled     = true
