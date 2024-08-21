@@ -99,6 +99,7 @@ describe('validate record', () => {
         Place_of_Performance_Zip__c: '02920',
         Description__c: 'Sample description',
         Subaward_Changed__c: 'No',
+        IAA_Basic_Conditions__c: '1. It imposes conditions on the use of funds by the agency, department, or part of government receiving funds to carry out the program',
     };
 
     it('validates a valid project succesfully', () => validateRecord({
