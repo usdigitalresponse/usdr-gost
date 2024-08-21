@@ -5,7 +5,7 @@ const db = require('../db');
 const email = require('../lib/email');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 const knex = require('../db/connection');
-const { saveNoteRevision, followGrant } = require('../lib/grantsCollaboration');
+const { saveNoteRevision, followGrant, getOrganizationNotesForGrant } = require('../lib/grantsCollaboration');
 
 const router = express.Router({ mergeParams: true });
 
@@ -435,7 +435,7 @@ router.get('/:grantId/notes', requireUser, async (req, res) => {
         return;
     }
 
-    const rows = await db.getOrganizationNotesForGrant(grantId, user.tenant_id, { afterRevision: paginateFrom, limit: limitInt });
+    const rows = await getOrganizationNotesForGrant(knex, grantId, user.tenant_id, { afterRevision: paginateFrom, limit: limitInt });
 
     res.json(rows);
 });

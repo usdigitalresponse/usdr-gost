@@ -1605,10 +1605,6 @@ function close() {
     return knex.destroy();
 }
 
-function getOrganizationNotesForGrant(...args) {
-    return grantsCollaboration.getOrganizationNotesForGrant(knex, ...args);
-}
-
 module.exports = {
     knex,
     createSavedSearch,
@@ -1670,7 +1666,6 @@ module.exports = {
     markGrantAsInterested,
     unmarkGrantAsInterested,
     getGrantAssignedAgencies,
-    getOrganizationNotesForGrant,
     assignGrantsToAgencies,
     createAgency,
     deleteAgency,
