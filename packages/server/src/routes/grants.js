@@ -5,7 +5,7 @@ const db = require('../db');
 const email = require('../lib/email');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 const knex = require('../db/connection');
-const { saveNoteRevision, followGrant } = require('../lib/grantsCollaboration');
+const { saveNoteRevision, followGrant, getFollowerForGrant } = require('../lib/grantsCollaboration');
 
 const router = express.Router({ mergeParams: true });
 
@@ -450,6 +450,20 @@ router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
         }
         res.status(500).json({ error: 'Failed to save note revision' });
     }
+});
+
+router.get('/:grantId/follow', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { user } = req.session;
+
+    const follower = await getFollowerForGrant(knex, grantId, user.id);
+
+    if (!follower) {
+        res.sendStatus(404);
+        return;
+    }
+
+    res.json(follower);
 });
 
 module.exports = router;

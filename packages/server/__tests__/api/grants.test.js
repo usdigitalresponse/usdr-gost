@@ -4,6 +4,8 @@ const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 const db = require('../../src/db');
 const email = require('../../src/lib/email');
+const users = require('../../seeds/dev/ref/users');
+const { seed } = require('../../seeds/dev/01_main');
 
 /*
     In general, these tests ...
@@ -19,6 +21,8 @@ describe('`/api/grants` endpoint', () => {
         offLimits: 0,
         dallasAdmin: 386,
     };
+
+    const adminUser = users.find((usr) => usr.email === 'admin1@nv.example.com');
 
     const fetchOptions = {
         admin: {
@@ -57,8 +61,9 @@ describe('`/api/grants` endpoint', () => {
     });
 
     const sandbox = sinon.createSandbox();
-    afterEach(() => {
+    afterEach(async () => {
         sandbox.restore();
+        await seed(knex);
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', () => {
@@ -899,6 +904,31 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
 
                 expect(response.statusText).to.equal('Forbidden');
             });
+        });
+    });
+
+    context('GET /:grantId/follow', () => {
+        const GRANT_ID = 335255;
+
+        let follower;
+        beforeEach(async () => {
+            [follower] = await knex('grant_followers')
+                .insert({
+                    grant_id: GRANT_ID,
+                    user_id: adminUser.id,
+                }, 'id');
+        });
+
+        it('retrieves follower for a grant', async () => {
+            const response = await fetchApi(`/grants/${GRANT_ID}/follow`, agencies.own, fetchOptions.admin);
+            const respBody = await response.json();
+
+            expect(respBody.id).to.equal(follower.id);
+        });
+
+        it('Not found is a 404 error', async () => {
+            const response = await fetchApi(`/grants/UNKNOWN/follow`, agencies.own, fetchOptions.admin);
+            expect(response.status).to.equal(404);
         });
     });
 });
