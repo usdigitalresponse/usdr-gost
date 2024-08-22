@@ -714,8 +714,6 @@ function addCsvData(qb) {
     agencyId: number
 */
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId, toCsv) {
-    console.log(JSON.stringify([filters, paginationParams, orderingParams, tenantId, agencyId, toCsv]));
-
     const errors = validateSearchFilters(filters);
     if (errors.length > 0) {
         throw new Error(`Invalid filters: ${errors.join(', ')}`);

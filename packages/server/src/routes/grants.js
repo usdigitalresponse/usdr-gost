@@ -5,7 +5,7 @@ const db = require('../db');
 const email = require('../lib/email');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 const knex = require('../db/connection');
-const { saveNoteRevision, followGrant } = require('../lib/grantsCollaboration');
+const { saveNoteRevision, followGrant, getOrganizationNotesForGrant } = require('../lib/grantsCollaboration');
 
 const router = express.Router({ mergeParams: true });
 
@@ -430,6 +430,22 @@ router.put('/:grantId/follow', requireUser, async (req, res) => {
 
     await followGrant(knex, grantId, user.id);
     res.json({});
+});
+
+router.get('/:grantId/notes', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { user } = req.session;
+    const { paginateFrom, limit } = req.query;
+    const limitInt = limit ? parseInt(limit, 10) : undefined;
+
+    if (limit && (!Number.isInteger(limitInt) || limitInt < 1 || limitInt > 100)) {
+        res.sendStatus(400);
+        return;
+    }
+
+    const rows = await getOrganizationNotesForGrant(knex, grantId, user.tenant_id, { afterRevision: paginateFrom, limit: limitInt });
+
+    res.json(rows);
 });
 
 router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
