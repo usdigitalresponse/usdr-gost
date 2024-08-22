@@ -3,6 +3,7 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
 
   name       = "Email SES"
   is_enabled = true
+
   filter {
     query = "source:sns @Sns.Subject:\"Amazon SES Email Event Notification\""
   }
@@ -31,7 +32,7 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
     }
   }
 
-  // Add unified service tags (sevice, env, version)
+  // Add unified service tags (sevice, env, version) from email tags
   processor {
     service_remapper {
       name       = "Define mail.tags.service as the 'service' tag of the log"
