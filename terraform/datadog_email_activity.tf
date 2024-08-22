@@ -7,59 +7,34 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
     query = "source:sns @Sns.Subject:\"Amazon SES Email Event Notification\""
   }
 
+  // Associate trace ID
+  // Note: trace_id_remapper is destructive; first duplicate mail.tags.dd_trace_id to a top-level tag
+  processor {
+    attribute_remapper {
+      name                 = "Copy mail.tags.dd_trace_id to remapped_dd_trace_id"
+      is_enabled           = true
+      sources              = ["mail.tags.dd_trace_id.0"]
+      source_type          = "attribute"
+      target               = "remapped_dd_trace_id"
+      target_type          = "attribute"
+      target_format        = "string"
+      preserve_source      = true
+      override_on_conflict = true
+    }
+  }
+  // Set temporary remapped_dd_trace_id as associated trace ID, which drops the source attribute
+  processor {
+    trace_id_remapper {
+      name       = "Set Trace ID (removes remapped_dd_trace_id)"
+      is_enabled = true
+      sources    = ["remapped_dd_trace_id"]
+    }
+  }
   processor {
     service_remapper {
-      sources    = ["mail.tags.service"]
       name       = "Define mail.tags.service as the 'service' tag of the log"
       is_enabled = true
-    }
-  }
-  processor {
-    attribute_remapper {
-      sources              = ["mail.tags.env"]
-      source_type          = "attribute"
-      target               = "env"
-      target_type          = "tag"
-      preserve_source      = true
-      override_on_conflict = false
-      name                 = "Map @mail.tags.env to 'env' tag"
-      is_enabled           = true
-    }
-  }
-  processor {
-    attribute_remapper {
-      sources              = ["mail.tags.notification_type"]
-      source_type          = "attribute"
-      target               = "notification-type"
-      target_type          = "tag"
-      preserve_source      = true
-      override_on_conflict = false
-      name                 = "Map @mail.tags.notification_type to 'notification-type' tag"
-      is_enabled           = true
-    }
-  }
-  processor {
-    attribute_remapper {
-      sources              = ["eventType"]
-      source_type          = "attribute"
-      target               = "event-type"
-      target_type          = "tag"
-      preserve_source      = true
-      override_on_conflict = false
-      name                 = "Map 'eventType' to 'event-type' tag"
-      is_enabled           = true
-    }
-  }
-  processor {
-    attribute_remapper {
-      sources              = ["mail.tags.user_role"]
-      source_type          = "attribute"
-      target               = "user-role"
-      target_type          = "tag"
-      preserve_source      = true
-      override_on_conflict = false
-      name                 = "Map mail.tags.user_role to 'user-role' tag"
-      is_enabled           = true
+      sources    = ["mail.tags.service.0"]
     }
   }
   processor {
@@ -106,15 +81,6 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       target_type          = "tag"
       preserve_source      = true
       override_on_conflict = false
-      name                 = "Map mail.tags.version to 'version' tag"
-      is_enabled           = true
-    }
-  }
-  processor {
-    trace_id_remapper {
-      sources    = ["mail.tags.dd_trace_id", "mail.tags.dd_span_id"]
-      name       = "trace id remapper"
-      is_enabled = true
     }
   }
 }
