@@ -8,8 +8,8 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
     query = "source:sns @Sns.Subject:\"Amazon SES Email Event Notification\""
   }
 
-  // Associate trace ID
-  // Note: trace_id_remapper is destructive; first duplicate mail.tags.dd_trace_id to a top-level tag
+  # Associate trace ID
+  # Note: trace_id_remapper is destructive; first duplicate mail.tags.dd_trace_id to a top-level tag
   processor {
     attribute_remapper {
       name                 = "Copy mail.tags.dd_trace_id to remapped_dd_trace_id"
@@ -23,7 +23,7 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       override_on_conflict = true
     }
   }
-  // Set temporary remapped_dd_trace_id as associated trace ID, which drops the source attribute
+  # Set temporary remapped_dd_trace_id as associated trace ID, which drops the source attribute
   processor {
     trace_id_remapper {
       name       = "Set Trace ID (removes remapped_dd_trace_id)"
@@ -32,7 +32,7 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
     }
   }
 
-  // Add unified service tags (sevice, env, version) from email tags
+  # Add unified service tags (sevice, env, version) from email tags
   processor {
     service_remapper {
       name       = "Define mail.tags.service as the 'service' tag of the log"
