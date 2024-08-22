@@ -30,6 +30,8 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
       sources    = ["remapped_dd_trace_id"]
     }
   }
+
+  // Add unified service tags (sevice, env, version)
   processor {
     service_remapper {
       name       = "Define mail.tags.service as the 'service' tag of the log"
@@ -39,43 +41,21 @@ resource "datadog_logs_custom_pipeline" "email_pipeline" {
   }
   processor {
     attribute_remapper {
-      sources              = ["mail.tags.team_id"]
+      name                 = "Map @mail.tags.env to 'env' tag of the log"
+      is_enabled           = true
+      sources              = ["mail.tags.env.0"]
       source_type          = "attribute"
-      target               = "team-id"
+      target               = "env"
       target_type          = "tag"
       preserve_source      = true
       override_on_conflict = false
-      name                 = "Map mail.tags.team_id to 'team-id' tag"
-      is_enabled           = true
     }
   }
   processor {
     attribute_remapper {
-      sources              = ["mail.tags.organization_id"]
-      source_type          = "attribute"
-      target               = "organization-id"
-      target_type          = "tag"
-      preserve_source      = true
-      override_on_conflict = false
-      name                 = "Map mail.tags.organization_id to 'organization-id' tag"
+      name                 = "Map mail.tags.version to 'version' tag of the log"
       is_enabled           = true
-    }
-  }
-  processor {
-    attribute_remapper {
-      sources              = ["mail.tags.ses:configuration-set"]
-      source_type          = "attribute"
-      target               = "configuration-set"
-      target_type          = "tag"
-      preserve_source      = true
-      override_on_conflict = false
-      name                 = "Map mail.tags.ses:configuration-set to 'configuration-set' tag"
-      is_enabled           = true
-    }
-  }
-  processor {
-    attribute_remapper {
-      sources              = ["mail.tags.version"]
+      sources              = ["mail.tags.version.0"]
       source_type          = "attribute"
       target               = "version"
       target_type          = "tag"
