@@ -76,6 +76,22 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_subscription" {
   filter {
     query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Subscription service:gost"
   }
+
+  # Project the universal service tags (service, env, version) from source log to metric
+  group_by {
+    path     = "service"
+    tag_name = "service"
+  }
+  group_by {
+    path     = "env"
+    tag_name = "env"
+  }
+  group_by {
+    path     = "version"
+    tag_name = "version"
+  }
+
+  # Add certain log attributes as tags for the metric
   group_by {
     path     = "@mail.tags.notification_type"
     tag_name = "notification-type"
@@ -108,6 +124,22 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_open" {
   filter {
     query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Open service:gost"
   }
+
+  # Project the universal service tags (service, env, version) from source log to metric
+  group_by {
+    path     = "service"
+    tag_name = "service"
+  }
+  group_by {
+    path     = "env"
+    tag_name = "env"
+  }
+  group_by {
+    path     = "version"
+    tag_name = "version"
+  }
+
+  # Add certain log attributes as tags for the metric
   group_by {
     path     = "@mail.tags.notification_type"
     tag_name = "notification-type"
@@ -140,6 +172,22 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery_delay" {
   filter {
     query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:DeliveryDelay service:gost"
   }
+
+  # Project the universal service tags (service, env, version) from source log to metric
+  group_by {
+    path     = "service"
+    tag_name = "service"
+  }
+  group_by {
+    path     = "env"
+    tag_name = "env"
+  }
+  group_by {
+    path     = "version"
+    tag_name = "version"
+  }
+
+  # Add certain log attributes as tags for the metric
   group_by {
     path     = "@mail.tags.notification_type"
     tag_name = "notification-type"
@@ -172,6 +220,22 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_rendering_failure" 
   filter {
     query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:RenderingFailure service:gost"
   }
+
+  # Project the universal service tags (service, env, version) from source log to metric
+  group_by {
+    path     = "service"
+    tag_name = "service"
+  }
+  group_by {
+    path     = "env"
+    tag_name = "env"
+  }
+  group_by {
+    path     = "version"
+    tag_name = "version"
+  }
+
+  # Add certain log attributes as tags for the metric
   group_by {
     path     = "@mail.tags.notification_type"
     tag_name = "notification-type"
@@ -204,6 +268,22 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_click" {
   filter {
     query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Click service:gost"
   }
+
+  # Project the universal service tags (service, env, version) from source log to metric
+  group_by {
+    path     = "service"
+    tag_name = "service"
+  }
+  group_by {
+    path     = "env"
+    tag_name = "env"
+  }
+  group_by {
+    path     = "version"
+    tag_name = "version"
+  }
+
+  # Add certain log attributes as tags for the metric
   group_by {
     path     = "@mail.tags.notification_type"
     tag_name = "notification-type"
@@ -236,6 +316,22 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_reject" {
   filter {
     query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Reject service:gost"
   }
+
+  # Project the universal service tags (service, env, version) from source log to metric
+  group_by {
+    path     = "service"
+    tag_name = "service"
+  }
+  group_by {
+    path     = "env"
+    tag_name = "env"
+  }
+  group_by {
+    path     = "version"
+    tag_name = "version"
+  }
+
+  # Add certain log attributes as tags for the metric
   group_by {
     path     = "@mail.tags.notification_type"
     tag_name = "notification-type"
@@ -268,6 +364,22 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_complaint" {
   filter {
     query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Complaint service:gost"
   }
+
+  # Project the universal service tags (service, env, version) from source log to metric
+  group_by {
+    path     = "service"
+    tag_name = "service"
+  }
+  group_by {
+    path     = "env"
+    tag_name = "env"
+  }
+  group_by {
+    path     = "version"
+    tag_name = "version"
+  }
+
+  # Add certain log attributes as tags for the metric
   group_by {
     path     = "@mail.tags.notification_type"
     tag_name = "notification-type"
@@ -300,6 +412,22 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_bounce" {
   filter {
     query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Bounce service:gost"
   }
+
+  # Project the universal service tags (service, env, version) from source log to metric
+  group_by {
+    path     = "service"
+    tag_name = "service"
+  }
+  group_by {
+    path     = "env"
+    tag_name = "env"
+  }
+  group_by {
+    path     = "version"
+    tag_name = "version"
+  }
+
+  # Add certain log attributes as tags for the metric
   group_by {
     path     = "@mail.tags.notification_type"
     tag_name = "notification-type"
@@ -332,6 +460,22 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_send" {
   filter {
     query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Send service:gost"
   }
+
+  # Project the universal service tags (service, env, version) from source log to metric
+  group_by {
+    path     = "service"
+    tag_name = "service"
+  }
+  group_by {
+    path     = "env"
+    tag_name = "env"
+  }
+  group_by {
+    path     = "version"
+    tag_name = "version"
+  }
+
+  # Add certain log attributes as tags for the metric
   group_by {
     path     = "@mail.tags.notification_type"
     tag_name = "notification-type"
@@ -364,6 +508,22 @@ resource "datadog_logs_metric" "gost_ses_email_sending_event_delivery" {
   filter {
     query = "@Sns.Subject:\"Amazon SES Email Event Notification\" @eventType:Delivery service:gost"
   }
+
+  # Project the universal service tags (service, env, version) from source log to metric
+  group_by {
+    path     = "service"
+    tag_name = "service"
+  }
+  group_by {
+    path     = "env"
+    tag_name = "env"
+  }
+  group_by {
+    path     = "version"
+    tag_name = "version"
+  }
+
+  # Add certain log attributes as tags for the metric
   group_by {
     path     = "@mail.tags.notification_type"
     tag_name = "notification-type"
