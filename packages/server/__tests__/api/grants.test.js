@@ -4,6 +4,8 @@ const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
 const db = require('../../src/db');
 const email = require('../../src/lib/email');
+const users = require('../../seeds/dev/ref/users');
+const { seed } = require('../../seeds/dev/01_main');
 
 /*
     In general, these tests ...
@@ -41,6 +43,9 @@ describe('`/api/grants` endpoint', () => {
         },
     };
 
+    const adminUser = users.find((usr) => usr.email === 'admin1@nv.example.com');
+    const staffUser = users.find((usr) => usr.email === 'user1@nv.example.com');
+
     let testServer;
     let fetchApi;
     before(async function beforeHook() {
@@ -57,8 +62,9 @@ describe('`/api/grants` endpoint', () => {
     });
 
     const sandbox = sinon.createSandbox();
-    afterEach(() => {
+    afterEach(async () => {
         sandbox.restore();
+        await seed(knex);
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', () => {
@@ -899,6 +905,27 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
 
                 expect(response.statusText).to.equal('Forbidden');
             });
+        });
+    });
+
+    context('GET /:grantId/followers', () => {
+        const GRANT_ID = 335255;
+
+        let follower1;
+        let follower2;
+        beforeEach(async () => {
+            [follower1] = await knex('grant_followers')
+                .insert({ grant_id: GRANT_ID, user_id: adminUser.id }, 'id');
+
+            [follower2] = await knex('grant_followers')
+                .insert({ grant_id: GRANT_ID, user_id: staffUser.id }, 'id');
+        });
+
+        it('retrieves followers for a grant', async () => {
+            const response = await fetchApi(`/grants/${GRANT_ID}/followers`, agencies.own, fetchOptions.admin);
+            const respBody = await response.json();
+
+            expect(respBody.followers).to.have.lengthOf(2);
         });
     });
 });

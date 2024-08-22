@@ -3,7 +3,7 @@ const chaiAsPromised = require('chai-as-promised');
 const knex = require('../../src/db/connection');
 const fixtures = require('../db/seeds/fixtures');
 const { saveNoteRevision, getOrganizationNotesForGrant } = require('../../src/lib/grantsCollaboration/notes');
-const { followGrant, unfollowGrant } = require('../../src/lib/grantsCollaboration/followers');
+const { followGrant, unfollowGrant, getFollowersForGrant } = require('../../src/lib/grantsCollaboration/followers');
 
 use(chaiAsPromised);
 
@@ -133,6 +133,44 @@ describe('Grants Collaboration', () => {
     context('unfollowGrant', () => {
         it('unfollows a grant', async () => {
             await unfollowGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.users.adminUser.id);
+        });
+    });
+    context('getFollowersForGrant', () => {
+        let follower1;
+        let follower2;
+        beforeEach(async () => {
+            [follower1] = await knex('grant_followers')
+                .insert({ grant_id: fixtures.grants.earFellowship.grant_id, user_id: fixtures.users.adminUser.id }, 'id');
+
+            [follower2] = await knex('grant_followers')
+                .insert({ grant_id: fixtures.grants.earFellowship.grant_id, user_id: fixtures.users.staffUser.id }, 'id');
+        });
+
+        it('retrieves ALL followers for a grant', async () => {
+            const result = await getFollowersForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, {
+                beforeFollow: null,
+            });
+
+            expect(result.followers).to.have.lengthOf(2);
+            expect(result.followers[0].id).to.equal(follower2.id);
+        });
+
+        it('retrieves followers for a grant with PAGINATION', async () => {
+            const result = await getFollowersForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, {
+                beforeFollow: follower2.id,
+            });
+
+            expect(result.followers).to.have.lengthOf(1);
+            expect(result.followers[0].id).to.equal(follower1.id);
+            expect(result.pagination.from).to.equal(follower1.id);
+        });
+
+        it('retrieves followers for a grant with LIMIT', async () => {
+            const result = await getFollowersForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, {
+                limit: 1,
+            });
+
+            expect(result.followers).to.have.lengthOf(1);
         });
     });
 });
