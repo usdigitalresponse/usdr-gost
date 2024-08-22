@@ -133,7 +133,7 @@
         "fieldId": "Sub_Award_Type_Aggregates_SLFRF__c",
         "fieldName": "Required",
         "required": "Sub Award Type Aggregates SLFRF",
-        "helpText": "The Sub-Award Type that had obligation or expenditure/payment activity during the reporting period. Selection Required. Copy and Paste from the helptext minus the quoations (\" \"). Valid entires\r\n \"Aggregate of Contracts Awarded\"\r\n \"Aggregate of Grants Awarded\"\r\n \"Aggregate of Loans Issued\"\r\n \"Aggregate of Transfers\"\r\n \"Aggregate of Direct Payments\"\r\n"
+        "helpText": "The Sub-Award Type that had obligation or expenditure/payment activity during the reporting period. Selection Required. Copy and Paste from the helptext minus the quoations (\" \"). Valid entires\r\n \"Aggregate of Contracts Awarded\"\r\n \"Aggregate of Grants Awarded\"\r\n \"Aggregate of Loans Issued\"\r\n \"Aggregate of Transfers\"\r\n \"Aggregate of Direct Payments\" \r\n \"Aggregate of Interagency Agreement (IAA)\"\r\n"
       },
       {
         "fieldId": "Quarterly_Obligation_Amt_Aggregates__c",
@@ -3341,12 +3341,6 @@
         "helpText": "Estimated personnel expenditures in 2025 and 2026.\r\n\r\nRequired If Subaward Type is Direct Payment and Yes is selected for 2025 and 2026 Personnel Cost Estimates\r\n\r\n"
       },
       {
-        "fieldId": "Personnel_Actual_Expended",
-        "fieldName": "Actual Personnel Expenditures",
-        "required": "Conditional",
-        "helpText": "Actual personnel expenditures in 2025 and 2026 field.\r\n\r\nRequired If Subaward Type is Direct Payment and and an amount is entered into the 2025/2026 estimated personnel cost."
-      },
-      {
         "fieldId": "Personnel_Expended_FTE_Count",
         "fieldName": "Personnel Expended FTE Count",
         "required": "Conditional",
@@ -3363,12 +3357,6 @@
         "fieldName": "Contract Estimated Expended",
         "required": "Conditional",
         "helpText": "Estimated funds required to cover change orders and contingencies provided for by the contract field.\r\n\r\nRequired If Subaward Type is one of the following: \r\n“Contract: Purchase Order”\r\n“Contract: Delivery Order”\r\n“Contract: Blanket Purchase Agreement”\r\n“Contract: Definitive Contract”\r\n\r\n"
-      },
-      {
-        "fieldId": "Contract_Actual_Expended",
-        "fieldName": "Contract Actual Expended",
-        "required": "Conditional",
-        "helpText": "Actual funds expended to cover change orders and contingencies field.\r\n\r\nRequired If Subaward Type is one of the following: \r\n“Contract: Purchase Order”\r\n“Contract: Delivery Order”\r\n“Contract: Blanket Purchase Agreement”\r\n“Contract: Definitive Contract”\r\nAND\r\n an amount greater than 0 was added to the estimated Admin & Legal expenses."
       },
       {
         "fieldId": "Contract_Expended_Justification",
