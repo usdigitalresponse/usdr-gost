@@ -22,9 +22,6 @@ describe('`/api/grants` endpoint', () => {
         dallasAdmin: 386,
     };
 
-    const adminUser = users.find((usr) => usr.email === 'admin1@nv.example.com');
-    const staffUser = users.find((usr) => usr.email === 'user1@nv.example.com');
-
     const fetchOptions = {
         admin: {
             headers: {
@@ -994,6 +991,20 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             const respBody = await response.json();
 
             expect(respBody.followers).to.have.lengthOf(2);
+            expect(respBody.followers[0].id).to.equal(follower2.id);
+        });
+        it('retrieves followers for a grant with LIMIT', async () => {
+            const response = await fetchApi(`/grants/${GRANT_ID}/followers?limit=1`, agencies.own, fetchOptions.admin);
+            const respBody = await response.json();
+
+            expect(respBody.followers).to.have.lengthOf(1);
+        });
+        it('retrieves followers for a grant with PAGINATION', async () => {
+            const response = await fetchApi(`/grants/${GRANT_ID}/followers?paginateFrom=${follower2.id}`, agencies.own, fetchOptions.admin);
+            const respBody = await response.json();
+
+            expect(respBody.followers).to.have.lengthOf(1);
+            expect(respBody.followers[0].id).to.equal(follower1.id);
         });
     });
 });
