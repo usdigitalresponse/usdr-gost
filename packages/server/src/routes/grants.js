@@ -6,7 +6,7 @@ const email = require('../lib/email');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 const knex = require('../db/connection');
 const {
-    saveNoteRevision, followGrant, unfollowGrant, getFollowersForGrant, getOrganizationNotesForGrant,
+    saveNoteRevision, followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant, getOrganizationNotesForGrant,
 } = require('../lib/grantsCollaboration');
 
 const router = express.Router({ mergeParams: true });
@@ -426,6 +426,14 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
     res.json({});
 });
 
+router.put('/:grantId/follow', requireUser, async (req, res) => {
+    const { user } = req.session;
+    const { grantId } = req.params;
+
+    await followGrant(knex, grantId, user.id);
+    res.json({});
+});
+
 router.delete('/:grantId/follow', requireUser, async (req, res) => {
     const { user } = req.session;
     const { grantId } = req.params;
@@ -495,6 +503,20 @@ router.get('/:grantId/followers', requireUser, async (req, res) => {
     });
 
     res.json(followers);
+});
+
+router.get('/:grantId/follow', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { user } = req.session;
+
+    const follower = await getFollowerForGrant(knex, grantId, user.id);
+
+    if (!follower) {
+        res.sendStatus(404);
+        return;
+    }
+
+    res.json(follower);
 });
 
 module.exports = router;
