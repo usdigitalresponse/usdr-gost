@@ -155,7 +155,7 @@
                   <div
                     v-for="agency in assignedAgencies"
                     :key="agency.id"
-                    class="d-flex justify-content-between align-items-start my-3"
+                    class="d-flex justify-content-between align-items-start my-4"
                   >
                     <div class="mr-3">
                       <p class="m-0">
@@ -229,7 +229,7 @@
                 <div
                   v-for="agency in visibleInterestedAgencies"
                   :key="agency.id"
-                  class="d-flex justify-content-between align-items-start my-3"
+                  class="d-flex justify-content-between align-items-start my-4"
                 >
                   <UserAvatar
                     :user-name="agency.user_name"
@@ -242,7 +242,7 @@
                       <strong>{{ agency.agency_name }}</strong> team status to
                       <strong>{{ agency.interested_code_name }}</strong>
                     </p>
-                    <p v-if="agency.user_email">
+                    <p v-if="agency.user_email" style="margin: 0px 0px 0px;">
                       <small>
                         <CopyButton :copy-text="agency.user_email">
                           {{ agency.user_email }}
@@ -621,6 +621,10 @@ export default {
 
   .grant-details-secondary-actions {
     grid-area: secondary-actions;
+    margin-top: 24px;
+    margin-bottom: 24px;
+    margin-left: 16px;
+    margin-right: 16px;
   }
 
   .grant-details-table tr:nth-of-type(odd) {
