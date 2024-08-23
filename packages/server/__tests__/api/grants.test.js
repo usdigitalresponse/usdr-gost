@@ -23,6 +23,7 @@ describe('`/api/grants` endpoint', () => {
     };
 
     const adminUser = users.find((usr) => usr.email === 'admin1@nv.example.com');
+    const staffUser = users.find((usr) => usr.email === 'user1@nv.example.com');
 
     const fetchOptions = {
         admin: {
@@ -56,6 +57,7 @@ describe('`/api/grants` endpoint', () => {
         testServer = await makeTestServer();
         fetchApi = testServer.fetchApi;
     });
+
     after(() => {
         testServer.stop();
     });
@@ -621,7 +623,6 @@ describe('`/api/grants` endpoint', () => {
             }
             const extraRowCount = Object.keys(rowsHash).length;
             if (extraRowCount > 0) {
-                console.log(JSON.stringify(rowsHash, null, 2));
                 expect(extraRowCount).to.equal(0);
             }
         });
@@ -729,7 +730,6 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             }
             const extraRowCount = Object.keys(rowsHash).length;
             if (extraRowCount > 0) {
-                console.log(JSON.stringify(rowsHash, null, 2));
                 expect(extraRowCount).to.equal(0);
             }
         });
@@ -876,6 +876,72 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
                 const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=interested_agencies&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
                 expect(response.status).to.equal(400);
             });
+        });
+    });
+
+    context('DELETE api/grants/:grantId/follow', () => {
+        const GRANT_ID = '335255';
+
+        beforeEach(async () => {
+            await knex('grant_followers').insert({ grant_id: GRANT_ID, user_id: staffUser.id });
+        });
+
+        it('deletes follower record for request user', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/follow`, agencies.own, {
+                ...fetchOptions.staff,
+                method: 'delete',
+            });
+
+            expect(resp.statusText).to.equal('OK');
+        });
+    });
+
+    context('GET api/grants/:grantId/notes', () => {
+        const GRANT_ID = '335255';
+
+        let notes;
+        beforeEach(async () => {
+            notes = await knex('grant_notes')
+                .returning('id')
+                .insert([
+                    { grant_id: GRANT_ID, user_id: adminUser.id },
+                    { grant_id: GRANT_ID, user_id: staffUser.id },
+                ]);
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: notes[0].id, text: 'Test note 1.' });
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: notes[1].id, text: 'Test note 2.' });
+        });
+
+        it('returns ALL notes for a given grant in DESC order', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes`, agencies.own, fetchOptions.staff);
+            const respBody = await resp.json();
+
+            expect(respBody.notes.length).to.equal(2);
+            expect(respBody.notes[0].text).to.equal('Test note 2.');
+        });
+
+        it('returns notes with LIMIT', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes?limit=1`, agencies.own, fetchOptions.staff);
+            const respBody = await resp.json();
+
+            expect(respBody.notes.length).to.equal(1);
+        });
+
+        it('returns 400 for invalid LIMIT', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes?limit=500`, agencies.own, fetchOptions.staff);
+
+            expect(resp.status).to.equal(400);
+        });
+
+        it('returns notes with PAGINATION', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes?paginateFrom=${notes[0].id}`, agencies.own, fetchOptions.staff);
+            const respBody = await resp.json();
+
+            expect(respBody.notes.length).to.equal(1);
+            expect(respBody.notes[0].text).to.equal('Test note 2.');
         });
     });
 
