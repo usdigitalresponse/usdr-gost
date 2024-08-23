@@ -426,6 +426,14 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
     res.json({});
 });
 
+router.put('/:grantId/follow', requireUser, async (req, res) => {
+    const { user } = req.session;
+    const { grantId } = req.params;
+
+    await followGrant(knex, grantId, user.id);
+    res.json({});
+});
+
 router.delete('/:grantId/follow', requireUser, async (req, res) => {
     const { user } = req.session;
     const { grantId } = req.params;
