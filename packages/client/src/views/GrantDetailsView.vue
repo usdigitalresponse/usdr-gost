@@ -219,7 +219,7 @@
                   <b-button
                     ref="statusSubmitButton"
                     variant="outline-primary"
-                    :disabled="!selectedInterestedCode"
+                    :disabled="statusSubmitButtonDisabled"
                     data-dd-action-name="submit team status"
                     @click="markGrantAsInterested"
                   >
@@ -422,6 +422,9 @@ export default {
       return this.agencies.filter(
         (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
       );
+    },
+    statusSubmitButtonDisabled() {
+      return this.selectedInterestedCode === null;
     },
   },
   watch: {
