@@ -13,7 +13,7 @@
       >
         <div class="grant-details-container">
           <div>
-            <b-card>
+            <b-card class="p-4">
               <div class="mb-5">
                 <div class="grant-details-back-link">
                   <router-link
@@ -29,16 +29,16 @@
                   >Back</a>
                 </div>
                 <!-- Left page column: headline -->
-                <h2 class="grant-details-headline m-0">
+                <h2 class="grant-details-headline mt-3 mb-4">
                   {{ currentGrant.title }}
                 </h2>
 
                 <!-- Left page column: main print/copy/grants.gov buttons -->
-                <div class="grant-details-main-actions print-d-none">
+                <div class="grant-details-main-actions print-d-none ml-0">
                   <div class="d-flex justify-content-between align-items-center">
                     <b-button
                       variant="primary"
-                      class="mr-5 text-nowrap"
+                      class="mr-4 text-nowrap"
                       :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -590,8 +590,8 @@ export default {
   row-gap: 48px;
   .grant-details-back-link {
     grid-area: back-link;
-    margin-top: 28px;
-    margin-bottom: 5px;
+    margin-top: 0px;
+    margin-bottom: 24px;
     font-size: 14px;
     font-weight: 700;
     color: #6d7278;
@@ -611,6 +611,7 @@ export default {
 
   .grant-details-content {
     grid-area: content;
+    /* margin: 24px; */
   }
 
   .grant-details-main-actions {
@@ -634,6 +635,11 @@ export default {
   }
 }
 
+.grant-details-container .card {
+  border-radius: 8px !important;
+}
+
+
 .background {
   z-index: -1000;
   top: 0;
@@ -641,6 +647,8 @@ export default {
   height: 1000px;
   background: rgb(244, 247, 249);
 }
+
+
 
 @media print {
   .print-d-none {
