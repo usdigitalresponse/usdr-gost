@@ -985,4 +985,29 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             });
         });
     });
+
+    context('GET /:grantId/follow', () => {
+        const GRANT_ID = 335255;
+
+        let follower;
+        beforeEach(async () => {
+            [follower] = await knex('grant_followers')
+                .insert({
+                    grant_id: GRANT_ID,
+                    user_id: adminUser.id,
+                }, 'id');
+        });
+
+        it('retrieves follower for a grant', async () => {
+            const response = await fetchApi(`/grants/${GRANT_ID}/follow`, agencies.own, fetchOptions.admin);
+            const respBody = await response.json();
+
+            expect(respBody.id).to.equal(follower.id);
+        });
+
+        it('Not found is a 404 error', async () => {
+            const response = await fetchApi(`/grants/UNKNOWN/follow`, agencies.own, fetchOptions.admin);
+            expect(response.status).to.equal(404);
+        });
+    });
 });

@@ -3,7 +3,7 @@ const chaiAsPromised = require('chai-as-promised');
 const knex = require('../../src/db/connection');
 const fixtures = require('../db/seeds/fixtures');
 const { saveNoteRevision, getOrganizationNotesForGrant } = require('../../src/lib/grantsCollaboration/notes');
-const { followGrant, unfollowGrant } = require('../../src/lib/grantsCollaboration/followers');
+const { followGrant, unfollowGrant, getFollowerForGrant } = require('../../src/lib/grantsCollaboration/followers');
 
 use(chaiAsPromised);
 
@@ -11,19 +11,34 @@ describe('Grants Collaboration', () => {
     context('saveNoteRevision', () => {
         it('creates new note', async () => {
             const result = await saveNoteRevision(knex, fixtures.grants.earFellowship.grant_id, fixtures.roles.adminRole.id, 'This is a test revision');
-            expect(result.id).to.equal(1);
+            expect(result.id).to.be.ok;
         });
         it('creates new note revision', async () => {
-            const result = await saveNoteRevision(knex, fixtures.grants.earFellowship.grant_id, fixtures.roles.adminRole.id, 'This is a test revision #2');
-            expect(result.id).to.equal(2);
+            const result1 = await saveNoteRevision(knex, fixtures.grants.earFellowship.grant_id, fixtures.roles.adminRole.id, 'This is a test revision');
+            const result2 = await saveNoteRevision(knex, fixtures.grants.earFellowship.grant_id, fixtures.roles.adminRole.id, 'This is a test revision #2');
+
+            expect(result2.id).not.to.equal(result1.id);
         });
     });
     context('getOrganizationNotesForGrant', () => {
+        let revision1;
+        let revision2;
+        beforeEach(async () => {
+            const [grantNote] = await knex('grant_notes')
+                .insert({ grant_id: fixtures.grants.earFellowship.grant_id, user_id: fixtures.roles.adminRole.id }, 'id');
+
+            [revision1] = await knex('grant_notes_revisions')
+                .insert({ grant_note_id: grantNote.id, text: 'This is a test revision' }, 'id');
+
+            [revision2] = await knex('grant_notes_revisions')
+                .insert({ grant_note_id: grantNote.id, text: 'This is a test revision #2' }, 'id');
+        });
+
         it('get existing organization notes for grant', async () => {
             const result = await getOrganizationNotesForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id);
             const expectedNoteStructure = {
                 notes: [{
-                    id: 2,
+                    id: revision2.id,
                     createdAt: result.notes[0].createdAt, // store to pass structure check
                     text: 'This is a test revision #2',
                     grant: { id: fixtures.grants.earFellowship.grant_id },
@@ -41,7 +56,7 @@ describe('Grants Collaboration', () => {
                     },
                 }],
                 pagination: {
-                    from: 2,
+                    from: revision2.id,
                 },
             };
 
@@ -58,10 +73,15 @@ describe('Grants Collaboration', () => {
             expect(result).to.deep.equal(expectedNoteStructure);
         });
         it('get existing organization notes for grant after a revision', async () => {
-            const result = await getOrganizationNotesForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, { afterRevision: 1 });
+            const result = await getOrganizationNotesForGrant(
+                knex,
+                fixtures.grants.earFellowship.grant_id,
+                fixtures.agencies.accountancy.tenant_id,
+                { afterRevision: revision1.id },
+            );
             const expectedNoteStructure = {
                 notes: [{
-                    id: 2,
+                    id: revision2.id,
                     createdAt: result.notes[0].createdAt, // store to pass structure check
                     text: 'This is a test revision #2',
                     grant: { id: fixtures.grants.earFellowship.grant_id },
@@ -79,7 +99,7 @@ describe('Grants Collaboration', () => {
                     },
                 }],
                 pagination: {
-                    from: 2,
+                    from: revision2.id,
                 },
             };
             // validate createdAt is valid time
@@ -95,11 +115,16 @@ describe('Grants Collaboration', () => {
             expect(result).to.deep.equal(expectedNoteStructure);
         });
         it('get no organization notes for grant after a revision', async () => {
-            const result = await getOrganizationNotesForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, { afterRevision: 2 });
+            const result = await getOrganizationNotesForGrant(
+                knex,
+                fixtures.grants.earFellowship.grant_id,
+                fixtures.agencies.accountancy.tenant_id,
+                { afterRevision: revision2.id },
+            );
             const expectedNoteStructure = {
                 notes: [],
                 pagination: {
-                    from: 2,
+                    from: revision2.id,
                 },
             };
 
@@ -133,6 +158,28 @@ describe('Grants Collaboration', () => {
     context('unfollowGrant', () => {
         it('unfollows a grant', async () => {
             await unfollowGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.users.adminUser.id);
+        });
+    });
+
+    context('getFollowerForGrant', () => {
+        let follower;
+        beforeEach(async () => {
+            [follower] = await knex('grant_followers')
+                .insert({
+                    grant_id: fixtures.grants.earFellowship.grant_id,
+                    user_id: fixtures.users.adminUser.id,
+                }, 'id');
+        });
+
+        it('retrieves follower for a grant', async () => {
+            const result = await getFollowerForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.users.adminUser.id);
+
+            expect(result.id).to.equal(follower.id);
+        });
+        it('returns null for not found', async () => {
+            const result = await getFollowerForGrant(knex, 'grant_id', fixtures.users.adminUser.id);
+
+            expect(result).to.equal(null);
         });
     });
 });
