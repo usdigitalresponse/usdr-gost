@@ -242,8 +242,10 @@
                       <strong>{{ agency.agency_name }}</strong> team status to
                       <strong>{{ agency.interested_code_name }}</strong>
                     </p>
-                    <p  v-if="agency.user_email" 
-                        style="margin: 0px 0px 0px;">
+                    <p
+                      v-if="agency.user_email"
+                      style="margin: 0px 0px 0px;"
+                    >
                       <small>
                         <CopyButton :copy-text="agency.user_email">
                           {{ agency.user_email }}
