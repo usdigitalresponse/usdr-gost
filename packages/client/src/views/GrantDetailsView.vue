@@ -242,7 +242,8 @@
                       <strong>{{ agency.agency_name }}</strong> team status to
                       <strong>{{ agency.interested_code_name }}</strong>
                     </p>
-                    <p v-if="agency.user_email" style="margin: 0px 0px 0px;">
+                    <p  v-if="agency.user_email" 
+                        style="margin: 0px 0px 0px;">
                       <small>
                         <CopyButton :copy-text="agency.user_email">
                           {{ agency.user_email }}
@@ -643,7 +644,6 @@ export default {
   border-radius: 8px !important;
 }
 
-
 .background {
   z-index: -1000;
   top: 0;
@@ -651,8 +651,6 @@ export default {
   height: 1000px;
   background: rgb(244, 247, 249);
 }
-
-
 
 @media print {
   .print-d-none {
