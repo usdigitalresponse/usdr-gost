@@ -614,7 +614,6 @@ export default {
 
   .grant-details-content {
     grid-area: content;
-    /* margin: 24px; */
   }
 
   .grant-details-main-actions {
