@@ -1,7 +1,7 @@
 {
   "logic": {
     "version": {
-      "version": "v:20240702",
+      "version": "v:20240823",
       "key": "version",
       "index": 0,
       "required": false,
@@ -7842,69 +7842,47 @@
       "humanColName": "Estimated Personnel Expenditures",
       "ecCodes": false
     },
-    "Personnel_Actual_Expended": {
-      "key": "Personnel_Actual_Expended",
-      "index": 32,
-      "required": "Conditional",
-      "dataType": "Currency",
-      "maxLength": null,
-      "listVals": [],
-      "columnName": "AG",
-      "humanColName": "Actual Personnel Expenditures",
-      "ecCodes": false
-    },
     "Personnel_Expended_FTE_Count": {
       "key": "Personnel_Expended_FTE_Count",
-      "index": 33,
+      "index": 32,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 250,
       "listVals": [],
-      "columnName": "AH",
+      "columnName": "AG",
       "humanColName": "Personnel Expended FTE Count",
       "ecCodes": false
     },
     "Personnel_Expended_Justification": {
       "key": "Personnel_Expended_Justification",
-      "index": 34,
+      "index": 33,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 750,
       "listVals": [],
-      "columnName": "AI",
+      "columnName": "AH",
       "humanColName": "Personnel Expended Justification",
       "ecCodes": false
     },
     "Contract_Estimated_Expended": {
       "key": "Contract_Estimated_Expended",
-      "index": 35,
+      "index": 34,
       "required": "Conditional",
       "dataType": "Currency",
       "maxLength": null,
       "listVals": [],
-      "columnName": "AJ",
+      "columnName": "AI",
       "humanColName": "Contract Estimated Expended",
-      "ecCodes": false
-    },
-    "Contract_Actual_Expended": {
-      "key": "Contract_Actual_Expended",
-      "index": 36,
-      "required": "Conditional",
-      "dataType": "Currency",
-      "maxLength": null,
-      "listVals": [],
-      "columnName": "AK",
-      "humanColName": "Contract Actual Expended",
       "ecCodes": false
     },
     "Contract_Expended_Justification": {
       "key": "Contract_Expended_Justification",
-      "index": 37,
+      "index": 35,
       "required": "Conditional",
       "dataType": "String",
       "maxLength": 750,
       "listVals": [],
-      "columnName": "AL",
+      "columnName": "AJ",
       "humanColName": "Contract Expended Justfiication",
       "ecCodes": false
     }
@@ -7990,6 +7968,7 @@
         "Aggregate of Loans Issued",
         "Aggregate of Transfers",
         "Aggregate of Direct Payments",
+        "Aggregate of Interagency Agreement (IAA)",
         "Payments to Individuals"
       ],
       "columnName": "D",

@@ -1,7 +1,8 @@
 const db = require('../../src/db');
 const fixtures = require('../db/seeds/fixtures');
 
-before(async () => {
+beforeEach(async function () {
+    this.timeout(5000);
     await fixtures.seed(db.knex);
 });
 
