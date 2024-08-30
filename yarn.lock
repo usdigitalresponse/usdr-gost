@@ -1394,25 +1394,25 @@
     debug "^3.1.0"
     lodash.once "^4.1.1"
 
-"@datadog/browser-core@5.23.3":
-  version "5.23.3"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.23.3.tgz#fb462e34d49698d5423150b674f0c322bc161862"
-  integrity sha512-WaVJfTIHqU1m6voRlxVOEPXBBjHzr/ygE8tYTQRIVCWo7w/3yGOpc6dqlclHM/dpAHBVJ/L8/rQZLp0FoOAmOA==
+"@datadog/browser-core@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.24.0.tgz#f79ce063811659003dc169e78785f2707dc68834"
+  integrity sha512-NKKXdFTSOQ2a8Y9Y5rgu6MLghfN3l7Mnera95YYNECh8jqHB2IXb2BRpir0lqOzgkBKGI7SF6kqjNV7nWL1NzQ==
 
-"@datadog/browser-rum-core@5.23.3":
-  version "5.23.3"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.23.3.tgz#97ba896fd99160b737eb7fd4cbe449562a878137"
-  integrity sha512-kJBbRCttzSwUe4T6Hz2swhnX1V9uhmmkxuRY7hE1JExsii8Ub9VSILIXQ9EkkwRm+Ax2/BxJAgsAscSzF+wqFQ==
+"@datadog/browser-rum-core@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.24.0.tgz#f7fde885393e726605ff069c4aa668923d520fa5"
+  integrity sha512-fOiuOe48Tfib3wXvkntGcrS7StH5JS9szAMkKEyyaqiFmWfuMV/mOuc9ky0Di0zmC+ao9PEbei1KKpHO19hohQ==
   dependencies:
-    "@datadog/browser-core" "5.23.3"
+    "@datadog/browser-core" "5.24.0"
 
 "@datadog/browser-rum@^5.5.0":
-  version "5.23.3"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.23.3.tgz#a220276599b2b73e8eb80719e91b241541345e1a"
-  integrity sha512-T8tt3M0muq3Wwm6RzAZFnOM1xoXo/fY4vJPMCexgyO/SSxl39p9UkkGn8K5Dq1Ry8XQQnf3XoO9IJvfcFVo7ew==
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.24.0.tgz#e5c53e03afeb3bba57cd7b75f83c07d741f6617b"
+  integrity sha512-Aag9gyVVL6p3ATnykJmQ4S3PpTgP0PT5ERA8WnU+SQMs0mfi4C/dC9x3ir0lLRQo/yNJw5R4EapdLojNmV0D5g==
   dependencies:
-    "@datadog/browser-core" "5.23.3"
-    "@datadog/browser-rum-core" "5.23.3"
+    "@datadog/browser-core" "5.24.0"
+    "@datadog/browser-rum-core" "5.24.0"
 
 "@datadog/native-appsec@8.0.1":
   version "8.0.1"
@@ -2731,9 +2731,9 @@
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
 "@vitejs/plugin-vue@^5.0.5":
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/@vitejs/plugin-vue/-/plugin-vue-5.1.2.tgz#f11091e0130eca6c1ca8cfb85ee71ea53b255d31"
-  integrity sha512-nY9IwH12qeiJqumTCLJLE7IiNx7HZ39cbHaysEUd+Myvbz9KAqd2yq+U01Kab1R/H1BmiyM2ShTYlNH32Fzo3A==
+  version "5.1.3"
+  resolved "https://registry.yarnpkg.com/@vitejs/plugin-vue/-/plugin-vue-5.1.3.tgz#42b55c1a4d6f329aea25c5a24db51a31db31c693"
+  integrity sha512-3xbWsKEKXYlmX82aOHufFQVnkbMC/v8fLpWwh6hWOUrK5fbbtBh9Q/WWse27BFgSy2/e2c0fz5Scgya9h2GLhw==
 
 "@vitest/coverage-istanbul@^1.6.0":
   version "1.6.0"
