@@ -100,7 +100,7 @@ jobs:
       tf-fmt-outcome: ${{ needs.tf-plan.outputs.fmt-outcome }}
       tf-init-outcome: ${{ needs.tf-plan.outputs.init-outcome }}
       tf-plan-outcome: ${{ needs.tf-plan.outputs.plan-outcome }}
-      tf-plan-output: ${{ needs.tf-plan.outputs.plan-output }}
+      tf-plan-summary: ${{ needs.tf-plan.outputs.plan-summary-markdown }}
       tf-validate-outcome: ${{ needs.tf-plan.outputs.validate-outcome }}
       tf-validate-output: ${{ needs.tf-plan.outputs.validate-output }}
 

@@ -126,39 +126,13 @@ async function getUsersEmailAndName(ids) {
 }
 
 async function getUser(id) {
-    // Temporary check for avatar_column until migration is applied in prod. Clean up ticket: #2259
-    const avatarColorExists = await knex.schema.hasColumn('users', 'avatar_color');
-
-    const [user] = avatarColorExists ? await knex('users')
+    const [user] = await knex('users')
         .select(
             'users.id',
             'users.email',
             'users.name',
             'users.role_id',
-            'users.avatar_color', // adds column
-            'roles.name as role_name',
-            'roles.rules as role_rules',
-            'users.agency_id',
-            'agencies.name as agency_name',
-            'agencies.abbreviation as agency_abbreviation',
-            'agencies.parent as agency_parent_id_id',
-            'agencies.warning_threshold as agency_warning_threshold',
-            'agencies.danger_threshold as agency_danger_threshold',
-            'tenants.id as tenant_id',
-            'tenants.display_name as tenant_display_name',
-            'tenants.main_agency_id as tenant_main_agency_id',
-            'users.tags',
-            'users.tenant_id',
-        )
-        .leftJoin('roles', 'roles.id', 'users.role_id')
-        .leftJoin('agencies', 'agencies.id', 'users.agency_id')
-        .leftJoin('tenants', 'tenants.id', 'users.tenant_id')
-        .where('users.id', id) : await knex('users')
-        .select(
-            'users.id',
-            'users.email',
-            'users.name',
-            'users.role_id',
+            'users.avatar_color',
             'roles.name as role_name',
             'roles.rules as role_rules',
             'users.agency_id',
@@ -212,6 +186,13 @@ async function getUser(id) {
     }
     user.emailPreferences = await getUserEmailSubscriptionPreference(user.id, user.agency_id);
     return user;
+}
+
+async function getUserIdForEmail(email) {
+    const [user] = await knex('users')
+        .select('users.id')
+        .where('email', email);
+    return user ? user.id : null;
 }
 
 async function getAgencyCriteriaForAgency(agencyId) {
@@ -359,20 +340,6 @@ function deleteKeyword(id) {
     return knex(TABLES.keywords)
         .where('id', id)
         .del();
-}
-
-async function getNewGrantsById(asOf) {
-    const open_date = asOf || moment().subtract(1, 'day').format('YYYY-MM-DD');
-
-    const rows = await knex(TABLES.grants)
-        .where({ open_date });
-
-    const grantsById = rows.reduce((obj, item) => {
-        obj[item.grant_id] = item;
-        return obj;
-    }, {});
-
-    return grantsById;
 }
 
 async function getNewGrantsForAgency(agency) {
@@ -747,8 +714,6 @@ function addCsvData(qb) {
     agencyId: number
 */
 async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId, toCsv) {
-    console.log(JSON.stringify([filters, paginationParams, orderingParams, tenantId, agencyId, toCsv]));
-
     const errors = validateSearchFilters(filters);
     if (errors.length > 0) {
         throw new Error(`Invalid filters: ${errors.join(', ')}`);
@@ -849,7 +814,7 @@ async function enhanceGrantData(tenantId, data) {
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
         .andWhere('agencies.tenant_id', tenantId);
 
-    const viewedBy = await viewedByQuery.select(
+    const viewedBy = await viewedByQuery.distinct(
         `${TABLES.grants_viewed}.grant_id`,
         `${TABLES.grants_viewed}.agency_id`,
         `${TABLES.agencies}.name as agency_name`,
@@ -1017,7 +982,12 @@ async function getGrants({
         .whereIn('grant_id', data.map((grant) => grant.grant_id))
         .andWhere('agencies.tenant_id', tenantId);
 
-    const viewedBy = await viewedByQuery.select(`${TABLES.grants_viewed}.grant_id`, `${TABLES.grants_viewed}.agency_id`, `${TABLES.agencies}.name as agency_name`, `${TABLES.agencies}.abbreviation as agency_abbreviation`);
+    const viewedBy = await viewedByQuery.distinct(
+        `${TABLES.grants_viewed}.grant_id`,
+        `${TABLES.grants_viewed}.agency_id`,
+        `${TABLES.agencies}.name as agency_name`,
+        `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+    );
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), tenantId });
 
     const dataWithAgency = data.map((grant) => {
@@ -1047,74 +1017,27 @@ async function getSingleGrantDetails({ grantId, tenantId }) {
     return enhancedResults.length ? enhancedResults[0] : null;
 }
 
-async function getClosestGrants({
-    agency, perPage, currentPage, timestampForTest,
-}) {
-    const agencies = await getAgencyTree(agency);
-
-    // updated to no longer limit result # & specify user association
-    const timestamp = (timestampForTest || new Date()).toLocaleDateString('en-US');
-    return knex(TABLES.grants_interested)
-        .select('grants.title', 'grants.close_date', 'grants.grant_id')
-        .join('grants', 'grants.grant_id', 'grants_interested.grant_id')
-        .join('interested_codes', 'grants_interested.interested_code_id', 'interested_codes.id')
-        .whereIn('grants_interested.agency_id', agencies.map((a) => a.id))
-        .andWhere('close_date', '>=', timestamp)
-        .andWhere('interested_codes.status_code', '!=', 'Rejected')
-        .groupBy('grants.title', 'grants.close_date', 'grants.grant_id')
-        .orderBy('close_date', 'asc')
-        .paginate({ currentPage, perPage, isLengthAware: true });
-}
-
-async function getTotalGrants({ agencyCriteria, createdTsBounds, updatedTsBounds } = {}) {
-    const rows = await knex(TABLES.grants)
-        .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
-        .modify((qb) => {
-            if (createdTsBounds && createdTsBounds.fromTs) {
-                qb.where('created_at', '>=', createdTsBounds.fromTs);
-            }
-            if (updatedTsBounds && updatedTsBounds.fromTs) {
-                qb.where('updated_at', '>=', updatedTsBounds.fromTs);
-            }
-        })
-        .count();
-    return rows[0].count;
-}
-
-async function getTotalViewedGrants() {
-    const rows = await knex(TABLES.grants_viewed).count();
-    return rows[0].count;
-}
-
-async function getTotalInterestedGrantsByAgencies(agencyId) {
-    const agencies = await getAgencyTree(agencyId);
-    const rows = await knex(TABLES.grants_interested)
-        .select(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`,
-            knex.raw(`SUM(CASE WHEN status_code = 'Rejected' THEN 1 ELSE 0 END) rejections`),
-            knex.raw(`SUM(CASE WHEN status_code = 'Interested' THEN 1 ELSE 0 END) interested`),
-            knex.raw('SUM(award_ceiling::numeric) total_grant_money'),
-            knex.raw(`SUM(CASE WHEN status_code = 'Interested' THEN award_ceiling::numeric ELSE 0 END) total_interested_grant_money`),
-            knex.raw(`SUM(CASE WHEN status_code = 'Rejected' THEN award_ceiling::numeric ELSE 0 END) total_rejected_grant_money`))
-        .join(TABLES.agencies, `${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.id`)
-        .join(TABLES.interested_codes, `${TABLES.grants_interested}.interested_code_id`, `${TABLES.interested_codes}.id`)
-        .join(TABLES.grants, `${TABLES.grants_interested}.grant_id`, `${TABLES.grants}.grant_id`)
-        .count(`${TABLES.interested_codes}.status_code`)
-        .whereIn('agencies.id', agencies.map((a) => a.id))
-        .groupBy(`${TABLES.grants_interested}.agency_id`, `${TABLES.agencies}.name`, `${TABLES.agencies}.abbreviation`);
-    return rows;
-}
-
 async function markGrantAsViewed({ grantId, agencyId, userId }) {
-    const result = await knex(TABLES.grants_viewed)
-        .insert({ agency_id: agencyId, grant_id: grantId, user_id: userId });
-    return result;
+    return knex(TABLES.grants_viewed)
+        .insert({
+            agency_id: agencyId,
+            grant_id: grantId,
+            user_id: userId,
+            updated_at: new Date(),
+        })
+        .onConflict(['grant_id', 'agency_id', 'user_id'])
+        .merge(); // upsert the new updated timestamp if user has already viewed
 }
 
 function getGrantAssignedAgencies({ grantId, tenantId }) {
     return knex(TABLES.assigned_grants_agency)
         .join(TABLES.agencies, `${TABLES.agencies}.id`, '=', `${TABLES.assigned_grants_agency}.agency_id`)
+        .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.assigned_grants_agency}.assigned_by`)
         .where({ grant_id: grantId })
-        .andWhere('tenant_id', tenantId);
+        .andWhere(`${TABLES.agencies}.tenant_id`, tenantId)
+        .select(`${TABLES.agencies}.*`)
+        .select(`${TABLES.assigned_grants_agency}.*`)
+        .select(`${TABLES.users}.name as assigned_by_name`, `${TABLES.users}.email as assigned_by_email`, `${TABLES.users}.avatar_color as assigned_by_avatar_color`);
 }
 
 function assignGrantsToAgencies({ grantId, agencyIds, userId }) {
@@ -1175,7 +1098,8 @@ async function getGrantsInterested({ agencyId, perPage, currentPage }) {
                           grants_interested.agency_id,
                           grants.title,
                           grants.grant_id,
-                          NULL AS assigned_by`))
+                          NULL AS assigned_by,
+                          NULL AS assigned_by_user_name`))
         .innerJoin('agencies', 'agencies.id', 'grants_interested.agency_id')
         .innerJoin('interested_codes', 'interested_codes.id', 'grants_interested.interested_code_id')
         .innerJoin('grants', 'grants.grant_id', 'grants_interested.grant_id')
@@ -1188,8 +1112,10 @@ async function getGrantsInterested({ agencyId, perPage, currentPage }) {
                                 assigned_grants_agency.agency_id,
                                 grants.title,
                                 grants.grant_id,
-                                assigned_grants_agency.assigned_by`))
+                                assigned_grants_agency.assigned_by,
+                                users.name AS assigned_by_user_name`))
                 .from('assigned_grants_agency')
+                .innerJoin('users', 'users.id', 'assigned_grants_agency.assigned_by')
                 .innerJoin('agencies', 'agencies.id', 'assigned_grants_agency.agency_id')
                 .innerJoin('grants', 'grants.grant_id', 'assigned_grants_agency.grant_id')
                 .whereIn('agencies.id', agencies.map((subAgency) => subAgency.id))
@@ -1197,18 +1123,6 @@ async function getGrantsInterested({ agencyId, perPage, currentPage }) {
         })
         .orderBy('created_at', 'DESC')
         .paginate({ currentPage, perPage, isLengthAware: true });
-}
-
-async function getTotalInterestedGrants(agencyId) {
-    const rows = await knex(TABLES.grants_interested)
-        .whereNot('interested_code_id', null)
-        .andWhere('agency_id', agencyId)
-        .count();
-    const rows2 = await knex(TABLES.assigned_grants_agency)
-        .whereNot('assigned_by', null)
-        .andWhere('agency_id', agencyId)
-        .count();
-    return +rows[0].count + +rows2[0].count;
 }
 
 async function unmarkGrantAsInterested({ grantId, agencyIds }) {
@@ -1241,77 +1155,6 @@ async function getAgenciesByIds(agencyIds) {
     const result = await query;
 
     return result;
-}
-
-async function getAgenciesSubscribedToDigest(asOf) {
-    const open_date = asOf || moment().subtract(1, 'day').format('YYYY-MM-DD');
-
-    const query = knex.raw(
-        `
-        WITH enabled_codes AS (
-            SELECT
-                a.id AS agency_id,
-                ec.code,
-                COALESCE(aec.enabled, TRUE) as enabled
-            FROM
-                eligibility_codes ec
-            CROSS JOIN agencies a
-            LEFT JOIN agency_eligibility_codes aec ON ec.code = aec.code
-                AND a.id = aec.agency_id
-        ),
-        agency_data AS (
-            SELECT
-                a.id,
-                a.name,
-                array_agg(DISTINCT aec.code) AS codes,
-                array_agg(DISTINCT k.search_term) AS term,
-                array_agg(DISTINCT u.email) AS emails
-            FROM
-                agencies a
-            JOIN enabled_codes aec ON aec.agency_id = a.id
-                AND aec.enabled = TRUE
-            JOIN keywords k ON k.agency_id = a.id
-            JOIN users u ON u.agency_id = a.id
-            LEFT JOIN email_subscriptions es ON es.user_id = u.id
-                AND es.notification_type = '${emailConstants.notificationType.grantDigest}'
-            WHERE (
-                es.status = '${emailConstants.emailSubscriptionStatus.subscribed}'
-                OR es.status is NULL
-            )
-        GROUP BY
-            a.id
-        )
-        SELECT
-            ad.id,
-            ad.name,
-            ad.emails AS user_emails,
-            array_agg(DISTINCT g.grant_id) AS matched_grant_ids
-        FROM
-            grants g
-            JOIN agency_data ad ON g.eligibility_codes ~ array_to_string(ad.codes, '|')
-                AND g.description ~* array_to_string(ad.term, '|')
-        WHERE
-            g.open_date = :open_date
-        GROUP BY
-            ad.id,
-            ad.name,
-            ad.emails;
-        `,
-        { open_date },
-    );
-
-    const result = await query;
-    const newGrantsById = await module.exports.getNewGrantsById(open_date);
-
-    result.rows.forEach((r) => {
-        r.recipients = r.user_emails;
-        r.matched_grants = r.matched_grant_ids.reduce((arr, grantId) => {
-            arr.push(newGrantsById[grantId]);
-            return arr;
-        }, []);
-    });
-
-    return result.rows;
 }
 
 async function getTenantAgencies(tenantId) {
@@ -1778,6 +1621,7 @@ module.exports = {
     getSubscribersForNotification,
     getUsersEmailAndName,
     getUser,
+    getUserIdForEmail,
     getAgencyCriteriaForAgency,
     isSubOrganization,
     getRoles,
@@ -1789,7 +1633,6 @@ module.exports = {
     getAgency,
     getAgenciesByIds,
     getAgencyTree,
-    getAgenciesSubscribedToDigest,
     getTenantAgencies,
     getTenant,
     getTenants,
@@ -1813,15 +1656,9 @@ module.exports = {
     getGrantsNew,
     buildPaginationParams,
     buildOrderingParams,
-    getNewGrantsById,
     getNewGrantsForAgency,
     getSingleGrantDetails,
-    getClosestGrants,
     getGrant,
-    getTotalGrants,
-    getTotalViewedGrants,
-    getTotalInterestedGrants,
-    getTotalInterestedGrantsByAgencies,
     markGrantAsViewed,
     getInterestedAgencies,
     getInterestedCodes,

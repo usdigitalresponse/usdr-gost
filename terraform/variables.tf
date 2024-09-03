@@ -48,6 +48,24 @@ variable "datadog_draft" {
   default     = true
 }
 
+variable "ses_datadog_events_enabled" {
+  description = "Whether to send email events to Datadog in order to collect email metrics."
+  type        = bool
+  default     = false
+}
+
+variable "datadog_email_pipeline_enabled" {
+  description = "Whether to create Datadog logs pipeline for SES events. Should only be enabled in Staging."
+  type        = bool
+  default     = false
+}
+
+variable "datadog_email_pipeline_metrics_enabled" {
+  description = "Whether to create Datadog logs metrics for SES events. Should only be enabled in Staging."
+  type        = bool
+  default     = false
+}
+
 // Common
 variable "permissions_boundary_policy_name" {
   description = "Name of the permissions boundary for service roles"
@@ -182,23 +200,15 @@ variable "api_default_desired_task_count" {
   type = number
 }
 
-variable "api_enable_grants_scraper" {
-  type = bool
-}
-
-variable "api_enable_grants_digest" {
-  type = bool
-}
-
 variable "api_enable_new_team_terminology" {
   type = bool
 }
 
-variable "api_enable_my_profile" {
+variable "api_enable_saved_search_grants_digest" {
   type = bool
 }
 
-variable "api_enable_saved_search_grants_digest" {
+variable "api_enable_grant_digest_scheduled_task" {
   type = bool
 }
 
@@ -235,6 +245,11 @@ variable "postgres_query_logging_enabled" {
   type    = bool
   default = false
 }
+variable "postgres_ca_cert_identifier" {
+  description = "Certificate Authority identifier for RDS Aurora Postgres cluster instances."
+  type        = string
+  default     = "rds-ca-rsa2048-g1"
+}
 
 # Consume Grants
 variable "consume_grants_source_event_bus_name" {
@@ -244,4 +259,10 @@ variable "consume_grants_source_event_bus_name" {
 variable "consume_grants_datadog_environment_variables" {
   type    = map(string)
   default = {}
+}
+
+# Email
+variable "email_enable_tracking" {
+  description = "Feature flag for email tracking. When false, disables link rewriting for click tracking in emails."
+  type        = bool
 }

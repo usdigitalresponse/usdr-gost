@@ -5,7 +5,6 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const { configureApp } = require('./configure');
-const grantscraper = require('./lib/grantscraper');
 const emailService = require('./lib/email');
 const { hasOutstandingMigrations } = require('./db/helpers');
 
@@ -14,31 +13,11 @@ const app = express();
 configureApp(app);
 const server = app.listen(PORT, () => console.log(`App running on port ${PORT}!`));
 
-if (process.env.ENABLE_GRANTS_SCRAPER === 'true') {
-    const job = new CronJob(
-        /*
-            once at 6:30am UTC daily
-            This translates to (2:30am EDT ) or (1:30am EST)
-        */
-        '0 30 6 * * *',
-        grantscraper.run,
-    );
-    job.start();
-}
-
-if (process.env.ENABLE_GRANTS_DIGEST === 'true') {
-    const generateGrantDigestCron = new CronJob(
-        // once per day at 12:00 UTC
-        '0 0 12 * * *', emailService.buildAndSendGrantDigest,
-    );
-    generateGrantDigestCron.start();
-}
-
-if (process.env.ENABLE_SAVED_SEARCH_GRANTS_DIGEST === 'true') {
+if (process.env.ENABLE_SAVED_SEARCH_GRANTS_DIGEST === 'true' && process.env.ENABLE_GRANT_DIGEST_SCHEDULED_TASK !== 'true') {
     const generateSavedSearchGrantDigestCron = new CronJob(
         // once per day at 13:00 UTC
         // one hour after the old grant digest
-        '0 0 13 * * *', emailService.buildAndSendUserSavedSearchGrantDigest,
+        '0 0 13 * * *', emailService.buildAndSendGrantDigestEmails,
     );
     generateSavedSearchGrantDigestCron.start();
 }

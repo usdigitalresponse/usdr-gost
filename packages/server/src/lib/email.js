@@ -1,5 +1,7 @@
+const tracer = require('dd-trace').init();
 const { URL } = require('url');
 const moment = require('moment');
+const { capitalize } = require('lodash');
 // eslint-disable-next-line import/no-unresolved
 const asyncBatch = require('async-batch').default;
 const fileSystem = require('fs');
@@ -8,43 +10,131 @@ const mustache = require('mustache');
 const { log } = require('./logging');
 const emailService = require('./email/service-email');
 const db = require('../db');
-const { notificationType } = require('./email/constants');
+const { notificationType, tags } = require('./email/constants');
+const { isUSDR, isUSDRSuperAdmin } = require('./access-helpers');
 
 const expiryMinutes = 30;
 const ASYNC_REPORT_TYPES = {
-    audit: 'audit',
-    treasury: 'treasury',
+    audit: {
+        name: 'audit',
+        emailType: tags.emailTypes.auditReport,
+        errorEmailType: tags.emailTypes.auditReportError,
+    },
+    treasury: {
+        name: 'treasury',
+        emailType: tags.emailTypes.treasuryReport,
+        errorEmailType: tags.emailTypes.treasuryReportError,
+    },
 };
 const HELPDESK_EMAIL = 'grants-helpdesk@usdigitalresponse.org';
+const GENERIC_FROM_NAME = 'USDR Grants';
+const GRANT_FINDER_EMAIL_FROM_NAME = 'USDR Federal Grant Finder';
+const ARPA_EMAIL_FROM_NAME = 'USDR ARPA Reporter';
+
+function getUserRoleTag(user) {
+    if (isUSDRSuperAdmin(user)) {
+        return 'usdr_super_admin';
+    }
+    return `${isUSDR(user) ? 'usdr_' : ''}${user.role_name}`;
+}
 
 async function deliverEmail({
+    fromName,
     toAddress,
     ccAddress,
     emailHTML,
     emailPlain,
     subject,
+    emailType,
 }) {
+    let userTags = [];
+    const recipientId = await db.getUserIdForEmail(toAddress);
+    const activeContext = tracer.scope().active()?.context();
+    const traceId = activeContext?.toTraceId();
+    const spanId = activeContext?.toSpanId();
+    const ddTraceTags = [];
+    if (traceId) {
+        ddTraceTags.push(`dd_trace_id=${traceId}`);
+        if (spanId) {
+            ddTraceTags.push(`dd_span_id=${spanId}`);
+        }
+    }
+    if (recipientId) {
+        const recipient = await db.getUser(recipientId);
+        userTags = [
+            `user_role=${getUserRoleTag(recipient)}`,
+            `organization_id=${recipient.tenant_id}`,
+            `team_id=${recipient.agency_id}`,
+        ];
+    }
+
     return emailService.getTransport().sendEmail({
+        fromName,
         toAddress,
         ccAddress,
         subject,
         body: emailHTML,
         text: emailPlain,
+        tags: [
+            `notification_type=${emailType}`,
+            ...userTags,
+            `service=${process.env.DD_SERVICE}`,
+            `env=${process.env.DD_ENV}`,
+            `version=${process.env.DD_VERSION}`,
+            ...ddTraceTags,
+        ],
     });
 }
 
+function buildBaseUrlSafe() {
+    const baseUrl = new URL(process.env.WEBSITE_DOMAIN);
+    baseUrl.searchParams.set('utm_source', 'usdr-grants');
+    baseUrl.searchParams.set('utm_medium', 'email');
+    return baseUrl.toString();
+}
+
+function buildNotificationsUrlSafe() {
+    const notificationsUrl = new URL(process.env.WEBSITE_DOMAIN);
+    notificationsUrl.pathname = 'my-profile';
+    notificationsUrl.searchParams.set('utm_source', 'usdr-grants');
+    notificationsUrl.searchParams.set('utm_medium', 'email');
+    notificationsUrl.searchParams.set('utm_content', 'change notification preferences');
+    return notificationsUrl.toString();
+}
+
+/**
+ * Adds the base email HTML around the email body HTML. Specifically, adds the USDR logo header,
+ * footer, title, preheader, etc.
+ *
+ * @param {string} emailHTML - Rendered email body HTML
+ * @param {object} brandDetails - Options to control how the base branding is rendered
+ * @param {string} brandDetails.tool_name - Name of the product triggering the email, rendered
+ *   underneath the USDR logo
+ * @param {string} brandDetails.title - Rendered as the HTML <title> (most email programs ignore)
+ * @param {string} brandDetails.preheader - Preview text for the email (most email programs
+ *   render this, often truncated, after the subject line in your inbox)
+ * @param {boolean} brandDetails.includeNotificationsLink - Whether to include a link for users to
+ *   update notification settings (should be true for subscriptions the user can turn off; should
+ *   be false for required emails like login links; note that no default value is provided to
+ *   ensure the setting is intentional for each email type)
+ */
 function addBaseBranding(emailHTML, brandDetails) {
-    const { tool_name, title, notifications_url } = brandDetails;
+    const {
+        tool_name, title, preheader, includeNotificationsLink,
+    } = brandDetails;
+    if (typeof includeNotificationsLink !== 'boolean') {
+        throw new Error('Emails must explicitly include or exclude a link to notification settings');
+    }
     const baseBrandedTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/base.html'));
     const brandedHTML = mustache.render(baseBrandedTemplate.toString(), {
         tool_name,
         title,
         webview_available: false, // Preheader and webview are not setup for Grant notification email.
-        // preheader: 'Test preheader',
+        preheader,
         // webview_url: 'http://localhost:8080',
-        usdr_url: 'http://usdigitalresponse.org',
+        base_url_safe: buildBaseUrlSafe(),
         usdr_logo_url: 'https://grants.usdigitalresponse.org/usdr_logo_transparent.png',
-        notifications_url,
+        notifications_url_safe: includeNotificationsLink ? buildNotificationsUrlSafe() : null,
     }, {
         email_body: emailHTML,
     });
@@ -52,9 +142,9 @@ function addBaseBranding(emailHTML, brandDetails) {
     return brandedHTML;
 }
 
-function sendPassCode(email, passcode, httpOrigin, redirectTo) {
+async function sendPassCodeEmail(email, passcode, httpOrigin, redirectTo) {
     if (!httpOrigin) {
-        throw new Error('must specify httpOrigin in sendPassCode');
+        throw new Error('must specify httpOrigin in sendPassCodeEmail');
     }
 
     const url = new URL(`${httpOrigin}/api/sessions`);
@@ -68,15 +158,16 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
         body_title: 'Login Passcode',
-        body_detail: `<p>Your link to access USDR's Grants Tool is <a href=${href}>${href}</a>.
+        body_detail: `<p>Your link to access USDR's Grants Tool is <a ses:no-track href=${href}>${href}</a>.
         It expires in ${expiryMinutes} minutes</p>`,
     });
 
-    const emailHTML = module.exports.addBaseBranding(
+    const emailHTML = addBaseBranding(
         formattedBody,
         {
             tool_name: href.includes('reporter') ? 'Grants Reporter Tool' : 'Grants Identification Tool',
             title: 'Login Passcode',
+            includeNotificationsLink: false,
         },
     );
 
@@ -87,19 +178,21 @@ function sendPassCode(email, passcode, httpOrigin, redirectTo) {
         console.log(`${BLUE}${message}`);
         console.log(`${BLUE}${'-'.repeat(message.length)}`);
     }
-    return module.exports.deliverEmail({
+    await deliverEmail({
+        fromName: GENERIC_FROM_NAME,
         toAddress: email,
         emailHTML,
         emailPlain: `Your link to access USDR's Grants tool is ${href}. It expires in ${expiryMinutes} minutes`,
         subject: 'USDR Grants Tool Access Link',
+        emailType: tags.emailTypes.passcode,
     });
 }
 
 async function sendReportErrorEmail(user, reportType) {
-    const body = `There was an error generating a your requested ${reportType} Report. `
+    const body = `There was an error generating your requested ${reportType.name} report. `
     + 'Someone from USDR will reach out within 24 hours to debug the problem. '
     + 'We apologize for any inconvenience.';
-    const subject = `${reportType} Report generation has failed for ${user.tenant.display_name}`;
+    const subject = `${capitalize(reportType.name)} report generation has failed for ${user.tenant.display_name}`;
 
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
 
@@ -108,20 +201,23 @@ async function sendReportErrorEmail(user, reportType) {
         body_detail: body,
     });
 
-    const emailHTML = module.exports.addBaseBranding(
+    const emailHTML = addBaseBranding(
         formattedBody,
         {
             tool_name: 'Grants Reporter Tool',
             title: subject,
+            includeNotificationsLink: false,
         },
     );
 
-    return module.exports.deliverEmail({
+    await deliverEmail({
+        fromName: ARPA_EMAIL_FROM_NAME,
         toAddress: user.email,
         ccAddress: HELPDESK_EMAIL,
         emailHTML,
         emailPlain: body,
         subject,
+        emailType: reportType.errorEmailType,
     });
 }
 
@@ -137,19 +233,22 @@ function sendWelcomeEmail(email, httpOrigin) {
         <a href="${httpOrigin}">${httpOrigin}</a>.`,
     });
 
-    const emailHTML = module.exports.addBaseBranding(
+    const emailHTML = addBaseBranding(
         formattedBody,
         {
             tool_name: httpOrigin.includes('reporter') ? 'Grants Reporter Tool' : 'Grants Identification Tool',
             title: 'Welcome to the USDR Grants tool',
+            includeNotificationsLink: false,
         },
     );
 
-    return module.exports.deliverEmail({
+    return deliverEmail({
+        fromName: GENERIC_FROM_NAME,
         toAddress: email,
         emailHTML,
         emailPlain: `Visit USDR's Grants Tool at: ${httpOrigin}.`,
         subject: 'Welcome to USDR Grants Tool',
+        emailType: tags.emailTypes.welcome,
     });
 }
 
@@ -167,6 +266,8 @@ function buildGrantsUrlSafe(emailNotificationType) {
     const grantsUrl = new URL(process.env.WEBSITE_DOMAIN);
     if (emailNotificationType === notificationType.grantDigest) {
         grantsUrl.pathname = 'grants';
+    } else if (process.env.SHARE_TERMINOLOGY_ENABLED === 'true' && emailNotificationType === notificationType.grantAssignment) {
+        grantsUrl.pathname = 'my-grants/shared-with-your-team';
     } else {
         grantsUrl.pathname = 'my-grants';
     }
@@ -174,6 +275,20 @@ function buildGrantsUrlSafe(emailNotificationType) {
     grantsUrl.searchParams.set('utm_medium', 'email');
     grantsUrl.searchParams.set('utm_campaign', mustache.escape(emailNotificationType));
     return grantsUrl.toString();
+}
+
+function getGrantDetailViewGrantLabel(emailNotificationType) {
+    switch (emailNotificationType) {
+        case (notificationType.grantDigest): return undefined;
+        case (notificationType.grantAssignment): {
+            if (process.env.SHARE_TERMINOLOGY_ENABLED === 'true') {
+                return 'See All Grants Shared With My Team';
+            }
+            // Fall through intentionally if SHARE_TERMINOLOGY is disabled
+        }
+        default:
+            return 'View My Grants';
+    }
 }
 
 function getGrantDetail(grant, emailNotificationType) {
@@ -198,20 +313,19 @@ function getGrantDetail(grant, emailNotificationType) {
                 ? 'Grant Finder'
                 : 'Grants.gov',
             grants_url_safe: buildGrantsUrlSafe(emailNotificationType),
-            view_grant_label: emailNotificationType === notificationType.grantDigest ? undefined : 'View My Grants',
+            view_grant_label: getGrantDetailViewGrantLabel(emailNotificationType),
         },
     );
     return grantDetail;
 }
 
-async function buildGrantDetail(grantId, emailNotificationType) {
+async function buildGrantDetail(grant, emailNotificationType) {
     // Add try catch here.
-    const grant = await db.getGrant({ grantId });
-    const grantDetail = module.exports.getGrantDetail(grant, emailNotificationType);
+    const grantDetail = getGrantDetail(grant, emailNotificationType);
     return grantDetail;
 }
 
-async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetail, assignorUserId) {
+async function sendGrantAssignedEmailsForAgencyLegacy(assignee_agency, grantDetail, assignorUserId) {
     const grantAssignedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_assigned_body.html'));
 
     const assignor = await db.getUser(assignorUserId);
@@ -220,6 +334,8 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
         assignor_name: assignor.name,
         assignor_agency_name: assignor.agency.name,
         assignee_agency_name: assignee_agency.name,
+        grant_assigned_header: 'Grant Assigned',
+        use_share_terminology: false,
     }, {
         grant_detail: grantDetail,
     });
@@ -228,10 +344,10 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     baseUrl.searchParams.set('utm_source', 'subscription');
     baseUrl.searchParams.set('utm_medium', 'email');
     baseUrl.searchParams.set('utm_campaign', 'GRANT_ASSIGNMENT');
-    const emailHTML = module.exports.addBaseBranding(grantAssignedBody, {
+    const emailHTML = addBaseBranding(grantAssignedBody, {
         tool_name: 'Grants Identification Tool',
         title: 'Grants Assigned Notification',
-        notifications_url: baseUrl.toString(),
+        includeNotificationsLink: true,
     });
 
     // TODO: add plain text version of the email
@@ -242,16 +358,63 @@ async function sendGrantAssignedNotficationForAgency(assignee_agency, grantDetai
     const inputs = [];
     assignees.forEach((assignee) => inputs.push(
         {
+            fromName: GRANT_FINDER_EMAIL_FROM_NAME,
             toAddress: assignee.email,
             emailHTML,
             emailPlain,
             subject: emailSubject,
+            emailType: tags.emailTypes.grantAssignment,
         },
     ));
-    asyncBatch(inputs, module.exports.deliverEmail, 2);
+    await asyncBatch(inputs, deliverEmail, 2);
 }
 
-async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
+async function sendGrantAssignedEmailsForAgency(assignee_agency, grant, grantDetail, assignorUserId) {
+    const grantAssignedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_grant_assigned_body.html'));
+
+    const assignor = await db.getUser(assignorUserId);
+
+    const grantAssignedBody = mustache.render(grantAssignedBodyTemplate.toString(), {
+        grant_assigned_header: `${assignor.name} Shared a Grant with Your Team`,
+        assignor_name: assignor.name,
+        assignor_agency_name: assignor.agency.name,
+        assignee_agency_name: assignee_agency.name,
+        use_share_terminology: true,
+    }, {
+        grant_detail: grantDetail,
+    });
+    const baseUrl = new URL(process.env.WEBSITE_DOMAIN);
+    baseUrl.pathname = 'my-grants';
+    baseUrl.searchParams.set('utm_source', 'subscription');
+    baseUrl.searchParams.set('utm_medium', 'email');
+    baseUrl.searchParams.set('utm_campaign', 'GRANT_ASSIGNMENT');
+    const emailHTML = addBaseBranding(grantAssignedBody, {
+        tool_name: 'Federal Grant Finder',
+        title: `${assignor.name} Shared a Grant with Your Team`,
+        preheader: grant.title,
+        includeNotificationsLink: true,
+    });
+
+    // TODO: add plain text version of the email
+    const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
+    const emailSubject = `${assignor.name} Shared a Grant with Your Team`;
+    const assignees = await db.getSubscribersForNotification(assignee_agency.id, notificationType.grantAssignment);
+
+    const inputs = [];
+    assignees.forEach((assignee) => inputs.push(
+        {
+            fromName: GRANT_FINDER_EMAIL_FROM_NAME,
+            toAddress: assignee.email,
+            emailHTML,
+            emailPlain,
+            subject: emailSubject,
+            emailType: tags.emailTypes.grantAssignment,
+        },
+    ));
+    await asyncBatch(inputs, deliverEmail, 2);
+}
+
+async function sendGrantAssignedEmails({ grantId, agencyIds, userId }) {
     /*
     1. Build the grant detail template
     2. For each agency
@@ -260,11 +423,16 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
             i. Send email
     */
     try {
-        const grantDetail = await buildGrantDetail(grantId, notificationType.grantAssignment);
+        const grant = await db.getGrant({ grantId });
+        const grantDetail = await buildGrantDetail(grant, notificationType.grantAssignment);
         const agencies = await db.getAgenciesByIds(agencyIds);
         await asyncBatch(
             agencies,
-            (agency) => { module.exports.sendGrantAssignedNotficationForAgency(agency, grantDetail, userId); },
+            async (agency) => {
+                process.env.SHARE_TERMINOLOGY_ENABLED === 'true'
+                    ? await sendGrantAssignedEmailsForAgency(agency, grant, grantDetail, userId)
+                    : await sendGrantAssignedEmailsForAgencyLegacy(agency, grantDetail, userId);
+            },
             2,
         );
     } catch (err) {
@@ -277,7 +445,7 @@ async function sendGrantAssignedEmail({ grantId, agencyIds, userId }) {
 
 async function buildDigestBody({ name, openDate, matchedGrants }) {
     const grantDetails = [];
-    matchedGrants.slice(0, 30).forEach((grant) => grantDetails.push(module.exports.getGrantDetail(grant, notificationType.grantDigest)));
+    matchedGrants.slice(0, 30).forEach((grant) => grantDetails.push(getGrantDetail(grant, notificationType.grantDigest)));
 
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
     const contentSpacerTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_content_spacer.html'));
@@ -297,8 +465,8 @@ async function buildDigestBody({ name, openDate, matchedGrants }) {
     return formattedBody;
 }
 
-async function sendGrantDigest({
-    name, matchedGrants, recipients, openDate,
+async function sendGrantDigestEmail({
+    name, matchedGrants, matchedGrantsTotal, recipient, openDate,
 }) {
     console.log(`${name} is subscribed for notifications on ${openDate}`);
 
@@ -307,34 +475,31 @@ async function sendGrantDigest({
         return;
     }
 
-    if (!recipients || recipients?.length === 0) {
-        console.error(`There were no email recipients available for ${name}`);
-        return;
-    }
-
     const formattedBody = await buildDigestBody({ name, openDate, matchedGrants });
+    const preheader = typeof matchedGrantsTotal === 'number' && matchedGrantsTotal > 0
+        ? `You have ${Intl.NumberFormat('en-US', { useGrouping: true }).format(matchedGrantsTotal)} new ${matchedGrantsTotal > 1 ? 'grants' : 'grant'} to review!`
+        : 'You have new grants to review!';
 
-    const emailHTML = module.exports.addBaseBranding(formattedBody, {
+    const emailHTML = addBaseBranding(formattedBody, {
         tool_name: 'Federal Grant Finder',
         title: 'New Grants Digest',
-        notifications_url: (process.env.ENABLE_MY_PROFILE === 'true') ? `${process.env.WEBSITE_DOMAIN}/my-profile` : `${process.env.WEBSITE_DOMAIN}/grants?manageSettings=true`,
+        preheader,
+        includeNotificationsLink: true,
     });
 
     // TODO: add plain text version of the email
     const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
 
-    const inputs = [];
-    recipients.forEach(
-        (recipient) => inputs.push(
-            {
-                toAddress: recipient.trim(),
-                emailHTML,
-                emailPlain,
-                subject: `New Grants published for ${name}`,
-            },
-        ),
+    await deliverEmail(
+        {
+            fromName: GRANT_FINDER_EMAIL_FROM_NAME,
+            toAddress: recipient,
+            emailHTML,
+            emailPlain,
+            subject: `New Grants Published for ${name}`,
+            emailType: tags.emailTypes.grantDigest,
+        },
     );
-    asyncBatch(inputs, module.exports.deliverEmail, 2);
 }
 
 async function getAndSendGrantForSavedSearch({
@@ -354,18 +519,20 @@ async function getAndSendGrantForSavedSearch({
         false,
     );
 
-    return sendGrantDigest({
+    return sendGrantDigestEmail({
         name: userSavedSearch.name,
         matchedGrants: response.data,
-        recipients: [userSavedSearch.email],
+        matchedGrantsTotal: response.pagination.total,
+        recipient: userSavedSearch.email,
         openDate,
     });
 }
 
-async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
-    if (!openDate) {
-        openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
-    }
+function yesterday() {
+    return moment().subtract(1, 'day').format('YYYY-MM-DD');
+}
+
+async function buildAndSendGrantDigestEmails(userId, openDate = yesterday()) {
     console.log(`Building and sending Grants Digest email for user: ${userId} on ${openDate}`);
     /*
     1. get all saved searches mapped to each user
@@ -386,65 +553,47 @@ async function buildAndSendUserSavedSearchGrantDigest(userId, openDate) {
     console.log(`Successfully built and sent grants digest emails for ${inputs.length} saved searches on ${openDate}`);
 }
 
-async function buildAndSendGrantDigest() {
-    const openDate = moment().subtract(1, 'day').format('YYYY-MM-DD');
-    console.log(`Building and sending Grants Digest email for all agencies on ${openDate}`);
-    /*
-    1. get all agencies with notificaiton turned on (temporarily get all agencies with a custom keyword)
-    2. for each agency
-        call sendGrantDigest
-    */
-    const agencies = await db.getAgenciesSubscribedToDigest(openDate);
-    const inputs = [];
-    agencies.forEach((agency) => inputs.push({
-        name: agency.name,
-        matchedGrants: agency.matched_grants,
-        recipients: agency.recipients,
-        openDate,
-    }));
-    await asyncBatch(inputs, module.exports.sendGrantDigest, 2);
-
-    console.log(`Successfully built and sent grants digest emails for ${openDate}`);
-}
-
 async function sendAsyncReportEmail(recipient, signedUrl, reportType) {
     const formattedBodyTemplate = fileSystem.readFileSync(path.join(__dirname, '../static/email_templates/_formatted_body.html'));
 
     const formattedBody = mustache.render(formattedBodyTemplate.toString(), {
-        body_title: `Your ${reportType} report is ready for download`,
+        body_title: `Your ${reportType.name} report is ready for download`,
         body_detail: `<p><a href=${signedUrl}><b>Click here</b></a> to download your file<br>Or, paste this link into your browser:<br><b>${signedUrl}</b><br><br>This link will remain active for 7 days.</p>`,
     });
 
-    const emailHTML = module.exports.addBaseBranding(
+    const emailHTML = addBaseBranding(
         formattedBody,
         {
             tool_name: 'Grants Reporter Tool',
-            title: `Your ${reportType} report is ready for download`,
+            title: `Your ${reportType.name} report is ready for download`,
+            includeNotificationsLink: false,
         },
     );
 
-    return module.exports.deliverEmail({
+    await deliverEmail({
+        fromName: ARPA_EMAIL_FROM_NAME,
         toAddress: recipient,
         emailHTML,
-        emailPlain: `Your ${reportType} report is ready for download. Paste this link into your browser to download it: ${signedUrl} This link will remain active for 7 days.`,
-        subject: `Your ${reportType} report is ready for download`,
+        emailPlain: `Your ${reportType.name} report is ready for download. Paste this link into your browser to download it: ${signedUrl} This link will remain active for 7 days.`,
+        subject: `Your ${reportType.name} report is ready for download`,
+        emailType: reportType.emailType,
     });
 }
 
 module.exports = {
-    sendPassCode,
+    sendPassCodeEmail,
     sendWelcomeEmail,
     sendReportErrorEmail,
-    sendGrantAssignedEmail,
-    deliverEmail,
-    buildGrantDetail,
-    sendGrantAssignedNotficationForAgency,
-    buildAndSendUserSavedSearchGrantDigest,
-    buildAndSendGrantDigest,
-    getAndSendGrantForSavedSearch,
-    sendGrantDigest,
-    getGrantDetail,
-    addBaseBranding,
+    /**
+     * Send emails to all subscribed parties when a grant is assigned to one or more agencies.
+     */
+    sendGrantAssignedEmails,
+    /**
+     * Send grant digest emails to all subscribed users.
+     */
+    buildAndSendGrantDigestEmails,
+    sendGrantDigestEmail,
+    // Exposed for testing
     buildDigestBody,
     sendAsyncReportEmail,
     ASYNC_REPORT_TYPES,

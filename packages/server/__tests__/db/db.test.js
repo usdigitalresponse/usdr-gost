@@ -40,9 +40,11 @@ describe('db', () => {
                 'DRY RUN :: Begin migrating legacy agency criteria to saved searches',
                 'DRY RUN :: Migrating agency criteria for agency 0',
                 'DRY RUN :: No agency criteria to migrate for agency 1',
+                'DRY RUN :: No agency criteria to migrate for agency 2',
                 'DRY RUN :: Migrating agency criteria for agency 4',
                 'DRY RUN :: Migrating agency criteria for users 1,2 belonging to agency 0',
                 'DRY RUN :: No agency criteria to migrate for users 3 belonging to agency 1',
+                'DRY RUN :: No agency criteria to migrate for users 4 belonging to agency 2',
                 'DRY RUN :: No users to migrate for agency 4',
                 'DRY RUN :: Would have inserted approximately 2 saved searches. Note: there may be duplicates.',
                 'DRY RUN :: Done migrating legacy agency criteria to saved searches',
@@ -64,9 +66,11 @@ describe('db', () => {
                 'Begin migrating legacy agency criteria to saved searches',
                 'Migrating agency criteria for agency 0',
                 'No agency criteria to migrate for agency 1',
+                'No agency criteria to migrate for agency 2',
                 'Migrating agency criteria for agency 4',
                 'Migrating agency criteria for users 1,2 belonging to agency 0',
                 'No agency criteria to migrate for users 3 belonging to agency 1',
+                'No agency criteria to migrate for users 4 belonging to agency 2',
                 'No users to migrate for agency 4',
                 'Inserted 2 saved searches',
                 'Done migrating legacy agency criteria to saved searches',
@@ -109,9 +113,11 @@ describe('db', () => {
                 'Begin migrating legacy agency criteria to saved searches',
                 'Migrating agency criteria for agency 0',
                 'No agency criteria to migrate for agency 1',
+                'No agency criteria to migrate for agency 2',
                 'Migrating agency criteria for agency 4',
                 'Migrating agency criteria for users 1,2 belonging to agency 0',
                 'No agency criteria to migrate for users 3 belonging to agency 1',
+                'No agency criteria to migrate for users 4 belonging to agency 2',
                 'No users to migrate for agency 4',
                 'Inserted 1 saved searches', // This would have been 2 if not for the duplication mechanism.
                 'Done migrating legacy agency criteria to saved searches',
@@ -302,81 +308,10 @@ describe('db', () => {
             expect(rows.data).to.have.lengthOf(2);
             expect(rows.data.map((r) => r.created_at.getTime())).to.have.all.members([1663117521515, 1659827033570]);
         });
-    });
-    context('getTotalInterestedGrants', () => {
-        it('gets total interested grants count', async () => {
-            const result = await db.getTotalInterestedGrants(fixtures.users.staffUser.agency_id);
-
-            expect(result).to.equal(5);
-        });
-    });
-
-    context('getTotalGrants', () => {
-        it('gets total grant count with no parameters', async () => {
-            const result = await db.getTotalGrants();
-            expect(result).to.equal('8');
-        });
-
-        it('gets total grant count matching agency criteria', async () => {
-            const agencyCriteria = {
-                eligibilityCodes: ['11'],
-                includeKeywords: ['Covid'],
-            };
-            const result = await db.getTotalGrants({ agencyCriteria });
-            expect(result).to.equal('1');
-        });
-
-        it('gets total grant count matching eligibilityCodes only', async () => {
-            const agencyCriteria = {
-                eligibilityCodes: ['25'],
-            };
-            const result = await db.getTotalGrants({ agencyCriteria });
-            expect(result).to.equal('2');
-        });
-
-        it('gets total grant count matching keywords only', async () => {
-            const agencyCriteria = {
-                includeKeywords: ['earth sciences'],
-            };
-            const result = await db.getTotalGrants({ agencyCriteria });
-            expect(result).to.equal('1');
-        });
-
-        it('gets total grant count with created fromTs', async () => {
-            const createdTsBounds = { fromTs: new Date(2021, 7, 9) };
-            const result = await db.getTotalGrants({ createdTsBounds });
-            expect(result).to.equal('1');
-        });
-
-        it('gets total grant count with updated fromTs', async () => {
-            const updatedTsBounds = { fromTs: new Date(2021, 7, 9) };
-            const result = await db.getTotalGrants({ updatedTsBounds });
-            expect(result).to.equal('8');
-        });
-
-        it('gets total grant count with updated fromTs and matching agency criteria', async () => {
-            const updatedTsBounds = { fromTs: new Date(2021, 7, 9) };
-            const agencyCriteria = {
-                eligibilityCodes: ['25'],
-            };
-
-            const result = await db.getTotalGrants({ updatedTsBounds, agencyCriteria });
-
-            expect(result).to.equal('2');
-        });
-    });
-
-    context('getClosestGrant', () => {
-        it('gets closest grants', async () => {
-            const searchTimestamp = new Date('2021-11-02');
-            const result = await db.getClosestGrants({
-                agency: 0,
-                perPage: 10,
-                currentPage: 1,
-                timestampForTest: searchTimestamp,
-            });
-            expect(result.data.length).to.equal(2);
-            expect(result.data[0].grant_id).to.equal('1');
+        it('includes assigned_by_user_name for assigned grants', async () => {
+            const rows = await db.getGrantsInterested({ agencyId: fixtures.users.staffUser.agency_id, perPage: 6, currentPage: 1 });
+            const record = rows.data.find((el) => el.assigned_by === 1);
+            expect(record.assigned_by_user_name).to.equal('Admin User');
         });
     });
 
@@ -797,50 +732,14 @@ describe('db', () => {
         });
     });
 
-    context('getAgenciesSubscribedToDigest', () => {
-        beforeEach(() => {
-            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
-            this.clock = this.clockFn('2021-08-06');
+    context('getUserIdForEmail', () => {
+        it('returns id when user exists', async () => {
+            const result = await db.getUserIdForEmail(fixtures.users.adminUser.email);
+            expect(result).to.equal(fixtures.users.adminUser.id);
         });
-        afterEach(() => {
-            this.clock.restore();
-        });
-        it('returns agencies with keywords and eligibility codes setup with explicit subscriptions setup', async () => {
-            /* ensure that admin user is subscribed to all notifications */
-            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
-
-            /* ensure that staff user is not subscribed to any notifications */
-            const emailUnsubscribePreference = Object.assign(
-                ...Object.values(emailConstants.notificationType).map(
-                    (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
-                ),
-            );
-            await db.setUserEmailSubscriptionPreference(fixtures.users.staffUser.id, fixtures.users.staffUser.agency_id, emailUnsubscribePreference);
-
-            const result = await db.getAgenciesSubscribedToDigest();
-            expect(result.length).to.equal(1);
-            expect(result[0].name).to.equal('State Board of Accountancy');
-            expect(result[0].recipients.length).to.equal(1);
-            expect(result[0].recipients[0]).to.equal(fixtures.users.adminUser.email);
-
-            await knex('email_subscriptions').del();
-        });
-        it('returns agencies with keywords and eligibility codes setup with default subscribed', async () => {
-            /* ensure that staff user is not subscribed to any notifications */
-            const emailUnsubscribePreference = Object.assign(
-                ...Object.values(emailConstants.notificationType).map(
-                    (k) => ({ [k]: emailConstants.emailSubscriptionStatus.unsubscribed }),
-                ),
-            );
-            await db.setUserEmailSubscriptionPreference(fixtures.users.staffUser.id, fixtures.users.staffUser.agency_id, emailUnsubscribePreference);
-
-            const result = await db.getAgenciesSubscribedToDigest();
-            expect(result.length).to.equal(1);
-            expect(result[0].name).to.equal('State Board of Accountancy');
-            expect(result[0].recipients.length).to.equal(1);
-            expect(result[0].recipients[0]).to.equal(fixtures.users.adminUser.email);
-
-            await knex('email_subscriptions').del();
+        it('returns null when user does not exist', async () => {
+            const result = await db.getUserIdForEmail('notauser@google.com');
+            expect(result).to.be.null;
         });
     });
 
@@ -864,22 +763,6 @@ describe('db', () => {
             await knex(TABLES.grants).insert(Object.values([newGrant]));
             const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
             expect(result.length).to.equal(1);
-        });
-    });
-
-    context('getTotalInterestedGrantsByAgencies', () => {
-        it('returns total interested grants by agencies', async () => {
-            const agencyId = fixtures.users.staffUser.agency_id;
-            const result = await db.getTotalInterestedGrantsByAgencies(agencyId);
-            const agencyResult = result[0];
-            expect(agencyResult.agency_id).to.equal(fixtures.agencies.accountancy.id);
-            expect(agencyResult.interested).to.equal('1');
-            expect(agencyResult.rejections).to.equal('2');
-
-            expect(agencyResult.count).to.equal('4');
-            expect(agencyResult.total_grant_money).to.equal('1506500');
-            expect(agencyResult.total_interested_grant_money).to.equal('500000');
-            expect(agencyResult.total_rejected_grant_money).to.equal('506500');
         });
     });
 
@@ -1169,6 +1052,70 @@ describe('db', () => {
             expect(digestSubscribers.includes(fixtures.users.adminUser.email)).to.equal(true);
 
             expect(interestResult.length).to.equal(0);
+        });
+    });
+
+    context('markGrantAsViewed', () => {
+        beforeEach(() => {
+            this.clock = sinon.useFakeTimers(new Date('2024-01-01'));
+        });
+
+        afterEach(() => {
+            this.clock.restore();
+        });
+
+        it('adds a viewed record for a user', async () => {
+            await db.markGrantAsViewed({
+                grantId: fixtures.grants.healthAide.grant_id,
+                agencyId: fixtures.users.subStaffUser.agency_id,
+                userId: fixtures.users.subStaffUser.id,
+            });
+
+            const viewedRecords = await knex(TABLES.grants_viewed)
+                .where({ grant_id: fixtures.grants.healthAide.grant_id });
+            expect(viewedRecords.length).to.equal(1);
+            expect(viewedRecords[0].agency_id).to.equal(fixtures.users.subStaffUser.agency_id);
+            expect(viewedRecords[0].user_id).to.equal(fixtures.users.subStaffUser.id);
+            expect(viewedRecords[0].updated_at.getTime()).to.equal(new Date('2024-01-01').getTime());
+        });
+
+        it('updates a viewed record for the same user', async () => {
+            const viewedArgs = {
+                grantId: fixtures.grants.healthAide.grant_id,
+                agencyId: fixtures.users.subStaffUser.agency_id,
+                userId: fixtures.users.subStaffUser.id,
+            };
+            await db.markGrantAsViewed(viewedArgs);
+            this.clock.tick('24:00:00');
+            await db.markGrantAsViewed(viewedArgs);
+
+            const viewedRecords = await knex(TABLES.grants_viewed)
+                .where({ grant_id: fixtures.grants.healthAide.grant_id });
+            expect(viewedRecords.length).to.equal(1);
+            expect(viewedRecords[0].agency_id).to.equal(fixtures.users.subStaffUser.agency_id);
+            expect(viewedRecords[0].user_id).to.equal(fixtures.users.subStaffUser.id);
+            expect(viewedRecords[0].updated_at.getTime()).to.equal(new Date('2024-01-02').getTime());
+        });
+
+        it('adds a viewed records for multiple users in an agency', async () => {
+            await db.markGrantAsViewed({
+                grantId: fixtures.grants.healthAide.grant_id,
+                agencyId: fixtures.users.subStaffUser.agency_id,
+                userId: fixtures.users.subStaffUser.id,
+            });
+            await db.markGrantAsViewed({
+                grantId: fixtures.grants.healthAide.grant_id,
+                agencyId: fixtures.users.usdrUser.agency_id,
+                userId: fixtures.users.usdrUser.id,
+            });
+
+            const viewedRecords = await knex(TABLES.grants_viewed)
+                .where({ grant_id: fixtures.grants.healthAide.grant_id });
+            expect(viewedRecords.length).to.equal(2);
+            const subStaffUserViewedRecord = viewedRecords.find((record) => record.user_id === fixtures.users.subStaffUser.id);
+            const usdrUserViewedRecord = viewedRecords.find((record) => record.user_id === fixtures.users.usdrUser.id);
+            expect(subStaffUserViewedRecord.updated_at.getTime()).to.equal(new Date('2024-01-01').getTime());
+            expect(usdrUserViewedRecord.updated_at.getTime()).to.equal(new Date('2024-01-01').getTime());
         });
     });
 });

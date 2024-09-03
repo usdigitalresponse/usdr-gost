@@ -3,26 +3,31 @@
   <div>
     <b-modal
       id="edit-tenant-modal"
-      v-model="showDialog"
       ref="modal"
+      v-model="showDialog"
       :title="newTerminologyEnabled ? 'Edit Organization' : 'Edit Tenant'"
       @hidden="resetModal"
       @ok="handleOk"
     >
-    <h3>{{this.tenant && this.tenant.displayName}}</h3>
-      <form ref="form" @submit.stop.prevent="handleSubmit">
+      <h3>{{ tenant && tenant.displayName }}</h3>
+      <form
+        ref="form"
+        @submit.stop.prevent="handleSubmit"
+      >
         <b-form-group
           label-for="name-input"
         >
-          <template slot="label">Name</template>
+          <template #label>
+            Name
+          </template>
           <b-form-input
-              autofocus
-              id="name-input"
-              type="text"
-              min=2
-              v-model="formData.displayName"
-              required
-            ></b-form-input>
+            id="name-input"
+            v-model="formData.displayName"
+            autofocus
+            type="text"
+            min="2"
+            required
+          />
         </b-form-group>
       </form>
     </b-modal>
@@ -30,12 +35,15 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions } from 'vuex';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
-    tenant: Object,
+    tenant: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
@@ -50,12 +58,6 @@ export default {
       this.formData.displayName = this.tenant && this.tenant.display_name;
       this.showDialog = Boolean(this.tenant !== null);
     },
-  },
-  computed: {
-    ...mapGetters({
-    }),
-  },
-  mounted() {
   },
   methods: {
     ...mapActions({

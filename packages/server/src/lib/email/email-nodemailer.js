@@ -33,7 +33,7 @@ function createTransport() {
     return nodemailer.createTransport({
         host: process.env.NODEMAILER_HOST, // e.g. 'smtp.ethereal.email'
         port: process.env.NODEMAILER_PORT, // e.g. 465
-        secure: true, // true for 465, false for other ports
+        secure: process.env.NODEMAILER_SECURE !== 'false', // In dev, it can be useful to turn this off, e.g. to work with ethereal.email
         auth: {
             user: process.env.NODEMAILER_EMAIL,
             pass: process.env.NODEMAILER_EMAIL_PW,
@@ -46,16 +46,24 @@ async function sendEmail(message) {
 
     const transport = createTransport();
     const params = {
-        from: process.env.NODEMAILER_EMAIL, // sender address
+        from: {
+            name: message.fromName, // If not provided, undefined value is ignored just fine by nodemailer
+            address: process.env.NODEMAILER_EMAIL,
+        },
         to: message.toAddress, // list of receivers e.g. 'a@aa.com, b@bb.com'
         subject: message.subject,
         // text: 'Hello world?', // plain text body
         html: message.body, // html body
+        headers: {
+            // This is the correct header for tags if sending to an AWS SES SMTP endpoint.
+            // Any other SMTP server will probably ignore this header.
+            'X-SES-MESSAGE-TAGS': message.tags.join(', '),
+        },
     };
     if (message.ccAddress) {
         params.cc = message.ccAddress;
     }
-    transport.sendMail(params);
+    await transport.sendMail(params);
 }
 
 module.exports = { sendEmail };

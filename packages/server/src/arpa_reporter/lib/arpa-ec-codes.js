@@ -80,6 +80,7 @@ const ecCodes = {
     5.21: 'Broadband: Other projects',
     7.1: 'Administrative Expenses',
     7.2: 'Transfers to Other Units of Government',
+    7.3: 'Costs Associated with Satisfying Certain Legal and Administrative Requirements of the SLFRF Program After December 31, 2024',
 };
 
 module.exports = {

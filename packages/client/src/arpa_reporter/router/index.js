@@ -1,119 +1,112 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
-import Agencies from '../views/Agencies.vue';
-import Agency from '../views/Agency.vue';
-import Home from '../views/Home.vue';
-import Login from '../views/Login.vue';
-import NewTemplate from '../views/NewTemplate.vue';
-import NewUpload from '../views/NewUpload.vue';
-import Upload from '../views/Upload.vue';
-import Uploads from '../views/Uploads.vue';
-import ReportingPeriod from '../views/ReportingPeriod.vue';
-import ReportingPeriods from '../views/ReportingPeriods.vue';
-import Subrecipient from '../views/Subrecipient.vue';
-import Subrecipients from '../views/Subrecipients.vue';
-import User from '../views/User.vue';
-import Users from '../views/Users.vue';
-import Validation from '../views/Validation.vue';
-
-import store from '../store/index';
-
-Vue.use(VueRouter);
+import AgenciesView from '@/arpa_reporter/views/AgenciesView.vue';
+import AgencyView from '@/arpa_reporter/views/AgencyView.vue';
+import HomeView from '@/arpa_reporter/views/HomeView.vue';
+import LoginView from '@/arpa_reporter/views/LoginView.vue';
+import NewTemplateView from '@/arpa_reporter/views/NewTemplateView.vue';
+import NewUploadView from '@/arpa_reporter/views/NewUploadView.vue';
+import ReportingPeriodView from '@/arpa_reporter/views/ReportingPeriodView.vue';
+import ReportingPeriodsView from '@/arpa_reporter/views/ReportingPeriodsView.vue';
+import SubrecipientView from '@/arpa_reporter/views/SubrecipientView.vue';
+import SubrecipientsView from '@/arpa_reporter/views/SubrecipientsView.vue';
+import UserView from '@/arpa_reporter/views/UserView.vue';
+import UsersView from '@/arpa_reporter/views/UsersView.vue';
+import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
+import UploadView from '@/arpa_reporter/views/UploadView.vue';
+import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
+import store from '@/arpa_reporter/store';
 
 const routes = [
-  { path: '/login', name: 'Login', component: Login },
+  { path: '/login', name: 'Login', component: LoginView },
   {
     path: '/',
     name: 'Home',
-    component: Home,
+    component: HomeView,
     meta: { requiresLogin: true },
   },
   {
     path: '/new_upload',
     name: 'NewUpload',
-    component: NewUpload,
+    component: NewUploadView,
     meta: { requiresLogin: true },
   },
   {
     path: '/new_template/:id',
     name: 'NewTemplate',
-    component: NewTemplate,
+    component: NewTemplateView,
     meta: { requiresLogin: true },
   },
   {
     path: '/uploads',
     name: 'Uploads',
-    component: Uploads,
+    component: UploadsView,
     meta: { requiresLogin: true },
   },
   {
     path: '/uploads/:id',
     name: 'Upload',
-    component: Upload,
+    component: UploadView,
     meta: { requiresLogin: true },
   },
   {
     path: '/agencies',
     name: 'Agencies',
-    component: Agencies,
+    component: AgenciesView,
     meta: { requiresLogin: true },
   },
   {
     path: '/agencies/:id',
     name: 'Agency',
-    component: Agency,
+    component: AgencyView,
     meta: { requiresLogin: true },
   },
   {
     path: '/reporting_periods',
     name: 'ReportingPeriods',
-    component: ReportingPeriods,
+    component: ReportingPeriodsView,
     meta: { requiresLogin: true },
   },
   {
     path: '/reporting_periods/:id',
     name: 'ReportingPeriod',
-    component: ReportingPeriod,
+    component: ReportingPeriodView,
     meta: { requiresLogin: true },
   },
   {
     path: '/subrecipients',
     name: 'Subrecipients',
-    component: Subrecipients,
+    component: SubrecipientsView,
     meta: { requiresLogin: true },
   },
   {
     path: '/subrecipients/:id',
     name: 'Subrecipient',
-    component: Subrecipient,
+    component: SubrecipientView,
     meta: { requiresLogin: true },
   },
   {
     path: '/users',
     name: 'Users',
-    component: Users,
+    component: UsersView,
     meta: { requiresLogin: true },
   },
   {
     path: '/users/:id',
     name: 'User',
-    component: User,
+    component: UserView,
     meta: { requiresLogin: true },
   },
   {
     path: '/validation',
     name: 'Validation',
-    component: Validation,
+    component: ValidationView,
     meta: { requiresLogin: true },
   },
 ];
 
-const router = new VueRouter({
-  mode: 'history',
-  base: process.env.VUE_APP_IS_GOST
-    ? `${process.env.BASE_URL}arpa_reporter/`
-    : process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHistory(`${import.meta.env.BASE_URL}arpa_reporter/`),
   routes,
 });
 

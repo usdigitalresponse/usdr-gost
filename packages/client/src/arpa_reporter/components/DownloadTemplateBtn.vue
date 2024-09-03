@@ -1,20 +1,24 @@
 <template>
-  <DownloadButton :href="href" :classes="classes" :disabled="isDisabled">
+  <DownloadButton
+    :href="href"
+    :classes="classes"
+    :disabled="isDisabled"
+  >
     Download Empty Template
   </DownloadButton>
 </template>
 
 <script>
 import { apiURL } from '@/helpers/fetchApi';
-import DownloadButton from './DownloadButton.vue';
+import DownloadButton from '@/arpa_reporter/components/DownloadButton.vue';
 
 export default {
   name: 'DownloadTemplateBtn',
-  props: {
-    block: Boolean,
-  },
   components: {
     DownloadButton,
+  },
+  props: {
+    block: Boolean,
   },
   computed: {
     periodId() {

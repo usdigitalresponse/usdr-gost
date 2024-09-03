@@ -26,7 +26,7 @@ module "efs_data_volume" {
 
 module "arpa_audit_reports_bucket" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "4.2.0"
+  version = "4.5.0"
   context = module.s3_label.context
   name    = "arpa_audit_reports"
 
@@ -58,14 +58,19 @@ module "access_arpa_reports_bucket_policy" {
 
   name = "access_arpa_reports_bucket"
 
-  iam_policy_statements = {
-    ReadWriteBucketObjects = {
-      effect = "Allow"
-      actions = [
-        "s3:PutObject",
-        "s3:GetObject",
+  iam_policy = [
+    {
+      statements = [
+        {
+          sid    = "ReadWriteBucketObjects"
+          effect = "Allow"
+          actions = [
+            "s3:PutObject",
+            "s3:GetObject",
+          ]
+          resources = ["${module.arpa_audit_reports_bucket.bucket_arn}/*"]
+        }
       ]
-      resources = ["${module.arpa_audit_reports_bucket.bucket_arn}/*"]
     }
-  }
+  ]
 }

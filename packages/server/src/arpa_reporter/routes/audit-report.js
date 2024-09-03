@@ -98,7 +98,8 @@ router.get('/', requireUser, async (req, res) => {
 
     let report;
     try {
-        report = await audit_report.generate(req.headers.host, req.query.period_id);
+        const tenantId = useTenantId();
+        report = await audit_report.generate(req.headers.host, tenantId, req.query.period_id);
         console.log('Successfully generated report');
     } catch (error) {
     // In addition to sending the error message in the 500 response, log the full error stacktrace

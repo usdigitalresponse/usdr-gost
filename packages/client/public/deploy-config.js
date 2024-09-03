@@ -20,9 +20,9 @@ window.APP_CONFIG.overrideFeatureFlag = (flagName, overrideValue) => {
 // For local development only. Register feature flags for Staging and Production by
 //  configuring the `website_feature_flags` input variable in Terraform (see `terraform/*.tfvars`).
 window.APP_CONFIG.featureFlags = {
-  myProfileEnabled: true,
   newTerminologyEnabled: true,
   newGrantsDetailPageEnabled: true,
+  shareTerminologyEnabled: true,
 };
 
 // Setting a GOOGLE_TAG_ID enables Google Analytics.

@@ -44,7 +44,7 @@ describe('audit report generation', () => {
         expect(sendFake.calledOnce).to.equal(true);
         expect(sendFake.firstCall.args[0]).to.equal('foo@example.com');
         expect(sendFake.firstCall.args[1]).to.equal(`${process.env.API_DOMAIN}/api/audit_report/1/99/example.xlsx`);
-        expect(sendFake.firstCall.args[2]).to.equal('audit');
+        expect(sendFake.firstCall.args[2]).to.equal(email.ASYNC_REPORT_TYPES.audit);
     });
     it('generateAndSendEmail generates a report, uploads to s3, and sends an email', async () => {
         const sendFake = sandbox.fake.returns('foo');
@@ -157,7 +157,20 @@ describe('audit report generation', () => {
             'Project Expenditure Category Group': '2-Negative Economic Impacts',
             'Project ID': '4',
         }];
-        const headers = audit_report.createHeadersProjectSummariesV2(projects);
+        const headers = audit_report.sortHeadersWithDates(projects,
+            [
+                'Capital Expenditure Amount',
+                'Project Description',
+                'Project Expenditure Category',
+                'Project Expenditure Category Group',
+                'Project ID',
+            ],
+            [
+                'Total Aggregate Expenditures',
+                'Total Aggregate Obligations',
+                'Total Expenditures for Awards Greater or Equal to $50k',
+                'Total Obligations for Awards Greater or Equal to $50k',
+            ]);
         const headersExpected = [
             'Project ID',
             'Project Description',

@@ -57,11 +57,9 @@ module "consumer_container_definition" {
 
   map_environment = merge(
     {
-      ENABLE_GRANTS_DIGEST           = "false"
-      ENABLE_GRANTS_SCRAPER          = "false"
       GRANTS_INGEST_EVENTS_QUEUE_URL = module.sqs_queue.queue_url
       NODE_OPTIONS                   = "--max_old_space_size=200"
-      PGSSLROOTCERT                  = "rds-combined-ca-bundle.pem"
+      PGSSLROOTCERT                  = "rds-global-bundle.pem"
       POSTGRES_URL                   = local.postgres_connection_string
     },
     local.datadog_env_vars,

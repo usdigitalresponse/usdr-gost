@@ -2,7 +2,7 @@
 /.github/  @usdigitalresponse/grants-admins
 
 # Require admin approval when Postgres root CA bundle is modified
-/packages/server/rds-combined-ca-bundle.pem @usdigitalresponse/grants-admins
+/packages/server/rds-global-bundle.pem @usdigitalresponse/grants-admins
 
 # Require admin approval for special doc modifications
 README.md  @usdigitalresponse/grants-admins

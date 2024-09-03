@@ -150,22 +150,15 @@ variable "notifications_email_address" {
   }
 }
 
+variable "ses_configuration_set_default" {
+  description = "Name of the configuration set that should be used for all emails sent through SES."
+  type        = string
+}
+
 variable "ses_sandbox_mode_email_recipients" {
   description = "List of email addresses to verify so that they may receive emails when SES is in sandbox mode. ONLY USE THIS FOR DEVELOPMENT PURPOSES!"
   type        = list(string)
   default     = []
-}
-
-variable "enable_grants_scraper" {
-  description = "When true, provisions scheduled execution of the Grants.gov scraper."
-  type        = bool
-  default     = false
-}
-
-variable "enable_grants_digest" {
-  description = "When true, sets the ENABLE_GRANTS_DIGEST environment variable to true in the API container."
-  type        = bool
-  default     = false
 }
 
 variable "enable_new_team_terminology" {
@@ -174,14 +167,14 @@ variable "enable_new_team_terminology" {
   default     = false
 }
 
-variable "enable_my_profile" {
-  description = "When true, sets the ENABLE_MY_PROFILE environment variable to true in the API container."
+variable "enable_saved_search_grants_digest" {
+  description = "When true, sets the ENABLE_SAVED_SEARCH_GRANTS_DIGEST environment variable to true in the API container."
   type        = bool
   default     = false
 }
 
-variable "enable_saved_search_grants_digest" {
-  description = "When true, sets the ENABLE_SAVED_SEARCH_GRANTS_DIGEST environment variable to true in the API container."
+variable "enable_grant_digest_scheduled_task" {
+  description = "When true, sets the ENABLE_GRANT_DIGEST_SCHEDULED_TASK environment variable to true in the API container."
   type        = bool
   default     = false
 }

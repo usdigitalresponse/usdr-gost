@@ -2,7 +2,10 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 const { getSessionCookie, makeTestServer, knex } = require('./utils');
 const { TABLES } = require('../../src/db/constants');
+const db = require('../../src/db');
 const email = require('../../src/lib/email');
+const users = require('../../seeds/dev/ref/users');
+const { seed } = require('../../seeds/dev/01_main');
 
 /*
     In general, these tests ...
@@ -18,6 +21,9 @@ describe('`/api/grants` endpoint', () => {
         offLimits: 0,
         dallasAdmin: 386,
     };
+
+    const adminUser = users.find((usr) => usr.email === 'admin1@nv.example.com');
+    const staffUser = users.find((usr) => usr.email === 'user1@nv.example.com');
 
     const fetchOptions = {
         admin: {
@@ -51,13 +57,15 @@ describe('`/api/grants` endpoint', () => {
         testServer = await makeTestServer();
         fetchApi = testServer.fetchApi;
     });
+
     after(() => {
         testServer.stop();
     });
 
     const sandbox = sinon.createSandbox();
-    afterEach(() => {
+    afterEach(async () => {
         sandbox.restore();
+        await seed(knex);
     });
 
     context('PUT api/grants/:grantId/view/:agencyId', () => {
@@ -112,6 +120,18 @@ describe('`/api/grants` endpoint', () => {
     context('GET /api/grants/:grantId/assign/agencies', () => {
         const assignedEndpoint = `335255/assign/agencies`;
         context('by a user with admin role', () => {
+            const assignedBy = {
+                NV1: {
+                    assigned_by_name: 'nv.gov Admin User 1',
+                    assigned_by_email: 'admin1@nv.example.com',
+                    assigned_by_avatar_color: '#198754',
+                },
+                NV2: {
+                    assigned_by_name: 'nv.gov User 2',
+                    assigned_by_email: 'user2@nv.example.com',
+                    assigned_by_avatar_color: '#FD7E14',
+                },
+            };
             let response;
             let json;
             before(async () => {
@@ -142,8 +162,28 @@ describe('`/api/grants` endpoint', () => {
                 const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.offLimits, fetchOptions.admin);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
+            it('includes assigned by information for the grant to an agency', async () => {
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV1.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV2.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV1.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV2.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV1.assigned_by_avatar_color)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV2.assigned_by_avatar_color)).to.be.ok;
+            });
         });
         context('by a user with staff role', () => {
+            const assignedBy = {
+                NV1: {
+                    assigned_by_name: 'nv.gov Admin User 1',
+                    assigned_by_email: 'admin1@nv.example.com',
+                    assigned_by_avatar_color: '#198754',
+                },
+                NV2: {
+                    assigned_by_name: 'nv.gov User 2',
+                    assigned_by_email: 'user2@nv.example.com',
+                    assigned_by_avatar_color: '#FD7E14',
+                },
+            };
             let response;
             let json;
             before(async () => {
@@ -166,6 +206,14 @@ describe('`/api/grants` endpoint', () => {
                 const badResponse = await fetchApi(`/grants/${assignedEndpoint}`, agencies.ownSub, fetchOptions.staff);
                 expect(badResponse.statusText).to.equal('Forbidden');
             });
+            it('includes assigned by information for the grant to an agency', async () => {
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV1.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_name === assignedBy.NV2.assigned_by_name)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV1.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_email === assignedBy.NV2.assigned_by_email)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV1.assigned_by_avatar_color)).to.be.ok;
+                expect(json.find((a) => a.assigned_by_avatar_color === assignedBy.NV2.assigned_by_avatar_color)).to.be.ok;
+            });
         });
         context('by a user with admin role in another organization', () => {
             it('forbids requests for any agency outside of the main agency hierarchy', async () => {
@@ -174,71 +222,96 @@ describe('`/api/grants` endpoint', () => {
             });
         });
     });
-    context('PUT /api/grants/:grantId/assign/agencies', () => {
-        const assignEndpoint = `333816/assign/agencies`;
+
+    context('POST /api/grants/:grantId/assign/agencies', () => {
+        const endpoint = '/grants/333816/assign/agencies';
+        let emailSpy;
+
+        beforeEach(() => {
+            emailSpy = sandbox.spy(email, 'sendGrantAssignedEmails');
+        });
+
         context('by a user with admin role', () => {
             it('assigns this user\'s own agency to a grant', async () => {
-                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
-                const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.own, {
+                const response = await fetchApi(endpoint, agencies.own, {
                     ...fetchOptions.admin,
-                    method: 'put',
+                    method: 'post',
                     body: JSON.stringify({ agencyIds: [agencies.own] }),
                 });
                 expect(response.statusText).to.equal('OK');
                 expect(emailSpy.calledOnceWith({ grantId: '333816', agencyIds: [agencies.own], userId: 13 })).to.equal(true);
-                expect(emailSpy.called).to.equal(true);
             });
             it('assigns subagencies of this user\'s own agency to a grant', async () => {
-                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
-                const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.ownSub, {
+                const response = await fetchApi(endpoint, agencies.ownSub, {
                     ...fetchOptions.admin,
-                    method: 'put',
+                    method: 'post',
                     body: JSON.stringify({ agencyIds: [agencies.ownSub] }),
                 });
                 expect(response.statusText).to.equal('OK');
                 expect(emailSpy.calledOnceWith({ grantId: '333816', agencyIds: [agencies.ownSub], userId: 13 })).to.equal(true);
-                expect(emailSpy.called).to.equal(true);
             });
             it('forbids requests for any agency outside this user\'s hierarchy', async () => {
-                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
-                const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.offLimits, {
+                const response = await fetchApi(endpoint, agencies.offLimits, {
                     ...fetchOptions.admin,
-                    method: 'put',
+                    method: 'post',
                     body: JSON.stringify({ agencyIds: [agencies.offLimits] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
-                expect(emailSpy.notCalled).to.equal(true);
+                expect(emailSpy.called).to.equal(false);
+            });
+            it('only sends emails to the agency being assigned', async () => {
+                // Assign another agency first, to ensure it doesn't receive emails
+                await db.assignGrantsToAgencies({ grantId: '333816', agencyIds: [agencies.ownSubAlternate], userId: 13 });
+
+                const response = await fetchApi(endpoint, agencies.ownSub, {
+                    ...fetchOptions.admin,
+                    method: 'post',
+                    body: JSON.stringify({ agencyIds: [agencies.ownSub] }),
+                });
+                expect(response.statusText).to.equal('OK');
+                expect(emailSpy.calledOnceWith({ grantId: '333816', agencyIds: [agencies.ownSub], userId: 13 })).to.equal(true);
             });
         });
+
         context('by a user with staff role', () => {
             it('assigns this user\'s own agency to a grant', async () => {
-                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
-                const response = await fetchApi(`/grants/${assignEndpoint}`, agencies.own, {
+                const response = await fetchApi(endpoint, agencies.own, {
                     ...fetchOptions.staff,
-                    method: 'put',
+                    method: 'post',
                     body: JSON.stringify({ agencyIds: [agencies.own] }),
                 });
                 expect(response.statusText).to.equal('OK');
                 expect(emailSpy.calledOnceWith({ grantId: '333816', agencyIds: [agencies.own], userId: 6 })).to.equal(true);
-                expect(emailSpy.called).to.equal(true);
             });
-            it('forbids requests for any agency except this user\'s own agency', async () => {
-                const emailSpy = sandbox.spy(email, 'sendGrantAssignedEmail');
-                let response = await fetchApi(`/grants/${assignEndpoint}`, agencies.ownSub, {
+            it('forbids requests for subagency', async () => {
+                const response = await fetchApi(endpoint, agencies.ownSub, {
                     ...fetchOptions.staff,
-                    method: 'put',
+                    method: 'post',
                     body: JSON.stringify({ agencyIds: [agencies.ownSub] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
-                expect(emailSpy.notCalled).to.equal(true);
-
-                response = await fetchApi(`/grants/${assignEndpoint}`, agencies.offLimits, {
-                    ...fetchOptions.admin,
-                    method: 'put',
+                expect(emailSpy.called).to.equal(false);
+            });
+            it('forbids requests for agency outside user\'s hierarchy', async () => {
+                const response = await fetchApi(endpoint, agencies.offLimits, {
+                    ...fetchOptions.staff,
+                    method: 'post',
                     body: JSON.stringify({ agencyIds: [agencies.offLimits] }),
                 });
                 expect(response.statusText).to.equal('Forbidden');
-                expect(emailSpy.notCalled).to.equal(true);
+                expect(emailSpy.called).to.equal(false);
+            });
+            it('only sends emails to the agency being assigned', async () => {
+                // Assign another agency first, to ensure it doesn't receive emails
+                await db.assignGrantsToAgencies({ grantId: '333816', agencyIds: [agencies.ownSubAlternate], userId: 6 });
+
+                const response = await fetchApi(endpoint, agencies.own, {
+                    ...fetchOptions.staff,
+                    method: 'post',
+                    body: JSON.stringify({ agencyIds: [agencies.own] }),
+                });
+                expect(response.statusText).to.equal('OK');
+                expect(emailSpy.calledOnceWith({ grantId: '333816', agencyIds: [agencies.own], userId: 6 })).to.equal(true);
             });
         });
     });
@@ -550,7 +623,6 @@ describe('`/api/grants` endpoint', () => {
             }
             const extraRowCount = Object.keys(rowsHash).length;
             if (extraRowCount > 0) {
-                console.log(JSON.stringify(rowsHash, null, 2));
                 expect(extraRowCount).to.equal(0);
             }
         });
@@ -658,7 +730,6 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             }
             const extraRowCount = Object.keys(rowsHash).length;
             if (extraRowCount > 0) {
-                console.log(JSON.stringify(rowsHash, null, 2));
                 expect(extraRowCount).to.equal(0);
             }
         });
@@ -703,18 +774,32 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
         });
     });
     context('GET /exportCSVRecentActivities', () => {
-        it('produces the expected column headers', async () => {
-            const expectedCsvHeaders = 'Date,Team,Grant,Status Code,Grant Assigned By,Email';
-            const agencyId = agencies.own;
-            const role = fetchOptions.staff;
+        let originalShareTerminologyEnabled;
+        before(() => {
+            originalShareTerminologyEnabled = process.env.SHARE_TERMINOLOGY_ENABLED;
+        });
 
-            const response = await fetchApi('/grants/exportCSVRecentActivities', agencyId, role);
+        after(() => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = originalShareTerminologyEnabled;
+        });
 
+        it('returns valid CSV response', async () => {
+            const response = await fetchApi('/grants/exportCSVRecentActivities', agencies.own, fetchOptions.staff);
             expect(response.statusText).to.equal('OK');
             expect(response.headers.get('Content-Type')).to.include('text/csv');
             expect(response.headers.get('Content-Disposition')).to.include('attachment');
+        });
 
-            expect(await response.text()).to.contain(expectedCsvHeaders);
+        it('includes correct column headers with share terminology disabled', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = 'false';
+            const response = await fetchApi('/grants/exportCSVRecentActivities', agencies.own, fetchOptions.staff);
+            expect(await response.text()).to.contain('Date,Team,Grant,Status Code,Grant Assigned By,Email');
+        });
+
+        it('includes correct column headers with share terminology enabled', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = 'true';
+            const response = await fetchApi('/grants/exportCSVRecentActivities', agencies.own, fetchOptions.staff);
+            expect(await response.text()).to.contain('Date,Team,Grant,Status Code,Grant Shared By,Email');
         });
     });
     context('GET /api/organizations/:orgId/grants?currentPage=:pageNumber&perPage=:grantsPerPage', () => {
@@ -791,6 +876,171 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
                 const response = await fetchApi(`/grants/next?pagination[currentPage]=1&pagination[perPage]=50&ordering[orderBy]=interested_agencies&criteria[opportunityStatuses]=posted`, agencies.own, fetchOptions.staff);
                 expect(response.status).to.equal(400);
             });
+        });
+    });
+
+    context('PUT api/grants/:grantId/follow', () => {
+        const GRANT_ID = '335255';
+
+        it('follows a grant for current user', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/follow`, agencies.own, {
+                ...fetchOptions.staff,
+                method: 'put',
+            });
+
+            expect(resp.statusText).to.equal('OK');
+        });
+    });
+
+    context('DELETE api/grants/:grantId/follow', () => {
+        const GRANT_ID = '335255';
+
+        beforeEach(async () => {
+            await knex('grant_followers').insert({ grant_id: GRANT_ID, user_id: staffUser.id });
+        });
+
+        it('deletes follower record for request user', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/follow`, agencies.own, {
+                ...fetchOptions.staff,
+                method: 'delete',
+            });
+
+            expect(resp.statusText).to.equal('OK');
+        });
+    });
+
+    context('GET api/grants/:grantId/notes', () => {
+        const GRANT_ID = '335255';
+
+        let notes;
+        beforeEach(async () => {
+            notes = await knex('grant_notes')
+                .returning('id')
+                .insert([
+                    { grant_id: GRANT_ID, user_id: adminUser.id },
+                    { grant_id: GRANT_ID, user_id: staffUser.id },
+                ]);
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: notes[0].id, text: 'Test note 1.' });
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: notes[1].id, text: 'Test note 2.' });
+        });
+
+        it('returns ALL notes for a given grant in DESC order', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes`, agencies.own, fetchOptions.staff);
+            const respBody = await resp.json();
+
+            expect(respBody.notes.length).to.equal(2);
+            expect(respBody.notes[0].text).to.equal('Test note 2.');
+        });
+
+        it('returns notes with LIMIT', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes?limit=1`, agencies.own, fetchOptions.staff);
+            const respBody = await resp.json();
+
+            expect(respBody.notes.length).to.equal(1);
+        });
+
+        it('returns 400 for invalid LIMIT', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes?limit=500`, agencies.own, fetchOptions.staff);
+
+            expect(resp.status).to.equal(400);
+        });
+
+        it('returns notes with PAGINATION', async () => {
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes?paginateFrom=${notes[0].id}`, agencies.own, fetchOptions.staff);
+            const respBody = await resp.json();
+
+            expect(respBody.notes.length).to.equal(1);
+            expect(respBody.notes[0].text).to.equal('Test note 2.');
+        });
+    });
+
+    context('PUT /:grantId/notes/revision/', () => {
+        context('by a user with admin role', () => {
+            it('saves a new note revision for a grant', async () => {
+                const grantId = 335255;
+                const text = 'This is a test note revision';
+
+                const response = await fetchApi(`/grants/${grantId}/notes/revision/`, agencies.own, {
+                    ...fetchOptions.admin,
+                    method: 'put',
+                    body: JSON.stringify({ text }),
+                });
+
+                expect(response.statusText).to.equal('OK');
+            });
+            it('forbids requests for agencies outside this user\'s hierarchy', async () => {
+                const grantId = 335255;
+
+                const response = await fetchApi(`/grants/${grantId}/notes/revision/`, agencies.offLimits, {
+                    ...fetchOptions.admin,
+                    method: 'put',
+                    body: JSON.stringify({ text: 'This is a test note revision' }),
+                });
+
+                expect(response.statusText).to.equal('Forbidden');
+            });
+        });
+    });
+    context('GET /:grantId/followers', () => {
+        const GRANT_ID = 335255;
+
+        let follower1;
+        let follower2;
+        beforeEach(async () => {
+            [follower1] = await knex('grant_followers')
+                .insert({ grant_id: GRANT_ID, user_id: adminUser.id }, 'id');
+
+            [follower2] = await knex('grant_followers')
+                .insert({ grant_id: GRANT_ID, user_id: staffUser.id }, 'id');
+        });
+
+        it('retrieves followers for a grant', async () => {
+            const response = await fetchApi(`/grants/${GRANT_ID}/followers`, agencies.own, fetchOptions.admin);
+            const respBody = await response.json();
+
+            expect(respBody.followers).to.have.lengthOf(2);
+            expect(respBody.followers[0].id).to.equal(follower2.id);
+        });
+        it('retrieves followers for a grant with LIMIT', async () => {
+            const response = await fetchApi(`/grants/${GRANT_ID}/followers?limit=1`, agencies.own, fetchOptions.admin);
+            const respBody = await response.json();
+
+            expect(respBody.followers).to.have.lengthOf(1);
+        });
+        it('retrieves followers for a grant with PAGINATION', async () => {
+            const response = await fetchApi(`/grants/${GRANT_ID}/followers?paginateFrom=${follower2.id}`, agencies.own, fetchOptions.admin);
+            const respBody = await response.json();
+
+            expect(respBody.followers).to.have.lengthOf(1);
+            expect(respBody.followers[0].id).to.equal(follower1.id);
+        });
+    });
+    context('GET /:grantId/follow', () => {
+        const GRANT_ID = 335255;
+
+        let follower;
+        beforeEach(async () => {
+            [follower] = await knex('grant_followers')
+                .insert({
+                    grant_id: GRANT_ID,
+                    user_id: adminUser.id,
+                }, 'id');
+        });
+
+        it('retrieves follower for a grant', async () => {
+            const response = await fetchApi(`/grants/${GRANT_ID}/follow`, agencies.own, fetchOptions.admin);
+            const respBody = await response.json();
+
+            expect(respBody.id).to.equal(follower.id);
+        });
+
+        it('Not found is a 404 error', async () => {
+            const response = await fetchApi(`/grants/UNKNOWN/follow`, agencies.own, fetchOptions.admin);
+            expect(response.status).to.equal(404);
         });
     });
 });

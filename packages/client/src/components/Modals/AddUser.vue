@@ -3,15 +3,17 @@
     <b-modal
       id="add-user-modal"
       ref="modal"
+      v-model="modalVisible"
       title="Add User"
-      @show="resetModal"
-      @hidden="resetModal"
+      :ok-disabled="v$.formData.$invalid"
       @ok="handleOk"
-      :ok-disabled="$v.formData.$invalid"
     >
-      <form ref="form" @submit.stop.prevent="handleSubmit">
+      <form
+        ref="form"
+        @submit.stop.prevent="handleSubmit"
+      >
         <b-form-group
-          :state="!$v.formData.email.$invalid"
+          :state="!v$.formData.email.$invalid"
           label="Email"
           label-for="email-input"
           invalid-feedback="Please enter a valid email address"
@@ -20,10 +22,10 @@
             id="email-input"
             v-model="formData.email"
             required
-          ></b-form-input>
+          />
         </b-form-group>
         <b-form-group
-          :state="!$v.formData.name.$invalid"
+          :state="!v$.formData.name.$invalid"
           label="Name"
           label-for="name-input"
           invalid-feedback="Please enter your preferred first and last name"
@@ -32,27 +34,31 @@
             id="name-input"
             v-model="formData.name"
             required
-          ></b-form-input>
+          />
         </b-form-group>
         <b-form-group
-          :state="!$v.formData.role.$invalid"
+          :state="!v$.formData.role.$invalid"
           label="Role"
           label-for="role-select"
           invalid-feedback="Please select your role"
         >
           <b-form-select
-          id="role-select"
-          v-model="formData.role" :options="formattedRoles"></b-form-select>
+            id="role-select"
+            v-model="formData.role"
+            :options="formattedRoles"
+          />
         </b-form-group>
         <b-form-group
-          :state="!$v.formData.agency.$invalid"
+          :state="!v$.formData.agency.$invalid"
           :label="newTerminologyEnabled ? 'Team' : 'Agency'"
           label-for="agency-select"
           :invalid-feedback="`Please select your ${newTerminologyEnabled ? 'team' : 'agency'}`"
         >
           <b-form-select
-          id="agency-select"
-          v-model="formData.agency" :options="formattedAgencies"></b-form-select>
+            id="agency-select"
+            v-model="formData.agency"
+            :options="formattedAgencies"
+          />
         </b-form-group>
       </form>
     </b-modal>
@@ -61,12 +67,16 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { required, minLength, email } from 'vuelidate/lib/validators';
+import { useVuelidate } from '@vuelidate/core';
+import { required, minLength, email } from '@vuelidate/validators';
 import { newTerminologyEnabled } from '@/helpers/featureFlags';
 
 export default {
   props: {
-    showModal: Boolean,
+    show: Boolean,
+  },
+  setup() {
+    return { v$: useVuelidate() };
   },
   data() {
     return {
@@ -96,16 +106,15 @@ export default {
       },
     },
   },
-  watch: {
-    showModal() {
-      this.$bvModal.show('add-user-modal');
-    },
-  },
   computed: {
     ...mapGetters({
       roles: 'roles/roles',
       agencies: 'agencies/agencies',
     }),
+    modalVisible: {
+      get() { return this.show; },
+      set(value) { this.$emit('update:show', value); },
+    },
     formattedRoles() {
       return this.roles.map((role) => ({
         value: role.id,
@@ -122,6 +131,15 @@ export default {
       return newTerminologyEnabled();
     },
   },
+  watch: {
+    modalVisible() {
+      // Reset form data when modal is shown
+      Object.assign(this.formData, this.$options.data.apply(this).formData);
+    },
+    showModal() {
+      this.$bvModal.show('add-user-modal');
+    },
+  },
   mounted() {
     if (this.roles.length === 0) {
       this.fetchRoles();
@@ -136,10 +154,6 @@ export default {
       fetchRoles: 'roles/fetchRoles',
       fetchAgencies: 'agencies/fetchAgencies',
     }),
-    resetModal() {
-      this.formData = {};
-      this.$emit('update:showModal', false);
-    },
     handleOk(bvModalEvt) {
       // Prevent modal from closing
       bvModalEvt.preventDefault();
@@ -148,7 +162,7 @@ export default {
     },
     async handleSubmit() {
       // Exit when the form isn't valid
-      if (this.$v.formData.$invalid) {
+      if (this.v$.formData.$invalid) {
         return;
       }
       try {
@@ -159,11 +173,7 @@ export default {
           level: 'err',
         });
       }
-      // Push the name to submitted names
-      // Hide the modal manually
-      this.$nextTick(() => {
-        this.$bvModal.hide('add-user-modal');
-      });
+      this.modalVisible = false;
     },
   },
 };

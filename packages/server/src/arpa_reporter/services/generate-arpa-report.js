@@ -106,6 +106,8 @@ async function generateProject111210(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -159,6 +161,8 @@ async function generateProject18(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -206,6 +210,8 @@ async function generateProject19(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -255,6 +261,8 @@ async function generateProject211214(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -310,6 +318,8 @@ async function generateProject2128(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -361,6 +371,8 @@ async function generateProject215218(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -411,6 +423,8 @@ async function generateProject224227(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -458,6 +472,8 @@ async function generateProject236(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -504,6 +520,8 @@ async function generateProject31(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -544,6 +562,8 @@ async function generateProject32(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -585,6 +605,8 @@ async function generateProject4142(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -638,6 +660,8 @@ async function generateProject51518(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -680,6 +704,8 @@ async function generateProject519521(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -760,7 +786,8 @@ async function generateProjectBaseline(records) {
                 case '3.4':
                 case '3.5':
                 case '7.1':
-                case '7.2': {
+                case '7.2':
+                case '7.3': {
                     return [
                         null, // first col is blank
                         ec(record.type),
@@ -769,6 +796,8 @@ async function generateProjectBaseline(records) {
                         record.content.Project_Identification_Number__c,
                         record.content.Completion_Status__c,
                         record.content.Cancellation_Reason__c,
+                        record.content.Project_Start_Date__c,
+                        record.content.Project_End_Date__c,
                         currency(record.content.Adopted_Budget__c),
                         currency(record.content.Total_Obligations__c),
                         currency(record.content.Total_Expenditures__c),
@@ -885,6 +914,8 @@ async function generateSubaward(records) {
                     zip4(record.content.Place_of_Performance_Zip_4__c),
                     record.content.Purpose_of_Funds__c,
                     record.content.Description__c,
+                    record.content.Edited_Subaward_Amount_Explanation__c,
+                    record.content.Loan_Expiration_Date__c,
                 ];
             }
             default:
@@ -1099,7 +1130,7 @@ async function processSQSMessageRequest(message) {
         await generateAndSendEmail(user.email, requestData.periodId, requestData.tenantId);
     } catch (err) {
         log.error({ err }, 'failed to generate and send treasury report');
-        await email.sendReportErrorEmail(user, 'Treasury');
+        await email.sendReportErrorEmail(user, email.ASYNC_REPORT_TYPES.treasury);
         return false;
     }
 

@@ -1,10 +1,13 @@
 const express = require('express');
 // eslint-disable-next-line import/no-unresolved
 const { stringify: csvStringify } = require('csv-stringify/sync');
-const groupBy = require('lodash/groupBy');
 const db = require('../db');
 const email = require('../lib/email');
 const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
+const knex = require('../db/connection');
+const {
+    saveNoteRevision, followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant, getOrganizationNotesForGrant,
+} = require('../lib/grantsCollaboration');
 
 const router = express.Router({ mergeParams: true });
 
@@ -99,24 +102,6 @@ router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
     const { user } = req.session;
     const response = await db.getSingleGrantDetails({ grantId, tenantId: user.tenant_id });
     res.json(response);
-});
-
-router.get('/closestGrants/:perPage/:currentPage', requireUser, async (req, res) => {
-    const { perPage, currentPage } = req.params;
-    const { data, pagination } = await db.getClosestGrants({ agency: req.session.selectedAgency, perPage, currentPage });
-
-    // Get interested agencies for each grant
-    const grantIds = data.map((grant) => grant.grant_id);
-    const agencies = await db.getInterestedAgencies({ grantIds, tenantId: req.session.user.tenant_id });
-    const agenciesByGrantId = groupBy(agencies, 'grant_id');
-    const enhancedData = data.map((grant) => (
-        {
-            ...grant,
-            interested_agencies: (agenciesByGrantId[grant.grant_id] || []).map((agency) => agency.agency_abbreviation || agency.agency_name),
-        }
-    ));
-
-    res.json({ data: enhancedData, pagination });
 });
 
 // For API tests, reduce the limit to 100 -- this is so we can test the logic around the limit
@@ -317,7 +302,7 @@ router.get('/exportCSVRecentActivities', requireUser, async (req, res) => {
             { key: 'team', header: 'Team' },
             { key: 'grant', header: 'Grant' },
             { key: 'status_code', header: 'Status Code' },
-            { key: 'name', header: 'Grant Assigned By' },
+            { key: 'name', header: process.env.SHARE_TERMINOLOGY_ENABLED === 'true' ? 'Grant Shared By' : 'Grant Assigned By' },
             { key: 'email', header: 'Email' },
         ],
     });
@@ -348,7 +333,7 @@ router.get('/:grantId/assign/agencies', requireUser, async (req, res) => {
     res.json(response);
 });
 
-router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
+router.post('/:grantId/assign/agencies', requireUser, async (req, res) => {
     const { user } = req.session;
     const { grantId } = req.params;
     const { agencyIds } = req.body;
@@ -361,7 +346,7 @@ router.put('/:grantId/assign/agencies', requireUser, async (req, res) => {
 
     await db.assignGrantsToAgencies({ grantId, agencyIds, userId: user.id });
     try {
-        await email.sendGrantAssignedEmail({ grantId, agencyIds, userId: user.id });
+        await email.sendGrantAssignedEmails({ grantId, agencyIds, userId: user.id });
     } catch {
         res.sendStatus(500);
         return;
@@ -439,6 +424,99 @@ router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) =>
 
     await db.unmarkGrantAsInterested({ grantId, agencyIds: submittedAgencyIds, userId: user.id });
     res.json({});
+});
+
+router.put('/:grantId/follow', requireUser, async (req, res) => {
+    const { user } = req.session;
+    const { grantId } = req.params;
+
+    await followGrant(knex, grantId, user.id);
+    res.json({});
+});
+
+router.delete('/:grantId/follow', requireUser, async (req, res) => {
+    const { user } = req.session;
+    const { grantId } = req.params;
+
+    await unfollowGrant(knex, grantId, user.id);
+    res.json({});
+});
+
+router.get('/:grantId/notes', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { user } = req.session;
+    const { paginateFrom, limit } = req.query;
+    const limitInt = limit ? parseInt(limit, 10) : undefined;
+
+    if (limit && (!Number.isInteger(limitInt) || limitInt < 1 || limitInt > 100)) {
+        res.sendStatus(400);
+        return;
+    }
+
+    const rows = await getOrganizationNotesForGrant(knex, grantId, user.tenant_id, { afterRevision: paginateFrom, limit: limitInt });
+
+    res.json(rows);
+});
+
+router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { user } = req.session;
+
+    let trx;
+
+    try {
+        trx = await knex.transaction();
+        const noteRevisionId = await saveNoteRevision(
+            trx,
+            grantId,
+            user.id,
+            req.body.text,
+        );
+        if (noteRevisionId) {
+            await followGrant(trx, grantId, user.id);
+        }
+        await trx.commit(); // commit the transaction if no error
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        if (trx) {
+            await trx.rollback(); // rollback the transaction if error
+        }
+        res.status(500).json({ error: 'Failed to save note revision' });
+    }
+});
+
+router.get('/:grantId/followers', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { user } = req.session;
+    const { paginateFrom, limit } = req.query;
+    const limitInt = limit ? parseInt(limit, 10) : undefined;
+
+    if (limit && (!Number.isInteger(limitInt) || limitInt < 1 || limitInt > 100)) {
+        res.sendStatus(400);
+        return;
+    }
+
+    const followers = await getFollowersForGrant(knex, grantId, user.tenant_id, {
+        beforeFollow: paginateFrom,
+        limit: limitInt,
+    });
+
+    res.json(followers);
+});
+
+router.get('/:grantId/follow', requireUser, async (req, res) => {
+    const { grantId } = req.params;
+    const { user } = req.session;
+
+    const follower = await getFollowerForGrant(knex, grantId, user.id);
+
+    if (!follower) {
+        res.sendStatus(404);
+        return;
+    }
+
+    res.json(follower);
 });
 
 module.exports = router;

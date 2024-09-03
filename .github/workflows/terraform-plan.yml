@@ -74,6 +74,8 @@ on:
         value: ${{ jobs.do.outputs.plan_outcome }}
       plan-output:
         value: ${{ jobs.do.outputs.plan_output }}
+      plan-summary-markdown:
+        value: ${{ jobs.do.outputs.plan_summary_md }}
 
 jobs:
   do:
@@ -89,10 +91,21 @@ jobs:
       fmt_outcome: ${{ steps.fmt.outcome }}
       init_outcome: ${{ steps.init.outcome }}
       validate_outcome: ${{ steps.validate.outcome }}
-      validate_output: ${{ steps.validate.outputs.stdout }}
+      validate_output: |-
+        stdout:
+        ${{ steps.validate.outputs.stdout }}
+        -------------------------------------
+        stderr:
+        ${{ steps.validate.outputs.stderr }}
       plan_exitcode: ${{ steps.plan.outputs.exitcode }}
       plan_outcome: ${{ steps.plan.outcome }}
-      plan_output: ${{ steps.show_plan.outputs.stdout || steps.show_plan.outputs.stderr }}
+      plan_output: |-
+        stdout:
+        ${{ steps.show_plan.outputs.stdout }}
+        -------------------------------------
+        stderr:
+        ${{ steps.show_plan.outputs.stderr }}
+      plan_summary_md: ${{ steps.plan_summary.outputs.markdown_table }}
     env:
       ARTIFACTS_KEY: terraform-${{ inputs.environment-key }}-${{ inputs.ref }}
       AWS_DEFAULT_REGION: ${{ inputs.aws-region }}
@@ -104,15 +117,17 @@ jobs:
       group: ${{ inputs.concurrency-group }}
       cancel-in-progress: false
     steps:
-      - uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+      - uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
           persist-credentials: 'false'
+      - name: Set up tf-summarize
+        uses: kishaningithub/setup-tf-summarize@b752490b135f74e59d82e656a1dab7f11a937f84 # v2.0.0
       - name: Validate workflow configuration
         if: inputs.upload-artifacts && (env.GPG_PASSPHRASE == '')
         run: |
@@ -121,14 +136,14 @@ jobs:
         env:
           GPG_PASSPHRASE: ${{ secrets.gpg-passphrase }}
       - name: Download website artifacts
-        uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           name: ${{ inputs.website-artifacts-key }}
           path: ${{ inputs.website-artifacts-path }}
       - name: Get project TF version
         id: get_tf_version
         run: echo "TF_VERSION=$(cat .terraform-version | tr -d '[:space:]')" | tee -a $GITHUB_OUTPUT
-      - uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
       - name: Terraform fmt
@@ -191,6 +206,17 @@ jobs:
       - name: Generate plaintext plan
         id: show_plan
         run: terraform show tfplan
+      - name: Generate JSON plan
+        run: terraform show -json tfplan > tfplan.json
+      - name: Generate plan summary
+        id: plan_summary
+        run: |
+          SUMMARIZED_PLAN_MD=$(tf-summarize -md tfplan.json)
+          echo "markdown_table<<ENDOFTFPLANSUMMARYMARKDOWN" >> $GITHUB_OUTPUT
+          echo "$SUMMARIZED_PLAN_MD" >> $GITHUB_OUTPUT
+          echo "ENDOFTFPLANSUMMARYMARKDOWN" >> $GITHUB_OUTPUT
+          rm tfplan.json
+          echo "$SUMMARIZED_PLAN_MD"
       - name: Encrypt terraform plan file
         id: encrypt_plan
         if: success() && inputs.upload-artifacts
@@ -201,7 +227,7 @@ jobs:
           rm tfplan
       - name: Store terraform artifacts
         if: success() && inputs.upload-artifacts
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
         with:
           name: ${{ env.ARTIFACTS_KEY }}
           path: |

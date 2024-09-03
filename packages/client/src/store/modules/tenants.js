@@ -1,4 +1,4 @@
-const fetchApi = require('@/helpers/fetchApi');
+import * as fetchApi from '@/helpers/fetchApi';
 
 function initialState() {
   return {
@@ -13,15 +13,15 @@ export default {
     tenants: (state) => state.tenants,
   },
   actions: {
-    fetchTenants({ commit }) {
-      fetchApi.get('/api/organizations/:organizationId/tenants').then((data) => commit('SET_TENANTS', data));
+    fetchTenants({ commit, rootGetters }) {
+      fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/tenants`).then((data) => commit('SET_TENANTS', data));
     },
-    async createTenant({ dispatch }, options) {
-      await fetchApi.post('/api/organizations/:organizationId/tenants/', options);
+    async createTenant({ dispatch, rootGetters }, options) {
+      await fetchApi.post(`/api/organizations/${rootGetters['users/selectedAgencyId']}/tenants/`, options);
       dispatch('fetchTenants');
     },
-    async updateDisplayName({ dispatch }, { tenantId, displayName }) {
-      await fetchApi.put(`/api/organizations/:organizationId/tenants/${tenantId}`, {
+    async updateDisplayName({ dispatch, rootGetters }, { tenantId, displayName }) {
+      await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/tenants/${tenantId}`, {
         displayName,
       });
       dispatch('fetchTenants');

@@ -44,21 +44,18 @@ module "api_container_definition" {
 
   map_environment = merge(
     {
-      API_DOMAIN                        = "https://${var.domain_name}"
-      AUDIT_REPORT_BUCKET               = module.arpa_audit_reports_bucket.bucket_id
-      DATA_DIR                          = "/var/data"
-      ENABLE_GRANTS_DIGEST              = var.enable_grants_digest ? "true" : "false"
-      ENABLE_SAVED_SEARCH_GRANTS_DIGEST = var.enable_saved_search_grants_digest ? "true" : "false"
-      ENABLE_GRANTS_SCRAPER             = "false"
-      ENABLE_NEW_TEAM_TERMINOLOGY       = var.enable_new_team_terminology ? "true" : "false"
-      ENABLE_MY_PROFILE                 = var.enable_my_profile ? "true" : "false"
-      GRANTS_SCRAPER_DATE_RANGE         = 7
-      GRANTS_SCRAPER_DELAY              = 1000
-      NODE_OPTIONS                      = "--max_old_space_size=1024"
-      NOTIFICATIONS_EMAIL               = var.notifications_email_address
-      PGSSLROOTCERT                     = "rds-combined-ca-bundle.pem"
-      VUE_APP_GRANTS_API_URL            = module.api_gateway.apigatewayv2_api_api_endpoint
-      WEBSITE_DOMAIN                    = "https://${var.website_domain_name}"
+      API_DOMAIN                         = "https://${var.domain_name}"
+      AUDIT_REPORT_BUCKET                = module.arpa_audit_reports_bucket.bucket_id
+      DATA_DIR                           = "/var/data"
+      ENABLE_SAVED_SEARCH_GRANTS_DIGEST  = var.enable_saved_search_grants_digest ? "true" : "false"
+      ENABLE_GRANT_DIGEST_SCHEDULED_TASK = var.enable_grant_digest_scheduled_task ? "true" : "false"
+      ENABLE_NEW_TEAM_TERMINOLOGY        = var.enable_new_team_terminology ? "true" : "false"
+      NODE_OPTIONS                       = "--max_old_space_size=1024"
+      NOTIFICATIONS_EMAIL                = var.notifications_email_address
+      PGSSLROOTCERT                      = "rds-global-bundle.pem"
+      SES_CONFIGURATION_SET_DEFAULT      = var.ses_configuration_set_default
+      VUE_APP_GRANTS_API_URL             = module.api_gateway.apigatewayv2_api_api_endpoint
+      WEBSITE_DOMAIN                     = "https://${var.website_domain_name}"
     },
     local.datadog_env_vars,
     var.api_container_environment,

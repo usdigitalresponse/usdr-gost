@@ -3,14 +3,13 @@
 const { expect } = require('chai');
 const moment = require('moment');
 const sinon = require('sinon');
+const _ = require('lodash');
 require('dotenv').config();
 const emailService = require('../../src/lib/email/service-email');
 const email = require('../../src/lib/email');
 const fixtures = require('../db/seeds/fixtures');
 const db = require('../../src/db');
 const awsTransport = require('../../src/lib/gost-aws');
-const emailConstants = require('../../src/lib/email/constants');
-const knex = require('../../src/db/connection');
 
 const {
     TEST_EMAIL_RECIPIENT,
@@ -20,17 +19,24 @@ const {
     AWS_DEFAULT_REGION,
     AWS_REGION,
     NOTIFICATIONS_EMAIL,
+    SES_CONFIGURATION_SET_DEFAULT,
 
     NODEMAILER_HOST,
     NODEMAILER_PORT,
     NODEMAILER_EMAIL,
     NODEMAILER_EMAIL_PW,
+    SHARE_TERMINOLOGY_ENABLED,
+
+    DD_SERVICE,
+    DD_ENV,
+    DD_VERSION,
 } = process.env;
 
 const testEmail = {
     toAddress: TEST_EMAIL_RECIPIENT || 'nobody@example.com',
     subject: 'Test email',
     body: 'This is a test email.',
+    tags: ['key=value'],
 };
 
 describe('Email module', () => {
@@ -41,10 +47,12 @@ describe('Email module', () => {
         process.env.AWS_DEFAULT_REGION = AWS_DEFAULT_REGION;
         process.env.AWS_REGION = AWS_REGION;
         process.env.NOTIFICATIONS_EMAIL = NOTIFICATIONS_EMAIL;
+        process.env.SES_CONFIGURATION_SET_DEFAULT = SES_CONFIGURATION_SET_DEFAULT;
         process.env.NODEMAILER_HOST = NODEMAILER_HOST;
         process.env.NODEMAILER_PORT = NODEMAILER_PORT;
         process.env.NODEMAILER_EMAIL = NODEMAILER_EMAIL;
         process.env.NODEMAILER_EMAIL_PW = NODEMAILER_EMAIL_PW;
+        process.env.SHARE_TERMINOLOGY_ENABLED = SHARE_TERMINOLOGY_ENABLED;
     }
 
     function clearNodemailerEnvironmentVariables() {
@@ -60,6 +68,7 @@ describe('Email module', () => {
         delete process.env.AWS_REGION;
         delete process.env.AWS_DEFAULT_REGION;
         delete process.env.NOTIFICATIONS_EMAIL;
+        delete process.env.SES_CONFIGURATION_SET_DEFAULT;
     }
 
     const sandbox = sinon.createSandbox();
@@ -86,6 +95,7 @@ describe('Email module', () => {
             process.env.AWS_DEFAULT_REGION = 'us-west-2';
             process.env.AWS_REGION = 'us-west-2';
             process.env.NOTIFICATIONS_EMAIL = 'fake@example.org';
+            process.env.SES_CONFIGURATION_SET_DEFAULT = 'default-configuration-set';
         });
 
         it('Fails when NOTIFICATIONS_EMAIL is missing', async () => {
@@ -101,6 +111,39 @@ describe('Email module', () => {
             expect(err.message).to.be.a('string').and.satisfy(
                 (msg) => msg.startsWith('NOTIFICATIONS_EMAIL is not set'),
             );
+        });
+
+        it('sends configuration set name if SES_CONFIGURATION_SET_DEFAULT is set', async () => {
+            const sendSpy = sandbox.spy();
+            sandbox.stub(awsTransport, 'getSESClient').returns({ send: sendSpy });
+            await awsTransport.sendEmail(testEmail);
+            expect(sendSpy.called).is.true;
+            expect(sendSpy.args[0][0].input.ConfigurationSetName).to.equal('default-configuration-set');
+        });
+        it('does not require a configuration set name', async () => {
+            delete process.env.SES_CONFIGURATION_SET_DEFAULT;
+            const sendSpy = sandbox.spy();
+            sandbox.stub(awsTransport, 'getSESClient').returns({ send: sendSpy });
+            await awsTransport.sendEmail(testEmail);
+            expect(sendSpy.called).is.true;
+            expect(sendSpy.args[0][0].input).to.not.have.property('ConfigurationSetName');
+        });
+
+        it('correctly formats from email without name', async () => {
+            const sendSpy = sandbox.spy();
+            sandbox.stub(awsTransport, 'getSESClient').returns({ send: sendSpy });
+            await awsTransport.sendEmail(testEmail);
+            const source = sendSpy.args[0][0].input.Source;
+            expect(source).to.equal('fake@example.org');
+        });
+
+        it('correctly formats from email with name', async () => {
+            const sendSpy = sandbox.spy();
+            sandbox.stub(awsTransport, 'getSESClient').returns({ send: sendSpy });
+            const fromNameEmail = { ...testEmail, fromName: 'From Name' };
+            await awsTransport.sendEmail(fromNameEmail);
+            const source = sendSpy.args[0][0].input.Source;
+            expect(source).to.equal('"From Name" <fake@example.org>');
         });
     });
     context('Nodemailer', () => {
@@ -174,9 +217,15 @@ describe('Email sender', () => {
     const sandbox = sinon.createSandbox();
     before(async () => {
         await fixtures.seed(db.knex);
+        process.env.DD_SERVICE = 'test-dd-service';
+        process.env.DD_ENV = 'test-dd-env';
+        process.env.DD_VERSION = 'test-dd-version';
     });
     after(async () => {
         await db.knex.destroy();
+        process.env.DD_SERVICE = DD_SERVICE;
+        process.env.DD_ENV = DD_ENV;
+        process.env.DD_VERSION = DD_VERSION;
     });
 
     beforeEach(() => {
@@ -188,216 +237,255 @@ describe('Email sender', () => {
         sandbox.restore();
     });
 
-    context('grant assigned email', () => {
-        it('deliverEmail calls the transport function with appropriate parameters', async () => {
+    context('send passcode email', () => {
+        it('calls the transport function with appropriate parameters', async () => {
             const sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
-            email.deliverEmail({
-                toAddress: 'foo@bar.com',
-                ccAddress: 'cc@example.com',
-                emailHTML: '<p>foo</p>',
-                emailPlain: 'foo',
-                subject: 'test foo email',
-            });
+            await email.sendPassCodeEmail('staff.user@test.com', '83c7c74a-6b38-4392-84fa-d1f3993f448d', 'https://api.grants.usdigitalresponse.org');
 
             expect(sendFake.calledOnce).to.equal(true);
-            expect(sendFake.firstCall.args).to.deep.equal([{
-                toAddress: 'foo@bar.com',
-                ccAddress: 'cc@example.com',
-                subject: 'test foo email',
-                body: '<p>foo</p>',
-                text: 'foo',
-            }]);
-        });
-        it('sendGrantAssignedEmail ensures email is sent for all agencies', async () => {
-            const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'sendGrantAssignedNotficationForAgency', sendFake);
-
-            await email.sendGrantAssignedEmail({ grantId: '335255', agencyIds: [0, 1], userId: 1 });
-
-            expect(sendFake.calledTwice).to.equal(true);
-
-            expect(sendFake.firstCall.firstArg.name).to.equal('State Board of Accountancy');
-            expect(sendFake.firstCall.args[1].includes('<table')).to.equal(true);
-            expect(sendFake.firstCall.lastArg).to.equal(1);
-
-            expect(sendFake.secondCall.firstArg.name).to.equal('State Board of Sub Accountancy');
-            expect(sendFake.secondCall.args[1].includes('<table')).to.equal(true);
-            expect(sendFake.secondCall.lastArg).to.equal(1);
-        });
-        it('sendGrantAssignedNotficationForAgency delivers email for all users within agency', async () => {
-            const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'deliverEmail', sendFake);
-            await db.setUserEmailSubscriptionPreference(
-                fixtures.users.adminUser.id,
-                fixtures.agencies.accountancy.id,
-                {
-                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
-                },
-            );
-            await db.setUserEmailSubscriptionPreference(
-                fixtures.users.staffUser.id,
-                fixtures.agencies.accountancy.id,
-                {
-                    [emailConstants.notificationType.grantAssignment]: emailConstants.emailSubscriptionStatus.subscribed,
-                },
-            );
-
-            await email.sendGrantAssignedNotficationForAgency(fixtures.agencies.accountancy, '<p>sample html</p>', fixtures.users.adminUser.id);
-
-            expect(sendFake.calledTwice).to.equal(true);
-
-            expect(sendFake.firstCall.args.length).to.equal(3);
-            expect(sendFake.firstCall.args[0].toAddress).to.equal(fixtures.users.adminUser.email);
-            expect(sendFake.firstCall.args[0].emailHTML.includes('<table')).to.equal(true);
-            expect(sendFake.firstCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
-
-            expect(sendFake.secondCall.args.length).to.equal(3);
-            expect(sendFake.secondCall.args[0].toAddress).to.equal(fixtures.users.staffUser.email);
-            expect(sendFake.secondCall.args[0].emailHTML.includes('<table')).to.equal(true);
-            expect(sendFake.secondCall.args[0].subject).to.equal('Grant Assigned to State Board of Accountancy');
-        });
-        it('is resilient to missing grant description', async () => {
-            const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'sendGrantAssignedNotficationForAgency', sendFake);
-            const grant = fixtures.grants.noDescOrEligibilityCodes;
-
-            await email.sendGrantAssignedEmail({ grantId: grant.grant_id, agencyIds: [0], userId: 1 });
-
-            expect(sendFake.called).to.equal(true);
-            expect(sendFake.firstCall.args[1].includes('... View on')).to.equal(true);
+            expect(_.omit(sendFake.firstCall.args[0], ['body'])).to.deep.equal({
+                fromName: 'USDR Grants',
+                ccAddress: undefined,
+                toAddress: 'staff.user@test.com',
+                subject: 'USDR Grants Tool Access Link',
+                text: 'Your link to access USDR\'s Grants tool is https://api.grants.usdigitalresponse.org/api/sessions?passcode=83c7c74a-6b38-4392-84fa-d1f3993f448d. It expires in 30 minutes',
+                tags: ['notification_type=passcode', 'user_role=staff', 'organization_id=0', 'team_id=0', 'service=test-dd-service', 'env=test-dd-env', 'version=test-dd-version'],
+            });
+            expect(sendFake.firstCall.args[0].body).contains('<title>Login Passcode</title>');
         });
     });
-    context('async report email', () => {
+    context('send welcome email', () => {
+        it('calls the transport function with appropriate parameters', async () => {
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
+
+            await email.sendWelcomeEmail('sub.staff.user@test.com', 'https://staging.grants.usdr.dev');
+
+            expect(sendFake.calledOnce).to.equal(true);
+            expect(_.omit(sendFake.firstCall.args[0], ['body'])).to.deep.equal({
+                fromName: 'USDR Grants',
+                ccAddress: undefined,
+                toAddress: 'sub.staff.user@test.com',
+                subject: 'Welcome to USDR Grants Tool',
+                text: 'Visit USDR\'s Grants Tool at: https://staging.grants.usdr.dev.',
+                tags: ['notification_type=welcome', 'user_role=staff', 'organization_id=0', 'team_id=1', 'service=test-dd-service', 'env=test-dd-env', 'version=test-dd-version'],
+            });
+        });
+    });
+    context('send grant assigned email', () => {
+        it('calls the transport function with appropriate parameters', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = false;
+
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
+
+            await email.sendGrantAssignedEmails({ grantId: '335255', agencyIds: [0, 1], userId: 1 });
+
+            // There are 3 total users in agencies 0 and 1 and none are explicitly unsubscribed for grant assignment
+            // notifications which means they are all implicitly subscribed.
+            expect(sendFake.callCount).to.equal(3);
+            expect(sendFake.calledWithMatch(
+                {
+                    fromName: 'USDR Federal Grant Finder',
+                    toAddress: 'staff.user@test.com',
+                    subject: 'Grant Assigned to State Board of Accountancy',
+                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=0', 'service=test-dd-service', 'env=test-dd-env', 'version=test-dd-version'],
+                },
+            )).to.be.true;
+            expect(sendFake.calledWithMatch(
+                {
+                    fromName: 'USDR Federal Grant Finder',
+                    toAddress: 'sub.staff.user@test.com',
+                    subject: 'Grant Assigned to State Board of Sub Accountancy',
+                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=1', 'service=test-dd-service', 'env=test-dd-env', 'version=test-dd-version'],
+                },
+            )).to.be.true;
+            expect(sendFake.calledWithMatch(
+                {
+                    fromName: 'USDR Federal Grant Finder',
+                    toAddress: 'admin.user@test.com',
+                    subject: 'Grant Assigned to State Board of Accountancy',
+                    tags: ['notification_type=grant_assignment', 'user_role=admin', 'organization_id=0', 'team_id=0', 'service=test-dd-service', 'env=test-dd-env', 'version=test-dd-version'],
+                },
+            )).to.be.true;
+        });
+        it('is resilient to missing grant description', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = false;
+
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
+            const grant = fixtures.grants.noDescOrEligibilityCodes;
+
+            await email.sendGrantAssignedEmails({ grantId: grant.grant_id, agencyIds: [0], userId: 1 });
+
+            expect(sendFake.called).to.equal(true);
+            expect(sendFake.firstCall.args[0].body.includes('... View on')).to.equal(true);
+        });
+    });
+
+    context('send grant shared email', () => {
+        it('calls the transport function with appropriate parameters', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = true;
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
+
+            await email.sendGrantAssignedEmails({ grantId: '335255', agencyIds: [0, 1], userId: 1 });
+
+            // There are 3 total users in agencies 0 and 1 and none are explicitly unsubscribed for grant assignment
+            // notifications which means they are all implicitly subscribed.
+            expect(sendFake.callCount).to.equal(3);
+            expect(sendFake.calledWithMatch(
+                {
+                    fromName: 'USDR Federal Grant Finder',
+                    toAddress: 'staff.user@test.com',
+                    subject: 'Admin User Shared a Grant with Your Team',
+                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=0', 'service=test-dd-service', 'env=test-dd-env', 'version=test-dd-version'],
+                },
+            )).to.be.true;
+            expect(sendFake.calledWithMatch(
+                {
+                    fromName: 'USDR Federal Grant Finder',
+                    toAddress: 'sub.staff.user@test.com',
+                    subject: 'Admin User Shared a Grant with Your Team',
+                    tags: ['notification_type=grant_assignment', 'user_role=staff', 'organization_id=0', 'team_id=1', 'service=test-dd-service', 'env=test-dd-env', 'version=test-dd-version'],
+                },
+            )).to.be.true;
+            expect(sendFake.calledWithMatch(
+                {
+                    fromName: 'USDR Federal Grant Finder',
+                    toAddress: 'admin.user@test.com',
+                    subject: 'Admin User Shared a Grant with Your Team',
+                    tags: ['notification_type=grant_assignment', 'user_role=admin', 'organization_id=0', 'team_id=0', 'service=test-dd-service', 'env=test-dd-env', 'version=test-dd-version'],
+                },
+            )).to.be.true;
+        });
+        it('is resilient to missing grant description', async () => {
+            process.env.SHARE_TERMINOLOGY_ENABLED = true;
+            const sendFake = sinon.fake.returns('foo');
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
+            const grant = fixtures.grants.noDescOrEligibilityCodes;
+
+            await email.sendGrantAssignedEmails({ grantId: grant.grant_id, agencyIds: [0], userId: 1 });
+
+            expect(sendFake.called).to.equal(true);
+            expect(sendFake.firstCall.args[0].body.includes('... View on')).to.equal(true);
+        });
+    });
+
+    context('send async report email', () => {
         it('sendAsyncReportEmail delivers an email with the signedURL for audit report', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'deliverEmail', sendFake);
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
-            await email.sendAsyncReportEmail('foo@example.com', 'https://example.usdigitalresponse.org', email.ASYNC_REPORT_TYPES.audit);
+            await email.sendAsyncReportEmail('usdr.volunteer@test.com', 'https://example.usdigitalresponse.org', email.ASYNC_REPORT_TYPES.audit);
             expect(sendFake.calledOnce).to.equal(true);
             expect(sendFake.firstCall.firstArg.subject).to.equal('Your audit report is ready for download');
-            expect(sendFake.firstCall.firstArg.emailPlain).to.equal('Your audit report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org This link will remain active for 7 days.');
-            expect(sendFake.firstCall.firstArg.toAddress).to.equal('foo@example.com');
-            expect(sendFake.firstCall.firstArg.emailHTML).contains('https://example.usdigitalresponse.org');
+            expect(sendFake.firstCall.firstArg.text).to.equal('Your audit report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org This link will remain active for 7 days.');
+            expect(sendFake.firstCall.firstArg.toAddress).to.equal('usdr.volunteer@test.com');
+            expect(sendFake.firstCall.firstArg.fromName).to.equal('USDR ARPA Reporter');
+            expect(sendFake.firstCall.firstArg.body).contains('https://example.usdigitalresponse.org');
+            expect(sendFake.firstCall.firstArg.tags).to.deep.equal([
+                'notification_type=audit_report',
+                'user_role=usdr_staff',
+                'organization_id=1',
+                'team_id=2',
+                'service=test-dd-service',
+                'env=test-dd-env',
+                'version=test-dd-version',
+            ]);
         });
         it('sendAsyncReportEmail delivers an email with the signedURL for treasury report', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'deliverEmail', sendFake);
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
-            await email.sendAsyncReportEmail('foo@example.com', 'https://example.usdigitalresponse.org', email.ASYNC_REPORT_TYPES.treasury);
+            await email.sendAsyncReportEmail('admin.user@test.com', 'https://example.usdigitalresponse.org', email.ASYNC_REPORT_TYPES.treasury);
             expect(sendFake.calledOnce).to.equal(true);
             expect(sendFake.firstCall.firstArg.subject).to.equal('Your treasury report is ready for download');
-            expect(sendFake.firstCall.firstArg.emailPlain).to.equal('Your treasury report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org This link will remain active for 7 days.');
-            expect(sendFake.firstCall.firstArg.toAddress).to.equal('foo@example.com');
-            expect(sendFake.firstCall.firstArg.emailHTML).contains('https://example.usdigitalresponse.org');
+            expect(sendFake.firstCall.firstArg.text).to.equal('Your treasury report is ready for download. Paste this link into your browser to download it: https://example.usdigitalresponse.org This link will remain active for 7 days.');
+            expect(sendFake.firstCall.firstArg.toAddress).to.equal('admin.user@test.com');
+            expect(sendFake.firstCall.firstArg.fromName).to.equal('USDR ARPA Reporter');
+            expect(sendFake.firstCall.firstArg.body).contains('https://example.usdigitalresponse.org');
+            expect(sendFake.firstCall.firstArg.tags).to.deep.equal([
+                'notification_type=treasury_report',
+                'user_role=admin',
+                'organization_id=0',
+                'team_id=0',
+                'service=test-dd-service',
+                'env=test-dd-env',
+                'version=test-dd-version',
+            ]);
         });
     });
-    context('report error email', () => {
+    context('send report error email', () => {
         it('sendReportErrorEmail delivers an email with the error message', async () => {
             const sendFake = sinon.fake.returns('foo');
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
+
             const user = {
                 email: 'foo@example.com',
                 tenant: {
                     display_name: 'Test Tenant',
                 },
             };
-            sinon.replace(email, 'deliverEmail', sendFake);
-            const body = 'There was an error generating a your requested Audit Report. Someone from USDR will reach out within 24 hours to debug the problem. We apologize for any inconvenience.';
+            const body = 'There was an error generating your requested audit report. Someone from USDR will reach out within 24 hours to debug the problem. We apologize for any inconvenience.';
 
-            await email.sendReportErrorEmail(user, 'Audit');
+            await email.sendReportErrorEmail(user, email.ASYNC_REPORT_TYPES.audit);
             expect(sendFake.calledOnce).to.equal(true);
-            expect(sendFake.firstCall.firstArg.subject).to.equal(`Audit Report generation has failed for Test Tenant`);
-            expect(sendFake.firstCall.firstArg.emailPlain).to.equal(body);
+            expect(sendFake.firstCall.firstArg.subject).to.equal(`Audit report generation has failed for Test Tenant`);
+            expect(sendFake.firstCall.firstArg.text).to.equal(body);
             expect(sendFake.firstCall.firstArg.toAddress).to.equal(user.email);
+            expect(sendFake.firstCall.firstArg.fromName).to.equal('USDR ARPA Reporter');
             expect(sendFake.firstCall.firstArg.ccAddress).to.equal('grants-helpdesk@usdigitalresponse.org');
-            expect(sendFake.firstCall.firstArg.emailHTML).contains(body);
+            expect(sendFake.firstCall.firstArg.body).contains(body);
+            // Not an actual user so no user tags
+            expect(sendFake.firstCall.firstArg.tags).to.deep.equal([
+                'notification_type=audit_report_error',
+                'service=test-dd-service',
+                'env=test-dd-env',
+                'version=test-dd-version',
+            ]);
         });
     });
-    context('saved search grant digest email', () => {
+    context('send grant digest email', () => {
         beforeEach(async () => {
-            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            // Set to given date in local time zone
+            this.clockFn = (date) => sinon.useFakeTimers(moment(date).toDate());
             this.clock = this.clockFn('2021-08-06');
         });
         afterEach(async () => {
             this.clock.restore();
-        });
-        it('buildAndSendGrantDigest sends grants for all subscribed agencies', async () => {
-            const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'sendGrantDigest', sendFake);
-
-            /* ensure that admin user is subscribed to all notifications */
-            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
-
-            await email.buildAndSendGrantDigest();
-
-            /* only fixtures.agency.accountancy has eligibility-codes, keywords, and users that match an existing grant */
-            expect(sendFake.calledOnce).to.equal(true);
-            await knex('email_subscriptions').del();
-        });
-    });
-    context('grant digest email', () => {
-        beforeEach(async () => {
-            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
-            this.clock = this.clockFn('2021-08-06');
-        });
-        afterEach(async () => {
-            this.clock.restore();
-        });
-        it('buildAndSendGrantDigest sends grants for all subscribed agencies', async () => {
-            const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'sendGrantDigest', sendFake);
-
-            /* ensure that admin user is subscribed to all notifications */
-            await db.setUserEmailSubscriptionPreference(fixtures.users.adminUser.id, fixtures.users.adminUser.agency_id);
-
-            await email.buildAndSendGrantDigest();
-
-            /* only fixtures.agency.accountancy has eligibility-codes, keywords, and users that match an existing grant */
-            expect(sendFake.calledOnce).to.equal(true);
-            await knex('email_subscriptions').del();
         });
         it('sendGrantDigest sends no email when there are no grants to send', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'deliverEmail', sendFake);
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
             const agencies = await db.getAgency(0);
             const agency = agencies[0];
             agency.matched_grants = [];
-            agency.recipients = ['foo@example.com'];
+            agency.recipient = 'foo@example.com';
 
-            await email.sendGrantDigest({
+            await email.sendGrantDigestEmail({
                 name: agency.name,
-                recipients: agency.recipients,
+                recipient: agency.recipient,
                 matchedGrants: agency.matched_grants,
                 openDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
             });
 
             expect(sendFake.called).to.equal(false);
         });
-        it('sendGrantDigest sends email to all users when there are grants', async () => {
-            const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'deliverEmail', sendFake);
-
-            const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
-            const agency = agencies[0];
-
-            agency.matched_grants = [fixtures.grants.healthAide];
-            agency.recipients = [fixtures.users.adminUser.email, fixtures.users.staffUser.email];
-            await email.sendGrantDigest({
-                name: agency.name,
-                recipients: agency.recipients,
-                matchedGrants: agency.matched_grants,
-                penDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
-            });
-
-            expect(sendFake.calledTwice).to.equal(true);
-        });
+    });
+    context('build grant digest body', () => {
         it('builds all the grants if fewer than 3 available', async () => {
             const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
             const agency = agencies[0];
             agency.matched_grants = [fixtures.grants.healthAide];
-            const body = await email.buildDigestBody({ name: 'Saved search test', openDate: '2021-08-05', matchedGrants: agency.matched_grants });
+            const body = await email.buildDigestBody({
+                name: 'Saved search test',
+                openDate: '2021-08-05',
+                matchedGrants: agency.matched_grants,
+            });
             expect(body).to.include(fixtures.grants.healthAide.description);
         });
         it('builds only first 3 grants if >3 available', async () => {
@@ -431,7 +519,11 @@ describe('Email sender', () => {
             const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
             const agency = agencies[0];
             agency.matched_grants = [fixtures.grants.healthAide];
-            const body = await email.buildDigestBody({ name: 'Saved search test', openDate: '2021-08-05', matchedGrants: agency.matched_grants });
+            const body = await email.buildDigestBody({
+                name: 'Saved search test',
+                openDate: '2021-08-05',
+                matchedGrants: agency.matched_grants,
+            });
             expect(body).to.include(`https://www.grants.gov/search-results-detail/${fixtures.grants.healthAide.grant_id}`);
         });
         it('links to Grant Finder when Grant Details page is live', async () => {
@@ -439,46 +531,43 @@ describe('Email sender', () => {
             const agencies = await db.getAgency(fixtures.agencies.accountancy.id);
             const agency = agencies[0];
             agency.matched_grants = [fixtures.grants.healthAide];
-            const body = await email.buildDigestBody({ name: 'Saved search test', openDate: '2021-08-05', matchedGrants: agency.matched_grants });
+            const body = await email.buildDigestBody({
+                name: 'Saved search test',
+                openDate: '2021-08-05',
+                matchedGrants: agency.matched_grants,
+            });
             expect(body).to.include(`${process.env.WEBSITE_DOMAIN}/grants/${fixtures.grants.healthAide.grant_id}`);
         });
     });
-    context('getAndSendGrantForSavedSearch', () => {
-        it('Sends an email for a saved search', async () => {
-            const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'deliverEmail', sendFake);
-
-            const userSavedSearch = {
-                name: 'TestSavedSearch',
-                tenantId: 0,
-                email: 'foo@bar.com',
-                criteria: '{"includeKeywords":"interestedGrant"}',
-            };
-            await email.getAndSendGrantForSavedSearch({ userSavedSearch, openDate: '2021-08-05' });
-
-            expect(sendFake.calledOnce).to.equal(true);
-        });
-    });
-    context('buildAndSendUserSavedSearchGrantDigest', () => {
+    context('buildAndSendGrantDigestEmails', () => {
         beforeEach(async () => {
-            this.clockFn = (date) => sinon.useFakeTimers(new Date(date));
+            // Set to given date in local time zone
+            this.clockFn = (date) => sinon.useFakeTimers(moment(date).toDate());
             this.clock = this.clockFn('2021-08-06');
         });
         afterEach(async () => {
             this.clock.restore();
         });
-        it('Sends an email for a saved search', async () => {
+        it('Sends an email for a user\'s saved search', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'deliverEmail', sendFake);
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
-            await email.buildAndSendUserSavedSearchGrantDigest(1, '2021-08-05');
+            // Build digest for adminUser who has 1 saved search
+            await email.buildAndSendGrantDigestEmails(1, '2021-08-05');
             expect(sendFake.calledOnce).to.equal(true);
+            expect(_.omit(sendFake.firstCall.args[0], ['body', 'text'])).to.deep.equal({
+                fromName: 'USDR Federal Grant Finder',
+                ccAddress: undefined,
+                toAddress: 'admin.user@test.com',
+                subject: 'New Grants Published for Simple 2 result search based on included keywords',
+                tags: ['notification_type=grant_digest', 'user_role=admin', 'organization_id=0', 'team_id=0', 'service=test-dd-service', 'env=test-dd-env', 'version=test-dd-version'],
+            });
         });
-        it('Sends an email for a saved search', async () => {
+        it('Sends an email for all users\' saved searches', async () => {
             const sendFake = sinon.fake.returns('foo');
-            sinon.replace(email, 'deliverEmail', sendFake);
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
 
-            await email.buildAndSendUserSavedSearchGrantDigest();
+            await email.buildAndSendGrantDigestEmails();
             expect(sendFake.calledOnce).to.equal(true);
         });
     });

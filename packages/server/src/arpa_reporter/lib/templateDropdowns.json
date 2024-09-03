@@ -67,7 +67,8 @@
     "WA",
     "WV",
     "WI",
-    "WY"
+    "WY",
+    "Other"
   ],
   "Country": [
     "United States",
@@ -83,7 +84,8 @@
   ],
   "Yes/No Questions": [
     "Yes",
-    "No"
+    "No",
+    "N/A"
   ],
   "Types": [
     "Contract: Purchase Order",
@@ -98,7 +100,8 @@
     "Loan - maturity prior to 12/31/26 with planned forgiveness",
     "Loan - maturity prior to 12/31/26 without planned forgiveness",
     "Loan - maturity past 12/31/26 with planned forgiveness",
-    "Loan - maturity past 12/31/26 without planned forgiveness"
+    "Loan - maturity past 12/31/26 without planned forgiveness",
+    "Interagency Agreement (IAA)"
   ],
   "Funding Type": [
     "Aggregate of Contracts Awarded",
@@ -106,6 +109,7 @@
     "Aggregate of Loans Issued",
     "Aggregate of Transfers",
     "Aggregate of Direct Payments",
+    "Aggregate of Interagency Agreement (IAA)",
     "Payments to Individuals"
   ],
   "Sectors Designated as Essential Critical Infrastructure": [
@@ -203,12 +207,18 @@
   "Subrecipient": [
     "Subrecipient",
     "Contractor",
-    "Beneficiary"
+    "Beneficiary",
+    "IAA"
   ],
   "Broadband Type": [
     "Fiber",
     "Coaxial Cable",
     "Terrestrial Fixed Wireless",
     "Other"
+  ],
+  "IAA Conditions": [
+    "1. It imposes conditions on the use of funds by the agency, department, or part of government receiving funds to carry out the program",
+    "2. It governs the provision of funds from one agency, department, or part of government to another to carry out an eligible use of SLFRF funds",
+    "3. It governs the procurement of goods or services by one agency, department, or part of government from another"
   ]
 }

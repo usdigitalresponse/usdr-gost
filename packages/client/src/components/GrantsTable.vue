@@ -1,23 +1,50 @@
 <template>
   <section class="container-fluid grants-table-container">
-    <b-row class="my-3" v-if="showSearchControls">
+    <b-row
+      v-if="showSearchControls"
+      class="my-3"
+    >
       <div class="ml-3">
-        <SavedSearchPanel :isDisabled="loading" />
+        <SavedSearchPanel :is-disabled="loading" />
       </div>
       <div class="ml-1">
-        <SearchPanel :isDisabled="loading" ref="searchPanel" :search-id="Number(editingSearchId)" @filters-applied="retrieveFilteredGrants" />
+        <SearchPanel
+          ref="searchPanel"
+          :is-disabled="loading"
+          :search-id="Number(editingSearchId)"
+          @filters-applied="retrieveFilteredGrants"
+        />
       </div>
     </b-row>
-    <b-row  class="grants-table-title-control">
-      <b-col v-if="showSearchControls" >
-        <SearchFilter :isDisabled="loading" :filterKeys="searchFilters" @filter-removed="onFilterRemoved" />
+    <b-row class="grants-table-title-control">
+      <b-col v-if="showSearchControls">
+        <SearchFilter
+          :is-disabled="loading"
+          :filter-keys="searchFilters"
+          @filter-removed="onFilterRemoved"
+        />
       </b-col>
-      <b-col align-self="end" v-if="!showSearchControls">
-        <h2 class="mb-0">{{ searchTitle }}</h2>
+      <b-col
+        v-if="!showSearchControls"
+        align-self="end"
+      >
+        <h2 class="mb-0">
+          {{ searchTitle }}
+        </h2>
       </b-col>
       <b-col class="d-flex justify-content-end">
-        <b-button @click="exportCSV" :disabled="loading" variant="outline-primary" size="sm">
-          <b-icon icon="download" class="mr-2" aria-hidden="true" />Export to CSV</b-button>
+        <b-button
+          :disabled="loading"
+          variant="outline-primary"
+          size="sm"
+          @click="exportCSV"
+        >
+          <b-icon
+            icon="download"
+            class="mr-2"
+            aria-hidden="true"
+          />Export to CSV
+        </b-button>
       </b-col>
     </b-row>
     <b-row align-v="center">
@@ -33,7 +60,7 @@
           :items="formattedGrants"
           :fields="fields.filter(field => !field.hideGrantItem)"
           show-empty
-          emptyText="No matches found"
+          empty-text="No matches found"
           no-local-sorting
           :sort-by.sync="orderBy"
           :sort-desc.sync="orderDesc"
@@ -48,8 +75,11 @@
             <p> {{ formatCurrency(row.item.award_ceiling) }}</p>
           </template>
           <template #table-busy>
-            <div class="text-center text-info my-2" style="height: 1200px;">
-              <b-spinner class="align-middle"></b-spinner>
+            <div
+              class="text-center text-info my-2"
+              style="height: 1200px;"
+            >
+              <b-spinner class="align-middle" />
               <strong> Loading...</strong>
             </div>
           </template>
@@ -57,13 +87,22 @@
             &emsp;
             &emsp;
             <div class="text-center">
-              <p class="empty-text"><strong>{{ scope.emptyText }}</strong></p>
+              <p class="empty-text">
+                <strong>{{ scope.emptyText }}</strong>
+              </p>
               <div v-if="showSearchControls">
-              <p class="empty-text">Tip: Broaden your search or adjust your keywords for more results</p>
+                <p class="empty-text">
+                  Tip: Broaden your search or adjust your keywords for more results
+                </p>
               &nbsp;
-              <p><a @click="initEditSearch(searchId);" class="link">
-                  Edit Search Criteria
-                </a></p>
+                <p>
+                  <a
+                    class="link"
+                    @click="initEditSearch(searchId);"
+                  >
+                    Edit Search Criteria
+                  </a>
+                </p>
               </div>
             </div>
           </template>
@@ -71,7 +110,10 @@
       </b-col>
     </b-row>
     <b-row class="grants-table-pagination">
-      <b-col cols="11" class="grants-table-pagination-component">
+      <b-col
+        cols="11"
+        class="grants-table-pagination-component"
+      >
         <!--
           Pagination component resets currentPage to 1 if totalRows is too low.
           When loading the page with e.g. `?page=4`, this would reset the currentPage to 1
@@ -79,8 +121,8 @@
         -->
         <template v-if="totalRows > 0">
           <b-pagination
-            class="m-0"
             v-model="currentPage"
+            class="m-0"
             :total-rows="totalRows"
             :per-page="perPage"
             first-text="First"
@@ -90,25 +132,30 @@
             aria-controls="grants-table"
           />
         </template>
-        <div class="my-1 rounded py-1 px-2 page-item">{{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}</div>
+        <div class="my-1 rounded py-1 px-2 page-item">
+          {{ totalRows }} total grant{{ totalRows == 1 ? '' : 's' }}
+        </div>
       </b-col>
     </b-row>
-    <GrantDetailsLegacy v-if="!newGrantsDetailPageEnabled" :selected-grant.sync="selectedGrant" />
+    <GrantDetailsLegacy
+      v-if="!newGrantsDetailPageEnabled"
+      :selected-grant.sync="selectedGrant"
+    />
   </section>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import { datadogRum } from '@datadog/browser-rum';
+import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
 import { titleize } from '@/helpers/form-helpers';
 import { daysUntil } from '@/helpers/dates';
 import { defaultCloseDateThresholds } from '@/helpers/constants';
 import { formatCurrency } from '@/helpers/currency';
-import GrantDetailsLegacy from './Modals/GrantDetailsLegacy.vue';
-import SearchPanel from './Modals/SearchPanel.vue';
-import SavedSearchPanel from './Modals/SavedSearchPanel.vue';
-import SearchFilter from './SearchFilter.vue';
+import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
+import SearchPanel from '@/components/Modals/SearchPanel.vue';
+import SavedSearchPanel from '@/components/Modals/SavedSearchPanel.vue';
+import SearchFilter from '@/components/SearchFilter.vue';
 
 const DEFAULT_CURRENT_PAGE = 1;
 const DEFAULT_ORDER_BY = 'rank';
@@ -123,7 +170,10 @@ export default {
     showInterested: Boolean,
     showRejected: Boolean,
     showResult: Boolean,
-    showAssignedToAgency: String,
+    showAssignedToAgency: {
+      type: String,
+      default: undefined,
+    },
     showSearchControls: {
       type: Boolean,
       default: true,
@@ -179,65 +229,6 @@ export default {
       orderBy: DEFAULT_ORDER_BY,
       orderDesc: DEFAULT_ORDER_DESC,
     };
-  },
-  async mounted() {
-    document.addEventListener('keyup', this.changeSelectedGrantIndex);
-    this.clearSelectedSearch();
-
-    // Watch route query updates and reflect them in the component
-    // (This happens with browser back/forward through history)
-    this.$watch(
-      () => this.$route.query,
-      this.extractStateFromRoute,
-      { deep: true },
-    );
-
-    // Retrieve the initial grants list for the table
-    if (this.$route.query.search) {
-      // We need to load saved searches before extracting initial state from route
-      this.loading = true;
-      await this.fetchSavedSearches({
-        perPage: 100, // TODO: make this robust to users with more saved searches
-        currentPage: 1,
-      });
-      this.extractStateFromRoute();
-      this.retrieveFilteredGrants();
-      this.loading = false;
-    } else {
-      this.extractStateFromRoute();
-      this.retrieveFilteredGrants();
-    }
-
-    // Watch route query and push a route update when it changes.
-    // This needs to be set up after the initial setting of related
-    // data (currentPage, order, etc.) so it won't trigger initially.
-    this.$watch(
-      () => this.routeQuery,
-      (routeQuery) => {
-        this.pushRouteUpdate(routeQuery);
-        this.retrieveFilteredGrants();
-      },
-      { deep: true, immediate: false },
-    );
-
-    // Watch selected search and reset orderBy and orderDesc
-    // (This must be done after these values are set on initial page load
-    // to prevent them being overwritten)
-    this.$watch(
-      'selectedSearchId',
-      () => {
-        this.currentPage = 1;
-        const filterKeys = this.activeFilters.map((f) => f.key);
-        if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
-        // only if include/exclude keywords are selected
-          this.orderBy = 'rank';
-          this.orderDesc = false;
-        } else {
-          this.orderBy = 'open_date';
-          this.orderDesc = true;
-        }
-      },
-    );
   },
   computed: {
     ...mapGetters({
@@ -332,6 +323,65 @@ export default {
       // when we fetch grants, refresh selectedGrant reference
       this.changeSelectedGrant();
     },
+  },
+  async mounted() {
+    document.addEventListener('keyup', this.changeSelectedGrantIndex);
+    this.clearSelectedSearch();
+
+    // Watch route query updates and reflect them in the component
+    // (This happens with browser back/forward through history)
+    this.$watch(
+      () => this.$route.query,
+      this.extractStateFromRoute,
+      { deep: true },
+    );
+
+    // Retrieve the initial grants list for the table
+    if (this.$route.query.search) {
+      // We need to load saved searches before extracting initial state from route
+      this.loading = true;
+      await this.fetchSavedSearches({
+        perPage: 100, // TODO: make this robust to users with more saved searches
+        currentPage: 1,
+      });
+      this.extractStateFromRoute();
+      this.retrieveFilteredGrants();
+      this.loading = false;
+    } else {
+      this.extractStateFromRoute();
+      this.retrieveFilteredGrants();
+    }
+
+    // Watch route query and push a route update when it changes.
+    // This needs to be set up after the initial setting of related
+    // data (currentPage, order, etc.) so it won't trigger initially.
+    this.$watch(
+      () => this.routeQuery,
+      (routeQuery) => {
+        this.pushRouteUpdate(routeQuery);
+        this.retrieveFilteredGrants();
+      },
+      { deep: true, immediate: false },
+    );
+
+    // Watch selected search and reset orderBy and orderDesc
+    // (This must be done after these values are set on initial page load
+    // to prevent them being overwritten)
+    this.$watch(
+      'selectedSearchId',
+      () => {
+        this.currentPage = 1;
+        const filterKeys = this.activeFilters.map((f) => f.key);
+        if (this.searchId !== null && (filterKeys.includes('includeKeywords') || filterKeys.includes('excludeKeywords'))) {
+        // only if include/exclude keywords are selected
+          this.orderBy = 'rank';
+          this.orderDesc = false;
+        } else {
+          this.orderBy = 'open_date';
+          this.orderDesc = true;
+        }
+      },
+    );
   },
   methods: {
     ...mapActions({

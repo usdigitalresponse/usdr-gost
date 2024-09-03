@@ -1,7 +1,7 @@
 {
   "logic": {
     "version": {
-      "version": "v:20230923",
+      "version": "v:20240823",
       "key": "version",
       "index": 0,
       "required": false,
@@ -625,7 +625,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "W",
       "humanColName": "Is a program evaluation of the project being conducted?",
@@ -670,7 +671,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "Z",
       "humanColName": "Does this project include a capital expenditure?",
@@ -830,7 +832,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AE",
       "humanColName": "If budget is over $10M, was a Davis Bacon Act Certification completed?",
@@ -937,7 +940,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AI",
       "humanColName": "If budget is over $10M and Davis Bacon Act Certification NOT completed - are those wages are at rates less than those prevailing?",
@@ -966,7 +970,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AJ",
       "humanColName": "If budget is over $10M, was a Labor Agreement Certification completed?",
@@ -1073,7 +1078,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AN",
       "humanColName": "If budget is over $10M and Labor Agreement Certification NOT completed - enter whether workers on the project will receive wages and benefits that will secure an appropriately skilled workforce in the context of the local or regional labor market.",
@@ -1102,7 +1108,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AO",
       "humanColName": "If budget is over $10M and Labor Agreement Certification NOT completed - enter whether the project has completed a project labor agreement. ",
@@ -1131,7 +1138,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AP",
       "humanColName": "If budget is over $10M, does the project prioritize local hires? ",
@@ -1160,7 +1168,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AQ",
       "humanColName": "If budget is over $10M, does the project have a Community Benefit Agreement?",
@@ -1255,6 +1264,58 @@
       "listVals": [],
       "columnName": "AV",
       "humanColName": "Cancelled Status of Completion Explanation",
+      "ecCodes": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5",
+        "1.6",
+        "1.7",
+        "1.8",
+        "1.9",
+        "1.10",
+        "1.11",
+        "1.12",
+        "1.13",
+        "1.14"
+      ]
+    },
+    "Project_Start_Date__c": {
+      "key": "Project_Start_Date__c",
+      "index": 48,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AW",
+      "humanColName": "Project Start Date",
+      "ecCodes": [
+        "1.1",
+        "1.2",
+        "1.3",
+        "1.4",
+        "1.5",
+        "1.6",
+        "1.7",
+        "1.8",
+        "1.9",
+        "1.10",
+        "1.11",
+        "1.12",
+        "1.13",
+        "1.14"
+      ]
+    },
+    "Project_End_Date__c": {
+      "key": "Project_End_Date__c",
+      "index": 49,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AX",
+      "humanColName": "Project End Date",
       "ecCodes": [
         "1.1",
         "1.2",
@@ -2362,7 +2423,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "X",
       "humanColName": "Indicate if a program evaluation of the project is being conducted ",
@@ -2464,7 +2526,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AC",
       "humanColName": "Does this project include a capital expenditure?",
@@ -2739,7 +2802,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AH",
       "humanColName": "If budget is over $10M, was a Davis Bacon Act Certification completed?",
@@ -2938,7 +3002,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AL",
       "humanColName": "If budget is over $10M and Davis Bacon Act Certification NOT completed - are those wages are at rates less than those prevailing?",
@@ -2990,7 +3055,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AM",
       "humanColName": "If budget is over $10M, was a Labor Agreement Certification completed?",
@@ -3189,7 +3255,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AQ",
       "humanColName": "If budget is over $10M and Labor Agreement Certification NOT completed - enter whether workers on the project will receive wages and benefits that will secure an appropriately skilled workforce in the context of the local or regional labor market.",
@@ -3241,7 +3308,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AR",
       "humanColName": "If budget is over $10M and Labor Agreement Certification NOT completed - enter whether the project has completed a project labor agreement. ",
@@ -3293,7 +3361,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AS",
       "humanColName": "If budget is over $10M, does the project prioritize local hires? ",
@@ -3345,7 +3414,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AT",
       "humanColName": "If budget is over $10M, does the project have a Community Benefit Agreement?",
@@ -3568,6 +3638,104 @@
       "listVals": [],
       "columnName": "BD",
       "humanColName": "Cancelled Status of Completion Explanation",
+      "ecCodes": [
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "2.5",
+        "2.6",
+        "2.7",
+        "2.8",
+        "2.9",
+        "2.10",
+        "2.11",
+        "2.12",
+        "2.13",
+        "2.14",
+        "2.15",
+        "2.16",
+        "2.17",
+        "2.18",
+        "2.19",
+        "2.20",
+        "2.21",
+        "2.22",
+        "2.23",
+        "2.24",
+        "2.25",
+        "2.26",
+        "2.27",
+        "2.28",
+        "2.29",
+        "2.30",
+        "2.31",
+        "2.32",
+        "2.33",
+        "2.34",
+        "2.35",
+        "2.36",
+        "2.37"
+      ]
+    },
+    "Project_Start_Date__c": {
+      "key": "Project_Start_Date__c",
+      "index": 56,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "BE",
+      "humanColName": "Project Start Date",
+      "ecCodes": [
+        "2.1",
+        "2.2",
+        "2.3",
+        "2.4",
+        "2.5",
+        "2.6",
+        "2.7",
+        "2.8",
+        "2.9",
+        "2.10",
+        "2.11",
+        "2.12",
+        "2.13",
+        "2.14",
+        "2.15",
+        "2.16",
+        "2.17",
+        "2.18",
+        "2.19",
+        "2.20",
+        "2.21",
+        "2.22",
+        "2.23",
+        "2.24",
+        "2.25",
+        "2.26",
+        "2.27",
+        "2.28",
+        "2.29",
+        "2.30",
+        "2.31",
+        "2.32",
+        "2.33",
+        "2.34",
+        "2.35",
+        "2.36",
+        "2.37"
+      ]
+    },
+    "Project_End_Date__c": {
+      "key": "Project_End_Date__c",
+      "index": 57,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "BF",
+      "humanColName": "Project End Date",
       "ecCodes": [
         "2.1",
         "2.2",
@@ -3871,7 +4039,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "R",
       "humanColName": "Does this project include a capital expenditure?",
@@ -3986,7 +4155,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "W",
       "humanColName": "If budget is over $10M, was a Davis Bacon Act Certification completed?",
@@ -4057,7 +4227,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AA",
       "humanColName": "If budget is over $10M and Davis Bacon Act Certification NOT completed - are those wages are at rates less than those prevailing?",
@@ -4077,7 +4248,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AB",
       "humanColName": "If budget is over $10M, was a Labor Agreement Certification completed?",
@@ -4148,7 +4320,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AF",
       "humanColName": "If budget is over $10M and Labor Agreement Certification NOT completed - enter whether workers on the project will receive wages and benefits that will secure an appropriately skilled workforce in the context of the local or regional labor market.",
@@ -4168,7 +4341,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AG",
       "humanColName": "If budget is over $10M and Labor Agreement Certification NOT completed - enter whether the project has completed a project labor agreement. ",
@@ -4188,7 +4362,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AH",
       "humanColName": "If budget is over $10M, does the project prioritize local hires? ",
@@ -4208,7 +4383,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AI",
       "humanColName": "If budget is over $10M, does the project have a Community Benefit Agreement?",
@@ -4246,6 +4422,40 @@
       "listVals": [],
       "columnName": "AK",
       "humanColName": "Cancelled Status of Completion Explanation",
+      "ecCodes": [
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "3.5"
+      ]
+    },
+    "Project_Start_Date__c": {
+      "key": "Project_Start_Date__c",
+      "index": 37,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AL",
+      "humanColName": "Project Start Date",
+      "ecCodes": [
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "3.5"
+      ]
+    },
+    "Project_End_Date__c": {
+      "key": "Project_End_Date__c",
+      "index": 38,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AM",
+      "humanColName": "Project End Date",
       "ecCodes": [
         "3.1",
         "3.2",
@@ -4508,6 +4718,34 @@
       "listVals": [],
       "columnName": "R",
       "humanColName": "Cancelled Status of Completion Explanation",
+      "ecCodes": [
+        "4.1",
+        "4.2"
+      ]
+    },
+    "Project_Start_Date__c": {
+      "key": "Project_Start_Date__c",
+      "index": 18,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "S",
+      "humanColName": "Project Start Date",
+      "ecCodes": [
+        "4.1",
+        "4.2"
+      ]
+    },
+    "Project_End_Date__c": {
+      "key": "Project_End_Date__c",
+      "index": 19,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "T",
+      "humanColName": "Project End Date",
       "ecCodes": [
         "4.1",
         "4.2"
@@ -5023,7 +5261,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "R",
       "humanColName": "If budget is over $10M, was a Davis Bacon Act Certification completed?",
@@ -5158,7 +5397,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "V",
       "humanColName": "If budget is over $10M and Davis Bacon Act Certification NOT completed - are those wages are at rates less than those prevailing?",
@@ -5194,7 +5434,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "W",
       "humanColName": "If budget is over $10M, was a Labor Agreement Certification completed?",
@@ -5329,7 +5570,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AA",
       "humanColName": "If budget is over $10M and Labor Agreement Certification NOT completed - enter whether workers on the project will receive wages and benefits that will secure an appropriately skilled workforce in the context of the local or regional labor market.",
@@ -5365,7 +5607,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AB",
       "humanColName": "If budget is over $10M and Labor Agreement Certification NOT completed - enter whether the project has completed a project labor agreement. ",
@@ -5401,7 +5644,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AC",
       "humanColName": "If budget is over $10M, does the project prioritize local hires? ",
@@ -5437,7 +5681,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AD",
       "humanColName": "If budget is over $10M, does the project have a Community Benefit Agreement?",
@@ -5566,7 +5811,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AH",
       "humanColName": "Confirm that the project is designed to, upon completion, reliably meet or exceed symmetrical 100 Mbps download and upload speeds",
@@ -5599,7 +5845,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "AJ",
       "humanColName": "Confirm that the project is designed to, upon completion, meet or exceed symmetrical 100 Mbps download speed and between at least 20 Mbps and 100 Mbps upload speed, and be scalable to a minimum of 100 Mbps download speed and 100 Mbps upload speed",
@@ -6183,6 +6430,72 @@
         "5.20",
         "5.21"
       ]
+    },
+    "Project_Start_Date__c": {
+      "key": "Project_Start_Date__c",
+      "index": 71,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "BT",
+      "humanColName": "Project Start Date",
+      "ecCodes": [
+        "5.1",
+        "5.2",
+        "5.3",
+        "5.4",
+        "5.5",
+        "5.6",
+        "5.7",
+        "5.8",
+        "5.9",
+        "5.10",
+        "5.11",
+        "5.12",
+        "5.13",
+        "5.14",
+        "5.15",
+        "5.16",
+        "5.17",
+        "5.18",
+        "5.19",
+        "5.20",
+        "5.21"
+      ]
+    },
+    "Project_End_Date__c": {
+      "key": "Project_End_Date__c",
+      "index": 72,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "BU",
+      "humanColName": "Project End Date",
+      "ecCodes": [
+        "5.1",
+        "5.2",
+        "5.3",
+        "5.4",
+        "5.5",
+        "5.6",
+        "5.7",
+        "5.8",
+        "5.9",
+        "5.10",
+        "5.11",
+        "5.12",
+        "5.13",
+        "5.14",
+        "5.15",
+        "5.16",
+        "5.17",
+        "5.18",
+        "5.19",
+        "5.20",
+        "5.21"
+      ]
     }
   },
   "ec7": {
@@ -6197,7 +6510,8 @@
       "humanColName": "Project Name",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Project_Identification_Number__c": {
@@ -6211,7 +6525,8 @@
       "humanColName": "Project Identification Number\r\n(Assigned by recipient)",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Completion_Status__c": {
@@ -6231,7 +6546,8 @@
       "humanColName": "Status of Completion",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Adopted_Budget__c": {
@@ -6245,7 +6561,8 @@
       "humanColName": "Adopted Budget",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Total_Obligations__c": {
@@ -6259,7 +6576,8 @@
       "humanColName": "Total Cumulative \r\nObligations",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Total_Expenditures__c": {
@@ -6273,7 +6591,8 @@
       "humanColName": "Total Cumulative \r\nExpenditures",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Current_Period_Obligations__c": {
@@ -6287,7 +6606,8 @@
       "humanColName": "Current Period Obligations",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Current_Period_Expenditures__c": {
@@ -6301,7 +6621,8 @@
       "humanColName": "Current Period Expenditures",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Does_Project_Include_Capital_Expenditure__c": {
@@ -6312,7 +6633,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "K",
       "humanColName": "Does this project include a capital expenditure?",
@@ -6400,7 +6722,8 @@
       "humanColName": "Project Description",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Program_Income_Earned__c": {
@@ -6414,7 +6737,8 @@
       "humanColName": "Program Income Earned",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Program_Income_Expended__c": {
@@ -6428,7 +6752,8 @@
       "humanColName": "Program Income Expended",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
       ]
     },
     "Primary_Project_Demographics__c": {
@@ -6617,7 +6942,90 @@
       "humanColName": "Cancelled Status of Completion Explanation",
       "ecCodes": [
         "7.1",
-        "7.2"
+        "7.2",
+        "7.3"
+      ]
+    },
+    "Project_Start_Date__c": {
+      "key": "Project_Start_Date__c",
+      "index": 27,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AB",
+      "humanColName": "Project Start Date",
+      "ecCodes": [
+        "7.1",
+        "7.2",
+        "7.3"
+      ]
+    },
+    "Project_End_Date__c": {
+      "key": "Project_End_Date__c",
+      "index": 28,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AC",
+      "humanColName": "Project End Date",
+      "ecCodes": [
+        "7.1",
+        "7.2",
+        "7.3"
+      ]
+    },
+    "Admin_Estimated_Expended__c": {
+      "key": "Admin_Estimated_Expended__c",
+      "index": 29,
+      "required": "Conditional",
+      "dataType": "Currency",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AD",
+      "humanColName": "Estimated funds for administrative and legal expenses",
+      "ecCodes": [
+        "7.3"
+      ]
+    },
+    "Admin_Actual_Expended__c": {
+      "key": "Admin_Actual_Expended__c",
+      "index": 30,
+      "required": "Conditional",
+      "dataType": "Currency",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AE",
+      "humanColName": "Actual funds for administrative and legal expenses",
+      "ecCodes": [
+        "7.3"
+      ]
+    },
+    "Admin_Expended_Description__c": {
+      "key": "Admin_Expended_Description__c",
+      "index": 31,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 750,
+      "listVals": [],
+      "columnName": "AF",
+      "humanColName": "Administrative and legal expenses description",
+      "ecCodes": [
+        "7.3"
+      ]
+    },
+    "Admin_Expended_Justification__c": {
+      "key": "Admin_Expended_Justification__c",
+      "index": 32,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 750,
+      "listVals": [],
+      "columnName": "AG",
+      "humanColName": "Administrative and legal expenses explanation",
+      "ecCodes": [
+        "7.3"
       ]
     }
   },
@@ -6664,7 +7072,8 @@
       "listVals": [
         "Subrecipient",
         "Contractor",
-        "Beneficiary"
+        "Beneficiary",
+        "IAA"
       ],
       "columnName": "F",
       "humanColName": "Entity Type",
@@ -6790,7 +7199,8 @@
         "WA",
         "WV",
         "WI",
-        "WY"
+        "WY",
+        "Other"
       ],
       "columnName": "L",
       "humanColName": "State Code",
@@ -6837,7 +7247,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "P",
       "humanColName": "Recipient SAM.gov Registration?",
@@ -6851,7 +7262,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "Q",
       "humanColName": "In its preceding fiscal year, did recipient receive 80% or more of its annual gross revenue from federal funds?",
@@ -6865,7 +7277,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "R",
       "humanColName": "In the preceding fiscal year, did recipient receive $25 million or more of its annual gross revenue from federal funds?",
@@ -6879,7 +7292,8 @@
       "maxLength": null,
       "listVals": [
         "Yes",
-        "No"
+        "No",
+        "N/A"
       ],
       "columnName": "S",
       "humanColName": "Is the \"total compensation\" for the organization's five highest paid officers publicly listed or otherwise listed in SAM.gov?",
@@ -7039,7 +7453,8 @@
       "listVals": [
         "Subrecipient",
         "Contractor",
-        "Beneficiary"
+        "Beneficiary",
+        "IAA"
       ],
       "columnName": "F",
       "humanColName": "Entity Type",
@@ -7086,7 +7501,8 @@
         "Loan - maturity prior to 12/31/26 with planned forgiveness",
         "Loan - maturity prior to 12/31/26 without planned forgiveness",
         "Loan - maturity past 12/31/26 with planned forgiveness",
-        "Loan - maturity past 12/31/26 without planned forgiveness"
+        "Loan - maturity past 12/31/26 without planned forgiveness",
+        "Interagency Agreement (IAA)"
       ],
       "columnName": "J",
       "humanColName": "SubAward Type",
@@ -7245,7 +7661,7 @@
       "index": 21,
       "required": true,
       "dataType": "Pick List",
-      "maxLength": 2,
+      "maxLength": 5,
       "listVals": [
         "AL",
         "AK",
@@ -7305,7 +7721,8 @@
         "WA",
         "WV",
         "WI",
-        "WY"
+        "WY",
+        "Other"
       ],
       "columnName": "V",
       "humanColName": "Primary Place of Performance State Code ",
@@ -7355,8 +7772,8 @@
       "humanColName": "Did the Subaward Amount (Obligation) Change From Last Reporting Period?",
       "ecCodes": false
     },
-    "Change_Reason__c": {
-      "key": "Change_Reason__c",
+    "Edited_Subaward_Amount_Explanation__c": {
+      "key": "Edited_Subaward_Amount_Explanation__c",
       "index": 26,
       "required": "Conditional",
       "dataType": "String",
@@ -7364,6 +7781,109 @@
       "listVals": [],
       "columnName": "AA",
       "humanColName": "Reason for the Subaward Amount (Obligation) Change",
+      "ecCodes": false
+    },
+    "Loan_Expiration_Date__c": {
+      "key": "Loan_Expiration_Date__c",
+      "index": 27,
+      "required": "Conditional",
+      "dataType": "Date",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AB",
+      "humanColName": "Loan Expiration Date",
+      "ecCodes": false
+    },
+    "IAA_Basic_Conditions__c": {
+      "key": "IAA_Basic_Conditions__c",
+      "index": 28,
+      "required": "Conditional",
+      "dataType": "Multi-Select",
+      "maxLength": null,
+      "listVals": [
+        "1. It imposes conditions on the use of funds by the agency, department, or part of government receiving funds to carry out the program",
+        "2. It governs the provision of funds from one agency, department, or part of government to another to carry out an eligible use of SLFRF funds",
+        "3. It governs the procurement of goods or services by one agency, department, or part of government from another"
+      ],
+      "columnName": "AC",
+      "humanColName": "IAA Basic Conditions",
+      "ecCodes": false
+    },
+    "IAA_Requirements_Attestation__c": {
+      "key": "IAA_Requirements_Attestation__c",
+      "index": 29,
+      "required": "Conditional",
+      "dataType": "Picklist",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AD",
+      "humanColName": "IAA Requirements Attestation",
+      "ecCodes": false
+    },
+    "Personnel_Cost_Estimates__c": {
+      "key": "Personnel_Cost_Estimates__c",
+      "index": 30,
+      "required": false,
+      "dataType": "Picklist",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AE",
+      "humanColName": "Personnel Cost Estimates?",
+      "ecCodes": false
+    },
+    "Personnel_Estimated_Expended": {
+      "key": "Personnel_Estimated_Expended",
+      "index": 31,
+      "required": "Conditional",
+      "dataType": "Currency",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AF",
+      "humanColName": "Estimated Personnel Expenditures",
+      "ecCodes": false
+    },
+    "Personnel_Expended_FTE_Count": {
+      "key": "Personnel_Expended_FTE_Count",
+      "index": 32,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 250,
+      "listVals": [],
+      "columnName": "AG",
+      "humanColName": "Personnel Expended FTE Count",
+      "ecCodes": false
+    },
+    "Personnel_Expended_Justification": {
+      "key": "Personnel_Expended_Justification",
+      "index": 33,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 750,
+      "listVals": [],
+      "columnName": "AH",
+      "humanColName": "Personnel Expended Justification",
+      "ecCodes": false
+    },
+    "Contract_Estimated_Expended": {
+      "key": "Contract_Estimated_Expended",
+      "index": 34,
+      "required": "Conditional",
+      "dataType": "Currency",
+      "maxLength": null,
+      "listVals": [],
+      "columnName": "AI",
+      "humanColName": "Contract Estimated Expended",
+      "ecCodes": false
+    },
+    "Contract_Expended_Justification": {
+      "key": "Contract_Expended_Justification",
+      "index": 35,
+      "required": "Conditional",
+      "dataType": "String",
+      "maxLength": 750,
+      "listVals": [],
+      "columnName": "AJ",
+      "humanColName": "Contract Expended Justfiication",
       "ecCodes": false
     }
   },
@@ -7448,6 +7968,7 @@
         "Aggregate of Loans Issued",
         "Aggregate of Transfers",
         "Aggregate of Direct Payments",
+        "Aggregate of Interagency Agreement (IAA)",
         "Payments to Individuals"
       ],
       "columnName": "D",

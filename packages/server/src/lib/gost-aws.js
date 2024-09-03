@@ -62,12 +62,15 @@ async function sendEmail(message) {
     if (process.env.SUPPRESS_EMAIL) return;
     if (!process.env.NOTIFICATIONS_EMAIL) throw new Error('NOTIFICATIONS_EMAIL is not set');
 
-    const transport = getSESClient();
+    const transport = module.exports.getSESClient();
+    const source = message.fromName
+        ? `"${message.fromName}" <${process.env.NOTIFICATIONS_EMAIL}>`
+        : process.env.NOTIFICATIONS_EMAIL;
     const params = {
         Destination: {
             ToAddresses: [message.toAddress],
         },
-        Source: process.env.NOTIFICATIONS_EMAIL,
+        Source: source,
         Message: {
             Subject: {
                 Charset: 'UTF-8',
@@ -84,9 +87,24 @@ async function sendEmail(message) {
                 },
             },
         },
+        Tags: message.tags.map((tag) => {
+            // Tags must be strings of format 'name=value'
+            const match = tag.match(/(?<name>\w+)=(?<value>\w+)/);
+            if (!match) {
+                return null;
+            }
+
+            return {
+                Name: match.groups.name,
+                Value: match.groups.value,
+            };
+        }).filter((tagObj) => !!tagObj),
     };
     if (message.ccAddress) {
         params.Destination.CcAddresses = [message.ccAddress];
+    }
+    if (process.env.SES_CONFIGURATION_SET_DEFAULT) {
+        params.ConfigurationSetName = process.env.SES_CONFIGURATION_SET_DEFAULT;
     }
     const command = new SendEmailCommand(params);
     try {
@@ -119,6 +137,7 @@ function getSQSClient() {
 module.exports = {
     getS3Client,
     getSignedUrl,
+    getSESClient,
     sendEmail,
     getSQSClient,
 };

@@ -34,6 +34,14 @@ function currency(value) {
     return round(value, 2).toString();
 }
 
+/*
+ * Round to two decimal places, but keep the number type
+ */
+function currencyNumeric(value) {
+    if (typeof value !== 'number') return null;
+    return round(value, 2);
+}
+
 function ec(value) {
     return EXPENDITURE_CATEGORIES[value];
 }
@@ -85,6 +93,7 @@ function zip4(value) {
 module.exports = {
     capitalizeFirstLetter,
     currency,
+    currencyNumeric,
     ec,
     multiselect,
     subcategory,

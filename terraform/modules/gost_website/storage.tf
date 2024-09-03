@@ -18,33 +18,39 @@ module "cloudfront_to_origin_bucket_access_policy" {
   version = "2.0.1"
   context = module.s3_label.context
 
-  iam_policy_statements = {
-    S3GetObjectForCloudFront = {
-      effect  = "Allow"
-      actions = ["s3:GetObject"]
-      resources = [
-        "${module.origin_bucket.bucket_arn}${var.origin_bucket_dist_path}/*",
-        "${module.origin_bucket.bucket_arn}${var.origin_bucket_config_path}/${var.origin_config_filename}",
-      ]
-      principals = [
+  iam_policy = [
+    {
+      statements = [
         {
-          type        = "AWS"
-          identifiers = [aws_cloudfront_origin_access_identity.default.iam_arn]
+          sid     = "S3GetObjectForCloudFront"
+          effect  = "Allow"
+          actions = ["s3:GetObject"]
+          resources = [
+            "${module.origin_bucket.bucket_arn}${var.origin_bucket_dist_path}/*",
+            "${module.origin_bucket.bucket_arn}${var.origin_bucket_config_path}/${var.origin_config_filename}",
+          ]
+          principals = [
+            {
+              type        = "AWS"
+              identifiers = [aws_cloudfront_origin_access_identity.default.iam_arn]
+            },
+          ]
         },
+        {
+          sid       = "S3ListBucketForCloudFront"
+          effect    = "Allow"
+          actions   = ["s3:ListBucket"]
+          resources = [module.origin_bucket.bucket_arn]
+          principals = [
+            {
+              type        = "AWS"
+              identifiers = [aws_cloudfront_origin_access_identity.default.iam_arn]
+            },
+          ]
+        }
       ]
     }
-    S3ListBucketForCloudFront = {
-      effect    = "Allow"
-      actions   = ["s3:ListBucket"]
-      resources = [module.origin_bucket.bucket_arn]
-      principals = [
-        {
-          type        = "AWS"
-          identifiers = [aws_cloudfront_origin_access_identity.default.iam_arn]
-        },
-      ]
-    }
-  }
+  ]
 }
 
 module "github_deploy_to_origin_bucket_policy" {
@@ -52,26 +58,31 @@ module "github_deploy_to_origin_bucket_policy" {
   version = "2.0.1"
   context = module.s3_label.context
 
-  iam_policy_statements = {
-    S3GetObjectForCloudFront = {
-      effect  = "Allow"
-      actions = ["s3:GetObject"]
-      resources = [
-        "${module.origin_bucket.bucket_arn}${var.origin_bucket_dist_path}/*",
-      ]
-      principals = [
+  iam_policy = [
+    {
+      statements = [
         {
-          type        = "AWS"
-          identifiers = [aws_cloudfront_origin_access_identity.default.iam_arn]
-        },
+          sid     = "S3GetObjectForCloudFront"
+          effect  = "Allow"
+          actions = ["s3:GetObject"]
+          resources = [
+            "${module.origin_bucket.bucket_arn}${var.origin_bucket_dist_path}/*",
+          ]
+          principals = [
+            {
+              type        = "AWS"
+              identifiers = [aws_cloudfront_origin_access_identity.default.iam_arn]
+            },
+          ]
+        }
       ]
     }
-  }
+  ]
 }
 
 module "origin_bucket" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "4.2.0"
+  version = "4.5.0"
   context = module.s3_label.context
   name    = "origin"
 
@@ -149,7 +160,7 @@ resource "aws_s3_object" "origin_dist_artifact" {
 
 module "logs_bucket" {
   source  = "cloudposse/s3-bucket/aws"
-  version = "4.2.0"
+  version = "4.5.0"
   context = module.s3_label.context
   name    = "logs"
 

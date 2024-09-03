@@ -1,7 +1,7 @@
 const express = require('express');
 const _ = require('lodash-checkit');
 const path = require('path');
-const { sendPassCode } = require('../lib/email');
+const { sendPassCodeEmail } = require('../lib/email');
 const { validatePostLoginRedirectPath } = require('../lib/redirect_validation');
 const { isMicrosoftSafeLinksRequest } = require('../lib/access-helpers');
 
@@ -88,7 +88,7 @@ router.post('/', async (req, res, next) => {
         const passcode = await createAccessToken(email);
         const domain = process.env.API_DOMAIN || process.env.WEBSITE_DOMAIN || req.headers.origin;
         const redirectTo = validatePostLoginRedirectPath(req.body.redirect_to);
-        await sendPassCode(email, passcode, domain, redirectTo);
+        await sendPassCodeEmail(email, passcode, domain, redirectTo);
 
         res.json({
             success: true,

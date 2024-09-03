@@ -28,11 +28,18 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  region = "us-east-1"
+  alias  = "us-east-1"
+}
+
 provider "datadog" {
   validate = can(coalesce(var.datadog_api_key)) && can(coalesce(var.datadog_app_key))
   api_key  = var.datadog_api_key
   app_key  = var.datadog_app_key
 }
+
+data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
 
@@ -170,17 +177,15 @@ module "api" {
   ecs_cluster_name = join("", aws_ecs_cluster.default[*].name)
 
   # Task configuration
-  docker_tag                        = var.api_container_image_tag
-  default_desired_task_count        = var.api_default_desired_task_count
-  autoscaling_desired_count_minimum = var.api_minumum_task_count
-  autoscaling_desired_count_maximum = var.api_maximum_task_count
-  enable_grants_scraper             = var.api_enable_grants_scraper
-  enable_grants_digest              = var.api_enable_grants_digest
-  enable_new_team_terminology       = var.api_enable_new_team_terminology
-  enable_my_profile                 = var.api_enable_my_profile
-  enable_saved_search_grants_digest = var.api_enable_saved_search_grants_digest
-  unified_service_tags              = local.unified_service_tags
-  datadog_environment_variables     = var.api_datadog_environment_variables
+  docker_tag                         = var.api_container_image_tag
+  default_desired_task_count         = var.api_default_desired_task_count
+  autoscaling_desired_count_minimum  = var.api_minumum_task_count
+  autoscaling_desired_count_maximum  = var.api_maximum_task_count
+  enable_new_team_terminology        = var.api_enable_new_team_terminology
+  enable_saved_search_grants_digest  = var.api_enable_saved_search_grants_digest
+  enable_grant_digest_scheduled_task = var.api_enable_grant_digest_scheduled_task
+  unified_service_tags               = local.unified_service_tags
+  datadog_environment_variables      = var.api_datadog_environment_variables
   api_container_environment = merge(var.api_container_environment, {
     ARPA_AUDIT_REPORT_SQS_QUEUE_URL    = module.arpa_audit_report.sqs_queue_url
     ARPA_TREASURY_REPORT_SQS_QUEUE_URL = module.arpa_treasury_report.sqs_queue_url
@@ -206,13 +211,15 @@ module "api" {
   postgres_db_name         = module.postgres.default_db_name
 
   # Email
-  notifications_email_address = "grants-notifications@${var.website_domain_name}"
+  notifications_email_address   = "grants-notifications@${var.website_domain_name}"
+  ses_configuration_set_default = aws_sesv2_configuration_set.default.configuration_set_name
 }
 
 module "consume_grants" {
   source                   = "./modules/gost_consume_grants"
   namespace                = var.namespace
   permissions_boundary_arn = local.permissions_boundary_arn
+  depends_on               = [aws_ecs_cluster.default]
 
   # Networking
   subnet_ids         = local.private_subnet_ids
@@ -254,6 +261,7 @@ module "arpa_audit_report" {
   source                   = "./modules/sqs_consumer_task"
   namespace                = "${var.namespace}-arpa_audit_report"
   permissions_boundary_arn = local.permissions_boundary_arn
+  depends_on               = [aws_ecs_cluster.default]
 
   # Networking
   subnet_ids         = local.private_subnet_ids
@@ -266,14 +274,15 @@ module "arpa_audit_report" {
   stop_timeout_seconds  = 120
   consumer_task_command = ["node", "./src/scripts/arpaAuditReport.js"]
   consumer_container_environment = {
-    API_DOMAIN          = "https://${local.api_domain_name}"
-    AUDIT_REPORT_BUCKET = module.api.arpa_audit_reports_bucket_id
-    DATA_DIR            = "/var/data"
-    LOG_LEVEL           = "DEBUG"
-    LOG_SRC_ENABLED     = "false"
-    NODE_OPTIONS        = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
-    NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
-    WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
+    API_DOMAIN                    = "https://${local.api_domain_name}"
+    AUDIT_REPORT_BUCKET           = module.api.arpa_audit_reports_bucket_id
+    DATA_DIR                      = "/var/data"
+    LOG_LEVEL                     = "DEBUG"
+    LOG_SRC_ENABLED               = "false"
+    NODE_OPTIONS                  = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
+    NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
+    SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
+    WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
   }
   datadog_environment_variables = {
     DD_LOGS_INJECTION    = "true"
@@ -342,6 +351,7 @@ module "arpa_treasury_report" {
   source                   = "./modules/sqs_consumer_task"
   namespace                = "${var.namespace}-treasury_report"
   permissions_boundary_arn = local.permissions_boundary_arn
+  depends_on               = [aws_ecs_cluster.default]
 
   # Networking
   subnet_ids         = local.private_subnet_ids
@@ -354,14 +364,15 @@ module "arpa_treasury_report" {
   stop_timeout_seconds  = 120
   consumer_task_command = ["node", "./src/scripts/arpaTreasuryReport.js"]
   consumer_container_environment = {
-    API_DOMAIN          = "https://${local.api_domain_name}"
-    AUDIT_REPORT_BUCKET = module.api.arpa_audit_reports_bucket_id
-    DATA_DIR            = "/var/data"
-    LOG_LEVEL           = "DEBUG"
-    LOG_SRC_ENABLED     = "false"
-    NODE_OPTIONS        = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
-    NOTIFICATIONS_EMAIL = "grants-notifications@${var.website_domain_name}"
-    WEBSITE_DOMAIN      = "https://${var.website_domain_name}"
+    API_DOMAIN                    = "https://${local.api_domain_name}"
+    AUDIT_REPORT_BUCKET           = module.api.arpa_audit_reports_bucket_id
+    DATA_DIR                      = "/var/data"
+    LOG_LEVEL                     = "DEBUG"
+    LOG_SRC_ENABLED               = "false"
+    NODE_OPTIONS                  = "--max_old_space_size=3584" # Reserve 512 MB for other task resources
+    NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
+    SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
+    WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
   }
   datadog_environment_variables = {
     DD_LOGS_INJECTION    = "true"
@@ -432,9 +443,10 @@ module "postgres" {
   namespace                = var.namespace
   permissions_boundary_arn = local.permissions_boundary_arn
 
-  default_db_name = "gost"
-  vpc_id          = data.aws_ssm_parameter.vpc_id.value
-  subnet_ids      = local.private_subnet_ids
+  default_db_name    = "gost"
+  ca_cert_identifier = var.postgres_ca_cert_identifier
+  vpc_id             = data.aws_ssm_parameter.vpc_id.value
+  subnet_ids         = local.private_subnet_ids
   ingress_security_groups = {
     from_api                  = module.api_to_postgres_security_group.id
     from_consume_grants       = module.consume_grants_to_postgres_security_group.id

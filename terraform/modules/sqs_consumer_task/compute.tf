@@ -61,11 +61,9 @@ module "consumer_container_definition" {
 
   map_environment = merge(
     {
-      ENABLE_GRANTS_DIGEST  = "false"
-      ENABLE_GRANTS_SCRAPER = "false"
-      NODE_OPTIONS          = "--max_old_space_size=200"
-      PGSSLROOTCERT         = "rds-combined-ca-bundle.pem"
-      POSTGRES_URL          = local.postgres_connection_string
+      NODE_OPTIONS  = "--max_old_space_size=200"
+      PGSSLROOTCERT = "rds-global-bundle.pem"
+      POSTGRES_URL  = local.postgres_connection_string
     },
     local.datadog_env_vars,
     var.consumer_container_environment,

@@ -1,12 +1,4 @@
-import { getFeatureFlags } from './utils';
-
-/**
- * @returns { boolean } true if the new grants table should be active, else false.
- */
-
-export function myProfileEnabled() {
-  return getFeatureFlags().myProfileEnabled === true;
-}
+import { getFeatureFlags } from '@/helpers/featureFlags/utils';
 
 export function newTerminologyEnabled() {
   return getFeatureFlags().newTerminologyEnabled === true;
@@ -14,4 +6,8 @@ export function newTerminologyEnabled() {
 
 export function newGrantsDetailPageEnabled() {
   return getFeatureFlags().newGrantsDetailPageEnabled === true;
+}
+
+export function shareTerminologyEnabled() {
+  return getFeatureFlags().shareTerminologyEnabled === true;
 }

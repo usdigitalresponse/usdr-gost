@@ -3,10 +3,9 @@
     <b-modal
       id="import-users-modal"
       ref="modal"
+      v-model="modalVisible"
       title="Bulk Import Users"
-      @show="resetModal"
-      @hidden="resetModal"
-      ok-only="true"
+      ok-only
     >
       <div>
         <ul>
@@ -15,12 +14,29 @@
           <li>Select your newly edited bulk import file using the <i>Choose File</i> button below, and click <i>Upload</i>.</li>
           <li>When the import is finished, the status of the import, including any errors, will be displayed below.</li>
         </ul>
-        <Uploader :uploadRecordType="'users'" @importStatus="setStatus" />
+        <RecordUploader
+          :upload-record-type="'users'"
+          @importStatus="setStatus"
+        />
       </div>
       <hr>
       <div>
-      <h5>Import Status</h5>
-        <div v-html="importStatus"/>
+        <h5>Import Status</h5>
+        <div v-if="importResult">
+          <ul>
+            <li>{{ importResult.added }}</li>
+            <li>{{ importResult.notAdded }}</li>
+            <li
+              v-for="error in importResult.errors"
+              :key="error"
+            >
+              {{ error }}
+            </li>
+          </ul>
+        </div>
+        <div v-else>
+          Nothing imported yet.
+        </div>
       </div>
     </b-modal>
   </div>
@@ -28,50 +44,44 @@
 
 <script>
 import { mapActions } from 'vuex';
-import Uploader from '@/components/Uploader.vue';
+import RecordUploader from '@/components/RecordUploader.vue';
 
 export default {
-  props: {
-    showUploadModal: Boolean,
-    importStatus: String,
-  },
   components: {
-    Uploader,
+    RecordUploader,
   },
-  watch: {
-    showUploadModal() {
-      this.$bvModal.show('import-users-modal');
+  props: {
+    show: Boolean,
+  },
+  data() {
+    return {
+      importResult: null,
+    };
+  },
+  computed: {
+    modalVisible: {
+      get() { return this.show; },
+      set(value) {
+        if (!value) {
+          // Reset result and refetch users when closing
+          this.importResult = null;
+          this.fetchUsers();
+        }
+        this.$emit('update:show', value);
+      },
     },
   },
   methods: {
     ...mapActions({
       fetchUsers: 'users/fetchUsers',
     }),
-    setStatus(theStatus) {
-      const statusObj = theStatus.ret.status;
-      const added = `Successful: ${statusObj.users.added} users added`;
-      const notAdded = `Unsucessful: ${statusObj.users.errored} users not added`;
-      let errs = '';
-      if (statusObj.errors.length > 0) {
-        errs = '<ul>';
-        // eslint-disable-next-line no-restricted-syntax
-        for (const err of statusObj.errors) {
-          errs = errs.concat(`<li>${err}</li>`);
-        }
-        errs = errs.concat('</ul>');
-      }
-      this.importStatus = `<ul><li>${added}</li><li>${notAdded}</li>${errs}</ul>`;
-    },
-    resetModal() {
-      this.formData = {};
-      this.fetchUsers();
-      this.$emit('update:showUploadModal', false);
-    },
-    async handleSubmit() {
-      // Hide the modal manually
-      this.$nextTick(() => {
-        this.$bvModal.hide('import-users-modal');
-      });
+    setStatus(status) {
+      const { users, errors } = status.ret.status;
+      this.importResult = {
+        added: `Successful: ${users.added} users added`,
+        notAdded: `Unsuccessful: ${users.errored} users not added`,
+        errors,
+      };
     },
   },
 };

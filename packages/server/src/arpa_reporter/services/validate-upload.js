@@ -7,6 +7,7 @@ const { createRecipient, findRecipient, updateRecipient } = require('../db/arpa-
 const { recordsForUpload, TYPE_TO_SHEET_NAME } = require('./records');
 const { getRules } = require('./validation-rules');
 const { ecCodes } = require('../lib/arpa-ec-codes');
+const { multiselect } = require('../lib/format');
 
 const ValidationError = require('../lib/validation-error');
 
@@ -143,18 +144,28 @@ function validateIdentifier(recipient, recipientExists) {
     // As of Q1, 2023 we require a UEI for all entities of type subrecipient and/or contractor.
     // For beneficiaries or older records, we require a UEI OR a TIN/EIN
     // See https://github.com/usdigitalresponse/usdr-gost/issues/1027
+
+    // As of Q1, 2024 we require the following logic:
+    // https://github.com/usdigitalresponse/usdr-gost/issues/2944
+    // UEI is required when subrecipient type = Subrecipient
+    // If Entity Type = Subrecipient and there is no UEI, the error should generate, and the message should say: "UEI is required for all new subrecipients"
+
+    // Either a UEI or TIN is required (does not matter which one) when subrecipient type = Beneficiary or Contractor
+    // The validation should be updated so if Entity Type = Contractor or Beneficiary and there is not a UEI or a TIN,
+    // an error should generate the following error message shows: "At least one of UEI or TIN/EIN must be set, but both are missing"
+    // If either a UEI or TIN is submitted for beneficiary or contractor, or both are submitted, no error generates.
     const hasUEI = Boolean(recipient.Unique_Entity_Identifier__c);
     const hasTIN = Boolean(recipient.EIN__c);
     const entityType = recipient.Entity_Type_2__c;
-    const isContractorOrSubrecipient = (entityType.includes('Contractor') || entityType.includes('Subrecipient'));
+    const isContractorOrBeneficiary = (entityType.includes('Contractor') || entityType.includes('Beneficiary'));
+    const isSubrecipient = entityType.includes('Subrecipient');
 
-    if (isContractorOrSubrecipient && !recipientExists && !hasUEI) {
+    if (isSubrecipient && !recipientExists && !hasUEI) {
         errors.push(new ValidationError(
-            'UEI is required for all new subrecipients and contractors',
+            'UEI is required for all new subrecipients',
             { col: 'C', severity: 'err' },
         ));
-    } else if (!isContractorOrSubrecipient && !hasUEI && !hasTIN) {
-        // If this entity is not new, or is not a subrecipient or contractor, then it must have a TIN OR a UEI (same as the old logic)
+    } else if (isContractorOrBeneficiary && !hasUEI && !hasTIN) {
         errors.push(new ValidationError(
             'At least one of UEI or TIN/EIN must be set, but both are missing',
             { col: 'C, D', severity: 'err' },
@@ -281,7 +292,7 @@ async function validateRecord({ upload, record, typeRules: rules }) {
             // make sure pick value is one of pick list values
             if (rule.listVals.length > 0) {
                 // enforce validation in lower case
-                const lcItems = rule.listVals.map((val) => val.toLowerCase());
+                const lcItems = rule.listVals.map((val) => multiselect(val.toLowerCase()));
 
                 // for pick lists, the value must be one of possible values
                 if (rule.dataType === 'Pick List' && !lcItems.includes(value)) {
@@ -297,7 +308,7 @@ async function validateRecord({ upload, record, typeRules: rules }) {
                     for (const entry of entries) {
                         if (!lcItems.includes(entry)) {
                             errors.push(new ValidationError(
-                                `Entry '${entry}' of ${key} is not one of ${lcItems.length} valid options`,
+                                `Entry '${entry}' of ${key} is not one of ${lcItems.length} valid options (${JSON.stringify(lcItems)})`,
                                 { col: rule.columnName, severity: 'err' },
                             ));
                         }
@@ -370,11 +381,11 @@ async function validateRules({
 
     // go through every rule type we have
     for (const [type, typeRules] of Object.entries(rules)) {
-    // find records of the given rule type
+        // find records of the given rule type
         const tRecords = records.filter((rec) => rec.type === type).map((r) => r.content);
 
         // for each of those records, generate a list of rule violations
-        for (const [recordIdx, record] of tRecords.entries()) {
+        for (const record of tRecords) {
             let recordErrors;
             try {
                 // TODO: Consider refactoring this to take better advantage of async parallelization
@@ -408,7 +419,8 @@ async function validateRules({
             // each rule violation gets assigned a row in a sheet; they already set their column
             recordErrors.forEach((error) => {
                 error.tab = type;
-                error.row = 13 + recordIdx; // TODO: how do we know the data starts at row 13?
+                // eslint-disable-next-line no-underscore-dangle
+                error.row = record.__rowNum__ + 1; // xlsx __rowNum__ is 0-indexed
 
                 // save each rule violation in the overall list
                 errors.push(error);
@@ -529,17 +541,6 @@ function validateSubawardRefs(awardsGT50k, projects, subrecipients, errors) {
     return usedSubrecipients;
 }
 
-function validateSubrecipientRefs(subrecipients, usedSubrecipients, errors) {
-    // Make sure that every subrecip included in this upload was referenced by at least one subaward
-    for (const subRecipId of Object.keys(subrecipients)) {
-        if (!(subRecipId && usedSubrecipients.has(subRecipId))) {
-            errors.push(betaValidationWarning(
-                `Subrecipient with id ${subRecipId} has no related subawards and can be ommitted.`,
-            ));
-        }
-    }
-}
-
 function validateExpenditureRefs(expendituresGT50k, awardsGT50k, errors) {
     // Make sure each expenditure references a valid subward
     for (const expenditure of expendituresGT50k) {
@@ -567,13 +568,12 @@ async function validateReferences({ records }) {
         );
     }
 
-    const usedSubrecipients = validateSubawardRefs(
+    validateSubawardRefs(
         sortedRecords.awardsGT50k,
         sortedRecords.projects,
         sortedRecords.subrecipients,
         errors,
     );
-    validateSubrecipientRefs(sortedRecords.subrecipients, usedSubrecipients, errors);
     validateExpenditureRefs(sortedRecords.expendituresGT50k, sortedRecords.awardsGT50k, errors);
 
     return errors;

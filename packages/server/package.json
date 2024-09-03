@@ -6,7 +6,7 @@
   "author": "Pol Abellas, Rafael A <rafael.polabellas@dematic.com>",
   "license": "Apache-2.0",
   "engines": {
-    "node": "16.14.0",
+    "node": "20.11.1",
     "yarn": ">=1.22.4",
     "npm": "please-use-yarn"
   },
@@ -27,6 +27,7 @@
     "migrate:up": "knex migrate:up",
     "parse-output-templates": "node src/scripts/parseOutputTemplates.mjs",
     "pre-commit": "yarn lint",
+    "send-debug-email": "node src/scripts/sendDebugEmail.js",
     "serve": "nodemon src",
     "start:dev": "nodemon src",
     "start": "node src",
@@ -35,9 +36,10 @@
     "test:arpa": "NODE_ENV=test __tests__/run_arpa_reporter_tests.sh",
     "test:db": "NODE_ENV=test mocha --timeout 10000 __tests__/db/*.test.js",
     "test:email": "NODE_ENV=test mocha __tests__/email/*.test.js",
-    "test:lib": "NODE_ENV=test mocha __tests__/lib/*.test.js",
+    "test:lib": "NODE_ENV=test mocha  --file __tests__/lib/test-global-setup.js __tests__/lib/*.test.js",
+    "test:scripts": "NODE_ENV=test mocha __tests__/scripts/*.test.js",
     "test:userimport": "NODE_ENV=test SUPPRESS_EMAIL=true mocha --exit --bail --require __tests__/api/fixtures.js __tests__/db/userImporter._test_.js",
-    "test": "yarn test:apis && yarn test:arpa && yarn test:db && yarn test:userimport && yarn test:agencyimport && yarn test:email && yarn test:lib",
+    "test": "yarn test:apis && yarn test:arpa && yarn test:db && yarn test:userimport && yarn test:agencyimport && yarn test:email && yarn test:lib && yarn test:scripts",
     "start:arpa-audit-worker": "node src/scripts/arpaAuditReport.js",
     "debug:arpa-audit-worker": "nodemon --inspect=0.0.0.0:9229 src/scripts/arpaAuditReport.js"
   },
@@ -89,7 +91,6 @@
     "@commitlint/config-conventional": "^11.0.0",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
-    "api": "^4.2.1",
     "aws-sdk-mock": "5.8.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
@@ -97,7 +98,6 @@
     "cookie-signature": "^1.2.0",
     "eslint": "^7.12.1",
     "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.21.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.3",
@@ -113,7 +113,6 @@
     "prettier": "2.6.1",
     "rewire": "^6.0.0",
     "sinon": "^14.0.0",
-    "standard": "^16.0.3",
     "supertest": "^6.2.3",
     "typescript": "^4.7.2"
   }

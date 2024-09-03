@@ -1,3 +1,4 @@
+// Types of emails that a user may subscribe to
 const notificationType = Object.freeze({
     grantAssignment: 'GRANT_ASSIGNMENT',
     grantInterest: 'GRANT_INTEREST',
@@ -18,4 +19,21 @@ const defaultSubscriptionPreference = Object.freeze(
     ),
 );
 
-module.exports = { notificationType, emailSubscriptionStatus, defaultSubscriptionPreference };
+const tags = Object.freeze(
+    {
+        emailTypes: {
+            passcode: 'passcode',
+            grantAssignment: 'grant_assignment',
+            auditReport: 'audit_report',
+            treasuryReport: 'treasury_report',
+            welcome: 'welcome',
+            grantDigest: 'grant_digest',
+            treasuryReportError: 'treasury_report_error',
+            auditReportError: 'audit_report_error',
+        },
+    },
+);
+
+module.exports = {
+    notificationType, emailSubscriptionStatus, defaultSubscriptionPreference, tags,
+};
