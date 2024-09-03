@@ -22,7 +22,6 @@
     "coverage": "nyc --reporter=lcov --reporter=text-summary yarn workspaces run test",
     "create_tenant": "yarn workspace server create_tenant",
     "db:migrate": "yarn workspace server run db:migrate",
-    "db:rollback": "yarn workspace server run db:rollback",
     "db:seed": "yarn workspace server run db:seed",
     "debug:server": "yarn workspace server debug",
     "lint": "yarn workspaces run lint",
