@@ -212,6 +212,41 @@ export default {
       fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/interested-codes`)
         .then((data) => commit('SET_INTERESTED_CODES', data));
     },
+    async getFollowerForGrant({ rootGetters }, { grantId }) {
+      try {
+        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
+      } catch (e) {
+        return null;
+      }
+    },
+    async getFollowersForGrant({ rootGetters }, { grantId }) {
+      try {
+        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/followers?limit=51`);
+      } catch (e) {
+        return null;
+      }
+    },
+    async getNotesForGrant({ rootGetters }, { grantId }) {
+      try {
+        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes?limit=51`);
+      } catch (e) {
+        return null;
+      }
+    },
+    async followGrantForCurrentUser({ rootGetters }, { grantId }) {
+      try {
+        await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
+      } catch (e) {
+        // fail silently
+      }
+    },
+    async unfollowGrantForCurrentUser({ rootGetters }, { grantId }) {
+      try {
+        await fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
+      } catch (e) {
+        // fail silently
+      }
+    },
     async setEligibilityCodeEnabled({ rootGetters }, { code, enabled }) {
       await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/eligibility-codes/${code}/enable/${enabled}`);
     },

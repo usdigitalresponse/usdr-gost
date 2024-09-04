@@ -23,6 +23,7 @@ window.APP_CONFIG.featureFlags = {
   newTerminologyEnabled: true,
   newGrantsDetailPageEnabled: true,
   shareTerminologyEnabled: true,
+  followNotesEnabled: true,
 };
 
 // Setting a GOOGLE_TAG_ID enables Google Analytics.

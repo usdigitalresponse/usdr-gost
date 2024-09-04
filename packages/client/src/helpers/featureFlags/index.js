@@ -11,3 +11,7 @@ export function newGrantsDetailPageEnabled() {
 export function shareTerminologyEnabled() {
   return getFeatureFlags().shareTerminologyEnabled === true;
 }
+
+export function followNotesEnabled() {
+  return getFeatureFlags().followNotesEnabled === true;
+}
