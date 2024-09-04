@@ -52,6 +52,7 @@ function parseFields(sheet) {
             fieldId: fieldCell.v,
             fieldName: (sheet[`${colAlpha}6`]) ? sheet[`${colAlpha}6`].v : '',
             required: sheet[`${colAlpha}5`].v,
+            helpText: sheet[`${colAlpha}7`].v,
         });
         colNum += 1;
     }
