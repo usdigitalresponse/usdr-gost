@@ -2821,11 +2821,11 @@
     pretty-format "^29.7.0"
 
 "@vue/compat@^3.4.27":
-  version "3.4.38"
-  resolved "https://registry.yarnpkg.com/@vue/compat/-/compat-3.4.38.tgz#7ee8cbcdecc1f0351cfc632012502ba0c1b3982e"
-  integrity sha512-CdX4/3I8hkodU6rG6r8uTi112gsKYVrZcTTEpmG7wP3G1n/lpHKbvl3wBzTc6ClTIqRyHABrYnFyTofiSommQA==
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@vue/compat/-/compat-3.5.0.tgz#751f0e6e15df04a00c39fe71e0e3c0f97653dc9b"
+  integrity sha512-H3qJR5hYYG2ChjxueIQ2Z3XLwUVpS+K+ELZKZVu2g2qt4Y+kmiG9viAI6R7JJ+SpFwOW81v97WU0PZAnlGffsA==
   dependencies:
-    "@babel/parser" "^7.24.7"
+    "@babel/parser" "^7.25.3"
     estree-walker "^2.0.2"
     source-map-js "^1.2.0"
 
