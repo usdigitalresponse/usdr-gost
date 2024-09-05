@@ -81,17 +81,17 @@ async function getCurrentNoteRevisions(
         .join('tenants', 'tenants.id', 'users.tenant_id');
 
         // Conditionally applying filters based on grantID if it is null or undefined or not
-        if (grantId != null && grantId != undefined) {
+        if (grantId !== null && grantId !== undefined) {
             query = query.where('grant_notes.grant_id', grantId);
         }
         
         // Conditionally applying filters based on organizationID if it is null or undefined or not
-        if (organizationId != null && organizationId != undefined) {
+        if (organizationId !== null && organizationId !== undefined) {
             query = query.andWhere('tenants.id', organizationId);
         }
 
         // Conditionally applying filters based on userID if it is null or undefined or not
-        if (userId != null && userId != undefined) {
+        if (userId !== null && userId !== undefined) {
             query = query.andWhere('grant_notes.user_id', userId)
         }
 
