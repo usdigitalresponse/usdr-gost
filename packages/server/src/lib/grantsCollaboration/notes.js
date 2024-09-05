@@ -32,29 +32,17 @@ async function saveNoteRevision(knex, grantId, userId, text) {
     return grantNotesRevisionId;
 }
 
-async function getOrganizationNotesForGrantByUser (
+async function getOrganizationNotesForGrantByUser(
     knex,
     organizationId,
     userId,
     grantId,
-    {
-        afterRevision,
-        limit = 50
-    } = {}
+    { afterRevision, limit = 50 } = {}
 ) {
     return getCurrentNoteRevisions(knex, { grantId, userId }, { afterRevision, limit });
 }
 
-async function getOrganizationNotesForGrant (
-    knex, 
-    grantId, 
-    organizationId, 
-    { afterRevision, limit = 50 } = {}
-) {
-    return getCurrentNoteRevisions(knex, { grantId, organizationId }, { afterRevision, limit });
-}
-
-async function getCurrentNoteRevisions (
+async function getCurrentNoteRevisions(
     knex,
     { grantId, organizationId, userId } = {}, 
     { afterRevision, limit = 50 } = {}
@@ -98,7 +86,7 @@ async function getCurrentNoteRevisions (
         }
         
         // Conditionally applying filters based on organizationID if it is null or undefined or not
-        if (organizationId != null && organizationId != null) {
+        if (organizationId != null && organizationId != undefined) {
             query = query.andWhere('tenants.id', organizationId);
         }
 
@@ -137,6 +125,15 @@ async function getCurrentNoteRevisions (
             from: notes.length > 0 ? notes[notes.length - 1].latest_revision_id : afterRevision,
         },
     };
+}
+
+async function getOrganizationNotesForGrant(
+    knex, 
+    grantId, 
+    organizationId, 
+    { afterRevision, limit = 50 } = {}
+) {
+    return getCurrentNoteRevisions(knex, { grantId, organizationId }, { afterRevision, limit });
 }
 
 module.exports = { saveNoteRevision, getCurrentNoteRevisions, getOrganizationNotesForGrant, getOrganizationNotesForGrantByUser };

@@ -50,7 +50,7 @@ router.get('/', requireUser, async (req, res) => {
 router.get('/:grantId/notes/user/:userId', requireUser, async (req, res) => {
     const { grantId, userId } = req.params;
     const { tenant_id: organizationId } = req.session.user;
-    const { paginateFrom, limit } = req.query; 
+    const { paginateFrom, limit } = req.query;
 
     // Converting limit to an integer
     const limitInt = limit ? parseInt(limit, 10) : undefined;
@@ -64,15 +64,15 @@ router.get('/:grantId/notes/user/:userId', requireUser, async (req, res) => {
     try {
         // Fetching the notes using getOrganizationNotesForGrantByUser function
         const notes = await getOrganizationNotesForGrantByUser(
-            knex, 
+            knex,
             organizationId,
-            userId, 
-            grantId, 
-            { afterRevision: paginateFrom, limit: limitInt}
+            userId,
+            grantId,
+            { afterRevision: paginateFrom, limit: limitInt },
         );
 
         // sending the notes as JSON response
-        res.json(notes)
+        res.json(notes);
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve notes' });
     }
