@@ -13,8 +13,11 @@ window.APP_CONFIG.overrideFeatureFlag = (flagName, overrideValue) => {
   }
   overrides[flagName] = overrideValue;
   window.sessionStorage.setItem(storageKey, JSON.stringify(overrides));
-  console.log('New feature flag overrides in page session:',
-    window.sessionStorage.getItem(storageKey));
+  // Reformatted according to common ESLint rules
+  /* eslint-disable no-console */
+  // console.log('New feature flag overrides in page session:', window.sessionStorage.getItem(storageKey));
+  console.log(`New feature flag overrides in page session: ${window.sessionStorage.getItem(storageKey)}`);
+  /* eslint-enable no-console */
 };
 
 // For local development only. Register feature flags for Staging and Production by
@@ -23,6 +26,7 @@ window.APP_CONFIG.featureFlags = {
   newTerminologyEnabled: true,
   newGrantsDetailPageEnabled: true,
   shareTerminologyEnabled: true,
+  followNotesEnabled: true,
 };
 
 // Setting a GOOGLE_TAG_ID enables Google Analytics.
