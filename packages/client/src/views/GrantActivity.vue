@@ -4,12 +4,12 @@
     footer-bg-variant="white"
   >
     <template #header>
-      <h3 class="mb-0">
+      <h3 class="m-2">
         Grant Activity
       </h3>
     </template>
     <div>
-      <div class="mb-3">
+      <div class="feature-text">
         Stay up to date with this grant.
         <b-icon
           v-b-tooltip
@@ -27,11 +27,13 @@
         :disabled="loadingFollowState"
         @click="toggleFollowState"
       >
-        <span class="h5">
+        <span class="h4">
           <b-icon
             icon="check-circle-fill"
             class="mr-2"
           />
+        </span>
+        <span class="h5">
           {{ followBtnLabel }}
         </span>
       </b-button>
@@ -159,4 +161,7 @@ export default {
 </script>
 
 <style scoped>
+.feature-text {
+  margin-bottom: .8rem;
+}
 </style>
