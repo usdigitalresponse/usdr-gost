@@ -32,20 +32,10 @@ async function saveNoteRevision(knex, grantId, userId, text) {
     return grantNotesRevisionId;
 }
 
-async function getOrganizationNotesForGrantByUser(
-    knex,
-    organizationId,
-    userId,
-    grantId,
-    { afterRevision, limit = 50 } = {}
-) {
-    return getCurrentNoteRevisions(knex, { grantId, userId }, { afterRevision, limit });
-}
-
 async function getCurrentNoteRevisions(
     knex,
-    { grantId, organizationId, userId } = {}, 
-    { afterRevision, limit = 50 } = {}
+    { grantId, organizationId, userId } = {},
+    { afterRevision, limit = 50 } = {},
 ) {
     const subquery = knex.select([
         'r.id',
@@ -84,7 +74,7 @@ async function getCurrentNoteRevisions(
     if (grantId !== null && grantId !== undefined) {
         query = query.where('grant_notes.grant_id', grantId);
     }
-    
+
     // Conditionally applying filters based on organizationID if it is null or undefined or not
     if (organizationId !== null && organizationId !== undefined) {
         query = query.andWhere('tenants.id', organizationId);
@@ -92,7 +82,7 @@ async function getCurrentNoteRevisions(
 
     // Conditionally applying filters based on userID if it is null or undefined or not
     if (userId !== null && userId !== undefined) {
-        query = query.andWhere('grant_notes.user_id', userId)
+        query = query.andWhere('grant_notes.user_id', userId);
     }
 
     if (afterRevision) {
@@ -127,6 +117,16 @@ async function getCurrentNoteRevisions(
     };
 }
 
+async function getOrganizationNotesForGrantByUser(
+    knex,
+    organizationId,
+    userId,
+    grantId,
+    { afterRevision, limit = 50 } = {},
+) {
+    return getCurrentNoteRevisions(knex, { grantId, userId }, { afterRevision, limit });
+}
+
 async function getOrganizationNotesForGrant(
     knex,
     grantId,
@@ -136,4 +136,9 @@ async function getOrganizationNotesForGrant(
     return getCurrentNoteRevisions(knex, { grantId, organizationId }, { afterRevision, limit });
 }
 
-module.exports = { saveNoteRevision, getCurrentNoteRevisions, getOrganizationNotesForGrant, getOrganizationNotesForGrantByUser };
+module.exports = { 
+    saveNoteRevision,
+    getCurrentNoteRevisions,
+    getOrganizationNotesForGrant,
+    getOrganizationNotesForGrantByUser,
+};
