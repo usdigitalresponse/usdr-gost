@@ -13,7 +13,7 @@
       >
         <div class="grant-details-container">
           <div>
-            <b-card>
+            <b-card class="p-4">
               <div class="mb-5">
                 <div class="grant-details-back-link">
                   <router-link
@@ -29,16 +29,16 @@
                   >Back</a>
                 </div>
                 <!-- Left page column: headline -->
-                <h2 class="grant-details-headline m-0">
+                <h2 class="grant-details-headline mt-3 mb-4">
                   {{ currentGrant.title }}
                 </h2>
 
                 <!-- Left page column: main print/copy/grants.gov buttons -->
-                <div class="grant-details-main-actions print-d-none">
+                <div class="grant-details-main-actions print-d-none ml-0">
                   <div class="d-flex justify-content-between align-items-center">
                     <b-button
                       variant="primary"
-                      class="mr-5 text-nowrap"
+                      class="mr-4 text-nowrap"
                       :href="`https://www.grants.gov/search-results-detail/${currentGrant.grant_id}`"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -161,7 +161,7 @@
                 <div
                   v-for="agency in visibleInterestedAgencies"
                   :key="agency.id"
-                  class="d-flex justify-content-between align-items-start my-3"
+                  class="d-flex justify-content-between align-items-start my-4"
                 >
                   <UserAvatar
                     :user-name="agency.user_name"
@@ -174,7 +174,10 @@
                       <strong>{{ agency.agency_name }}</strong> team status to
                       <strong>{{ agency.interested_code_name }}</strong>
                     </p>
-                    <p v-if="agency.user_email">
+                    <p
+                      v-if="agency.user_email"
+                      class="email-paragraph"
+                    >
                       <small>
                         <CopyButton :copy-text="agency.user_email">
                           {{ agency.user_email }}
@@ -459,25 +462,25 @@ export default {
 
 <style lang="css">
 .grant-details-container {
-  padding-right: 18px;
-  padding-left: 18px;
-  padding-bottom: 80px;
-  padding-top: 15px;
+  padding-right: 1.125rem;
+  padding-left: 1.125rem;
+  padding-bottom: 5rem;
+  padding-top: 1rem;
   display: grid;
-  grid-template-columns: 1fr 437px;
+  grid-template-columns: 1fr 27.3125rem;
   grid-template-rows: 50px auto auto;
   grid-template-areas:
     "back-link secondary-actions"
     "headline  secondary-actions"
     "main-actions secondary-actions"
     "content  secondary-actions";
-  column-gap: 20px;
-  row-gap: 48px;
+  column-gap: 1.25rem;
+  row-gap: 3rem;
   .grant-details-back-link {
     grid-area: back-link;
-    margin-top: 28px;
-    margin-bottom: 5px;
-    font-size: 14px;
+    margin-top: 0rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: #6d7278;
     a {
@@ -505,6 +508,10 @@ export default {
 
   .grant-details-secondary-actions {
     grid-area: secondary-actions;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
 
   .grant-details-table tr:nth-of-type(odd) {
@@ -517,6 +524,14 @@ export default {
     white-space: nowrap;
     width: 1%;
   }
+}
+
+.email-paragraph {
+  margin: 0rem;
+}
+
+.grant-details-container .card {
+  border-radius: 8px !important;
 }
 
 .background {

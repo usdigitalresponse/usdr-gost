@@ -32,7 +32,7 @@
         <div
           v-for="agency in assignedAgencies"
           :key="agency.id"
-          class="d-flex justify-content-between align-items-start my-3"
+          class="d-flex justify-content-between align-items-start my-4"
         >
           <div class="mr-3">
             <p class="m-0">
