@@ -244,7 +244,7 @@
                     </p>
                     <p
                       v-if="agency.user_email"
-                      style="margin: 0px 0px 0px;"
+                      class="email-paragraph"
                     >
                       <small>
                         <CopyButton :copy-text="agency.user_email">
@@ -577,25 +577,25 @@ export default {
 
 <style lang="css">
 .grant-details-container {
-  padding-right: 18px;
-  padding-left: 18px;
-  padding-bottom: 80px;
-  padding-top: 15px;
+  padding-right: 1.125rem;
+  padding-left: 1.125rem;
+  padding-bottom: 5rem;
+  padding-top: 1rem;
   display: grid;
-  grid-template-columns: 1fr 437px;
+  grid-template-columns: 1fr 27.3125rem;
   grid-template-rows: 50px auto auto;
   grid-template-areas:
     "back-link secondary-actions"
     "headline  secondary-actions"
     "main-actions secondary-actions"
     "content  secondary-actions";
-  column-gap: 20px;
-  row-gap: 48px;
+  column-gap: 1.25rem;
+  row-gap: 3rem;
   .grant-details-back-link {
     grid-area: back-link;
-    margin-top: 0px;
-    margin-bottom: 24px;
-    font-size: 14px;
+    margin-top: 0rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: #6d7278;
     a {
@@ -623,10 +623,10 @@ export default {
 
   .grant-details-secondary-actions {
     grid-area: secondary-actions;
-    margin-top: 24px;
-    margin-bottom: 24px;
-    margin-left: 16px;
-    margin-right: 16px;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
 
   .grant-details-table tr:nth-of-type(odd) {
@@ -639,6 +639,10 @@ export default {
     white-space: nowrap;
     width: 1%;
   }
+}
+
+.email-paragraph {
+  margin: 0rem;
 }
 
 .grant-details-container .card {
