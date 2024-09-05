@@ -215,6 +215,7 @@ jobs:
           name: ${{ env.ATTESTATION_ARTIFACTS_KEY }}
           path: ${{ steps.store-attestations.outputs.path }}
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: ${{ inputs.server-image-artifacts-retention-days }}
           overwrite: true
 
@@ -281,5 +282,6 @@ jobs:
           name: ${{ env.ARTIFACTS_KEY }}
           path: ${{ env.ARTIFACTS_PATH }}
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: ${{ inputs.website-artifact-retention-days }}
           overwrite: true
