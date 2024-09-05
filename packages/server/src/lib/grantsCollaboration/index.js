@@ -1,6 +1,8 @@
 const { saveNoteRevision, getOrganizationNotesForGrant } = require('./notes');
-const { followGrant, unfollowGrant, getFollowerForGrant } = require('./followers');
+const {
+    followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant,
+} = require('./followers');
 
 module.exports = {
-    saveNoteRevision, getOrganizationNotesForGrant, followGrant, unfollowGrant, getFollowerForGrant,
+    saveNoteRevision, getOrganizationNotesForGrant, followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant,
 };
