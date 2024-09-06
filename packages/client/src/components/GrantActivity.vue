@@ -39,7 +39,8 @@
       </b-button>
       <div>
         <span
-          v-if="showFollowSummary"
+          v-if="grantHasFollowers"
+          :class="followSummaryClass"
           data-follow-summary
         >{{ followSummaryText }}</span>
         <span
@@ -80,6 +81,9 @@ export default {
     followBtnVariant() {
       return this.userIsFollowing ? 'success' : 'primary';
     },
+    followSummaryClass() {
+      return this.followStateLoaded ? 'visible' : 'invisible';
+    },
     followSummaryText() {
       const userIsFollower = this.userIsFollowing;
       const firstFollowerName = userIsFollower ? 'you' : this.followers[0].user.name;
@@ -99,7 +103,7 @@ export default {
 
       return `Followed by ${firstFollowerName}${otherFollowerText}`;
     },
-    showFollowSummary() {
+    grantHasFollowers() {
       return this.followers.length > 0;
     },
     showNotesSummary() {
@@ -116,7 +120,6 @@ export default {
   },
   async beforeMount() {
     this.fetchFollowState();
-    this.fetchAllFollowers();
     this.fetchAllNotes();
   },
   methods: {
@@ -128,16 +131,16 @@ export default {
       unfollowGrantForCurrentUser: 'grants/unfollowGrantForCurrentUser',
     }),
     async fetchFollowState() {
-      const result = await this.getFollowerForGrant({ grantId: this.currentGrant.grant_id });
-      this.userIsFollowing = Boolean(result);
-      this.followStateLoaded = true;
-    },
-    async fetchAllFollowers() {
-      const result = await this.getFollowersForGrant({ grantId: this.currentGrant.grant_id, limit: 51 });
+      const followCalls = [
+        this.getFollowerForGrant({ grantId: this.currentGrant.grant_id }),
+        this.getFollowersForGrant({ grantId: this.currentGrant.grant_id, limit: 51 }),
+      ];
 
-      if (result) {
-        this.followers = result.followers;
-      }
+      const [userFollowsResult, followersResult] = await Promise.all(followCalls);
+
+      this.userIsFollowing = Boolean(userFollowsResult);
+      this.followers = followersResult ? followersResult.followers : [];
+      this.followStateLoaded = true;
     },
     async fetchAllNotes() {
       const result = await this.getNotesForGrant({ grantId: this.currentGrant.grant_id, limit: 51 });
@@ -153,7 +156,6 @@ export default {
       } else {
         await this.followGrantForCurrentUser({ grantId: this.currentGrant.grant_id });
       }
-      this.fetchAllFollowers();
       await this.fetchFollowState();
     },
   },
