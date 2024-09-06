@@ -136,7 +136,7 @@ async function getOrganizationNotesForGrant(
     return getCurrentNoteRevisions(knex, { grantId, organizationId }, { afterRevision, limit });
 }
 
-module.exports = { 
+module.exports = {
     saveNoteRevision,
     getCurrentNoteRevisions,
     getOrganizationNotesForGrant,
