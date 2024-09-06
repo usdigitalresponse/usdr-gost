@@ -211,8 +211,8 @@ import { titleize } from '@/helpers/form-helpers';
 import { gtagEvent } from '@/helpers/gtag';
 import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
-import ShareGrant from '@/views/ShareGrant.vue';
-import GrantActivity from '@/views/GrantActivity.vue';
+import ShareGrant from '@/components/ShareGrant.vue';
+import GrantActivity from '@/components/GrantActivity.vue';
 
 const HEADER = '__HEADER__';
 const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
@@ -531,7 +531,15 @@ export default {
 }
 
 .grant-details-container .card {
-  border-radius: 8px !important;
+  border-radius: .5rem !important;
+}
+.grant-details-container .card .card-header {
+  border-top-left-radius: .5rem !important;
+  border-top-right-radius: .5rem !important;
+}
+.grant-details-container .card .card-footer {
+  border-bottom-left-radius: .5rem !important;
+  border-bottom-right-radius: .5rem !important;
 }
 
 .background {

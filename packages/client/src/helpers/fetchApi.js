@@ -11,6 +11,23 @@ function getDefaultHeaders() {
   return headers;
 }
 
+/*
+* Turns param object {limit: 1, paginateFrom: 2} into uri string '?limit=1&paginateFrom=2
+*/
+export const serializeQuery = (params = {}) => {
+  const pairs = [];
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined) {
+      pairs.push(
+        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+      );
+    }
+  });
+
+  return pairs.length ? `?${pairs.join('&')}` : '';
+};
+
 export function get(url) {
   const options = {
     credentials: 'include',

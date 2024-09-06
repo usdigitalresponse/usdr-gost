@@ -1,5 +1,6 @@
 import * as fetchApi from '@/helpers/fetchApi';
 import { formatFilterDisplay } from '@/helpers/filters';
+import { serializeQuery } from '@/helpers/fetchApi';
 
 const tableModes = {
   VIEW: 'view',
@@ -219,16 +220,18 @@ export default {
         return null;
       }
     },
-    async getFollowersForGrant({ rootGetters }, { grantId }) {
+    async getFollowersForGrant({ rootGetters }, { grantId, limit, paginateFrom }) {
+      const queryParams = serializeQuery({ limit, paginateFrom });
       try {
-        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/followers?limit=51`);
+        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/followers${queryParams}`);
       } catch (e) {
         return null;
       }
     },
-    async getNotesForGrant({ rootGetters }, { grantId }) {
+    async getNotesForGrant({ rootGetters }, { grantId, limit, paginateFrom }) {
+      const queryParams = serializeQuery({ limit, paginateFrom });
       try {
-        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes?limit=51`);
+        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes${queryParams}`);
       } catch (e) {
         return null;
       }

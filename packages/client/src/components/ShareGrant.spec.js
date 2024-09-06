@@ -6,7 +6,7 @@ import {
 } from '@vue/test-utils';
 import { createStore } from 'vuex';
 
-import ShareGrant from '@/views/ShareGrant.vue';
+import ShareGrant from '@/components/ShareGrant.vue';
 
 describe('ShareGrant', () => {
   const mockStore = {

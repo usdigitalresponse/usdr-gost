@@ -4,7 +4,7 @@
     footer-bg-variant="white"
   >
     <template #header>
-      <h3 class="m-2">
+      <h3 class="my-2">
         Grant Activity
       </h3>
     </template>
@@ -24,7 +24,7 @@
         :variant="followBtnVariant"
         class="mb-4"
         data-follow-btn
-        :disabled="loadingFollowState"
+        :disabled="!followStateLoaded"
         @click="toggleFollowState"
       >
         <span class="h4">
@@ -64,7 +64,7 @@ export default {
   data() {
     return {
       userIsFollowing: false,
-      loadingFollowState: false,
+      followStateLoaded: false,
       followers: [],
       notes: [],
     };
@@ -81,7 +81,7 @@ export default {
       return this.userIsFollowing ? 'success' : 'primary';
     },
     followSummaryText() {
-      const userIsFollower = this.followers.some((follower) => follower.user.id === this.loggedInUser?.id);
+      const userIsFollower = this.userIsFollowing;
       const firstFollowerName = userIsFollower ? 'you' : this.followers[0].user.name;
 
       let otherFollowerText = '';
@@ -116,8 +116,8 @@ export default {
   },
   async beforeMount() {
     this.fetchFollowState();
-    this.fetchFollowersState();
-    this.fetchNotes();
+    this.fetchAllFollowers();
+    this.fetchAllNotes();
   },
   methods: {
     ...mapActions({
@@ -130,31 +130,31 @@ export default {
     async fetchFollowState() {
       const result = await this.getFollowerForGrant({ grantId: this.currentGrant.grant_id });
       this.userIsFollowing = Boolean(result);
+      this.followStateLoaded = true;
     },
-    async fetchFollowersState() {
-      const result = await this.getFollowersForGrant({ grantId: this.currentGrant.grant_id });
+    async fetchAllFollowers() {
+      const result = await this.getFollowersForGrant({ grantId: this.currentGrant.grant_id, limit: 51 });
 
       if (result) {
         this.followers = result.followers;
       }
     },
-    async fetchNotes() {
-      const result = await this.getNotesForGrant({ grantId: this.currentGrant.grant_id });
+    async fetchAllNotes() {
+      const result = await this.getNotesForGrant({ grantId: this.currentGrant.grant_id, limit: 51 });
 
       if (result) {
         this.notes = result.notes;
       }
     },
     async toggleFollowState() {
-      this.loadingFollowState = true;
+      this.followStateLoaded = false;
       if (this.userIsFollowing) {
         await this.unfollowGrantForCurrentUser({ grantId: this.currentGrant.grant_id });
       } else {
         await this.followGrantForCurrentUser({ grantId: this.currentGrant.grant_id });
       }
-      this.fetchFollowersState();
+      this.fetchAllFollowers();
       await this.fetchFollowState();
-      this.loadingFollowState = false;
     },
   },
 };

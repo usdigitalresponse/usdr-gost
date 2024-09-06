@@ -3,7 +3,7 @@ import {
 } from 'vitest';
 import { shallowMount, flushPromises } from '@vue/test-utils';
 import { createStore } from 'vuex';
-import GrantActivity from '@/views/GrantActivity.vue';
+import GrantActivity from '@/components/GrantActivity.vue';
 
 const mockFollowers = {
   followers: Array.from(Array(20), (item, i) => ({
