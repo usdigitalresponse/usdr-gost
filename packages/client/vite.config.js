@@ -14,15 +14,15 @@ export default defineConfig({
       name: 'arpa_reporter_url_rewriter',
       configureServer(serve) {
         serve.middlewares.use((req, res, next) => {
-          const isInitialPageLoad = req.headers.referer === undefined ||
-            new URL(req.headers.referer).pathname === new URL(req.url, `http://${req.headers.host}`).pathname
-          const isArpaUrl = req.url.startsWith('/arpa_reporter')
+          const isInitialPageLoad = req.headers.referer === undefined
+            || new URL(req.headers.referer).pathname === new URL(req.url, `http://${req.headers.host}`).pathname;
+          const isArpaUrl = req.url.startsWith('/arpa_reporter');
           if (isInitialPageLoad && isArpaUrl) {
-            req.url = '/arpa_reporter/'
+            req.url = '/arpa_reporter/';
           }
-          next()
-        })
-      }
+          next();
+        });
+      },
     },
     vue({
       template: {
@@ -57,6 +57,10 @@ export default defineConfig({
     sourcemap: true,
   },
   test: {
+    setupFiles: ['vitest.setup.ts'],
+    alias: {
+      vue: 'vue',
+    },
     environment: 'jsdom',
     coverage: {
       provider: 'istanbul',
