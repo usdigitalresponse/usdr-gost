@@ -95,7 +95,6 @@ module "api_gateway" {
       requestId     = "$context.integration.requestId"
       status        = "$context.integration.status"
       errorMessage  = "$context.integrationErrorMessage"
-      latency       = "$context.integrationLatency"
     }
   })
 
