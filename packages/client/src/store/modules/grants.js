@@ -1,3 +1,4 @@
+import { datadogRum } from '@datadog/browser-rum';
 import * as fetchApi from '@/helpers/fetchApi';
 import { formatFilterDisplay } from '@/helpers/filters';
 import { serializeQuery } from '@/helpers/fetchApi';
@@ -213,41 +214,59 @@ export default {
       fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/interested-codes`)
         .then((data) => commit('SET_INTERESTED_CODES', data));
     },
-    async getFollowerForGrant({ rootGetters }, { grantId }) {
+    async getFollowerForGrant({ rootGetters, commit }, { grantId }) {
       try {
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
       } catch (e) {
+        // 404 -> User not following
+        if (e.response.status === 404) {
+          return null;
+        }
+
+        const text = `Error retrieving grant follower: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
         return null;
       }
     },
-    async getFollowersForGrant({ rootGetters }, { grantId, limit, paginateFrom }) {
+    async getFollowersForGrant({ rootGetters, commit }, { grantId, limit, paginateFrom }) {
       const queryParams = serializeQuery({ limit, paginateFrom });
       try {
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/followers${queryParams}`);
       } catch (e) {
+        const text = `Error retrieving grant followers: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
         return null;
       }
     },
-    async getNotesForGrant({ rootGetters }, { grantId, limit, paginateFrom }) {
+    async getNotesForGrant({ rootGetters, commit }, { grantId, limit, paginateFrom }) {
       const queryParams = serializeQuery({ limit, paginateFrom });
       try {
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes${queryParams}`);
       } catch (e) {
+        const text = `Error retrieving grant notes: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
         return null;
       }
     },
-    async followGrantForCurrentUser({ rootGetters }, { grantId }) {
+    async followGrantForCurrentUser({ rootGetters, commit }, { grantId }) {
       try {
         await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
       } catch (e) {
-        // fail silently
+        const text = `Error following grant: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
       }
     },
-    async unfollowGrantForCurrentUser({ rootGetters }, { grantId }) {
+    async unfollowGrantForCurrentUser({ rootGetters, commit }, { grantId }) {
       try {
         await fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
       } catch (e) {
-        // fail silently
+        const text = `Error unfollowing grant: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
       }
     },
     async setEligibilityCodeEnabled({ rootGetters }, { code, enabled }) {

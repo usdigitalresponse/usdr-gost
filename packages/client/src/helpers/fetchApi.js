@@ -33,7 +33,12 @@ export function get(url) {
     }
     return r
       .text()
-      .then((text) => Promise.reject(new Error(text || r.statusText)));
+      .then((text) => {
+        const err = new Error(text || r.statusText);
+        err.response = r;
+
+        return Promise.reject(err);
+      });
   });
 }
 
@@ -51,7 +56,12 @@ export function deleteRequest(url, body) {
       }
       return r
         .text()
-        .then((text) => Promise.reject(new Error(text || r.statusText)));
+        .then((text) => {
+          const err = new Error(text || r.statusText);
+          err.response = r;
+
+          return Promise.reject(err);
+        });
     });
 }
 
@@ -69,7 +79,12 @@ export function post(url, body) {
       }
       return r
         .text()
-        .then((text) => Promise.reject(new Error(text || r.statusText)));
+        .then((text) => {
+          const err = new Error(text || r.statusText);
+          err.response = r;
+
+          return Promise.reject(err);
+        });
     });
 }
 
@@ -87,7 +102,12 @@ export function put(url, body) {
       }
       return r
         .text()
-        .then((text) => Promise.reject(new Error(text || r.statusText)));
+        .then((text) => {
+          const err = new Error(text || r.statusText);
+          err.response = r;
+
+          return Promise.reject(err);
+        });
     });
 }
 
@@ -105,6 +125,11 @@ export function patch(url, body) {
       }
       return r
         .text()
-        .then((text) => Promise.reject(new Error(text || r.statusText)));
+        .then((text) => {
+          const err = new Error(text || r.statusText);
+          err.response = r;
+
+          return Promise.reject(err);
+        });
     });
 }
