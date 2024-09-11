@@ -1,4 +1,5 @@
 import urlJoin from 'url-join';
+import _ from 'lodash';
 
 export function apiURL(endpointPath) {
   const baseURL = (window.APP_CONFIG || {}).apiURLForGOST || '/';
@@ -11,6 +12,16 @@ function getDefaultHeaders() {
   return headers;
 }
 
+/*
+* Turns param object {limit: 1, paginateFrom: 2} into uri string '?limit=1&paginateFrom=2
+* Removes emtpy values
+*/
+export const serializeQuery = (params = {}) => {
+  const cleaned = _.omitBy(params, (val) => val === null || val === undefined);
+  const searchParams = new URLSearchParams(cleaned);
+  return searchParams.size ? `?${searchParams.toString()}` : '';
+};
+
 export function get(url) {
   const options = {
     credentials: 'include',
@@ -22,7 +33,12 @@ export function get(url) {
     }
     return r
       .text()
-      .then((text) => Promise.reject(new Error(text || r.statusText)));
+      .then((text) => {
+        const err = new Error(text || r.statusText);
+        err.response = r;
+
+        return Promise.reject(err);
+      });
   });
 }
 
@@ -40,7 +56,12 @@ export function deleteRequest(url, body) {
       }
       return r
         .text()
-        .then((text) => Promise.reject(new Error(text || r.statusText)));
+        .then((text) => {
+          const err = new Error(text || r.statusText);
+          err.response = r;
+
+          return Promise.reject(err);
+        });
     });
 }
 
@@ -58,7 +79,12 @@ export function post(url, body) {
       }
       return r
         .text()
-        .then((text) => Promise.reject(new Error(text || r.statusText)));
+        .then((text) => {
+          const err = new Error(text || r.statusText);
+          err.response = r;
+
+          return Promise.reject(err);
+        });
     });
 }
 
@@ -76,7 +102,12 @@ export function put(url, body) {
       }
       return r
         .text()
-        .then((text) => Promise.reject(new Error(text || r.statusText)));
+        .then((text) => {
+          const err = new Error(text || r.statusText);
+          err.response = r;
+
+          return Promise.reject(err);
+        });
     });
 }
 
@@ -94,6 +125,11 @@ export function patch(url, body) {
       }
       return r
         .text()
-        .then((text) => Promise.reject(new Error(text || r.statusText)));
+        .then((text) => {
+          const err = new Error(text || r.statusText);
+          err.response = r;
+
+          return Promise.reject(err);
+        });
     });
 }

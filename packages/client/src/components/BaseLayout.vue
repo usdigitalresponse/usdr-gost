@@ -164,10 +164,7 @@
     </b-col>
 
     <div style="margin-top: 10px">
-      <section
-        class="container-fluid"
-        style="display: flex; justify-content: center;"
-      >
+      <section class="container-fluid d-flex flex-column align-items-center">
         <AlertBox
           v-for="(alert, alertId) in alerts"
           v-bind="alert"
