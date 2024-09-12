@@ -44,7 +44,7 @@
           data-follow-summary
         >{{ followSummaryText }}</span>
         <span
-          v-if="showFollowSummary && showNotesSummary"
+          v-if="grantHasFollowers && showNotesSummary"
           class="mx-1"
         >&bull;</span>
         <span v-if="showNotesSummary">{{ notesSummaryText }}</span>
