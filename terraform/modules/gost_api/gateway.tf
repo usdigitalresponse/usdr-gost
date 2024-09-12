@@ -72,7 +72,6 @@ module "api_gateway" {
     apiId           = "$context.apiId"
     stage           = "$context.stage"
     requestId       = "$context.requestId"
-    xrayTraceId     = "$context.xrayTraceId"
     principalId     = "$context.authorizer.principalId"
     requestTime     = "$context.requestTimeEpoch"
     requestTimeCLF  = "$context.requestTime"
