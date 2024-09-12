@@ -86,12 +86,15 @@ module "api_gateway" {
     userAgent       = "$context.identity.userAgent"
     caller          = "$context.identity.caller"
     user            = "$context.identity.user"
+    error = "$context.error.message"
+    errorMessage = "$context.error.messageString"
+    errorResponseType = "$context.error.responseType"
     integration = {
-      error         = "$context.integration.error"
       serviceStatus = "$context.integration.integrationStatus"
       latency       = "$context.integration.latency"
       requestId     = "$context.integration.requestId"
       status        = "$context.integration.status"
+      error         = "$context.integration.error"
       errorMessage  = "$context.integrationErrorMessage"
     }
   })
