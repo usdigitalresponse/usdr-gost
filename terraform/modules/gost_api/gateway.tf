@@ -77,7 +77,6 @@ module "api_gateway" {
     requestTimeCLF  = "$context.requestTime"
     httpMethod      = "$context.httpMethod"
     path            = "$context.path"
-    resourcePath    = "$context.resourcePath"
     routeKey        = "$context.routeKey"
     protocol        = "$context.protocol"
     status          = "$context.status"
