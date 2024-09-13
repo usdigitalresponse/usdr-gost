@@ -92,7 +92,8 @@ import moment from 'moment';
 import { mapActions, mapGetters } from 'vuex';
 
 import UserAvatar from '@/components/UserAvatar.vue';
-import CopyButton from '../CopyButton.vue';
+import CopyButton from '@/components/CopyButton.vue';
+import { ISO_DATE } from '@/helpers/dates';
 
 export default {
   components: {
@@ -118,29 +119,33 @@ export default {
   computed: {
     ...mapGetters({
       currentGrant: 'grants/currentGrant',
+      loggedInUser: 'users/loggedInUser',
     }),
     formattedFollowers() {
-      return this.followers.map((follower) => {
-        const { user, id, createdAt } = follower;
-        const createdMoment = moment(createdAt).subtract(100, 'days');
+      return this.followers
+        .filter((follower) => follower.user.id !== this.loggedInUser.id)
+        .map((follower) => {
+          const { user, id, createdAt } = follower;
+          const createdDate = moment(moment(createdAt).format(ISO_DATE));
 
-        let dateFollowedText = '';
-        if (createdMoment.isSame(moment(), 'day')) {
-          dateFollowedText = 'Today';
-        } else if (createdMoment.isAfter(moment().subtract(7, 'days'))) {
-          dateFollowedText = `${moment().diff(createdMoment, 'days')} days ago`;
-        } else {
-          dateFollowedText = createdMoment.format('MMMM D');
-        }
+          let dateFollowedText = '';
+          if (createdDate.isSame(moment(), 'day')) {
+            dateFollowedText = 'Today';
+          } else if (createdDate.isAfter(moment().subtract(7, 'days'))) {
+            const dayCount = moment().diff(createdDate, 'days');
+            dateFollowedText = `${dayCount} ${dayCount === 1 ? 'day' : 'days'} ago`;
+          } else {
+            dateFollowedText = createdDate.format('MMMM D');
+          }
 
-        return {
-          id,
-          name: user.name,
-          email: user.email,
-          team: user.team.name,
-          dateFollowedText,
-        };
-      });
+          return {
+            id,
+            name: user.name,
+            email: user.email,
+            team: user.team.name,
+            dateFollowedText,
+          };
+        });
     },
     followersEmailText() {
       return this.followers

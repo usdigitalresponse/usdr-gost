@@ -89,7 +89,6 @@ export default {
   },
   computed: {
     ...mapGetters({
-      loggedInUser: 'users/loggedInUser',
       currentGrant: 'grants/currentGrant',
     }),
     followBtnLabel() {

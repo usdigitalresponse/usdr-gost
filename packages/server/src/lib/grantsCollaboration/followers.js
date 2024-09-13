@@ -98,7 +98,7 @@ async function getFollowersForGrant(knex, grantId, organizationId, {
                 },
             })),
         pagination: {
-            next: grantFollowersResult.length === limit + 1 ? offset + limit : null,
+            next: grantFollowersResult.length > limit ? offset + limit : null,
         },
     };
 }
