@@ -7,6 +7,9 @@ import GrantFollowers from '@/components/Modals/GrantFollowers.vue';
 
 const mockStore = {
   getters: {
+    'users/loggedInUser': () => ({
+      id: 5,
+    }),
     'grants/currentGrant': () => ({
       grant_id: 55,
     }),
