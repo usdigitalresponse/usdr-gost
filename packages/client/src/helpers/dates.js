@@ -8,3 +8,7 @@ export function daysUntil(dateString) {
   const daysDiff = DateTime.fromISO(dateString).endOf('day').diffNow('days').days;
   return daysDiff < 0 ? 0 : Math.floor(daysDiff);
 }
+
+export const formatDate = (dateString) => DateTime.fromISO(dateString).toLocaleString(DateTime.DATE_MED);
+
+export const formatDateTime = (dateString) => DateTime.fromISO(dateString).toLocaleString(DateTime.DATETIME_MED);
