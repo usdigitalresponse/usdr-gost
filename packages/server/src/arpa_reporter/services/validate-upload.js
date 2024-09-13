@@ -172,7 +172,22 @@ function validateIdentifier(recipient, recipientExists) {
             'At least one of UEI or TIN/EIN must be set, but both are missing',
             { col: 'C, D', severity: 'err' },
         ));
+    } else if (isBeneficiary && recipientExists) {
+        if (recipientExists.created_at < new Date('2024-07-01') && !hasTIN && !hasUEI) {
+            // For existing beneficiaries created before July 1st 2024 ensure that a UEI or TIN is provided.
+            errors.push(new ValidationError(
+                'At least one of UEI or TIN/EIN must be set, but both are missing',
+                { col: 'C, D', severity: 'err' },
+            ));
+        } else if (recipientExists.created_at >= new Date('2024-07-01') && !hasTIN) {
+            // For existing beneficiaries created after July 1st 2024 ensure that a TIN is provided
+            errors.push(new ValidationError(
+                'You must enter a TIN for this subrecipient',
+                { col: 'D', severity: 'err' },
+            ));
+        }
     } else if (isBeneficiary && !recipientExists && !hasTIN) {
+        // All new beneficiaries must have a TIN.
         errors.push(new ValidationError(
             'You must enter a TIN for this subrecipient',
             { col: 'D', severity: 'err' },

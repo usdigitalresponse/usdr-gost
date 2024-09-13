@@ -256,47 +256,88 @@ describe('validateIdentifier for IAA', () => {
 describe('validateIdentifier for Beneficiary', () => {
     const validateIdentifier = validateUploadModule.__get__('validateIdentifier');
     describe('when subrecipient exists in the database', () => {
-        it('should return an error if recipient is not a new Beneficiary and only has a UEI', () => {
-            const recipient = {
-                Entity_Type_2__c: 'Beneficiary',
-                Unique_Entity_Identifier__c: '0123456789ABCDEF',
-                EIN__c: null,
-            };
-            const recipientExists = true;
-            const errors = validateIdentifier(recipient, recipientExists);
-            assert.deepStrictEqual(errors, [
-                new ValidationError(
-                    'You must enter a TIN for this subrecipient',
-                    { col: 'D', severity: 'err' },
-                ),
-            ]);
-        });
+        describe('subrecipients created prior to July 1st 2024', () => {
+            it('should return an error if recipient is an existing Beneficiary and only has a UEI', () => {
+                const recipient = {
+                    Entity_Type_2__c: 'Beneficiary',
+                    Unique_Entity_Identifier__c: '0123456789ABCDEF',
+                    EIN__c: null,
+                };
+                const recipientExists = { created_at: new Date('2024-06-30T00:00:00') };
+                const errors = validateIdentifier(recipient, recipientExists);
+                assert.deepStrictEqual(errors, []);
+            });
 
-        it('should not return an error if recipient is not a new beneficiary and has a TIN', () => {
-            const recipient = {
-                Entity_Type_2__c: 'Beneficiary',
-                Unique_Entity_Identifier__c: null,
-                EIN__c: '123456789',
-            };
-            const recipientExists = true;
-            const errors = validateIdentifier(recipient, recipientExists);
-            assert.deepStrictEqual(errors, []);
-        });
+            it('should not return an error if recipient is not a new beneficiary and has a TIN', () => {
+                const recipient = {
+                    Entity_Type_2__c: 'Beneficiary',
+                    Unique_Entity_Identifier__c: null,
+                    EIN__c: '123456789',
+                };
+                const recipientExists = { created_at: new Date('2024-06-30T00:00:00') };
+                const errors = validateIdentifier(recipient, recipientExists);
+                assert.deepStrictEqual(errors, []);
+            });
 
-        it('should return an error if recipient is not a new beneficiary and has neither UEI nor TIN', () => {
-            const recipient = {
-                Entity_Type_2__c: 'Beneficiary',
-                Unique_Entity_Identifier__c: null,
-                EIN__c: null,
-            };
-            const recipientExists = true;
-            const errors = validateIdentifier(recipient, recipientExists);
-            assert.deepStrictEqual(errors, [
-                new ValidationError(
-                    'You must enter a TIN for this subrecipient',
-                    { col: 'C, D', severity: 'err' },
-                ),
-            ]);
+            it('should return an error if recipient is not a new beneficiary and has neither UEI nor TIN', () => {
+                const recipient = {
+                    Entity_Type_2__c: 'Beneficiary',
+                    Unique_Entity_Identifier__c: null,
+                    EIN__c: null,
+                };
+                const recipientExists = { created_at: new Date('2024-06-30T00:00:00') };
+                const errors = validateIdentifier(recipient, recipientExists);
+                assert.deepStrictEqual(errors, [
+                    new ValidationError(
+                        'At least one of UEI or TIN/EIN must be set, but both are missing',
+                        { col: 'C, D', severity: 'err' },
+                    ),
+                ]);
+            });
+        });
+        describe('subrecipients created on or after July 1st 2024', () => {
+            it('should return an error if recipient is an existing Beneficiary and only has a UEI', () => {
+                const recipient = {
+                    Entity_Type_2__c: 'Beneficiary',
+                    Unique_Entity_Identifier__c: '0123456789ABCDEF',
+                    EIN__c: null,
+                };
+                const recipientExists = { created_at: new Date('2024-07-02T00:00:00') };
+                const errors = validateIdentifier(recipient, recipientExists);
+                assert.deepStrictEqual(errors, [
+                    new ValidationError(
+                        'You must enter a TIN for this subrecipient',
+                        { col: 'D', severity: 'err' },
+                    ),
+                ]);
+            });
+
+            it('should not return an error if recipient is not a new beneficiary and has a TIN', () => {
+                const recipient = {
+                    Entity_Type_2__c: 'Beneficiary',
+                    Unique_Entity_Identifier__c: null,
+                    EIN__c: '123456789',
+                };
+                const recipientExists = { created_at: new Date('2024-07-01T00:00:00') };
+                const errors = validateIdentifier(recipient, recipientExists);
+                assert.deepStrictEqual(errors, []);
+            });
+
+            it('should return an error if recipient is not a new beneficiary and has neither UEI nor TIN', () => {
+                const recipient = {
+                    Entity_Type_2__c: 'Beneficiary',
+                    Unique_Entity_Identifier__c: null,
+                    EIN__c: null,
+                };
+                const recipientExists = { created_at: new Date('2024-07-02T00:00:00') };
+                const errors = validateIdentifier(recipient, recipientExists);
+                assert.deepStrictEqual(errors, [
+                    new ValidationError(
+                        'You must enter a TIN for this subrecipient',
+                        { col: 'D', severity: 'err' },
+                    ),
+                ]);
+            });
         });
     });
     describe('when subrecipient does not exist in the database', () => {
