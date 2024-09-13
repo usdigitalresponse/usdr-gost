@@ -86,7 +86,9 @@ describe('BaseLayout.vue', () => {
       });
     });
     it('should have a dropdown', () => {
-      wrapper.get('b-nav-item-dropdown');
+      const dropdown = wrapper.findComponent({ name: 'b-nav-item-dropdown' });
+
+      expect(dropdown.exists()).toEqual(true);
     });
     it('should have the correct options', () => {
       const options = wrapper.findAll('.dropdown-item-text');
