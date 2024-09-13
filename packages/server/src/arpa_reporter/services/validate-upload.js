@@ -157,17 +157,29 @@ function validateIdentifier(recipient, recipientExists) {
     const hasUEI = Boolean(recipient.Unique_Entity_Identifier__c);
     const hasTIN = Boolean(recipient.EIN__c);
     const entityType = recipient.Entity_Type_2__c;
-    const isContractorOrBeneficiary = (entityType.includes('Contractor') || entityType.includes('Beneficiary'));
+    const isContractor = entityType.includes('Contractor');
+    const isBeneficiary = entityType.includes('Beneficiary');
     const isSubrecipient = entityType.includes('Subrecipient');
+    const isIAA = entityType.includes('IAA');
 
     if (isSubrecipient && !recipientExists && !hasUEI) {
         errors.push(new ValidationError(
             'UEI is required for all new subrecipients',
             { col: 'C', severity: 'err' },
         ));
-    } else if (isContractorOrBeneficiary && !hasUEI && !hasTIN) {
+    } else if (isContractor && !hasUEI && !hasTIN) {
         errors.push(new ValidationError(
             'At least one of UEI or TIN/EIN must be set, but both are missing',
+            { col: 'C, D', severity: 'err' },
+        ));
+    } else if (isBeneficiary && !recipientExists && !hasTIN) {
+        errors.push(new ValidationError(
+            'You must enter a TIN for this subrecipient',
+            { col: 'D', severity: 'err' },
+        ));
+    } else if (isIAA && !hasUEI && !hasTIN) {
+        errors.push(new ValidationError(
+            'IAA subrecipients without UEI or TIN are valid but temporarily not supported by USDR',
             { col: 'C, D', severity: 'err' },
         ));
     }
