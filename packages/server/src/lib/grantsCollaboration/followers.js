@@ -44,7 +44,9 @@ async function getFollowerForGrant(knex, grantId, userId) {
     };
 }
 
-async function getFollowersForGrant(knex, grantId, organizationId, { beforeFollow, limit = 50 } = {}) {
+async function getFollowersForGrant(knex, grantId, organizationId, {
+    offset = 0, limit = 50, orderBy = 'created_at', orderDir = 'desc',
+} = {}) {
     const query = knex('grant_followers')
         .select(
             'grant_followers.id',
@@ -63,38 +65,40 @@ async function getFollowersForGrant(knex, grantId, organizationId, { beforeFollo
         .join('tenants', 'tenants.id', 'users.tenant_id')
         .where('grant_followers.grant_id', grantId)
         .andWhere('tenants.id', organizationId)
-        .orderBy('created_at', 'desc')
-        .limit(limit);
+        .orderBy(orderBy, orderDir)
+        .offset(offset)
+        .limit(limit + 1);
 
-    if (beforeFollow) {
-        query.andWhere('grant_followers.id', '<', beforeFollow);
-    }
-
-    const grantFollowers = await query;
+    const grantFollowersResult = await query;
+    // remove forward looking extra
+    const grantFollowers = grantFollowersResult.length > limit
+        ? grantFollowersResult.slice(0, -1)
+        : grantFollowersResult;
 
     return {
-        followers: grantFollowers.map((grantFollower) => ({
-            id: grantFollower.id,
-            createdAt: grantFollower.created_at,
-            grant: {
-                id: grantFollower.grant_id,
-            },
-            user: {
-                id: grantFollower.user_id,
-                name: grantFollower.user_name,
-                email: grantFollower.user_email,
-                team: {
-                    id: grantFollower.team_id,
-                    name: grantFollower.team_name,
+        followers: grantFollowers
+            .map((grantFollower) => ({
+                id: grantFollower.id,
+                createdAt: grantFollower.created_at,
+                grant: {
+                    id: grantFollower.grant_id,
                 },
-                organization: {
-                    id: grantFollower.organization_id,
-                    name: grantFollower.organizationName,
+                user: {
+                    id: grantFollower.user_id,
+                    name: grantFollower.user_name,
+                    email: grantFollower.user_email,
+                    team: {
+                        id: grantFollower.team_id,
+                        name: grantFollower.team_name,
+                    },
+                    organization: {
+                        id: grantFollower.organization_id,
+                        name: grantFollower.organizationName,
+                    },
                 },
-            },
-        })),
+            })),
         pagination: {
-            from: grantFollowers.length > 0 ? grantFollowers[grantFollowers.length - 1].id : beforeFollow,
+            next: grantFollowersResult.length === limit + 1 ? offset + limit : null,
         },
     };
 }
