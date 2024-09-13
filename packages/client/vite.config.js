@@ -57,6 +57,10 @@ export default defineConfig({
     sourcemap: true,
   },
   test: {
+    setupFiles: ['vitest.setup.ts'],
+    alias: {
+      vue: 'vue',
+    },
     environment: 'jsdom',
     setupFiles: ['vitest.setup.js'],
     alias: {

@@ -1,8 +1,13 @@
 import NewUploadView from '@/arpa_reporter/views/NewUploadView.vue';
 
-import { describe, it, expect } from 'vitest';
+import {
+  describe, it, expect, vi,
+} from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import { createStore } from 'vuex';
+
+// Use compat version to support VueFormulate
+vi.mock('vue', async () => vi.importActual('@vue/compat'));
 
 describe('NewUploadView component', () => {
   const store = createStore({
