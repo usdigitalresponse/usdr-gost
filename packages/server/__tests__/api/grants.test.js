@@ -988,6 +988,9 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
     context('GET /:grantId/followers', () => {
         const GRANT_ID = 335255;
 
+        const ORDER_BY = 'created_at';
+        const ORDER_DIR = 'desc';
+
         let follower1;
         let follower2;
         beforeEach(async () => {
@@ -999,20 +1002,30 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
         });
 
         it('retrieves followers for a grant', async () => {
-            const response = await fetchApi(`/grants/${GRANT_ID}/followers`, agencies.own, fetchOptions.admin);
+            const response = await fetchApi(`/grants/${GRANT_ID}/followers`, agencies.own, fetchOptions.admin, {
+                orderBy: ORDER_BY,
+                orderDir: ORDER_DIR,
+            });
             const respBody = await response.json();
 
             expect(respBody.followers).to.have.lengthOf(2);
             expect(respBody.followers[0].id).to.equal(follower2.id);
         });
         it('retrieves followers for a grant with LIMIT', async () => {
-            const response = await fetchApi(`/grants/${GRANT_ID}/followers?limit=1`, agencies.own, fetchOptions.admin);
+            const response = await fetchApi(`/grants/${GRANT_ID}/followers`, agencies.own, fetchOptions.admin, {
+                orderBy: ORDER_BY,
+                orderDir: ORDER_DIR,
+                limit: 1,
+            });
             const respBody = await response.json();
 
             expect(respBody.followers).to.have.lengthOf(1);
         });
         it('retrieves followers for a grant with PAGINATION', async () => {
-            const response = await fetchApi(`/grants/${GRANT_ID}/followers?paginateFrom=${follower2.id}`, agencies.own, fetchOptions.admin);
+            const response = await fetchApi(`/grants/${GRANT_ID}/followers?offset=1`, agencies.own, fetchOptions.admin, {
+                orderBy: ORDER_BY,
+                orderDir: ORDER_DIR,
+            });
             const respBody = await response.json();
 
             expect(respBody.followers).to.have.lengthOf(1);

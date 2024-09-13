@@ -184,6 +184,9 @@ describe('Grants Collaboration', () => {
         });
     });
     context('getFollowersForGrant', () => {
+        const ORDER_BY = 'created_at';
+        const ORDER_DIR = 'desc';
+
         let follower1;
         let follower2;
         beforeEach(async () => {
@@ -196,25 +199,30 @@ describe('Grants Collaboration', () => {
 
         it('retrieves ALL followers for a grant', async () => {
             const result = await getFollowersForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, {
-                beforeFollow: null,
+                orderBy: ORDER_BY,
+                orderDir: ORDER_DIR,
             });
 
             expect(result.followers).to.have.lengthOf(2);
             expect(result.followers[0].id).to.equal(follower2.id);
         });
 
-        it('retrieves followers for a grant with PAGINATION', async () => {
+        it('retrieves followers for a grant with OFFSET', async () => {
             const result = await getFollowersForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, {
-                beforeFollow: follower2.id,
+                orderBy: ORDER_BY,
+                orderDir: ORDER_DIR,
+                offset: 1,
             });
 
             expect(result.followers).to.have.lengthOf(1);
             expect(result.followers[0].id).to.equal(follower1.id);
-            expect(result.pagination.from).to.equal(follower1.id);
+            expect(result.pagination.next).to.equal(null);
         });
 
         it('retrieves followers for a grant with LIMIT', async () => {
             const result = await getFollowersForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, {
+                orderBy: ORDER_BY,
+                orderDir: ORDER_DIR,
                 limit: 1,
             });
 
