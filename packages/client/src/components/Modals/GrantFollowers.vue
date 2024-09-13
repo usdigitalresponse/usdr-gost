@@ -7,6 +7,7 @@
     centered
     scrollable
     @show="handleModalOpen"
+    @close="$emit('close')"
   >
     <div v-if="loading">
       Loading...
@@ -62,6 +63,7 @@
     >
       <b-button
         size="sm"
+        variant="link"
         data-test-show-more-btn
         @click="getNextFollowers"
       >
@@ -98,8 +100,12 @@ export default {
     CopyButton,
   },
   props: {
-    modalId: String,
+    modalId: {
+      type: String,
+      default: undefined,
+    },
   },
+  emits: ['close'],
   data() {
     return {
       followersLoaded: false,
@@ -115,21 +121,23 @@ export default {
     }),
     formattedFollowers() {
       return this.followers.map((follower) => {
-        const createdAt = moment(follower.createdAt).subtract(100, 'days');
+        const { user, id, createdAt } = follower;
+        const createdMoment = moment(createdAt).subtract(100, 'days');
+
         let dateFollowedText = '';
-        if (createdAt.isSame(moment(), 'day')) {
+        if (createdMoment.isSame(moment(), 'day')) {
           dateFollowedText = 'Today';
-        } else if (createdAt.isAfter(moment().subtract(7, 'days'))) {
-          dateFollowedText = `${moment().diff(createdAt, 'days')} days ago`;
+        } else if (createdMoment.isAfter(moment().subtract(7, 'days'))) {
+          dateFollowedText = `${moment().diff(createdMoment, 'days')} days ago`;
         } else {
-          dateFollowedText = createdAt.format('MMMM D');
+          dateFollowedText = createdMoment.format('MMMM D');
         }
 
         return {
-          id: follower.id + Math.random(),
-          name: follower.user.name + Math.random().toFixed(2),
-          email: follower.user.email,
-          team: follower.user.team.name,
+          id,
+          name: user.name,
+          email: user.email,
+          team: user.team.name,
           dateFollowedText,
         };
       });
@@ -152,7 +160,7 @@ export default {
     async getNextFollowers() {
       const query = {
         grantId: this.currentGrant.grant_id,
-        limit: 5,
+        limit: 20,
         offset: this.followersOffset,
         orderBy: 'users.name',
         orderDir: 'asc',

@@ -63,8 +63,9 @@
 
     <!-- Modals -->
     <GrantFollowersModal
+      :key="grantFollowersModalKey"
       modal-id="grant-followers-modal"
-      :followers="followers"
+      @close="handleModalClose"
     />
   </div>
 </template>
@@ -83,6 +84,7 @@ export default {
       followStateLoaded: false,
       followers: [],
       notes: [],
+      grantFollowersModalKey: 0,
     };
   },
   computed: {
@@ -177,6 +179,10 @@ export default {
         await this.followGrantForCurrentUser({ grantId: this.currentGrant.grant_id });
       }
       await this.fetchFollowState();
+    },
+    handleModalClose() {
+      // Reset modal
+      this.grantFollowersModalKey += 1;
     },
   },
 };
