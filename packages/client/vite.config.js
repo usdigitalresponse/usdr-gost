@@ -62,10 +62,6 @@ export default defineConfig({
       vue: 'vue',
     },
     environment: 'jsdom',
-    setupFiles: ['vitest.setup.js'],
-    alias: {
-      vue: 'vue',
-    },
     coverage: {
       provider: 'istanbul',
       include: ['src/**'],
