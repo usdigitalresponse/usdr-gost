@@ -282,16 +282,14 @@ export default {
       };
       const generateCloseDate = (date, status, close_date_explanation) => {
         const formattedDate = new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
-        if (['posted'].includes(status) && !date) {
-          return 'Not yet issued';
-        } if (status === 'forecasted') {
-          if (date) {
-            return `est. ${formattedDate}`;
-          } if (close_date_explanation) {
-            return 'See details';
-          }
-          return 'Not yet issued';
+        const dateExists = date && date !== '2100-01-01';
+        if (!dateExists){
+          return close_date_explanation ? 'See details' : 'Not yet issued';
         }
+        if (status === 'forecasted') {
+          return `est. ${formattedDate}`;
+        }
+
         return formattedDate;
       };
       const generateOpenDate = (date, status) => {
