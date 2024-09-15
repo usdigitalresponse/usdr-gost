@@ -156,7 +156,6 @@ import GrantDetailsLegacy from '@/components/Modals/GrantDetailsLegacy.vue';
 import SearchPanel from '@/components/Modals/SearchPanel.vue';
 import SavedSearchPanel from '@/components/Modals/SavedSearchPanel.vue';
 import SearchFilter from '@/components/SearchFilter.vue';
-// import moment from 'moment';
 
 const DEFAULT_CURRENT_PAGE = 1;
 const DEFAULT_ORDER_BY = 'rank';
