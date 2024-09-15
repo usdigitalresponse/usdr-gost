@@ -279,11 +279,11 @@ export default {
         txt.innerHTML = t;
         return txt.value;
       };
-      const generateCloseDate = (date, status, close_date_explanation) => {
+      const generateCloseDate = (date, status, closeDateExplanation) => {
         const formattedDate = new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
         const dateExists = date && date !== '2100-01-01';
-        if (!dateExists){
-          return close_date_explanation ? 'See details' : 'Not yet issued';
+        if (!dateExists) {
+          return closeDateExplanation ? 'See details' : 'Not yet issued';
         }
         if (status === 'forecasted') {
           return `est. ${formattedDate}`;
