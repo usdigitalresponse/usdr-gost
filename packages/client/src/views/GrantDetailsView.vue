@@ -317,7 +317,6 @@ export default {
     openDateDisplay() {
       // make 'forecasted' a constant
       if (this.currentGrant.opportunity_status === 'forecasted') {
-        // change this.currentGrant.open_date to relevant field
         // check for date validity here and in closeDateDisplay
         return `est. ${this.formatDate(this.currentGrant.open_date)}`;
       }
