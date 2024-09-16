@@ -119,11 +119,9 @@ export default {
   computed: {
     ...mapGetters({
       currentGrant: 'grants/currentGrant',
-      loggedInUser: 'users/loggedInUser',
     }),
     formattedFollowers() {
       return this.followers
-        .filter((follower) => follower.user.id !== this.loggedInUser.id)
         .map((follower) => {
           const { user, id, createdAt } = follower;
           const createdDate = moment(moment(createdAt).format(ISO_DATE));
