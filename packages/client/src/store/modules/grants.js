@@ -185,16 +185,15 @@ export default {
         agencyIds,
       });
     },
-    unmarkGrantAsInterested({ rootGetters }, {
+    async unmarkGrantAsInterested({ rootGetters, commit, dispatch }, {
       grantId, agencyIds, interestedCode, agencyId,
     }) {
-      return fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested/${agencyId}`, {
+      await fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested/${agencyId}`, {
         agencyIds,
         interestedCode,
       });
-    },
-    fetchInterestedAgencies({ rootGetters }, { grantId }) {
-      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested`);
+      const interestedAgencies = await dispatch('getInterestedAgencies', { grantId });
+      commit('UPDATE_GRANT', { grantId, data: { interested_agencies: interestedAgencies } });
     },
     async markGrantAsInterested({ commit, rootGetters }, { grantId, agencyId, interestedCode }) {
       const interestedAgencies = await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested/${agencyId}`, {

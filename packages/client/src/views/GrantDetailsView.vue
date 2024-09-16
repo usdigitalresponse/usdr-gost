@@ -378,7 +378,6 @@ export default {
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
       unmarkGrantAsInterestedAction: 'grants/unmarkGrantAsInterested',
-      getInterestedAgencies: 'grants/getInterestedAgencies',
       fetchAgencies: 'agencies/fetchAgencies',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
@@ -421,7 +420,6 @@ export default {
         agencyIds: [agency.agency_id],
         interestedCode: agency.interested_code_id,
       });
-      this.currentGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.currentGrant.grant_id });
       const eventName = 'remove team status for grant';
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
