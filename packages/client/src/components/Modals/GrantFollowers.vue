@@ -7,7 +7,7 @@
     centered
     scrollable
     @show="handleModalOpen"
-    @close="$emit('close')"
+    @hidden="$emit('close')"
   >
     <div v-if="loading">
       Loading...
