@@ -21,6 +21,7 @@ function initialState() {
     totalUpcomingGrants: 0,
     totalInterestedGrants: 0,
     currentGrant: {},
+    grantsRequestId: 0,
     searchFormFilters: {
       costSharing: null,
       opportunityStatuses: [],
@@ -139,7 +140,7 @@ export default {
       return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
     },
-    fetchGrantsNext({ commit, rootGetters }, {
+    fetchGrantsNext({ state, commit, rootGetters }, {
       currentPage, perPage, orderBy, orderDesc,
     }) {
       const pagination = { currentPage, perPage };
@@ -147,8 +148,15 @@ export default {
       const filters = { ...this.state.grants.searchFormFilters };
       const { criteriaQuery, paginationQuery, orderingQuery } = buildGrantsNextQuery({ filters, ordering, pagination });
 
+      // Avoid race conditions for tabs sharing grant fetching
+      const requestId = state.grantsRequestId + 1;
+      commit('SET_GRANTS_REQUEST_ID', requestId);
       return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/next?${paginationQuery}&${orderingQuery}&${criteriaQuery}`)
-        .then((data) => commit('SET_GRANTS', data));
+        .then((data) => {
+          if (requestId === state.grantsRequestId) {
+            commit('SET_GRANTS', data);
+          }
+        });
     },
     // Retrieves grants that the user's team (or any subteam) has interacted with (either by setting status or assigning to a user).
     // Sorted in descending order by the date on which the interaction occurred (recently interacted with are first).
@@ -406,6 +414,9 @@ export default {
     },
     SET_TABLE_MODE(state, tableMode) {
       state.tableMode = tableMode;
+    },
+    SET_GRANTS_REQUEST_ID(state, id) {
+      state.grantsRequestId = id;
     },
   },
 };
