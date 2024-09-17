@@ -58,8 +58,6 @@ function mapSourceDataToGrant(source) {
         grant.opportunity_status = 'archived';
     } else if (today.isSameOrAfter(moment(grant.close_date), 'date')) {
         grant.opportunity_status = 'closed';
-    } else if (today.isBefore(moment(grant.open_date), 'date')) {
-        grant.opportunity_status = 'forecasted';
     } else {
         grant.opportunity_status = 'posted';
     }
