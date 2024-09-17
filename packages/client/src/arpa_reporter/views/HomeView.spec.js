@@ -93,7 +93,7 @@ describe('HomeView.vue', () => {
         expect(sendTreasuryReportButton.text()).toContain('Send Treasury Report by Email');
       });
       it('should show the DownloadTemplateBtn', () => {
-        const sendAuditReportButton = wrapper.find('downloadtemplatebtn');
+        const sendAuditReportButton = wrapper.findComponent({ name: 'download-template-btn' });
         expect(sendAuditReportButton.exists()).toBe(true);
       });
     });
