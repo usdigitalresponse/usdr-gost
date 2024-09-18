@@ -19,16 +19,19 @@ const NONEXISTENT_TENANT = 100;
 describe('db/reporting-periods.js', () => {
     const recipients = {
         beneficiaryWithTIN: {
+            tenant_id: TENANT_A,
             name: 'Beneficiary with TIN',
             tin: 'TIN-1',
             uei: null,
         },
         iaa: {
+            tenant_id: TENANT_A,
             name: 'IAA',
             tin: null,
             uei: null,
         },
         contractorWithUEI: {
+            tenant_id: TENANT_A,
             name: 'Contractor with UEI',
             tin: null,
             uei: 'UEI-1',
