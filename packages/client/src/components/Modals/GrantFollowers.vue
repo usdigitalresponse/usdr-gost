@@ -88,12 +88,11 @@
 </template>
 
 <script>
-import moment from 'moment';
+import { DateTime } from 'luxon';
 import { mapActions, mapGetters } from 'vuex';
 
 import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
-import { ISO_DATE } from '@/helpers/dates';
 
 export default {
   components: {
@@ -124,16 +123,17 @@ export default {
       return this.followers
         .map((follower) => {
           const { user, id, createdAt } = follower;
-          const createdDate = moment(moment(createdAt).format(ISO_DATE));
+
+          const createdDate = DateTime.fromISO(createdAt);
+          const today = DateTime.now().endOf('day');
 
           let dateFollowedText = '';
-          if (createdDate.isSame(moment(), 'day')) {
-            dateFollowedText = 'Today';
-          } else if (createdDate.isAfter(moment().subtract(7, 'days'))) {
-            const dayCount = moment().diff(createdDate, 'days');
-            dateFollowedText = `${dayCount} ${dayCount === 1 ? 'day' : 'days'} ago`;
+          if (createdDate.hasSame(today, 'day')) {
+            dateFollowedText = createdDate.toRelativeCalendar({ base: today, unit: 'days' });
+          } else if (createdDate > today.minus({ days: 7 })) {
+            dateFollowedText = createdDate.toRelative({ base: today, unit: 'days' });
           } else {
-            dateFollowedText = createdDate.format('MMMM D');
+            dateFollowedText = createdDate.toFormat('MMMM d');
           }
 
           return {
@@ -148,7 +148,7 @@ export default {
     followersEmailText() {
       return this.followers
         .map((follower) => follower.user.email)
-        .join(',');
+        .join(', ');
     },
   },
   methods: {
