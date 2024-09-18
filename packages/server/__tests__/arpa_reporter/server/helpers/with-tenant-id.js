@@ -8,12 +8,12 @@ const { requestProviderMiddleware } = require('../../../../src/arpa_reporter/use
  * @returns {Promise}
  * A promise that resolves to the return value of the callback, if any.
  */
-async function withTenantId(tenantId, callback) {
+async function withTenantId(tenantId, callback, ...args) {
     return new Promise((resolve) => {
         requestProviderMiddleware(
             { session: { user: { tenant_id: tenantId } } },
             null,
-            () => resolve(callback()),
+            () => resolve(callback(...args)),
         );
     });
 }
