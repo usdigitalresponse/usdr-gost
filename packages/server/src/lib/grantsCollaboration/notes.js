@@ -96,6 +96,7 @@ async function getCurrentNoteRevisions(
         notes: notes.map((note) => ({
             id: note.latest_revision_id,
             createdAt: note.revised_at,
+            isRevised: new Date(note.revised_at) > new Date(note.created_at),
             text: note.text,
             grant: { id: note.grant_id },
             user: {

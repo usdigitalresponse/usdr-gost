@@ -1,9 +1,13 @@
 <template>
-  <div class="d-flex">
-    <UserAvatar
-      :user-name="note.user.name"
-      size="2.5rem"
-    />
+  <div class="d-flex note-container">
+    <div class="d-flex flex-column">
+      <UserAvatar
+        :user-name="note.user.name"
+        size="2.5rem"
+      />
+      <div class="note_vertical position-relative flex-grow-1" />
+    </div>
+
     <div class="d-flex flex-column flex-grow-1 has-flexi-truncate ml-2">
       <div class="d-flex align-items-center text-nowrap">
         <span class="font-weight-bold">{{ note.user.name }}</span>
@@ -19,10 +23,14 @@
       <div class="mt-1 text-gray-600">
         {{ note.text }}
       </div>
-      <div class="d-flex mt-1">
-        <div class="mt-2">
+      <div class="d-flex mt-1 align-items-end">
+        <span class="note-date-text">
           {{ timeElapsedString }}
-        </div>
+          <span
+            v-if="note.isRevised"
+            class="text-gray-500"
+          >(edited)</span>
+        </span>
         <div class="ml-auto">
           <slot name="actions" />
         </div>
@@ -74,8 +82,16 @@ export default {
 @import '@/scss/colors-semantic-tokens.scss';
 @import '@/scss/colors-base-tokens.scss';
 
+.note-container {
+  padding: 1rem 1.25rem;
+}
+
 .text-gray-500 {
   color: $raw-gray-500
+}
+
+.note-date-text {
+  font-size:0.75rem;
 }
 
 .text-gray-600 {
@@ -88,5 +104,16 @@ export default {
   -ms-flex: 1 1 0%;
   flex: 1 1 0%;
   min-width: 0;
+}
+
+.note_vertical:before {
+  content: "";
+  background: $raw-gray-600;
+  height: calc(100% - 6px);
+  width: 1px;
+  position: absolute;
+  left: calc(2.5rem / 2);
+  top: 6px;
+  bottom: 0;
 }
 </style>

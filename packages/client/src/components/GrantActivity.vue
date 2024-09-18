@@ -2,6 +2,7 @@
   <b-card
     header-bg-variant="white"
     footer-bg-variant="white"
+    footer-class="p-0"
   >
     <template #header>
       <h3 class="my-2">

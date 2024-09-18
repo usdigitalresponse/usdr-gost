@@ -3,7 +3,7 @@
     <!-- Note Edit -->
     <div
       v-if="editingNote"
-      class="d-flex"
+      class="d-flex note-edit-container"
     >
       <UserAvatar
         :user-name="loggedInUser.name"
@@ -51,13 +51,14 @@
     <!-- Users Note -->
     <GrantNote
       v-if="userNote && !editingNote"
-      :note="note"
+      class="user-note mb-1"
+      :note="userNote"
     >
       <template #actions>
         <b-button
-          class="text-gray-500 px-1"
+          class="note-edit-btn p-0"
           variant="link"
-          @click="handleEditNote"
+          @click="toggleEditNote"
         >
           <b-icon
             icon="pencil-square"
@@ -77,6 +78,17 @@
         <GrantNote :note="note" />
       </li>
     </ul>
+
+    <div class="px-3 mb-3">
+      <b-button
+        block
+        size="md"
+        variant="light"
+        class="show-more-btn"
+      >
+        Show More Notes
+      </b-button>
+    </div>
   </section>
 </template>
 
@@ -126,8 +138,9 @@ export default {
     formatter(value) {
       return value.substring(0, 300);
     },
-    handleEditNote() {
+    toggleEditNote() {
       this.editingNote = true;
+      this.noteText = this.userNote.text;
     },
     handleKeyDown(e) {
       if (e.key === 'Enter') {
@@ -137,8 +150,8 @@ export default {
     submitNote() {
       this.submittingNote = true;
       this.saveNoteForGrant({ grantId: this.currentGrant.grant_id, text: this.noteText })
-        .then(() => {
-
+        .then(async () => {
+          await this.fetchUsersNote();
         })
         .catch(() => {
           // Error already logged
@@ -151,6 +164,7 @@ export default {
       const result = await this.getNotesForCurrentUser({ grantId: this.currentGrant.grant_id });
 
       this.userNote = result && result.notes.length ? result.notes[0] : null;
+      this.editingNote = !this.userNote;
     },
     async fetchAllNotes() {
       const result = await this.getNotesForGrant({ grantId: this.currentGrant.grant_id, limit: 51 });
@@ -168,13 +182,11 @@ export default {
 @import '@/scss/colors-semantic-tokens.scss';
 @import '@/scss/colors-base-tokens.scss';
 
+.user-note {
+  background: $raw-blue-50
+}
 .text-gray-500 {
   color: $raw-gray-500
-}
-
-.text-gray-600 {
-  color: $raw-gray-600;
-  font-weight: 400;
 }
 
 .text-error {
@@ -190,16 +202,23 @@ textarea.note-textarea::placeholder {
   font-size:0.875rem
 }
 
+.note-edit-container {
+  padding: 1rem 1.25rem;
+}
+
+.note-edit-btn {
+  font-size: 0.875rem;
+  color: $raw-gray-500
+}
+
 .note-send-btn {
   bottom: 1.5625rem;
   right: 0;
-  color: $border
+  color: $border;
 }
 
-.has-flexi-truncate {
-  -webkit-box-flex: 1;
-  -ms-flex: 1 1 0%;
-  flex: 1 1 0%;
-  min-width: 0;
+.show-more-btn {
+  border-color: $raw-gray-300;
+  font-size:0.875rem;
 }
 </style>
