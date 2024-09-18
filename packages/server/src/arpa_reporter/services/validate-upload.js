@@ -127,7 +127,7 @@ async function findRecipientInDatabase({ recipient, trns }) {
         ? await findRecipient('uei', recipient.Unique_Entity_Identifier__c, trns)
         : null;
     const byTin = recipient.EIN__c
-        ? await findRecipient('ein', recipient.EIN__c, trns)
+        ? await findRecipient('tin', recipient.EIN__c, trns)
         : null;
     let byName = null;
     if (recipient.Entity_Type_2__c.includes('IAA') && !recipient.Unique_Entity_Identifier__c && !recipient.EIN__c) {
