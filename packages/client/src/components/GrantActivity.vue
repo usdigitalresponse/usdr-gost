@@ -52,16 +52,19 @@
     </div>
 
     <template #footer>
-      <!-- Feed -->
+      <GrantNotes />
     </template>
   </b-card>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import GrantNotes from '@/components/GrantNotes.vue';
 
 export default {
-  components: {},
+  components: {
+    GrantNotes,
+  },
   data() {
     return {
       userIsFollowing: false,

@@ -84,6 +84,7 @@ async function getOrganizationNotesForGrant(knex, grantId, organizationId, { aft
             user: {
                 id: note.user_id,
                 name: note.user_name,
+                email: note.user_email,
                 team: {
                     id: note.team_id,
                     name: note.team_name,

@@ -251,6 +251,18 @@ export default {
         return null;
       }
     },
+    async saveNoteForGrant({ rootGetters, commit }, { grantId, text }) {
+      try {
+        await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes/revision`, {
+          text,
+        });
+      } catch (e) {
+        const errTxt = `Error saving grant note: + ${e.message}`;
+        commit('alerts/addAlert', { text: errTxt, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text: errTxt });
+        throw e;
+      }
+    },
     async followGrantForCurrentUser({ rootGetters, commit }, { grantId }) {
       try {
         await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
