@@ -130,7 +130,7 @@ async function findRecipientInDatabase({ recipient, trns }) {
         ? await findRecipient('tin', recipient.EIN__c, trns)
         : null;
     let byName = null;
-    if (recipient.Entity_Type_2__c.includes('IAA') && !recipient.Unique_Entity_Identifier__c && !recipient.EIN__c) {
+    if (recipient.Entity_Type_2__c?.includes('IAA') && !recipient.Unique_Entity_Identifier__c && !recipient.EIN__c) {
         byName = await findRecipient('name', recipient.Name, trns);
     }
 
