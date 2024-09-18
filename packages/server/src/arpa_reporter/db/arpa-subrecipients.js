@@ -72,14 +72,16 @@ async function getRecipient(id, trns = knex) {
         .then((rows) => rows[0]);
 }
 
-async function findRecipient(uei = null, tin = null, trns = knex) {
+async function findRecipient(fieldType = null, value = null, trns = knex) {
     const tenantId = useTenantId();
     const query = baseQuery(trns).where('arpa_subrecipients.tenant_id', tenantId);
 
-    if (uei) {
-        query.where('arpa_subrecipients.uei', uei);
-    } else if (tin) {
-        query.where('arpa_subrecipients.tin', tin);
+    if (fieldType === 'uei') {
+        query.where('arpa_subrecipients.uei', value);
+    } else if (fieldType === 'tin') {
+        query.where('arpa_subrecipients.tin', value);
+    } else if (fieldType === 'name') {
+        query.where('arpa_subrecipients.name', value);
     } else {
         return null;
     }

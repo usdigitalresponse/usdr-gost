@@ -124,13 +124,17 @@ async function findRecipientInDatabase({ recipient, trns }) {
     // There are two types of identifiers, UEI and TIN.
     // A given recipient may have either or both of these identifiers.
     const byUei = recipient.Unique_Entity_Identifier__c
-        ? await findRecipient(recipient.Unique_Entity_Identifier__c, null, trns)
+        ? await findRecipient('uei', recipient.Unique_Entity_Identifier__c, trns)
         : null;
     const byTin = recipient.EIN__c
-        ? await findRecipient(null, recipient.EIN__c, trns)
+        ? await findRecipient('ein', recipient.EIN__c, trns)
         : null;
+    let byName = null;
+    if (recipient.Entity_Type_2__c.includes('IAA') && !recipient.Unique_Entity_Identifier__c && !recipient.EIN__c) {
+        byName = await findRecipient('name', recipient.Name, trns);
+    }
 
-    return byUei || byTin;
+    return byUei || byTin || byName;
 }
 
 /**
