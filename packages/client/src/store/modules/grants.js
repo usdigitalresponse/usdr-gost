@@ -251,6 +251,19 @@ export default {
         return null;
       }
     },
+    async getNotesForCurrentUser({ rootGetters, commit }, { grantId }) {
+      try {
+        console.log(rootGetters['users/loggedInUser'], commit);
+        const userId = rootGetters['users/loggedInUser']?.id;
+        const queryParams = serializeQuery({ limit: 1 });
+        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes/user/${userId}${queryParams}`);
+      } catch (e) {
+        const text = `Error retrieving grant notes for user: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
+        return null;
+      }
+    },
     async saveNoteForGrant({ rootGetters, commit }, { grantId, text }) {
       try {
         await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes/revision`, {

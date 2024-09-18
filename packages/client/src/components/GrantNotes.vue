@@ -23,6 +23,7 @@
           @keydown="handleKeyDown"
         />
         <b-button
+          ref="submitNoteBtn"
           variant="link"
           class="note-send-btn text-weak position-absolute px-2"
           :disabled="noteSendBtnDisabled"
@@ -49,7 +50,7 @@
 
     <!-- Users Note -->
     <GrantNote
-      v-if="!editingNote"
+      v-if="userNote && !editingNote"
       :note="note"
     >
       <template #actions>
@@ -92,9 +93,10 @@ export default {
   data() {
     return {
       notes: [],
+      userNote: null,
       noteText: '',
       submittingNote: false,
-      editingNote: true,
+      editingNote: false,
     };
   },
   computed: {
@@ -112,11 +114,13 @@ export default {
     },
   },
   async beforeMount() {
+    this.fetchUsersNote();
     this.fetchAllNotes();
   },
   methods: {
     ...mapActions({
       getNotesForGrant: 'grants/getNotesForGrant',
+      getNotesForCurrentUser: 'grants/getNotesForCurrentUser',
       saveNoteForGrant: 'grants/saveNoteForGrant',
     }),
     formatter(value) {
@@ -126,8 +130,8 @@ export default {
       this.editingNote = true;
     },
     handleKeyDown(e) {
-      if (e.key === 'Enter' && !this.noteSendBtnDisabled) {
-        this.submitNote();
+      if (e.key === 'Enter') {
+        this.$refs.submitNoteBtn.click();
       }
     },
     submitNote() {
@@ -143,8 +147,10 @@ export default {
           this.submittingNote = false;
         });
     },
-    async getUsersNote() {
-      const result = await this.getNotesForUser({ grantId: this.currentGrant.grant_id, limit: 1 });
+    async fetchUsersNote() {
+      const result = await this.getNotesForCurrentUser({ grantId: this.currentGrant.grant_id });
+
+      this.userNote = result && result.notes.length ? result.notes[0] : null;
     },
     async fetchAllNotes() {
       const result = await this.getNotesForGrant({ grantId: this.currentGrant.grant_id, limit: 51 });
