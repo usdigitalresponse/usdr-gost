@@ -489,25 +489,17 @@ router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
 router.get('/:grantId/followers', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { user } = req.session;
-    const {
-        offset, limit, orderBy, orderDir,
-    } = req.query;
+    const { paginateFrom, limit } = req.query;
     const limitInt = limit ? parseInt(limit, 10) : undefined;
-    const offsetInt = offset ? parseInt(offset, 10) : undefined;
 
-    const invalidLimit = limit && (!Number.isInteger(limitInt) || limitInt < 1 || limitInt > 100);
-    const invalidOffset = offset && (!Number.isInteger(offsetInt) || offset < 0);
-
-    if (invalidLimit || invalidOffset) {
+    if (limit && (!Number.isInteger(limitInt) || limitInt < 1 || limitInt > 100)) {
         res.sendStatus(400);
         return;
     }
 
     const followers = await getFollowersForGrant(knex, grantId, user.tenant_id, {
-        offset: offsetInt,
+        beforeFollow: paginateFrom,
         limit: limitInt,
-        orderBy,
-        orderDir,
     });
 
     res.json(followers);

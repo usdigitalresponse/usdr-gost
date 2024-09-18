@@ -109,7 +109,7 @@ export default {
   data() {
     return {
       followersLoaded: false,
-      followersOffset: 0,
+      followersNextCursor: null,
       loading: false,
       loadMoreVisible: false,
       followers: [],
@@ -164,14 +164,15 @@ export default {
       const query = {
         grantId: this.currentGrant.grant_id,
         limit: 20,
-        offset: this.followersOffset,
-        orderBy: 'users.name',
-        orderDir: 'asc',
       };
+
+      if (this.followersNextCursor !== null) {
+        query.paginateFrom = this.followersNextCursor;
+      }
       const result = await this.getFollowersForGrant(query);
 
       this.followers = this.followers.concat(result.followers);
-      this.followersOffset = result.pagination.next;
+      this.followersNextCursor = result.pagination.next;
       this.followersLoaded = true;
 
       // more to load?
@@ -198,5 +199,9 @@ export default {
 .follower-team,
 .follower-date {
   font-size: 0.75rem;
+}
+
+.follower-date:first-letter {
+  text-transform: capitalize;
 }
 </style>

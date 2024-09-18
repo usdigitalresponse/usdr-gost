@@ -149,12 +149,7 @@ export default {
     async fetchFollowState() {
       const followCalls = [
         this.getFollowerForGrant({ grantId: this.currentGrant.grant_id }),
-        this.getFollowersForGrant({
-          grantId: this.currentGrant.grant_id,
-          orderBy: 'created_at',
-          orderDir: 'desc',
-          limit: 51,
-        }),
+        this.getFollowersForGrant({ grantId: this.currentGrant.grant_id, limit: 51 }),
       ];
 
       const [userFollowsResult, followersResult] = await Promise.all(followCalls);

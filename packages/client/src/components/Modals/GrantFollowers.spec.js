@@ -18,7 +18,7 @@ const mockStore = {
 
 const store = createStore(mockStore);
 
-const getMockFollowers = (count, hasMore = true) => ({
+const getMockFollowers = (count, hasMoreCursor = null) => ({
   followers: Array.from(Array(count), () => ({
     id: Math.random(),
     user: {
@@ -31,7 +31,7 @@ const getMockFollowers = (count, hasMore = true) => ({
     },
   })),
   pagination: {
-    next: hasMore ? count : null,
+    next: hasMoreCursor,
   },
 });
 
@@ -64,23 +64,23 @@ describe('GrantFollowers.vue', () => {
 
   it('should load re-fetch followers when user clicks Show More', async () => {
     // Mock first batch of records
-    mockStore.actions['grants/getFollowersForGrant'].mockResolvedValue(getMockFollowers(20, true));
+    mockStore.actions['grants/getFollowersForGrant'].mockResolvedValue(getMockFollowers(20, 'id-x'));
 
     const modal = wrapper.findComponent({ name: 'b-modal' });
     modal.trigger('show');
 
     await flushPromises();
-    expect(mockStore.actions['grants/getFollowersForGrant'].mock.lastCall[1].offset).to.equal(0);
+    expect(mockStore.actions['grants/getFollowersForGrant'].mock.lastCall[1].paginateFrom).toBeUndefined();
 
     const showMoreBtn = wrapper.findComponent('[data-test-show-more-btn]');
 
     // Mock second batch of records
-    mockStore.actions['grants/getFollowersForGrant'].mockResolvedValue(getMockFollowers(20, false));
+    mockStore.actions['grants/getFollowersForGrant'].mockResolvedValue(getMockFollowers(20));
 
     showMoreBtn.trigger('click');
 
     await flushPromises();
-    expect(mockStore.actions['grants/getFollowersForGrant'].mock.lastCall[1].offset).to.equal(20);
+    expect(mockStore.actions['grants/getFollowersForGrant'].mock.lastCall[1].paginateFrom).to.equal('id-x');
 
     const followers = wrapper.findAll('[data-test-follower]');
 

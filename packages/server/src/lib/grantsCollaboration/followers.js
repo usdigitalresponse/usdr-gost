@@ -45,7 +45,7 @@ async function getFollowerForGrant(knex, grantId, userId) {
 }
 
 async function getFollowersForGrant(knex, grantId, organizationId, {
-    offset = 0, limit = 50, orderBy = 'created_at', orderDir = 'desc',
+    beforeFollow, limit = 50,
 } = {}) {
     const query = knex('grant_followers')
         .select(
@@ -65,18 +65,23 @@ async function getFollowersForGrant(knex, grantId, organizationId, {
         .join('tenants', 'tenants.id', 'users.tenant_id')
         .where('grant_followers.grant_id', grantId)
         .andWhere('tenants.id', organizationId)
-        .orderBy(orderBy, orderDir)
-        .offset(offset)
+        .orderBy('created_at', 'desc')
         .limit(limit + 1);
 
+    if (beforeFollow) {
+        query.andWhere('grant_followers.id', '<', beforeFollow);
+    }
+
     const grantFollowersResult = await query;
+    const hasMore = grantFollowersResult.length > limit;
+
     // remove forward looking extra
-    const grantFollowers = grantFollowersResult.length > limit
+    const grantFollowersReturn = hasMore
         ? grantFollowersResult.slice(0, -1)
         : grantFollowersResult;
 
     return {
-        followers: grantFollowers
+        followers: grantFollowersReturn
             .map((grantFollower) => ({
                 id: grantFollower.id,
                 createdAt: grantFollower.created_at,
@@ -98,7 +103,7 @@ async function getFollowersForGrant(knex, grantId, organizationId, {
                 },
             })),
         pagination: {
-            next: grantFollowersResult.length > limit ? offset + limit : null,
+            next: hasMore ? grantFollowersReturn[grantFollowersReturn.length - 1].id : null,
         },
     };
 }

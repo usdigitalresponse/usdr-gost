@@ -236,12 +236,8 @@ export default {
         return null;
       }
     },
-    async getFollowersForGrant({ rootGetters, commit }, {
-      grantId, offset, limit, orderBy, orderDir,
-    }) {
-      const queryParams = serializeQuery({
-        offset, limit, orderBy, orderDir,
-      });
+    async getFollowersForGrant({ rootGetters, commit }, { grantId, limit, paginateFrom }) {
+      const queryParams = serializeQuery({ limit, paginateFrom });
       try {
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/followers${queryParams}`);
       } catch (e) {
