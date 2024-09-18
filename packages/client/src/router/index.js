@@ -67,7 +67,7 @@ export const routes = [
       {
         path: '/grants',
         name: 'grants',
-        component: () => import('../views/GrantsView.vue'),
+        component: () => import('@/views/GrantsView.vue'),
         meta: {
           requiresAuth: true,
         },
@@ -87,26 +87,9 @@ export const routes = [
         redirect: { name: 'myGrants', params: { tab: myGrantsTabs[0] } },
       },
       {
-        path: '/my-grants/assigned',
-        name: 'assigned',
-        redirect: { name: shareTerminologyEnabled ? 'shared-with-your-team' : undefined },
-        meta: {
-          requiresAuth: true,
-        },
-      },
-      {
-        path: '/my-grants/shared-with-your-team',
-        name: 'shared-with-your-team',
-        component: () => import('@/views/MyGrantsView.vue'),
-        meta: {
-          requiresAuth: true,
-          requiresShareTerminologyEnabled: true,
-        },
-      },
-      {
         path: '/my-grants/:tab',
         name: 'myGrants',
-        component: () => import('../views/MyGrantsView.vue'),
+        component: () => import('@/views/MyGrantsView.vue'),
         meta: {
           tabNames: myGrantsTabs,
           requiresAuth: true,
@@ -166,7 +149,7 @@ export const routes = [
       {
         path: '/my-profile',
         name: 'myProfile',
-        component: () => import('../views/MyProfileView.vue'),
+        component: () => import('@/views/MyProfileView.vue'),
         meta: {
           requiresAuth: true,
           hideLayoutTabs: true,
@@ -176,7 +159,7 @@ export const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    component: () => import('../views/NotFoundView.vue'),
+    component: () => import('@/views/NotFoundView.vue'),
     name: 'notFound',
     meta: {
       requiresAuth: true,

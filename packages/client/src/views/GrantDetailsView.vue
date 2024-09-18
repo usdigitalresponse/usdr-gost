@@ -123,13 +123,15 @@
 
           <!-- Right page column: secondary assign grant section -->
           <div class="grant-details-secondary-actions">
-            <div class="mb-3">
-              <ShareGrant v-if="!followNotesEnabled" />
-              <GrantActivity v-if="followNotesEnabled" />
-            </div>
-
+            <GrantActivity
+              v-if="followNotesEnabled"
+              class="mb-3"
+            />
             <!-- Team status section -->
-            <b-card>
+            <b-card
+              v-if="!followNotesEnabled"
+              class="mb-3"
+            >
               <div class="mb-5">
                 <h3 class="mb-3">
                   {{ newTerminologyEnabled ? 'Team': 'Agency' }} Status
@@ -193,6 +195,7 @@
                 </div>
               </div>
             </b-card>
+            <ShareGrant class="mb-3" />
           </div>
         </div>
       </b-container>
@@ -378,7 +381,6 @@ export default {
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
       unmarkGrantAsInterestedAction: 'grants/unmarkGrantAsInterested',
-      getInterestedAgencies: 'grants/getInterestedAgencies',
       fetchAgencies: 'agencies/fetchAgencies',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
@@ -421,7 +423,6 @@ export default {
         agencyIds: [agency.agency_id],
         interestedCode: agency.interested_code_id,
       });
-      this.currentGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.currentGrant.grant_id });
       const eventName = 'remove team status for grant';
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
@@ -508,7 +509,6 @@ export default {
 
   .grant-details-secondary-actions {
     grid-area: secondary-actions;
-    margin-top: 1.5rem;
     margin-bottom: 1.5rem;
     margin-left: 1rem;
     margin-right: 1rem;
