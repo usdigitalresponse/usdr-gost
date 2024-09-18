@@ -182,36 +182,75 @@ describe('validate record', () => {
 });
 
 describe('findRecipientInDatabase', () => {
-    const findRecipientInDatabase = validateUploadModule.__get__('findRecipientInDatabase');
-    const recipient = {
-        Unique_Entity_Identifier__c: 'UEI123',
-        EIN__c: 'EIN123',
-    };
-    const trns = {}; // mock transaction object
+    describe('non-IAA recipient', () => {
+        const findRecipientInDatabase = validateUploadModule.__get__('findRecipientInDatabase');
+        const beneficiaryRecipient = {
+            Name: 'Beneficiary Recipient',
+            Entity_Type_2__c: 'Beneficiary',
+            Unique_Entity_Identifier__c: 'UEI123',
+            EIN__c: 'EIN123',
+        };
+        const trns = {}; // mock transaction object
 
-    afterEach(() => {
-        sinon.restore();
+        afterEach(() => {
+            sinon.restore();
+        });
+
+        it('should return the recipient found by UEI', async () => {
+            const mockFindRecipient = sinon.stub().withArgs('UEI123', null, trns).resolves({ name: 'John' });
+            validateUploadModule.__set__('findRecipient', mockFindRecipient);
+            const result = await findRecipientInDatabase({ beneficiaryRecipient, trns }, mockFindRecipient);
+            expect(result).to.deep.equal({ name: 'John' });
+        });
+
+        it('should return the recipient found by EIN', async () => {
+            const mockFindRecipient = sinon.stub().withArgs(null, 'EIN123', trns).resolves({ name: 'Jane' });
+            validateUploadModule.__set__('findRecipient', mockFindRecipient);
+            const result = await findRecipientInDatabase({ beneficiaryRecipient, trns }, mockFindRecipient);
+            expect(result).to.deep.equal({ name: 'Jane' });
+        });
+
+        it('should return null if recipient is not found', async () => {
+            const mockFindRecipient = sinon.stub().resolves(null);
+            validateUploadModule.__set__('findRecipient', mockFindRecipient);
+            const result = await findRecipientInDatabase({ beneficiaryRecipient, trns }, mockFindRecipient);
+            expect(result).to.be.null;
+        });
     });
+    describe('IAA recipients', () => {
+        const findRecipientInDatabase = validateUploadModule.__get__('findRecipientInDatabase');
+        const beneficiaryRecipient = {
+            Name: 'IAA Recipient',
+            Entity_Type_2__c: 'IAA',
+            Unique_Entity_Identifier__c: 'UEI123',
+            EIN__c: 'EIN123',
+        };
+        const trns = {}; // mock transaction object
 
-    it('should return the recipient found by UEI', async () => {
-        const mockFindRecipient = sinon.stub().withArgs('UEI123', null, trns).resolves({ name: 'John' });
-        validateUploadModule.__set__('findRecipient', mockFindRecipient);
-        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
-        expect(result).to.deep.equal({ name: 'John' });
-    });
+        afterEach(() => {
+            sinon.restore();
+        });
 
-    it('should return the recipient found by EIN', async () => {
-        const mockFindRecipient = sinon.stub().withArgs(null, 'EIN123', trns).resolves({ name: 'Jane' });
-        validateUploadModule.__set__('findRecipient', mockFindRecipient);
-        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
-        expect(result).to.deep.equal({ name: 'Jane' });
-    });
+        it('should return the recipient found by UEI', async () => {
+            const mockFindRecipient = sinon.stub().withArgs('uei', 'UEI123', trns).resolves({ name: 'John' });
+            validateUploadModule.__set__('findRecipient', mockFindRecipient);
+            const result = await findRecipientInDatabase({ beneficiaryRecipient, trns }, mockFindRecipient);
+            expect(result).to.deep.equal({ name: 'John' });
+        });
 
-    it('should return null if recipient is not found', async () => {
-        const mockFindRecipient = sinon.stub().resolves(null);
-        validateUploadModule.__set__('findRecipient', mockFindRecipient);
-        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
-        expect(result).to.be.null;
+        it('should return the recipient found by EIN', async () => {
+            const mockFindRecipient = sinon.stub().withArgs('tin', 'EIN123', trns).resolves({ name: 'Jane' });
+            validateUploadModule.__set__('findRecipient', mockFindRecipient);
+            const result = await findRecipientInDatabase({ beneficiaryRecipient, trns }, mockFindRecipient);
+            expect(result).to.deep.equal({ name: 'Jane' });
+        });
+
+        it('should return the recipient found by Name', async () => {
+            const mockFindRecipient = sinon.stub().withArgs('name', 'IAA Recipient', trns).resolves({ name: 'IAA Recipient' });
+            validateUploadModule.__set__('findRecipient', mockFindRecipient);
+            const result = await findRecipientInDatabase({ beneficiaryRecipient, trns }, mockFindRecipient);
+            expect(result).to.deep.equal({ name: 'IAA Recipient' });
+        });
     });
 });
 
