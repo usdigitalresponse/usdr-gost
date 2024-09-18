@@ -13,10 +13,8 @@ const { withTenantId } = require('../helpers/with-tenant-id');
 const knex = require('../../../../src/db/connection');
 
 const TENANT_A = 0;
-const TENANT_B = 1;
-const NONEXISTENT_TENANT = 100;
 
-describe('db/reporting-periods.js', () => {
+describe('db/arpa-subrecipients.js', () => {
     const recipients = {
         beneficiaryWithTIN: {
             tenant_id: TENANT_A,
@@ -36,7 +34,7 @@ describe('db/reporting-periods.js', () => {
             tin: null,
             uei: 'UEI-1',
         },
-    }
+    };
     before(async () => {
         await knex.raw('TRUNCATE TABLE arpa_subrecipients CASCADE');
         await knex('arpa_subrecipients').insert(Object.values(recipients));
