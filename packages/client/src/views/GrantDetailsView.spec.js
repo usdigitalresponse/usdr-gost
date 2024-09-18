@@ -1,10 +1,9 @@
-import GrantDetailsView from '@/views/GrantDetailsView.vue';
-
 import {
   describe, it, expect, vi,
 } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import { createStore } from 'vuex';
+import GrantDetailsView from '@/views/GrantDetailsView.vue';
 
 describe('GrantDetailsView', () => {
   const store = createStore({
@@ -23,7 +22,6 @@ describe('GrantDetailsView', () => {
       'grants/markGrantAsViewed': vi.fn(),
       'grants/markGrantAsInterested': vi.fn(),
       'grants/unmarkGrantAsInterested': vi.fn(),
-      'grants/getInterestedAgencies': vi.fn(),
       'grants/getGrantAssignedAgencies': vi.fn(),
       'grants/assignAgenciesToGrant': vi.fn(),
       'grants/unassignAgenciesToGrant': vi.fn(),
