@@ -123,13 +123,15 @@
 
           <!-- Right page column: secondary assign grant section -->
           <div class="grant-details-secondary-actions">
-            <div class="mb-3">
-              <ShareGrant v-if="!followNotesEnabled" />
-              <GrantActivity v-if="followNotesEnabled" />
-            </div>
-
+            <GrantActivity
+              v-if="followNotesEnabled"
+              class="mb-3"
+            />
             <!-- Team status section -->
-            <b-card>
+            <b-card
+              v-if="!followNotesEnabled"
+              class="mb-3"
+            >
               <div class="mb-5">
                 <h3 class="mb-3">
                   {{ newTerminologyEnabled ? 'Team': 'Agency' }} Status
@@ -193,6 +195,7 @@
                 </div>
               </div>
             </b-card>
+            <ShareGrant class="mb-3" />
           </div>
         </div>
       </b-container>
@@ -506,7 +509,6 @@ export default {
 
   .grant-details-secondary-actions {
     grid-area: secondary-actions;
-    margin-top: 1.5rem;
     margin-bottom: 1.5rem;
     margin-left: 1rem;
     margin-right: 1rem;
