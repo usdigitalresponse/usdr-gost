@@ -5,6 +5,10 @@
 exports.up = function (knex) {
     return knex.schema.table('arpa_subrecipients', (table) => {
         table.text('name');
+        table.unique(['tenant_id', 'name'], {
+            indexName: 'idx_arpa_subrecipients_tenant_id_name_unique',
+            predicate: knex.whereRaw('name is not null and uei is null and tin is null'),
+        });
     });
 };
 
@@ -14,6 +18,7 @@ exports.up = function (knex) {
  */
 exports.down = function (knex) {
     return knex.schema.table('arpa_subrecipients', (table) => {
-        table.text('name');
+        table.dropUnique([], 'idx_arpa_subrecipients_tenant_id_name_unique');
+        table.dropColumn('name');
     });
 };

@@ -11,6 +11,7 @@ const knex = require('../../../../src/db/connection');
 const { withTenantId } = require('../helpers/with-tenant-id');
 
 const TENANT_A = 0;
+const TENANT_B = 1;
 
 describe('db/arpa-subrecipients.js', () => {
     const recipients = {
@@ -140,6 +141,100 @@ describe('db/arpa-subrecipients.js', () => {
                     return true;
                 },
             );
+        });
+    });
+    describe('testing database indexes and constraints', () => {
+        const insertStatement = 'INSERT INTO arpa_subrecipients (tenant_id, name, tin, uei) VALUES ';
+        it('throws an error when inserting a duplicate UEI within the same tenant', async () => {
+            const recipient = {
+                tenant_id: TENANT_A,
+                name: 'Another Contractor with UEI',
+                tin: null,
+                uei: 'UEI-1',
+            };
+            const values = `(${recipient.tenant_id}, '${recipient.name}', ${recipient.tin}, '${recipient.uei}')`;
+            await assert.rejects(
+                async () => {
+                    await withTenantId(TENANT_A, () => knex.raw(insertStatement + values));
+                },
+                (err) => {
+                    assert.strictEqual(err.name, 'error');
+                    assert.strictEqual(err.message, `INSERT INTO arpa_subrecipients (tenant_id, name, tin, uei) VALUES (0, 'Another Contractor with UEI', null, 'UEI-1') - duplicate key value violates unique constraint "idx_arpa_subrecipients_tenant_id_uei_unique"`);
+                    return true;
+                },
+            );
+        });
+        it('successfully creates a new subrecipient with same UEI in a different tenant', async () => {
+            const recipient = {
+                tenant_id: TENANT_B,
+                name: 'Another Contractor with UEI',
+                tin: null,
+                uei: 'UEI-1',
+            };
+            const values = `(${recipient.tenant_id}, '${recipient.name}', ${recipient.tin}, '${recipient.uei}')`;
+            await withTenantId(TENANT_B, () => knex.raw(insertStatement + values));
+            const result = await withTenantId(TENANT_B, () => findRecipient('uei', 'UEI-1'));
+            assert.strictEqual(result.name, 'Another Contractor with UEI');
+        });
+        it('throws an error when inserting a duplicate TIN within the same tenant', async () => {
+            const recipient = {
+                tenant_id: TENANT_A,
+                name: 'Another Beneficiary with TIN',
+                tin: 'TIN-1',
+                uei: null,
+            };
+            const values = `(${recipient.tenant_id}, '${recipient.name}', '${recipient.tin}', ${recipient.uei})`;
+            await assert.rejects(
+                async () => {
+                    await withTenantId(TENANT_A, () => knex.raw(insertStatement + values));
+                },
+                (err) => {
+                    assert.strictEqual(err.name, 'error');
+                    assert.strictEqual(err.message, `INSERT INTO arpa_subrecipients (tenant_id, name, tin, uei) VALUES (0, 'Another Beneficiary with TIN', 'TIN-1', null) - duplicate key value violates unique constraint "idx_arpa_subrecipients_tenant_id_tin_unique"`);
+                    return true;
+                },
+            );
+        });
+        it('successfully creates a new subrecipient with same TIN in a different tenant', async () => {
+            const recipient = {
+                tenant_id: TENANT_B,
+                name: 'Another Beneficiary with TIN',
+                tin: 'TIN-1',
+                uei: null,
+            };
+            const values = `(${recipient.tenant_id}, '${recipient.name}', '${recipient.tin}', ${recipient.uei})`;
+            await withTenantId(TENANT_B, () => knex.raw(insertStatement + values));
+            const result = await withTenantId(TENANT_B, () => findRecipient('tin', 'TIN-1'));
+            assert.strictEqual(result.name, 'Another Beneficiary with TIN');
+        });
+        it('throws an error when inserting a duplicate name within the same tenant when UEI/TIN are null', async () => {
+            const recipient = {
+                tenant_id: TENANT_A,
+                name: 'IAA',
+                tin: null,
+                uei: null,
+            };
+            const values = `(${recipient.tenant_id}, '${recipient.name}', ${recipient.tin}, ${recipient.uei})`;
+            await assert.rejects(
+                () => knex.raw(insertStatement + values),
+                (err) => {
+                    assert.strictEqual(err.name, 'error');
+                    assert.strictEqual(err.message, `INSERT INTO arpa_subrecipients (tenant_id, name, tin, uei) VALUES (0, 'IAA', null, null) - duplicate key value violates unique constraint "idx_arpa_subrecipients_tenant_id_name_unique"`);
+                    return true;
+                },
+            );
+        });
+        it('successfuly creates a new subrecipient with duplicate name in same tenant when UEI/TIN are not null', async () => {
+            const recipient = {
+                tenant_id: TENANT_A,
+                name: 'IAA',
+                tin: 'TIN-2',
+                uei: null,
+            };
+            const values = `(${recipient.tenant_id}, '${recipient.name}', '${recipient.tin}', ${recipient.uei})`;
+            await withTenantId(TENANT_A, () => knex.raw(insertStatement + values));
+            const result = await knex('arpa_subrecipients').where('tenant_id', TENANT_A).where('name', 'IAA').all();
+            assert.strictEqual(result.length, 2);
         });
     });
 });
