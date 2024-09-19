@@ -1,78 +1,94 @@
 <template>
-  <b-card
-    header-bg-variant="white"
-    footer-bg-variant="white"
-  >
-    <template #header>
-      <h3 class="my-2">
-        Grant Activity
-      </h3>
-    </template>
-    <div>
-      <div class="feature-text">
-        Stay up to date with this grant.
-        <b-icon
-          v-b-tooltip
-          class="ml-2"
-          title="Follow this grant to receive an email notification when others follow or leave a note."
-          icon="info-circle-fill"
-        />
-      </div>
-      <b-button
-        block
-        size="lg"
-        :variant="followBtnVariant"
-        class="mb-4"
-        data-follow-btn
-        :disabled="!followStateLoaded"
-        @click="toggleFollowState"
-      >
-        <span class="h4">
-          <b-icon
-            icon="check-circle-fill"
-            class="mr-2"
-          />
-        </span>
-        <span class="h5">
-          {{ followBtnLabel }}
-        </span>
-      </b-button>
+  <div>
+    <b-card
+      header-bg-variant="white"
+      footer-bg-variant="white"
+    >
+      <template #header>
+        <h3 class="my-2">
+          Grant Activity
+        </h3>
+      </template>
       <div>
-        <span
-          v-if="grantHasFollowers"
-          :class="followSummaryClass"
-          data-follow-summary
-        >{{ followSummaryText }}</span>
-        <span
-          v-if="grantHasFollowers && showNotesSummary"
-          class="mx-1"
-        >&bull;</span>
-        <span v-if="showNotesSummary">{{ notesSummaryText }}</span>
-      </div>
-    </div>
+        <div class="feature-text">
+          Stay up to date with this grant.
+          <b-icon
+            v-b-tooltip
+            class="ml-2"
+            title="Follow this grant to receive an email notification when others follow or leave a note."
+            icon="info-circle-fill"
+          />
+        </div>
+        <b-button
+          block
+          size="lg"
+          :variant="followBtnVariant"
+          class="mb-4"
+          data-follow-btn
+          :disabled="!followStateLoaded"
+          @click="toggleFollowState"
+        >
+          <span class="h4">
+            <b-icon
+              icon="check-circle-fill"
+              class="mr-2"
+            />
+          </span>
+          <span class="h5">
+            {{ followBtnLabel }}
+          </span>
+        </b-button>
+        <div>
+          <b-link
+            v-if="grantHasFollowers"
+            :class="followSummaryClass"
+            data-follow-summary
+            @click="$bvModal.show('grant-followers-modal')"
+          >
+            {{ followSummaryText }}
+          </b-link>
 
-    <template #footer>
-      <!-- Feed -->
-    </template>
-  </b-card>
+          <span
+            v-if="grantHasFollowers && showNotesSummary"
+            class="mx-1"
+          >&bull;</span>
+          <span v-if="showNotesSummary">{{ notesSummaryText }}</span>
+        </div>
+      </div>
+
+      <template #footer>
+        <!-- Feed -->
+      </template>
+    </b-card>
+
+    <!-- Modals -->
+    <GrantFollowersModal
+      :key="grantFollowersModalKey"
+      modal-id="grant-followers-modal"
+      @close="handleModalClose"
+    />
+  </div>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import GrantFollowersModal from '@/components/Modals/GrantFollowers.vue';
 
 export default {
-  components: {},
+  components: {
+    GrantFollowersModal,
+  },
   data() {
     return {
       userIsFollowing: false,
       followStateLoaded: false,
       followers: [],
       notes: [],
+      grantFollowersModalKey: 0,
     };
   },
   computed: {
     ...mapGetters({
-      loggedInUser: 'users/loggedInUser',
       currentGrant: 'grants/currentGrant',
     }),
     followBtnLabel() {
@@ -157,6 +173,10 @@ export default {
         await this.followGrantForCurrentUser({ grantId: this.currentGrant.grant_id });
       }
       await this.fetchFollowState();
+    },
+    handleModalClose() {
+      // Reset modal
+      this.grantFollowersModalKey += 1;
     },
   },
 };

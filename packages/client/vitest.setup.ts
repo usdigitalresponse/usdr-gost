@@ -42,7 +42,14 @@ const stubs = [
   'b-card-img',
   'b-card-text',
   'b-tabs',
+  'b-tooltip',
+  'router-link',
 ];
+
+const directives = {
+  'b-tooltip': true,
+};
 
 config.global.renderStubDefaultSlot = true;
 config.global.stubs = stubs;
+config.global.directives = directives;

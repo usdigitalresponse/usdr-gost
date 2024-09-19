@@ -6,6 +6,7 @@
   >
     <slot />
     <b-icon
+      v-if="!hideIcon"
       :icon="copySuccessTimeout === null ? 'files' : 'check2'"
       :variant="copySuccessTimeout === null ? '' : 'success'"
     />
@@ -32,6 +33,10 @@ export default {
       type: String,
       required: true,
     },
+    hideIcon: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -46,7 +51,9 @@ export default {
       // (Clear previous timeout to ensure multiple clicks in quick succession don't cause issues)
       clearTimeout(this.copySuccessTimeout);
       this.copySuccessTimeout = setTimeout(
-        () => { this.copySuccessTimeout = null; },
+        () => {
+          this.copySuccessTimeout = null;
+        },
         1000,
       );
     },
