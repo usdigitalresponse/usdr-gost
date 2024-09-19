@@ -561,11 +561,12 @@ describe('updateOrCreateRecipient', () => {
     it('should call createRecipient when existingRecipient is falsy', async () => {
         const trns = {};
         const upload = { id: 1 };
-        const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
+        const newRecipient = { Name: 'Test 1', Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
 
         await updateOrCreateRecipient(null, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
 
         sinon.assert.calledWith(createRecipientStub, {
+            name: 'Test 1',
             uei: 'UEI1',
             tin: 'EIN1',
             record: newRecipient,

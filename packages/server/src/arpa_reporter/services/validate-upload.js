@@ -234,6 +234,7 @@ async function updateOrCreateRecipient(existingRecipient, newRecipient, trns, up
         }
     } else {
         await createRecipient({
+            name: newRecipient.Name,
             uei: newRecipient.Unique_Entity_Identifier__c,
             tin: newRecipient.EIN__c,
             record: newRecipient,
