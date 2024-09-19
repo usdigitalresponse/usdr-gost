@@ -37,18 +37,6 @@ async function archiveOrRestoreRecipient(id, { updatedByUser }, trns = knex) {
     return query.then((rows) => rows[0]);
 }
 
-async function createRecipient(recipient, trns = knex) {
-    const tenantId = useTenantId();
-    if (!(recipient.uei || recipient.tin)) {
-        throw new Error('recipient row must include a `uei` or a `tin` field');
-    }
-
-    return trns('arpa_subrecipients')
-        .insert({ ...recipient, tenant_id: tenantId })
-        .returning('*')
-        .then((rows) => rows[0]);
-}
-
 async function updateRecipient(id, { updatedByUser, record }, trns = knex) {
     const query = trns('arpa_subrecipients')
         .where('id', id)
@@ -87,6 +75,30 @@ async function findRecipient(fieldType = null, value = null, trns = knex) {
     }
 
     return query.then((rows) => rows[0]);
+}
+
+async function createRecipient(recipient, trns = knex) {
+    const tenantId = useTenantId();
+    if (!(recipient.uei || recipient.tin)) {
+        throw new Error('recipient row must include a `uei` or a `tin` field');
+    }
+
+    if (recipient.uei) {
+        const existingRecipient = await findRecipient('uei', recipient.uei, trns);
+        if (existingRecipient) {
+            throw new Error('A recipient with this UEI already exists');
+        }
+    } else if (recipient.tin) {
+        const existingRecipient = await findRecipient('tin', recipient.tin, trns);
+        if (existingRecipient) {
+            throw new Error('A recipient with this TIN already exists');
+        }
+    }
+
+    return trns('arpa_subrecipients')
+        .insert({ ...recipient, tenant_id: tenantId })
+        .returning('*')
+        .then((rows) => rows[0]);
 }
 
 async function listRecipients(trns = knex) {

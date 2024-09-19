@@ -5,7 +5,7 @@
   A arpa_subrecipients record in postgres looks like this:
 
 */
-const { findRecipient } = requireSrc(__filename);
+const { findRecipient, createRecipient } = requireSrc(__filename);
 const assert = require('assert');
 const knex = require('../../../../src/db/connection');
 const { withTenantId } = require('../helpers/with-tenant-id');
@@ -49,6 +49,47 @@ describe('db/arpa-subrecipients.js', () => {
         it('Returns a recipient with Name', async () => {
             const result = await withTenantId(TENANT_A, findRecipient, 'name', 'IAA');
             assert.equal(result.name, 'IAA');
+        });
+    });
+
+    describe('createRecipient', () => {
+        it('Throws error when creating two contractors with the same UEI', async () => {
+            const recipient = {
+                tenant_id: TENANT_A,
+                name: 'Another Contractor with UEI',
+                tin: null,
+                uei: 'UEI-1',
+            };
+
+            await assert.rejects(
+                async () => {
+                    await withTenantId(TENANT_A, createRecipient, recipient);
+                },
+                (err) => {
+                    assert.strictEqual(err.name, 'Error');
+                    assert.strictEqual(err.message, 'A recipient with this UEI already exists');
+                    return true;
+                },
+            );
+        });
+        it('Throws error creating two beneficiaries with the same TIN', async () => {
+            const recipient = {
+                tenant_id: TENANT_A,
+                name: 'Another Beneficiary with TIN',
+                tin: 'TIN-1',
+                uei: null,
+            };
+
+            await assert.rejects(
+                async () => {
+                    await withTenantId(TENANT_A, createRecipient, recipient);
+                },
+                (err) => {
+                    assert.strictEqual(err.name, 'Error');
+                    assert.strictEqual(err.message, 'A recipient with this TIN already exists');
+                    return true;
+                },
+            );
         });
     });
 });
