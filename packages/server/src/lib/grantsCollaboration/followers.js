@@ -44,7 +44,9 @@ async function getFollowerForGrant(knex, grantId, userId) {
     };
 }
 
-async function getFollowersForGrant(knex, grantId, organizationId, { beforeFollow, limit = 50 } = {}) {
+async function getFollowersForGrant(knex, grantId, organizationId, {
+    beforeFollow, limit = 50,
+} = {}) {
     const query = knex('grant_followers')
         .select(
             'grant_followers.id',
@@ -64,37 +66,44 @@ async function getFollowersForGrant(knex, grantId, organizationId, { beforeFollo
         .where('grant_followers.grant_id', grantId)
         .andWhere('tenants.id', organizationId)
         .orderBy('created_at', 'desc')
-        .limit(limit);
+        .limit(limit + 1);
 
     if (beforeFollow) {
         query.andWhere('grant_followers.id', '<', beforeFollow);
     }
 
-    const grantFollowers = await query;
+    const grantFollowersResult = await query;
+    const hasMore = grantFollowersResult.length > limit;
+
+    // remove forward looking extra
+    const grantFollowersReturn = hasMore
+        ? grantFollowersResult.slice(0, -1)
+        : grantFollowersResult;
 
     return {
-        followers: grantFollowers.map((grantFollower) => ({
-            id: grantFollower.id,
-            createdAt: grantFollower.created_at,
-            grant: {
-                id: grantFollower.grant_id,
-            },
-            user: {
-                id: grantFollower.user_id,
-                name: grantFollower.user_name,
-                email: grantFollower.user_email,
-                team: {
-                    id: grantFollower.team_id,
-                    name: grantFollower.team_name,
+        followers: grantFollowersReturn
+            .map((grantFollower) => ({
+                id: grantFollower.id,
+                createdAt: grantFollower.created_at,
+                grant: {
+                    id: grantFollower.grant_id,
                 },
-                organization: {
-                    id: grantFollower.organization_id,
-                    name: grantFollower.organizationName,
+                user: {
+                    id: grantFollower.user_id,
+                    name: grantFollower.user_name,
+                    email: grantFollower.user_email,
+                    team: {
+                        id: grantFollower.team_id,
+                        name: grantFollower.team_name,
+                    },
+                    organization: {
+                        id: grantFollower.organization_id,
+                        name: grantFollower.organizationName,
+                    },
                 },
-            },
-        })),
+            })),
         pagination: {
-            from: grantFollowers.length > 0 ? grantFollowers[grantFollowers.length - 1].id : beforeFollow,
+            next: hasMore ? grantFollowersReturn[grantFollowersReturn.length - 1].id : null,
         },
     };
 }

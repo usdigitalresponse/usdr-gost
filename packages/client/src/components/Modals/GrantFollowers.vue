@@ -1,0 +1,207 @@
+<template>
+  <b-modal
+    :id="modalId"
+    title="Grant Followers"
+    footer-class="justify-content-start"
+    title-class="h3"
+    centered
+    scrollable
+    @show="handleModalOpen"
+    @hidden="$emit('close')"
+  >
+    <div v-if="loading">
+      Loading...
+    </div>
+
+    <ul class="list-unstyled">
+      <li
+        v-for="follower in formattedFollowers"
+        :key="follower.id"
+        data-test-follower
+        class="mb-3"
+      >
+        <div class="d-flex">
+          <UserAvatar
+            :user-name="follower.name"
+            size="2.5rem"
+            class="mr-2"
+          />
+          <div class="d-flex flex-grow-1">
+            <div class="follower-details flex-grow-1">
+              <div class="d-flex align-items-center">
+                <span class="font-weight-bold">{{ follower.name }}</span>
+                <span class="mx-1">&bull;</span>
+                <span class="follower-team text-muted">{{ follower.team }}</span>
+              </div>
+              <div class="follower-email text-muted">
+                {{ follower.email }}
+              </div>
+              <div class="follower-date text-muted">
+                {{ follower.dateFollowedText }}
+              </div>
+            </div>
+            <CopyButton
+              :copy-text="follower.email"
+              hide-icon
+              class="ms-auto"
+            >
+              <b-button
+                variant="outline-primary"
+                size="sm"
+              >
+                Copy Email
+              </b-button>
+            </CopyButton>
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    <div
+      v-if="loadMoreVisible"
+      class="d-flex justify-content-center"
+    >
+      <b-button
+        size="sm"
+        variant="link"
+        data-test-show-more-btn
+        @click="getNextFollowers"
+      >
+        Load More
+      </b-button>
+    </div>
+
+    <template #modal-footer>
+      <CopyButton
+        :copy-text="followersEmailText"
+        hide-icon
+      >
+        <b-button
+          variant="outline-primary"
+          size="sm"
+        >
+          Copy All Emails
+        </b-button>
+      </CopyButton>
+    </template>
+  </b-modal>
+</template>
+
+<script>
+import { DateTime } from 'luxon';
+import { mapActions, mapGetters } from 'vuex';
+
+import UserAvatar from '@/components/UserAvatar.vue';
+import CopyButton from '@/components/CopyButton.vue';
+
+export default {
+  components: {
+    UserAvatar,
+    CopyButton,
+  },
+  props: {
+    modalId: {
+      type: String,
+      default: undefined,
+    },
+  },
+  emits: ['close'],
+  data() {
+    return {
+      followersLoaded: false,
+      followersNextCursor: null,
+      loading: false,
+      loadMoreVisible: false,
+      followers: [],
+    };
+  },
+  computed: {
+    ...mapGetters({
+      currentGrant: 'grants/currentGrant',
+    }),
+    formattedFollowers() {
+      return this.followers
+        .map((follower) => {
+          const { user, id, createdAt } = follower;
+
+          const createdDate = DateTime.fromISO(createdAt);
+          const today = DateTime.now().endOf('day');
+
+          let dateFollowedText = '';
+          if (createdDate.hasSame(today, 'day')) {
+            dateFollowedText = createdDate.toRelativeCalendar({ base: today, unit: 'days' });
+          } else if (createdDate > today.minus({ days: 7 })) {
+            dateFollowedText = createdDate.toRelative({ base: today, unit: 'days' });
+          } else {
+            dateFollowedText = createdDate.toFormat('MMMM d');
+          }
+
+          return {
+            id,
+            name: user.name,
+            email: user.email,
+            team: user.team.name,
+            dateFollowedText,
+          };
+        });
+    },
+    followersEmailText() {
+      return this.followers
+        .map((follower) => follower.user.email)
+        .join(', ');
+    },
+  },
+  methods: {
+    ...mapActions({
+      getFollowersForGrant: 'grants/getFollowersForGrant',
+    }),
+    handleModalOpen() {
+      if (!this.followersLoaded) {
+        this.getNextFollowers();
+      }
+    },
+    async getNextFollowers() {
+      const query = {
+        grantId: this.currentGrant.grant_id,
+        limit: 20,
+      };
+
+      if (this.followersNextCursor !== null) {
+        query.paginateFrom = this.followersNextCursor;
+      }
+      const result = await this.getFollowersForGrant(query);
+
+      this.followers = this.followers.concat(result.followers);
+      this.followersNextCursor = result.pagination.next;
+      this.followersLoaded = true;
+
+      // more to load?
+      this.loadMoreVisible = result.pagination.next !== null;
+    },
+  },
+};
+</script>
+
+<style scoped>
+.follower-details {
+  margin-top: .2rem;
+}
+
+.follower-email {
+  font-size: 0.8125rem;
+}
+
+.follower-team,
+.follower-email {
+  font-weight: 400;
+}
+
+.follower-team,
+.follower-date {
+  font-size: 0.75rem;
+}
+
+.follower-date:first-letter {
+  text-transform: capitalize;
+}
+</style>

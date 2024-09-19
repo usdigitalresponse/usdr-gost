@@ -210,7 +210,7 @@ describe('Grants Collaboration', () => {
 
             expect(result.followers).to.have.lengthOf(1);
             expect(result.followers[0].id).to.equal(follower1.id);
-            expect(result.pagination.from).to.equal(follower1.id);
+            expect(result.pagination.next).to.equal(null);
         });
 
         it('retrieves followers for a grant with LIMIT', async () => {
@@ -219,6 +219,7 @@ describe('Grants Collaboration', () => {
             });
 
             expect(result.followers).to.have.lengthOf(1);
+            expect(result.pagination.next).to.equal(follower2.id);
         });
     });
 });
