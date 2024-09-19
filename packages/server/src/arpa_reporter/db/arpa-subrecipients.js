@@ -60,6 +60,19 @@ async function getRecipient(id, trns = knex) {
         .then((rows) => rows[0]);
 }
 
+const SUPPORTED_QUERY_FIELD_TYPES = {
+    UEI: 'uei',
+    TIN: 'tin',
+    NAME: 'name',
+};
+
+/**
+ *
+ * @param { SUPPORTED_QUERY_FIELDS_TYPES } fieldType - the field type to search for
+ * @param { string } value - the value to search for
+ * @param { * } trns - knex transaction
+ * @return {Promise<Subrecipient>} The subrecipient object
+ */
 async function findRecipient(fieldType = null, value = null, trns = knex) {
     const tenantId = useTenantId();
     const query = baseQuery(trns).where('arpa_subrecipients.tenant_id', tenantId);
@@ -125,6 +138,7 @@ module.exports = {
     updateRecipient,
     listRecipients,
     listRecipientsForReportingPeriod,
+    SUPPORTED_QUERY_FIELD_TYPES,
 };
 
 // NOTE: This file was copied from src/server/db/arpa-subrecipients.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

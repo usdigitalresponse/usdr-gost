@@ -2,7 +2,12 @@ const {
     setEcCode, markValidated, markNotValidated, markInvalidated,
 } = require('../db/uploads');
 const knex = require('../../db/connection');
-const { createRecipient, findRecipient, updateRecipient } = require('../db/arpa-subrecipients');
+const {
+    createRecipient,
+    findRecipient,
+    updateRecipient,
+    SUPPORTED_QUERY_FIELD_TYPES,
+} = require('../db/arpa-subrecipients');
 
 const { recordsForUpload, TYPE_TO_SHEET_NAME } = require('./records');
 const { getRules } = require('./validation-rules');
@@ -124,14 +129,14 @@ async function findRecipientInDatabase({ recipient, trns }) {
     // There are two types of identifiers, UEI and TIN.
     // A given recipient may have either or both of these identifiers.
     const byUei = recipient.Unique_Entity_Identifier__c
-        ? await findRecipient('uei', recipient.Unique_Entity_Identifier__c, trns)
+        ? await findRecipient(SUPPORTED_QUERY_FIELD_TYPES.UEI, recipient.Unique_Entity_Identifier__c, trns)
         : null;
     const byTin = recipient.EIN__c
-        ? await findRecipient('tin', recipient.EIN__c, trns)
+        ? await findRecipient(SUPPORTED_QUERY_FIELD_TYPES.TIN, recipient.EIN__c, trns)
         : null;
     let byName = null;
     if (recipient.Entity_Type_2__c?.includes('IAA') && !recipient.Unique_Entity_Identifier__c && !recipient.EIN__c) {
-        byName = await findRecipient('name', recipient.Name, trns);
+        byName = await findRecipient(SUPPORTED_QUERY_FIELD_TYPES.NAME, recipient.Name, trns);
     }
 
     return byUei || byTin || byName;
