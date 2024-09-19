@@ -2,8 +2,10 @@
 --------------------------------------------------------------------------------
 -                     tests/db/arpa-subrecipients.spec.js
 --------------------------------------------------------------------------------
-  A arpa_subrecipients record in postgres looks like this:
-
+  To see what the `arpa_subrecipients` table looks like in postgres, run the following command:
+    docker compose run --rm -it app /bin/bash
+    PGPASSWORD=password123 psql -U postgres -d usdr_grants -h postgres
+    \d arpa_subrecipients
 */
 const { findRecipient, createRecipient } = requireSrc(__filename);
 const assert = require('assert');
