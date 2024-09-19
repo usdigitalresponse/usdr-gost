@@ -86,7 +86,10 @@ async function makeTestServer(configureAppFn = defaultConfigureApp) {
             const { port } = server.address();
             return fetch(`http://localhost:${port}${url}`, options);
         },
-        fetchApi: (url, agencyId, fetchOptions) => extraProps.fetch(`/api/organizations/${agencyId}${url}`, fetchOptions),
+        fetchApi: (url, agencyId, fetchOptions, params = {}) => {
+            const queryParams = Object.keys(params).length ? `?${new URLSearchParams(params).toString()}` : '';
+            return extraProps.fetch(`/api/organizations/${agencyId}${url}${queryParams}`, fetchOptions);
+        },
     };
 
     Object.keys(extraProps).forEach((prop) => {
