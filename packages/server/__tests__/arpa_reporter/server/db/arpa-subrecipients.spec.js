@@ -91,6 +91,44 @@ describe('db/arpa-subrecipients.js', () => {
                 },
             );
         });
+        it('Throws error creating two IAA with the same name and no UEI/TIN value', async () => {
+            const recipient = {
+                tenant_id: TENANT_A,
+                name: 'IAA',
+                tin: null,
+                uei: null,
+            };
+
+            await assert.rejects(
+                async () => {
+                    await withTenantId(TENANT_A, createRecipient, recipient);
+                },
+                (err) => {
+                    assert.strictEqual(err.name, 'Error');
+                    assert.strictEqual(err.message, 'A recipient with this name already exists');
+                    return true;
+                },
+            );
+        });
+        it('Throws error creating a subrecipient with no name, uei, or tin', async () => {
+            const recipient = {
+                tenant_id: TENANT_A,
+                name: null,
+                tin: null,
+                uei: null,
+            };
+
+            await assert.rejects(
+                async () => {
+                    await withTenantId(TENANT_A, createRecipient, recipient);
+                },
+                (err) => {
+                    assert.strictEqual(err.name, 'Error');
+                    assert.strictEqual(err.message, 'recipient row must include a `uei`, `tin`, or `name` field');
+                    return true;
+                },
+            );
+        });
     });
 });
 

@@ -79,8 +79,8 @@ async function findRecipient(fieldType = null, value = null, trns = knex) {
 
 async function createRecipient(recipient, trns = knex) {
     const tenantId = useTenantId();
-    if (!(recipient.uei || recipient.tin)) {
-        throw new Error('recipient row must include a `uei` or a `tin` field');
+    if (!(recipient.uei || recipient.tin || recipient.name)) {
+        throw new Error('recipient row must include a `uei`, `tin`, or `name` field');
     }
 
     if (recipient.uei) {
@@ -88,10 +88,17 @@ async function createRecipient(recipient, trns = knex) {
         if (existingRecipient) {
             throw new Error('A recipient with this UEI already exists');
         }
-    } else if (recipient.tin) {
+    }
+    if (recipient.tin) {
         const existingRecipient = await findRecipient('tin', recipient.tin, trns);
         if (existingRecipient) {
             throw new Error('A recipient with this TIN already exists');
+        }
+    }
+    if (!recipient.tin && !recipient.uei && recipient.name) {
+        const existingRecipient = await findRecipient('name', recipient.name, trns);
+        if (existingRecipient) {
+            throw new Error('A recipient with this name already exists');
         }
     }
 
