@@ -16,7 +16,7 @@ exports.main = async function main() {
         return;
     }
 
-    await tracer.trace('arpaTreasuryReport', async () => {
+    await tracer.trace('sendGrantDigestEmail', async () => {
         if (process.env.ENABLE_SAVED_SEARCH_GRANTS_DIGEST === 'true') {
             log.info('Sending saved search grant digest emails');
             await email.buildAndSendGrantDigestEmails();
