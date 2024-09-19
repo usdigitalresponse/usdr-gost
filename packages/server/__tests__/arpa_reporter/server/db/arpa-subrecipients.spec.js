@@ -39,15 +39,15 @@ describe('db/arpa-subrecipients.js', () => {
     });
     describe('findRecipient', () => {
         it('Returns a recipient with UEI', async () => {
-            const result = await withTenantId(TENANT_A, findRecipient, 'uei', 'UEI-1');
+            const result = await withTenantId(TENANT_A, () => findRecipient('uei', 'UEI-1'));
             assert.equal(result.name, 'Contractor with UEI');
         });
         it('Returns a recipient with TIN', async () => {
-            const result = await withTenantId(TENANT_A, findRecipient, 'tin', 'TIN-1');
+            const result = await withTenantId(TENANT_A, () => findRecipient('tin', 'TIN-1'));
             assert.equal(result.name, 'Beneficiary with TIN');
         });
         it('Returns a recipient with Name', async () => {
-            const result = await withTenantId(TENANT_A, findRecipient, 'name', 'IAA');
+            const result = await withTenantId(TENANT_A, () => findRecipient('name', 'IAA'));
             assert.equal(result.name, 'IAA');
         });
     });
@@ -63,7 +63,7 @@ describe('db/arpa-subrecipients.js', () => {
 
             await assert.rejects(
                 async () => {
-                    await withTenantId(TENANT_A, createRecipient, recipient);
+                    await withTenantId(TENANT_A, () => createRecipient(recipient));
                 },
                 (err) => {
                     assert.strictEqual(err.name, 'Error');
@@ -82,7 +82,7 @@ describe('db/arpa-subrecipients.js', () => {
 
             await assert.rejects(
                 async () => {
-                    await withTenantId(TENANT_A, createRecipient, recipient);
+                    await withTenantId(TENANT_A, () => createRecipient(recipient));
                 },
                 (err) => {
                     assert.strictEqual(err.name, 'Error');
@@ -101,7 +101,7 @@ describe('db/arpa-subrecipients.js', () => {
 
             await assert.rejects(
                 async () => {
-                    await withTenantId(TENANT_A, createRecipient, recipient);
+                    await withTenantId(TENANT_A, () => createRecipient(recipient));
                 },
                 (err) => {
                     assert.strictEqual(err.name, 'Error');
@@ -120,7 +120,7 @@ describe('db/arpa-subrecipients.js', () => {
 
             await assert.rejects(
                 async () => {
-                    await withTenantId(TENANT_A, createRecipient, recipient);
+                    await withTenantId(TENANT_A, () => createRecipient(recipient));
                 },
                 (err) => {
                     assert.strictEqual(err.name, 'Error');
