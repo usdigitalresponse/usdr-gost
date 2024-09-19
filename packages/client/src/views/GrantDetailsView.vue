@@ -123,81 +123,15 @@
 
           <!-- Right page column: secondary assign grant section -->
           <div class="grant-details-secondary-actions">
-            <b-card style="margin-bottom:15px">
-              <!-- Assign grant section -->
-              <div class="mb-5">
-                <h3 class="mb-3">
-                  {{ shareTerminologyEnabled ? 'Share Grant' : 'Assign Grant' }}
-                </h3>
-                <div class="d-flex print-d-none">
-                  <v-select
-                    v-model="selectedAgencyToAssign"
-                    class="flex-grow-1 mr-3"
-                    :options="unassignedAgencies"
-                    label="name"
-                    track-by="id"
-                    :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
-                    :clearable="false"
-                    data-dd-action-name="select team for grant assignment"
-                    @close="$refs.assignSubmitButton.focus()"
-                  />
-                  <b-button
-                    ref="assignSubmitButton"
-                    variant="outline-primary"
-                    :disabled="!selectedAgencyToAssign"
-                    data-dd-action-name="assign team"
-                    @click="assignAgencyToGrant(selectedAgencyToAssign)"
-                  >
-                    {{ shareTerminologyEnabled ? 'Share' : 'Submit' }}
-                  </b-button>
-                </div>
-                <template v-if="!shareTerminologyEnabled">
-                  <div
-                    v-for="agency in assignedAgencies"
-                    :key="agency.id"
-                    class="d-flex justify-content-between align-items-start my-4"
-                  >
-                    <div class="mr-3">
-                      <p class="m-0">
-                        {{ agency.name }}
-                      </p>
-                      <p class="m-0 text-muted">
-                        <small>{{ formatDateTime(agency.created_at) }}</small>
-                      </p>
-                    </div>
-                    <b-button-close
-                      data-dd-action-name="remove team assignment"
-                      class="print-d-none"
-                      @click="unassignAgencyToGrant(agency)"
-                    />
-                  </div>
-                </template>
-                <template v-else>
-                  <div
-                    v-for="agency in assignedAgencies"
-
-                    :key="agency.id"
-                    class="d-flex justify-content-start align-items-start my-3"
-                  >
-                    <UserAvatar
-                      :user-name="agency.assigned_by_name"
-                      :color="agency.assigned_by_avatar_color"
-                      size="2.5rem"
-                    />
-                    <div class="mx-3">
-                      <p class="m-0">
-                        <strong>{{ agency.assigned_by_name }}</strong> shared to <strong>{{ agency.name }}</strong>
-                      </p>
-                      <p class="m-0 text-muted">
-                        <small>{{ formatDateTime(agency.created_at) }}</small>
-                      </p>
-                    </div>
-                  </div>
-                </template>
-              </div>
-            </b-card>
+            <GrantActivity
+              v-if="followNotesEnabled"
+              class="mb-3"
+            />
             <!-- Team status section -->
-            <b-card>
+            <b-card
+              v-if="!followNotesEnabled"
+              class="mb-3"
+            >
               <div class="mb-5">
                 <h3 class="mb-3">
                   {{ newTerminologyEnabled ? 'Team': 'Agency' }} Status
@@ -261,6 +195,7 @@
                 </div>
               </div>
             </b-card>
+            <ShareGrant class="mb-3" />
           </div>
         </div>
       </b-container>
@@ -272,13 +207,15 @@
 import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
 import { debounce } from 'lodash';
-import { DateTime } from 'luxon';
-import { newTerminologyEnabled, shareTerminologyEnabled } from '@/helpers/featureFlags';
+import { newTerminologyEnabled, shareTerminologyEnabled, followNotesEnabled } from '@/helpers/featureFlags';
 import { formatCurrency } from '@/helpers/currency';
+import { formatDate, formatDateTime } from '@/helpers/dates';
 import { titleize } from '@/helpers/form-helpers';
 import { gtagEvent } from '@/helpers/gtag';
 import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
+import ShareGrant from '@/components/ShareGrant.vue';
+import GrantActivity from '@/components/GrantActivity.vue';
 
 const HEADER = '__HEADER__';
 const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
@@ -288,6 +225,8 @@ export default {
   components: {
     UserAvatar,
     CopyButton,
+    ShareGrant,
+    GrantActivity,
   },
   beforeRouteEnter(to, from, next) {
     const isFirstPageLoad = from.name === null && from.path === '/';
@@ -301,24 +240,6 @@ export default {
     return {
       isFirstPageLoad: false,
       orderBy: '',
-      assignedAgenciesFields: [
-        {
-          key: 'name',
-        },
-        {
-          key: 'abbreviation',
-          label: 'Abbreviation',
-        },
-        {
-          key: 'created_at',
-        },
-        {
-          key: 'actions',
-          label: 'Actions',
-        },
-      ],
-      assignedAgencies: [],
-      selectedAgencyToAssign: null,
       selectedInterestedCode: null,
       searchInput: null,
       debouncedSearchInput: null,
@@ -421,11 +342,7 @@ export default {
     },
     newTerminologyEnabled,
     shareTerminologyEnabled,
-    unassignedAgencies() {
-      return this.agencies.filter(
-        (agency) => !this.assignedAgencies.map((assigned) => assigned.id).includes(agency.id),
-      );
-    },
+    followNotesEnabled,
     statusSubmitButtonDisabled() {
       return this.selectedInterestedCode === null;
     },
@@ -441,7 +358,6 @@ export default {
             console.log(e);
           }
         }
-        this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.currentGrant.grant_id });
       }
     },
   },
@@ -465,15 +381,13 @@ export default {
       markGrantAsViewedAction: 'grants/markGrantAsViewed',
       markGrantAsInterestedAction: 'grants/markGrantAsInterested',
       unmarkGrantAsInterestedAction: 'grants/unmarkGrantAsInterested',
-      getInterestedAgencies: 'grants/getInterestedAgencies',
-      getGrantAssignedAgencies: 'grants/getGrantAssignedAgencies',
-      assignAgenciesToGrantAction: 'grants/assignAgenciesToGrant',
-      unassignAgenciesToGrantAction: 'grants/unassignAgenciesToGrant',
       fetchAgencies: 'agencies/fetchAgencies',
       fetchGrantDetails: 'grants/fetchGrantDetails',
     }),
     titleize,
     formatCurrency,
+    formatDate,
+    formatDateTime,
     debounceSearchInput: debounce(function bounce(newVal) {
       this.debouncedSearchInput = newVal;
     }, 500),
@@ -509,29 +423,7 @@ export default {
         agencyIds: [agency.agency_id],
         interestedCode: agency.interested_code_id,
       });
-      this.currentGrant.interested_agencies = await this.getInterestedAgencies({ grantId: this.currentGrant.grant_id });
       const eventName = 'remove team status for grant';
-      gtagEvent(eventName);
-      datadogRum.addAction(eventName);
-    },
-    async assignAgencyToGrant(agency) {
-      await this.assignAgenciesToGrantAction({
-        grantId: this.currentGrant.grant_id,
-        agencyIds: [agency.id],
-      });
-      this.selectedAgencyToAssign = null;
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.currentGrant.grant_id });
-      const eventName = 'assign team to grant';
-      gtagEvent(eventName);
-      datadogRum.addAction(eventName);
-    },
-    async unassignAgencyToGrant(agency) {
-      await this.unassignAgenciesToGrantAction({
-        grantId: this.currentGrant.grant_id,
-        agencyIds: [agency.id],
-      });
-      this.assignedAgencies = await this.getGrantAssignedAgencies({ grantId: this.currentGrant.grant_id });
-      const eventName = 'remove team assignment from grant';
       gtagEvent(eventName);
       datadogRum.addAction(eventName);
     },
@@ -561,12 +453,6 @@ export default {
       // Note that we can execute this as a side effect of clicking on the outbound link only because it's set to
       // load in a new tab. If it opened in the same tab, it would open the new URL before the event is logged.
       gtagEvent('grants.gov btn clicked');
-    },
-    formatDate(dateString) {
-      return DateTime.fromISO(dateString).toLocaleString(DateTime.DATE_MED);
-    },
-    formatDateTime(dateString) {
-      return DateTime.fromISO(dateString).toLocaleString(DateTime.DATETIME_MED);
     },
     selectableOption(option) {
       return option.status_code !== HEADER;
@@ -623,7 +509,6 @@ export default {
 
   .grant-details-secondary-actions {
     grid-area: secondary-actions;
-    margin-top: 1.5rem;
     margin-bottom: 1.5rem;
     margin-left: 1rem;
     margin-right: 1rem;
@@ -646,7 +531,15 @@ export default {
 }
 
 .grant-details-container .card {
-  border-radius: 8px !important;
+  border-radius: .5rem !important;
+}
+.grant-details-container .card .card-header {
+  border-top-left-radius: .5rem !important;
+  border-top-right-radius: .5rem !important;
+}
+.grant-details-container .card .card-footer {
+  border-bottom-left-radius: .5rem !important;
+  border-bottom-right-radius: .5rem !important;
 }
 
 .background {

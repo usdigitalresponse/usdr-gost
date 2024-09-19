@@ -1,5 +1,7 @@
+import { datadogRum } from '@datadog/browser-rum';
 import * as fetchApi from '@/helpers/fetchApi';
 import { formatFilterDisplay } from '@/helpers/filters';
+import { serializeQuery } from '@/helpers/fetchApi';
 
 const tableModes = {
   VIEW: 'view',
@@ -19,6 +21,7 @@ function initialState() {
     totalUpcomingGrants: 0,
     totalInterestedGrants: 0,
     currentGrant: {},
+    grantsRequestId: 0,
     searchFormFilters: {
       costSharing: null,
       opportunityStatuses: [],
@@ -137,7 +140,7 @@ export default {
       return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants?${query}`)
         .then((data) => commit('SET_GRANTS', data));
     },
-    fetchGrantsNext({ commit, rootGetters }, {
+    fetchGrantsNext({ state, commit, rootGetters }, {
       currentPage, perPage, orderBy, orderDesc,
     }) {
       const pagination = { currentPage, perPage };
@@ -145,8 +148,15 @@ export default {
       const filters = { ...this.state.grants.searchFormFilters };
       const { criteriaQuery, paginationQuery, orderingQuery } = buildGrantsNextQuery({ filters, ordering, pagination });
 
+      // Avoid race conditions for tabs sharing grant fetching
+      const requestId = state.grantsRequestId + 1;
+      commit('SET_GRANTS_REQUEST_ID', requestId);
       return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/next?${paginationQuery}&${orderingQuery}&${criteriaQuery}`)
-        .then((data) => commit('SET_GRANTS', data));
+        .then((data) => {
+          if (requestId === state.grantsRequestId) {
+            commit('SET_GRANTS', data);
+          }
+        });
     },
     // Retrieves grants that the user's team (or any subteam) has interacted with (either by setting status or assigning to a user).
     // Sorted in descending order by the date on which the interaction occurred (recently interacted with are first).
@@ -183,16 +193,15 @@ export default {
         agencyIds,
       });
     },
-    unmarkGrantAsInterested({ rootGetters }, {
+    async unmarkGrantAsInterested({ rootGetters, commit, dispatch }, {
       grantId, agencyIds, interestedCode, agencyId,
     }) {
-      return fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested/${agencyId}`, {
+      await fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested/${agencyId}`, {
         agencyIds,
         interestedCode,
       });
-    },
-    fetchInterestedAgencies({ rootGetters }, { grantId }) {
-      return fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested`);
+      const interestedAgencies = await dispatch('getInterestedAgencies', { grantId });
+      commit('UPDATE_GRANT', { grantId, data: { interested_agencies: interestedAgencies } });
     },
     async markGrantAsInterested({ commit, rootGetters }, { grantId, agencyId, interestedCode }) {
       const interestedAgencies = await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/interested/${agencyId}`, {
@@ -211,6 +220,61 @@ export default {
     fetchInterestedCodes({ commit, rootGetters }) {
       fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/interested-codes`)
         .then((data) => commit('SET_INTERESTED_CODES', data));
+    },
+    async getFollowerForGrant({ rootGetters, commit }, { grantId }) {
+      try {
+        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
+      } catch (e) {
+        // 404 -> User not following
+        if (e.response.status === 404) {
+          return null;
+        }
+
+        const text = `Error retrieving grant follower: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
+        return null;
+      }
+    },
+    async getFollowersForGrant({ rootGetters, commit }, { grantId, limit, paginateFrom }) {
+      const queryParams = serializeQuery({ limit, paginateFrom });
+      try {
+        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/followers${queryParams}`);
+      } catch (e) {
+        const text = `Error retrieving grant followers: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
+        return null;
+      }
+    },
+    async getNotesForGrant({ rootGetters, commit }, { grantId, limit, paginateFrom }) {
+      const queryParams = serializeQuery({ limit, paginateFrom });
+      try {
+        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes${queryParams}`);
+      } catch (e) {
+        const text = `Error retrieving grant notes: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
+        return null;
+      }
+    },
+    async followGrantForCurrentUser({ rootGetters, commit }, { grantId }) {
+      try {
+        await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
+      } catch (e) {
+        const text = `Error following grant: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
+      }
+    },
+    async unfollowGrantForCurrentUser({ rootGetters, commit }, { grantId }) {
+      try {
+        await fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
+      } catch (e) {
+        const text = `Error unfollowing grant: + ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
+      }
     },
     async setEligibilityCodeEnabled({ rootGetters }, { code, enabled }) {
       await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/eligibility-codes/${code}/enable/${enabled}`);
@@ -350,6 +414,9 @@ export default {
     },
     SET_TABLE_MODE(state, tableMode) {
       state.tableMode = tableMode;
+    },
+    SET_GRANTS_REQUEST_ID(state, id) {
+      state.grantsRequestId = id;
     },
   },
 };
