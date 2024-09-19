@@ -84,7 +84,7 @@ async function findRecipient(fieldType = null, value = null, trns = knex) {
     } else if (fieldType === 'name') {
         query.where('arpa_subrecipients.name', value);
     } else {
-        return null;
+        throw new Error('Cannot query for recipient without a valid field type');
     }
 
     return query.then((rows) => rows[0]);

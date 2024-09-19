@@ -50,6 +50,18 @@ describe('db/arpa-subrecipients.js', () => {
             const result = await withTenantId(TENANT_A, () => findRecipient('name', 'IAA'));
             assert.equal(result.name, 'IAA');
         });
+        it('Throws error when querying for a recipient with an invalid field type', async () => {
+            await assert.rejects(
+                async () => {
+                    await withTenantId(TENANT_A, () => findRecipient('invalid', 'IAA'));
+                },
+                (err) => {
+                    assert.strictEqual(err.name, 'Error');
+                    assert.strictEqual(err.message, 'Cannot query for recipient without a valid field type');
+                    return true;
+                },
+            );
+        });
     });
 
     describe('createRecipient', () => {
