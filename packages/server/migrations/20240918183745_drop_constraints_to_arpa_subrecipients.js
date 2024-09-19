@@ -5,13 +5,11 @@
 exports.up = function (knex) {
     return knex.schema.alterTable('arpa_subrecipients', (table) => {
         table.dropUnique(['tenant_id', 'uei']);
-        table.unique(['tenant_id', 'uei'], {
-            indexName: 'idx_arpa_subrecipients_tenant_id_uei_unique',
+        table.index(['tenant_id', 'uei'], 'idx_arpa_subrecipients_tenant_id_uei_unique', {
             predicate: knex.whereNotNull('uei'),
         });
         table.dropUnique(['tenant_id', 'tin']);
-        table.unique(['tenant_id', 'tin'], {
-            indexName: 'idx_arpa_subrecipients_tenant_id_tin_unique',
+        table.index(['tenant_id', 'tin'], 'idx_arpa_subrecipients_tenant_id_tin_unique', {
             predicate: knex.whereNotNull('tin'),
         });
     });
@@ -23,9 +21,9 @@ exports.up = function (knex) {
  */
 exports.down = function (knex) {
     return knex.schema.alterTable('arpa_subrecipients', (table) => {
-        table.dropUnique([], 'idx_arpa_subrecipients_tenant_id_tin_unique');
+        table.dropIndex([], 'idx_arpa_subrecipients_tenant_id_tin_unique');
         table.unique(['tenant_id', 'tin']);
-        table.dropUnique([], 'idx_arpa_subrecipients_tenant_id_uei_unique');
+        table.dropIndex([], 'idx_arpa_subrecipients_tenant_id_uei_unique');
         table.unique(['tenant_id', 'uei']);
     });
 };

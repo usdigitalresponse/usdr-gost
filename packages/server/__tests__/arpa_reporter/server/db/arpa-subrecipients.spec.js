@@ -233,7 +233,7 @@ describe('db/arpa-subrecipients.js', () => {
             };
             const values = `(${recipient.tenant_id}, '${recipient.name}', '${recipient.tin}', ${recipient.uei})`;
             await withTenantId(TENANT_A, () => knex.raw(insertStatement + values));
-            const result = await knex('arpa_subrecipients').where('tenant_id', TENANT_A).where('name', 'IAA').all();
+            const result = await knex('arpa_subrecipients').where('tenant_id', TENANT_A).where('name', 'IAA');
             assert.strictEqual(result.length, 2);
         });
     });
