@@ -20,6 +20,7 @@
           max-rows="8"
           :formatter="formatter"
           :disabled="submittingNote"
+          data-test-note-input
           @keydown="handleKeyDown"
         />
         <b-button
@@ -27,6 +28,7 @@
           variant="link"
           class="note-send-btn position-absolute px-2"
           :disabled="noteSendBtnDisabled"
+          data-test-submit-btn
           @click="submitNote"
         >
           <b-icon
@@ -51,6 +53,7 @@
     <!-- Users Note -->
     <GrantNote
       v-if="userNote && !editingNote"
+      data-test-user-note
       :class="userNoteClass"
       :note="userNote"
     >
@@ -75,7 +78,10 @@
         v-for="note of otherNotes"
         :key="note.id"
       >
-        <GrantNote :note="note" />
+        <GrantNote
+          :note="note"
+          data-test-other-note
+        />
       </li>
     </ul>
 
