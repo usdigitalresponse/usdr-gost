@@ -37,12 +37,8 @@ async function getCurrentNoteRevisions(
     { grantId, organizationId, userId } = {},
     { afterRevision, limit = 50 } = {},
 ) {
-    const subquery = knex.select([
-        'r.id',
-        'r.grant_note_id',
-        'r.created_at',
-        'r.text',
-    ])
+    const subquery = knex
+        .select(knex.raw(`r.*, count(*) OVER() AS total_revisions`))
         .from({ r: 'grant_notes_revisions' })
         .whereRaw('r.grant_note_id = grant_notes.id')
         .orderBy('r.created_at', 'desc')
@@ -57,9 +53,11 @@ async function getCurrentNoteRevisions(
             'rev.id as latest_revision_id',
             'rev.created_at as revised_at',
             'rev.text',
+            'rev.total_revisions as total_revisions',
             'users.id as user_id',
             'users.name as user_name',
             'users.email as user_email',
+            'users.avatar_color as user_avatar_color',
             'tenants.id as organization_id',
             'tenants.display_name as organization_name',
             'agencies.id as team_id',
@@ -86,23 +84,29 @@ async function getCurrentNoteRevisions(
     }
 
     if (afterRevision) {
-        query = query.andWhere('rev.id', '>', afterRevision);
+        query = query.andWhere('rev.id', '<', afterRevision);
     }
 
-    const notes = await query
+    const notesWithLead = await query
         .orderBy('rev.created_at', 'desc')
-        .limit(limit);
+        .limit(limit + 1);
+    const hasMore = notesWithLead.length > limit;
+
+    // remove forward looking lead
+    const notes = hasMore ? notesWithLead.slice(0, -1) : notesWithLead;
+
     return {
         notes: notes.map((note) => ({
             id: note.latest_revision_id,
             createdAt: note.revised_at,
-            isRevised: new Date(note.revised_at) > new Date(note.created_at),
+            isRevised: parseInt(note.total_revisions, 10) > 1,
             text: note.text,
             grant: { id: note.grant_id },
             user: {
                 id: note.user_id,
                 name: note.user_name,
                 email: note.user_email,
+                avatarColor: note.user_avatar_color,
                 team: {
                     id: note.team_id,
                     name: note.team_name,
@@ -114,7 +118,7 @@ async function getCurrentNoteRevisions(
             },
         })),
         pagination: {
-            from: notes.length > 0 ? notes[notes.length - 1].latest_revision_id : afterRevision,
+            next: hasMore ? notes[notes.length - 1].latest_revision_id : null,
         },
     };
 }

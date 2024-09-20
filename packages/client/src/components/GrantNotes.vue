@@ -8,24 +8,24 @@
       <UserAvatar
         :user-name="loggedInUser.name"
         size="2.5rem"
+        :color="loggedInUser.avatar_color"
       />
       <b-form-group class="ml-2 flex-grow-1 position-relative">
         <b-form-textarea
-          id="note-text-input"
+          ref="noteTextarea"
           v-model="noteText"
           class="note-textarea"
           placeholder="Leave a note with tips or barriers to applying..."
           rows="2"
           max-rows="8"
           :formatter="formatter"
-          autofocus
           :disabled="submittingNote"
           @keydown="handleKeyDown"
         />
         <b-button
           ref="submitNoteBtn"
           variant="link"
-          class="note-send-btn text-weak position-absolute px-2"
+          class="note-send-btn position-absolute px-2"
           :disabled="noteSendBtnDisabled"
           @click="submitNote"
         >
@@ -51,7 +51,7 @@
     <!-- Users Note -->
     <GrantNote
       v-if="userNote && !editingNote"
-      class="user-note mb-1"
+      :class="userNoteClass"
       :note="userNote"
     >
       <template #actions>
@@ -70,21 +70,25 @@
     </GrantNote>
 
     <!-- Other Notes -->
-    <ul class="list-unstyled">
+    <ul class="list-unstyled mb-0">
       <li
-        v-for="note of notes"
+        v-for="note of otherNotes"
         :key="note.id"
       >
         <GrantNote :note="note" />
       </li>
     </ul>
 
-    <div class="px-3 mb-3">
+    <div
+      v-if="loadMoreVisible"
+      class="px-3 mb-3"
+    >
       <b-button
         block
         size="md"
         variant="light"
         class="show-more-btn"
+        @click="fetchNextNotes"
       >
         Show More Notes
       </b-button>
@@ -93,6 +97,7 @@
 </template>
 
 <script>
+import { nextTick } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 import UserAvatar from '@/components/UserAvatar.vue';
 import GrantNote from '@/components/GrantNote.vue';
@@ -102,6 +107,7 @@ export default {
     UserAvatar,
     GrantNote,
   },
+  emits: ['noteSaved'],
   data() {
     return {
       notes: [],
@@ -109,6 +115,7 @@ export default {
       noteText: '',
       submittingNote: false,
       editingNote: false,
+      notesNextCursor: null,
     };
   },
   computed: {
@@ -116,6 +123,9 @@ export default {
       loggedInUser: 'users/loggedInUser',
       currentGrant: 'grants/currentGrant',
     }),
+    loadMoreVisible() {
+      return this.notesNextCursor !== null;
+    },
     noteSendBtnDisabled() {
       return this.noteText.length === 0 || this.submittingNote;
     },
@@ -124,10 +134,18 @@ export default {
 
       return `ml-auto ${errColor}`;
     },
+    userNoteClass() {
+      const corners = this.otherNotes.length === 0 ? 'rounded-bottom-corners' : '';
+
+      return `user-note ${corners}`;
+    },
+    otherNotes() {
+      return this.notes.filter((note) => note.id !== this.userNote?.id);
+    },
   },
   async beforeMount() {
     this.fetchUsersNote();
-    this.fetchAllNotes();
+    this.fetchNextNotes();
   },
   methods: {
     ...mapActions({
@@ -138,9 +156,12 @@ export default {
     formatter(value) {
       return value.substring(0, 300);
     },
-    toggleEditNote() {
+    async toggleEditNote() {
       this.editingNote = true;
       this.noteText = this.userNote.text;
+
+      await nextTick();
+      this.$refs.noteTextarea.focus();
     },
     handleKeyDown(e) {
       if (e.key === 'Enter') {
@@ -151,6 +172,7 @@ export default {
       this.submittingNote = true;
       this.saveNoteForGrant({ grantId: this.currentGrant.grant_id, text: this.noteText })
         .then(async () => {
+          this.$emit('noteSaved');
           await this.fetchUsersNote();
         })
         .catch(() => {
@@ -166,12 +188,21 @@ export default {
       this.userNote = result && result.notes.length ? result.notes[0] : null;
       this.editingNote = !this.userNote;
     },
-    async fetchAllNotes() {
-      const result = await this.getNotesForGrant({ grantId: this.currentGrant.grant_id, limit: 51 });
+    async fetchNextNotes() {
+      const query = {
+        grantId: this.currentGrant.grant_id,
+        limit: 2,
+      };
+
+      if (this.notesNextCursor !== null) {
+        query.paginateFrom = this.notesNextCursor;
+      }
+
+      const result = await this.getNotesForGrant(query);
 
       if (result) {
-        this.notes = result.notes;
-        console.log(result);
+        this.notes = this.notes.concat(result.notes);
+        this.notesNextCursor = result.pagination.next;
       }
     },
   },
@@ -203,7 +234,7 @@ textarea.note-textarea::placeholder {
 }
 
 .note-edit-container {
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.25rem 0;
 }
 
 .note-edit-btn {
@@ -214,11 +245,15 @@ textarea.note-textarea::placeholder {
 .note-send-btn {
   bottom: 1.5625rem;
   right: 0;
-  color: $border;
 }
 
 .show-more-btn {
   border-color: $raw-gray-300;
   font-size:0.875rem;
+}
+
+.rounded-bottom-corners {
+  border-bottom-left-radius: .5rem !important;
+  border-bottom-right-radius: .5rem !important;
 }
 </style>

@@ -42,13 +42,11 @@
         <div>
           <b-link
             v-if="grantHasFollowers"
-            :class="followSummaryClass"
             data-follow-summary
             @click="$bvModal.show('grant-followers-modal')"
           >
             {{ followSummaryText }}
           </b-link>
-
           <span
             v-if="grantHasFollowers && showNotesSummary"
             class="mx-1"
@@ -59,7 +57,7 @@
 
       <template #footer>
         <!-- Feed -->
-        <GrantNotes />
+        <GrantNotes @noteSaved="fetchFollowAndNotes" />
       </template>
     </b-card>
 
@@ -135,12 +133,11 @@ export default {
         textCount = '50+';
       }
 
-      return `${textCount} notes`;
+      return `${textCount} ${this.notes.length === 1 ? 'note' : 'notes'}`;
     },
   },
   async beforeMount() {
-    this.fetchFollowState();
-    this.fetchAllNotes();
+    this.fetchFollowAndNotes();
   },
   methods: {
     ...mapActions({
@@ -150,6 +147,11 @@ export default {
       followGrantForCurrentUser: 'grants/followGrantForCurrentUser',
       unfollowGrantForCurrentUser: 'grants/unfollowGrantForCurrentUser',
     }),
+    fetchFollowAndNotes() {
+      this.followStateLoaded = false;
+      this.fetchFollowState();
+      this.fetchAllNotes();
+    },
     async fetchFollowState() {
       const followCalls = [
         this.getFollowerForGrant({ grantId: this.currentGrant.grant_id }),

@@ -9,11 +9,11 @@
     @show="handleModalOpen"
     @hidden="$emit('close')"
   >
-    <div v-if="loading">
+    <div v-if="!followersLoaded">
       Loading...
     </div>
 
-    <ul class="list-unstyled">
+    <ul class="list-unstyled mt-3">
       <li
         v-for="follower in formattedFollowers"
         :key="follower.id"
@@ -24,6 +24,7 @@
           <UserAvatar
             :user-name="follower.name"
             size="2.5rem"
+            :color="follower.avatarColor"
             class="mr-2"
           />
           <div class="d-flex flex-grow-1">
@@ -79,6 +80,7 @@
         <b-button
           variant="outline-primary"
           size="sm"
+          :disabled="!followersLoaded"
         >
           Copy All Emails
         </b-button>
@@ -88,11 +90,11 @@
 </template>
 
 <script>
-import { DateTime } from 'luxon';
 import { mapActions, mapGetters } from 'vuex';
 
 import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
+import { formatActivityDate } from '@/components/GrantNote.vue';
 
 export default {
   components: {
@@ -111,7 +113,6 @@ export default {
       followersLoaded: false,
       followersNextCursor: null,
       loading: false,
-      loadMoreVisible: false,
       followers: [],
     };
   },
@@ -119,29 +120,21 @@ export default {
     ...mapGetters({
       currentGrant: 'grants/currentGrant',
     }),
+    loadMoreVisible() {
+      return this.followersNextCursor !== null;
+    },
     formattedFollowers() {
       return this.followers
         .map((follower) => {
           const { user, id, createdAt } = follower;
-
-          const createdDate = DateTime.fromISO(createdAt);
-          const today = DateTime.now().endOf('day');
-
-          let dateFollowedText = '';
-          if (createdDate.hasSame(today, 'day')) {
-            dateFollowedText = createdDate.toRelativeCalendar({ base: today, unit: 'days' });
-          } else if (createdDate > today.minus({ days: 7 })) {
-            dateFollowedText = createdDate.toRelative({ base: today, unit: 'days' });
-          } else {
-            dateFollowedText = createdDate.toFormat('MMMM d');
-          }
 
           return {
             id,
             name: user.name,
             email: user.email,
             team: user.team.name,
-            dateFollowedText,
+            dateFollowedText: formatActivityDate(createdAt),
+            avatarColor: user.avatarColor,
           };
         });
     },
@@ -174,9 +167,6 @@ export default {
       this.followers = this.followers.concat(result.followers);
       this.followersNextCursor = result.pagination.next;
       this.followersLoaded = true;
-
-      // more to load?
-      this.loadMoreVisible = result.pagination.next !== null;
     },
   },
 };

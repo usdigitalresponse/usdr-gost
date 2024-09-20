@@ -912,20 +912,22 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
     context('GET api/grants/:grantId/notes', () => {
         const GRANT_ID = '335255';
 
-        let notes;
+        let revision1;
+        let revision2;
+
         beforeEach(async () => {
-            notes = await knex('grant_notes')
+            const [adminNote, staffNote] = await knex('grant_notes')
                 .returning('id')
                 .insert([
                     { grant_id: GRANT_ID, user_id: adminUser.id },
                     { grant_id: GRANT_ID, user_id: staffUser.id },
                 ]);
 
-            await knex('grant_notes_revisions')
-                .insert({ grant_note_id: notes[0].id, text: 'Test note 1.' });
+            [revision1] = await knex('grant_notes_revisions')
+                .insert({ grant_note_id: adminNote.id, text: 'Test note 1.' }, 'id');
 
-            await knex('grant_notes_revisions')
-                .insert({ grant_note_id: notes[1].id, text: 'Test note 2.' });
+            [revision2] = await knex('grant_notes_revisions')
+                .insert({ grant_note_id: staffNote.id, text: 'Test note 2.' }, 'id');
         });
 
         it('returns ALL notes for a given grant in DESC order', async () => {
@@ -933,6 +935,7 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             const respBody = await resp.json();
 
             expect(respBody.notes.length).to.equal(2);
+            expect(respBody.notes[0].id).to.equal(revision2.id);
             expect(respBody.notes[0].text).to.equal('Test note 2.');
         });
 
@@ -941,6 +944,7 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             const respBody = await resp.json();
 
             expect(respBody.notes.length).to.equal(1);
+            expect(respBody.pagination.next).to.equal(revision2.id);
         });
 
         it('returns 400 for invalid LIMIT', async () => {
@@ -950,11 +954,12 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
         });
 
         it('returns notes with PAGINATION', async () => {
-            const resp = await fetchApi(`/grants/${GRANT_ID}/notes?paginateFrom=${notes[0].id}`, agencies.own, fetchOptions.staff);
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes?paginateFrom=${revision2.id}`, agencies.own, fetchOptions.staff);
             const respBody = await resp.json();
 
             expect(respBody.notes.length).to.equal(1);
-            expect(respBody.notes[0].text).to.equal('Test note 2.');
+            expect(respBody.notes[0].id).to.equal(revision1.id);
+            expect(respBody.notes[0].text).to.equal('Test note 1.');
         });
     });
 
