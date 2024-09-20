@@ -27,7 +27,7 @@
             :color="follower.avatarColor"
             class="mr-2"
           />
-          <div class="follower-details d-flex flex-column has-flexi-truncate mr-2">
+          <div class="mt-1 d-flex flex-column has-flexi-truncate mr-2">
             <div
               class="text-truncate"
               :title="follower.nameTeamTitle"
@@ -47,7 +47,7 @@
           <CopyButton
             :copy-text="follower.email"
             hide-icon
-            class="ms-auto flex-shrink-0"
+            class="ms-auto flex-shrink-0 mt-1"
           >
             <b-button
               variant="outline-primary"
@@ -176,10 +176,6 @@ export default {
 </script>
 
 <style scoped>
-.follower-details {
-  margin-top: .2rem;
-}
-
 .follower-email {
   font-size: 0.8125rem;
 }
