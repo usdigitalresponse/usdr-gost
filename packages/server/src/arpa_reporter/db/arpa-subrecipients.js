@@ -92,33 +92,28 @@ async function findRecipient(fieldType = null, value = null, trns = knex) {
 
 async function createRecipient(recipient, trns = knex) {
     const tenantId = useTenantId();
-    if (!(recipient.uei || recipient.tin || recipient.name)) {
-        throw new Error('recipient row must include a `uei`, `tin`, or `name` field');
-    }
 
-    if (recipient.uei) {
-        const existingRecipient = await findRecipient('uei', recipient.uei, trns);
-        if (existingRecipient) {
+    let result;
+    try {
+        result = await trns('arpa_subrecipients')
+            .insert({ ...recipient, tenant_id: tenantId })
+            .returning('*')
+            .then((rows) => rows[0]);
+    } catch (error) {
+        if (error.constraint === 'chk_at_least_one_of_uei_tin_name_not_null') {
+            throw new Error('recipient row must include a `uei`, `tin`, or `name` field');
+        } else if (error.constraint === 'idx_arpa_subrecipients_tenant_id_uei_unique') {
             throw new Error('A recipient with this UEI already exists');
-        }
-    }
-    if (recipient.tin) {
-        const existingRecipient = await findRecipient('tin', recipient.tin, trns);
-        if (existingRecipient) {
+        } else if (error.constraint === 'idx_arpa_subrecipients_tenant_id_tin_unique') {
             throw new Error('A recipient with this TIN already exists');
-        }
-    }
-    if (!recipient.tin && !recipient.uei && recipient.name) {
-        const existingRecipient = await findRecipient('name', recipient.name, trns);
-        if (existingRecipient) {
+        } else if (error.constraint === 'idx_arpa_subrecipients_tenant_id_name_unique') {
             throw new Error('A recipient with this name already exists');
+        } else {
+            throw error;
         }
     }
 
-    return trns('arpa_subrecipients')
-        .insert({ ...recipient, tenant_id: tenantId })
-        .returning('*')
-        .then((rows) => rows[0]);
+    return result;
 }
 
 async function listRecipients(trns = knex) {
