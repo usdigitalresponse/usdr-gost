@@ -100,16 +100,17 @@ async function createRecipient(recipient, trns = knex) {
             .returning('*')
             .then((rows) => rows[0]);
     } catch (error) {
-        if (error.constraint === 'chk_at_least_one_of_uei_tin_name_not_null') {
-            throw new Error('recipient row must include a `uei`, `tin`, or `name` field');
-        } else if (error.constraint === 'idx_arpa_subrecipients_tenant_id_uei_unique') {
-            throw new Error('A recipient with this UEI already exists');
-        } else if (error.constraint === 'idx_arpa_subrecipients_tenant_id_tin_unique') {
-            throw new Error('A recipient with this TIN already exists');
-        } else if (error.constraint === 'idx_arpa_subrecipients_tenant_id_name_unique') {
-            throw new Error('A recipient with this name already exists');
-        } else {
-            throw error;
+        switch (error.constraint) {
+            case 'chk_at_least_one_of_uei_tin_name_not_null':
+                throw new Error('recipient row must include a `uei`, `tin`, or `name` field');
+            case 'idx_arpa_subrecipients_tenant_id_uei_unique':
+                throw new Error('A recipient with this UEI already exists');
+            case 'idx_arpa_subrecipients_tenant_id_tin_unique':
+                throw new Error('A recipient with this TIN already exists');
+            case 'idx_arpa_subrecipients_tenant_id_name_unique':
+                throw new Error('A recipient with this name already exists');
+            default:
+                throw error;
         }
     }
 
