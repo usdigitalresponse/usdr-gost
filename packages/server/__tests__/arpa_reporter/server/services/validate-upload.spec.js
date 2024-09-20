@@ -322,7 +322,7 @@ describe('findRecipientInDatabase', () => {
 describe('validateIdentifier for IAA', () => {
     const validateIdentifier = validateUploadModule.__get__('validateIdentifier');
     describe('when subrecipient exists in the database', () => {
-        it('should return an error if IAA has no UEI or TIN', () => {
+        it('should return no errors if IAA has no UEI or TIN', () => {
             const recipient = {
                 Entity_Type_2__c: 'IAA',
                 Unique_Entity_Identifier__c: null,
@@ -334,7 +334,7 @@ describe('validateIdentifier for IAA', () => {
         });
     });
     describe('when subrecipient does not exist in the database', () => {
-        it('should return an error if IAA has no UEI or TIN', () => {
+        it('should return no errors if IAA has no UEI or TIN', () => {
             const recipient = {
                 Entity_Type_2__c: 'IAA',
                 Unique_Entity_Identifier__c: null,
