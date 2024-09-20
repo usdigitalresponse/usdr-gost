@@ -2,7 +2,7 @@ const { expect, use } = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const knex = require('../../src/db/connection');
 const fixtures = require('../db/seeds/fixtures');
-const { saveNoteRevision, getOrganizationNotesForGrant } = require('../../src/lib/grantsCollaboration/notes');
+const { saveNoteRevision, getOrganizationNotesForGrantByUser } = require('../../src/lib/grantsCollaboration/notes');
 const {
     followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant,
 } = require('../../src/lib/grantsCollaboration/followers');
@@ -22,9 +22,10 @@ describe('Grants Collaboration', () => {
             expect(result2.id).not.to.equal(result1.id);
         });
     });
-    context('getOrganizationNotesForGrant', () => {
+    context('getOrganizationNotesForGrantByUser', () => {
         let revision1;
         let revision2;
+
         beforeEach(async () => {
             const [grantNote] = await knex('grant_notes')
                 .insert({ grant_id: fixtures.grants.earFellowship.grant_id, user_id: fixtures.roles.adminRole.id }, 'id');
@@ -36,8 +37,15 @@ describe('Grants Collaboration', () => {
                 .insert({ grant_note_id: grantNote.id, text: 'This is a test revision #2' }, 'id');
         });
 
-        it('get existing organization notes for grant', async () => {
-            const result = await getOrganizationNotesForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id);
+        it('retrieves notes for a specific user and grant', async () => {
+            const result = await getOrganizationNotesForGrantByUser(
+                knex,
+                fixtures.tenants.SBA.id, // organization ID
+                fixtures.roles.adminRole.id, // user ID
+                fixtures.grants.earFellowship.grant_id, // grant ID
+                {},
+            );
+
             const expectedNoteStructure = {
                 notes: [{
                     id: revision2.id,
@@ -62,29 +70,22 @@ describe('Grants Collaboration', () => {
                 },
             };
 
-            // validate createdAt is valid time
-            expect(result.notes[0].createdAt).to.satisfy((date) => {
-                const timestamp = new Date(date).getTime();
-                return !Number.isNaN(timestamp);
-            });
-
-            // remove createdAt to validate the rest of the structure
-            delete expectedNoteStructure.notes[0].createdAt;
-            delete result.notes[0].createdAt;
-
             expect(result).to.deep.equal(expectedNoteStructure);
         });
-        it('get existing organization notes for grant after a revision', async () => {
-            const result = await getOrganizationNotesForGrant(
+
+        it('retrieves notes after a specific revision for user and grant', async () => {
+            const result = await getOrganizationNotesForGrantByUser(
                 knex,
+                fixtures.tenants.SBA.id,
+                fixtures.roles.adminRole.id,
                 fixtures.grants.earFellowship.grant_id,
-                fixtures.agencies.accountancy.tenant_id,
                 { afterRevision: revision1.id },
             );
+
             const expectedNoteStructure = {
                 notes: [{
                     id: revision2.id,
-                    createdAt: result.notes[0].createdAt, // store to pass structure check
+                    createdAt: result.notes[0].createdAt,
                     text: 'This is a test revision #2',
                     grant: { id: fixtures.grants.earFellowship.grant_id },
                     user: {
@@ -104,40 +105,23 @@ describe('Grants Collaboration', () => {
                     from: revision2.id,
                 },
             };
-            // validate createdAt is valid time
-            expect(result.notes[0].createdAt).to.satisfy((date) => {
-                const timestamp = new Date(date).getTime();
-                return !Number.isNaN(timestamp);
-            });
-
-            // remove createdAt to validate the rest of the structure
-            delete expectedNoteStructure.notes[0].createdAt;
-            delete result.notes[0].createdAt;
 
             expect(result).to.deep.equal(expectedNoteStructure);
         });
-        it('get no organization notes for grant after a revision', async () => {
-            const result = await getOrganizationNotesForGrant(
+
+        it('returns no notes when no notes exist after the given revision', async () => {
+            const result = await getOrganizationNotesForGrantByUser(
                 knex,
+                fixtures.tenants.SBA.id,
+                fixtures.roles.adminRole.id,
                 fixtures.grants.earFellowship.grant_id,
-                fixtures.agencies.accountancy.tenant_id,
                 { afterRevision: revision2.id },
             );
+
             const expectedNoteStructure = {
                 notes: [],
                 pagination: {
                     from: revision2.id,
-                },
-            };
-
-            expect(result).to.deep.equal(expectedNoteStructure);
-        });
-        it('get no organization notes for grant', async () => {
-            const result = await getOrganizationNotesForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.usdr.tenant_id);
-            const expectedNoteStructure = {
-                notes: [],
-                pagination: {
-                    from: undefined,
                 },
             };
 

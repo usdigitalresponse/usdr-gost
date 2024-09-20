@@ -124,7 +124,7 @@ async function getOrganizationNotesForGrantByUser(
     grantId,
     { afterRevision, limit = 50 } = {},
 ) {
-    return getCurrentNoteRevisions(knex, { grantId, userId }, { afterRevision, limit });
+    return getCurrentNoteRevisions(knex, { grantId, organizationId, userId }, { afterRevision, limit });
 }
 
 async function getOrganizationNotesForGrant(
