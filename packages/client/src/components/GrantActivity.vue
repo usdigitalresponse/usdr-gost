@@ -24,7 +24,6 @@
           block
           size="lg"
           :variant="followBtnVariant"
-          class="mb-4"
           data-follow-btn
           :disabled="!followStateLoaded"
           @click="toggleFollowState"
@@ -39,7 +38,10 @@
             {{ followBtnLabel }}
           </span>
         </b-button>
-        <div>
+        <div
+          v-if="grantHasFollowers || showNotesSummary"
+          class="mt-4"
+        >
           <b-link
             v-if="grantHasFollowers"
             data-follow-summary
