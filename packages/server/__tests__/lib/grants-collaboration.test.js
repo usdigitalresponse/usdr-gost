@@ -56,11 +56,13 @@ describe('Grants Collaboration', () => {
             expect(results.notes).to.have.lengthOf(2);
 
             const expectedRevisedNoteStructure = {
+                ...results.notes[0],
                 id: adminLastRevision.id,
                 isRevised: true,
                 text: 'This is a test revision #2',
                 grant: { id: grant.grant_id },
                 user: {
+                    ...results.notes[0].user,
                     id: adminUser.id,
                     name: adminUser.name,
                     email: adminUser.email,
@@ -76,7 +78,7 @@ describe('Grants Collaboration', () => {
             };
 
             expect(DateTime.fromJSDate(results.notes[0].createdAt).isValid).to.be.true;
-            expect(results.notes[0]).to.deep.include(expectedRevisedNoteStructure);
+            expect(results.notes[0]).to.deep.equal(expectedRevisedNoteStructure);
 
             expect(results.notes[1].isRevised).to.be.false;
         });
