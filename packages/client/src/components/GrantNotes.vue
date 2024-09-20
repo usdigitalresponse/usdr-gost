@@ -117,7 +117,7 @@ export default {
   emits: ['noteSaved'],
   data() {
     return {
-      notes: [],
+      otherNotes: [],
       userNote: null,
       noteText: '',
       submittingNote: false,
@@ -145,9 +145,6 @@ export default {
       const corners = this.otherNotes.length === 0 ? 'rounded-bottom-corners' : '';
 
       return `user-note ${corners}`;
-    },
-    otherNotes() {
-      return this.notes.filter((note) => note.user.id !== this.loggedInUser.id);
     },
   },
   async beforeMount() {
@@ -207,7 +204,8 @@ export default {
       const result = await this.getNotesForGrant(query);
 
       if (result) {
-        this.notes = this.notes.concat(result.notes);
+        const nextOtherNotes = result.notes.filter((note) => note.user.id !== this.loggedInUser.id);
+        this.otherNotes = this.otherNotes.concat(nextOtherNotes);
         this.notesNextCursor = result.pagination.next;
       }
     },

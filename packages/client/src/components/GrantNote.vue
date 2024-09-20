@@ -119,11 +119,11 @@ export default {
 .note_vertical:before {
   content: "";
   background: $raw-gray-600;
-  height: calc(100% - 8px);
+  height: calc(100% - .5rem);
   width: 1px;
   position: absolute;
   left: calc(2.5rem / 2);
-  top: 6px;
+  top: 0.375rem;
   bottom: 0;
 }
 

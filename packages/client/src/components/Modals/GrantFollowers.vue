@@ -82,7 +82,7 @@
         <b-button
           variant="outline-primary"
           size="sm"
-          :disabled="!followersLoaded"
+          :disabled="!followersEmailText"
         >
           Copy All Emails
         </b-button>

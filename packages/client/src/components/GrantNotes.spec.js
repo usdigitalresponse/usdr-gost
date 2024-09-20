@@ -85,7 +85,7 @@ describe('GrantNotes component', () => {
 
     // excludes user note
     otherNoteCmps.forEach((cmp) => {
-      expect(cmp.props('note').id).not.toEqual(userNote.notes[0].id);
+      expect(cmp.props('note').user.id).not.toEqual(CURRENT_USER_ID);
     });
   });
 
