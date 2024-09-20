@@ -2,7 +2,12 @@ const {
     setEcCode, markValidated, markNotValidated, markInvalidated,
 } = require('../db/uploads');
 const knex = require('../../db/connection');
-const { createRecipient, findRecipient, updateRecipient } = require('../db/arpa-subrecipients');
+const {
+    createRecipient,
+    findRecipient,
+    updateRecipient,
+    SUPPORTED_QUERY_FIELD_TYPES,
+} = require('../db/arpa-subrecipients');
 
 const { recordsForUpload, TYPE_TO_SHEET_NAME } = require('./records');
 const { getRules } = require('./validation-rules');
@@ -124,13 +129,17 @@ async function findRecipientInDatabase({ recipient, trns }) {
     // There are two types of identifiers, UEI and TIN.
     // A given recipient may have either or both of these identifiers.
     const byUei = recipient.Unique_Entity_Identifier__c
-        ? await findRecipient(recipient.Unique_Entity_Identifier__c, null, trns)
+        ? await findRecipient(SUPPORTED_QUERY_FIELD_TYPES.UEI, recipient.Unique_Entity_Identifier__c, trns)
         : null;
     const byTin = recipient.EIN__c
-        ? await findRecipient(null, recipient.EIN__c, trns)
+        ? await findRecipient(SUPPORTED_QUERY_FIELD_TYPES.TIN, recipient.EIN__c, trns)
         : null;
+    let byName = null;
+    if (recipient.Entity_Type_2__c?.includes('IAA') && !recipient.Unique_Entity_Identifier__c && !recipient.EIN__c) {
+        byName = await findRecipient(SUPPORTED_QUERY_FIELD_TYPES.NAME, recipient.Name, trns);
+    }
 
-    return byUei || byTin;
+    return byUei || byTin || byName;
 }
 
 /**
@@ -160,7 +169,6 @@ function validateIdentifier(recipient, recipientExists) {
     const isContractor = entityType.includes('Contractor');
     const isBeneficiary = entityType.includes('Beneficiary');
     const isSubrecipient = entityType.includes('Subrecipient');
-    const isIAA = entityType.includes('IAA');
 
     if (isSubrecipient && !recipientExists && !hasUEI) {
         errors.push(new ValidationError(
@@ -191,11 +199,6 @@ function validateIdentifier(recipient, recipientExists) {
         errors.push(new ValidationError(
             'You must enter a TIN for this subrecipient',
             { col: 'D', severity: 'err' },
-        ));
-    } else if (isIAA && !hasUEI && !hasTIN) {
-        errors.push(new ValidationError(
-            'IAA subrecipients without UEI or TIN are valid but temporarily not supported by USDR',
-            { col: 'C, D', severity: 'err' },
         ));
     }
 
@@ -230,6 +233,7 @@ async function updateOrCreateRecipient(existingRecipient, newRecipient, trns, up
         }
     } else {
         await createRecipient({
+            name: newRecipient.Name,
             uei: newRecipient.Unique_Entity_Identifier__c,
             tin: newRecipient.EIN__c,
             record: newRecipient,
