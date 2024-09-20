@@ -27,33 +27,35 @@
             :color="follower.avatarColor"
             class="mr-2"
           />
-          <div class="d-flex flex-grow-1">
-            <div class="follower-details flex-grow-1">
-              <div class="d-flex align-items-center">
-                <span class="font-weight-bold">{{ follower.name }}</span>
-                <span class="mx-1">&bull;</span>
-                <span class="follower-team text-muted">{{ follower.team }}</span>
-              </div>
-              <div class="follower-email text-muted">
-                {{ follower.email }}
-              </div>
-              <div class="follower-date text-muted">
-                {{ follower.dateFollowedText }}
-              </div>
-            </div>
-            <CopyButton
-              :copy-text="follower.email"
-              hide-icon
-              class="ms-auto"
+          <div class="follower-details d-flex flex-column has-flexi-truncate mr-2">
+            <div
+              class="text-truncate"
+              :title="follower.nameTeamTitle"
             >
-              <b-button
-                variant="outline-primary"
-                size="sm"
-              >
-                Copy Email
-              </b-button>
-            </CopyButton>
+              <span class="font-weight-bold">{{ follower.name }}</span>
+              <span class="mx-1">&bull;</span>
+              <span class="follower-team text-muted">{{ follower.team }}</span>
+            </div>
+            <div class="follower-email text-muted">
+              {{ follower.email }}
+            </div>
+            <div class="follower-date text-muted">
+              {{ follower.dateFollowedText }}
+            </div>
           </div>
+
+          <CopyButton
+            :copy-text="follower.email"
+            hide-icon
+            class="ms-auto flex-shrink-0"
+          >
+            <b-button
+              variant="outline-primary"
+              size="sm"
+            >
+              Copy Email
+            </b-button>
+          </CopyButton>
         </div>
       </li>
     </ul>
@@ -134,6 +136,7 @@ export default {
             email: user.email,
             team: user.team.name,
             dateFollowedText: formatActivityDate(createdAt),
+            nameTeamTitle: `${user.name} \u2022 ${user.team.name}`,
             avatarColor: user.avatarColor,
           };
         });

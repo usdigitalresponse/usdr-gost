@@ -99,9 +99,6 @@ export default {
     followBtnVariant() {
       return this.userIsFollowing ? 'success' : 'primary';
     },
-    followSummaryClass() {
-      return this.followStateLoaded ? 'visible' : 'invisible';
-    },
     followSummaryText() {
       const userIsFollower = this.userIsFollowing;
       const firstFollowerName = userIsFollower ? 'you' : this.followers[0].user.name;

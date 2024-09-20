@@ -94,6 +94,7 @@
         size="md"
         variant="light"
         class="show-more-btn"
+        data-test-show-more-btn
         @click="fetchNextNotes"
       >
         Show More Notes
@@ -146,7 +147,7 @@ export default {
       return `user-note ${corners}`;
     },
     otherNotes() {
-      return this.notes.filter((note) => note.id !== this.userNote?.id);
+      return this.notes.filter((note) => note.user.id !== this.loggedInUser.id);
     },
   },
   async beforeMount() {
@@ -174,19 +175,18 @@ export default {
         this.$refs.submitNoteBtn.click();
       }
     },
-    submitNote() {
+    async submitNote() {
       this.submittingNote = true;
-      this.saveNoteForGrant({ grantId: this.currentGrant.grant_id, text: this.noteText })
-        .then(async () => {
-          this.$emit('noteSaved');
-          await this.fetchUsersNote();
-        })
-        .catch(() => {
-          // Error already logged
-        })
-        .finally(() => {
-          this.submittingNote = false;
-        });
+
+      try {
+        await this.saveNoteForGrant({ grantId: this.currentGrant.grant_id, text: this.noteText });
+        this.$emit('noteSaved');
+        await this.fetchUsersNote();
+      } catch (e) {
+        // Error already logged
+      }
+
+      this.submittingNote = false;
     },
     async fetchUsersNote() {
       const result = await this.getNotesForCurrentUser({ grantId: this.currentGrant.grant_id });

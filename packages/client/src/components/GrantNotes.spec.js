@@ -7,26 +7,22 @@ import { createStore } from 'vuex';
 import GrantNotes from '@/components/GrantNotes.vue';
 import { id } from '@/helpers/testHelpers';
 
-const getMockNotes = (count, hasMoreCursor = null) => ({
+const CURRENT_USER_ID = id();
+
+const getMockNotes = (count, hasMoreCursor = null, userId = id()) => ({
   notes: Array.from(Array(count), () => ({
     id: id(),
     createdAt: new Date().toISOString(),
     isRevised: true,
     text: 'Text',
-    grant: { id: id() },
+    grant: {},
     user: {
-      id: id(),
+      id: userId,
       name: 'User',
       email: 'email@net',
       avatarColor: 'red',
-      team: {
-        id: id(),
-        name: 'Team',
-      },
-      organization: {
-        id: id(),
-        name: 'Org',
-      },
+      team: {},
+      organization: {},
     },
   })),
   pagination: {
@@ -34,9 +30,11 @@ const getMockNotes = (count, hasMoreCursor = null) => ({
   },
 });
 
+const getMockUserNote = (count) => getMockNotes(count, null, CURRENT_USER_ID);
+
 const mockStore = {
   getters: {
-    'users/loggedInUser': vi.fn().mockImplementation(() => ({ id: id() })),
+    'users/loggedInUser': vi.fn().mockImplementation(() => ({ id: CURRENT_USER_ID })),
     'grants/currentGrant': vi.fn().mockImplementation(() => ({ grant_id: 55 })),
   },
   actions: {
@@ -62,7 +60,7 @@ describe('GrantNotes component', () => {
   });
 
   it('Correctly displays existing notes', async () => {
-    const userNote = getMockNotes(1);
+    const userNote = getMockUserNote(1);
 
     const allNotes = getMockNotes(5);
     allNotes.notes.push(userNote.notes[0]);
@@ -92,7 +90,7 @@ describe('GrantNotes component', () => {
   });
 
   it('Correctly displays note input when user has no notes', async () => {
-    const userNote = getMockNotes(0);
+    const userNote = getMockUserNote(0);
     const allNotes = getMockNotes(2);
 
     mockStore.actions['grants/getNotesForCurrentUser'].mockResolvedValue(userNote);
@@ -108,8 +106,8 @@ describe('GrantNotes component', () => {
     expect(inputCmp.exists()).toEqual(true);
   });
 
-  it.only('Correctly saves grant note for user', async () => {
-    const userNoteEmpty = getMockNotes(0);
+  it('Correctly saves grant note for user', async () => {
+    const userNoteEmpty = getMockUserNote(0);
     const allNotes = getMockNotes(2);
 
     mockStore.actions['grants/getNotesForCurrentUser'].mockResolvedValue(userNoteEmpty);
@@ -135,5 +133,35 @@ describe('GrantNotes component', () => {
     expect(mockStore.actions['grants/saveNoteForGrant'].mock.lastCall[1].text).toEqual('My Note');
     const userNoteCmp = wrapper.findComponent('[data-test-user-note]');
     expect(userNoteCmp.exists()).equal(true);
+  });
+
+  it('Correctly retrieves more notes using "Show More"', async () => {
+    const userNote = getMockUserNote(1);
+
+    const NEXT_ID = id();
+    const allNotesBatch1 = getMockNotes(2, NEXT_ID);
+
+    mockStore.actions['grants/getNotesForCurrentUser'].mockResolvedValue(userNote);
+    mockStore.actions['grants/getNotesForGrant'].mockResolvedValue(allNotesBatch1);
+
+    const wrapper = mount(GrantNotes, {
+      global: { plugins: [store] },
+    });
+
+    await flushPromises();
+
+    const allNotesBatch2 = getMockNotes(2);
+    mockStore.actions['grants/getNotesForGrant'].mockResolvedValue(allNotesBatch2);
+
+    const showMoreBtn = wrapper.findComponent('[data-test-show-more-btn]');
+
+    showMoreBtn.trigger('click');
+
+    await flushPromises();
+
+    expect(mockStore.actions['grants/getNotesForGrant'].mock.lastCall[1].paginateFrom).toEqual(NEXT_ID);
+    const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note]');
+    expect(otherNoteCmps).toHaveLength(4);
+    expect(wrapper.findComponent('[data-test-show-more-btn]').exists()).toEqual(false);
   });
 });

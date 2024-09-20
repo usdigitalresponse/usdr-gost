@@ -116,13 +116,6 @@ export default {
   font-weight: 400;
 }
 
-.has-flexi-truncate {
-  -webkit-box-flex: 1;
-  -ms-flex: 1 1 0%;
-  flex: 1 1 0%;
-  min-width: 0;
-}
-
 .note_vertical:before {
   content: "";
   background: $raw-gray-600;
