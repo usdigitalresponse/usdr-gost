@@ -21,7 +21,9 @@ const getMockNotes = (count, hasMoreCursor = null, userId = id()) => ({
       name: 'User',
       email: 'email@net',
       avatarColor: 'red',
-      team: {},
+      team: {
+        name: 'Team',
+      },
       organization: {},
     },
   })),

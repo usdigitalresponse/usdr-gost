@@ -10,16 +10,10 @@
     </div>
 
     <div class="d-flex flex-column flex-grow-1 has-flexi-truncate ml-2">
-      <div
-        class="text-truncate"
-        :title="userNameTitle"
-      >
-        <span class="font-weight-bold">{{ note.user.name }}</span>
-        <span class="mx-1">&bull;</span>
-        <span
-          class="text-gray-500"
-        >{{ note.user.team.name }}</span>
-      </div>
+      <UserHeaderText
+        :name="note.user.name"
+        :team="note.user.team.name"
+      />
       <div class="text-gray-500">
         <CopyButton
           :copy-text="note.user.email"
@@ -51,6 +45,7 @@
 import { DateTime } from 'luxon';
 import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
+import UserHeaderText from '@/components/UserHeaderText.vue';
 
 export const formatActivityDate = (createdAtISO) => {
   const createdDate = DateTime.fromISO(createdAtISO);
@@ -72,6 +67,7 @@ export default {
   components: {
     UserAvatar,
     CopyButton,
+    UserHeaderText,
   },
   props: {
     note: {

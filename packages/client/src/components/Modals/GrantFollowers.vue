@@ -28,14 +28,10 @@
             class="mr-2"
           />
           <div class="mt-1 d-flex flex-column has-flexi-truncate mr-2">
-            <div
-              class="text-truncate"
-              :title="follower.nameTeamTitle"
-            >
-              <span class="font-weight-bold">{{ follower.name }}</span>
-              <span class="mx-1">&bull;</span>
-              <span class="follower-team text-muted">{{ follower.team }}</span>
-            </div>
+            <UserHeaderText
+              :name="follower.name"
+              :team="follower.team"
+            />
             <div class="follower-email text-muted">
               {{ follower.email }}
             </div>
@@ -96,12 +92,14 @@ import { mapActions, mapGetters } from 'vuex';
 
 import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
+import UserHeaderText from '@/components/UserHeaderText.vue';
 import { formatActivityDate } from '@/components/GrantNote.vue';
 
 export default {
   components: {
     UserAvatar,
     CopyButton,
+    UserHeaderText,
   },
   props: {
     modalId: {
@@ -136,7 +134,6 @@ export default {
             email: user.email,
             team: user.team.name,
             dateFollowedText: formatActivityDate(createdAt),
-            nameTeamTitle: `${user.name} \u2022 ${user.team.name}`,
             avatarColor: user.avatarColor,
           };
         });
@@ -180,12 +177,10 @@ export default {
   font-size: 0.8125rem;
 }
 
-.follower-team,
 .follower-email {
   font-weight: 400;
 }
 
-.follower-team,
 .follower-date {
   font-size: 0.75rem;
 }
