@@ -11,6 +11,7 @@ const { EXPENDITURE_CATEGORIES } = require('../../../../src/arpa_reporter/lib/fo
 const ValidationError = require('../../../../src/arpa_reporter/lib/validation-error');
 
 const validateUploadModule = rewire('../../../../src/arpa_reporter/services/validate-upload');
+const { withTenantId } = require('../helpers/with-tenant-id');
 
 const ALL_RULES = getRules();
 
@@ -182,43 +183,146 @@ describe('validate record', () => {
 });
 
 describe('findRecipientInDatabase', () => {
-    const findRecipientInDatabase = validateUploadModule.__get__('findRecipientInDatabase');
-    const recipient = {
-        Unique_Entity_Identifier__c: 'UEI123',
-        EIN__c: 'EIN123',
+    const TENANT_A = 0;
+    const TENANT_B = 1;
+    const recipients = {
+        beneficiaryWithTIN_TA: {
+            tenant_id: TENANT_A,
+            name: 'Beneficiary with TIN',
+            tin: 'TIN-1',
+            uei: null,
+        },
+        iaa_TA: {
+            tenant_id: TENANT_A,
+            name: 'IAA',
+            tin: null,
+            uei: null,
+        },
+        iaaWithEIN_TA: {
+            tenant_id: TENANT_A,
+            name: 'IAA with EIN',
+            tin: 'TIN-IAA-1',
+            uei: null,
+        },
+        iaaWithUEI_TA: {
+            tenant_id: TENANT_A,
+            name: 'IAA with UEI',
+            tin: null,
+            uei: 'UEI-IAA-1',
+        },
+        contractorWithUEI_TA: {
+            tenant_id: TENANT_A,
+            name: 'Contractor with UEI',
+            tin: null,
+            uei: 'UEI-1',
+        },
+        beneficiaryWithTIN_TB: {
+            tenant_id: TENANT_B,
+            name: 'Beneficiary with TIN',
+            tin: 'TIN-1',
+            uei: null,
+        },
+        iaa_TB: {
+            tenant_id: TENANT_B,
+            name: 'IAA',
+            tin: null,
+            uei: null,
+        },
+        contractorWithUEI_TB: {
+            tenant_id: TENANT_B,
+            name: 'Contractor with UEI',
+            tin: null,
+            uei: 'UEI-1',
+        },
+        subrecipientOnlyInTB: {
+            tenant_id: TENANT_B,
+            name: 'Subrecipient only in TB',
+            tin: 'TIN-TB',
+            uei: 'UEI-TB',
+        },
     };
-    const trns = {}; // mock transaction object
-
-    afterEach(() => {
-        sinon.restore();
+    const getFormattedRecipient = (recipient) => ({
+        Name: recipient.name,
+        Unique_Entity_Identifier__c: recipient.uei,
+        EIN__c: recipient.tin,
+        Entity_Type_2__c: recipient.name,
+    });
+    const findRecipientInDatabase = validateUploadModule.__get__('findRecipientInDatabase');
+    const trns = knex;
+    before(async () => {
+        await knex.raw('TRUNCATE TABLE arpa_subrecipients CASCADE');
+        await knex('arpa_subrecipients').insert(Object.values(recipients));
     });
 
-    it('should return the recipient found by UEI', async () => {
-        const mockFindRecipient = sinon.stub().withArgs('UEI123', null, trns).resolves({ name: 'John' });
-        validateUploadModule.__set__('findRecipient', mockFindRecipient);
-        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
-        expect(result).to.deep.equal({ name: 'John' });
-    });
+    describe('non-IAA recipient', () => {
+        afterEach(() => {
+            sinon.restore();
+        });
 
-    it('should return the recipient found by EIN', async () => {
-        const mockFindRecipient = sinon.stub().withArgs(null, 'EIN123', trns).resolves({ name: 'Jane' });
-        validateUploadModule.__set__('findRecipient', mockFindRecipient);
-        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
-        expect(result).to.deep.equal({ name: 'Jane' });
-    });
+        it('should return the recipient found by UEI', async () => {
+            const result = await withTenantId(TENANT_A, () => findRecipientInDatabase({ recipient: getFormattedRecipient(recipients.contractorWithUEI_TA), trns }));
+            expect(result.name).to.equal('Contractor with UEI');
+        });
 
-    it('should return null if recipient is not found', async () => {
-        const mockFindRecipient = sinon.stub().resolves(null);
-        validateUploadModule.__set__('findRecipient', mockFindRecipient);
-        const result = await findRecipientInDatabase({ recipient, trns }, mockFindRecipient);
-        expect(result).to.be.null;
+        it('should return the recipient found by EIN', async () => {
+            const result = await withTenantId(TENANT_A, () => findRecipientInDatabase({ recipient: getFormattedRecipient(recipients.beneficiaryWithTIN_TA), trns }));
+            expect(result.name).to.equal('Beneficiary with TIN');
+        });
+
+        it('should return null if recipient is not found', async () => {
+            const result = await withTenantId(TENANT_A, () => findRecipientInDatabase({
+                recipient: {
+                    Name: 'Non-existent recipient',
+                    Unique_Entity_Identifier__c: 'UEI-2',
+                    EIN__c: 'TIN-2',
+                },
+                trns,
+            }));
+            expect(result).to.be.null;
+        });
+        it('should return null if recipient is exists in a different tenant', async () => {
+            const result = await withTenantId(TENANT_A, () => findRecipientInDatabase({ recipient: getFormattedRecipient(recipients.subrecipientOnlyInTB), trns }));
+            expect(result).to.be.null;
+        });
+        it('should return null if non-IAA recipient does not have a UEI or TIN', async () => {
+            const result = await withTenantId(TENANT_A, () => findRecipientInDatabase({
+                recipient: {
+                    Name: 'Beneficiary with TIN',
+                    Unique_Entity_Identifier__c: null,
+                    EIN__c: null,
+                    Entity_Type_2__c: 'Beneficiary, Subrecipient',
+                },
+                trns,
+            }));
+            expect(result).to.be.null;
+        });
+    });
+    describe('IAA recipients', () => {
+        afterEach(() => {
+            sinon.restore();
+        });
+
+        it('should return the IAA recipient found by UEI', async () => {
+            const result = await withTenantId(TENANT_A, () => findRecipientInDatabase({ recipient: getFormattedRecipient(recipients.iaaWithUEI_TA), trns }));
+            expect(result.name).to.equal('IAA with UEI');
+        });
+
+        it('should return the IAA recipient found by EIN', async () => {
+            const result = await withTenantId(TENANT_A, () => findRecipientInDatabase({ recipient: getFormattedRecipient(recipients.iaaWithEIN_TA), trns }));
+            expect(result.name).to.equal('IAA with EIN');
+        });
+
+        it('should return the recipient found by Name if no UEI or TIN exists', async () => {
+            const result = await withTenantId(TENANT_A, () => findRecipientInDatabase({ recipient: getFormattedRecipient(recipients.iaa_TA), trns }));
+            expect(result.name).to.equal('IAA');
+        });
     });
 });
 
 describe('validateIdentifier for IAA', () => {
     const validateIdentifier = validateUploadModule.__get__('validateIdentifier');
     describe('when subrecipient exists in the database', () => {
-        it('should return an error if IAA has no UEI or TIN', () => {
+        it('should return no errors if IAA has no UEI or TIN', () => {
             const recipient = {
                 Entity_Type_2__c: 'IAA',
                 Unique_Entity_Identifier__c: null,
@@ -226,16 +330,11 @@ describe('validateIdentifier for IAA', () => {
             };
             const recipientExists = true;
             const errors = validateIdentifier(recipient, recipientExists);
-            assert.deepStrictEqual(errors, [
-                new ValidationError(
-                    'IAA subrecipients without UEI or TIN are valid but temporarily not supported by USDR',
-                    { col: 'C, D', severity: 'err' },
-                ),
-            ]);
+            assert.deepStrictEqual(errors, []);
         });
     });
     describe('when subrecipient does not exist in the database', () => {
-        it('should return an error if IAA has no UEI or TIN', () => {
+        it('should return no errors if IAA has no UEI or TIN', () => {
             const recipient = {
                 Entity_Type_2__c: 'IAA',
                 Unique_Entity_Identifier__c: null,
@@ -243,12 +342,7 @@ describe('validateIdentifier for IAA', () => {
             };
             const recipientExists = false;
             const errors = validateIdentifier(recipient, recipientExists);
-            assert.deepStrictEqual(errors, [
-                new ValidationError(
-                    'IAA subrecipients without UEI or TIN are valid but temporarily not supported by USDR',
-                    { col: 'C, D', severity: 'err' },
-                ),
-            ]);
+            assert.deepStrictEqual(errors, []);
         });
     });
 });
@@ -522,11 +616,12 @@ describe('updateOrCreateRecipient', () => {
     it('should call createRecipient when existingRecipient is falsy', async () => {
         const trns = {};
         const upload = { id: 1 };
-        const newRecipient = { Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
+        const newRecipient = { Name: 'Test 1', Unique_Entity_Identifier__c: 'UEI1', EIN__c: 'EIN1' };
 
         await updateOrCreateRecipient(null, newRecipient, trns, upload, createRecipientStub, updateRecipientStub);
 
         sinon.assert.calledWith(createRecipientStub, {
+            name: 'Test 1',
             uei: 'UEI1',
             tin: 'EIN1',
             record: newRecipient,
