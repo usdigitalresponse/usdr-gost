@@ -37,18 +37,6 @@ async function archiveOrRestoreRecipient(id, { updatedByUser }, trns = knex) {
     return query.then((rows) => rows[0]);
 }
 
-async function createRecipient(recipient, trns = knex) {
-    const tenantId = useTenantId();
-    if (!(recipient.uei || recipient.tin)) {
-        throw new Error('recipient row must include a `uei` or a `tin` field');
-    }
-
-    return trns('arpa_subrecipients')
-        .insert({ ...recipient, tenant_id: tenantId })
-        .returning('*')
-        .then((rows) => rows[0]);
-}
-
 async function updateRecipient(id, { updatedByUser, record }, trns = knex) {
     const query = trns('arpa_subrecipients')
         .where('id', id)
@@ -72,19 +60,61 @@ async function getRecipient(id, trns = knex) {
         .then((rows) => rows[0]);
 }
 
-async function findRecipient(uei = null, tin = null, trns = knex) {
+const SUPPORTED_QUERY_FIELD_TYPES = {
+    UEI: 'uei',
+    TIN: 'tin',
+    NAME: 'name',
+};
+
+/**
+ *
+ * @param { SUPPORTED_QUERY_FIELDS_TYPES } fieldType - the field type to search for
+ * @param { string } value - the value to search for
+ * @param { * } trns - knex transaction
+ * @return {Promise<Subrecipient>} The subrecipient object
+ */
+async function findRecipient(fieldType = null, value = null, trns = knex) {
     const tenantId = useTenantId();
     const query = baseQuery(trns).where('arpa_subrecipients.tenant_id', tenantId);
 
-    if (uei) {
-        query.where('arpa_subrecipients.uei', uei);
-    } else if (tin) {
-        query.where('arpa_subrecipients.tin', tin);
+    if (fieldType === 'uei') {
+        query.where('arpa_subrecipients.uei', value);
+    } else if (fieldType === 'tin') {
+        query.where('arpa_subrecipients.tin', value);
+    } else if (fieldType === 'name') {
+        query.where('arpa_subrecipients.name', value);
     } else {
-        return null;
+        throw new Error('Cannot query for recipient without a valid field type');
     }
 
     return query.then((rows) => rows[0]);
+}
+
+async function createRecipient(recipient, trns = knex) {
+    const tenantId = useTenantId();
+
+    let result;
+    try {
+        result = await trns('arpa_subrecipients')
+            .insert({ ...recipient, tenant_id: tenantId })
+            .returning('*')
+            .then((rows) => rows[0]);
+    } catch (error) {
+        switch (error.constraint) {
+            case 'chk_at_least_one_of_uei_tin_name_not_null':
+                throw new Error('recipient row must include a `uei`, `tin`, or `name` field');
+            case 'idx_arpa_subrecipients_tenant_id_uei_unique':
+                throw new Error('A recipient with this UEI already exists');
+            case 'idx_arpa_subrecipients_tenant_id_tin_unique':
+                throw new Error('A recipient with this TIN already exists');
+            case 'idx_arpa_subrecipients_tenant_id_name_unique':
+                throw new Error('A recipient with this name already exists');
+            default:
+                throw error;
+        }
+    }
+
+    return result;
 }
 
 async function listRecipients(trns = knex) {
@@ -104,6 +134,7 @@ module.exports = {
     updateRecipient,
     listRecipients,
     listRecipientsForReportingPeriod,
+    SUPPORTED_QUERY_FIELD_TYPES,
 };
 
 // NOTE: This file was copied from src/server/db/arpa-subrecipients.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
