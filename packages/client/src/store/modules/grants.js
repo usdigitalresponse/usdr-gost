@@ -260,7 +260,6 @@ export default {
     },
     async getNotesForCurrentUser({ rootGetters, commit }, { grantId }) {
       try {
-        console.log(rootGetters['users/loggedInUser'], commit);
         const userId = rootGetters['users/loggedInUser']?.id;
         const queryParams = serializeQuery({ limit: 1 });
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes/user/${userId}${queryParams}`);

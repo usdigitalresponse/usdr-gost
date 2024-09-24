@@ -3,7 +3,7 @@ const chaiAsPromised = require('chai-as-promised');
 const { DateTime } = require('luxon');
 const knex = require('../../src/db/connection');
 const fixtures = require('../db/seeds/fixtures');
-const { saveNoteRevision, getOrganizationNotesForGrant } = require('../../src/lib/grantsCollaboration/notes');
+const { saveNoteRevision, getOrganizationNotesForGrant, getOrganizationNotesForGrantByUser } = require('../../src/lib/grantsCollaboration/notes');
 const {
     followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant,
 } = require('../../src/lib/grantsCollaboration/followers');
@@ -21,6 +21,52 @@ describe('Grants Collaboration', () => {
             const result2 = await saveNoteRevision(knex, fixtures.grants.earFellowship.grant_id, fixtures.roles.adminRole.id, 'This is a test revision #2');
 
             expect(result2.id).not.to.equal(result1.id);
+        });
+    });
+
+    context('getOrganizationNotesByUser', () => {
+        const { adminUser, staffUser, usdrUser } = fixtures.users;
+        const grant = fixtures.grants.earFellowship;
+        const tenant = fixtures.tenants.SBA;
+
+        let staffRevision;
+
+        beforeEach(async () => {
+            const [staffGrantNote] = await knex('grant_notes')
+                .insert({ grant_id: grant.grant_id, user_id: staffUser.id }, 'id');
+
+            [staffRevision] = await knex('grant_notes_revisions')
+                .insert({ grant_note_id: staffGrantNote.id, text: 'This is a staff note' }, 'id');
+
+            const [adminGrantNote] = await knex('grant_notes')
+                .insert({ grant_id: grant.grant_id, user_id: adminUser.id }, 'id');
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: adminGrantNote.id, text: 'This is a admin note' }, 'id');
+        });
+
+        it('gets correct note for user', async () => {
+            const results = await getOrganizationNotesForGrantByUser(
+                knex,
+                tenant.id, // organization ID
+                staffUser.id, // user ID
+                grant.grant_id, // grant ID
+            );
+
+            expect(results.notes).to.have.lengthOf(1);
+
+            expect(results.notes[0].id).equal(staffRevision.id);
+            expect(results.notes[0].user.id).equal(staffUser.id);
+        });
+        it('returns empty results if user has no notes', async () => {
+            const results = await getOrganizationNotesForGrantByUser(
+                knex,
+                tenant.id, // organization ID
+                usdrUser.id, // user ID
+                grant.grant_id, // grant ID
+            );
+
+            expect(results.notes).to.have.lengthOf(0);
         });
     });
 
@@ -51,7 +97,7 @@ describe('Grants Collaboration', () => {
         });
 
         it('gets correct note/revision structure for grant', async () => {
-            const results = await getOrganizationNotesForGrant(knex, grant.grant_id, agency.tenant_id);
+            const results = await getOrganizationNotesForGrant(knex, grant.grant_id, tenant.id);
 
             expect(results.notes).to.have.lengthOf(2);
 
@@ -94,7 +140,7 @@ describe('Grants Collaboration', () => {
             const results = await getOrganizationNotesForGrant(
                 knex,
                 grant.grant_id,
-                agency.tenant_id,
+                tenant.id,
                 { afterRevision: adminLastRevision.id },
             );
 
