@@ -79,9 +79,6 @@ export default {
     timeElapsedString() {
       return formatActivityDate(this.note.createdAt);
     },
-    userNameTitle() {
-      return `${this.note.user.name} \u2022 ${this.note.user.team.name}`;
-    },
   },
 };
 

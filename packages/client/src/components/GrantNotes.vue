@@ -10,7 +10,7 @@
         size="2.5rem"
         :color="loggedInUser.avatar_color"
       />
-      <b-form-group class="ml-2 flex-grow-1 position-relative">
+      <b-form-group class="ml-2 mb-2 flex-grow-1 position-relative">
         <b-form-textarea
           ref="noteTextarea"
           v-model="noteText"
