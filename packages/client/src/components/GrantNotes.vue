@@ -194,7 +194,7 @@ export default {
     async fetchNextNotes() {
       const query = {
         grantId: this.currentGrant.grant_id,
-        limit: 2,
+        limit: 4,
       };
 
       if (this.notesNextCursor !== null) {
