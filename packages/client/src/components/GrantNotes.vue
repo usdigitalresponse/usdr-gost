@@ -6,8 +6,8 @@
       class="d-flex note-edit-container"
     >
       <UserAvatar
-        :user-name="loggedInUser.name"
         size="2.5rem"
+        :user-name="loggedInUser.name"
         :color="loggedInUser.avatar_color"
       />
       <b-form-group class="ml-2 mb-2 flex-grow-1 position-relative">
@@ -51,12 +51,18 @@
     </div>
 
     <!-- Users Note -->
-    <GrantNote
+    <UserActivityItem
       v-if="userNote && !editingNote"
-      data-test-user-note
       :class="userNoteClass"
-      :note="userNote"
+      :user-name="userNote.user.name"
+      :user-email="userNote.user.email"
+      :team-name="userNote.user.team.name"
+      :avatar-color="userNote.user.avatarColor"
+      :created-at="userNote.createdAt"
+      copy-email-enabled
+      data-test-user-note
     >
+      {{ userNote.text }}
       <template #actions>
         <b-button
           class="note-edit-btn p-0"
@@ -70,7 +76,7 @@
           <span>EDIT</span>
         </b-button>
       </template>
-    </GrantNote>
+    </UserActivityItem>
 
     <!-- Other Notes -->
     <ul class="list-unstyled mb-0">
@@ -78,10 +84,18 @@
         v-for="note of otherNotes"
         :key="note.id"
       >
-        <GrantNote
-          :note="note"
-          data-test-other-note
-        />
+        <UserActivityItem
+          class="activity-container"
+          :user-name="note.user.name"
+          :user-email="note.user.email"
+          :team-name="note.user.team.name"
+          :avatar-color="note.user.avatarColor"
+          :created-at="note.createdAt"
+          copy-email-enabled
+          :data-test-other-note-id="note.id"
+        >
+          {{ note.text }}
+        </UserActivityItem>
       </li>
     </ul>
 
@@ -107,12 +121,12 @@
 import { nextTick } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 import UserAvatar from '@/components/UserAvatar.vue';
-import GrantNote from '@/components/GrantNote.vue';
+import UserActivityItem from '@/components/UserActivityItem.vue';
 
 export default {
   components: {
     UserAvatar,
-    GrantNote,
+    UserActivityItem,
   },
   emits: ['noteSaved'],
   data() {
@@ -144,7 +158,7 @@ export default {
     userNoteClass() {
       const corners = this.otherNotes.length === 0 ? 'rounded-bottom-corners' : '';
 
-      return `user-note ${corners}`;
+      return `user-note activity-container ${corners}`;
     },
   },
   async beforeMount() {
@@ -231,6 +245,10 @@ export default {
 textarea.note-textarea {
   overflow: visible !important;
   padding-right:2.25rem;
+}
+
+.activity-container {
+  padding: 1rem 1.25rem;
 }
 
 textarea.note-textarea::placeholder {

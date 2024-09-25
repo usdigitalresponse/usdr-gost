@@ -82,12 +82,13 @@ describe('GrantNotes component', () => {
     const userNoteCmp = wrapper.findComponent('[data-test-user-note]');
     expect(userNoteCmp.exists()).equal(true);
 
-    const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note]');
+    const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note-id]');
     expect(otherNoteCmps).toHaveLength(5);
 
     // excludes user note
     otherNoteCmps.forEach((cmp) => {
-      expect(cmp.props('note').user.id).not.toEqual(CURRENT_USER_ID);
+      expect(cmp.attributes('data-test-other-note-id')).toBeTruthy();
+      expect(cmp.attributes('data-test-other-note-id')).not.toEqual(CURRENT_USER_ID);
     });
   });
 
@@ -162,7 +163,7 @@ describe('GrantNotes component', () => {
     await flushPromises();
 
     expect(mockStore.actions['grants/getNotesForGrant'].mock.lastCall[1].paginateFrom).toEqual(NEXT_ID);
-    const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note]');
+    const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note-id]');
     expect(otherNoteCmps).toHaveLength(4);
     expect(wrapper.findComponent('[data-test-show-more-btn]').exists()).toEqual(false);
   });
