@@ -241,7 +241,7 @@ export default {
       try {
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/followers${queryParams}`);
       } catch (e) {
-        const text = `Error retrieving grant followers: + ${e.message}`;
+        const text = `Error retrieving grant followers: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
         return null;
@@ -252,7 +252,7 @@ export default {
       try {
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes${queryParams}`);
       } catch (e) {
-        const text = `Error retrieving grant notes: + ${e.message}`;
+        const text = `Error retrieving grant notes: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
         return null;
@@ -264,7 +264,7 @@ export default {
         const queryParams = serializeQuery({ limit: 1 });
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes/user/${userId}${queryParams}`);
       } catch (e) {
-        const text = `Error retrieving grant notes for user: + ${e.message}`;
+        const text = `Error retrieving grant notes for user: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
         return null;
@@ -276,7 +276,7 @@ export default {
           text,
         });
       } catch (e) {
-        const errTxt = `Error saving grant note: + ${e.message}`;
+        const errTxt = `Error saving grant note: ${e.message}`;
         commit('alerts/addAlert', { text: errTxt, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text: errTxt });
         throw e;
@@ -286,7 +286,7 @@ export default {
       try {
         await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
       } catch (e) {
-        const text = `Error following grant: + ${e.message}`;
+        const text = `Error following grant: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
       }
@@ -295,7 +295,7 @@ export default {
       try {
         await fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
       } catch (e) {
-        const text = `Error unfollowing grant: + ${e.message}`;
+        const text = `Error unfollowing grant: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
       }

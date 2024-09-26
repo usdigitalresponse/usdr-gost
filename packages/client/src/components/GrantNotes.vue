@@ -43,7 +43,7 @@
               e.g. need co-applicants, we applied last year
             </small>
             <div :class="charCountClass">
-              {{ noteText.length }} / 300
+              {{ filteredNoteText.length }} / 300
             </div>
           </div>
         </template>
@@ -133,16 +133,22 @@ export default {
     loadMoreVisible() {
       return this.notesNextCursor !== null;
     },
+    filteredNoteText() {
+      return this.noteText.trim();
+    },
+    emptyNoteText() {
+      return this.filteredNoteText.length === 0;
+    },
     noteSendBtnDisabled() {
-      return this.noteText.length === 0 || this.submittingNote;
+      return this.emptyNoteText || this.submittingNote;
     },
     charCountClass() {
-      const errColor = this.noteText.length === 300 ? 'text-error' : '';
+      const errColor = this.filteredNoteText.length === 300 ? 'text-error' : '';
 
       return `ml-auto ${errColor}`;
     },
     userNoteClass() {
-      const corners = this.otherNotes.length === 0 ? 'rounded-bottom-corners' : '';
+      const corners = this.emptyNoteText ? 'rounded-bottom-corners' : '';
 
       return `user-note ${corners}`;
     },
@@ -176,7 +182,7 @@ export default {
       this.submittingNote = true;
 
       try {
-        await this.saveNoteForGrant({ grantId: this.currentGrant.grant_id, text: this.noteText });
+        await this.saveNoteForGrant({ grantId: this.currentGrant.grant_id, text: this.filteredNoteText });
         this.$emit('noteSaved');
         await this.fetchUsersNote();
       } catch (e) {
@@ -220,6 +226,7 @@ export default {
 .user-note {
   background: $raw-blue-50
 }
+
 .text-gray-500 {
   color: $raw-gray-500
 }
@@ -230,11 +237,11 @@ export default {
 
 textarea.note-textarea {
   overflow: visible !important;
-  padding-right:2.25rem;
+  padding-right: 2.25rem;
 }
 
 textarea.note-textarea::placeholder {
-  font-size:0.875rem
+  font-size: 0.875rem
 }
 
 .note-edit-container {
@@ -253,7 +260,7 @@ textarea.note-textarea::placeholder {
 
 .show-more-btn {
   border-color: $raw-gray-300;
-  font-size:0.875rem;
+  font-size: 0.875rem;
 }
 
 .rounded-bottom-corners {
