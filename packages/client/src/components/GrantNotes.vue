@@ -10,7 +10,7 @@
         :user-name="loggedInUser.name"
         :color="loggedInUser.avatar_color"
       />
-      <b-form-group class="ml-2 mb-2 flex-grow-1 position-relative">
+      <b-form-group class="mx-3 mb-2 flex-grow-1 position-relative">
         <b-form-textarea
           ref="noteTextarea"
           v-model="noteText"
@@ -234,6 +234,7 @@ export default {
 .user-note {
   background: $raw-blue-50
 }
+
 .text-gray-500 {
   color: $raw-gray-500
 }
@@ -244,15 +245,15 @@ export default {
 
 textarea.note-textarea {
   overflow: visible !important;
-  padding-right:2.25rem;
+  padding-right: 2.25rem;
 }
 
 .activity-container {
-  padding: 1rem 1.25rem;
+  padding: 1.25rem;
 }
 
 textarea.note-textarea::placeholder {
-  font-size:0.875rem
+  font-size: 0.875rem
 }
 
 .note-edit-container {
@@ -271,7 +272,7 @@ textarea.note-textarea::placeholder {
 
 .show-more-btn {
   border-color: $raw-gray-300;
-  font-size:0.875rem;
+  font-size: 0.875rem;
 }
 
 .rounded-bottom-corners {

@@ -9,7 +9,7 @@
       <div :class="avatarSubBarClass" />
     </div>
 
-    <div class="d-flex flex-column flex-grow-1 has-flexi-truncate ml-2">
+    <div class="d-flex flex-column flex-grow-1 has-flexi-truncate mx-3">
       <div
         class="text-truncate"
         :title="title"
@@ -136,7 +136,7 @@ export default {
 }
 
 .activity-date-text {
-  font-size:0.75rem;
+  font-size: 0.75rem;
 }
 
 .activity-date-text:first-letter {
@@ -169,5 +169,4 @@ export default {
   color: $raw-gray-600;
   font-size: 0.75rem;
 }
-
 </style>

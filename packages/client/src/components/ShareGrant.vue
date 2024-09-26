@@ -1,12 +1,15 @@
 <!-- eslint-disable max-len -->
 <template>
-  <b-card header-bg-variant="white">
+  <b-card
+    header-bg-variant="white"
+    header-class="px-3 py-4"
+  >
     <template #header>
-      <h3 class="my-2">
+      <h3 class="m-0">
         {{ shareTerminologyEnabled ? 'Share Grant' : 'Assign Grant' }}
       </h3>
     </template>
-    <div class="mb-4">
+    <div class="mt-1 mb-4">
       <div class="d-flex print-d-none">
         <v-select
           v-model="selectedAgencyToAssign"
@@ -14,7 +17,7 @@
           :options="unassignedAgencies"
           label="name"
           track-by="id"
-          :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
+          :placeholder="`Choose ${newTerminologyEnabled ? 'team' : 'agency'}`"
           :clearable="false"
           data-dd-action-name="select team for grant assignment"
           @close="$refs.assignSubmitButton.focus()"
@@ -54,7 +57,7 @@
         <div
           v-for="agency in assignedAgencies"
           :key="agency.id"
-          class="my-3"
+          class="my-4"
         >
           <UserActivityItem
             :user-name="agency.assigned_by_name"
@@ -62,6 +65,7 @@
             :team-name="agency.assigned_by_agency_name"
             :avatar-color="agency.assigned_by_avatar_color"
             :created-at="agency.created_at"
+            copy-email-enabled
           >
             <div>
               Shared grant with <strong>{{ agency.name }}</strong>
@@ -151,5 +155,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
