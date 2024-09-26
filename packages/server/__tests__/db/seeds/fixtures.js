@@ -8,22 +8,22 @@ const roles = {
 
 const tenants = {
     SBA: {
-        id: 1,
+        id: 0,
         display_name: 'SBA',
     },
     USDR: {
-        id: 2,
+        id: 1,
         display_name: 'USDR',
     },
     FS: {
-        id: 3,
+        id: 2,
         display_name: 'FS',
     },
 };
 
 const agencies = {
     accountancy: {
-        id: 1,
+        id: 0,
         abbreviation: 'SBA',
         code: 'SBA',
         name: 'State Board of Accountancy',
@@ -31,7 +31,7 @@ const agencies = {
         tenant_id: tenants.SBA.id,
     },
     subAccountancy: {
-        id: 2,
+        id: 1,
         abbreviation: 'Sub SBA',
         code: 'SSBA',
         name: 'State Board of Sub Accountancy',
@@ -39,7 +39,7 @@ const agencies = {
         tenant_id: tenants.SBA.id,
     },
     usdr: {
-        id: 3,
+        id: 2,
         abbreviation: 'USDR',
         code: 'USDR',
         name: 'United States Digital Response',
