@@ -12,5 +12,3 @@ export function daysUntil(dateString) {
 export const formatDate = (dateString) => DateTime.fromISO(dateString).toLocaleString(DateTime.DATE_MED);
 
 export const formatDateTime = (dateString) => DateTime.fromISO(dateString).toLocaleString(DateTime.DATETIME_MED);
-
-export const ISO_DATE = 'YYYY-MM-DD';
