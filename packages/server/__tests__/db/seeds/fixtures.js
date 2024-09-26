@@ -8,22 +8,22 @@ const roles = {
 
 const tenants = {
     SBA: {
-        id: 0,
+        id: 1,
         display_name: 'SBA',
     },
     USDR: {
-        id: 1,
+        id: 2,
         display_name: 'USDR',
     },
     FS: {
-        id: 2,
+        id: 3,
         display_name: 'FS',
     },
 };
 
 const agencies = {
     accountancy: {
-        id: 0,
+        id: 1,
         abbreviation: 'SBA',
         code: 'SBA',
         name: 'State Board of Accountancy',
@@ -31,15 +31,15 @@ const agencies = {
         tenant_id: tenants.SBA.id,
     },
     subAccountancy: {
-        id: 1,
+        id: 2,
         abbreviation: 'Sub SBA',
         code: 'SSBA',
         name: 'State Board of Sub Accountancy',
-        parent: 0,
+        parent: tenants.SBA.id,
         tenant_id: tenants.SBA.id,
     },
     usdr: {
-        id: 2,
+        id: 3,
         abbreviation: 'USDR',
         code: 'USDR',
         name: 'United States Digital Response',
@@ -549,6 +549,12 @@ module.exports = {
     grantsViewed,
 };
 
+// Reset Id sequence where seeds supply predefined id
+const insertWithReset = async (knex, tableName, records) => {
+    await knex(tableName).insert(records);
+    await knex.raw(`SELECT setval('${tableName}_id_seq', (SELECT MAX(id) from "${tableName}"));`);
+};
+
 module.exports.seed = async (knex) => {
     // https://stackoverflow.com/a/36499676
     // await knex.migrate.rollback();
@@ -561,11 +567,11 @@ module.exports.seed = async (knex) => {
         },
     );
 
-    await knex(TABLES.tenants).insert(Object.values(tenants));
-    await knex(TABLES.roles).insert(Object.values(roles));
-    await knex(TABLES.agencies).insert(Object.values(agencies));
-    await knex(TABLES.tenants).update({ main_agency_id: agencies.accountancy.id }).where('id', 0);
-    await knex(TABLES.users).insert(Object.values(users));
+    await insertWithReset(knex, TABLES.tenants, Object.values(tenants));
+    await insertWithReset(knex, TABLES.roles, Object.values(roles));
+    await insertWithReset(knex, TABLES.agencies, Object.values(agencies));
+    await knex(TABLES.tenants).update({ main_agency_id: agencies.accountancy.id }).where('id', 1);
+    await insertWithReset(knex, TABLES.users, Object.values(users));
     await knex(TABLES.keywords).insert(Object.values(keywords));
     await knex(TABLES.interested_codes).insert(Object.values(interestedCodes));
     await knex(TABLES.eligibility_codes).insert(Object.values(eligibilityCodes));

@@ -38,13 +38,13 @@ describe('db', () => {
 
             const expectedLogOutput = [
                 'DRY RUN :: Begin migrating legacy agency criteria to saved searches',
-                'DRY RUN :: Migrating agency criteria for agency 0',
-                'DRY RUN :: No agency criteria to migrate for agency 1',
+                'DRY RUN :: Migrating agency criteria for agency 1',
                 'DRY RUN :: No agency criteria to migrate for agency 2',
+                'DRY RUN :: No agency criteria to migrate for agency 3',
                 'DRY RUN :: Migrating agency criteria for agency 4',
-                'DRY RUN :: Migrating agency criteria for users 1,2 belonging to agency 0',
-                'DRY RUN :: No agency criteria to migrate for users 3 belonging to agency 1',
-                'DRY RUN :: No agency criteria to migrate for users 4 belonging to agency 2',
+                'DRY RUN :: Migrating agency criteria for users 1,2 belonging to agency 1',
+                'DRY RUN :: No agency criteria to migrate for users 3 belonging to agency 2',
+                'DRY RUN :: No agency criteria to migrate for users 4 belonging to agency 3',
                 'DRY RUN :: No users to migrate for agency 4',
                 'DRY RUN :: Would have inserted approximately 2 saved searches. Note: there may be duplicates.',
                 'DRY RUN :: Done migrating legacy agency criteria to saved searches',
@@ -64,13 +64,13 @@ describe('db', () => {
 
             const expectedLogOutput = [
                 'Begin migrating legacy agency criteria to saved searches',
-                'Migrating agency criteria for agency 0',
-                'No agency criteria to migrate for agency 1',
+                'Migrating agency criteria for agency 1',
                 'No agency criteria to migrate for agency 2',
+                'No agency criteria to migrate for agency 3',
                 'Migrating agency criteria for agency 4',
-                'Migrating agency criteria for users 1,2 belonging to agency 0',
-                'No agency criteria to migrate for users 3 belonging to agency 1',
-                'No agency criteria to migrate for users 4 belonging to agency 2',
+                'Migrating agency criteria for users 1,2 belonging to agency 1',
+                'No agency criteria to migrate for users 3 belonging to agency 2',
+                'No agency criteria to migrate for users 4 belonging to agency 3',
                 'No users to migrate for agency 4',
                 'Inserted 2 saved searches',
                 'Done migrating legacy agency criteria to saved searches',
@@ -111,13 +111,13 @@ describe('db', () => {
 
             const expectedLogOutput = [
                 'Begin migrating legacy agency criteria to saved searches',
-                'Migrating agency criteria for agency 0',
-                'No agency criteria to migrate for agency 1',
+                'Migrating agency criteria for agency 1',
                 'No agency criteria to migrate for agency 2',
+                'No agency criteria to migrate for agency 3',
                 'Migrating agency criteria for agency 4',
-                'Migrating agency criteria for users 1,2 belonging to agency 0',
-                'No agency criteria to migrate for users 3 belonging to agency 1',
-                'No agency criteria to migrate for users 4 belonging to agency 2',
+                'Migrating agency criteria for users 1,2 belonging to agency 1',
+                'No agency criteria to migrate for users 3 belonging to agency 2',
+                'No agency criteria to migrate for users 4 belonging to agency 3',
                 'No users to migrate for agency 4',
                 'Inserted 1 saved searches', // This would have been 2 if not for the duplication mechanism.
                 'Done migrating legacy agency criteria to saved searches',
@@ -377,6 +377,8 @@ describe('db', () => {
                 filters: {
                     assignedToAgency: fixtures.users.staffUser.agency_id.toString(),
                 },
+                perPage: 50,
+                currentPage: 1,
             });
             expect(result).to.have.property('data').with.lengthOf(1);
             expect(result.data[0].grant_id)
