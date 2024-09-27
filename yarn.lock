@@ -1412,25 +1412,25 @@
     debug "^3.1.0"
     lodash.once "^4.1.1"
 
-"@datadog/browser-core@5.27.0":
-  version "5.27.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.27.0.tgz#7f82b511ea2555c7bc281b7fb8328d9cf7cf0c86"
-  integrity sha512-lgc2cTZFUNWaeTLIK6laXoTRIycSHcQWMDWhAkdROsqbXK5DEHMagKqn3WGBCFN7uEnnohLPBSzmbZP4wwQfJA==
+"@datadog/browser-core@5.28.0":
+  version "5.28.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.28.0.tgz#bd4677eeb08fcd3c98eba0600e34a2d8bc347ee2"
+  integrity sha512-aLYXaTkbZQIpyx+mxRGnj3Es6njoac8VhBaGr27KPuvwb/xJlBgAt5K/xdGxAPO135mdfq5evmguWuMpffE4Og==
 
-"@datadog/browser-rum-core@5.27.0":
-  version "5.27.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.27.0.tgz#c682572dbe323511382429739b604f458ca60023"
-  integrity sha512-YFKnoglFnujAGgefXl+7NUmnpmlox9bJ3wYK7AFje2mh6O6MtquyLHHkNJI9lGLEmvdjubipgF0Fh45S8bIUHw==
+"@datadog/browser-rum-core@5.28.0":
+  version "5.28.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.28.0.tgz#3c2be9931a77fb951c4b8662cc2708c0b88e128c"
+  integrity sha512-SlYMGgtKhwgSdLVMvY7vMUDCzBvDC3YIjtZuaazIqW5+mPtO/MRXNhq+oXjp4MljiBrf7NYZ3C0lq2qUE5hvYg==
   dependencies:
-    "@datadog/browser-core" "5.27.0"
+    "@datadog/browser-core" "5.28.0"
 
 "@datadog/browser-rum@^5.5.0":
-  version "5.27.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.27.0.tgz#c2746742a0c9d73129a281e98e5e105796491f19"
-  integrity sha512-8tCHJ6yU6O91fcJmQL29nRj9yEqxIMcJdP6eMziXRJhCrpQqz9c34FwVyrY9KfJG4KBnvakNV53aVE6AOOfhSA==
+  version "5.28.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.28.0.tgz#94043c5986dbc74f51449e8bc44824aaa8ba4234"
+  integrity sha512-PZPUelUPHWR+TxzvS7PgGudU4QiaMuZLAjTy0q0x5j32+upKbUsKtmSmRyZYxEoWa70ncsRMER+Pk3ky0hE2gQ==
   dependencies:
-    "@datadog/browser-core" "5.27.0"
-    "@datadog/browser-rum-core" "5.27.0"
+    "@datadog/browser-core" "5.28.0"
+    "@datadog/browser-rum-core" "5.28.0"
 
 "@datadog/native-appsec@8.1.1":
   version "8.1.1"
