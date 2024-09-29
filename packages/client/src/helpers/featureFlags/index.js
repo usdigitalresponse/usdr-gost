@@ -15,7 +15,3 @@ export function shareTerminologyEnabled() {
 export function followNotesEnabled() {
   return getFeatureFlags().followNotesEnabled === true;
 }
-
-export function showForecastedGrants() {
-  return getFeatureFlags().showForecastedGrants === true;
-}

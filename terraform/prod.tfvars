@@ -52,7 +52,6 @@ website_feature_flags = {
   newGrantsDetailPageEnabled = true,
   shareTerminologyEnabled    = true,
   followNotesEnabled         = false,
-  showForecastedGrants       = false,
 }
 
 // Google Analytics Account ID: 233192355, Property ID: 321194851, Stream ID: 3802896350
