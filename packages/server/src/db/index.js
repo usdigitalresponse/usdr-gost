@@ -24,7 +24,6 @@ const { TABLES } = require('./constants');
 const emailConstants = require('../lib/email/constants');
 const { fundingActivityCategoriesByCode } = require('../lib/fieldConfigs/fundingActivityCategories');
 const helpers = require('./helpers');
-const showForecastedGrants = require('./helpers/featureFlags').showForecastedGrants;
 
 async function getUsers(tenantId) {
     const users = await knex('users')
@@ -350,12 +349,8 @@ async function getNewGrantsForAgency(agency) {
         .select(knex.raw(`${TABLES.grants}.*, count(*) OVER() AS total_grants`))
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
         .modify((qb) => {
-            if (showForecastedGrants) {
-                qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') })
-            } else {
-                qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') })
+            qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') })
                 .whereNot({ opportunity_status: 'forecasted' });
-            }
         })
         .limit(3);
 
@@ -768,6 +763,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
         .select(knex.raw(`
             count(*) OVER() AS full_count
         `))
+        .whereNot({ opportunity_status: 'forecasted' })
         .groupBy(
             'grants.grant_id',
             'grants.grant_number',
@@ -796,9 +792,6 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.bill',
             'grants.funding_activity_category_codes',
         );
-    if (!showForecastedGrants) {
-        query.whereNot({ opportunity_status: 'forecasted' });
-    }
     if (toCsv) {
         query.modify(addCsvData);
     }
@@ -854,11 +847,7 @@ async function getGrants({
     currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc,
 } = {}) {
     const data = await knex(TABLES.grants)
-        .modify((queryBuilder) => {
-            if (!showForecastedGrants) {
-                queryBuilder.whereNot(`${TABLES.grants}.opportunity_status`, 'forecasted');
-            }
-        })
+        .whereNot(`${TABLES.grants}.opportunity_status`, 'forecasted')
         .modify((queryBuilder) => {
             if (searchTerm && searchTerm !== 'null') {
                 queryBuilder.andWhere(
