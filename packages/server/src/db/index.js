@@ -349,7 +349,7 @@ async function getNewGrantsForAgency(agency) {
         .select(knex.raw(`${TABLES.grants}.*, count(*) OVER() AS total_grants`))
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
         .modify((qb) => {
-            qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') })
+            qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') });
         })
         .limit(3);
 
@@ -713,7 +713,7 @@ function addCsvData(qb) {
     tenantId: number
     agencyId: number
 */
-async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId, toCsv, showForecastedGrants=false) {
+async function getGrantsNew(filters, paginationParams, orderingParams, tenantId, agencyId, toCsv, showForecastedGrants = false) {
     const errors = validateSearchFilters(filters);
     if (errors.length > 0) {
         throw new Error(`Invalid filters: ${errors.join(', ')}`);
@@ -847,7 +847,7 @@ async function enhanceGrantData(tenantId, data) {
 }
 
 async function getGrants({
-    currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc, showForecastedGrants
+    currentPage, perPage, tenantId, filters, orderBy, searchTerm, orderDesc, showForecastedGrants,
 } = {}) {
     const data = await knex(TABLES.grants)
         .modify((queryBuilder) => {
@@ -1019,8 +1019,8 @@ async function getGrant({ grantId, showForecastedGrants }) {
             if (!showForecastedGrants) {
                 queryBuilder.whereNot({ opportunity_status: 'forecasted' });
             }
-        })
-    return results[0];
+        });
+    return results.length ? results[0] : null;
 }
 
 async function getSingleGrantDetails({ grantId, tenantId, showForecastedGrants }) {
@@ -1031,7 +1031,7 @@ async function getSingleGrantDetails({ grantId, tenantId, showForecastedGrants }
             if (!showForecastedGrants) {
                 queryBuilder.whereNot({ opportunity_status: 'forecasted' });
             }
-        })
+        });
     const enhancedResults = await enhanceGrantData(tenantId, results);
     return enhancedResults.length ? enhancedResults[0] : null;
 }
