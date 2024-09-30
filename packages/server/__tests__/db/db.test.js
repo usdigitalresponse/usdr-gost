@@ -363,12 +363,12 @@ describe('db', () => {
             expect(result).to.be.null;
         });
         it('shows forecasted grants', async () => {
-            grantId = '444819'
+            const grantId = '444819';
             const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id, showForecastedGrants: true });
             expect(result.grant_id).to.eq('444819');
         });
         it('hides forecasted grants', async () => {
-            grantId = '444819'
+            const grantId = '444819';
             const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id, showForecastedGrants: false });
             expect(result).to.be.null;
         });
@@ -826,17 +826,6 @@ describe('db', () => {
             await knex(TABLES.grants).insert(Object.values([newGrant]));
             const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
             expect(result.length).to.equal(1);
-        });
-        it('does not return forecasted grants', async () => {
-            // marissa
-            const newGrant = fixtures.grants.healthAide;
-            newGrant.grant_id = '444817';
-            newGrant.open_date = new Date('2022-06-21');
-            newGrant.opportunity_status = 'forecasted';
-            await knex(TABLES.grants).insert(Object.values([newGrant]));
-            const result = await db.getNewGrantsForAgency(fixtures.agencies.accountancy);
-            const forecastedGrant = result.filter((grant) => grant.grant_id === '444817');
-            expect(forecastedGrant.length).to.equal(0);
         });
     });
 

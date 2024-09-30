@@ -349,8 +349,7 @@ async function getNewGrantsForAgency(agency) {
         .select(knex.raw(`${TABLES.grants}.*, count(*) OVER() AS total_grants`))
         .modify(helpers.whereAgencyCriteriaMatch, agencyCriteria)
         .modify((qb) => {
-            qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') })
-                .whereNot({ opportunity_status: 'forecasted' });
+            qb.where({ open_date: moment().subtract(1, 'day').format('YYYY-MM-DD') });
         })
         .limit(3);
 
