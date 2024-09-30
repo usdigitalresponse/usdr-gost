@@ -78,7 +78,7 @@ async function createUser(user) {
             (k) => ({ [k]: emailConstants.emailSubscriptionStatus.subscribed }),
         ),
     );
-    module.exports.setUserEmailSubscriptionPreference(response[0].id, user.agency_id, emailUnsubscribePreference);
+    await setUserEmailSubscriptionPreference(response[0].id, user.agency_id, emailUnsubscribePreference);
 
     return {
         ...user,
