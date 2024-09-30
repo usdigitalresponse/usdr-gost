@@ -423,7 +423,7 @@ async function sendGrantAssignedEmails({ grantId, agencyIds, userId }) {
             i. Send email
     */
     try {
-        const grant = await db.getGrant({ grantId });
+        const grant = await db.getGrant({ grantId, showForecastedGrants: process.env.SHOW_FORECASTED_GRANTS });
         const grantDetail = await buildGrantDetail(grant, notificationType.grantAssignment);
         const agencies = await db.getAgenciesByIds(agencyIds);
         await asyncBatch(
