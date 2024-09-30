@@ -236,8 +236,8 @@ export default {
         return null;
       }
     },
-    async getFollowersForGrant({ rootGetters, commit }, { grantId, limit, paginateFrom }) {
-      const queryParams = serializeQuery({ limit, paginateFrom });
+    async getFollowersForGrant({ rootGetters, commit }, { grantId, limit, cursor }) {
+      const queryParams = serializeQuery({ limit, cursor });
       try {
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/followers${queryParams}`);
       } catch (e) {
@@ -247,8 +247,8 @@ export default {
         return null;
       }
     },
-    async getNotesForGrant({ rootGetters, commit }, { grantId, limit, paginateFrom }) {
-      const queryParams = serializeQuery({ limit, paginateFrom });
+    async getNotesForGrant({ rootGetters, commit }, { grantId, limit, cursor }) {
+      const queryParams = serializeQuery({ limit, cursor });
       try {
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes${queryParams}`);
       } catch (e) {

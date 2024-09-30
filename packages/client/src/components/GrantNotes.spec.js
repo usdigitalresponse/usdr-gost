@@ -161,7 +161,7 @@ describe('GrantNotes component', () => {
 
     await flushPromises();
 
-    expect(mockStore.actions['grants/getNotesForGrant'].mock.lastCall[1].paginateFrom).toEqual(NEXT_ID);
+    expect(mockStore.actions['grants/getNotesForGrant'].mock.lastCall[1].cursor).toEqual(NEXT_ID);
     const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note]');
     expect(otherNoteCmps).toHaveLength(4);
     expect(wrapper.findComponent('[data-test-show-more-btn]').exists()).toEqual(false);

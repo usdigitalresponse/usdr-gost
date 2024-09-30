@@ -136,12 +136,12 @@ describe('Grants Collaboration', () => {
             expect(result.pagination.next).to.be.null;
         });
 
-        it('gets filtered notes for grant using afterRevision (pagination)', async () => {
+        it('gets filtered notes for grant using cursor (pagination)', async () => {
             const results = await getOrganizationNotesForGrant(
                 knex,
                 grant.grant_id,
                 tenant.id,
-                { afterRevision: adminLastRevision.id },
+                { cursor: adminLastRevision.id },
             );
 
             expect(results.notes).to.have.length(1);
@@ -217,7 +217,7 @@ describe('Grants Collaboration', () => {
 
         it('retrieves ALL followers for a grant', async () => {
             const result = await getFollowersForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, {
-                beforeFollow: null,
+                cursor: null,
             });
 
             expect(result.followers).to.have.lengthOf(2);
@@ -226,7 +226,7 @@ describe('Grants Collaboration', () => {
 
         it('retrieves followers for a grant with PAGINATION', async () => {
             const result = await getFollowersForGrant(knex, fixtures.grants.earFellowship.grant_id, fixtures.agencies.accountancy.tenant_id, {
-                beforeFollow: follower2.id,
+                cursor: follower2.id,
             });
 
             expect(result.followers).to.have.lengthOf(1);

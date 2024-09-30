@@ -35,7 +35,7 @@ async function saveNoteRevision(knex, grantId, userId, text) {
 async function getCurrentNoteRevisions(
     knex,
     { grantId, organizationId, userId } = {},
-    { afterRevision, limit = 50 } = {},
+    { cursor, limit = 50 } = {},
 ) {
     const subquery = knex
         .select(knex.raw(`r.*, count(*) OVER() AS total_revisions`))
@@ -83,8 +83,8 @@ async function getCurrentNoteRevisions(
         query = query.andWhere('grant_notes.user_id', userId);
     }
 
-    if (afterRevision) {
-        query = query.andWhere('rev.id', '<', afterRevision);
+    if (cursor) {
+        query = query.andWhere('rev.id', '<', cursor);
     }
 
     const notesWithLead = await query
@@ -128,18 +128,18 @@ async function getOrganizationNotesForGrantByUser(
     organizationId,
     userId,
     grantId,
-    { afterRevision, limit = 50 } = {},
+    { cursor, limit = 50 } = {},
 ) {
-    return getCurrentNoteRevisions(knex, { grantId, organizationId, userId }, { afterRevision, limit });
+    return getCurrentNoteRevisions(knex, { grantId, organizationId, userId }, { cursor, limit });
 }
 
 async function getOrganizationNotesForGrant(
     knex,
     grantId,
     organizationId,
-    { afterRevision, limit = 50 } = {},
+    { cursor, limit = 50 } = {},
 ) {
-    return getCurrentNoteRevisions(knex, { grantId, organizationId }, { afterRevision, limit });
+    return getCurrentNoteRevisions(knex, { grantId, organizationId }, { cursor, limit });
 }
 
 module.exports = {

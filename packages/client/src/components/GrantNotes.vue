@@ -204,7 +204,7 @@ export default {
       };
 
       if (this.notesNextCursor !== null) {
-        query.paginateFrom = this.notesNextCursor;
+        query.cursor = this.notesNextCursor;
       }
 
       const result = await this.getNotesForGrant(query);
