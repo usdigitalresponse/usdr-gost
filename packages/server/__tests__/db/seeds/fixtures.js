@@ -35,7 +35,7 @@ const agencies = {
         abbreviation: 'Sub SBA',
         code: 'SSBA',
         name: 'State Board of Sub Accountancy',
-        parent: tenants.SBA.id,
+        parent: 0,
         tenant_id: tenants.SBA.id,
     },
     usdr: {
