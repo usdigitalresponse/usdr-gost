@@ -50,7 +50,7 @@
       </b-form-group>
     </div>
 
-    <!-- Users Note -->
+    <!-- Current User's Note -->
     <GrantNote
       v-if="userNote && !editingNote"
       data-test-user-note
@@ -87,7 +87,7 @@
 
     <div
       v-if="loadMoreVisible"
-      class="px-3 mb-3"
+      class="px-3 mb-3 mt-1"
     >
       <b-button
         block
@@ -108,6 +108,7 @@ import { nextTick } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 import UserAvatar from '@/components/UserAvatar.vue';
 import GrantNote from '@/components/GrantNote.vue';
+import { grantNotesLimit } from '@/helpers/featureFlags';
 
 export default {
   components: {
@@ -200,7 +201,7 @@ export default {
     async fetchNextNotes() {
       const query = {
         grantId: this.currentGrant.grant_id,
-        limit: 4,
+        limit: grantNotesLimit(),
       };
 
       if (this.notesNextCursor !== null) {
