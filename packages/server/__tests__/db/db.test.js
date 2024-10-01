@@ -396,16 +396,6 @@ describe('db', () => {
         });
     });
 
-    // context('getGrants', () => {
-    //     it('gets forecasted grants', async () => {
-    //         const result = await db.getGrants({
-    //             showForecastedGrants: true,
-    //         });
-    //         const forecastedGrant = result.data.filter((grant) => grant.opportunity_status === 'forecasted');
-    //         expect(forecastedGrant.length).to.equal(1);
-    //     });
-    // });
-
     context('getGrant', () => {
         it('gets forecasted grant', async () => {
             const result = await db.getGrant({ grantId: fixtures.grants.forecastedGrant.grant_id, showForecastedGrants: true });
