@@ -20,7 +20,3 @@ export function followNotesEnabled() {
 export function grantNotesLimit() {
   return parseInt(getFeatureFlags().grantNotesLimit, 10) || 4;
 }
-
-export function showForecastedGrants() {
-  return getFeatureFlags().showForecastedGrants === true;
-}
