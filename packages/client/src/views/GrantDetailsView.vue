@@ -546,7 +546,8 @@ export default {
   z-index: -1000;
   top: 0;
   left: 0;
-  height: 1000px;
+  min-height: 1000px;
+  height: 100%;
   background: rgb(244, 247, 249);
 }
 

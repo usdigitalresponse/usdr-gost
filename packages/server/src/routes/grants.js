@@ -50,7 +50,7 @@ router.get('/', requireUser, async (req, res) => {
 router.get('/:grantId/notes/user/:userId', requireUser, async (req, res) => {
     const { grantId, userId } = req.params;
     const { tenant_id: organizationId } = req.session.user;
-    const { paginateFrom, limit } = req.query;
+    const { cursor, limit } = req.query;
 
     // Converting limit to an integer
     const limitInt = limit ? parseInt(limit, 10) : undefined;
@@ -68,7 +68,7 @@ router.get('/:grantId/notes/user/:userId', requireUser, async (req, res) => {
             organizationId,
             userId,
             grantId,
-            { afterRevision: paginateFrom, limit: limitInt },
+            { cursor, limit: limitInt },
         );
 
         // sending the notes as JSON response
@@ -478,7 +478,7 @@ router.delete('/:grantId/follow', requireUser, async (req, res) => {
 router.get('/:grantId/notes', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { user } = req.session;
-    const { paginateFrom, limit } = req.query;
+    const { cursor, limit } = req.query;
     const limitInt = limit ? parseInt(limit, 10) : undefined;
 
     if (limit && (!Number.isInteger(limitInt) || limitInt < 1 || limitInt > 100)) {
@@ -486,7 +486,7 @@ router.get('/:grantId/notes', requireUser, async (req, res) => {
         return;
     }
 
-    const rows = await getOrganizationNotesForGrant(knex, grantId, user.tenant_id, { afterRevision: paginateFrom, limit: limitInt });
+    const rows = await getOrganizationNotesForGrant(knex, grantId, user.tenant_id, { cursor, limit: limitInt });
 
     res.json(rows);
 });
@@ -522,7 +522,7 @@ router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
 router.get('/:grantId/followers', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { user } = req.session;
-    const { paginateFrom, limit } = req.query;
+    const { cursor, limit } = req.query;
     const limitInt = limit ? parseInt(limit, 10) : undefined;
 
     if (limit && (!Number.isInteger(limitInt) || limitInt < 1 || limitInt > 100)) {
@@ -531,7 +531,7 @@ router.get('/:grantId/followers', requireUser, async (req, res) => {
     }
 
     const followers = await getFollowersForGrant(knex, grantId, user.tenant_id, {
-        beforeFollow: paginateFrom,
+        cursor,
         limit: limitInt,
     });
 

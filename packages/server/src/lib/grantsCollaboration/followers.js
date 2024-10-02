@@ -45,7 +45,7 @@ async function getFollowerForGrant(knex, grantId, userId) {
 }
 
 async function getFollowersForGrant(knex, grantId, organizationId, {
-    beforeFollow, limit = 50,
+    cursor, limit = 50,
 } = {}) {
     const query = knex('grant_followers')
         .select(
@@ -55,6 +55,7 @@ async function getFollowersForGrant(knex, grantId, organizationId, {
             'grant_followers.created_at',
             'users.name as user_name',
             'users.email as user_email',
+            'users.avatar_color as user_avatar_color',
             'tenants.id as organization_id',
             'tenants.display_name as organization_name',
             'agencies.id as team_id',
@@ -68,20 +69,20 @@ async function getFollowersForGrant(knex, grantId, organizationId, {
         .orderBy('created_at', 'desc')
         .limit(limit + 1);
 
-    if (beforeFollow) {
-        query.andWhere('grant_followers.id', '<', beforeFollow);
+    if (cursor) {
+        query.andWhere('grant_followers.id', '<', cursor);
     }
 
-    const grantFollowersResult = await query;
-    const hasMore = grantFollowersResult.length > limit;
+    const followersWithLead = await query;
+    const hasMore = followersWithLead.length > limit;
 
-    // remove forward looking extra
-    const grantFollowersReturn = hasMore
-        ? grantFollowersResult.slice(0, -1)
-        : grantFollowersResult;
+    // remove forward looking lead
+    const grantFollowers = hasMore
+        ? followersWithLead.slice(0, -1)
+        : followersWithLead;
 
     return {
-        followers: grantFollowersReturn
+        followers: grantFollowers
             .map((grantFollower) => ({
                 id: grantFollower.id,
                 createdAt: grantFollower.created_at,
@@ -92,6 +93,7 @@ async function getFollowersForGrant(knex, grantId, organizationId, {
                     id: grantFollower.user_id,
                     name: grantFollower.user_name,
                     email: grantFollower.user_email,
+                    avatarColor: grantFollower.user_avatar_color,
                     team: {
                         id: grantFollower.team_id,
                         name: grantFollower.team_name,
@@ -103,7 +105,7 @@ async function getFollowersForGrant(knex, grantId, organizationId, {
                 },
             })),
         pagination: {
-            next: hasMore ? grantFollowersReturn[grantFollowersReturn.length - 1].id : null,
+            next: hasMore ? grantFollowers[grantFollowers.length - 1].id : null,
         },
     };
 }

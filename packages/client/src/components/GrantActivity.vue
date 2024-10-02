@@ -3,6 +3,7 @@
     <b-card
       header-bg-variant="white"
       footer-bg-variant="white"
+      footer-class="p-0"
     >
       <template #header>
         <h3 class="my-2">
@@ -23,7 +24,6 @@
           block
           size="lg"
           :variant="followBtnVariant"
-          class="mb-4"
           data-follow-btn
           :disabled="!followStateLoaded"
           @click="toggleFollowState"
@@ -38,16 +38,17 @@
             {{ followBtnLabel }}
           </span>
         </b-button>
-        <div>
+        <div
+          v-if="grantHasFollowers || showNotesSummary"
+          class="mt-4"
+        >
           <b-link
             v-if="grantHasFollowers"
-            :class="followSummaryClass"
             data-follow-summary
             @click="$bvModal.show('grant-followers-modal')"
           >
             {{ followSummaryText }}
           </b-link>
-
           <span
             v-if="grantHasFollowers && showNotesSummary"
             class="mx-1"
@@ -58,6 +59,7 @@
 
       <template #footer>
         <!-- Feed -->
+        <GrantNotes @noteSaved="fetchFollowAndNotes" />
       </template>
     </b-card>
 
@@ -72,10 +74,12 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import GrantNotes from '@/components/GrantNotes.vue';
 import GrantFollowersModal from '@/components/Modals/GrantFollowers.vue';
 
 export default {
   components: {
+    GrantNotes,
     GrantFollowersModal,
   },
   data() {
@@ -96,9 +100,6 @@ export default {
     },
     followBtnVariant() {
       return this.userIsFollowing ? 'success' : 'primary';
-    },
-    followSummaryClass() {
-      return this.followStateLoaded ? 'visible' : 'invisible';
     },
     followSummaryText() {
       const userIsFollower = this.userIsFollowing;
@@ -131,12 +132,11 @@ export default {
         textCount = '50+';
       }
 
-      return `${textCount} notes`;
+      return `${textCount} ${this.notes.length === 1 ? 'note' : 'notes'}`;
     },
   },
   async beforeMount() {
-    this.fetchFollowState();
-    this.fetchAllNotes();
+    this.fetchFollowAndNotes();
   },
   methods: {
     ...mapActions({
@@ -146,6 +146,11 @@ export default {
       followGrantForCurrentUser: 'grants/followGrantForCurrentUser',
       unfollowGrantForCurrentUser: 'grants/unfollowGrantForCurrentUser',
     }),
+    fetchFollowAndNotes() {
+      this.followStateLoaded = false;
+      this.fetchFollowState();
+      this.fetchAllNotes();
+    },
     async fetchFollowState() {
       const followCalls = [
         this.getFollowerForGrant({ grantId: this.currentGrant.grant_id }),

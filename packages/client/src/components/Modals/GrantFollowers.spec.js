@@ -70,7 +70,7 @@ describe('GrantFollowers.vue', () => {
     modal.trigger('show');
 
     await flushPromises();
-    expect(mockStore.actions['grants/getFollowersForGrant'].mock.lastCall[1].paginateFrom).toBeUndefined();
+    expect(mockStore.actions['grants/getFollowersForGrant'].mock.lastCall[1].cursor).toBeUndefined();
 
     const showMoreBtn = wrapper.findComponent('[data-test-show-more-btn]');
 
@@ -80,7 +80,7 @@ describe('GrantFollowers.vue', () => {
     showMoreBtn.trigger('click');
 
     await flushPromises();
-    expect(mockStore.actions['grants/getFollowersForGrant'].mock.lastCall[1].paginateFrom).to.equal('id-x');
+    expect(mockStore.actions['grants/getFollowersForGrant'].mock.lastCall[1].cursor).to.equal('id-x');
 
     const followers = wrapper.findAll('[data-test-follower]');
 

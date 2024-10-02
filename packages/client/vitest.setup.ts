@@ -44,6 +44,7 @@ const stubs = [
   'b-tabs',
   'b-tooltip',
   'router-link',
+  'b-form-textarea',
 ];
 
 const directives = {
