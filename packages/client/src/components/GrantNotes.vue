@@ -43,7 +43,7 @@
               e.g. need co-applicants, we applied last year
             </small>
             <div :class="charCountClass">
-              {{ noteText.length }} / 300
+              {{ filteredNoteText.length }} / 300
             </div>
           </div>
         </template>
@@ -60,7 +60,7 @@
       :avatar-color="userNote.user.avatarColor"
       :created-at="userNote.createdAt"
       copy-email-enabled
-      data-test-user-note
+      data-test-user-note-id="userNote.id"
     >
       {{ userNote.text }}
       <template #actions>
@@ -101,7 +101,7 @@
 
     <div
       v-if="loadMoreVisible"
-      class="px-3 mb-3"
+      class="px-3 mb-3 mt-1"
     >
       <b-button
         block
@@ -122,6 +122,7 @@ import { nextTick } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 import UserAvatar from '@/components/UserAvatar.vue';
 import UserActivityItem from '@/components/UserActivityItem.vue';
+import { grantNotesLimit } from '@/helpers/featureFlags';
 
 export default {
   components: {
@@ -147,11 +148,17 @@ export default {
     loadMoreVisible() {
       return this.notesNextCursor !== null;
     },
+    filteredNoteText() {
+      return this.noteText.trim();
+    },
+    emptyNoteText() {
+      return this.filteredNoteText.length === 0;
+    },
     noteSendBtnDisabled() {
-      return this.noteText.length === 0 || this.submittingNote;
+      return this.emptyNoteText || this.submittingNote;
     },
     charCountClass() {
-      const errColor = this.noteText.length === 300 ? 'text-error' : '';
+      const errColor = this.filteredNoteText.length === 300 ? 'text-error' : '';
 
       return `ml-auto ${errColor}`;
     },
@@ -190,7 +197,7 @@ export default {
       this.submittingNote = true;
 
       try {
-        await this.saveNoteForGrant({ grantId: this.currentGrant.grant_id, text: this.noteText });
+        await this.saveNoteForGrant({ grantId: this.currentGrant.grant_id, text: this.filteredNoteText });
         this.$emit('noteSaved');
         await this.fetchUsersNote();
       } catch (e) {
@@ -208,11 +215,11 @@ export default {
     async fetchNextNotes() {
       const query = {
         grantId: this.currentGrant.grant_id,
-        limit: 4,
+        limit: grantNotesLimit(),
       };
 
       if (this.notesNextCursor !== null) {
-        query.paginateFrom = this.notesNextCursor;
+        query.cursor = this.notesNextCursor;
       }
 
       const result = await this.getNotesForGrant(query);

@@ -35,15 +35,20 @@ async function saveNoteRevision(knex, grantId, userId, text) {
 async function getCurrentNoteRevisions(
     knex,
     { grantId, organizationId, userId } = {},
-    { afterRevision, limit = 50 } = {},
+    { cursor, limit = 50 } = {},
 ) {
-    const subquery = knex
-        .select(knex.raw(`r.*, count(*) OVER() AS total_revisions`))
+    const recentRevsQuery = knex
+        .select('r.*')
         .from({ r: 'grant_notes_revisions' })
         .whereRaw('r.grant_note_id = grant_notes.id')
         .orderBy('r.created_at', 'desc')
-        .limit(1)
-        .as('rev');
+        .limit(2);
+
+    const revQuery = knex
+        .select(knex.raw(`recent_revs.*, count(recent_revs.*) OVER() > 1 as is_revised`))
+        .fromRaw(`(${recentRevsQuery.toQuery()}) as recent_revs`)
+        .orderBy('recent_revs.created_at', 'desc')
+        .limit(1);
 
     let query = knex('grant_notes')
         .select([
@@ -53,7 +58,7 @@ async function getCurrentNoteRevisions(
             'rev.id as latest_revision_id',
             'rev.created_at as revised_at',
             'rev.text',
-            'rev.total_revisions as total_revisions',
+            'rev.is_revised as is_revised',
             'users.id as user_id',
             'users.name as user_name',
             'users.email as user_email',
@@ -63,7 +68,7 @@ async function getCurrentNoteRevisions(
             'agencies.id as team_id',
             'agencies.name as team_name',
         ])
-        .joinRaw(`LEFT JOIN LATERAL (${subquery.toQuery()}) AS rev ON rev.grant_note_id = grant_notes.id`)
+        .joinRaw(`LEFT JOIN LATERAL (${revQuery.toQuery()}) AS rev ON rev.grant_note_id = grant_notes.id`)
         .join('users', 'users.id', 'grant_notes.user_id')
         .join('agencies', 'agencies.id', 'users.agency_id')
         .join('tenants', 'tenants.id', 'users.tenant_id');
@@ -83,8 +88,8 @@ async function getCurrentNoteRevisions(
         query = query.andWhere('grant_notes.user_id', userId);
     }
 
-    if (afterRevision) {
-        query = query.andWhere('rev.id', '<', afterRevision);
+    if (cursor) {
+        query = query.andWhere('rev.id', '<', cursor);
     }
 
     const notesWithLead = await query
@@ -99,7 +104,7 @@ async function getCurrentNoteRevisions(
         notes: notes.map((note) => ({
             id: note.latest_revision_id,
             createdAt: note.revised_at,
-            isRevised: parseInt(note.total_revisions, 10) > 1,
+            isRevised: note.is_revised,
             text: note.text,
             grant: { id: note.grant_id },
             user: {
@@ -128,18 +133,18 @@ async function getOrganizationNotesForGrantByUser(
     organizationId,
     userId,
     grantId,
-    { afterRevision, limit = 50 } = {},
+    { cursor, limit = 50 } = {},
 ) {
-    return getCurrentNoteRevisions(knex, { grantId, organizationId, userId }, { afterRevision, limit });
+    return getCurrentNoteRevisions(knex, { grantId, organizationId, userId }, { cursor, limit });
 }
 
 async function getOrganizationNotesForGrant(
     knex,
     grantId,
     organizationId,
-    { afterRevision, limit = 50 } = {},
+    { cursor, limit = 50 } = {},
 ) {
-    return getCurrentNoteRevisions(knex, { grantId, organizationId }, { afterRevision, limit });
+    return getCurrentNoteRevisions(knex, { grantId, organizationId }, { cursor, limit });
 }
 
 module.exports = {

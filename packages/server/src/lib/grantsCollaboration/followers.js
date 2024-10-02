@@ -45,7 +45,7 @@ async function getFollowerForGrant(knex, grantId, userId) {
 }
 
 async function getFollowersForGrant(knex, grantId, organizationId, {
-    beforeFollow, limit = 50,
+    cursor, limit = 50,
 } = {}) {
     const query = knex('grant_followers')
         .select(
@@ -69,8 +69,8 @@ async function getFollowersForGrant(knex, grantId, organizationId, {
         .orderBy('created_at', 'desc')
         .limit(limit + 1);
 
-    if (beforeFollow) {
-        query.andWhere('grant_followers.id', '<', beforeFollow);
+    if (cursor) {
+        query.andWhere('grant_followers.id', '<', cursor);
     }
 
     const followersWithLead = await query;

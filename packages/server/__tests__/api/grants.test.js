@@ -954,7 +954,7 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
         });
 
         it('returns notes with PAGINATION', async () => {
-            const resp = await fetchApi(`/grants/${GRANT_ID}/notes?paginateFrom=${revision2.id}`, agencies.own, fetchOptions.staff);
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes?cursor=${revision2.id}`, agencies.own, fetchOptions.staff);
             const respBody = await resp.json();
 
             expect(respBody.notes.length).to.equal(1);
@@ -1017,7 +1017,7 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             expect(respBody.followers).to.have.lengthOf(1);
         });
         it('retrieves followers for a grant with PAGINATION', async () => {
-            const response = await fetchApi(`/grants/${GRANT_ID}/followers?paginateFrom=${follower2.id}`, agencies.own, fetchOptions.admin);
+            const response = await fetchApi(`/grants/${GRANT_ID}/followers?cursor=${follower2.id}`, agencies.own, fetchOptions.admin);
             const respBody = await response.json();
 
             expect(respBody.followers).to.have.lengthOf(1);
