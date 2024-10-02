@@ -136,7 +136,7 @@ export default {
       return `${textCount} ${this.notes.length === 1 ? 'note' : 'notes'}`;
     },
   },
-  async beforeMount() {
+  beforeMount() {
     this.fetchFollowAndNotes();
   },
   methods: {

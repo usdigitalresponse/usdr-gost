@@ -79,7 +79,7 @@ describe('GrantNotes component', () => {
     const inputCmp = wrapper.findComponent('[data-test-note-input]');
     expect(inputCmp.exists()).toEqual(false);
 
-    const userNoteCmp = wrapper.findComponent('[data-test-user-note]');
+    const userNoteCmp = wrapper.findComponent('[data-test-user-note-id]');
     expect(userNoteCmp.exists()).equal(true);
 
     const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note-id]');
@@ -134,7 +134,7 @@ describe('GrantNotes component', () => {
     await flushPromises();
 
     expect(mockStore.actions['grants/saveNoteForGrant'].mock.lastCall[1].text).toEqual('My Note');
-    const userNoteCmp = wrapper.findComponent('[data-test-user-note]');
+    const userNoteCmp = wrapper.findComponent('[data-test-user-note-id]');
     expect(userNoteCmp.exists()).equal(true);
   });
 
@@ -162,7 +162,7 @@ describe('GrantNotes component', () => {
 
     await flushPromises();
 
-    expect(mockStore.actions['grants/getNotesForGrant'].mock.lastCall[1].paginateFrom).toEqual(NEXT_ID);
+    expect(mockStore.actions['grants/getNotesForGrant'].mock.lastCall[1].cursor).toEqual(NEXT_ID);
     const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note-id]');
     expect(otherNoteCmps).toHaveLength(4);
     expect(wrapper.findComponent('[data-test-show-more-btn]').exists()).toEqual(false);

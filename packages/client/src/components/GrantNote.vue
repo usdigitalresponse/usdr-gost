@@ -1,42 +1,35 @@
 <template>
-  <div class="d-flex has-flexi-truncate">
+  <div class="d-flex note-container">
     <div class="d-flex flex-column">
       <UserAvatar
-        :user-name="userName"
+        :user-name="note.user.name"
         size="2.5rem"
-        :color="avatarColor"
+        :color="note.user.avatarColor"
       />
-      <div :class="avatarSubBarClass" />
+      <div class="note_vertical position-relative flex-grow-1" />
     </div>
 
-    <div class="d-flex flex-column flex-grow-1 has-flexi-truncate mx-3">
-      <div
-        class="text-truncate"
-        :title="title"
-      >
-        <span class="font-weight-bold">{{ userName }}</span>
-        <span class="bullet mx-1">&bull;</span>
-        <span class="team">{{ teamName }}</span>
-      </div>
+    <div class="d-flex flex-column flex-grow-1 has-flexi-truncate ml-2">
+      <UserHeaderText
+        :name="note.user.name"
+        :team="note.user.team.name"
+      />
       <div class="text-gray-500">
-        <span v-if="!copyEmailEnabled">{{ userEmail }}</span>
         <CopyButton
-          v-if="copyEmailEnabled"
-          :copy-text="userEmail"
+          :copy-text="note.user.email"
           hide-icon
         >
-          {{ userEmail }}
+          {{ note.user.email }}
         </CopyButton>
       </div>
       <div class="mt-1 text-gray-600">
-        <slot />
-        <slot name="text" />
+        {{ note.text }}
       </div>
       <div class="d-flex mt-1 align-items-end">
-        <span class="activity-date-text">
+        <span class="note-date-text">
           {{ timeElapsedString }}
           <span
-            v-if="isEdited"
+            v-if="note.isRevised"
             class="text-gray-500"
           >(edited)</span>
         </span>
@@ -52,6 +45,7 @@
 import { DateTime } from 'luxon';
 import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
+import UserHeaderText from '@/components/UserHeaderText.vue';
 
 export const formatActivityDate = (createdAtISO) => {
   const createdDate = DateTime.fromISO(createdAtISO);
@@ -73,50 +67,17 @@ export default {
   components: {
     UserAvatar,
     CopyButton,
+    UserHeaderText,
   },
   props: {
-    userName: {
-      type: String,
-      default: '',
-    },
-    userEmail: {
-      type: String,
-      default: '',
-    },
-    avatarColor: {
-      type: String,
-      default: '',
-    },
-    teamName: {
-      type: String,
-      default: '',
-    },
-    isEdited: {
-      type: Boolean,
-      default: false,
-    },
-    createdAt: {
-      type: String,
-      default: '',
-    },
-    copyEmailEnabled: {
-      type: Boolean,
-      default: false,
-    },
-    hideAvatarVertical: {
-      type: Boolean,
-      default: false,
+    note: {
+      type: Object,
+      required: true,
     },
   },
   computed: {
-    avatarSubBarClass() {
-      return this.hideAvatarVertical ? '' : 'activity_vertical position-relative flex-grow-1';
-    },
-    title() {
-      return `${this.userName} \u2022 ${this.teamName}`;
-    },
     timeElapsedString() {
-      return formatActivityDate(this.createdAt);
+      return formatActivityDate(this.note.createdAt);
     },
   },
 };
@@ -127,15 +88,19 @@ export default {
 @import '@/scss/colors-semantic-tokens.scss';
 @import '@/scss/colors-base-tokens.scss';
 
+.note-container {
+  padding: 1rem 1.25rem;
+}
+
 .text-gray-500 {
   color: $raw-gray-500
 }
 
-.activity-date-text {
-  font-size: 0.75rem;
+.note-date-text {
+  font-size:0.75rem;
 }
 
-.activity-date-text:first-letter {
+.note-date-text:first-letter {
   text-transform: capitalize;
 }
 
@@ -144,7 +109,7 @@ export default {
   font-weight: 400;
 }
 
-.activity_vertical:before {
+.note_vertical:before {
   content: "";
   background: $raw-gray-600;
   height: calc(100% - .5rem);
@@ -155,14 +120,4 @@ export default {
   bottom: 0;
 }
 
-.team {
-  color: $raw-gray-500;
-  font-weight: 400;
-  font-size: 0.75rem;
-}
-
-.bullet {
-  color: $raw-gray-600;
-  font-size: 0.75rem;
-}
 </style>

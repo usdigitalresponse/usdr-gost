@@ -132,7 +132,7 @@ export default {
       };
 
       if (this.followersNextCursor !== null) {
-        query.paginateFrom = this.followersNextCursor;
+        query.cursor = this.followersNextCursor;
       }
       const result = await this.getFollowersForGrant(query);
 
