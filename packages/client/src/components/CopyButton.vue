@@ -11,10 +11,11 @@
       :variant="copySuccessTimeout === null ? '' : 'success'"
     />
     <b-tooltip
-      v-if="$refs.container"
+      v-if="mounted"
+      ref="tooltip"
       :target="$refs.container"
-      triggers=""
-      :show="copySuccessTimeout !== null"
+      triggers="manual"
+      boundary="window"
     >
       <b-icon
         icon="check-circle-fill"
@@ -41,21 +42,25 @@ export default {
   data() {
     return {
       copySuccessTimeout: null,
+      mounted: false,
     };
+  },
+  mounted() {
+    this.mounted = true;
   },
   methods: {
     copyToClipboard() {
       navigator.clipboard.writeText(this.copyText);
 
+      this.$refs.tooltip.$emit('open');
+
       // Show the success indicator
       // (Clear previous timeout to ensure multiple clicks in quick succession don't cause issues)
       clearTimeout(this.copySuccessTimeout);
-      this.copySuccessTimeout = setTimeout(
-        () => {
-          this.copySuccessTimeout = null;
-        },
-        1000,
-      );
+      this.copySuccessTimeout = setTimeout(() => {
+        this.$refs.tooltip.$emit('close');
+        this.copySuccessTimeout = null;
+      }, 1000);
     },
   },
 };
