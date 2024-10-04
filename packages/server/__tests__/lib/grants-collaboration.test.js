@@ -3,7 +3,9 @@ const chaiAsPromised = require('chai-as-promised');
 const { DateTime } = require('luxon');
 const knex = require('../../src/db/connection');
 const fixtures = require('../db/seeds/fixtures');
-const { saveNoteRevision, getOrganizationNotesForGrant, getOrganizationNotesForGrantByUser } = require('../../src/lib/grantsCollaboration/notes');
+const {
+    saveNoteRevision, getOrganizationNotesForGrant, getOrganizationNotesForGrantByUser, deleteGrantNotesByUser,
+} = require('../../src/lib/grantsCollaboration/notes');
 const {
     followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant,
 } = require('../../src/lib/grantsCollaboration/followers');
@@ -163,6 +165,36 @@ describe('Grants Collaboration', () => {
 
             expect(results.notes).to.have.length(1);
             expect(results.pagination.next).equal(adminLastRevision.id);
+        });
+    });
+    context('deleteGrantNotesByUser', () => {
+        const { staffUser } = fixtures.users;
+        const grant = fixtures.grants.earFellowship;
+
+        let staffGrantNote;
+
+        beforeEach(async () => {
+            [staffGrantNote] = await knex('grant_notes')
+                .insert({ grant_id: grant.grant_id, user_id: staffUser.id }, 'id');
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: staffGrantNote.id, text: 'This is a staff note' });
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: staffGrantNote.id, text: 'This is a staff note revision' });
+        });
+
+        it('Deletes all notes for user', async () => {
+            const revisions = await knex('grant_notes_revisions').where('grant_note_id', staffGrantNote.id);
+            expect(revisions).to.have.length(2);
+
+            await deleteGrantNotesByUser(knex, grant.grant_id, staffUser.id);
+
+            const notesAfter = await knex('grant_notes').where('id', staffGrantNote.id);
+            expect(notesAfter).to.have.length(0);
+
+            const revisionsAfter = await knex('grant_notes_revisions').where('grant_note_id', staffGrantNote.id);
+            expect(revisionsAfter).to.have.length(0);
         });
     });
     context('followGrant', () => {
