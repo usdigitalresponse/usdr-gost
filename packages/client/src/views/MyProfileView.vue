@@ -98,6 +98,11 @@ export default {
           key: 'GRANT_ASSIGNMENT',
           description: shareTerminologyEnabledFlag ? grantShareDescription : grantAssignmentDescription,
         },
+        {
+          name: 'Grant Activity',
+          key: 'GRANT_ACTIVITY',
+          description: 'Send me a daily summary of new activity for grants that I follow.',
+        },
       ],
       breadcrumb_items: [
         {

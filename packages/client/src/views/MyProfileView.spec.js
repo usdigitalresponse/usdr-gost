@@ -15,6 +15,7 @@ describe('MyProfileView.vue', () => {
           GRANT_INTEREST: 'SUBSCRIBED',
           GRANT_DIGEST: 'SUBSCRIBED',
           GRANT_FINDER_UPDATES: 'SUBSCRIBED',
+          GRANT_ACTIVITY: 'SUBSCRIBED',
         },
       }),
     },
@@ -59,6 +60,21 @@ describe('MyProfileView.vue', () => {
       expect(text).toContain('Shared Grants');
       expect(text).toContain(
         'Send me an email notification when someone shares a grant with my team.',
+      );
+    });
+  });
+
+  describe('grant activity preference', () => {
+    it('should show grant activity terminology', () => {
+      const wrapper = shallowMount(MyProfileView, {
+        global: {
+          plugins: [store],
+        },
+      });
+      const text = wrapper.text();
+      expect(text).toContain('Grant Activity');
+      expect(text).toContain(
+        'Send me a daily summary of new activity for grants that I follow.',
       );
     });
   });
