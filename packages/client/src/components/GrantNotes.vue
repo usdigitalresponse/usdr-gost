@@ -3,51 +3,73 @@
     <!-- Note Edit -->
     <div
       v-if="editingNote"
-      class="d-flex note-edit-container"
+      data-test-edit-form
+      class="note-edit-container"
     >
-      <UserAvatar
-        :user-name="loggedInUser.name"
-        size="2.5rem"
-        :color="loggedInUser.avatar_color"
-      />
-      <b-form-group class="ml-2 mb-2 flex-grow-1 position-relative">
-        <b-form-textarea
-          ref="noteTextarea"
-          v-model="noteText"
-          class="note-textarea"
-          placeholder="Leave a note with tips or barriers to applying..."
-          rows="2"
-          max-rows="8"
-          :formatter="formatter"
-          :disabled="submittingNote"
-          data-test-note-input
-          @keydown="handleKeyDown"
+      <div class="d-flex">
+        <UserAvatar
+          :user-name="loggedInUser.name"
+          size="2.5rem"
+          :color="loggedInUser.avatar_color"
         />
+        <b-form-group class="ml-2 mb-2 flex-grow-1 position-relative">
+          <b-form-textarea
+            ref="noteTextarea"
+            v-model="noteText"
+            class="note-textarea"
+            placeholder="Leave a note with tips or barriers to applying..."
+            rows="2"
+            max-rows="8"
+            :formatter="formatter"
+            :disabled="savingNote"
+            data-test-note-input
+            @keydown="handleKeyDown"
+          />
+          <b-button
+            ref="submitNoteBtn"
+            variant="link"
+            class="note-send-btn position-absolute px-2"
+            :disabled="noteSendBtnDisabled"
+            data-test-submit-btn
+            @click="submitNote"
+          >
+            <b-icon
+              class="p-0"
+              icon="send"
+            />
+          </b-button>
+
+          <template #description>
+            <div class="d-flex">
+              <small class="pl-2">
+                e.g. need co-applicants, we applied last year
+              </small>
+              <div :class="charCountClass">
+                {{ filteredNoteText.length }} / 300
+              </div>
+            </div>
+          </template>
+        </b-form-group>
+      </div>
+
+      <div
+        v-if="userNote"
+        class="d-flex"
+      >
         <b-button
-          ref="submitNoteBtn"
+          class="note-delete-btn p-0 ml-auto"
           variant="link"
-          class="note-send-btn position-absolute px-2"
-          :disabled="noteSendBtnDisabled"
-          data-test-submit-btn
-          @click="submitNote"
+          title="Delete note"
+          data-test-delete-note-btn
+          @click="deleteUserNote"
         >
           <b-icon
-            class="p-0"
-            icon="send"
+            icon="pencil-square"
+            class="mr-1"
           />
+          <span>DELETE</span>
         </b-button>
-
-        <template #description>
-          <div class="d-flex">
-            <small class="pl-2">
-              e.g. need co-applicants, we applied last year
-            </small>
-            <div :class="charCountClass">
-              {{ filteredNoteText.length }} / 300
-            </div>
-          </div>
-        </template>
-      </b-form-group>
+      </div>
     </div>
 
     <!-- Current User's Note -->
@@ -61,6 +83,8 @@
         <b-button
           class="note-edit-btn p-0"
           variant="link"
+          title="Edit note"
+          data-test-edit-note-btn
           @click="toggleEditNote"
         >
           <b-icon
@@ -121,7 +145,7 @@ export default {
       otherNotes: [],
       userNote: null,
       noteText: '',
-      submittingNote: false,
+      savingNote: false,
       editingNote: false,
       notesNextCursor: null,
     };
@@ -141,7 +165,7 @@ export default {
       return this.filteredNoteText.length === 0;
     },
     noteSendBtnDisabled() {
-      return this.emptyNoteText || this.submittingNote;
+      return this.emptyNoteText || this.savingNote;
     },
     charCountClass() {
       const errColor = this.filteredNoteText.length === 300 ? 'text-error' : '';
@@ -163,13 +187,13 @@ export default {
       getNotesForGrant: 'grants/getNotesForGrant',
       getNotesForCurrentUser: 'grants/getNotesForCurrentUser',
       saveNoteForGrant: 'grants/saveNoteForGrant',
+      deleteGrantNoteForUser: 'grants/deleteGrantNoteForUser',
     }),
     formatter(value) {
       return value.substring(0, 300);
     },
     async toggleEditNote() {
       this.editingNote = true;
-      this.noteText = this.userNote.text;
 
       await nextTick();
       this.$refs.noteTextarea.focus();
@@ -180,7 +204,7 @@ export default {
       }
     },
     async submitNote() {
-      this.submittingNote = true;
+      this.savingNote = true;
 
       try {
         await this.saveNoteForGrant({ grantId: this.currentGrant.grant_id, text: this.filteredNoteText });
@@ -190,13 +214,14 @@ export default {
         // Error already logged
       }
 
-      this.submittingNote = false;
+      this.savingNote = false;
     },
     async fetchUsersNote() {
       const result = await this.getNotesForCurrentUser({ grantId: this.currentGrant.grant_id });
 
       this.userNote = result && result.notes.length ? result.notes[0] : null;
       this.editingNote = !this.userNote;
+      this.noteText = this.userNote ? this.userNote.text : '';
     },
     async fetchNextNotes() {
       const query = {
@@ -215,6 +240,16 @@ export default {
         this.otherNotes = this.otherNotes.concat(nextOtherNotes);
         this.notesNextCursor = result.pagination.next;
       }
+    },
+    async deleteUserNote() {
+      this.savingNote = true;
+      try {
+        await this.deleteGrantNoteForUser({ grantId: this.currentGrant.grant_id });
+        await this.fetchUsersNote();
+      } catch (e) {
+        // Error already logged
+      }
+      this.savingNote = false;
     },
   },
 };
@@ -249,7 +284,8 @@ textarea.note-textarea::placeholder {
   padding: 1rem 1.25rem 0;
 }
 
-.note-edit-btn {
+.note-edit-btn,
+.note-delete-btn {
   font-size: 0.875rem;
   color: $raw-gray-500
 }
