@@ -191,11 +191,6 @@ describe('GrantNotes component', () => {
 
     await flushPromises();
 
-    const editBtn = wrapper.findComponent('[data-test-edit-note-btn]');
-    editBtn.trigger('click');
-
-    await flushPromises();
-
     mockStore.actions['grants/getNotesForCurrentUser'].mockResolvedValue(getMockUserNote(0));
 
     const deleteBtn = wrapper.findComponent('[data-test-delete-note-btn]');

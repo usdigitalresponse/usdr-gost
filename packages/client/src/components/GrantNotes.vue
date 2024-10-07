@@ -51,25 +51,6 @@
           </template>
         </b-form-group>
       </div>
-
-      <div
-        v-if="userNote"
-        class="d-flex"
-      >
-        <b-button
-          class="note-delete-btn p-0 ml-auto"
-          variant="link"
-          title="Delete note"
-          data-test-delete-note-btn
-          @click="deleteUserNote"
-        >
-          <b-icon
-            icon="pencil-square"
-            class="mr-1"
-          />
-          <span>DELETE</span>
-        </b-button>
-      </div>
     </div>
 
     <!-- Current User's Note -->
@@ -80,19 +61,38 @@
       :note="userNote"
     >
       <template #actions>
-        <b-button
-          class="note-edit-btn p-0"
+        <b-dropdown
+          right
           variant="link"
-          title="Edit note"
-          data-test-edit-note-btn
-          @click="toggleEditNote"
+          toggle-class="p-0"
+          no-caret
+          :disabled="savingNote"
         >
-          <b-icon
-            icon="pencil-square"
-            class="mr-1"
-          />
-          <span>EDIT</span>
-        </b-button>
+          <template #button-content>
+            <span class="note-edit-btn">
+              <b-icon
+                icon="pencil-square"
+                class="mr-1"
+              />
+              <span>EDIT</span>
+            </span>
+          </template>
+          <b-dropdown-item-button
+            title="Edit note"
+            data-test-edit-note-btn
+            @click="toggleEditNote"
+          >
+            Edit
+          </b-dropdown-item-button>
+          <b-dropdown-item-button
+            title="Delete note"
+            variant="danger"
+            data-test-delete-note-btn
+            @click="deleteUserNote"
+          >
+            Delete
+          </b-dropdown-item-button>
+        </b-dropdown>
       </template>
     </GrantNote>
 
