@@ -74,7 +74,7 @@
                 icon="pencil-square"
                 class="mr-1"
               />
-              <span>EDIT</span>
+              <span class="note-edit-btn-text">EDIT</span>
             </span>
           </template>
           <b-dropdown-item-button
@@ -216,12 +216,14 @@ export default {
 
       this.savingNote = false;
     },
-    async fetchUsersNote() {
-      const result = await this.getNotesForCurrentUser({ grantId: this.currentGrant.grant_id });
-
+    setUserNote(result) {
       this.userNote = result && result.notes.length ? result.notes[0] : null;
       this.editingNote = !this.userNote;
       this.noteText = this.userNote ? this.userNote.text : '';
+    },
+    async fetchUsersNote() {
+      const result = await this.getNotesForCurrentUser({ grantId: this.currentGrant.grant_id });
+      this.setUserNote(result);
     },
     async fetchNextNotes() {
       const query = {
@@ -245,7 +247,8 @@ export default {
       this.savingNote = true;
       try {
         await this.deleteGrantNoteForUser({ grantId: this.currentGrant.grant_id });
-        await this.fetchUsersNote();
+        this.$emit('noteSaved');
+        this.setUserNote(null);
       } catch (e) {
         // Error already logged
       }
@@ -284,10 +287,13 @@ textarea.note-textarea::placeholder {
   padding: 1rem 1.25rem 0;
 }
 
-.note-edit-btn,
-.note-delete-btn {
-  font-size: 0.875rem;
+.note-edit-btn {
+  vertical-align: middle;
   color: $raw-gray-500
+}
+
+.note-edit-btn-text {
+  font-size: 0.75rem;
 }
 
 .note-send-btn {
