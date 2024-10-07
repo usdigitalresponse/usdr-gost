@@ -49,7 +49,7 @@ const mockStore = {
 
 const store = createStore(mockStore);
 
-const mockTextArea = {
+const stubTextArea = {
   template: '<textarea />',
   props: { modelValue: String },
   methods: { focus: vi.fn() },
@@ -155,7 +155,7 @@ describe('GrantNotes component', () => {
       global: {
         plugins: [store],
         stubs: {
-          'b-form-textarea': mockTextArea,
+          'b-form-textarea': stubTextArea,
         },
       },
     });
@@ -169,7 +169,7 @@ describe('GrantNotes component', () => {
 
     const form = wrapper.find('[data-test-edit-form]');
     expect(form.exists()).toBe(true);
-    expect(wrapper.findComponent(mockTextArea).props('modelValue')).toBe(userNote.notes[0].text);
+    expect(wrapper.findComponent(stubTextArea).props('modelValue')).toBe(userNote.notes[0].text);
   });
 
   it('Correctly deletes a user note', async () => {
@@ -184,7 +184,7 @@ describe('GrantNotes component', () => {
       global: {
         plugins: [store],
         stubs: {
-          'b-form-textarea': mockTextArea,
+          'b-form-textarea': stubTextArea,
         },
       },
     });
@@ -200,7 +200,7 @@ describe('GrantNotes component', () => {
     await flushPromises();
 
     expect(mockStore.actions['grants/deleteGrantNoteForUser']).toHaveBeenCalled();
-    expect(wrapper.findComponent(mockTextArea).props('modelValue')).toBe('');
+    expect(wrapper.findComponent(stubTextArea).props('modelValue')).toBe('');
   });
 
   it('Correctly retrieves more notes using "Show More"', async () => {
