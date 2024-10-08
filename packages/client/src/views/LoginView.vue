@@ -1,78 +1,100 @@
 <template>
-  <b-card
-    no-body
-    tag="div"
-    style="max-width: 26rem; margin-top: 11rem"
-    class="mx-auto border-0"
-  >
-    <b-card-img
-      :src="logo"
-      style="max-width: 14rem"
-      alt="United States Digital Response logo"
-      class="mx-auto mb-3"
-      top
-    />
-    <b-card-text class="mt-4 p-3 dropshadow-card">
-      <h1 class="h3 my-4">
-        Log in to Federal Grant Finder
-      </h1>
-      <p class="mb-4">
-        Enter your email to receive a one-time login link.
-      </p>
-      <form @submit="login">
-        <div>
-          <label for="email">Email</label>
-          <input
-            id="email"
-            v-model="email"
-            class="form-control mb-4"
-            name="email"
-            placeholder="Email address"
-            autofocus
+  <main>
+    <b-card
+      no-body
+      tag="div"
+      style="max-width: 26rem; margin-top: 11rem"
+      class="mx-auto border-0"
+    >
+      <b-card-img
+        :src="logo"
+        style="max-width: 14rem"
+        alt="United States Digital Response logo"
+        class="mx-auto mb-3"
+        top
+      />
+      <b-card-text class="mt-4 p-3 dropshadow-card">
+        <h1 class="h3 my-4">
+          Log in to Federal Grant Finder
+        </h1>
+        <p class="mb-4">
+          Enter your email to receive a one-time login link.
+        </p>
+        <form @submit="login">
+          <div>
+            <label for="email">Email</label>
+            <input
+              id="email"
+              v-model="email"
+              class="form-control mb-4"
+              name="email"
+              placeholder="Email address"
+              autofocus
+            >
+          </div>
+          <div
+            class="d-flex justify-content-center"
           >
+            <b-button
+              variant="primary"
+              class="btn-block"
+              type="Submit"
+              @click="login"
+            >
+              Send me the link
+            </b-button>
+          </div>
+        </form>
+        <div
+          v-if="serverResponse"
+          class="mt-3"
+          :class="{
+            'alert alert-success': serverResponse.success,
+            'alert alert-danger': !serverResponse.success,
+          }"
+        >
+          {{ serverResponse.message }}
         </div>
         <div
-          class="d-flex justify-content-center"
+          v-for="error of v$.$errors"
+          :key="error.$uid"
+          class="mt-3 alert alert-danger"
         >
-          <b-button
-            variant="primary"
-            class="btn-block"
-            type="Submit"
-            @click="login"
-          >
-            Send me the link
-          </b-button>
+          {{ error.$message }}
         </div>
-      </form>
-      <div
-        v-if="serverResponse"
-        class="mt-3"
-        :class="{
-          'alert alert-success': serverResponse.success,
-          'alert alert-danger': !serverResponse.success,
-        }"
-      >
-        {{ serverResponse.message }}
-      </div>
-      <div
-        v-for="error of v$.$errors"
-        :key="error.$uid"
-        class="mt-3 alert alert-danger"
-      >
-        {{ error.$message }}
-      </div>
-      <hr class="my-4">
-      <p>
-        Don't have an account? Please fill out
-        <a
-          href="https://form.jotform.com/201195733501145"
-          target="_blank"
-        >USDR's request form</a>
-        and indicate you'd like to create one.
-      </p>
-      <p>Need help? <a href="mailto:grants-helpdesk@usdigitalresponse.org?subject=Federal Grant Finder Login Issue">Contact us</a> for support.</p>
-    </b-card-text>
-  </b-card>
+        <hr class="my-4">
+        <div class="font-weight-bold">
+          Don't have an account?
+        </div>
+        <div>
+          <span>If you are within the state of New Jersey </span>
+          <a
+            href="https://forms.office.com/pages/responsepage.aspx?id=0cN2UAI4n0uzauCkG9ZCp7ITdp07WUhBmfHGHVfxwctUNVFJNFNPUllWSTBQNFZCQlMyMjlWWU5NUiQlQCN0PWcu&route=shorturl"
+            target="_blank"
+            aria-label="link to New Jersey registration form"
+          >register here.</a>
+        </div>
+        <div>
+          <span>If you are within the state of Nevada </span>
+          <a
+            href="https://forms.office.com/pages/responsepage.aspx?id=5kCj5J64aE6OqhVE0nA5gBT1YIeXbrtMjy6yqM5ILm1UQVQwT0xOT1QxU0dNU1BDN05WWDdaVFRBRS4u&route=shorturl"
+            target="_blank"
+            aria-label="link to Nevada registration form"
+          >register here.</a>
+        </div>
+        <div>
+          <span>If you are located elsewhere </span>
+          <a
+            href="https://form.jotform.com/201195733501145"
+            target="_blank"
+          >connect with USDR here.</a>
+        </div>
+        <div class="mt-3">
+          <span class="font-weight-bold">Need help? </span><a href="mailto:grants-helpdesk@usdigitalresponse.org?subject=Federal Grant Finder Login Issue">Contact USDR for support.</a>
+        </div>
+      </b-card-text>
+    </b-card>
+  </main>
 </template>
 
 <script>
