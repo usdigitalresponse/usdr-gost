@@ -210,7 +210,7 @@ jobs:
           INSPECT_NAME: ${{ inputs.server-image-registry }}/${{ inputs.server-image-name }}@${{ steps.build-push.outputs.digest }}
       - name: Upload attestations
         if: steps.store-attestations.outcome == 'success'
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@604373da6381bf24206979c74d06a550515601b9 # v4.4.1
         with:
           name: ${{ env.ATTESTATION_ARTIFACTS_KEY }}
           path: ${{ steps.store-attestations.outputs.path }}
@@ -277,7 +277,7 @@ jobs:
           ENDOFREPORT
           cat "$REPORT_FILE" >> $GITHUB_STEP_SUMMARY
       - name: Upload build artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@604373da6381bf24206979c74d06a550515601b9 # v4.4.1
         with:
           name: ${{ env.ARTIFACTS_KEY }}
           path: ${{ env.ARTIFACTS_PATH }}
