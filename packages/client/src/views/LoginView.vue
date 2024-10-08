@@ -62,7 +62,8 @@
         >
           {{ error.$message }}
         </div>
-        <hr class="my-4">
+      </b-card-text>
+      <div>
         <div class="font-weight-bold">
           Don't have an account?
         </div>
@@ -85,14 +86,14 @@
         <div>
           <span>If you are located elsewhere </span>
           <a
-            href="https://form.jotform.com/201195733501145"
+            href="https://form.jotform.com/240083950102041"
             target="_blank"
           >connect with USDR here.</a>
         </div>
         <div class="mt-3">
           <span class="font-weight-bold">Need help? </span><a href="mailto:grants-helpdesk@usdigitalresponse.org?subject=Federal Grant Finder Login Issue">Contact USDR for support.</a>
         </div>
-      </b-card-text>
+      </div>
     </b-card>
   </main>
 </template>

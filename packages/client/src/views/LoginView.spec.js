@@ -3,7 +3,7 @@ import LoginView from '@/views/LoginView.vue';
 import {
   describe, it, expect, beforeEach,
 } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 describe('LoginView', () => {
   const $route = {
@@ -13,7 +13,7 @@ describe('LoginView', () => {
   let wrapper;
 
   beforeEach(() => {
-    wrapper = mount(LoginView, {
+    wrapper = shallowMount(LoginView, {
       global: {
         mocks: {
           $route,
@@ -46,7 +46,7 @@ describe('LoginView', () => {
     expect(divs[2].text()).toBe('Please enter a valid email address');
   });
 
-  // Reendalbe after setting up mock for the API call to /api/sessions
+  // Reenable after setting up mock for the API call to /api/sessions
   it.skip('should show "check inbox" message if known email is submitted', async () => {
     const input = wrapper.find('input');
     await input.setValue('staff@example.com');
@@ -58,7 +58,7 @@ describe('LoginView', () => {
     expect(divs[2].text()).toBe('Email sent to staff@example.com. Check your inbox');
   });
 
-  // Reendalbe after setting up mock for the API call to /api/sessions
+  // Reenable after setting up mock for the API call to /api/sessions
   it.skip('should show error message if unknown email is submitted', async () => {
     const input = wrapper.find('input');
     await input.setValue('test@test.com');
@@ -85,7 +85,7 @@ describe('LoginView', () => {
     expect(nevadaLink.attributes('href')).toEqual('https://forms.office.com/pages/responsepage.aspx?id=5kCj5J64aE6OqhVE0nA5gBT1YIeXbrtMjy6yqM5ILm1UQVQwT0xOT1QxU0dNU1BDN05WWDdaVFRBRS4u&route=shorturl');
 
     expect(usdrLink.text()).toBe('connect with USDR here.');
-    expect(usdrLink.attributes('href')).toEqual('https://form.jotform.com/201195733501145');
+    expect(usdrLink.attributes('href')).toEqual('https://form.jotform.com/240083950102041');
 
     expect(contactUSDREmail.text()).toBe('Contact USDR for support.');
     expect(contactUSDREmail.attributes('href')).toEqual('mailto:grants-helpdesk@usdigitalresponse.org?subject=Federal Grant Finder Login Issue');
