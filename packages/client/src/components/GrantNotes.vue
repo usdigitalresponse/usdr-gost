@@ -284,7 +284,7 @@ textarea.note-textarea::placeholder {
 }
 
 .note-edit-container {
-  padding: 1rem 1.25rem 0;
+  padding: 1rem 1.25rem 0.25rem;
 }
 
 .note-edit-btn {
