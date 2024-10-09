@@ -72,7 +72,7 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-import { shareTerminologyEnabled } from '@/helpers/featureFlags';
+import { shareTerminologyEnabled, followNotesEnabled } from '@/helpers/featureFlags';
 import EditUserModal from '@/components/Modals/EditUser.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 
@@ -83,6 +83,7 @@ export default {
   },
   data() {
     const shareTerminologyEnabledFlag = shareTerminologyEnabled() === true;
+    const followNotesEnabledFlag = followNotesEnabled() === true;
     const grantAssignmentDescription = 'Send me notifications if a grant has been assigned to my USDR Grants team.';
     const grantShareDescription = 'Send me an email notification when someone shares a grant with my team.';
 
@@ -98,11 +99,11 @@ export default {
           key: 'GRANT_ASSIGNMENT',
           description: shareTerminologyEnabledFlag ? grantShareDescription : grantAssignmentDescription,
         },
-        {
+        ...(followNotesEnabledFlag ? [{
           name: 'Grant Activity',
           key: 'GRANT_ACTIVITY',
           description: 'Send me a daily summary of new activity for grants that I follow.',
-        },
+        }] : []),
       ],
       breadcrumb_items: [
         {
