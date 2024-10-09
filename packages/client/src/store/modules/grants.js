@@ -300,6 +300,7 @@ export default {
         const text = `Error following grant: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
+        throw e;
       }
     },
     async unfollowGrantForCurrentUser({ rootGetters, commit }, { grantId }) {
@@ -309,6 +310,7 @@ export default {
         const text = `Error unfollowing grant: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
+        throw e;
       }
     },
     async setEligibilityCodeEnabled({ rootGetters }, { code, enabled }) {
