@@ -31,7 +31,6 @@
 		//   you see vitest extension errors in the output. The extension
 		//   sometimes cannot find the right version of Node unless it using a terminal shell
 		//   to spawn the test running process.
-		//[]
 		//  see: https://github.com/vitest-dev/vscode/issues/486 
 		//         https://github.com/vitest-dev/vscode/pull/490
 		//  "vitest.shellType": "terminal",
