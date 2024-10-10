@@ -155,7 +155,7 @@ resource "aws_ecs_task_definition" "default" {
   requires_compatibilities = ["FARGATE"]
 
   # Valid configurations here:
-  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-tasks-size
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size
   cpu    = 512
   memory = 2048
 
