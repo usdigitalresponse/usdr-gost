@@ -431,15 +431,33 @@ router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
         return;
     }
 
-    await db.markGrantAsInterested({
-        grantId,
-        agencyId,
-        userId: user.id,
-        interestedCode,
-    });
+    try {
+        // Calling the existing function to mark the grant as interested
+        await db.markGrantAsInterested({
+            grantId,
+            agencyId,
+            userId: user.id,
+            interestedCode,
+        });
+        // Query to check if the interestedCode corresponds to 'Interested'
+        const interestedStatus = await knex('interested_codes')
+            .select('status_code')
+            .where({ id: interestedCode })
+            .first();
 
-    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], tenantId: user.tenant_id });
-    res.json(interestedAgencies);
+        // Follow  or Unfollow the grant based on the interestedCode
+        if (interestedStatus?.status_code === 'Interested') {
+            await followGrant(knex, grantId, user.id);
+        } else {
+            await unfollowGrant(knex, grantId, user.id);
+        }
+        // Retruning updated interested agencies
+        const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], tenantId: user.tenant_id });
+        res.json(interestedAgencies);
+    } catch (error) {
+        console.error('Error in marking as interested:', error);
+        res.status(500).send({ success: false, error: 'Internal Server Error' });
+    }
 });
 
 router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
