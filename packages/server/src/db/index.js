@@ -1032,12 +1032,20 @@ async function markGrantAsViewed({ grantId, agencyId, userId }) {
 function getGrantAssignedAgencies({ grantId, tenantId }) {
     return knex(TABLES.assigned_grants_agency)
         .join(TABLES.agencies, `${TABLES.agencies}.id`, '=', `${TABLES.assigned_grants_agency}.agency_id`)
-        .join(TABLES.users, `${TABLES.users}.id`, '=', `${TABLES.assigned_grants_agency}.assigned_by`)
+        .join('users as u', `u.id`, '=', `${TABLES.assigned_grants_agency}.assigned_by`)
+        .join(`agencies as assigned_by_agency`, `assigned_by_agency.id`, '=', `u.agency_id`)
         .where({ grant_id: grantId })
         .andWhere(`${TABLES.agencies}.tenant_id`, tenantId)
         .select(`${TABLES.agencies}.*`)
         .select(`${TABLES.assigned_grants_agency}.*`)
-        .select(`${TABLES.users}.name as assigned_by_name`, `${TABLES.users}.email as assigned_by_email`, `${TABLES.users}.avatar_color as assigned_by_avatar_color`);
+        .select(
+            `u.agency_id as assigned_by_agency_id`,
+            `u.name as assigned_by_name`,
+            `u.email as assigned_by_email`,
+            `u.avatar_color as assigned_by_avatar_color`,
+            `u.avatar_color as assigned_by_avatar_color`,
+        )
+        .select('assigned_by_agency.name as assigned_by_agency_name');
 }
 
 function assignGrantsToAgencies({ grantId, agencyIds, userId }) {

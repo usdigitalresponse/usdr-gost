@@ -15,35 +15,25 @@
 
     <ul class="list-unstyled mt-3">
       <li
-        v-for="follower in formattedFollowers"
+        v-for="follower in followers"
         :key="follower.id"
         data-test-follower
         class="mb-3"
       >
         <div class="d-flex">
-          <UserAvatar
-            :user-name="follower.name"
-            size="2.5rem"
-            :color="follower.avatarColor"
-            class="mr-2"
+          <UserActivityItem
+            class="mr-3"
+            :user-name="follower.user.name"
+            :user-email="follower.user.email"
+            :team-name="follower.user.team.name"
+            :avatar-color="follower.user.avatarColor"
+            :created-at="follower.createdAt"
+            hide-avatar-vertical
           />
-          <div class="mt-1 d-flex flex-column has-flexi-truncate mr-2">
-            <UserHeaderText
-              :name="follower.name"
-              :team="follower.team"
-            />
-            <div class="follower-email text-muted">
-              {{ follower.email }}
-            </div>
-            <div class="follower-date text-muted">
-              {{ follower.dateFollowedText }}
-            </div>
-          </div>
-
           <CopyButton
-            :copy-text="follower.email"
+            :copy-text="follower.user.email"
             hide-icon
-            class="ms-auto flex-shrink-0 mt-1"
+            class="ml-auto flex-shrink-0 mt-1"
           >
             <b-button
               variant="outline-primary"
@@ -90,16 +80,13 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 
-import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
-import UserHeaderText from '@/components/UserHeaderText.vue';
-import { formatActivityDate } from '@/components/GrantNote.vue';
+import UserActivityItem from '@/components/UserActivityItem.vue';
 
 export default {
   components: {
-    UserAvatar,
     CopyButton,
-    UserHeaderText,
+    UserActivityItem,
   },
   props: {
     modalId: {
@@ -122,21 +109,6 @@ export default {
     }),
     loadMoreVisible() {
       return this.followersNextCursor !== null;
-    },
-    formattedFollowers() {
-      return this.followers
-        .map((follower) => {
-          const { user, id, createdAt } = follower;
-
-          return {
-            id,
-            name: user.name,
-            email: user.email,
-            team: user.team.name,
-            dateFollowedText: formatActivityDate(createdAt),
-            avatarColor: user.avatarColor,
-          };
-        });
     },
     followersEmailText() {
       return this.followers
