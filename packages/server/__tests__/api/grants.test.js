@@ -990,6 +990,34 @@ HHS-2021-IHS-TPI-0001,Community Health Aide Program:  Tribal Planning &`;
             });
         });
     });
+    context('DELETE /:grantId/notes/user/:userId', () => {
+        const GRANT_ID = '335255';
+
+        let staffGrantNote;
+
+        beforeEach(async () => {
+            [staffGrantNote] = await knex('grant_notes')
+                .insert({ grant_id: GRANT_ID, user_id: staffUser.id }, 'id');
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: staffGrantNote.id, text: 'Test note 1.' });
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: staffGrantNote.id, text: 'Test note 2.' });
+        });
+
+        it('Deletes all notes for user', async () => {
+            const revisions = await knex('grant_notes_revisions').where('grant_note_id', staffGrantNote.id);
+            expect(revisions).to.have.length(2);
+
+            const resp = await fetchApi(`/grants/${GRANT_ID}/notes/user/${staffUser.id}`, agencies.own, {
+                ...fetchOptions.staff,
+                method: 'delete',
+            });
+
+            expect(resp.statusText).to.equal('OK');
+        });
+    });
     context('GET /:grantId/followers', () => {
         const GRANT_ID = 335255;
 

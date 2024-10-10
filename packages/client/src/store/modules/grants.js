@@ -282,6 +282,17 @@ export default {
         throw e;
       }
     },
+    async deleteGrantNoteForUser({ rootGetters, commit }, { grantId }) {
+      try {
+        const userId = rootGetters['users/loggedInUser']?.id;
+        await fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes/user/${userId}`);
+      } catch (e) {
+        const text = `Error deleting grant note for user: ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
+        throw e;
+      }
+    },
     async followGrantForCurrentUser({ rootGetters, commit }, { grantId }) {
       try {
         await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);

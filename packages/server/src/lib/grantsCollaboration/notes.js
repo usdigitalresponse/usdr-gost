@@ -147,9 +147,23 @@ async function getOrganizationNotesForGrant(
     return getCurrentNoteRevisions(knex, { grantId, organizationId }, { cursor, limit });
 }
 
+async function deleteGrantNotesByUser(knex, grantId, userId) {
+    const grantNote = knex
+        .select('id')
+        .from('grant_notes')
+        .where({ grant_id: grantId, user_id: userId });
+
+    await knex('grant_notes_revisions')
+        .whereIn('grant_note_id', grantNote)
+        .del();
+
+    await grantNote.del();
+}
+
 module.exports = {
     saveNoteRevision,
     getCurrentNoteRevisions,
     getOrganizationNotesForGrant,
     getOrganizationNotesForGrantByUser,
+    deleteGrantNotesByUser,
 };
