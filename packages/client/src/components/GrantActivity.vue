@@ -25,7 +25,7 @@
           size="lg"
           :variant="followBtnVariant"
           data-follow-btn
-          :disabled="!followStateLoaded"
+          :disabled="!userFollowStateLoaded"
           @click="toggleFollowState"
         >
           <span class="h4">
@@ -85,7 +85,7 @@ export default {
   data() {
     return {
       userIsFollowing: false,
-      followStateLoaded: false,
+      userFollowStateLoaded: false,
       followers: [],
       notes: [],
       grantFollowersModalKey: 0,
@@ -147,21 +147,29 @@ export default {
       unfollowGrantForCurrentUser: 'grants/unfollowGrantForCurrentUser',
     }),
     fetchFollowAndNotes() {
-      this.followStateLoaded = false;
-      this.fetchFollowState();
+      this.fetchAllFollowState();
       this.fetchAllNotes();
     },
-    async fetchFollowState() {
-      const followCalls = [
-        this.getFollowerForGrant({ grantId: this.currentGrant.grant_id }),
-        this.getFollowersForGrant({ grantId: this.currentGrant.grant_id, limit: 51 }),
-      ];
+    async fetchAllFollowState() {
+      const [userResult, followersResult] = await Promise.all([
+        this.fetchUserFollowState(),
+        this.fetchAllFollowersState(),
+      ]);
 
-      const [userFollowsResult, followersResult] = await Promise.all(followCalls);
-
-      this.userIsFollowing = Boolean(userFollowsResult);
-      this.followers = followersResult ? followersResult.followers : [];
-      this.followStateLoaded = true;
+      this.setFollowState({ user: userResult, followers: followersResult });
+    },
+    async fetchUserFollowState() {
+      const userResult = await this.getFollowerForGrant({ grantId: this.currentGrant.grant_id });
+      this.userFollowStateLoaded = true;
+      return userResult;
+    },
+    async fetchAllFollowersState() {
+      const followers = await this.getFollowersForGrant({ grantId: this.currentGrant.grant_id, limit: 51 });
+      return followers;
+    },
+    setFollowState({ user, followers }) {
+      this.userIsFollowing = Boolean(user);
+      this.followers = (followers?.followers || []);
     },
     async fetchAllNotes() {
       const result = await this.getNotesForGrant({ grantId: this.currentGrant.grant_id, limit: 51 });
@@ -171,13 +179,21 @@ export default {
       }
     },
     async toggleFollowState() {
-      this.followStateLoaded = false;
-      if (this.userIsFollowing) {
-        await this.unfollowGrantForCurrentUser({ grantId: this.currentGrant.grant_id });
-      } else {
-        await this.followGrantForCurrentUser({ grantId: this.currentGrant.grant_id });
+      this.userFollowStateLoaded = false;
+      try {
+        if (this.userIsFollowing) {
+          await this.unfollowGrantForCurrentUser({ grantId: this.currentGrant.grant_id });
+        } else {
+          await this.followGrantForCurrentUser({ grantId: this.currentGrant.grant_id });
+        }
+
+        const followers = await this.fetchAllFollowersState();
+        this.setFollowState({ user: !this.userIsFollowing, followers });
+      } catch (e) {
+        // Error is logged already, catch to allow recovery
       }
-      await this.fetchFollowState();
+
+      this.userFollowStateLoaded = true;
     },
     handleModalClose() {
       // Reset modal
