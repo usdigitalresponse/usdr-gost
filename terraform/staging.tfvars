@@ -13,8 +13,9 @@ ses_datadog_events_enabled             = true
 datadog_email_pipeline_enabled         = true
 datadog_email_pipeline_metrics_enabled = true
 default_datadog_environment_variables = {
-  DD_LOGS_INJECTION    = true
-  DD_PROFILING_ENABLED = true
+  DD_LOGS_INJECTION          = true
+  DD_PROFILING_ENABLED       = true
+  DD_RUNTIME_METRICS_ENABLED = true
 }
 
 // Website
