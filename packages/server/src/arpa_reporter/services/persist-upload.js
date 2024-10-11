@@ -49,11 +49,13 @@ const jsonFSName = (upload) => {
  * @throws {ValidationError}
  */
 async function validateBuffer(buffer) {
-    try {
-        await XLSX.read(buffer, { type: 'buffer' });
-    } catch (e) {
-        throw new ValidationError(`Cannot parse XLSX from supplied data: ${e}`);
-    }
+    return tracer.trace('validateBuffer', async () => {
+        try {
+            await XLSX.read(buffer, { type: 'buffer' });
+        } catch (e) {
+            throw new ValidationError(`Cannot parse XLSX from supplied data: ${e}`);
+        }
+    });
 }
 
 /**
@@ -111,19 +113,21 @@ function ensureValidNotes(notes) {
  * @throws {ValidationError}
  */
 async function ensureValidAgencyId(agencyId, userId) {
-    // If agencyId is null, it's ok. We derive this later from the spreadsheet
-    // itself in validate-upload. We leave it as null here.
-    if (!agencyId) {
-        return null;
-    }
-    // Otherwise, we need to make sure the user is associated with the agency
-    const userRecord = await getUser(userId);
-    const tenantAgencies = await getTenantAgencies(userRecord.tenant_id);
-    const agency = tenantAgencies.find((a) => a.id === Number(agencyId));
-    if (!agency) {
-        throw new ValidationError(`Supplied agency ID ${agencyId} does not correspond to an agency in the user's tenant ${userRecord.tenant_id}. Please report this issue to USDR.`);
-    }
-    return agencyId;
+    return tracer.trace('ensureValidAgencyId', async () => {
+        // If agencyId is null, it's ok. We derive this later from the spreadsheet
+        // itself in validate-upload. We leave it as null here.
+        if (!agencyId) {
+            return null;
+        }
+        // Otherwise, we need to make sure the user is associated with the agency
+        const userRecord = await getUser(userId);
+        const tenantAgencies = await getTenantAgencies(userRecord.tenant_id);
+        const agency = tenantAgencies.find((a) => a.id === Number(agencyId));
+        if (!agency) {
+            throw new ValidationError(`Supplied agency ID ${agencyId} does not correspond to an agency in the user's tenant ${userRecord.tenant_id}. Please report this issue to USDR.`);
+        }
+        return agencyId;
+    });
 }
 
 /**
@@ -133,14 +137,16 @@ async function ensureValidAgencyId(agencyId, userId) {
  * @throws {ValidationError}
  */
 async function ensureValidReportingPeriodId(reportingPeriodId) {
-    // Get the current reporting period. Passing an undefined value
-    // defaults to the current period.
-    const reportingPeriod = await getReportingPeriod(reportingPeriodId);
+    return tracer.trace('ensureValidReportingPeriodId', async () => {
+        // Get the current reporting period. Passing an undefined value
+        // defaults to the current period.
+        const reportingPeriod = await getReportingPeriod(reportingPeriodId);
 
-    if (!reportingPeriod) {
-        throw new ValidationError(`Supplied reporting period ID ${reportingPeriodId} does not correspond to any existing reporting period. Please report this issue to USDR.`);
-    }
-    return reportingPeriod.id;
+        if (!reportingPeriod) {
+            throw new ValidationError(`Supplied reporting period ID ${reportingPeriodId} does not correspond to any existing reporting period. Please report this issue to USDR.`);
+        }
+        return reportingPeriod.id;
+    });
 }
 
 /**

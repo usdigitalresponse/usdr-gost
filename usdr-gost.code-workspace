@@ -27,5 +27,7 @@
 		// to manage linting/fixing, but users can have other settings via "formatOnSave".
 		// If both are on, the editor can "fix" things that are immediately flagged as lint failures.
 		"editor.formatOnSave": false,
+		// enables vitest extension to pick up correct node version from nvm and similar tools
+		"vitest.shellType": "terminal",
 	}
 }

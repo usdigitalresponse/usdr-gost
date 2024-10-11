@@ -66,6 +66,12 @@ variable "datadog_email_pipeline_metrics_enabled" {
   default     = false
 }
 
+variable "default_datadog_environment_variables" {
+  description = "Default environment variables for Datadog configuration. May be overwritten by container-specific variables."
+  type        = map(string)
+  default     = {}
+}
+
 // Common
 variable "permissions_boundary_policy_name" {
   description = "Name of the permissions boundary for service roles"
