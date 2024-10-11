@@ -148,16 +148,11 @@ async function getOrganizationNotesForGrant(
 }
 
 async function deleteGrantNotesByUser(knex, grantId, userId) {
-    const grantNote = knex
+    await knex
         .select('id')
         .from('grant_notes')
-        .where({ grant_id: grantId, user_id: userId });
-
-    await knex('grant_notes_revisions')
-        .whereIn('grant_note_id', grantNote)
+        .where({ grant_id: grantId, user_id: userId })
         .del();
-
-    await grantNote.del();
 }
 
 module.exports = {
