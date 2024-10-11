@@ -474,21 +474,17 @@ router.get('/:grantId/notes/user/:userId', requireUser, async (req, res) => {
         return;
     }
 
-    try {
-        // Fetching the notes using getOrganizationNotesForGrantByUser function
-        const notes = await getOrganizationNotesForGrantByUser(
-            knex,
-            organizationId,
-            userId,
-            grantId,
-            { cursor, limit: limitInt },
-        );
+    // Fetching the notes using getOrganizationNotesForGrantByUser function
+    const notes = await getOrganizationNotesForGrantByUser(
+        knex,
+        organizationId,
+        userId,
+        grantId,
+        { cursor, limit: limitInt },
+    );
 
-        // sending the notes as JSON response
-        res.json(notes);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to retrieve notes' });
-    }
+    // sending the notes as JSON response
+    res.json(notes);
 });
 
 router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
