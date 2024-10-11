@@ -59,6 +59,7 @@
       :team-name="userNote.user.team.name"
       :avatar-color="userNote.user.avatarColor"
       :created-at="userNote.createdAt"
+      :is-edited="userNote.isRevised"
       copy-email-enabled
       data-test-user-note-id="userNote.id"
     >
@@ -91,6 +92,7 @@
           :team-name="note.user.team.name"
           :avatar-color="note.user.avatarColor"
           :created-at="note.createdAt"
+          :is-edited="note.isRevised"
           copy-email-enabled
           :data-test-other-note-id="note.id"
         >
