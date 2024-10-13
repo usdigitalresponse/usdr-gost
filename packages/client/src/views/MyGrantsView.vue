@@ -7,31 +7,50 @@
       style="margin-top: 1.5rem"
       lazy
     >
-      <b-tab :title="shareTerminologyEnabled ? 'Shared With Your Team' : 'Assigned'">
+      <b-tab :title="sharedTabTitle">
         <GrantsTable
-          :search-title="shareTerminologyEnabled ? 'Shared With Your Team' : 'Assigned'"
+          :search-title="sharedTabTitle"
           :show-assigned-to-agency="selectedAgencyId"
           :show-search-controls="false"
         />
       </b-tab>
-      <b-tab title="Interested">
+      <b-tab
+        v-if="!followNotesEnabled"
+        title="Interested"
+      >
         <GrantsTable
           search-title="Interested"
           show-interested
           :show-search-controls="false"
         />
       </b-tab>
-      <b-tab title="Not Applying">
+      <b-tab
+        v-if="!followNotesEnabled"
+        title="Not Applying"
+      >
         <GrantsTable
           search-title="Not Applying"
           show-rejected
           :show-search-controls="false"
         />
       </b-tab>
-      <b-tab title="Applied">
+      <b-tab
+        v-if="!followNotesEnabled"
+        title="Applied"
+      >
         <GrantsTable
           search-title="Applied"
           show-result
+          :show-search-controls="false"
+        />
+      </b-tab>
+      <b-tab
+        v-if="followNotesEnabled"
+        title="Followed by My Team"
+      >
+        <GrantsTable
+          search-title="Followed by My Team"
+          show-interested
           :show-search-controls="false"
         />
       </b-tab>
@@ -42,7 +61,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import GrantsTable from '@/components/GrantsTable.vue';
-import { shareTerminologyEnabled } from '@/helpers/featureFlags';
+import { shareTerminologyEnabled, followNotesEnabled } from '@/helpers/featureFlags';
 
 export default {
   components: {
@@ -59,6 +78,17 @@ export default {
     }),
     shareTerminologyEnabled() {
       return shareTerminologyEnabled();
+    },
+    followNotesEnabled() {
+      return followNotesEnabled();
+    },
+    sharedTabTitle() {
+      if (followNotesEnabled()) {
+        return 'Shared With My Team';
+      } if (shareTerminologyEnabled()) {
+        return 'Shared With Your Team';
+      }
+      return 'Assigned';
     },
   },
   created() {

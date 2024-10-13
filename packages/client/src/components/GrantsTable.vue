@@ -147,7 +147,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
-import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
+import { newTerminologyEnabled, newGrantsDetailPageEnabled, followNotesEnabled } from '@/helpers/featureFlags';
 import { titleize } from '@/helpers/form-helpers';
 import { daysUntil } from '@/helpers/dates';
 import { defaultCloseDateThresholds } from '@/helpers/constants';
@@ -197,7 +197,8 @@ export default {
         },
         {
           key: 'interested_agencies',
-          label: `Interested ${newTerminologyEnabled() ? 'Teams' : 'Agencies'}`,
+          // eslint-disable-next-line no-nested-ternary -- can clean up once we remove newTerminologyEnabled feature flag
+          label: `${followNotesEnabled() ? 'Followed by' : newTerminologyEnabled() ? 'Teams' : 'Agencies'}`,
         },
         {
           // opportunity_status
@@ -309,6 +310,12 @@ export default {
     },
     newGrantsDetailPageEnabled() {
       return newGrantsDetailPageEnabled();
+    },
+    followedByColumnTitle() {
+      if (followNotesEnabled()) {
+        return 'Followed by';
+      }
+      return `Interested ${newTerminologyEnabled() ? 'Teams' : 'Agencies'}`;
     },
   },
   watch: {
