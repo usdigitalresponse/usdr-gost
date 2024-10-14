@@ -54,6 +54,7 @@
                       View on Grants.gov
                     </b-button>
                     <div class="w-20 d-flex">
+                      <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus -->
                       <a
                         class="link-primary text-nowrap"
                         role="button"
@@ -71,6 +72,7 @@
                       </a>
                       <div class="col-1 border-right border-dark p-2" />
                       <div class="col-1 p-2" />
+                      <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus -->
                       <a
                         class="link-primary text-nowrap"
                         role="button"
