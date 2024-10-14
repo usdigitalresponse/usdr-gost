@@ -104,7 +104,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
         id: checkout
         with:
           ref: ${{ inputs.ref }}
@@ -210,7 +210,7 @@ jobs:
           INSPECT_NAME: ${{ inputs.server-image-registry }}/${{ inputs.server-image-name }}@${{ steps.build-push.outputs.digest }}
       - name: Upload attestations
         if: steps.store-attestations.outcome == 'success'
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ env.ATTESTATION_ARTIFACTS_KEY }}
           path: ${{ steps.store-attestations.outputs.path }}
@@ -238,7 +238,7 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
         with:
           ref: ${{ inputs.ref }}
           show-progress: 'false'
@@ -277,7 +277,7 @@ jobs:
           ENDOFREPORT
           cat "$REPORT_FILE" >> $GITHUB_STEP_SUMMARY
       - name: Upload build artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ env.ARTIFACTS_KEY }}
           path: ${{ env.ARTIFACTS_PATH }}

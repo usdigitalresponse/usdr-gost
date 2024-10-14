@@ -12,6 +12,11 @@ datadog_monitor_notification_handles   = []
 ses_datadog_events_enabled             = true
 datadog_email_pipeline_enabled         = true
 datadog_email_pipeline_metrics_enabled = true
+default_datadog_environment_variables = {
+  DD_LOGS_INJECTION          = true
+  DD_PROFILING_ENABLED       = true
+  DD_RUNTIME_METRICS_ENABLED = true
+}
 
 // Website
 website_enabled     = true
@@ -68,9 +73,6 @@ api_enable_new_team_terminology        = true
 api_enable_saved_search_grants_digest  = true
 api_enable_grant_digest_scheduled_task = true
 api_log_retention_in_days              = 14
-api_datadog_environment_variables = {
-  DD_PROFILING_ENABLED = true,
-}
 api_container_environment = {
   NEW_GRANT_DETAILS_PAGE_ENABLED = true,
   SHARE_TERMINOLOGY_ENABLED      = true,
@@ -86,9 +88,6 @@ postgres_ca_cert_identifier        = "rds-ca-rsa2048-g1"
 
 // Grant events consumer
 consume_grants_source_event_bus_name = "default"
-consume_grants_datadog_environment_variables = {
-  DD_PROFILING_ENABLED = true,
-}
 
 // Email
 email_enable_tracking = true
