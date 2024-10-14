@@ -3,12 +3,18 @@ async function saveNoteRevision(knex, grantId, userId, text) {
 
     const grantNotesRevisionId = await knex.transaction(async (trx) => {
         const existingNote = await trx('grant_notes')
-            .select('id')
+            .select(['id', 'is_published'])
             .where({ grant_id: grantId, user_id: userId })
             .first();
 
         if (existingNote) {
             grantNoteId = existingNote.id;
+
+            if (!existingNote.is_published) {
+                await trx('grant_notes')
+                    .where({ id: grantNoteId })
+                    .update({ is_published: true });
+            }
         } else {
             const [newNoteId] = await trx('grant_notes')
                 .insert({
@@ -71,11 +77,12 @@ async function getCurrentNoteRevisions(
         .joinRaw(`LEFT JOIN LATERAL (${revQuery.toQuery()}) AS rev ON rev.grant_note_id = grant_notes.id`)
         .join('users', 'users.id', 'grant_notes.user_id')
         .join('agencies', 'agencies.id', 'users.agency_id')
-        .join('tenants', 'tenants.id', 'users.tenant_id');
+        .join('tenants', 'tenants.id', 'users.tenant_id')
+        .where('grant_notes.is_published', true);
 
     // Conditionally applying filters based on grantID if it is null or undefined or not
     if (grantId !== null && grantId !== undefined) {
-        query = query.where('grant_notes.grant_id', grantId);
+        query = query.andWhere('grant_notes.grant_id', grantId);
     }
 
     // Conditionally applying filters based on organizationID if it is null or undefined or not
@@ -148,11 +155,9 @@ async function getOrganizationNotesForGrant(
 }
 
 async function deleteGrantNotesByUser(knex, grantId, userId) {
-    await knex
-        .select('id')
-        .from('grant_notes')
+    await knex('grant_notes')
         .where({ grant_id: grantId, user_id: userId })
-        .del();
+        .update({ is_published: false });
 }
 
 module.exports = {
