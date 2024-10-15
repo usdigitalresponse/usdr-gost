@@ -4,62 +4,67 @@
     <div
       v-if="editingNote"
       data-test-edit-form
-      class="note-edit-container"
+      class="d-flex note-edit-container"
     >
-      <div class="d-flex">
-        <UserAvatar
-          :user-name="loggedInUser.name"
-          size="2.5rem"
-          :color="loggedInUser.avatar_color"
+      <UserAvatar
+        size="2.5rem"
+        :user-name="loggedInUser.name"
+        :color="loggedInUser.avatar_color"
+      />
+      <b-form-group class="mx-3 mb-2 flex-grow-1 position-relative">
+        <b-form-textarea
+          ref="noteTextarea"
+          v-model="noteText"
+          class="note-textarea"
+          placeholder="Leave a note with tips or barriers to applying..."
+          rows="2"
+          max-rows="8"
+          :formatter="formatter"
+          :disabled="savingNote"
+          data-test-note-input
+          @keydown="handleKeyDown"
         />
-        <b-form-group class="ml-2 mb-2 flex-grow-1 position-relative">
-          <b-form-textarea
-            ref="noteTextarea"
-            v-model="noteText"
-            class="note-textarea"
-            placeholder="Leave a note with tips or barriers to applying..."
-            rows="2"
-            max-rows="8"
-            :formatter="formatter"
-            :disabled="savingNote"
-            data-test-note-input
-            @keydown="handleKeyDown"
+        <b-button
+          ref="submitNoteBtn"
+          variant="link"
+          class="note-send-btn position-absolute px-2"
+          :disabled="noteSendBtnDisabled"
+          data-test-submit-btn
+          @click="submitNote"
+        >
+          <b-icon
+            class="p-0"
+            icon="send"
           />
-          <b-button
-            ref="submitNoteBtn"
-            variant="link"
-            class="note-send-btn position-absolute px-2"
-            :disabled="noteSendBtnDisabled"
-            data-test-submit-btn
-            @click="submitNote"
-          >
-            <b-icon
-              class="p-0"
-              icon="send"
-            />
-          </b-button>
+        </b-button>
 
-          <template #description>
-            <div class="d-flex">
-              <small class="pl-2">
-                e.g. need co-applicants, we applied last year
-              </small>
-              <div :class="charCountClass">
-                {{ filteredNoteText.length }} / 300
-              </div>
+        <template #description>
+          <div class="d-flex">
+            <small class="pl-2">
+              e.g. need co-applicants, we applied last year
+            </small>
+            <div :class="charCountClass">
+              {{ filteredNoteText.length }} / 300
             </div>
-          </template>
-        </b-form-group>
-      </div>
+          </div>
+        </template>
+      </b-form-group>
     </div>
 
     <!-- Current User's Note -->
-    <GrantNote
+    <UserActivityItem
       v-if="userNote && !editingNote"
-      data-test-user-note
       :class="userNoteClass"
-      :note="userNote"
+      :user-name="userNote.user.name"
+      :user-email="userNote.user.email"
+      :team-name="userNote.user.team.name"
+      :avatar-color="userNote.user.avatarColor"
+      :created-at="userNote.createdAt"
+      :is-edited="userNote.isRevised"
+      copy-email-enabled
+      data-test-user-note-id="userNote.id"
     >
+      {{ userNote.text }}
       <template #actions>
         <b-dropdown
           right
@@ -94,7 +99,7 @@
           </b-dropdown-item-button>
         </b-dropdown>
       </template>
-    </GrantNote>
+    </UserActivityItem>
 
     <!-- Other Notes -->
     <ul class="list-unstyled mb-0">
@@ -102,10 +107,19 @@
         v-for="note of otherNotes"
         :key="note.id"
       >
-        <GrantNote
-          :note="note"
-          data-test-other-note
-        />
+        <UserActivityItem
+          class="activity-container"
+          :user-name="note.user.name"
+          :user-email="note.user.email"
+          :team-name="note.user.team.name"
+          :avatar-color="note.user.avatarColor"
+          :created-at="note.createdAt"
+          :is-edited="note.isRevised"
+          copy-email-enabled
+          :data-test-other-note-id="note.id"
+        >
+          {{ note.text }}
+        </UserActivityItem>
       </li>
     </ul>
 
@@ -131,13 +145,13 @@
 import { nextTick } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 import UserAvatar from '@/components/UserAvatar.vue';
-import GrantNote from '@/components/GrantNote.vue';
+import UserActivityItem from '@/components/UserActivityItem.vue';
 import { grantNotesLimit } from '@/helpers/featureFlags';
 
 export default {
   components: {
     UserAvatar,
-    GrantNote,
+    UserActivityItem,
   },
   emits: ['noteSaved'],
   data() {
@@ -173,9 +187,9 @@ export default {
       return `ml-auto ${errColor}`;
     },
     userNoteClass() {
-      const corners = this.emptyNoteText ? 'rounded-bottom-corners' : '';
+      const corners = this.otherNotes.length === 0 ? 'rounded-bottom-corners' : '';
 
-      return `user-note ${corners}`;
+      return `user-note activity-container ${corners}`;
     },
   },
   async beforeMount() {
@@ -277,6 +291,10 @@ export default {
 textarea.note-textarea {
   overflow: visible !important;
   padding-right: 2.25rem;
+}
+
+.activity-container {
+  padding: 1.25rem;
 }
 
 textarea.note-textarea::placeholder {
