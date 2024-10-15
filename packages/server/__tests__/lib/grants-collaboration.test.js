@@ -120,17 +120,23 @@ describe('Grants Collaboration', () => {
         let adminLastRevision;
 
         beforeEach(async () => {
-            const [staffGrantNote] = await knex('grant_notes')
-                .insert({ grant_id: grant.grant_id, user_id: staffUser.id }, 'id');
+            await knex.transaction(async (trx) => {
+                const [staffGrantNote] = await trx('grant_notes')
+                    .insert({ grant_id: grant.grant_id, user_id: staffUser.id }, 'id');
 
-            [staffLastRevision] = await knex('grant_notes_revisions')
-                .insert({ grant_note_id: staffGrantNote.id, text: 'This is a staff note' }, 'id');
+                [staffLastRevision] = await trx('grant_notes_revisions')
+                    .insert({ grant_note_id: staffGrantNote.id, text: 'This is a staff note' }, 'id');
+            });
 
-            const [adminGrantNote] = await knex('grant_notes')
-                .insert({ grant_id: grant.grant_id, user_id: adminUser.id }, 'id');
+            let adminGrantNote;
 
-            await knex('grant_notes_revisions')
-                .insert({ grant_note_id: adminGrantNote.id, text: 'This is a test revision' }, 'id');
+            await knex.transaction(async (trx) => {
+                [adminGrantNote] = await trx('grant_notes')
+                    .insert({ grant_id: grant.grant_id, user_id: adminUser.id }, 'id');
+
+                await trx('grant_notes_revisions')
+                    .insert({ grant_note_id: adminGrantNote.id, text: 'This is a test revision' }, 'id');
+            });
 
             [adminLastRevision] = await knex('grant_notes_revisions')
                 .insert({ grant_note_id: adminGrantNote.id, text: 'This is a test revision #2' }, 'id');
