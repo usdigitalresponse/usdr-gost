@@ -26,10 +26,7 @@ async function saveNoteRevision(knex, grantId, userId, text) {
         }
 
         const [revisionId] = await trx('grant_notes_revisions')
-            .insert({
-                grant_note_id: grantNoteId,
-                text,
-            })
+            .insert({ grant_note_id: grantNoteId, text })
             .returning('id');
 
         return revisionId;
@@ -43,28 +40,22 @@ async function getCurrentNoteRevisions(
     { grantId, organizationId, userId } = {},
     { cursor, limit = 50 } = {},
 ) {
-    const recentRevsQuery = knex
-        .select('r.*')
-        .from({ r: 'grant_notes_revisions' })
-        .whereRaw('r.grant_note_id = grant_notes.id')
-        .orderBy('r.created_at', 'desc')
-        .limit(2);
-
     const revQuery = knex
-        .select(knex.raw(`recent_revs.*, count(recent_revs.*) OVER() > 1 as is_revised`))
-        .fromRaw(`(${recentRevsQuery.toQuery()}) as recent_revs`)
-        .orderBy('recent_revs.created_at', 'desc')
+        .select(['rev.id', 'rev.grant_note_id', 'rev.created_at', 'rev.text'])
+        .from({ rev: 'grant_notes_revisions' })
+        .whereRaw('rev.grant_note_id = grant_notes.id')
+        .orderBy('rev.created_at', 'desc')
         .limit(1);
 
     let query = knex('grant_notes')
         .select([
             'grant_notes.id',
             'grant_notes.created_at',
+            'grant_notes.updated_at as updated_at',
             'grant_notes.grant_id',
             'rev.id as latest_revision_id',
             'rev.created_at as revised_at',
             'rev.text',
-            'rev.is_revised as is_revised',
             'users.id as user_id',
             'users.name as user_name',
             'users.email as user_email',
@@ -74,7 +65,7 @@ async function getCurrentNoteRevisions(
             'agencies.id as team_id',
             'agencies.name as team_name',
         ])
-        .joinRaw(`LEFT JOIN LATERAL (${revQuery.toQuery()}) AS rev ON rev.grant_note_id = grant_notes.id`)
+        .joinRaw(`LEFT JOIN LATERAL (${revQuery.toString()}) AS rev ON rev.grant_note_id = grant_notes.id`)
         .join('users', 'users.id', 'grant_notes.user_id')
         .join('agencies', 'agencies.id', 'users.agency_id')
         .join('tenants', 'tenants.id', 'users.tenant_id')
@@ -111,7 +102,7 @@ async function getCurrentNoteRevisions(
         notes: notes.map((note) => ({
             id: note.latest_revision_id,
             createdAt: note.revised_at,
-            isRevised: note.is_revised,
+            isRevised: note.revised_at > note.updated_at,
             text: note.text,
             grant: { id: note.grant_id },
             user: {

@@ -111,4 +111,9 @@ module.exports = {
             tableName: 'migrations',
         },
     },
+    // Set trigger for any updated timestamps
+    onUpdateTrigger: (table) => `
+        CREATE TRIGGER ${table}_updated_at BEFORE UPDATE ON ${table}
+        FOR EACH ROW EXECUTE PROCEDURE on_update_timestamp();
+    `,
 };
