@@ -36,6 +36,8 @@ const tags = Object.freeze(
     },
 );
 
+const TZ_NY = 'America/New_York';
+
 module.exports = {
-    notificationType, emailSubscriptionStatus, defaultSubscriptionPreference, tags,
+    notificationType, emailSubscriptionStatus, defaultSubscriptionPreference, tags, TZ_NY,
 };

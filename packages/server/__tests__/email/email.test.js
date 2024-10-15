@@ -10,7 +10,7 @@ const emailService = require('../../src/lib/email/service-email');
 const email = require('../../src/lib/email');
 const fixtures = require('../db/seeds/fixtures');
 const db = require('../../src/db');
-const { tags } = require('../../src/lib/email/constants');
+const { tags, notificationType, emailSubscriptionStatus } = require('../../src/lib/email/constants');
 
 const { knex } = db;
 const awsTransport = require('../../src/lib/gost-aws');
@@ -223,7 +223,6 @@ describe('Email sender', () => {
         process.env.DD_SERVICE = 'test-dd-service';
         process.env.DD_ENV = 'test-dd-env';
         process.env.DD_VERSION = 'test-dd-version';
-        sandbox.spy(emailService);
     });
 
     after(async () => {
@@ -235,6 +234,7 @@ describe('Email sender', () => {
 
     beforeEach(async () => {
         await fixtures.seed(knex);
+        sandbox.spy(emailService);
     });
 
     afterEach(() => {
@@ -589,6 +589,21 @@ describe('Email sender', () => {
         beforeEach(async () => {
             sendFake = sinon.fake.returns('foo');
             sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
+
+            await knex('email_subscriptions').insert([
+                {
+                    user_id: adminUser.id,
+                    agency_id: adminUser.agency_id,
+                    notification_type: notificationType.grantActivity,
+                    status: emailSubscriptionStatus.subscribed,
+                },
+                {
+                    user_id: staffUser.id,
+                    agency_id: staffUser.agency_id,
+                    notification_type: notificationType.grantActivity,
+                    status: emailSubscriptionStatus.subscribed,
+                },
+            ]);
 
             periodStart = new Date();
 

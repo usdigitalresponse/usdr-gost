@@ -1,9 +1,11 @@
 const _ = require('lodash');
+const { TABLES } = require('../../db/constants');
+const emailConstants = require('../email/constants');
 
 const getActivitiesQuery = (knex) => {
     const noteRevisionsSub = knex
         .select()
-        .from({ r: 'grant_notes_revisions' })
+        .from({ r: TABLES.grant_notes_revisions })
         .whereRaw('r.grant_note_id = gn.id')
         .orderBy('r.created_at', 'desc')
         .limit(1);
@@ -40,11 +42,17 @@ async function getGrantActivityEmailRecipients(knex, periodStart, periodEnd) {
         .from(
             getActivitiesQuery(knex),
         )
-        .join({ recipient_followers: 'grant_followers' }, 'recipient_followers.grant_id', 'activity.grant_id')
-        .join({ activity_users: 'users' }, 'activity_users.id', 'activity.user_id')
-        .join({ recipient_users: 'users' }, 'recipient_users.id', 'recipient_followers.user_id')
+        .join({ recipient_followers: TABLES.grant_followers }, 'recipient_followers.grant_id', 'activity.grant_id')
+        .join({ activity_users: TABLES.users }, 'activity_users.id', 'activity.user_id')
+        .join({ recipient_users: TABLES.users }, 'recipient_users.id', 'recipient_followers.user_id')
+        .leftJoin({ recipient_subscriptions: TABLES.email_subscriptions }, (builder) => {
+            builder
+                .on(`recipient_followers.user_id`, '=', `recipient_subscriptions.user_id`)
+                .on(`recipient_subscriptions.notification_type`, '=', knex.raw('?', [emailConstants.notificationType.grantActivity]));
+        })
         .where('activity.activity_at', '>', periodStart)
         .andWhere('activity.activity_at', '<', periodEnd)
+        .andWhere('recipient_subscriptions.status', emailConstants.emailSubscriptionStatus.subscribed)
         // only consider actions taken by users in the same organization as the recipient:
         .andWhereRaw('recipient_users.tenant_id = activity_users.tenant_id')
         // exclude rows where the recipient user is the one taking the action,
@@ -73,14 +81,14 @@ async function getGrantActivityByUserId(knex, userId, periodStart, periodEnd) {
         .from(
             getActivitiesQuery(knex),
         )
-        .join({ recipient_followers: 'grant_followers' }, 'recipient_followers.grant_id', 'activity.grant_id')
+        .join({ recipient_followers: TABLES.grant_followers }, 'recipient_followers.grant_id', 'activity.grant_id')
         // incorporate users table for users responsible for the activity:
-        .join({ activity_users: 'users' }, 'activity_users.id', 'activity.user_id')
+        .join({ activity_users: TABLES.users }, 'activity_users.id', 'activity.user_id')
         // incorporate users table for the recipient follower:
-        .join({ recipient_users: 'users' }, 'recipient_users.id', 'recipient_followers.user_id')
+        .join({ recipient_users: TABLES.users }, 'recipient_users.id', 'recipient_followers.user_id')
         // Additional JOINs for data selected for use in the email's content:
-        .join({ g: 'grants' }, 'g.grant_id', 'activity.grant_id')
-        .join({ activity_users_agencies: 'agencies' }, 'activity_users_agencies.id', 'activity_users.agency_id')
+        .join({ g: TABLES.grants }, 'g.grant_id', 'activity.grant_id')
+        .join({ activity_users_agencies: TABLES.agencies }, 'activity_users_agencies.id', 'activity_users.agency_id')
         .where('activity.activity_at', '>', periodStart)
         .andWhere('activity.activity_at', '<', periodEnd)
         // Limit to activity where the user performing the activity belongs to the same organization:
@@ -108,6 +116,7 @@ async function getGrantActivityByUserId(knex, userId, periodStart, periodEnd) {
             const activities = resultsByGrant[grantId].map((act) => ({
                 userId: act.user_id,
                 userName: act.user_name,
+                userEmail: act.user_email,
                 agencyName: act.agency_name,
                 activityAt: act.activity_at,
                 activityType: act.activity_type,

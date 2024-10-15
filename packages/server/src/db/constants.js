@@ -14,5 +14,8 @@ module.exports = {
         keywords: 'keywords',
         email_subscriptions: 'email_subscriptions',
         grants_saved_searches: 'grants_saved_searches',
+        grant_notes: 'grant_notes',
+        grant_followers: 'grant_followers',
+        grant_notes_revisions: 'grant_notes_revisions',
     },
 };

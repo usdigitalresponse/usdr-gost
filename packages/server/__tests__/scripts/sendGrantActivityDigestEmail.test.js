@@ -8,7 +8,6 @@ describe('sendGrantActivityDigestEmail script', () => {
     let buildAndSendGrantActivityDigestEmailsFake;
 
     beforeEach(() => {
-        process.env.ENABLE_GRANT_ACTIVITY_DIGEST_SCHEDULED_TASK = 'true';
         buildAndSendGrantActivityDigestEmailsFake = sandbox.fake();
         sandbox.replace(email, 'buildAndSendGrantActivityDigestEmails', buildAndSendGrantActivityDigestEmailsFake);
     });
@@ -18,6 +17,7 @@ describe('sendGrantActivityDigestEmail script', () => {
     });
 
     it('triggers sending digest emails when flags are on', async () => {
+        process.env.ENABLE_GRANT_ACTIVITY_DIGEST_SCHEDULED_TASK = 'true';
         await sendGrantActivityDigestEmail();
         expect(buildAndSendGrantActivityDigestEmailsFake.called).to.equal(true);
     });

@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 const tracer = require('dd-trace').init();
+const { DateTime } = require('luxon');
 const { log } = require('../lib/logging');
-const email = require('../lib/email');
+const { buildAndSendGrantActivityDigestEmails } = require('../lib/email');
+const { TZ_NY } = require('../lib/email/constants');
 
 /**
  * This script sends all enabled grant activity digest emails. It is triggered by a
@@ -18,7 +20,9 @@ exports.main = async function main() {
 
     await tracer.trace('sendGrantActivityDigestEmail', async () => {
         log.info('Sending grant activity digest emails');
-        await email.buildAndSendGrantActivityDigestEmails();
+        const periodEnd = DateTime.local({ hours: 8, zone: TZ_NY });
+        const periodStart = periodEnd.minus({ days: 1 });
+        await buildAndSendGrantActivityDigestEmails(null, periodStart.toJSDate(), periodEnd.toJSDate());
     });
 };
 

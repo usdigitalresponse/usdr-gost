@@ -473,8 +473,31 @@ async function buildGrantActivityDigestBody({ name, grants, periodEnd }) {
     // Build Email Here
     //
     //
+    const formatActivities = (activities) => activities.reduce((output, activity) => `${output}
+                <li>
+                    ${activity.userName} - ${activity.agencyName}<br/>
+                    ${activity.userEmail}<br/><br/>
+                    ${activity.noteText || ''}
+                </li>
+            `, '');
 
-    const formattedBody = mustache.render(JSON.stringify(grants), {
+    let body = '';
+    grants.forEach((grant) => {
+        body += `<h2>${grant.grantTitle}</h2>`;
+
+        body += `<h3>${grant.notes.length} New Notes:</h3>`;
+        body += `
+            <ul>${formatActivities(grant.notes)}</ul>
+        `;
+
+        body += `<h3>${grant.follows.length} New Follows:</h3>`;
+        body += `
+            <ul>${formatActivities(grant.follows)}</ul>
+        `;
+        body += '<hr>';
+    });
+
+    const formattedBody = mustache.render(body, {
         body_title: `${name}: New activity in your grants`,
         body_detail: DateTime.fromJSDate(periodEnd).toFormat('DDD'),
         additional_body: '',
@@ -523,12 +546,11 @@ async function sendGrantDigestEmail({
 async function sendGrantActivityDigestEmail({
     name, recipientEmail, grants, periodEnd,
 }) {
-    console.log(`${name} is subscribed for digests on ${periodEnd}`);
-
     if (!grants || grants?.length === 0) {
         console.error(`There was no grant note/follow activity available for ${name}`);
         return;
     }
+    console.log(`${name} is will receive digests on ${DateTime.fromJSDate(periodEnd).toLocaleString(DateTime.DATE_FULL)}`);
 
     const formattedBody = await buildGrantActivityDigestBody({ name, grants, periodEnd });
     const preheader = 'See recent activity from grants you follow';
@@ -623,7 +645,9 @@ async function buildAndSendGrantDigestEmails(userId, openDate = yesterday()) {
 
 async function buildAndSendGrantActivityDigestEmails(userId, periodStart, periodEnd) {
     const userGroup = userId ? `user Id ${userId}` : 'all users';
-    console.log(`Building and sending Grant Activity Digest email for ${userGroup} on ${periodEnd}`);
+    console.log(`
+        Building and sending Grant Activity Digest email for ${userGroup} on ${DateTime.fromJSDate(periodEnd).toLocaleString(DateTime.DATE_FULL)}
+    `);
     /*
     1. get all email recipients
     2. call getAndSendGrantActivityDigest to find activity for each user and send the digest
