@@ -24,7 +24,7 @@ exports.up = async function (knex) {
         table.boolean('is_published').notNullable().defaultTo(true);
         table.timestamp('updated_at').notNullable().defaultTo(knex.fn.now());
     });
-    knex.raw(onUpdateTrigger('grant_notes'));
+    await knex.raw(onUpdateTrigger('grant_notes'));
 };
 
 /**
