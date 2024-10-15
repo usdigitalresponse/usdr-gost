@@ -29,6 +29,7 @@ const tags = Object.freeze(
             treasuryReport: 'treasury_report',
             welcome: 'welcome',
             grantDigest: 'grant_digest',
+            grantActivityDigest: 'grant_activity_digest',
             treasuryReportError: 'treasury_report_error',
             auditReportError: 'audit_report_error',
         },

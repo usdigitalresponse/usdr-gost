@@ -177,14 +177,15 @@ module "api" {
   ecs_cluster_name = join("", aws_ecs_cluster.default[*].name)
 
   # Task configuration
-  docker_tag                         = var.api_container_image_tag
-  default_desired_task_count         = var.api_default_desired_task_count
-  autoscaling_desired_count_minimum  = var.api_minumum_task_count
-  autoscaling_desired_count_maximum  = var.api_maximum_task_count
-  enable_new_team_terminology        = var.api_enable_new_team_terminology
-  enable_saved_search_grants_digest  = var.api_enable_saved_search_grants_digest
-  enable_grant_digest_scheduled_task = var.api_enable_grant_digest_scheduled_task
-  unified_service_tags               = local.unified_service_tags
+  docker_tag                                  = var.api_container_image_tag
+  default_desired_task_count                  = var.api_default_desired_task_count
+  autoscaling_desired_count_minimum           = var.api_minumum_task_count
+  autoscaling_desired_count_maximum           = var.api_maximum_task_count
+  enable_new_team_terminology                 = var.api_enable_new_team_terminology
+  enable_saved_search_grants_digest           = var.api_enable_saved_search_grants_digest
+  enable_grant_digest_scheduled_task          = var.api_enable_grant_digest_scheduled_task
+  enable_grant_activity_digest_scheduled_task = var.api_enable_grant_activity_digest_scheduled_task
+  unified_service_tags                        = local.unified_service_tags
   datadog_environment_variables = merge(
     var.default_datadog_environment_variables,
     var.api_datadog_environment_variables,

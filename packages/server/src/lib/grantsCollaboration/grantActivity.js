@@ -56,10 +56,12 @@ async function getGrantActivityEmailRecipients(knex, periodStart, periodEnd) {
     return _.map(results, 'recipient_user_id');
 }
 
-async function getGrantActivity(knex, userId, periodStart, periodEnd) {
+async function getGrantActivityByUserId(knex, userId, periodStart, periodEnd) {
     const query = knex.select([
         'g.grant_id AS grant_id',
         'g.title AS grant_title',
+        'recipient_users.name AS recipient_user_name',
+        'recipient_users.email AS recipient_user_email',
         'activity_users.id AS user_id',
         'activity_users.name AS user_name',
         'activity_users.email AS user_email',
@@ -85,6 +87,7 @@ async function getGrantActivity(knex, userId, periodStart, periodEnd) {
         .andWhereRaw('activity_users.tenant_id = recipient_users.tenant_id')
         // limit activity to grants for which the recipient user is a follower
         .andWhere('recipient_followers.user_id', userId)
+        .andWhereNot('activity_users.id', userId)
         .orderBy([
             { column: 'g.grant_id', order: 'desc' },
             { column: 'activity.activity_at', order: 'asc' },
@@ -98,27 +101,33 @@ async function getGrantActivity(knex, userId, periodStart, periodEnd) {
     // Grant IDs distinct
     const grantIds = [...new Set(_.map(results, 'grant_id'))];
 
-    return grantIds.map((grantId) => {
-        const activities = resultsByGrant[grantId].map((act) => ({
-            userId: act.user_id,
-            userName: act.user_name,
-            agencyName: act.agency_name,
-            activityAt: act.activity_at,
-            activityType: act.activity_type,
-            noteText: act.note_text,
-        }));
-        const activitiesByType = _.groupBy(activities, 'activityType');
+    const result = {
+        userEmail: results.length ? results[0].recipient_user_email : null,
+        userName: results.length ? results[0].recipient_user_name : null,
+        grants: grantIds.map((grantId) => {
+            const activities = resultsByGrant[grantId].map((act) => ({
+                userId: act.user_id,
+                userName: act.user_name,
+                agencyName: act.agency_name,
+                activityAt: act.activity_at,
+                activityType: act.activity_type,
+                noteText: act.note_text,
+            }));
+            const activitiesByType = _.groupBy(activities, 'activityType');
 
-        return {
-            grantId,
-            grantTitle: resultsByGrant[grantId][0].grant_title,
-            notes: activitiesByType.note || [],
-            follows: activitiesByType.follow || [],
-        };
-    });
+            return {
+                grantId,
+                grantTitle: resultsByGrant[grantId][0].grant_title,
+                notes: activitiesByType.note || [],
+                follows: activitiesByType.follow || [],
+            };
+        }),
+    };
+
+    return result;
 }
 
 module.exports = {
-    getGrantActivity,
+    getGrantActivityByUserId,
     getGrantActivityEmailRecipients,
 };

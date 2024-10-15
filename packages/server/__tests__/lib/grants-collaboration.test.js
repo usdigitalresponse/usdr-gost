@@ -9,7 +9,7 @@ const {
     followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant,
 } = require('../../src/lib/grantsCollaboration/followers');
 const {
-    getGrantActivity, getGrantActivityEmailRecipients,
+    getGrantActivityByUserId, getGrantActivityEmailRecipients,
 } = require('../../src/lib/grantsCollaboration/grantActivity');
 
 use(chaiAsPromised);
@@ -249,6 +249,17 @@ describe('Grants Collaboration', () => {
     });
 
     context('Grant Activity', () => {
+        // Helper functions
+        const getUserIdsForActivities = (grants) => {
+            const ids = grants.reduce((userIds, grant) => {
+                grant.notes.forEach((act) => userIds.add(act.userId));
+                grant.follows.forEach((act) => userIds.add(act.userId));
+                return userIds;
+            }, new Set());
+
+            return Array.from(ids);
+        };
+
         const { adminUser, staffUser } = fixtures.users;
         const grant1 = fixtures.grants.earFellowship;
         const grant2 = fixtures.grants.healthAide;
@@ -286,6 +297,9 @@ describe('Grants Collaboration', () => {
             await knex('grant_followers')
                 .insert({ grant_id: grant2.grant_id, user_id: staffUser.id }, 'id');
 
+            await knex('grant_followers')
+                .insert({ grant_id: grant2.grant_id, user_id: adminUser.id }, 'id');
+
             // Grant 2 Notes
             const [grant2NoteStaff] = await knex('grant_notes')
                 .insert({ grant_id: grant2.grant_id, user_id: staffUser.id }, 'id');
@@ -308,16 +322,16 @@ describe('Grants Collaboration', () => {
         });
 
         it('retrieves all note/follow activity by period', async () => {
-            const grants = await getGrantActivity(knex, adminUser.id, periodStart, periodEnd);
+            const grantActivity = await getGrantActivityByUserId(knex, adminUser.id, periodStart, periodEnd);
 
-            expect(grants).to.have.lengthOf(1);
-            expect(grants[0].grantId).to.equal(grant1.grant_id);
-            expect(grants[0].notes).to.have.lengthOf(2);
-            expect(grants[0].follows).to.have.lengthOf(2);
-
-            // Sorted oldest first
-            expect(grants[0].notes[0].noteText).to.equal('Admin note');
-            expect(grants[0].follows[0].userId).to.equal(adminUser.id);
+            expect(grantActivity.grants).to.have.lengthOf(2);
+            expect(grantActivity.userEmail).to.equal(adminUser.email);
+            expect(grantActivity.userName).to.equal(adminUser.name);
+            expect(grantActivity.grants[0].grantId).to.equal(grant1.grant_id);
+            expect(grantActivity.grants[0].notes).to.have.lengthOf(1);
+            expect(grantActivity.grants[0].follows).to.have.lengthOf(1);
+            expect(grantActivity.grants[0].notes[0].noteText).to.equal('Staff note');
+            expect(grantActivity.grants[0].follows[0].userId).to.equal(staffUser.id);
         });
 
         it('retrieves email recipients only if OTHER users took action', async () => {
@@ -338,6 +352,16 @@ describe('Grants Collaboration', () => {
             expect(recipients2).to.have.members([staffUser.id, adminUser.id]);
         });
 
+        it('retrieves activity only for OTHER users action', async () => {
+            const adminGrantActivity = await getGrantActivityByUserId(knex, adminUser.id, periodStart, periodEnd);
+            const adminActivityIds = getUserIdsForActivities(adminGrantActivity.grants);
+            expect(adminActivityIds).not.to.include(adminUser.id);
+
+            const staffGrantActivity = await getGrantActivityByUserId(knex, staffUser.id, periodStart, periodEnd);
+            const staffActivityIds = getUserIdsForActivities(staffGrantActivity.grants);
+            expect(staffActivityIds).not.to.include(staffUser.id);
+        });
+
         it('retrieves no note/follow activity when window is outside time period of activity', async () => {
             periodStart = DateTime.fromJSDate(periodStart).minus({ days: 1 }).toJSDate();
             periodEnd = DateTime.fromJSDate(periodEnd).minus({ days: 1 }).toJSDate();
@@ -347,8 +371,8 @@ describe('Grants Collaboration', () => {
 
             await Promise.all(
                 [adminUser.id, staffUser.id].map(async (userId) => {
-                    const grants = await getGrantActivity(knex, userId, periodStart, periodEnd);
-                    expect(grants).to.have.lengthOf(0);
+                    const grantActivity = await getGrantActivityByUserId(knex, userId, periodStart, periodEnd);
+                    expect(grantActivity.grants).to.have.lengthOf(0);
                 }),
             );
         });
@@ -383,26 +407,25 @@ describe('Grants Collaboration', () => {
                 otherUser2.id,
             ]);
 
-            const getActivityUserIds = (grants) => grants.reduce((userIds, grant) => {
-                grant.notes.forEach((act) => userIds.push(act.userId));
-                grant.follows.forEach((act) => userIds.push(act.userId));
-                return userIds;
-            }, []);
+            const getGrantActivity = async (userId) => {
+                const grantActivity = await getGrantActivityByUserId(knex, userId, periodStart, periodEnd);
+                return grantActivity.grants;
+            };
 
             const tenantOneUsers = [adminUser.id, staffUser.id];
             const tenantTwoUsers = [otherUser1.id, otherUser2.id];
 
             // Digest activity does NOT include cross-over between tenants
             const tenantOneGrants = await Promise.all(
-                tenantOneUsers.map((userId) => getGrantActivity(knex, userId, periodStart, periodEnd)),
+                tenantOneUsers.map((userId) => getGrantActivity(userId)),
             );
-            const tenantOneUserIds = getActivityUserIds(tenantOneGrants.flat());
+            const tenantOneUserIds = getUserIdsForActivities(tenantOneGrants.flat());
             expect(tenantOneUserIds).not.to.include.members(tenantTwoUsers);
 
             const tenantTwoGrants = await Promise.all(
-                tenantTwoUsers.map((userId) => getGrantActivity(knex, userId, periodStart, periodEnd)),
+                tenantTwoUsers.map((userId) => getGrantActivity(userId)),
             );
-            const tenantTwoUserIds = getActivityUserIds(tenantTwoGrants.flat());
+            const tenantTwoUserIds = getUserIdsForActivities(tenantTwoGrants.flat());
             expect(tenantTwoUserIds).not.to.include.members(tenantOneUsers);
         });
     });
