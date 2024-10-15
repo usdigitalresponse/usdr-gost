@@ -2845,9 +2845,9 @@
     pretty-format "^29.7.0"
 
 "@vue/compat@^3.4.27":
-  version "3.5.11"
-  resolved "https://registry.yarnpkg.com/@vue/compat/-/compat-3.5.11.tgz#c720d0431a5ba9eedb335ccef7ee6d875cceca00"
-  integrity sha512-ESH2z/vUZQi6yRDBCDjBgip6a0Rk48KiT4Dk1LkxSYnqM++3mlqyMo0MgXFxfLhQ1uMaL6pquSCMgKfivrRqRg==
+  version "3.5.12"
+  resolved "https://registry.yarnpkg.com/@vue/compat/-/compat-3.5.12.tgz#922f5105860958b842a4cfb5b2fc2611ad112967"
+  integrity sha512-44keSoMGAf9l6DVEKpyCUVZXU4KzGPzqtSoauZX5Jde7odhYHep3dBumurJXX64MIa4ZfPnN1whJOoqUAph4PA==
   dependencies:
     "@babel/parser" "^7.25.3"
     estree-walker "^2.0.2"
