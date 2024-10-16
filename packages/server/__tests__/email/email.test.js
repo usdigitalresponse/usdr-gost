@@ -639,7 +639,7 @@ describe('Email sender', () => {
             expect([firstEmail.args[0].toAddress, secondEmail.args[0].toAddress]).to.be.members([adminUser.email, staffUser.email]);
         });
 
-        it('Sends an email for a user\'s saved search', async () => {
+        it('Sends an email for single user\'s digest', async () => {
             // Build digest for user following grants
             await email.buildAndSendGrantActivityDigestEmails(adminUser.id, periodStart, periodEnd);
             expect(sendFake.calledOnce).to.equal(true);

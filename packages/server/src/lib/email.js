@@ -604,16 +604,18 @@ async function getAndSendGrantForSavedSearch({
 }
 
 async function getAndSendGrantActivityDigest({
-    recipientId,
+    userId,
+    userName,
+    userEmail,
     periodStart,
     periodEnd,
 }) {
-    const grantActivityResults = await getGrantActivityByUserId(knex, recipientId, periodStart, periodEnd);
+    const grantActivityResults = await getGrantActivityByUserId(knex, userId, periodStart, periodEnd);
 
     return sendGrantActivityDigestEmail({
-        name: grantActivityResults.userName,
-        recipientEmail: grantActivityResults.userEmail,
-        grants: grantActivityResults.grants,
+        name: userName,
+        recipientEmail: userEmail,
+        grants: grantActivityResults,
         periodEnd,
     });
 }
@@ -643,8 +645,8 @@ async function buildAndSendGrantDigestEmails(userId, openDate = yesterday()) {
     console.log(`Successfully built and sent grants digest emails for ${inputs.length} saved searches on ${openDate}`);
 }
 
-async function buildAndSendGrantActivityDigestEmails(userId, periodStart, periodEnd) {
-    const userGroup = userId ? `user Id ${userId}` : 'all users';
+async function buildAndSendGrantActivityDigestEmails(explicitUserId, periodStart, periodEnd) {
+    const userGroup = explicitUserId ? `user Id ${explicitUserId}` : 'all users';
     console.log(`
         Building and sending Grant Activity Digest email for ${userGroup} on ${DateTime.fromJSDate(periodEnd).toLocaleString(DateTime.DATE_FULL)}
     `);
@@ -652,15 +654,17 @@ async function buildAndSendGrantActivityDigestEmails(userId, periodStart, period
     1. get all email recipients
     2. call getAndSendGrantActivityDigest to find activity for each user and send the digest
     */
-    let recipientIds = await getGrantActivityEmailRecipients(knex, periodStart, periodEnd);
+    let recipients = await getGrantActivityEmailRecipients(knex, periodStart, periodEnd);
 
-    if (userId) {
+    if (explicitUserId) {
         // Send specific user only if activity exists
-        recipientIds = recipientIds.filter((recipientId) => recipientId === userId);
+        recipients = recipients.filter((recipient) => recipient.userId === explicitUserId);
     }
 
-    const inputs = recipientIds.map((recipientId) => ({
-        recipientId,
+    const inputs = recipients.map(({ userId, userName, userEmail }) => ({
+        userId,
+        userName,
+        userEmail,
         periodStart,
         periodEnd,
     }));
