@@ -1,3 +1,4 @@
+const tracer = require('dd-trace');
 const { getUser, inTenant } = require('../db');
 const { log } = require('./logging');
 
@@ -83,6 +84,14 @@ async function requireAdminUser(req, res, next) {
     try {
         const { user, selectedAgency } = await getAdminAuthInfo(req);
         req.session = { ...req.session, user, selectedAgency };
+        tracer.setUser({
+            id: user.id,
+            agency_id: user.agency_id,
+            tenant_id: user.tenant_id,
+            role_name: user.role_name,
+            selected_agency_id: selectedAgency,
+            is_user_super_admin: isUSDRSuperAdmin(user),
+        });
     } catch (err) {
         res.sendStatus(403);
         return;
@@ -115,6 +124,13 @@ async function requireUser(req, res, next) {
     }
 
     req.session = { ...req.session, user, selectedAgency: user.agency_id };
+
+    tracer.setUser({
+        id: req.session.user?.id,
+        role: req.session.user?.role.name,
+        tenant_id: req.session.user?.tenant?.id,
+        agency_id: req.session.user?.agency?.id,
+    });
 
     next();
 }

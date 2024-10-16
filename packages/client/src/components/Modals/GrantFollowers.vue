@@ -9,50 +9,39 @@
     @show="handleModalOpen"
     @hidden="$emit('close')"
   >
-    <div v-if="loading">
+    <div v-if="!followersLoaded">
       Loading...
     </div>
 
-    <ul class="list-unstyled">
+    <ul class="list-unstyled mt-3">
       <li
-        v-for="follower in formattedFollowers"
+        v-for="follower in followers"
         :key="follower.id"
         data-test-follower
         class="mb-3"
       >
         <div class="d-flex">
-          <UserAvatar
-            :user-name="follower.name"
-            size="2.5rem"
-            class="mr-2"
+          <UserActivityItem
+            class="mr-3"
+            :user-name="follower.user.name"
+            :user-email="follower.user.email"
+            :team-name="follower.user.team.name"
+            :avatar-color="follower.user.avatarColor"
+            :created-at="follower.createdAt"
+            hide-avatar-vertical
           />
-          <div class="d-flex flex-grow-1">
-            <div class="follower-details flex-grow-1">
-              <div class="d-flex align-items-center">
-                <span class="font-weight-bold">{{ follower.name }}</span>
-                <span class="mx-1">&bull;</span>
-                <span class="follower-team text-muted">{{ follower.team }}</span>
-              </div>
-              <div class="follower-email text-muted">
-                {{ follower.email }}
-              </div>
-              <div class="follower-date text-muted">
-                {{ follower.dateFollowedText }}
-              </div>
-            </div>
-            <CopyButton
-              :copy-text="follower.email"
-              hide-icon
-              class="ms-auto"
+          <CopyButton
+            :copy-text="follower.user.email"
+            hide-icon
+            class="ml-auto flex-shrink-0 mt-1"
+          >
+            <b-button
+              variant="outline-primary"
+              size="sm"
             >
-              <b-button
-                variant="outline-primary"
-                size="sm"
-              >
-                Copy Email
-              </b-button>
-            </CopyButton>
-          </div>
+              Copy Email
+            </b-button>
+          </CopyButton>
         </div>
       </li>
     </ul>
@@ -79,6 +68,7 @@
         <b-button
           variant="outline-primary"
           size="sm"
+          :disabled="!followersEmailText"
         >
           Copy All Emails
         </b-button>
@@ -88,16 +78,15 @@
 </template>
 
 <script>
-import { DateTime } from 'luxon';
 import { mapActions, mapGetters } from 'vuex';
 
-import UserAvatar from '@/components/UserAvatar.vue';
 import CopyButton from '@/components/CopyButton.vue';
+import UserActivityItem from '@/components/UserActivityItem.vue';
 
 export default {
   components: {
-    UserAvatar,
     CopyButton,
+    UserActivityItem,
   },
   props: {
     modalId: {
@@ -111,7 +100,6 @@ export default {
       followersLoaded: false,
       followersNextCursor: null,
       loading: false,
-      loadMoreVisible: false,
       followers: [],
     };
   },
@@ -119,31 +107,8 @@ export default {
     ...mapGetters({
       currentGrant: 'grants/currentGrant',
     }),
-    formattedFollowers() {
-      return this.followers
-        .map((follower) => {
-          const { user, id, createdAt } = follower;
-
-          const createdDate = DateTime.fromISO(createdAt);
-          const today = DateTime.now().endOf('day');
-
-          let dateFollowedText = '';
-          if (createdDate.hasSame(today, 'day')) {
-            dateFollowedText = createdDate.toRelativeCalendar({ base: today, unit: 'days' });
-          } else if (createdDate > today.minus({ days: 7 })) {
-            dateFollowedText = createdDate.toRelative({ base: today, unit: 'days' });
-          } else {
-            dateFollowedText = createdDate.toFormat('MMMM d');
-          }
-
-          return {
-            id,
-            name: user.name,
-            email: user.email,
-            team: user.team.name,
-            dateFollowedText,
-          };
-        });
+    loadMoreVisible() {
+      return this.followersNextCursor !== null;
     },
     followersEmailText() {
       return this.followers
@@ -167,36 +132,27 @@ export default {
       };
 
       if (this.followersNextCursor !== null) {
-        query.paginateFrom = this.followersNextCursor;
+        query.cursor = this.followersNextCursor;
       }
       const result = await this.getFollowersForGrant(query);
 
       this.followers = this.followers.concat(result.followers);
       this.followersNextCursor = result.pagination.next;
       this.followersLoaded = true;
-
-      // more to load?
-      this.loadMoreVisible = result.pagination.next !== null;
     },
   },
 };
 </script>
 
 <style scoped>
-.follower-details {
-  margin-top: .2rem;
-}
-
 .follower-email {
   font-size: 0.8125rem;
 }
 
-.follower-team,
 .follower-email {
   font-weight: 400;
 }
 
-.follower-team,
 .follower-date {
   font-size: 0.75rem;
 }

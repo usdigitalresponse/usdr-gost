@@ -13,7 +13,7 @@ function getDefaultHeaders() {
 }
 
 /*
-* Turns param object {limit: 1, paginateFrom: 2} into uri string '?limit=1&paginateFrom=2
+* Turns param object {limit: 1, cursor: 2} into uri string '?limit=1&cursor=2
 * Removes emtpy values
 */
 export const serializeQuery = (params = {}) => {
