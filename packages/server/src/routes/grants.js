@@ -135,7 +135,7 @@ router.get('/next', requireUser, async (req, res) => {
 router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { user } = req.session;
-    const response = await db.getSingleGrantDetails({ grantId, tenantId: user.tenant_id, showForecastedGrants: process.env.SHOW_FORECASTED_GRANTS });
+    const response = await db.getSingleGrantDetails({ grantId, tenantId: user.tenant_id, showForecastedGrants: process.env.SHOW_FORECASTED_GRANTS === 'true' });
     res.json(response);
 });
 
