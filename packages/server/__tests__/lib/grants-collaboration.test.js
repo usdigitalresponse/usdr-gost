@@ -286,8 +286,8 @@ describe('Grants Collaboration', () => {
         let grant1NoteStaff;
 
         beforeEach(async () => {
-            subscribeUser(adminUser);
-            subscribeUser(staffUser);
+            await subscribeUser(adminUser);
+            await subscribeUser(staffUser);
 
             periodStart = DateTime.now().minus({ days: 1 }).toJSDate();
 
@@ -323,7 +323,7 @@ describe('Grants Collaboration', () => {
                 .insert({ grant_id: grant2.grant_id, user_id: staffUser.id }, 'id');
 
             await knex('grant_notes_revisions')
-                .insert({ grant_note_id: grant2NoteStaff.id, text: 'Staff note' }, 'id');
+                .insert({ grant_note_id: grant2NoteStaff.id, text: 'Another Staff note' }, 'id');
 
             periodEnd = new Date();
         });
@@ -365,17 +365,17 @@ describe('Grants Collaboration', () => {
             periodStart = new Date();
 
             // Admin edits note
-            await knex('grant_notes_revisions')
-                .insert({ grant_note_id: grant1NoteAdmin.id, text: 'Edit for Admin note' }, 'id');
+            const [adminRevised] = await knex('grant_notes_revisions')
+                .insert({ grant_note_id: grant1NoteAdmin.id, text: 'Edit for Admin note' }, 'created_at');
 
-            const recipients1 = await getGrantActivityEmailRecipients(knex, periodStart, new Date());
+            const recipients1 = await getGrantActivityEmailRecipients(knex, periodStart, new Date(adminRevised.created_at.getTime() + 1));
             expect(_.map(recipients1, 'userId')).to.have.members([staffUser.id]);
 
             // Staff edits note
-            await knex('grant_notes_revisions')
-                .insert({ grant_note_id: grant1NoteStaff.id, text: 'Edit for Staff note' }, 'id');
+            const [staffRevised] = await knex('grant_notes_revisions')
+                .insert({ grant_note_id: grant1NoteStaff.id, text: 'Edit for Staff note' }, 'created_at');
 
-            const recipients2 = await getGrantActivityEmailRecipients(knex, periodStart, new Date());
+            const recipients2 = await getGrantActivityEmailRecipients(knex, periodStart, new Date(staffRevised.created_at.getTime() + 1));
             expect(_.map(recipients2, 'userId')).to.have.members([staffUser.id, adminUser.id]);
         });
 

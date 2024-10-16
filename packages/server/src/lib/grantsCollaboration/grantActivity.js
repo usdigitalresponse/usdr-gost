@@ -54,8 +54,8 @@ async function getGrantActivityEmailRecipients(knex, periodStart, periodEnd) {
                 .on(`recipient_followers.user_id`, '=', `recipient_subscriptions.user_id`)
                 .on(`recipient_subscriptions.notification_type`, '=', knex.raw('?', [emailConstants.notificationType.grantActivity]));
         })
-        .where('activity.activity_at', '>', periodStart)
-        .andWhere('activity.activity_at', '<', periodEnd)
+        .where('activity.activity_at', '>=', periodStart)
+        .andWhere('activity.activity_at', '<=', periodEnd)
         .andWhere('recipient_subscriptions.status', emailConstants.emailSubscriptionStatus.subscribed)
         // only consider actions taken by users in the same organization as the recipient:
         .andWhereRaw('recipient_users.tenant_id = activity_users.tenant_id')
