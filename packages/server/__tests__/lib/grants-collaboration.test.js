@@ -15,7 +15,7 @@ const emailConstants = require('../../src/lib/email/constants');
 
 use(chaiAsPromised);
 
-afterEach(async () => {
+beforeEach(async () => {
     await seed(knex);
 });
 

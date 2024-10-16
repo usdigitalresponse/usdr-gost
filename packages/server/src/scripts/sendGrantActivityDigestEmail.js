@@ -2,7 +2,7 @@
 const tracer = require('dd-trace').init();
 const { DateTime } = require('luxon');
 const { log } = require('../lib/logging');
-const { buildAndSendGrantActivityDigestEmails } = require('../lib/email');
+const email = require('../lib/email');
 const { TZ_NY } = require('../lib/email/constants');
 
 /**
@@ -22,7 +22,7 @@ exports.main = async function main() {
         log.info('Sending grant activity digest emails');
         const periodEnd = DateTime.local({ hours: 8, zone: TZ_NY });
         const periodStart = periodEnd.minus({ days: 1 });
-        await buildAndSendGrantActivityDigestEmails(null, periodStart.toJSDate(), periodEnd.toJSDate());
+        await email.buildAndSendGrantActivityDigestEmails(null, periodStart.toJSDate(), periodEnd.toJSDate());
     });
 };
 

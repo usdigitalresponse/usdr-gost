@@ -2,7 +2,6 @@
 
 const { expect } = require('chai');
 const moment = require('moment');
-const { DateTime } = require('luxon');
 const sinon = require('sinon');
 const _ = require('lodash');
 require('dotenv').config();
