@@ -339,7 +339,7 @@ async function validateRecord({ upload, record, typeRules: rules }) {
                     for (const entry of entries) {
                         if (!lcItems.includes(entry)) {
                             errors.push(new ValidationError(
-                                `Entry '${entry}' of ${key} is not one of ${lcItems.length} valid options`,
+                                `Entry '${entry}' of ${key} is not one of ${lcItems.length} valid options (${JSON.stringify(lcItems)})`,
                                 { col: rule.columnName, severity: 'err' },
                             ));
                         }
