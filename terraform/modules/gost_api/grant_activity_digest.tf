@@ -2,7 +2,7 @@ module "grant_activity_digest_scheduled_task" {
   source  = "../scheduled_ecs_task"
   enabled = var.enabled && var.enable_grant_activity_digest_scheduled_task
 
-  name_prefix = "${var.namespace}-grant-activity-digest-task"
+  name_prefix = "${var.namespace}-grant-activ-digest-task"
   description = "Executes an ECS task that sends grants activity digest emails at 8am ET"
 
   # Schedule
