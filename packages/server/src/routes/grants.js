@@ -133,20 +133,29 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
     );
 
     // Generate CSV
-    const formattedData = data.map((grant) => ({
-        ...grant,
-        funding_activity_categories: grant.funding_activity_categories.join('|'),
-        interested_agencies: grant.interested_agencies
-            .map((v) => v.agency_abbreviation)
-            .join(', '),
-        viewed_by: grant.viewed_by_agencies
-            .map((v) => v.agency_abbreviation)
-            .join(', '),
-        open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
-        url: `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
-    }));
+    const formattedData = data.map((grant) => {
+        let openDate = new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' });
+        let closeDate = new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' });
 
+        if (grant.opportunity_status === 'forecasted') {
+            openDate = grant.open_date ? `est. ${openDate}` : 'not yet issued';
+            closeDate = grant.close_date ? `est ${closeDate}` : grant.close_date_explanation || 'not yet issued';
+        }
+
+        return ({
+            ...grant,
+            funding_activity_categories: grant.funding_activity_categories.join('|'),
+            interested_agencies: grant.interested_agencies
+                .map((v) => v.agency_abbreviation)
+                .join(', '),
+            viewed_by: grant.viewed_by_agencies
+                .map((v) => v.agency_abbreviation)
+                .join(', '),
+            open_date: openDate,
+            close_date: closeDate,
+            url: `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
+        });
+    });
     if (data.length === 0) {
         // If there are 0 rows, csv-stringify won't even emit the header, resulting in a totally
         // empty file, which is confusing. This adds a single empty row below the header.
