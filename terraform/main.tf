@@ -185,7 +185,10 @@ module "api" {
   enable_saved_search_grants_digest  = var.api_enable_saved_search_grants_digest
   enable_grant_digest_scheduled_task = var.api_enable_grant_digest_scheduled_task
   unified_service_tags               = local.unified_service_tags
-  datadog_environment_variables      = var.api_datadog_environment_variables
+  datadog_environment_variables = merge(
+    var.default_datadog_environment_variables,
+    var.api_datadog_environment_variables,
+  )
   api_container_environment = merge(var.api_container_environment, {
     ARPA_AUDIT_REPORT_SQS_QUEUE_URL    = module.arpa_audit_report.sqs_queue_url
     ARPA_TREASURY_REPORT_SQS_QUEUE_URL = module.arpa_treasury_report.sqs_queue_url
@@ -226,10 +229,13 @@ module "consume_grants" {
   security_group_ids = [module.api_to_postgres_security_group.id]
 
   # Task configuration
-  ecs_cluster_name              = join("", aws_ecs_cluster.default[*].name)
-  docker_tag                    = var.api_container_image_tag
-  unified_service_tags          = local.unified_service_tags
-  datadog_environment_variables = var.consume_grants_datadog_environment_variables
+  ecs_cluster_name     = join("", aws_ecs_cluster.default[*].name)
+  docker_tag           = var.api_container_image_tag
+  unified_service_tags = local.unified_service_tags
+  datadog_environment_variables = merge(
+    var.default_datadog_environment_variables,
+    var.consume_grants_datadog_environment_variables,
+  )
 
   # Messaging
   grants_ingest_event_bus_name = var.consume_grants_source_event_bus_name
@@ -284,10 +290,7 @@ module "arpa_audit_report" {
     SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
     WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
   }
-  datadog_environment_variables = {
-    DD_LOGS_INJECTION    = "true"
-    DD_PROFILING_ENABLED = "true"
-  }
+  datadog_environment_variables = var.default_datadog_environment_variables
   consumer_task_efs_volume_mounts = [{
     name            = "data"
     container_path  = "/var/data"
@@ -374,10 +377,7 @@ module "arpa_treasury_report" {
     SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
     WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
   }
-  datadog_environment_variables = {
-    DD_LOGS_INJECTION    = "true"
-    DD_PROFILING_ENABLED = "true"
-  }
+  datadog_environment_variables = var.default_datadog_environment_variables
   consumer_task_efs_volume_mounts = [{
     name            = "data"
     container_path  = "/var/data"

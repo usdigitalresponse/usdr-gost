@@ -15,3 +15,8 @@ export function shareTerminologyEnabled() {
 export function followNotesEnabled() {
   return getFeatureFlags().followNotesEnabled === true;
 }
+
+// pagination limit for grant notes
+export function grantNotesLimit() {
+  return parseInt(getFeatureFlags().grantNotesLimit, 10) || 4;
+}

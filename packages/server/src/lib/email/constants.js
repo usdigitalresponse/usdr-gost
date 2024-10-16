@@ -4,6 +4,7 @@ const notificationType = Object.freeze({
     grantInterest: 'GRANT_INTEREST',
     grantDigest: 'GRANT_DIGEST',
     grantFinderUpdates: 'GRANT_FINDER_UPDATES',
+    grantActivity: 'GRANT_ACTIVITY',
 });
 
 const emailSubscriptionStatus = Object.freeze({

@@ -21,7 +21,7 @@ const BASIC_SEARCH_CRITERIA = JSON.stringify({
 });
 
 describe('db', () => {
-    before(async () => {
+    beforeEach(async () => {
         await fixtures.seed(db.knex);
     });
 
@@ -272,8 +272,14 @@ describe('db', () => {
 
     context('getAllUserSavedSearches', () => {
         it('get all user saved searches', async () => {
+            await db.createSavedSearch({
+                name: 'Example search',
+                userId: fixtures.users.subStaffUser.id,
+                criteria: BASIC_SEARCH_CRITERIA,
+            });
+
             const data = await db.getAllUserSavedSearches();
-            expect(data.length).to.equal(5);
+            expect(data.length).to.equal(fixtures.grantsSavedSearches.length + 1);
             for (const row of data) {
                 expect(() => { JSON.parse(row.criteria); }).not.to.throw();
             }
@@ -371,6 +377,8 @@ describe('db', () => {
                 filters: {
                     assignedToAgency: fixtures.users.staffUser.agency_id.toString(),
                 },
+                perPage: 50,
+                currentPage: 1,
             });
             expect(result).to.have.property('data').with.lengthOf(1);
             expect(result.data[0].grant_id)
@@ -756,8 +764,10 @@ describe('db', () => {
             expect(result.length).to.equal(0);
         });
         it('returns a grant whose modification date is one day ago', async () => {
-            const newGrant = fixtures.grants.healthAide;
-            newGrant.grant_id = '444816';
+            const newGrant = {
+                ...fixtures.grants.healthAide,
+                grant_id: '444816',
+            };
             // Note the use of `Date` -- this ensures compatibility with our mocked time
             newGrant.open_date = new Date('2022-06-21');
             await knex(TABLES.grants).insert(Object.values([newGrant]));
@@ -775,7 +785,6 @@ describe('db', () => {
                     role_id: fixtures.roles.adminRole.id,
                     agency_id: fixtures.agencies.accountancy.id,
                     tenant_id: fixtures.tenants.SBA.id,
-                    id: 99991,
                 },
             );
             const createdUser = await db.getUser(response.id);
@@ -783,7 +792,6 @@ describe('db', () => {
             expect(createdUser.emailPreferences.GRANT_DIGEST).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
             expect(createdUser.emailPreferences.GRANT_FINDER_UPDATES).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
             expect(createdUser.emailPreferences.GRANT_INTEREST).to.equal(emailConstants.emailSubscriptionStatus.subscribed);
-            await db.deleteUser(response.id);
         });
     });
 
@@ -796,13 +804,11 @@ describe('db', () => {
                     role_id: fixtures.roles.adminRole.id,
                     agency_id: fixtures.agencies.accountancy.id,
                     tenant_id: fixtures.tenants.SBA.id,
-                    id: 99991,
                 },
             );
             const NAME = 'new name';
             const updatedUser = await db.updateUser({ id: user.id, name: NAME });
             expect(updatedUser.name).to.equal(NAME);
-            await db.deleteUser(user.id);
         });
 
         it('Updates user\'s avatar', async () => {
@@ -813,13 +819,11 @@ describe('db', () => {
                     role_id: fixtures.roles.adminRole.id,
                     agency_id: fixtures.agencies.accountancy.id,
                     tenant_id: fixtures.tenants.SBA.id,
-                    id: 99991,
                 },
             );
             const HEX_COLOR = '#44337A';
             const updatedUser = await db.updateUser({ id: user.id, avatar_color: HEX_COLOR });
             expect(updatedUser.avatar_color).to.equal(HEX_COLOR);
-            await db.deleteUser(user.id);
         });
 
         it('Updates fields independently', async () => {
@@ -830,13 +834,11 @@ describe('db', () => {
                     role_id: fixtures.roles.adminRole.id,
                     agency_id: fixtures.agencies.accountancy.id,
                     tenant_id: fixtures.tenants.SBA.id,
-                    id: 99991,
                 },
             );
             const NAME = 'new name';
             const updatedUser = await db.updateUser({ id: user.id, name: NAME }); // only changing name
             expect(updatedUser.avatar_color).to.include('#'); // avatar_color is a hex color starting with #
-            await db.deleteUser(user.id);
         });
     });
 
@@ -849,7 +851,6 @@ describe('db', () => {
                     role_id: fixtures.roles.adminRole.id,
                     agency_id: fixtures.agencies.accountancy.id,
                     tenant_id: fixtures.tenants.SBA.id,
-                    id: 99991,
                 },
             );
             const createdUser = await db.getUser(response.id);

@@ -236,44 +236,70 @@ export default {
         return null;
       }
     },
-    async getFollowersForGrant({ rootGetters, commit }, { grantId, limit, paginateFrom }) {
-      const queryParams = serializeQuery({ limit, paginateFrom });
+    async getFollowersForGrant({ rootGetters, commit }, { grantId, limit, cursor }) {
+      const queryParams = serializeQuery({ limit, cursor });
       try {
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/followers${queryParams}`);
       } catch (e) {
-        const text = `Error retrieving grant followers: + ${e.message}`;
+        const text = `Error retrieving grant followers: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
         return null;
       }
     },
-    async getNotesForGrant({ rootGetters, commit }, { grantId, limit, paginateFrom }) {
-      const queryParams = serializeQuery({ limit, paginateFrom });
+    async getNotesForGrant({ rootGetters, commit }, { grantId, limit, cursor }) {
+      const queryParams = serializeQuery({ limit, cursor });
       try {
         return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes${queryParams}`);
       } catch (e) {
-        const text = `Error retrieving grant notes: + ${e.message}`;
+        const text = `Error retrieving grant notes: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
         return null;
+      }
+    },
+    async getNotesForCurrentUser({ rootGetters, commit }, { grantId }) {
+      try {
+        const userId = rootGetters['users/loggedInUser']?.id;
+        const queryParams = serializeQuery({ limit: 1 });
+        return await fetchApi.get(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes/user/${userId}${queryParams}`);
+      } catch (e) {
+        const text = `Error retrieving grant notes for user: ${e.message}`;
+        commit('alerts/addAlert', { text, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text });
+        return null;
+      }
+    },
+    async saveNoteForGrant({ rootGetters, commit }, { grantId, text }) {
+      try {
+        await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/notes/revision`, {
+          text,
+        });
+      } catch (e) {
+        const errTxt = `Error saving grant note: ${e.message}`;
+        commit('alerts/addAlert', { text: errTxt, level: 'err' }, { root: true });
+        datadogRum.addError(e, { grantId, text: errTxt });
+        throw e;
       }
     },
     async followGrantForCurrentUser({ rootGetters, commit }, { grantId }) {
       try {
         await fetchApi.put(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
       } catch (e) {
-        const text = `Error following grant: + ${e.message}`;
+        const text = `Error following grant: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
+        throw e;
       }
     },
     async unfollowGrantForCurrentUser({ rootGetters, commit }, { grantId }) {
       try {
         await fetchApi.deleteRequest(`/api/organizations/${rootGetters['users/selectedAgencyId']}/grants/${grantId}/follow`);
       } catch (e) {
-        const text = `Error unfollowing grant: + ${e.message}`;
+        const text = `Error unfollowing grant: ${e.message}`;
         commit('alerts/addAlert', { text, level: 'err' }, { root: true });
         datadogRum.addError(e, { grantId, text });
+        throw e;
       }
     },
     async setEligibilityCodeEnabled({ rootGetters }, { code, enabled }) {

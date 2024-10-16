@@ -9,6 +9,9 @@ Simple – just merge your pull request!
 Any pull request merged to the `main` branch will automatically activate the deployment pipeline that targets the Staging environment.
 You can check the status of a Staging deployment by viewing the ["Deploy to Staging" workflow history](https://github.com/usdigitalresponse/usdr-gost/actions/workflows/deploy-staging.yml)
 
+> [!TIP]
+> Database migrations are not part of the deployment pipeline for Staging. If your pull request includes a migration, once the Staging deployment pipeline is complete, reach out on Slack and request that a team member runs the migration for you.
+
 ## Release changes to Production
 
 _"As a team member with sufficient access to manage GitHub releases, I want to deploy a set of changes to Production."_
