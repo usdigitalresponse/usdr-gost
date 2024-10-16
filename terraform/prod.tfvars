@@ -75,9 +75,9 @@ api_enable_saved_search_grants_digest  = true
 api_enable_grant_digest_scheduled_task = true
 api_log_retention_in_days              = 30
 api_container_environment = {
-  NEW_GRANT_DETAILS_PAGE_ENABLED = true,
-  SHARE_TERMINOLOGY_ENABLED      = true,
-  SHOW_FORECASTED_GRANTS         = false,
+  NEW_GRANT_DETAILS_PAGE_ENABLED = true
+  SHARE_TERMINOLOGY_ENABLED      = true
+  SHOW_FORECASTED_GRANTS         = false
 }
 
 // Postgres
