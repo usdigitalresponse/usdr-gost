@@ -326,9 +326,9 @@ async function validateRecord({ upload, record, typeRules: rules }) {
                 const lcItems = rule.listVals.map((val) => multiselect(val.toLowerCase()));
 
                 // for pick lists, the value must be one of possible values
-                if (rule.dataType === 'Pick List' && !lcItems.includes(value)) {
+                if (rule.dataType === 'Pick List' && !lcItems.includes(multiselect(value))) {
                     errors.push(new ValidationError(
-                        `Value for ${key} ('${value}') must be one of ${lcItems.length} options in the input template`,
+                        `Value for ${key} ('${value}') must be one of ${lcItems.length} ${JSON.stringify(lcItems)}options in the input template`,
                         { col: rule.columnName, severity: 'err' },
                     ));
                 }
