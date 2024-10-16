@@ -293,6 +293,10 @@ export default {
       };
       const generateOpenDate = (date, status) => {
         const formattedDate = new Date(date).toLocaleDateString('en-US', { timeZone: 'UTC' });
+        const dateExists = date && date !== '2100-01-01';
+        if (!dateExists) {
+          return 'Not yet issued';
+        }
         if (status === 'forecasted') {
           return `est. ${formattedDate}`;
         }
