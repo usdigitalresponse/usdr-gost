@@ -79,6 +79,7 @@ router.get('/:grantId/notes/user/:userId', requireUser, async (req, res) => {
 });
 
 function criteriaToFiltersObj(criteria, agencyId) {
+    // this function makes request to populate grants table
     const filters = criteria || {};
     const postedWithinOptions = {
         'All Time': 0, 'One Week': 7, '30 Days': 30, '60 Days': 60,
@@ -103,6 +104,7 @@ function criteriaToFiltersObj(criteria, agencyId) {
 }
 
 router.get('/next', requireUser, async (req, res) => {
+    // api call to populate table
     const { user } = req.session;
 
     let orderingParams;
