@@ -29,6 +29,18 @@ module "api_container_definition" {
     condition     = "START"
   }]
 
+  healthcheck = {
+    command = ["CMD-SHELL", join(" ", [
+      "node ./src/scripts/healthcheck.js",
+      "http://localhost:${local.api_container_port}/api/health 5000",
+      "|| exit 1"
+    ])]
+    startPeriod = 10
+    interval    = 30
+    timeout     = 10
+    retries     = 2
+  }
+
   linux_parameters = {
     capabilities = {
       add  = []
