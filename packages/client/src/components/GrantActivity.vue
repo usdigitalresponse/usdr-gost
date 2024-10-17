@@ -2,11 +2,12 @@
   <div>
     <b-card
       header-bg-variant="white"
+      header-class="px-3 py-4"
       footer-bg-variant="white"
       footer-class="p-0"
     >
       <template #header>
-        <h3 class="my-2">
+        <h3 class="m-0">
           Grant Activity
         </h3>
       </template>
@@ -135,7 +136,7 @@ export default {
       return `${textCount} ${this.notes.length === 1 ? 'note' : 'notes'}`;
     },
   },
-  async beforeMount() {
+  beforeMount() {
     this.fetchFollowAndNotes();
   },
   methods: {
