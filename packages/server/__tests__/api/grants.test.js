@@ -491,7 +491,12 @@ describe('`/api/grants` endpoint', () => {
                     method: 'put',
                     body: JSON.stringify({ interestedCode: 1 }),
                 });
+
                 expect(response.statusText).to.equal('OK');
+                // Fetch and check the interested agencies list
+                const interestedResponse = await fetchApi(`/grants/${interestEndpoint}`, agencies.own, fetchOptions.admin);
+                const interestedAgencies = await interestedResponse.json();
+                expect(interestedAgencies.some((agency) => agency.agency_id === agencies.own)).to.be.true;
             });
             it('records this user\'s own agency\'s subagencies\' interest in a grant', async () => {
                 const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.ownSub}`, agencies.ownSub, {
@@ -500,6 +505,11 @@ describe('`/api/grants` endpoint', () => {
                     body: JSON.stringify({ interestedCode: 1 }),
                 });
                 expect(response.statusText).to.equal('OK');
+
+                // Fetch and check the interested agencies list
+                const interestedResponse = await fetchApi(`/grants/${interestEndpoint}`, agencies.ownSub, fetchOptions.admin);
+                const interestedAgencies = await interestedResponse.json();
+                expect(interestedAgencies.some((agency) => agency.agency_id === agencies.ownSub)).to.be.true;
             });
             it('forbids requests for any agency outside this user\'s hierarchy', async () => {
                 const response = await fetchApi(`/grants/${interestEndpoint}/${agencies.offLimits}`, agencies.offLimits, {
@@ -519,6 +529,11 @@ describe('`/api/grants` endpoint', () => {
                     body: JSON.stringify({ interestedCode: 1 }),
                 });
                 expect(response.statusText).to.equal('OK');
+
+                // Fetch and check the interested agencies list
+                const interestedResponse = await fetchApi(`/grants/${interestEndpoint}`, agencies.own, fetchOptions.staff);
+                const interestedAgencies = await interestedResponse.json();
+                expect(interestedAgencies.some((agency) => agency.agency_id === agencies.own)).to.be.true;
             });
             it('forbids requests for any agency except this user\'s own agency', async () => {
                 let response = await fetchApi(`/grants/${interestEndpoint}/${agencies.ownSub}`, agencies.ownSub, {

@@ -431,15 +431,39 @@ router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
         return;
     }
 
-    await db.markGrantAsInterested({
-        grantId,
-        agencyId,
-        userId: user.id,
-        interestedCode,
-    });
+    const transaction = await knex.transaction();
+    // Query to check if the interestedCode corresponds to 'Interested'
+    const interestedStatus = await knex('interested_codes')
+        .select('status_code')
+        .where({ id: interestedCode })
+        .first();
 
-    const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], tenantId: user.tenant_id });
-    res.json(interestedAgencies);
+    // Follow  or Unfollow the grant based on the interestedCode
+    if (interestedStatus?.status_code === 'Interested') {
+        await followGrant(transaction, grantId, user.id);
+    } else {
+        await unfollowGrant(transaction, grantId, user.id);
+    }
+
+    try {
+        // Calling the existing function to mark the grant as interested
+        await db.markGrantAsInterested({
+            grantId,
+            agencyId,
+            userId: user.id,
+            interestedCode,
+        });
+        await transaction.commit();
+
+        // Retruning updated interested agencies
+        const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], tenantId: user.tenant_id });
+        res.json(interestedAgencies);
+    } catch (error) {
+        // Roll back the follow/unfollow operation since marking grant as interested failed
+        await transaction.rollback();
+        console.error('Error in marking as interested:', error);
+        throw error;
+    }
 });
 
 router.delete('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
