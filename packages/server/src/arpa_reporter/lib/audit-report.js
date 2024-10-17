@@ -4,7 +4,7 @@ const moment = require('moment');
 const { v4 } = require('uuid');
 const XLSX = require('xlsx');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const { log } = require('../../lib/logging');
+const { bunyanLogger: log } = require('../../lib/logging');
 const aws = require('../../lib/gost-aws');
 const { EXPENDITURE_CATEGORIES, currencyNumeric, ec } = require('./format');
 
