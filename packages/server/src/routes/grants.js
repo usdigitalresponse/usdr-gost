@@ -7,7 +7,7 @@ const { requireUser, isUserAuthorized } = require('../lib/access-helpers');
 const knex = require('../db/connection');
 const {
     saveNoteRevision, followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant, getOrganizationNotesForGrant,
-    getOrganizationNotesForGrantByUser,
+    getOrganizationNotesForGrantByUser, deleteGrantNotesByUser,
 } = require('../lib/grantsCollaboration');
 
 const router = express.Router({ mergeParams: true });
@@ -44,38 +44,6 @@ router.get('/', requireUser, async (req, res) => {
         orderDesc: req.query.orderDesc,
     });
     res.json(grants);
-});
-
-// getting notes for a specific user and grant
-router.get('/:grantId/notes/user/:userId', requireUser, async (req, res) => {
-    const { grantId, userId } = req.params;
-    const { tenant_id: organizationId } = req.session.user;
-    const { cursor, limit } = req.query;
-
-    // Converting limit to an integer
-    const limitInt = limit ? parseInt(limit, 10) : undefined;
-
-    // Validating the limit query parameter
-    if (limit && (!Number.isInteger(limitInt) || limitInt < 1 || limitInt > 100)) {
-        res.status(400).send('Invalid limit parameter');
-        return;
-    }
-
-    try {
-        // Fetching the notes using getOrganizationNotesForGrantByUser function
-        const notes = await getOrganizationNotesForGrantByUser(
-            knex,
-            organizationId,
-            userId,
-            grantId,
-            { cursor, limit: limitInt },
-        );
-
-        // sending the notes as JSON response
-        res.json(notes);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to retrieve notes' });
-    }
 });
 
 function criteriaToFiltersObj(criteria, agencyId) {
@@ -515,6 +483,34 @@ router.get('/:grantId/notes', requireUser, async (req, res) => {
     res.json(rows);
 });
 
+// getting notes for a specific user and grant
+router.get('/:grantId/notes/user/:userId', requireUser, async (req, res) => {
+    const { grantId, userId } = req.params;
+    const { tenant_id: organizationId } = req.session.user;
+    const { cursor, limit } = req.query;
+
+    // Converting limit to an integer
+    const limitInt = limit ? parseInt(limit, 10) : undefined;
+
+    // Validating the limit query parameter
+    if (limit && (!Number.isInteger(limitInt) || limitInt < 1 || limitInt > 100)) {
+        res.status(400).send('Invalid limit parameter');
+        return;
+    }
+
+    // Fetching the notes using getOrganizationNotesForGrantByUser function
+    const notes = await getOrganizationNotesForGrantByUser(
+        knex,
+        organizationId,
+        userId,
+        grantId,
+        { cursor, limit: limitInt },
+    );
+
+    // sending the notes as JSON response
+    res.json(notes);
+});
+
 router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { user } = req.session;
@@ -541,6 +537,14 @@ router.put('/:grantId/notes/revision', requireUser, async (req, res) => {
         }
         res.status(500).json({ error: 'Failed to save note revision' });
     }
+});
+
+router.delete('/:grantId/notes/user/:userId', requireUser, async (req, res) => {
+    const { user } = req.session;
+    const { grantId } = req.params;
+
+    await deleteGrantNotesByUser(knex, grantId, user.id);
+    res.json({});
 });
 
 router.get('/:grantId/followers', requireUser, async (req, res) => {
