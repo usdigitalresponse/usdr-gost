@@ -1,12 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import BaseLayout from '@/components/BaseLayout.vue';
-import { shareTerminologyEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
+import {
+  shareTerminologyEnabled, newTerminologyEnabled, newGrantsDetailPageEnabled, followNotesEnabled,
+} from '@/helpers/featureFlags';
 import LoginView from '@/views/LoginView.vue';
 
 import store from '@/store';
 
-const myGrantsTabs = [
+const myGrantsTabs = followNotesEnabled() ? [
+  'shared-with-my-team',
+  'followed-by-my-team',
+] : [
   shareTerminologyEnabled() ? 'shared-with-your-team' : 'assigned',
   'interested',
   'not-applying',

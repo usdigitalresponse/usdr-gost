@@ -150,6 +150,12 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
     } catch {
         return res.status(400).send('Invalid ordering parameter');
     }
+
+    let followedByColumnHeader = process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies';
+    if (process.env.ENABLE_FOLLOW_NOTES) {
+        followedByColumnHeader = 'Followed by';
+    }
+
     const { data, pagination } = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         await db.buildPaginationParams({
@@ -194,7 +200,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             { key: 'grant_number', header: 'Opportunity Number' },
             { key: 'title', header: 'Title' },
             { key: 'viewed_by', header: 'Viewed By' },
-            { key: 'interested_agencies', header: process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies' },
+            { key: 'interested_agencies', header: followedByColumnHeader },
             { key: 'opportunity_status', header: 'Opportunity Status' },
             { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },
