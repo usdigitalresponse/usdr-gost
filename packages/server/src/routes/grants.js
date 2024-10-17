@@ -431,6 +431,20 @@ router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
         return;
     }
 
+    const transaction = await knex.transaction();
+    // Query to check if the interestedCode corresponds to 'Interested'
+    const interestedStatus = await knex('interested_codes')
+        .select('status_code')
+        .where({ id: interestedCode })
+        .first();
+
+    // Follow  or Unfollow the grant based on the interestedCode
+    if (interestedStatus?.status_code === 'Interested') {
+        await followGrant(transaction, grantId, user.id);
+    } else {
+        await unfollowGrant(transaction, grantId, user.id);
+    }
+
     try {
         // Calling the existing function to mark the grant as interested
         await db.markGrantAsInterested({
@@ -439,24 +453,16 @@ router.put('/:grantId/interested/:agencyId', requireUser, async (req, res) => {
             userId: user.id,
             interestedCode,
         });
-        // Query to check if the interestedCode corresponds to 'Interested'
-        const interestedStatus = await knex('interested_codes')
-            .select('status_code')
-            .where({ id: interestedCode })
-            .first();
+        await transaction.commit();
 
-        // Follow  or Unfollow the grant based on the interestedCode
-        if (interestedStatus?.status_code === 'Interested') {
-            await followGrant(knex, grantId, user.id);
-        } else {
-            await unfollowGrant(knex, grantId, user.id);
-        }
         // Retruning updated interested agencies
         const interestedAgencies = await db.getInterestedAgencies({ grantIds: [grantId], tenantId: user.tenant_id });
         res.json(interestedAgencies);
     } catch (error) {
+        // Roll back the follow/unfollow operation since marking grant as interested failed
+        await transaction.rollback();
         console.error('Error in marking as interested:', error);
-        res.status(500).send({ success: false, error: 'Internal Server Error' });
+        throw error;
     }
 });
 
