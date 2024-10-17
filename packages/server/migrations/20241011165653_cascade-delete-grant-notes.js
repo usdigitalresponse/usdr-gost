@@ -6,11 +6,13 @@ const { onUpdateTrigger } = require('../knexfile');
  */
 exports.up = async function (knex) {
     const ON_UPDATE_TIMESTAMP_FUNCTION = `
-        CREATE OR REPLACE FUNCTION on_update_timestamp()
+        CREATE OR REPLACE FUNCTION before_update_set_updated_at()
         RETURNS trigger AS $$
         BEGIN
-            NEW.updated_at = now();
-        RETURN NEW;
+            IF NEW IS DISTINCT FROM OLD THEN
+                NEW.updated_at = now();
+            END IF;
+            RETURN NEW;
         END;
         $$ language 'plpgsql';
     `;
@@ -40,5 +42,6 @@ exports.down = async function (knex) {
         table.dropColumn('is_published');
         table.dropColumn('updated_at');
     });
-    await knex.raw('DROP FUNCTION on_update_timestamp');
+    await knex.raw('DROP TRIGGER IF EXISTS grant_notes_updated_at ON grant_notes');
+    await knex.raw('DROP FUNCTION IF EXISTS before_update_set_updated_at');
 };
