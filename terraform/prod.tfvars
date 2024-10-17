@@ -77,6 +77,7 @@ api_log_retention_in_days              = 30
 api_container_environment = {
   NEW_GRANT_DETAILS_PAGE_ENABLED = true
   SHARE_TERMINOLOGY_ENABLED      = true
+  SHOW_FORECASTED_GRANTS         = false
 }
 
 // Postgres
