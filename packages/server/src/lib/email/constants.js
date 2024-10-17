@@ -29,12 +29,15 @@ const tags = Object.freeze(
             treasuryReport: 'treasury_report',
             welcome: 'welcome',
             grantDigest: 'grant_digest',
+            grantActivityDigest: 'grant_activity_digest',
             treasuryReportError: 'treasury_report_error',
             auditReportError: 'audit_report_error',
         },
     },
 );
 
+const TZ_NY = 'America/New_York';
+
 module.exports = {
-    notificationType, emailSubscriptionStatus, defaultSubscriptionPreference, tags,
+    notificationType, emailSubscriptionStatus, defaultSubscriptionPreference, tags, TZ_NY,
 };

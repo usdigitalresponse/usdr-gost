@@ -9,6 +9,9 @@ const emailService = require('../../src/lib/email/service-email');
 const email = require('../../src/lib/email');
 const fixtures = require('../db/seeds/fixtures');
 const db = require('../../src/db');
+const { tags, notificationType, emailSubscriptionStatus } = require('../../src/lib/email/constants');
+
+const { knex } = db;
 const awsTransport = require('../../src/lib/gost-aws');
 
 const {
@@ -216,19 +219,20 @@ describe('Email module', () => {
 describe('Email sender', () => {
     const sandbox = sinon.createSandbox();
     before(async () => {
-        await fixtures.seed(db.knex);
         process.env.DD_SERVICE = 'test-dd-service';
         process.env.DD_ENV = 'test-dd-env';
         process.env.DD_VERSION = 'test-dd-version';
     });
+
     after(async () => {
-        await db.knex.destroy();
+        await knex.destroy();
         process.env.DD_SERVICE = DD_SERVICE;
         process.env.DD_ENV = DD_ENV;
         process.env.DD_VERSION = DD_VERSION;
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
+        await fixtures.seed(knex);
         sandbox.spy(emailService);
     });
 
@@ -569,6 +573,94 @@ describe('Email sender', () => {
 
             await email.buildAndSendGrantDigestEmails();
             expect(sendFake.calledOnce).to.equal(true);
+        });
+    });
+
+    context('buildAndSendGrantActivityDigestEmails', () => {
+        const { adminUser, staffUser } = fixtures.users;
+        const grant1 = fixtures.grants.earFellowship;
+
+        let periodStart;
+        let periodEnd;
+
+        let sendFake;
+
+        beforeEach(async () => {
+            sendFake = sinon.fake.returns('foo');
+            sinon.replace(emailService, 'getTransport', sinon.fake.returns({ sendEmail: sendFake }));
+
+            await knex('email_subscriptions').insert([
+                {
+                    user_id: adminUser.id,
+                    agency_id: adminUser.agency_id,
+                    notification_type: notificationType.grantActivity,
+                    status: emailSubscriptionStatus.subscribed,
+                },
+                {
+                    user_id: staffUser.id,
+                    agency_id: staffUser.agency_id,
+                    notification_type: notificationType.grantActivity,
+                    status: emailSubscriptionStatus.subscribed,
+                },
+            ]);
+
+            periodStart = new Date();
+
+            // Grant 1 Follows
+            await knex('grant_followers')
+                .insert([
+                    { grant_id: grant1.grant_id, user_id: adminUser.id },
+                    { grant_id: grant1.grant_id, user_id: staffUser.id },
+                ], 'id');
+
+            // Grant 1 Notes
+            const [adminNote, staffNote] = await knex('grant_notes')
+                .insert([
+                    { grant_id: grant1.grant_id, user_id: adminUser.id },
+                    { grant_id: grant1.grant_id, user_id: staffUser.id },
+                ], 'id');
+
+            await knex('grant_notes_revisions')
+                .insert([
+                    { grant_note_id: adminNote.id, text: 'Admin note' },
+                    { grant_note_id: staffNote.id, text: 'Staff note' },
+                ], 'id');
+
+            periodEnd = new Date();
+        });
+
+        it('Sends an email for all users with activity', async () => {
+            // Send digest email for users following grants
+            await email.buildAndSendGrantActivityDigestEmails(null, periodStart, periodEnd);
+            expect(sendFake.callCount).to.equal(2);
+
+            const [firstEmail, secondEmail] = sendFake.getCalls();
+
+            expect([firstEmail.args[0].toAddress, secondEmail.args[0].toAddress]).to.be.members([adminUser.email, staffUser.email]);
+        });
+
+        it('Sends an email for single user\'s digest', async () => {
+            // Build digest for user following grants
+            await email.buildAndSendGrantActivityDigestEmails(adminUser.id, periodStart, periodEnd);
+            expect(sendFake.calledOnce).to.equal(true);
+
+            const { body, text, ...rest } = sendFake.firstCall.args[0];
+
+            expect(rest).to.deep.equal({
+                fromName: 'USDR Federal Grant Finder',
+                ccAddress: undefined,
+                toAddress: adminUser.email,
+                subject: 'New activity in your grants',
+                tags: [
+                    `notification_type=${tags.emailTypes.grantActivityDigest}`,
+                    'user_role=admin',
+                    `organization_id=${adminUser.tenant_id}`,
+                    `team_id=${adminUser.agency_id}`,
+                    'service=test-dd-service',
+                    'env=test-dd-env',
+                    'version=test-dd-version',
+                ],
+            });
         });
     });
 });

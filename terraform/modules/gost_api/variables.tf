@@ -179,6 +179,12 @@ variable "enable_grant_digest_scheduled_task" {
   default     = false
 }
 
+variable "enable_grant_activity_digest_scheduled_task" {
+  description = "When true, sets the ENABLE_GRANT_ACTIVITY_DIGEST_SCHEDULED_TASK environment variable to true in the API container."
+  type        = bool
+  default     = false
+}
+
 variable "unified_service_tags" {
   description = "Datadog unified service tags to apply to runtime environments."
   type = object({

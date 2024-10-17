@@ -1,14 +1,24 @@
 const { expect, use } = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const { DateTime } = require('luxon');
+const _ = require('lodash');
 const knex = require('../../src/db/connection');
 const fixtures = require('../db/seeds/fixtures');
+const { seed } = require('../db/seeds/fixtures');
 const { saveNoteRevision, getOrganizationNotesForGrant, getOrganizationNotesForGrantByUser } = require('../../src/lib/grantsCollaboration/notes');
 const {
     followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant,
 } = require('../../src/lib/grantsCollaboration/followers');
+const {
+    getGrantActivityByUserId, getGrantActivityEmailRecipients,
+} = require('../../src/lib/grantsCollaboration/grantActivity');
+const emailConstants = require('../../src/lib/email/constants');
 
 use(chaiAsPromised);
+
+beforeEach(async () => {
+    await seed(knex);
+});
 
 describe('Grants Collaboration', () => {
     context('saveNoteRevision', () => {
@@ -241,6 +251,215 @@ describe('Grants Collaboration', () => {
 
             expect(result.followers).to.have.lengthOf(1);
             expect(result.pagination.next).to.equal(follower2.id);
+        });
+    });
+
+    context('Grant Activity', () => {
+        // Helper functions
+        const getUserIdsForActivities = (grants) => {
+            const ids = grants.reduce((userIds, grant) => {
+                grant.notes.forEach((act) => userIds.add(act.userId));
+                grant.follows.forEach((act) => userIds.add(act.userId));
+                return userIds;
+            }, new Set());
+
+            return Array.from(ids);
+        };
+
+        const subscribeUser = async (user) => {
+            await knex('email_subscriptions').insert({
+                user_id: user.id,
+                agency_id: user.agency_id,
+                notification_type: emailConstants.notificationType.grantActivity,
+                status: emailConstants.emailSubscriptionStatus.subscribed,
+            });
+        };
+
+        const { adminUser, staffUser } = fixtures.users;
+        const grant1 = fixtures.grants.earFellowship;
+        const grant2 = fixtures.grants.healthAide;
+
+        let periodStart;
+        let periodEnd;
+
+        let grant1NoteAdmin;
+        let grant1NoteStaff;
+
+        beforeEach(async () => {
+            await subscribeUser(adminUser);
+            await subscribeUser(staffUser);
+
+            periodStart = DateTime.now().minus({ days: 1 }).toJSDate();
+
+            // Grant 1 Follows
+            await knex('grant_followers')
+                .insert({ grant_id: grant1.grant_id, user_id: adminUser.id }, 'id');
+
+            await knex('grant_followers')
+                .insert({ grant_id: grant1.grant_id, user_id: staffUser.id }, 'id');
+
+            // Grant 1 Notes
+            [grant1NoteAdmin] = await knex('grant_notes')
+                .insert({ grant_id: grant1.grant_id, user_id: adminUser.id }, 'id');
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: grant1NoteAdmin.id, text: 'Admin note' }, 'id');
+
+            [grant1NoteStaff] = await knex('grant_notes')
+                .insert({ grant_id: grant1.grant_id, user_id: staffUser.id }, 'id');
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: grant1NoteStaff.id, text: 'Staff note' }, 'id');
+
+            // Grant 2 Follows
+            await knex('grant_followers')
+                .insert({ grant_id: grant2.grant_id, user_id: staffUser.id }, 'id');
+
+            await knex('grant_followers')
+                .insert({ grant_id: grant2.grant_id, user_id: adminUser.id }, 'id');
+
+            // Grant 2 Notes
+            const [grant2NoteStaff] = await knex('grant_notes')
+                .insert({ grant_id: grant2.grant_id, user_id: staffUser.id }, 'id');
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: grant2NoteStaff.id, text: 'Another Staff note' }, 'id');
+
+            periodEnd = new Date();
+        });
+
+        it('retrieves all email recipients for note/follow activity by period', async () => {
+            const recipients = await getGrantActivityEmailRecipients(knex, periodStart, periodEnd);
+
+            expect(recipients).to.have.length(2);
+
+            const userIds = _.map(recipients, 'userId');
+
+            expect(userIds).to.have.members([
+                adminUser.id,
+                staffUser.id,
+            ]);
+        });
+
+        it('does not return recipients if users are unsubscribed', async () => {
+            // Unsubscribe all users
+            await knex('email_subscriptions').update({ status: emailConstants.emailSubscriptionStatus.unsubscribed });
+
+            const recipients = await getGrantActivityEmailRecipients(knex, periodStart, periodEnd);
+
+            expect(recipients).to.have.length(0);
+        });
+
+        it('retrieves all note/follow activity by period', async () => {
+            const grantActivities = await getGrantActivityByUserId(knex, adminUser.id, periodStart, periodEnd);
+
+            expect(grantActivities).to.have.lengthOf(2);
+            expect(grantActivities[0].grantId).to.equal(grant1.grant_id);
+            expect(grantActivities[0].notes).to.have.lengthOf(1);
+            expect(grantActivities[0].follows).to.have.lengthOf(1);
+            expect(grantActivities[0].notes[0].noteText).to.equal('Staff note');
+            expect(grantActivities[0].follows[0].userId).to.equal(staffUser.id);
+        });
+
+        it('retrieves email recipients only if OTHER users took action', async () => {
+            periodStart = new Date();
+
+            // Admin edits note
+            const [adminRevised] = await knex('grant_notes_revisions')
+                .insert({ grant_note_id: grant1NoteAdmin.id, text: 'Edit for Admin note' }, 'created_at');
+
+            const recipients1 = await getGrantActivityEmailRecipients(knex, periodStart, new Date(adminRevised.created_at.getTime() + 1));
+            expect(_.map(recipients1, 'userId')).to.have.members([staffUser.id]);
+
+            // Staff edits note
+            const [staffRevised] = await knex('grant_notes_revisions')
+                .insert({ grant_note_id: grant1NoteStaff.id, text: 'Edit for Staff note' }, 'created_at');
+
+            const recipients2 = await getGrantActivityEmailRecipients(knex, periodStart, new Date(staffRevised.created_at.getTime() + 1));
+            expect(_.map(recipients2, 'userId')).to.have.members([staffUser.id, adminUser.id]);
+        });
+
+        it('retrieves activity only for OTHER users action', async () => {
+            const adminGrantActivities = await getGrantActivityByUserId(knex, adminUser.id, periodStart, periodEnd);
+            const adminActivityIds = getUserIdsForActivities(adminGrantActivities);
+            expect(adminActivityIds).not.to.include(adminUser.id);
+
+            const staffGrantActivities = await getGrantActivityByUserId(knex, staffUser.id, periodStart, periodEnd);
+            const staffActivityIds = getUserIdsForActivities(staffGrantActivities);
+            expect(staffActivityIds).not.to.include(staffUser.id);
+        });
+
+        it('retrieves no note/follow activity when window is outside time period of activity', async () => {
+            periodStart = DateTime.fromJSDate(periodStart).minus({ days: 1 }).toJSDate();
+            periodEnd = DateTime.fromJSDate(periodEnd).minus({ days: 1 }).toJSDate();
+
+            const recipients = await getGrantActivityEmailRecipients(knex, periodStart, periodEnd);
+            expect(recipients).to.have.lengthOf(0);
+
+            await Promise.all(
+                [adminUser.id, staffUser.id].map(async (userId) => {
+                    const grantActivities = await getGrantActivityByUserId(knex, userId, periodStart, periodEnd);
+                    expect(grantActivities).to.have.lengthOf(0);
+                }),
+            );
+        });
+
+        context('Grant activity by other org/tenants', async () => {
+            const { usdrUser: otherUser1, usdrAdmin: otherUser2 } = fixtures.users;
+
+            beforeEach(async () => {
+                await subscribeUser(otherUser1);
+                await subscribeUser(otherUser2);
+
+                await knex('grant_followers')
+                    .insert([
+                        { grant_id: grant1.grant_id, user_id: otherUser1.id },
+                        { grant_id: grant1.grant_id, user_id: otherUser2.id },
+                    ], 'id');
+
+                const [otherUser1Note, otherUser2Note] = await knex('grant_notes')
+                    .insert([
+                        { grant_id: grant1.grant_id, user_id: otherUser1.id },
+                        { grant_id: grant1.grant_id, user_id: otherUser2.id },
+                    ], 'id');
+
+                await knex('grant_notes_revisions')
+                    .insert([
+                        { grant_note_id: otherUser1Note.id, text: 'Other tenant note1' },
+                        { grant_note_id: otherUser2Note.id, text: 'Other tenant note2' },
+                    ], 'id');
+                periodEnd = new Date();
+            });
+
+            it('Includes recipients from multiple tenants', async () => {
+                // Email recipients INCLUDES multiple tenants
+                const recipients = await getGrantActivityEmailRecipients(knex, periodStart, periodEnd);
+                expect(_.map(recipients, 'userId')).to.have.members([
+                    adminUser.id,
+                    staffUser.id,
+                    otherUser1.id,
+                    otherUser2.id,
+                ]);
+            });
+
+            it('Does NOT include cross-over activity events from multiple tenants', async () => {
+                const getGrantActivity = async (userId) => getGrantActivityByUserId(knex, userId, periodStart, periodEnd);
+
+                const tenantOneUsers = [adminUser.id, staffUser.id];
+                const tenantTwoUsers = [otherUser1.id, otherUser2.id];
+
+                const tenantOneGrants = await Promise.all(
+                    tenantOneUsers.map((userId) => getGrantActivity(userId)),
+                );
+                const tenantOneUserIds = getUserIdsForActivities(tenantOneGrants.flat());
+                expect(tenantOneUserIds).not.to.include.members(tenantTwoUsers);
+
+                const tenantTwoGrants = await Promise.all(
+                    tenantTwoUsers.map((userId) => getGrantActivity(userId)),
+                );
+                const tenantTwoUserIds = getUserIdsForActivities(tenantTwoGrants.flat());
+                expect(tenantTwoUserIds).not.to.include.members(tenantOneUsers);
+            });
         });
     });
 });

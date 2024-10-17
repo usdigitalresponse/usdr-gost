@@ -2,6 +2,7 @@ const tracer = require('dd-trace').init();
 const { URL } = require('url');
 const moment = require('moment');
 const { capitalize } = require('lodash');
+const { DateTime } = require('luxon');
 // eslint-disable-next-line import/no-unresolved
 const asyncBatch = require('async-batch').default;
 const fileSystem = require('fs');
@@ -10,6 +11,9 @@ const mustache = require('mustache');
 const { log } = require('./logging');
 const emailService = require('./email/service-email');
 const db = require('../db');
+
+const { knex } = db;
+const { getGrantActivityByUserId, getGrantActivityEmailRecipients } = require('./grantsCollaboration/grantActivity');
 const { notificationType, tags } = require('./email/constants');
 const { isUSDR, isUSDRSuperAdmin } = require('./access-helpers');
 
@@ -465,6 +469,43 @@ async function buildDigestBody({ name, openDate, matchedGrants }) {
     return formattedBody;
 }
 
+async function buildGrantActivityDigestBody({ name, grants, periodEnd }) {
+    // Build Email Here
+    //
+    //
+    const formatActivities = (activities) => activities.reduce((output, activity) => `${output}
+                <li>
+                    ${activity.userName} - ${activity.agencyName}<br/>
+                    ${activity.userEmail}<br/><br/>
+                    ${activity.noteText || ''}
+                </li>
+            `, '');
+
+    let body = '';
+    grants.forEach((grant) => {
+        body += `<h2>${grant.grantTitle}</h2>`;
+
+        body += `<h3>${grant.notes.length} New Notes:</h3>`;
+        body += `
+            <ul>${formatActivities(grant.notes)}</ul>
+        `;
+
+        body += `<h3>${grant.follows.length} New Follows:</h3>`;
+        body += `
+            <ul>${formatActivities(grant.follows)}</ul>
+        `;
+        body += '<hr>';
+    });
+
+    const formattedBody = mustache.render(body, {
+        body_title: `${name}: New activity in your grants`,
+        body_detail: DateTime.fromJSDate(periodEnd).toFormat('DDD'),
+        additional_body: '',
+    });
+
+    return formattedBody;
+}
+
 async function sendGrantDigestEmail({
     name, matchedGrants, matchedGrantsTotal, recipient, openDate,
 }) {
@@ -502,6 +543,40 @@ async function sendGrantDigestEmail({
     );
 }
 
+async function sendGrantActivityDigestEmail({
+    name, recipientEmail, grants, periodEnd,
+}) {
+    if (!grants || grants?.length === 0) {
+        console.error(`There was no grant note/follow activity available for ${name}`);
+        return;
+    }
+    console.log(`${name} is will receive digests on ${DateTime.fromJSDate(periodEnd).toLocaleString(DateTime.DATE_FULL)}`);
+
+    const formattedBody = await buildGrantActivityDigestBody({ name, grants, periodEnd });
+    const preheader = 'See recent activity from grants you follow';
+
+    const emailHTML = addBaseBranding(formattedBody, {
+        tool_name: 'Federal Grant Finder',
+        title: 'New activity in your grants',
+        preheader,
+        includeNotificationsLink: true,
+    });
+
+    // TODO: add plain text version of the email
+    const emailPlain = emailHTML.replace(/<[^>]+>/g, '');
+
+    await deliverEmail(
+        {
+            fromName: GRANT_FINDER_EMAIL_FROM_NAME,
+            toAddress: recipientEmail,
+            emailHTML,
+            emailPlain,
+            subject: 'New activity in your grants',
+            emailType: tags.emailTypes.grantActivityDigest,
+        },
+    );
+}
+
 async function getAndSendGrantForSavedSearch({
     userSavedSearch, openDate,
 }) {
@@ -528,6 +603,23 @@ async function getAndSendGrantForSavedSearch({
     });
 }
 
+async function getAndSendGrantActivityDigest({
+    userId,
+    userName,
+    userEmail,
+    periodStart,
+    periodEnd,
+}) {
+    const grantActivityResults = await getGrantActivityByUserId(knex, userId, periodStart, periodEnd);
+
+    return sendGrantActivityDigestEmail({
+        name: userName,
+        recipientEmail: userEmail,
+        grants: grantActivityResults,
+        periodEnd,
+    });
+}
+
 function yesterday() {
     return moment().subtract(1, 'day').format('YYYY-MM-DD');
 }
@@ -551,6 +643,35 @@ async function buildAndSendGrantDigestEmails(userId, openDate = yesterday()) {
     await asyncBatch(inputs, getAndSendGrantForSavedSearch, 2);
 
     console.log(`Successfully built and sent grants digest emails for ${inputs.length} saved searches on ${openDate}`);
+}
+
+async function buildAndSendGrantActivityDigestEmails(explicitUserId, periodStart, periodEnd) {
+    const userGroup = explicitUserId ? `user Id ${explicitUserId}` : 'all users';
+    console.log(`
+        Building and sending Grant Activity Digest email for ${userGroup} on ${DateTime.fromJSDate(periodEnd).toLocaleString(DateTime.DATE_FULL)}
+    `);
+    /*
+    1. get all email recipients
+    2. call getAndSendGrantActivityDigest to find activity for each user and send the digest
+    */
+    let recipients = await getGrantActivityEmailRecipients(knex, periodStart, periodEnd);
+
+    if (explicitUserId) {
+        // Send specific user only if activity exists
+        recipients = recipients.filter((recipient) => recipient.userId === explicitUserId);
+    }
+
+    const inputs = recipients.map(({ userId, userName, userEmail }) => ({
+        userId,
+        userName,
+        userEmail,
+        periodStart,
+        periodEnd,
+    }));
+
+    await asyncBatch(inputs, getAndSendGrantActivityDigest, 2);
+
+    console.log(`Successfully built and sent grants digest emails for ${inputs.length} users on ${periodEnd}`);
 }
 
 async function sendAsyncReportEmail(recipient, signedUrl, reportType) {
@@ -592,6 +713,7 @@ module.exports = {
      * Send grant digest emails to all subscribed users.
      */
     buildAndSendGrantDigestEmails,
+    buildAndSendGrantActivityDigestEmails,
     sendGrantDigestEmail,
     // Exposed for testing
     buildDigestBody,

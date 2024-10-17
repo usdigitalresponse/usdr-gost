@@ -89,6 +89,14 @@ const users = {
         id: 4,
         tenant_id: agencies.usdr.tenant_id,
     },
+    usdrAdmin: {
+        email: 'usdr.admin@test.com',
+        name: 'USDR admin',
+        agency_id: agencies.usdr.id,
+        role_id: roles.adminRole.id,
+        id: 5,
+        tenant_id: agencies.usdr.tenant_id,
+    },
 };
 
 const keywords = {
