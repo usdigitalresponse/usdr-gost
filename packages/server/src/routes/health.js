@@ -2,10 +2,9 @@ const express = require('express');
 
 const router = express.Router();
 const knex = require('../db/connection');
-const { log } = require('../lib/logging');
 
 router.get('/', async (req, res) => {
-    const logger = log.child({ ip: req.ip, healthcheck: true });
+    const logger = req.log.child({ ip: req.ip, healthcheck: true });
     // if DB call fails, this will throw and health route will 500
     logger.debug('starting healthcheck');
     let success = false;
