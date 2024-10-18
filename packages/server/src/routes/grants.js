@@ -53,7 +53,7 @@ function criteriaToFiltersObj(criteria, agencyId) {
     };
 
     return {
-        reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned').map((r) => r.trim()) || [],
+        reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned' && r !== 'Followed').map((r) => r.trim()) || [],
         eligibilityCodes: filters.eligibility?.split(',') || [],
         fundingActivityCategories: filters.fundingActivityCategories?.split(',') || [],
         includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
@@ -66,6 +66,7 @@ function criteriaToFiltersObj(criteria, agencyId) {
         agencyCode: filters.agency || '',
         postedWithinDays: postedWithinOptions[filters.postedWithin] || 0,
         assignedToAgencyId: filters.reviewStatus?.includes('Assigned') ? agencyId : null,
+        followedByAgencyId: filters.reviewStatus?.includes('Followed') ? agencyId : null,
         bill: filters.bill || null,
     };
 }
@@ -85,6 +86,7 @@ router.get('/next', requireUser, async (req, res) => {
     } catch {
         return res.status(400).send('Invalid pagination parameters');
     }
+
     const grants = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         paginationParams,
@@ -118,6 +120,12 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
     } catch {
         return res.status(400).send('Invalid ordering parameter');
     }
+
+    let followedByColumnHeader = process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies';
+    if (process.env.ENABLE_FOLLOW_NOTES) {
+        followedByColumnHeader = 'Followed by';
+    }
+
     const { data, pagination } = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         await db.buildPaginationParams({
@@ -162,7 +170,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             { key: 'grant_number', header: 'Opportunity Number' },
             { key: 'title', header: 'Title' },
             { key: 'viewed_by', header: 'Viewed By' },
-            { key: 'interested_agencies', header: process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies' },
+            { key: 'interested_agencies', header: followedByColumnHeader },
             { key: 'opportunity_status', header: 'Opportunity Status' },
             { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },
