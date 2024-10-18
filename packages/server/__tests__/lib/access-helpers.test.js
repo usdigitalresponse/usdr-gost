@@ -91,6 +91,8 @@ describe('Acces Helper Module', () => {
                     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.47 OneOutlook/1.2023.927.100',
                     'x-native-host': 'OneOutlook/1.2023.927.100',
                 },
+                // fake logging middleware:
+                log: { info: () => {} },
             };
             await isMicrosoftSafeLinksRequest(requestFake, resFake, nextFake);
             expect(resFake.json.calledOnceWith({ message: 'Success' })).to.equal(true);
