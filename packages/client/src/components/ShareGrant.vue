@@ -1,11 +1,15 @@
 <!-- eslint-disable max-len -->
 <template>
-  <b-card>
-    <!-- Assign grant section -->
-    <div class="mb-5">
-      <h3 class="mb-3">
+  <b-card
+    header-bg-variant="white"
+    header-class="px-3 py-4"
+  >
+    <template #header>
+      <h3 class="m-0">
         {{ shareTerminologyEnabled ? 'Share Grant' : 'Assign Grant' }}
       </h3>
+    </template>
+    <div class="mt-1 mb-4">
       <div class="d-flex print-d-none">
         <v-select
           v-model="selectedAgencyToAssign"
@@ -13,7 +17,7 @@
           :options="unassignedAgencies"
           label="name"
           track-by="id"
-          :placeholder="`Choose ${newTerminologyEnabled ? 'team': 'agency'}`"
+          :placeholder="`Choose ${newTerminologyEnabled ? 'team' : 'agency'}`"
           :clearable="false"
           data-dd-action-name="select team for grant assignment"
           @close="$refs.assignSubmitButton.focus()"
@@ -53,21 +57,20 @@
         <div
           v-for="agency in assignedAgencies"
           :key="agency.id"
-          class="d-flex justify-content-start align-items-start my-3"
+          class="my-4"
         >
-          <UserAvatar
+          <UserActivityItem
             :user-name="agency.assigned_by_name"
-            :color="agency.assigned_by_avatar_color"
-            size="2.5rem"
-          />
-          <div class="mx-3">
-            <p class="m-0">
-              <strong>{{ agency.assigned_by_name }}</strong> shared to <strong>{{ agency.name }}</strong>
-            </p>
-            <p class="m-0 text-muted">
-              <small>{{ formatDateTime(agency.created_at) }}</small>
-            </p>
-          </div>
+            :user-email="agency.assigned_by_email"
+            :team-name="agency.assigned_by_agency_name"
+            :avatar-color="agency.assigned_by_avatar_color"
+            :created-at="agency.created_at"
+            copy-email-enabled
+          >
+            <div>
+              Shared grant with <strong>{{ agency.name }}</strong>
+            </div>
+          </UserActivityItem>
         </div>
       </template>
     </div>
@@ -80,10 +83,12 @@ import { datadogRum } from '@datadog/browser-rum';
 import { newTerminologyEnabled, shareTerminologyEnabled } from '@/helpers/featureFlags';
 import { formatDate, formatDateTime } from '@/helpers/dates';
 import { gtagEvent } from '@/helpers/gtag';
-import UserAvatar from '@/components/UserAvatar.vue';
+import UserActivityItem from '@/components/UserActivityItem.vue';
 
 export default {
-  components: { UserAvatar },
+  components: {
+    UserActivityItem,
+  },
   data() {
     return {
       selectedAgencyToAssign: null,
@@ -150,5 +155,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

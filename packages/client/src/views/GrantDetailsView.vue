@@ -97,15 +97,15 @@
                     class="grant-details-table mb-5"
                     :items="tableData"
                     :fields="[
-                      {key: 'name', class: 'color-gray grants-details-table-fit-content'},
-                      {key: 'value', class: 'font-weight-bold'},
+                      { key: 'name', class: 'color-gray grants-details-table-fit-content' },
+                      { key: 'value', class: 'font-weight-bold' },
                     ]"
                     thead-class="d-none"
                     borderless
                     hover
                   >
                     <template #cell()="data">
-                      <span :class="{'text-muted font-weight-normal': data.item.displayMuted}">
+                      <span :class="{ 'text-muted font-weight-normal': data.item.displayMuted }">
                         {{ data.value }}
                       </span>
                     </template>
@@ -133,11 +133,15 @@
             <b-card
               v-if="!followNotesEnabled"
               class="mb-3"
+              header-bg-variant="white"
+              header-class="px-3 py-4"
             >
-              <div class="mb-5">
-                <h3 class="mb-3">
-                  {{ newTerminologyEnabled ? 'Team': 'Agency' }} Status
+              <template #header>
+                <h3 class="m-0">
+                  {{ newTerminologyEnabled ? 'Team' : 'Agency' }} Status
                 </h3>
+              </template>
+              <div class="mt-1 mb-5">
                 <div class="d-flex print-d-none">
                   <v-select
                     v-model="selectedInterestedCode"
@@ -479,6 +483,7 @@ export default {
     "content  secondary-actions";
   column-gap: 1.25rem;
   row-gap: 3rem;
+
   .grant-details-back-link {
     grid-area: back-link;
     margin-top: 0rem;
@@ -486,9 +491,11 @@ export default {
     font-size: 0.875rem;
     font-weight: 700;
     color: #6d7278;
+
     a {
       color: #6d7278;
       cursor: pointer;
+
       &::hover {
         text-decoration: underline;
       }
@@ -535,10 +542,12 @@ export default {
 .grant-details-container .card {
   border-radius: .5rem !important;
 }
+
 .grant-details-container .card .card-header {
   border-top-left-radius: .5rem !important;
   border-top-right-radius: .5rem !important;
 }
+
 .grant-details-container .card .card-footer {
   border-bottom-left-radius: .5rem !important;
   border-bottom-right-radius: .5rem !important;
@@ -555,10 +564,13 @@ export default {
 
 @media print {
   .print-d-none {
-    display: none !important; /* important to override other styles like `d-flex` */
+    display: none !important;
+    /* important to override other styles like `d-flex` */
   }
+
   .grants-details-sidebar {
-    flex-basis: 30%; /* don't want the sidebar taking over the page in print */
+    flex-basis: 30%;
+    /* don't want the sidebar taking over the page in print */
   }
 }
 </style>
