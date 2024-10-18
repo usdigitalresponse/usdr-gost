@@ -45,10 +45,15 @@ function mapSourceDataToGrant(source) {
         raw_body_json: source,
         bill: source.bill,
         funding_instrument_codes: (source.funding_instrument_types || []).map((it) => it.code).join(' '),
+        grantor_contact_name: source.grantor?.name,
+        grantor_contact_phone_number: source.grantor?.phone,
+        fiscal_year: source.fiscal_year,
     };
 
     const { milestones } = source.opportunity;
-    grant.open_date = milestones.post_date;
+    grant.open_date = milestones.post_date || milestones.estimated_start_date;
+    grant.forecast_creation_date = milestones.forecast_creation_date;
+    grant.award_date = milestones.award_date;
     grant.close_date = milestones.close && milestones.close.date
         ? milestones.close.date : '2100-01-01';
     grant.close_date_explanation = milestones?.close?.explanation ?? undefined;
@@ -58,6 +63,10 @@ function mapSourceDataToGrant(source) {
         grant.opportunity_status = 'archived';
     } else if (today.isSameOrAfter(moment(grant.close_date), 'date')) {
         grant.opportunity_status = 'closed';
+    } else if (today.isBefore(moment(grant.open_date), 'date')) {
+        // should we check for presence of !milestones.estimated_start_date instead?
+        // else if (!!milestones.estimated_start_date)
+        grant.opportunity_status = 'forecasted';
     } else {
         grant.opportunity_status = 'posted';
     }
