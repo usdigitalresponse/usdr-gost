@@ -3,7 +3,9 @@ const chaiAsPromised = require('chai-as-promised');
 const { DateTime } = require('luxon');
 const knex = require('../../src/db/connection');
 const fixtures = require('../db/seeds/fixtures');
-const { saveNoteRevision, getOrganizationNotesForGrant, getOrganizationNotesForGrantByUser } = require('../../src/lib/grantsCollaboration/notes');
+const {
+    saveNoteRevision, getOrganizationNotesForGrant, getOrganizationNotesForGrantByUser, deleteGrantNotesByUser,
+} = require('../../src/lib/grantsCollaboration/notes');
 const {
     followGrant, unfollowGrant, getFollowerForGrant, getFollowersForGrant,
 } = require('../../src/lib/grantsCollaboration/followers');
@@ -12,15 +14,41 @@ use(chaiAsPromised);
 
 describe('Grants Collaboration', () => {
     context('saveNoteRevision', () => {
+        const { adminUser } = fixtures.users;
+        const grant = fixtures.grants.earFellowship;
+
         it('creates new note', async () => {
-            const result = await saveNoteRevision(knex, fixtures.grants.earFellowship.grant_id, fixtures.roles.adminRole.id, 'This is a test revision');
+            const result = await saveNoteRevision(knex, grant.grant_id, adminUser.id, 'This is a test revision');
             expect(result.id).to.be.ok;
+
+            const [grantNote] = await knex('grant_notes').where({
+                grant_id: grant.grant_id,
+                user_id: adminUser.id,
+            }).returning(['is_published']);
+
+            console.log(grantNote);
+            expect(grantNote.is_published).to.equal(true);
         });
         it('creates new note revision', async () => {
-            const result1 = await saveNoteRevision(knex, fixtures.grants.earFellowship.grant_id, fixtures.roles.adminRole.id, 'This is a test revision');
-            const result2 = await saveNoteRevision(knex, fixtures.grants.earFellowship.grant_id, fixtures.roles.adminRole.id, 'This is a test revision #2');
+            const result1 = await saveNoteRevision(knex, grant.grant_id, adminUser.id, 'This is a test revision');
+            const result2 = await saveNoteRevision(knex, grant.grant_id, adminUser.id, 'This is a test revision #2');
 
             expect(result2.id).not.to.equal(result1.id);
+        });
+        it('Re-publishes old notes upon new revision', async () => {
+            const expectedNote = {
+                grant_id: grant.grant_id,
+                user_id: adminUser.id,
+            };
+
+            await saveNoteRevision(knex, grant.grant_id, adminUser.id, 'This is a test revision');
+
+            await knex('grant_notes').where(expectedNote).update({ is_published: false });
+
+            await saveNoteRevision(knex, grant.grant_id, adminUser.id, 'This is a test revision #2');
+
+            const [note] = await knex('grant_notes').select('is_published').where(expectedNote);
+            expect(note.is_published).to.equal(true);
         });
     });
 
@@ -68,6 +96,18 @@ describe('Grants Collaboration', () => {
 
             expect(results.notes).to.have.lengthOf(0);
         });
+        it('ignores unpublished notes', async () => {
+            await knex('grant_notes').where({ grant_id: grant.grant_id }).update({ is_published: false });
+
+            const results = await getOrganizationNotesForGrantByUser(
+                knex,
+                tenant.id, // organization ID
+                staffUser.id, // user ID
+                grant.grant_id, // grant ID
+            );
+
+            expect(results.notes).to.have.length(0);
+        });
     });
 
     context('getOrganizationNotesForGrant', () => {
@@ -80,17 +120,23 @@ describe('Grants Collaboration', () => {
         let adminLastRevision;
 
         beforeEach(async () => {
-            const [staffGrantNote] = await knex('grant_notes')
-                .insert({ grant_id: grant.grant_id, user_id: staffUser.id }, 'id');
+            await knex.transaction(async (trx) => {
+                const [staffGrantNote] = await trx('grant_notes')
+                    .insert({ grant_id: grant.grant_id, user_id: staffUser.id }, 'id');
 
-            [staffLastRevision] = await knex('grant_notes_revisions')
-                .insert({ grant_note_id: staffGrantNote.id, text: 'This is a staff note' }, 'id');
+                [staffLastRevision] = await trx('grant_notes_revisions')
+                    .insert({ grant_note_id: staffGrantNote.id, text: 'This is a staff note' }, 'id');
+            });
 
-            const [adminGrantNote] = await knex('grant_notes')
-                .insert({ grant_id: grant.grant_id, user_id: adminUser.id }, 'id');
+            let adminGrantNote;
 
-            await knex('grant_notes_revisions')
-                .insert({ grant_note_id: adminGrantNote.id, text: 'This is a test revision' }, 'id');
+            await knex.transaction(async (trx) => {
+                [adminGrantNote] = await trx('grant_notes')
+                    .insert({ grant_id: grant.grant_id, user_id: adminUser.id }, 'id');
+
+                await trx('grant_notes_revisions')
+                    .insert({ grant_note_id: adminGrantNote.id, text: 'This is a test revision' }, 'id');
+            });
 
             [adminLastRevision] = await knex('grant_notes_revisions')
                 .insert({ grant_note_id: adminGrantNote.id, text: 'This is a test revision #2' }, 'id');
@@ -136,6 +182,14 @@ describe('Grants Collaboration', () => {
             expect(result.pagination.next).to.be.null;
         });
 
+        it('ignores unpublished notes', async () => {
+            await knex('grant_notes').where({ grant_id: grant.grant_id }).update({ is_published: false });
+
+            const result = await getOrganizationNotesForGrant(knex, grant.grant_id, tenant.id);
+
+            expect(result.notes).to.have.length(0);
+        });
+
         it('gets filtered notes for grant using cursor (pagination)', async () => {
             const results = await getOrganizationNotesForGrant(
                 knex,
@@ -163,6 +217,35 @@ describe('Grants Collaboration', () => {
 
             expect(results.notes).to.have.length(1);
             expect(results.pagination.next).equal(adminLastRevision.id);
+        });
+    });
+    context('deleteGrantNotesByUser', () => {
+        const { staffUser } = fixtures.users;
+        const grant = fixtures.grants.earFellowship;
+
+        let staffGrantNote;
+
+        beforeEach(async () => {
+            [staffGrantNote] = await knex('grant_notes')
+                .insert({ grant_id: grant.grant_id, user_id: staffUser.id }, 'id');
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: staffGrantNote.id, text: 'This is a staff note' });
+
+            await knex('grant_notes_revisions')
+                .insert({ grant_note_id: staffGrantNote.id, text: 'This is a staff note revision' });
+        });
+
+        it('Deletes (marks unpublished) all notes for user', async () => {
+            const revisions = await knex('grant_notes_revisions').where('grant_note_id', staffGrantNote.id);
+            expect(revisions).to.have.length(2);
+
+            await deleteGrantNotesByUser(knex, grant.grant_id, staffUser.id);
+
+            const notesAfter = await knex('grant_notes')
+                .where('id', staffGrantNote.id)
+                .andWhere('is_published', true);
+            expect(notesAfter).to.have.length(0);
         });
     });
     context('followGrant', () => {

@@ -17,7 +17,8 @@ exports.up = function (knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = function (knex) {
+exports.down = async function (knex) {
+    await knex('email_subscriptions').where({ notification_type: 'GRANT_ACTIVITY' }).del();
     return knex.schema.raw(
         `
               -- Drop the existing stale constraint
