@@ -1,6 +1,5 @@
 const tracer = require('dd-trace');
 const { getUser, inTenant } = require('../db');
-const { log } = require('./logging');
 
 const USDR_TENANT_ID = 1;
 const USDR_AGENCY_ID = 0;
