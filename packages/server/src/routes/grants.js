@@ -85,7 +85,7 @@ function criteriaToFiltersObj(criteria, agencyId) {
     };
 
     return {
-        reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned').map((r) => r.trim()) || [],
+        reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned' && r !== 'Followed').map((r) => r.trim()) || [],
         eligibilityCodes: filters.eligibility?.split(',') || [],
         fundingActivityCategories: filters.fundingActivityCategories?.split(',') || [],
         includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
@@ -98,6 +98,7 @@ function criteriaToFiltersObj(criteria, agencyId) {
         agencyCode: filters.agency || '',
         postedWithinDays: postedWithinOptions[filters.postedWithin] || 0,
         assignedToAgencyId: filters.reviewStatus?.includes('Assigned') ? agencyId : null,
+        followedByAgencyId: filters.reviewStatus?.includes('Followed') ? agencyId : null,
         bill: filters.bill || null,
     };
 }
@@ -117,6 +118,7 @@ router.get('/next', requireUser, async (req, res) => {
     } catch {
         return res.status(400).send('Invalid pagination parameters');
     }
+
     const grants = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         paginationParams,

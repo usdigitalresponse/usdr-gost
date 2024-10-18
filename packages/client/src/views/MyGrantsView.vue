@@ -50,7 +50,7 @@
       >
         <GrantsTable
           search-title="Followed by My Team"
-          show-interested
+          :show-followed-by-agency="selectedAgencyId"
           :show-search-controls="false"
         />
       </b-tab>

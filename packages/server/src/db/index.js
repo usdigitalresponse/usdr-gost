@@ -489,6 +489,9 @@ function buildFiltersQuery(queryBuilder, filters, agencyId) {
             if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
                 qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgencyId);
             }
+            if (parseInt(filters.followedByAgencyId, 10) >= 0) {
+                qb.where(`${TABLES.agencies}.id`, '=', filters.followedByAgencyId);
+            }
             if (filters.opportunityCategories?.length) {
                 qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
             }
@@ -524,6 +527,11 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
         }
         if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
             queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
+        }
+        if (parseInt(filters.followedByAgencyId, 10) >= 0) {
+            queryBuilder.join(TABLES.grant_followers, `${TABLES.grants}.grant_id`, `${TABLES.grant_followers}.grant_id`)
+                .join(TABLES.users, `${TABLES.grant_followers}.user_id`, `${TABLES.users}.id`)
+                .join(TABLES.agencies, `${TABLES.users}.agency_id`, `${TABLES.agencies}.id`);
         }
         hasRankColumns = buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords, orderingParams);
         buildFiltersQuery(queryBuilder, filters, agencyId);
@@ -612,6 +620,7 @@ function validateSearchFilters(filters) {
         agencyCode: { type: 'String', valueType: 'Any' },
         postedWithinDays: { type: 'number', valueType: 'Any' },
         assignedToAgencyId: { type: 'number', valueType: 'Any' },
+        followedByAgencyId: { type: 'number', valueType: 'Any' },
         bill: { type: 'String', valueType: 'Any' },
         openDate: { type: 'Date', valueType: 'YYYY-MM-DD' },
     };
@@ -706,6 +715,7 @@ function addCsvData(qb) {
         agencyCode: String,
         postedWithinDays: number,
         assignedToAgencyId: Optional[number],
+        followedByAgencyId: Optional[number]
         bill: String,
     },
     paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
@@ -806,6 +816,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
     return { data: enhancedData, pagination };
 }
 
+// @ todo: enhance grant data to add followed by agencies
 async function enhanceGrantData(tenantId, data) {
     if (!data.length) return [];
 

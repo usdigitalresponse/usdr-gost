@@ -174,6 +174,10 @@ export default {
       type: String,
       default: undefined,
     },
+    showFollowedByAgency: {
+      type: String,
+      default: undefined,
+    },
     showSearchControls: {
       type: Boolean,
       default: true,
@@ -439,6 +443,7 @@ export default {
               `${this.showResult ? 'Applied' : ''}`,
               `${this.showRejected ? 'Not Applying' : ''}`,
               `${this.showAssignedToAgency ? 'Assigned' : ''}`,
+              `${this.showFollowedByAgency ? 'Followed' : ''}`,
             ].filter((r) => r),
           });
         }
@@ -451,6 +456,7 @@ export default {
           showResult: this.showResult,
           showRejected: this.showRejected,
           assignedToAgency: this.showAssignedToAgency,
+          followedByAgency: this.showFollowedByAgency,
         });
         // Clamp currentPage to valid range
         const clampedPage = Math.max(Math.min(this.currentPage, this.lastPage), 1);
@@ -556,6 +562,7 @@ export default {
         showResult: this.showResult,
         showRejected: this.showRejected,
         assignedToAgency: this.showAssignedToAgency,
+        followedByAgency: this.showFollowedByAgency,
       });
     },
   },
