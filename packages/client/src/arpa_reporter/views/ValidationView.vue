@@ -18,6 +18,7 @@
             class="form-check-input"
             type="checkbox"
           >
+          <!-- eslint-disable-next-line vuejs-accessibility/label-has-for  -->
           <label
             class="form-check-label"
             for="commitRevalidate"
