@@ -2,8 +2,8 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const history = require('connect-history-api-fallback');
-const morgan = require('morgan');
 const { resolve } = require('path');
+const { log, createLoggerMiddleware } = require('../lib/logging');
 
 const environment = require('./environment');
 const agenciesRoutes = require('./routes/agencies');
@@ -32,9 +32,7 @@ function configureApiRoutes(app) {
 }
 
 function configureApp(app, options = {}) {
-    if (!options.disableRequestLogging) {
-        app.use(morgan('common'));
-    }
+    app.use(createLoggerMiddleware(log, options));
     app.use(bodyParser.json());
     app.use(cookieParser(environment.COOKIE_SECRET));
 

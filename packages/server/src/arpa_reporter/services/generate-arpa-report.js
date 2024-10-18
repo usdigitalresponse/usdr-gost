@@ -8,7 +8,7 @@ const aws = require('../../lib/gost-aws');
 
 const { getUser } = require('../../db');
 const { applicationSettings } = require('../db/settings');
-const { log } = require('../../lib/logging');
+const { bunyanLogger: log } = require('../../lib/logging');
 const { listRecipientsForReportingPeriod } = require('../db/arpa-subrecipients');
 const { getTemplate } = require('./get-template');
 const email = require('../../lib/email');
