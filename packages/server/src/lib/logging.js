@@ -49,7 +49,7 @@ function createLoggerMiddleware(logger, appOptions = {}) {
                 return false;
             },
         },
-        genReqId: (req) => req.id ?? req.headers['x-request-id'] ?? randomUUID(),
+        genReqId: (req) => (req.id ?? req.headers['x-amzn-trace-id'] ?? req.headers['x-request-id'] ?? randomUUID()),
         serializers: {
             req: (req) => {
                 const queryStart = req.url.lastIndexOf('?');
