@@ -4,9 +4,9 @@ require('express-async-errors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const morgan = require('morgan');
 const history = require('connect-history-api-fallback');
 const { resolve } = require('path');
+const { log, createLoggerMiddleware } = require('./lib/logging');
 const { configureApiRoutes: configureArpaReporterApiRoutes } = require('./arpa_reporter/configure');
 const { requestProviderMiddleware } = require('./arpa_reporter/use-request');
 
@@ -27,21 +27,7 @@ function configureApiRoutes(app) {
 }
 
 function configureApp(app, options = {}) {
-    app.use(morgan('common', {
-        skip: (req) => {
-            // Render hits the health check path extremely often, so don't clutter logs with it.
-            if (req.originalUrl === '/api/health') {
-                return true;
-            }
-
-            // We disable request logging during API tests because it makes the Mocha test output noisy
-            if (options.disableRequestLogging) {
-                return true;
-            }
-
-            return false;
-        },
-    }));
+    app.use(createLoggerMiddleware(log, options));
     app.use(cookieParser(process.env.COOKIE_SECRET));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
