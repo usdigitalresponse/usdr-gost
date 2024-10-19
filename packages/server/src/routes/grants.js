@@ -122,7 +122,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
     }
 
     let followedByColumnHeader = process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies';
-    if (process.env.ENABLE_FOLLOW_NOTES) {
+    if (process.env.ENABLE_FOLLOW_NOTES === true) {
         followedByColumnHeader = 'Followed by';
     }
 
