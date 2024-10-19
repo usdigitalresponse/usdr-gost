@@ -200,9 +200,9 @@ export default {
           key: 'viewed_by',
         },
         {
-          key: 'interested_agencies',
+          key: `${followNotesEnabled() ? 'followed_by_agencies' : 'interested_agencies'}`,
           // eslint-disable-next-line no-nested-ternary -- can clean up once we remove newTerminologyEnabled feature flag
-          label: `${followNotesEnabled() ? 'Followed by' : newTerminologyEnabled() ? 'Teams' : 'Agencies'}`,
+          label: `${followNotesEnabled() ? 'Followed by' : newTerminologyEnabled() ? 'Interested Teams' : 'Interested Agencies'}`,
         },
         {
           // opportunity_status
@@ -290,8 +290,15 @@ export default {
         interested_agencies: grant.interested_agencies
           .map((v) => v.agency_abbreviation)
           .join(', '),
-        viewed_by: grant.viewed_by_agencies
-          .map((v) => v.agency_abbreviation)
+        viewed_by: followNotesEnabled()
+          ? grant.viewed_by_agencies
+            .map((v) => v.agency_name)
+            .join(', ')
+          : grant.viewed_by_agencies
+            .map((v) => v.agency_abbreviation)
+            .join(', '),
+        followed_by_agencies: grant.followed_by_agencies
+          .map((v) => v.agency_name)
           .join(', '),
         status: grant.opportunity_status,
         award_ceiling: grant.award_ceiling,

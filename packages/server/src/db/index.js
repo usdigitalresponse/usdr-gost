@@ -816,7 +816,6 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
     return { data: enhancedData, pagination };
 }
 
-// @ todo: enhance grant data to add followed by agencies
 async function enhanceGrantData(tenantId, data) {
     if (!data.length) return [];
 
@@ -833,14 +832,28 @@ async function enhanceGrantData(tenantId, data) {
     );
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), tenantId });
 
+    const followedByQuery = knex(TABLES.agencies)
+        .join(TABLES.users, `${TABLES.agencies}.id`, '=', `${TABLES.users}.agency_id`)
+        .join(TABLES.grant_followers, `${TABLES.users}.id`, '=', `${TABLES.grant_followers}.user_id`)
+        .whereIn('grant_id', data.map((grant) => grant.grant_id))
+        .andWhere('agencies.tenant_id', tenantId);
+    const followedBy = await followedByQuery.distinct(
+        `${TABLES.grant_followers}.grant_id`,
+        `${TABLES.grant_followers}.user_id`,
+        `${TABLES.agencies}.name as agency_name`,
+        `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+    );
+
     const enhancedData = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
         const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
+        const followedByAgencies = followedBy.filter((followed) => followed.grant_id === grant.grant_id);
         return {
             ...grant,
             etitle: decodeURIComponent(escape(grant.title)),
-            viewed_by_agencies: viewedByAgencies,
+            viewed_by_agencies: alphaSortAgencies(viewedByAgencies),
             interested_agencies: agenciesInterested,
+            followed_by_agencies: alphaSortAgencies(followedByAgencies),
             funding_activity_categories: (grant.funding_activity_category_codes || '')
                 .split(' ')
                 .map((code) => fundingActivityCategoriesByCode[code]?.name)
@@ -849,6 +862,18 @@ async function enhanceGrantData(tenantId, data) {
     });
 
     return enhancedData;
+}
+
+function alphaSortAgencies(grants) {
+    return grants.sort((a, b) => {
+        if (a.agency_name.toLowerCase() < b.agency_name.toLowerCase()) {
+            return -1;
+        }
+        if (a.agency_name.toLowerCase() > b.agency_name.toLowerCase()) {
+            return 1;
+        }
+        return 0;
+    });
 }
 
 async function getGrants({
