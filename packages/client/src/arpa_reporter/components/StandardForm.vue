@@ -5,6 +5,7 @@
       :key="col.field"
       class="form-group row"
     >
+      <!-- eslint-disable-next-line vuejs-accessibility/label-has-for  -->
       <label
         :for="col.field"
         class="col-sm-2 col-form-label"
