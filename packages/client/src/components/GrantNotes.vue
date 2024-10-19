@@ -3,14 +3,15 @@
     <!-- Note Edit -->
     <div
       v-if="editingNote"
+      data-test-edit-form
       class="d-flex note-edit-container"
     >
       <UserAvatar
-        :user-name="loggedInUser.name"
         size="2.5rem"
+        :user-name="loggedInUser.name"
         :color="loggedInUser.avatar_color"
       />
-      <b-form-group class="ml-2 mb-2 flex-grow-1 position-relative">
+      <b-form-group class="mx-3 mb-2 flex-grow-1 position-relative">
         <b-form-textarea
           ref="noteTextarea"
           v-model="noteText"
@@ -19,7 +20,7 @@
           rows="2"
           max-rows="8"
           :formatter="formatter"
-          :disabled="submittingNote"
+          :disabled="savingNote"
           data-test-note-input
           @keydown="handleKeyDown"
         />
@@ -51,26 +52,54 @@
     </div>
 
     <!-- Current User's Note -->
-    <GrantNote
+    <UserActivityItem
       v-if="userNote && !editingNote"
-      data-test-user-note
       :class="userNoteClass"
-      :note="userNote"
+      :user-name="userNote.user.name"
+      :user-email="userNote.user.email"
+      :team-name="userNote.user.team.name"
+      :avatar-color="userNote.user.avatarColor"
+      :created-at="userNote.createdAt"
+      :is-edited="userNote.isRevised"
+      copy-email-enabled
+      data-test-user-note-id="userNote.id"
     >
+      {{ userNote.text }}
       <template #actions>
-        <b-button
-          class="note-edit-btn p-0"
+        <b-dropdown
+          right
           variant="link"
-          @click="toggleEditNote"
+          toggle-class="p-0"
+          no-caret
+          :disabled="savingNote"
         >
-          <b-icon
-            icon="pencil-square"
-            class="mr-1"
-          />
-          <span>EDIT</span>
-        </b-button>
+          <template #button-content>
+            <span class="note-edit-btn">
+              <b-icon
+                icon="pencil-square"
+                class="mr-1"
+              />
+              <span class="note-edit-btn-text">EDIT</span>
+            </span>
+          </template>
+          <b-dropdown-item-button
+            title="Edit note"
+            data-test-edit-note-btn
+            @click="toggleEditNote"
+          >
+            Edit
+          </b-dropdown-item-button>
+          <b-dropdown-item-button
+            title="Delete note"
+            variant="danger"
+            data-test-delete-note-btn
+            @click="deleteUserNote"
+          >
+            Delete
+          </b-dropdown-item-button>
+        </b-dropdown>
       </template>
-    </GrantNote>
+    </UserActivityItem>
 
     <!-- Other Notes -->
     <ul class="list-unstyled mb-0">
@@ -78,10 +107,19 @@
         v-for="note of otherNotes"
         :key="note.id"
       >
-        <GrantNote
-          :note="note"
-          data-test-other-note
-        />
+        <UserActivityItem
+          class="activity-container"
+          :user-name="note.user.name"
+          :user-email="note.user.email"
+          :team-name="note.user.team.name"
+          :avatar-color="note.user.avatarColor"
+          :created-at="note.createdAt"
+          :is-edited="note.isRevised"
+          copy-email-enabled
+          :data-test-other-note-id="note.id"
+        >
+          {{ note.text }}
+        </UserActivityItem>
       </li>
     </ul>
 
@@ -107,13 +145,13 @@
 import { nextTick } from 'vue';
 import { mapActions, mapGetters } from 'vuex';
 import UserAvatar from '@/components/UserAvatar.vue';
-import GrantNote from '@/components/GrantNote.vue';
+import UserActivityItem from '@/components/UserActivityItem.vue';
 import { grantNotesLimit } from '@/helpers/featureFlags';
 
 export default {
   components: {
     UserAvatar,
-    GrantNote,
+    UserActivityItem,
   },
   emits: ['noteSaved'],
   data() {
@@ -121,7 +159,7 @@ export default {
       otherNotes: [],
       userNote: null,
       noteText: '',
-      submittingNote: false,
+      savingNote: false,
       editingNote: false,
       notesNextCursor: null,
     };
@@ -141,7 +179,7 @@ export default {
       return this.filteredNoteText.length === 0;
     },
     noteSendBtnDisabled() {
-      return this.emptyNoteText || this.submittingNote;
+      return this.emptyNoteText || this.savingNote;
     },
     charCountClass() {
       const errColor = this.filteredNoteText.length === 300 ? 'text-error' : '';
@@ -149,9 +187,9 @@ export default {
       return `ml-auto ${errColor}`;
     },
     userNoteClass() {
-      const corners = this.emptyNoteText ? 'rounded-bottom-corners' : '';
+      const corners = this.otherNotes.length === 0 ? 'rounded-bottom-corners' : '';
 
-      return `user-note ${corners}`;
+      return `user-note activity-container ${corners}`;
     },
   },
   async beforeMount() {
@@ -163,13 +201,13 @@ export default {
       getNotesForGrant: 'grants/getNotesForGrant',
       getNotesForCurrentUser: 'grants/getNotesForCurrentUser',
       saveNoteForGrant: 'grants/saveNoteForGrant',
+      deleteGrantNoteForUser: 'grants/deleteGrantNoteForUser',
     }),
     formatter(value) {
       return value.substring(0, 300);
     },
     async toggleEditNote() {
       this.editingNote = true;
-      this.noteText = this.userNote.text;
 
       await nextTick();
       this.$refs.noteTextarea.focus();
@@ -180,7 +218,7 @@ export default {
       }
     },
     async submitNote() {
-      this.submittingNote = true;
+      this.savingNote = true;
 
       try {
         await this.saveNoteForGrant({ grantId: this.currentGrant.grant_id, text: this.filteredNoteText });
@@ -190,13 +228,16 @@ export default {
         // Error already logged
       }
 
-      this.submittingNote = false;
+      this.savingNote = false;
+    },
+    setUserNote(result) {
+      this.userNote = result && result.notes.length ? result.notes[0] : null;
+      this.editingNote = !this.userNote;
+      this.noteText = this.userNote ? this.userNote.text : '';
     },
     async fetchUsersNote() {
       const result = await this.getNotesForCurrentUser({ grantId: this.currentGrant.grant_id });
-
-      this.userNote = result && result.notes.length ? result.notes[0] : null;
-      this.editingNote = !this.userNote;
+      this.setUserNote(result);
     },
     async fetchNextNotes() {
       const query = {
@@ -215,6 +256,17 @@ export default {
         this.otherNotes = this.otherNotes.concat(nextOtherNotes);
         this.notesNextCursor = result.pagination.next;
       }
+    },
+    async deleteUserNote() {
+      this.savingNote = true;
+      try {
+        await this.deleteGrantNoteForUser({ grantId: this.currentGrant.grant_id });
+        this.$emit('noteSaved');
+        this.setUserNote(null);
+      } catch (e) {
+        // Error already logged
+      }
+      this.savingNote = false;
     },
   },
 };
@@ -241,17 +293,25 @@ textarea.note-textarea {
   padding-right: 2.25rem;
 }
 
+.activity-container {
+  padding: 1.25rem;
+}
+
 textarea.note-textarea::placeholder {
   font-size: 0.875rem
 }
 
 .note-edit-container {
-  padding: 1rem 1.25rem 0;
+  padding: 1rem 1.25rem 0.25rem;
 }
 
 .note-edit-btn {
-  font-size: 0.875rem;
+  vertical-align: middle;
   color: $raw-gray-500
+}
+
+.note-edit-btn-text {
+  font-size: 0.75rem;
 }
 
 .note-send-btn {

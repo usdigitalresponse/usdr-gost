@@ -10,11 +10,11 @@ import { id } from '@/helpers/testHelpers';
 const CURRENT_USER_ID = id();
 
 const getMockNotes = (count, hasMoreCursor = null, userId = id()) => ({
-  notes: Array.from(Array(count), () => ({
+  notes: Array.from(Array(count), (el, i) => ({
     id: id(),
     createdAt: new Date().toISOString(),
     isRevised: true,
-    text: 'Text',
+    text: `Text ${i}`,
     grant: {},
     user: {
       id: userId,
@@ -43,10 +43,17 @@ const mockStore = {
     'grants/getNotesForGrant': vi.fn(),
     'grants/getNotesForCurrentUser': vi.fn(),
     'grants/saveNoteForGrant': vi.fn(),
+    'grants/deleteGrantNoteForUser': vi.fn(),
   },
 };
 
 const store = createStore(mockStore);
+
+const stubTextArea = {
+  template: '<textarea />',
+  props: { modelValue: String },
+  methods: { focus: vi.fn() },
+};
 
 beforeEach(() => {
   vitest.clearAllMocks();
@@ -79,15 +86,16 @@ describe('GrantNotes component', () => {
     const inputCmp = wrapper.findComponent('[data-test-note-input]');
     expect(inputCmp.exists()).toEqual(false);
 
-    const userNoteCmp = wrapper.findComponent('[data-test-user-note]');
+    const userNoteCmp = wrapper.findComponent('[data-test-user-note-id]');
     expect(userNoteCmp.exists()).equal(true);
 
-    const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note]');
+    const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note-id]');
     expect(otherNoteCmps).toHaveLength(5);
 
     // excludes user note
     otherNoteCmps.forEach((cmp) => {
-      expect(cmp.props('note').user.id).not.toEqual(CURRENT_USER_ID);
+      expect(cmp.attributes('data-test-other-note-id')).toBeTruthy();
+      expect(cmp.attributes('data-test-other-note-id')).not.toEqual(CURRENT_USER_ID);
     });
   });
 
@@ -133,8 +141,67 @@ describe('GrantNotes component', () => {
     await flushPromises();
 
     expect(mockStore.actions['grants/saveNoteForGrant'].mock.lastCall[1].text).toEqual('My Note');
-    const userNoteCmp = wrapper.findComponent('[data-test-user-note]');
+    const userNoteCmp = wrapper.findComponent('[data-test-user-note-id]');
     expect(userNoteCmp.exists()).equal(true);
+  });
+
+  it('Correctly toggles edit mode for note input', async () => {
+    const userNote = getMockUserNote(1);
+    const allNotes = getMockNotes(2);
+
+    mockStore.actions['grants/getNotesForCurrentUser'].mockResolvedValue(userNote);
+    mockStore.actions['grants/getNotesForGrant'].mockResolvedValue(allNotes);
+
+    const wrapper = mount(GrantNotes, {
+      global: {
+        plugins: [store],
+        stubs: {
+          'b-form-textarea': stubTextArea,
+        },
+      },
+    });
+
+    await flushPromises();
+
+    const editBtn = wrapper.findComponent('[data-test-edit-note-btn]');
+    editBtn.trigger('click');
+
+    await flushPromises();
+
+    const form = wrapper.find('[data-test-edit-form]');
+    expect(form.exists()).toBe(true);
+    expect(wrapper.findComponent(stubTextArea).props('modelValue')).toBe(userNote.notes[0].text);
+  });
+
+  it('Correctly deletes a user note', async () => {
+    const userNote = getMockUserNote(1);
+    const allNotes = getMockNotes(2);
+
+    mockStore.actions['grants/getNotesForCurrentUser'].mockResolvedValue(userNote);
+    mockStore.actions['grants/getNotesForGrant'].mockResolvedValue(allNotes);
+    mockStore.actions['grants/deleteGrantNoteForUser'].mockResolvedValue();
+
+    const wrapper = mount(GrantNotes, {
+      global: {
+        plugins: [store],
+        stubs: {
+          'b-form-textarea': stubTextArea,
+        },
+      },
+    });
+
+    await flushPromises();
+
+    mockStore.actions['grants/getNotesForCurrentUser'].mockResolvedValue(getMockUserNote(0));
+
+    const deleteBtn = wrapper.findComponent('[data-test-delete-note-btn]');
+
+    deleteBtn.trigger('click');
+
+    await flushPromises();
+
+    expect(mockStore.actions['grants/deleteGrantNoteForUser']).toHaveBeenCalled();
+    expect(wrapper.findComponent(stubTextArea).props('modelValue')).toBe('');
   });
 
   it('Correctly retrieves more notes using "Show More"', async () => {
@@ -162,7 +229,7 @@ describe('GrantNotes component', () => {
     await flushPromises();
 
     expect(mockStore.actions['grants/getNotesForGrant'].mock.lastCall[1].cursor).toEqual(NEXT_ID);
-    const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note]');
+    const otherNoteCmps = wrapper.findAllComponents('[data-test-other-note-id]');
     expect(otherNoteCmps).toHaveLength(4);
     expect(wrapper.findComponent('[data-test-show-more-btn]').exists()).toEqual(false);
   });
