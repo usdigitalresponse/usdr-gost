@@ -840,7 +840,7 @@ async function enhanceGrantData(tenantId, data) {
             .join(TABLES.users, `${TABLES.agencies}.id`, '=', `${TABLES.users}.agency_id`)
             .join(TABLES.grant_followers, `${TABLES.users}.id`, '=', `${TABLES.grant_followers}.user_id`)
             .whereIn('grant_id', data.map((grant) => grant.grant_id))
-            .andWhere('agencies.tenant_id', tenantId);
+            .andWhere(`${TABLES.agencies}.tenant_id`, tenantId);
         followedBy = await followedByQuery.distinct(
             `${TABLES.grant_followers}.grant_id`,
             `${TABLES.grant_followers}.user_id`,
