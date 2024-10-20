@@ -832,28 +832,33 @@ async function enhanceGrantData(tenantId, data) {
     );
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), tenantId });
 
-    const followedByQuery = knex(TABLES.agencies)
-        .join(TABLES.users, `${TABLES.agencies}.id`, '=', `${TABLES.users}.agency_id`)
-        .join(TABLES.grant_followers, `${TABLES.users}.id`, '=', `${TABLES.grant_followers}.user_id`)
-        .whereIn('grant_id', data.map((grant) => grant.grant_id))
-        .andWhere('agencies.tenant_id', tenantId);
-    const followedBy = await followedByQuery.distinct(
-        `${TABLES.grant_followers}.grant_id`,
-        `${TABLES.grant_followers}.user_id`,
-        `${TABLES.agencies}.name as agency_name`,
-        `${TABLES.agencies}.abbreviation as agency_abbreviation`,
-    );
+    const followNotesEnabled = process.env.ENABLE_FOLLOW_NOTES === 'true';
+
+    let followedBy = null;
+    if (followNotesEnabled) {
+        const followedByQuery = knex(TABLES.agencies)
+            .join(TABLES.users, `${TABLES.agencies}.id`, '=', `${TABLES.users}.agency_id`)
+            .join(TABLES.grant_followers, `${TABLES.users}.id`, '=', `${TABLES.grant_followers}.user_id`)
+            .whereIn('grant_id', data.map((grant) => grant.grant_id))
+            .andWhere('agencies.tenant_id', tenantId);
+        followedBy = await followedByQuery.distinct(
+            `${TABLES.grant_followers}.grant_id`,
+            `${TABLES.grant_followers}.user_id`,
+            `${TABLES.agencies}.name as agency_name`,
+            `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+        );
+    }
 
     const enhancedData = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
         const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
-        const followedByAgencies = followedBy.filter((followed) => followed.grant_id === grant.grant_id);
+        const followedByAgencies = followNotesEnabled ? followedBy.filter((followed) => followed.grant_id === grant.grant_id) : [];
         return {
             ...grant,
             etitle: decodeURIComponent(escape(grant.title)),
-            viewed_by_agencies: alphaSortAgencies(viewedByAgencies),
+            viewed_by_agencies: followNotesEnabled ? alphaSortAgencies(viewedByAgencies) : viewedByAgencies,
             interested_agencies: agenciesInterested,
-            followed_by_agencies: alphaSortAgencies(followedByAgencies),
+            ...(followNotesEnabled && { followed_by_agencies: alphaSortAgencies(followedByAgencies) }),
             funding_activity_categories: (grant.funding_activity_category_codes || '')
                 .split(' ')
                 .map((code) => fundingActivityCategoriesByCode[code]?.name)
