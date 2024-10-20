@@ -121,11 +121,6 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
         return res.status(400).send('Invalid ordering parameter');
     }
 
-    let followedByColumnHeader = process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies';
-    if (process.env.ENABLE_FOLLOW_NOTES === true) {
-        followedByColumnHeader = 'Followed by';
-    }
-
     const { data, pagination } = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         await db.buildPaginationParams({
@@ -145,8 +140,15 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
         interested_agencies: grant.interested_agencies
             .map((v) => v.agency_abbreviation)
             .join(', '),
-        viewed_by: grant.viewed_by_agencies
-            .map((v) => v.agency_abbreviation)
+        viewed_by: process.env.ENABLE_FOLLOW_NOTES === 'true'
+            ? grant.viewed_by_agencies
+                .map((v) => v.agency_name)
+                .join(', ')
+            : grant.viewed_by_agencies
+                .map((v) => v.agency_abbreviation)
+                .join(', '),
+        followed_by_agencies: grant.followed_by_agencies
+            .map((v) => v.agency_name)
             .join(', '),
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
@@ -164,13 +166,16 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
         });
     }
 
+    const interestedHeader = process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies';
+    const followed_by_column = process.env.ENABLE_FOLLOW_NOTES === 'true' ? { key: 'followed_by_agencies', header: 'Followed By' } : { key: 'interested_agencies', header: interestedHeader };
+
     const csv = csvStringify(formattedData, {
         header: true,
         columns: [
             { key: 'grant_number', header: 'Opportunity Number' },
             { key: 'title', header: 'Title' },
             { key: 'viewed_by', header: 'Viewed By' },
-            { key: 'interested_agencies', header: followedByColumnHeader },
+            followed_by_column,
             { key: 'opportunity_status', header: 'Opportunity Status' },
             { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },
