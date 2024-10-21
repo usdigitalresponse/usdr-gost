@@ -1,3 +1,5 @@
+<!-- Adding this at the top because the rule was still getting flagged when added next-line -->
+<!-- eslint-disable vuejs-accessibility/no-autofocus -->
 <!-- eslint-disable max-len -->
 <template>
   <b-modal
@@ -124,6 +126,7 @@
           required
         />
       </b-form-group>
+      <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
       <form
         ref="form"
         @click="handleDelete"

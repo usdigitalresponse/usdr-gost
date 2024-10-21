@@ -11,21 +11,23 @@ module.exports = {
   },
   plugins: [
     'import-alias',
+    'vuejs-accessibility',
   ],
   extends: [
     'plugin:vue/recommended',
     'airbnb-base',
     'plugin:import/recommended',
+    'plugin:vuejs-accessibility/recommended',
   ],
   settings: {
-    "import/resolver": {
-      "custom-alias": {
-        "alias": {
-          "@": "./src"
+    'import/resolver': {
+      'custom-alias': {
+        alias: {
+          '@': './src',
         },
-        "extensions": [".js", ".vue"],
-      }
-    }
+        extensions: ['.js', '.vue'],
+      },
+    },
   },
   rules: {
     // TODO: enable these lint rules over time
