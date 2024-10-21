@@ -750,12 +750,13 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.funding_instrument_codes',
             'grants.bill',
             'grants.funding_activity_category_codes',
+            'grants.opportunity_status',
         ])
         .select(knex.raw(`
             CASE
             WHEN grants.archive_date <= now() THEN 'archived'
             WHEN grants.close_date <= now() THEN 'closed'
-            WHEN grants.open_date > now() THEN 'forecasted'
+            WHEN grants.open_date > now() OR grants.opportunity_status = 'forecasted' THEN 'forecasted'
             ELSE 'posted'
             END as opportunity_status
         `))
