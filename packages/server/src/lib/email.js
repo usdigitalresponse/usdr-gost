@@ -517,6 +517,7 @@ async function getAndSendGrantForSavedSearch({
         {},
         userSavedSearch.tenantId,
         false,
+        process.env.SHOW_FORECASTED_GRANTS === 'true',
     );
 
     return sendGrantDigestEmail({

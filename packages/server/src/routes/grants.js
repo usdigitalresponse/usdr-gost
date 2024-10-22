@@ -217,6 +217,7 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             opportunityStatuses: parseCollectionQueryParam(req, 'opportunityStatuses'),
             opportunityCategories: parseCollectionQueryParam(req, 'opportunityCategories'),
         },
+        showForecastedGrants: process.env.SHOW_FORECASTED_GRANTS === 'true',
     });
 
     // Generate CSV
