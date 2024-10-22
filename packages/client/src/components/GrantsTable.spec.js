@@ -23,6 +23,7 @@ describe('GrantsTable component', () => {
         {
           interested_agencies: [],
           viewed_by_agencies: [],
+          followed_by_agencies: [],
         },
       ],
       'grants/activeFilters': () => [],

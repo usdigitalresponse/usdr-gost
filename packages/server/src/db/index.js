@@ -489,6 +489,9 @@ function buildFiltersQuery(queryBuilder, filters, agencyId) {
             if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
                 qb.where(`${TABLES.assigned_grants_agency}.agency_id`, '=', filters.assignedToAgencyId);
             }
+            if (parseInt(filters.followedByAgencyId, 10) >= 0) {
+                qb.where(`${TABLES.agencies}.id`, '=', filters.followedByAgencyId);
+            }
             if (filters.opportunityCategories?.length) {
                 qb.whereIn(`${TABLES.grants}.opportunity_category`, filters.opportunityCategories);
             }
@@ -524,6 +527,11 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
         }
         if (parseInt(filters.assignedToAgencyId, 10) >= 0) {
             queryBuilder.join(TABLES.assigned_grants_agency, `${TABLES.grants}.grant_id`, `${TABLES.assigned_grants_agency}.grant_id`);
+        }
+        if (parseInt(filters.followedByAgencyId, 10) >= 0) {
+            queryBuilder.join(TABLES.grant_followers, `${TABLES.grants}.grant_id`, `${TABLES.grant_followers}.grant_id`)
+                .join(TABLES.users, `${TABLES.grant_followers}.user_id`, `${TABLES.users}.id`)
+                .join(TABLES.agencies, `${TABLES.users}.agency_id`, `${TABLES.agencies}.id`);
         }
         hasRankColumns = buildKeywordQuery(queryBuilder, filters.includeKeywords, filters.excludeKeywords, orderingParams);
         buildFiltersQuery(queryBuilder, filters, agencyId);
@@ -612,6 +620,7 @@ function validateSearchFilters(filters) {
         agencyCode: { type: 'String', valueType: 'Any' },
         postedWithinDays: { type: 'number', valueType: 'Any' },
         assignedToAgencyId: { type: 'number', valueType: 'Any' },
+        followedByAgencyId: { type: 'number', valueType: 'Any' },
         bill: { type: 'String', valueType: 'Any' },
         openDate: { type: 'Date', valueType: 'YYYY-MM-DD' },
     };
@@ -706,6 +715,7 @@ function addCsvData(qb) {
         agencyCode: String,
         postedWithinDays: number,
         assignedToAgencyId: Optional[number],
+        followedByAgencyId: Optional[number]
         bill: String,
     },
     paginationParams: { currentPage: number, perPage: number, isLengthAware: boolean },
@@ -822,14 +832,33 @@ async function enhanceGrantData(tenantId, data) {
     );
     const interestedBy = await getInterestedAgencies({ grantIds: data.map((grant) => grant.grant_id), tenantId });
 
+    const followNotesEnabled = process.env.ENABLE_FOLLOW_NOTES === 'true';
+
+    let followedBy = null;
+    if (followNotesEnabled) {
+        const followedByQuery = knex(TABLES.agencies)
+            .join(TABLES.users, `${TABLES.agencies}.id`, '=', `${TABLES.users}.agency_id`)
+            .join(TABLES.grant_followers, `${TABLES.users}.id`, '=', `${TABLES.grant_followers}.user_id`)
+            .whereIn('grant_id', data.map((grant) => grant.grant_id))
+            .andWhere(`${TABLES.agencies}.tenant_id`, tenantId);
+        followedBy = await followedByQuery.distinct(
+            `${TABLES.grant_followers}.grant_id`,
+            `${TABLES.grant_followers}.user_id`,
+            `${TABLES.agencies}.name as agency_name`,
+            `${TABLES.agencies}.abbreviation as agency_abbreviation`,
+        );
+    }
+
     const enhancedData = data.map((grant) => {
         const viewedByAgencies = viewedBy.filter((viewed) => viewed.grant_id === grant.grant_id);
         const agenciesInterested = interestedBy.filter((interested) => interested.grant_id === grant.grant_id);
+        const followedByAgencies = followNotesEnabled ? followedBy.filter((followed) => followed.grant_id === grant.grant_id) : [];
         return {
             ...grant,
             etitle: decodeURIComponent(escape(grant.title)),
-            viewed_by_agencies: viewedByAgencies,
+            viewed_by_agencies: followNotesEnabled ? alphaSortAgencies(viewedByAgencies) : viewedByAgencies,
             interested_agencies: agenciesInterested,
+            ...(followNotesEnabled && { followed_by_agencies: alphaSortAgencies(followedByAgencies) }),
             funding_activity_categories: (grant.funding_activity_category_codes || '')
                 .split(' ')
                 .map((code) => fundingActivityCategoriesByCode[code]?.name)
@@ -838,6 +867,18 @@ async function enhanceGrantData(tenantId, data) {
     });
 
     return enhancedData;
+}
+
+function alphaSortAgencies(grants) {
+    return grants.sort((a, b) => {
+        if (a.agency_name.toLowerCase() < b.agency_name.toLowerCase()) {
+            return -1;
+        }
+        if (a.agency_name.toLowerCase() > b.agency_name.toLowerCase()) {
+            return 1;
+        }
+        return 0;
+    });
 }
 
 async function getGrants({
