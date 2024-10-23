@@ -42,6 +42,7 @@ router.get('/', requireUser, async (req, res) => {
         },
         orderBy: req.query.orderBy,
         orderDesc: req.query.orderDesc,
+        showForecastedGrants: process.env.SHOW_FORECASTED_GRANTS === 'true',
     });
     res.json(grants);
 });
@@ -92,6 +93,7 @@ router.get('/next', requireUser, async (req, res) => {
         user.tenant_id,
         user.agency_id,
         false,
+        process.env.SHOW_FORECASTED_GRANTS === 'true',
     );
 
     return res.json(grants);
@@ -101,7 +103,7 @@ router.get('/next', requireUser, async (req, res) => {
 router.get('/:grantId/grantDetails', requireUser, async (req, res) => {
     const { grantId } = req.params;
     const { user } = req.session;
-    const response = await db.getSingleGrantDetails({ grantId, tenantId: user.tenant_id });
+    const response = await db.getSingleGrantDetails({ grantId, tenantId: user.tenant_id, showForecastedGrants: process.env.SHOW_FORECASTED_GRANTS === 'true' });
     res.json(response);
 });
 
@@ -128,6 +130,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
         user.tenant_id,
         user.agency_id,
         true,
+        process.env.SHOW_FORECASTED_GRANTS === 'true',
     );
 
     // Generate CSV
@@ -214,6 +217,7 @@ router.get('/exportCSV', requireUser, async (req, res) => {
             opportunityStatuses: parseCollectionQueryParam(req, 'opportunityStatuses'),
             opportunityCategories: parseCollectionQueryParam(req, 'opportunityCategories'),
         },
+        showForecastedGrants: process.env.SHOW_FORECASTED_GRANTS === 'true',
     });
 
     // Generate CSV

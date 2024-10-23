@@ -368,6 +368,16 @@ describe('db', () => {
             const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id });
             expect(result).to.be.null;
         });
+        it('shows forecasted grants', async () => {
+            const grantId = '444819';
+            const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id, showForecastedGrants: true });
+            expect(result.grant_id).to.eq('444819');
+        });
+        it('hides forecasted grants', async () => {
+            const grantId = '444819';
+            const result = await db.getSingleGrantDetails({ grantId, tenantId: fixtures.users.staffUser.tenant_id, showForecastedGrants: false });
+            expect(result).to.be.null;
+        });
     });
 
     context('getGrantsAssignedAgency', () => {
@@ -383,6 +393,49 @@ describe('db', () => {
             expect(result).to.have.property('data').with.lengthOf(1);
             expect(result.data[0].grant_id)
                 .to.equal(fixtures.assignedAgencyGrants.earFellowshipAccountAssign.grant_id);
+        });
+    });
+
+    context('getGrant', () => {
+        it('gets forecasted grant', async () => {
+            const result = await db.getGrant({ grantId: fixtures.grants.forecastedGrant.grant_id, showForecastedGrants: true });
+            expect(result.grant_id).to.equal(fixtures.grants.forecastedGrant.grant_id);
+        });
+
+        it('hides forecasted grant', async () => {
+            const result = await db.getGrant({ grantId: fixtures.grants.forecastedGrant.grant_id, showForecastedGrants: false });
+            console.log('marissasss');
+            console.log(result);
+            expect(result).to.be.null;
+        });
+    });
+
+    context('getGrantsNew', () => {
+        it('gets forecasted grants', async () => {
+            const result = await db.getGrantsNew(
+                {},
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+                false,
+                true,
+            );
+            const forecastedGrant = result.data.filter((grant) => grant.opportunity_status === 'forecasted');
+            expect(forecastedGrant.length).to.equal(1);
+        });
+        it('hides forecasted grants', async () => {
+            const result = await db.getGrantsNew(
+                { bill: 'Infrastructure Investment and Jobs Act' },
+                { currentPage: 1, perPage: 10, isLengthAware: true },
+                { orderBy: 'open_date', orderDesc: 'true' },
+                fixtures.tenants.SBA.id,
+                fixtures.agencies.accountancy.id,
+                false,
+                false,
+            );
+            const forecastedGrant = result.data.filter((grant) => grant.opportunity_status === 'forecasted');
+            expect(forecastedGrant.length).to.equal(0);
         });
     });
 
