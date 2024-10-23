@@ -8,9 +8,9 @@ const forecastedGrants = [
     {
         status: 'inbox',
         grant_id: '284822',
-        grant_number: '21-605',
-        agency_code: 'NSF',
-        award_ceiling: '6500',
+        grant_number: 'CDC-RFA-PS16-1606',
+        agency_code: 'HHS-CDC-NCHHSTP',
+        award_ceiling: '325000',
         cost_sharing: 'No',
         title: 'Comprehensive High-Impact HIV Prevention Projects for Young Men of Color Who Have Sex with Men and Young Transgender Persons of Color',
         cfda_list: '47.050',
@@ -22,13 +22,13 @@ const forecastedGrants = [
         reviewer_name: 'none',
         opportunity_category: 'Discretionary',
         description: '<p class="MsoNormal">The Centers for Disease Control and Prevention announces the availability of fiscal year 2055 funds for a cooperative agreement program for community-based organizations (CBOs) to develop and implement High-Impact Human Immunodeficiency Virus (HIV) Prevention Programs.</p>',
-        eligibility_codes: '25',
-        funding_activity_category_codes: 'ST',
+        eligibility_codes: '12',
+        funding_activity_category_codes: 'HL',
         opportunity_status: 'forecasted',
         raw_body_json: {
             opportunity: {
-                id: '335255',
-                number: '21-605',
+                id: '284822',
+                number: 'CDC-RFA-PS16-1606',
                 title: 'Comprehensive High-Impact HIV Prevention Projects for Young Men of Color Who Have Sex with Men and Young Transgender Persons of Color',
                 description: '<p class="MsoNormal">The Centers for Disease Control and Prevention announces the availability of fiscal year 2055 funds for a cooperative agreement program for community-based organizations (CBOs) to develop and implement High-Impact Human Immunodeficiency Virus (HIV) Prevention Programs.</p>',
                 milestones: {
@@ -49,8 +49,8 @@ const forecastedGrants = [
             funding_activity: {
                 categories: [
                     {
-                        name: 'Health and Human Services and Center For Disease Control and Prevention',
-                        code: 'HHS',
+                        name: 'Health',
+                        code: 'HL',
                     },
                 ],
             },
@@ -60,13 +60,13 @@ const forecastedGrants = [
     },
     {
         status: 'inbox',
-        grant_id: '444816',
-        grant_number: 'HHS-2021-IHS-TPI-0001',
+        grant_id: '284810',
+        grant_number: 'HHS-2016-IHS-UIHP1-0001',
         agency_code: 'HHS-IHS',
         award_ceiling: '500000',
         cost_sharing: 'No',
         title: 'Office of Urban Indian Health Program - Title V HIV/AIDS',
-        cfda_list: '93.382',
+        cfda_list: '93.193',
         open_date: '2056-08-05',
         close_date: '2076-09-06',
         notes: 'auto-inserted by script',
@@ -75,12 +75,12 @@ const forecastedGrants = [
         opportunity_category: 'Discretionary',
         description: '<p>The Indian Health Service is accepting limited competitive grant applications for the Office of Urban Indian Health Programs Title V HIV/AIDS program. </p>',
         eligibility_codes: '11 07 25',
-        funding_activity_category_codes: 'HL ISS',
+        funding_activity_category_codes: 'HL',
         opportunity_status: 'forecasted',
         raw_body_json: {
             opportunity: {
-                id: '333816',
-                number: 'HHS-2021-IHS-TPI-0001',
+                id: '284810',
+                number: 'HHS-2016-IHS-UIHP1-0001',
                 title: 'Office of Urban Indian Health Program - Title V HIV/AIDS',
                 description: '<p>The Indian Health Service is accepting limited competitive grant applications for the Office of Urban Indian Health Programs Title V HIV/AIDS program. </p>',
                 milestones: {
@@ -91,7 +91,7 @@ const forecastedGrants = [
             agency: { code: 'HHS-IHS' },
             award: { ceiling: '500000' },
             cost_sharing_or_matching_requirement: false,
-            cfda_numbers: ['93.382'],
+            cfda_numbers: ['93.193'],
             eligible_applicants: [
                 { code: '11' }, { code: '07' }, { code: '25' },
             ],
@@ -100,10 +100,6 @@ const forecastedGrants = [
                     {
                         name: 'Health',
                         code: 'HL',
-                    },
-                    {
-                        name: 'Income Security and Social Services',
-                        code: 'ISS',
                     },
                 ],
             },
@@ -115,13 +111,13 @@ const forecastedGrants = [
     },
     {
         status: 'inbox',
-        grant_id: '444824',
-        grant_number: 'HHS-2021-IHS-TPI-0001',
-        agency_code: 'HHS-IHS',
+        grant_id: '284793',
+        grant_number: 'TI-16-005',
+        agency_code: 'HHS-SAMHS',
         award_ceiling: '500000',
         cost_sharing: 'No',
         title: 'Cooperative Agreement to Support the Establishment of a Ukraine HIV International Addiction Technology Transfer Center (UHATTC)',
-        cfda_list: '93.382',
+        cfda_list: '93.243',
         open_date: null,
         close_date: null,
         notes: 'auto-inserted by script',
@@ -129,13 +125,13 @@ const forecastedGrants = [
         reviewer_name: 'none',
         opportunity_category: 'Discretionary',
         description: '<p>The purpose of this program is to establish an internationally-based ATTC in Ukraine that primarily builds the capacity and increases the skills and abilities of healthcare providers of the national Ukraine HIV/AIDS program/</p>',
-        eligibility_codes: '11 07 25',
+        eligibility_codes: '25',
         funding_activity_category_codes: 'HL ISS',
         opportunity_status: 'forecasted',
         raw_body_json: {
             opportunity: {
-                id: '333816',
-                number: 'HHS-2021-IHS-TPI-0001',
+                id: '284793',
+                number: 'TI-16-005',
                 title: 'Cooperative Agreement to Support the Establishment of a Ukraine HIV International Addiction Technology Transfer Center (UHATTC)',
                 description: '<p>The purpose of this program is to establish an internationally-based ATTC in Ukraine that primarily builds the capacity and increases the skills and abilities of healthcare providers of the national Ukraine HIV/AIDS program/</p>',
                 milestones: {
@@ -143,12 +139,12 @@ const forecastedGrants = [
                 },
                 category: { code: 'D', name: 'Discretionary' },
             },
-            agency: { code: 'HHS-IHS' },
-            award: { ceiling: '500000' },
+            agency: { code: 'HHS-SAMHS' },
+            award: { ceiling: '250000' },
             cost_sharing_or_matching_requirement: false,
-            cfda_numbers: ['93.382'],
+            cfda_numbers: ['93.243'],
             eligible_applicants: [
-                { code: '11' }, { code: '07' }, { code: '25' },
+                { code: '25' },
             ],
             funding_activity: {
                 categories: [
@@ -170,13 +166,13 @@ const forecastedGrants = [
     },
     {
         status: 'inbox',
-        grant_id: '444836',
-        grant_number: 'HHS-2021-IHS-TPI-0001',
-        agency_code: 'HHS-IHS',
-        award_ceiling: '500000',
+        grant_id: '284769',
+        grant_number: 'PA-FPT-002',
+        agency_code: 'HHS-OPHS',
+        award_ceiling: '4000000',
         cost_sharing: 'No',
         title: 'Anticipated Availability of funds for Title X Family Planning Training Cooperative Agreements',
-        cfda_list: '93.382',
+        cfda_list: '93.260',
         open_date: '2046-08-05',
         close_date: '2046-09-06',
         close_date_explanation: 'Sample text - close_date has valid date',
@@ -186,12 +182,12 @@ const forecastedGrants = [
         opportunity_category: 'Discretionary',
         description: ' <p>The overarching goal of these training and technical assistance projects is to improve reproductive health outcomes for men, women and adolescents by reducing unplanned pregnancies, improving efforts to plan and space pregnancies through counseling, lower the rates of STDs, and improving birth outcomes. <p>',
         eligibility_codes: '11 07 25',
-        funding_activity_category_codes: 'HL ISS',
+        funding_activity_category_codes: 'HL',
         opportunity_status: 'forecasted',
         raw_body_json: {
             opportunity: {
-                id: '333816',
-                number: 'HHS-2021-IHS-TPI-0001',
+                id: '284769',
+                number: 'PA-FPT-002',
                 title: 'Anticipated Availability of funds for Title X Family Planning Training Cooperative Agreements',
                 description: ' <p>The overarching goal of these training and technical assistance projects is to improve reproductive health outcomes for men, women and adolescents by reducing unplanned pregnancies, improving efforts to plan and space pregnancies through counseling, lower the rates of STDs, and improving birth outcomes. <p>',
                 milestones: {
@@ -199,22 +195,18 @@ const forecastedGrants = [
                 },
                 category: { code: 'D', name: 'Discretionary' },
             },
-            agency: { code: 'HHS-IHS' },
-            award: { ceiling: '500000' },
+            agency: { code: 'HHS-OPHS' },
+            award: { ceiling: '4000000' },
             cost_sharing_or_matching_requirement: false,
-            cfda_numbers: ['93.382'],
+            cfda_numbers: ['93.260'],
             eligible_applicants: [
-                { code: '11' }, { code: '07' }, { code: '25' },
+                { code: '00' }, { code: '01' }, { code: '02' },
             ],
             funding_activity: {
                 categories: [
                     {
                         name: 'Health',
                         code: 'HL',
-                    },
-                    {
-                        name: 'Income Security and Social Services',
-                        code: 'ISS',
                     },
                 ],
             },
