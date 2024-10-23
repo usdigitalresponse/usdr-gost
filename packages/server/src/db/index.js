@@ -548,6 +548,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             CASE
             WHEN grants.archive_date <= now() THEN 'archived'
             WHEN grants.close_date <= now() THEN 'closed'
+            WHEN grants.open_date > now() OR grants.opportunity_status = 'forecasted' THEN 'forecasted'
             ELSE 'posted'
             END IN (${Array(filters.opportunityStatuses.length).fill('?').join(',')})`, filters.opportunityStatuses);
     }
@@ -751,6 +752,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             CASE
             WHEN grants.archive_date <= now() THEN 'archived'
             WHEN grants.close_date <= now() THEN 'closed'
+            WHEN grants.open_date > now() OR grants.opportunity_status = 'forecasted' THEN 'forecasted'
             ELSE 'posted'
             END as opportunity_status
         `))
