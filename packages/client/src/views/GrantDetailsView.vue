@@ -103,7 +103,8 @@
                     hover
                   >
                     <template #cell()="data">
-                      <span :class="{ 'text-muted font-weight-normal': data.item.displayMuted }">
+                      <i v-if="data.item.displayEstimatedText">est.&nbsp;</i>
+                      <span :class="{'text-muted font-weight-normal': data.item.displayMuted}">
                         {{ data.value }}
                       </span>
                     </template>
@@ -223,7 +224,8 @@ import GrantActivity from '@/components/GrantActivity.vue';
 
 const HEADER = '__HEADER__';
 const FAR_FUTURE_CLOSE_DATE = '2100-01-01';
-const NOT_AVAILABLE_TEXT = 'Not available';
+const NOT_YET_ISSUED_TEXT = 'Not yet issued';
+const FORECASTED = 'forecasted';
 
 export default {
   components: {
@@ -282,11 +284,13 @@ export default {
         value: this.currentGrant.grant_number,
       }, {
         name: 'Open Date',
-        value: this.formatDate(this.currentGrant.open_date),
+        value: this.openDateDisplay,
+        displayEstimatedText: this.displayEstimatedOpenDateText,
       }, {
         name: 'Close Date',
         value: this.closeDateDisplay,
         displayMuted: this.closeDateDisplayMuted,
+        displayEstimatedText: this.displayEstimatedCloseDateText,
       }, {
         name: 'Grant ID',
         value: this.currentGrant.grant_id,
@@ -314,10 +318,23 @@ export default {
       },
       ];
     },
+    openDateDisplay() {
+      if (!this.currentGrant.open_date || this.currentGrant.open_date === FAR_FUTURE_CLOSE_DATE) {
+        return NOT_YET_ISSUED_TEXT;
+      }
+      if (this.currentGrant.opportunity_status === FORECASTED) {
+        // check for date validity here and in closeDateDisplay
+        return `${this.formatDate(this.currentGrant.open_date)}`;
+      }
+      return this.formatDate(this.currentGrant.open_date);
+    },
     closeDateDisplay() {
       // If we have an explainer text instead of a real close date, display that instead
-      if (this.currentGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
-        return this.currentGrant.close_date_explanation ?? NOT_AVAILABLE_TEXT;
+      if (!this.currentGrant.close_date || this.currentGrant.close_date === FAR_FUTURE_CLOSE_DATE) {
+        return this.currentGrant.close_date_explanation ?? NOT_YET_ISSUED_TEXT;
+      }
+      if (this.currentGrant.opportunity_status === FORECASTED) {
+        return `${this.formatDate(this.currentGrant.close_date)}`;
       }
       return this.formatDate(this.currentGrant.close_date);
     },
@@ -349,6 +366,12 @@ export default {
     followNotesEnabled,
     statusSubmitButtonDisabled() {
       return this.selectedInterestedCode === null;
+    },
+    displayEstimatedCloseDateText() {
+      return this.currentGrant.close_date && this.currentGrant.opportunity_status === 'forecasted';
+    },
+    displayEstimatedOpenDateText() {
+      return this.currentGrant.open_date && this.currentGrant.opportunity_status === 'forecasted';
     },
   },
   watch: {

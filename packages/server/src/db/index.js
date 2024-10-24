@@ -548,6 +548,7 @@ function grantsQuery(queryBuilder, filters, agencyId, orderingParams, pagination
             CASE
             WHEN grants.archive_date <= now() THEN 'archived'
             WHEN grants.close_date <= now() THEN 'closed'
+            WHEN grants.open_date > now() OR grants.opportunity_status = 'forecasted' THEN 'forecasted'
             ELSE 'posted'
             END IN (${Array(filters.opportunityStatuses.length).fill('?').join(',')})`, filters.opportunityStatuses);
     }
@@ -730,6 +731,7 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.cfda_list',
             'grants.open_date',
             'grants.close_date',
+            'grants.close_date_explanation',
             'grants.archive_date',
             'grants.reviewer_name',
             'grants.opportunity_category',
@@ -746,11 +748,13 @@ async function getGrantsNew(filters, paginationParams, orderingParams, tenantId,
             'grants.funding_instrument_codes',
             'grants.bill',
             'grants.funding_activity_category_codes',
+            'grants.opportunity_status',
         ])
         .select(knex.raw(`
             CASE
             WHEN grants.archive_date <= now() THEN 'archived'
             WHEN grants.close_date <= now() THEN 'closed'
+            WHEN grants.open_date > now() OR grants.opportunity_status = 'forecasted' THEN 'forecasted'
             ELSE 'posted'
             END as opportunity_status
         `))
