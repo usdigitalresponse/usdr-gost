@@ -96,6 +96,7 @@
                 </p>
               &nbsp;
                 <p>
+                  <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
                   <a
                     class="link"
                     @click="initEditSearch(searchId);"
