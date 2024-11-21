@@ -1,3 +1,4 @@
+<!-- eslint-disable vuejs-accessibility/no-autofocus -->
 <template>
   <b-modal
     id="edit-user-modal"

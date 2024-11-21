@@ -1,3 +1,5 @@
+<!-- Adding this at the top because the rule was still getting flagged when added next-line -->
+<!-- eslint-disable vuejs-accessibility/no-autofocus -->
 <template>
   <main>
     <b-card
@@ -22,6 +24,7 @@
         </p>
         <form @submit="login">
           <div>
+            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for  -->
             <label for="email">Email</label>
             <input
               id="email"

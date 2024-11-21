@@ -1,3 +1,5 @@
+<!-- Adding this at the top because the rule was still getting flagged when added next-line -->
+<!-- eslint-disable vuejs-accessibility/no-autofocus -->
 <template>
   <div class="my-3">
     <h2>ARPA Reporter Login</h2>

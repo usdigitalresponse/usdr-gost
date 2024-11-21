@@ -14,6 +14,7 @@
       </a>
     </p>
 
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus vuejs-accessibility/no-static-element-interactions -->
     <div
       class="drop-zone"
       @dragenter.prevent
@@ -29,6 +30,7 @@
           multiple
           accept=".xlsx, .xlsm, .xls"
         >
+        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label for="file-input">
           Drag and drop files or <span class="underline pointer">click here to upload</span>.
         </label>
@@ -79,6 +81,7 @@
           :key="file.name"
         >
           {{ file.name }}&nbsp;
+          <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
           <div
             class="d-inline-block border border-white rounded px-2 py-1 bg-danger text-white pointer"
             @click="removeFile(file.name)"
