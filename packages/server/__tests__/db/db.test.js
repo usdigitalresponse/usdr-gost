@@ -435,7 +435,7 @@ describe('db', () => {
         });
         it('gets grants with agency codes', async () => {
             const result = await db.getGrantsNew(
-                { agencyCode: 'HHS' },
+                { agencyCode: 'HHS', opportunityStatuses: ['posted', 'closed'] },
                 { currentPage: 1, perPage: 10, isLengthAware: true },
                 { orderBy: 'open_date', orderDesc: 'true' },
                 fixtures.tenants.SBA.id,
@@ -460,7 +460,7 @@ describe('db', () => {
         });
         it('gets grants that either have or do not have cost sharing', async () => {
             const result = await db.getGrantsNew(
-                { costSharing: 'Yes' },
+                { costSharing: 'Yes', opportunityStatuses: ['posted', 'closed'] },
                 { currentPage: 1, perPage: 10, isLengthAware: true },
                 { orderBy: 'open_date', orderDesc: 'true' },
                 fixtures.tenants.SBA.id,
@@ -471,7 +471,7 @@ describe('db', () => {
             expect(result.pagination.lastPage).to.equal(0);
 
             const result2 = await db.getGrantsNew(
-                { costSharing: 'No' },
+                { costSharing: 'No', opportunityStatuses: ['posted', 'closed'] },
                 { currentPage: 1, perPage: 3, isLengthAware: true },
                 { orderBy: 'open_date', orderDesc: 'true' },
                 fixtures.tenants.SBA.id,
@@ -483,7 +483,7 @@ describe('db', () => {
         });
         it('gets grants with a specific opportunity categories', async () => {
             const result = await db.getGrantsNew(
-                { opportunityCategories: ['Mandatory', 'Continuation'] },
+                { opportunityCategories: ['Mandatory', 'Continuation'], opportunityStatuses: ['posted', 'closed'] },
                 { currentPage: 1, perPage: 10, isLengthAware: true },
                 { orderBy: 'open_date', orderDesc: 'true' },
                 fixtures.tenants.SBA.id,
@@ -494,7 +494,7 @@ describe('db', () => {
             expect(result.pagination.lastPage).to.equal(0);
 
             const result2 = await db.getGrantsNew(
-                { opportunityCategories: ['Discretionary', 'Other'] },
+                { opportunityCategories: ['Discretionary', 'Other'], opportunityStatuses: ['posted', 'closed'] },
                 { currentPage: 1, perPage: 4, isLengthAware: true },
                 { orderBy: 'open_date', orderDesc: 'true' },
                 fixtures.tenants.SBA.id,
@@ -533,7 +533,7 @@ describe('db', () => {
         });
         it('gets grants that have any of the eligibility codes', async () => {
             const result = await db.getGrantsNew(
-                { eligibilityCodes: ['11', '07'] },
+                { eligibilityCodes: ['11', '07'], opportunityStatuses: ['posted', 'closed'] },
                 { currentPage: 1, perPage: 10, isLengthAware: true },
                 { orderBy: 'open_date', orderDesc: 'true' },
                 fixtures.tenants.SBA.id,
@@ -612,6 +612,7 @@ describe('db', () => {
             let result = await db.getGrantsNew(
                 {
                     includeKeywords: ['community', 'health'],
+                    opportunityStatuses: ['posted', 'closed'],
                 },
                 { currentPage: 1, perPage: 10, isLengthAware: true },
                 { orderBy: 'open_date', orderDesc: true },
@@ -626,6 +627,7 @@ describe('db', () => {
                 {
                     includeKeywords: ['community', 'health'],
                     excludeKeywords: ['covid'],
+                    opportunityStatuses: ['posted', 'closed'],
                 },
                 { currentPage: 1, perPage: 10, isLengthAware: true },
                 { orderBy: 'open_date', orderDesc: true },
@@ -646,7 +648,7 @@ describe('db', () => {
         });
         it('check award_ceiling ordering is correct for blank and zero award ceiling desc', async () => {
             const result = await db.getGrantsNew(
-                { agencyCode: 'HHS' },
+                { agencyCode: 'HHS', opportunityStatuses: ['posted', 'closed'] },
                 { currentPage: 1, perPage: 10, isLengthAware: true },
                 { orderBy: 'award_ceiling', orderDesc: 'true' },
                 fixtures.tenants.SBA.id,
@@ -658,7 +660,7 @@ describe('db', () => {
         });
         it('check award_ceiling ordering is correct for blank and zero award ceiling asc', async () => {
             const result = await db.getGrantsNew(
-                { agencyCode: 'HHS' },
+                { agencyCode: 'HHS', opportunityStatuses: ['posted', 'closed'] },
                 { currentPage: 1, perPage: 10, isLengthAware: true },
                 { orderBy: 'award_ceiling', orderDesc: 'false' },
                 fixtures.tenants.SBA.id,
@@ -1117,6 +1119,25 @@ describe('db', () => {
             const usdrUserViewedRecord = viewedRecords.find((record) => record.user_id === fixtures.users.usdrUser.id);
             expect(subStaffUserViewedRecord.updated_at.getTime()).to.equal(new Date('2024-01-01').getTime());
             expect(usdrUserViewedRecord.updated_at.getTime()).to.equal(new Date('2024-01-01').getTime());
+        });
+    });
+
+    context('forecasted grants', () => {
+        it('gets grants with opportunity forecasted', async () => {
+            const result = await db.getGrants({
+                tenantId: fixtures.users.staffUser.tenant_id,
+                filters: {
+                    opportunityStatuses: ['forecasted'],
+                },
+                perPage: 50,
+                currentPage: 1,
+            });
+
+            expect(result).to.have.property('data').with.lengthOf(4);
+            expect(result.data[0].close_date).to.be.null;
+            expect(result.data[0].close_date_explanation).to.equal('Sample text for null close_date');
+            expect(result.data[2].close_date).to.be.null;
+            expect(result.data[2].open_date).to.be.null;
         });
     });
 });
