@@ -1,6 +1,5 @@
 const tracer = require('dd-trace');
 const { getUser, inTenant } = require('../db');
-const { log } = require('./logging');
 
 const USDR_TENANT_ID = 1;
 const USDR_AGENCY_ID = 0;
@@ -150,7 +149,7 @@ async function isMicrosoftSafeLinksRequest(req, res, next) {
     const userAgent = req.headers['user-agent'] || '';
     const nativeHost = req.headers['x-native-host'] || '';
     if (userAgent.toLowerCase().includes('oneoutlook') || nativeHost.toLowerCase().includes('oneoutlook')) {
-        log.info({
+        req.log.info({
             'user-agent': userAgent,
             'native-host': nativeHost,
             headers: Object.keys(req.headers),
