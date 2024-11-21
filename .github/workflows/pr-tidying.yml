@@ -29,7 +29,7 @@ jobs:
     env:
       DEFAULT_ASSIGNEE: ${{ github.actor }}
     steps:
-      - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
         with:
           disable-sudo: true
           egress-policy: audit
@@ -76,7 +76,7 @@ jobs:
       check-passed: ${{ steps.check.outputs.result == 'passed' }}
       fixed: ${{ steps.fix.outputs.result == 'fixed' }}
     steps:
-      - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
         with:
           disable-sudo: true
           egress-policy: audit
@@ -148,7 +148,7 @@ jobs:
       - issue-in-title
     runs-on: ubuntu-latest
     steps:
-      - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
         with:
           disable-sudo: true
           egress-policy: audit
