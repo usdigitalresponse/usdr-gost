@@ -4530,9 +4530,9 @@ dc-polyfill@^0.1.4:
   integrity sha512-UV33cugmCC49a5uWAApM+6Ev9ZdvIUMTrtCO9fj96TPGOQiea54oeO3tiEVdVeo3J9N2UdJEmbS4zOkkEA35uQ==
 
 dd-trace@^4.11.1:
-  version "4.50.0"
-  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.50.0.tgz#bddd46fba44414fcb199d7c76f406d885fc17a8c"
-  integrity sha512-3aEM4aEE4hqaG2gbcn6z/+YZ+pggBZYcZ7FOjh77KOoelShjRW1FlQ+mLs2Y8X5m03xqWY1Uv20yy9QkUNBKnQ==
+  version "4.51.0"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.51.0.tgz#e563076ebb345e046a2c6a90b800c31d63d22b6b"
+  integrity sha512-Jb2V7W8mEQAgwhCkOPXAW3bNkhLj2kyYEH13NdaFMsVTG9U1ak3m3rnsoabXQkMtBNaVLso1zt0kNo0hNZTYtA==
   dependencies:
     "@datadog/libdatadog" "^0.2.2"
     "@datadog/native-appsec" "8.3.0"
