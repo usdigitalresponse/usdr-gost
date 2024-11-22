@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Sub-recipients</h2>
+    <h1>Sub-recipients</h1>
 
     <div
       v-if="loading"

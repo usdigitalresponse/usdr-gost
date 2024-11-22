@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Validation</h2>
+    <h1>Validation</h1>
 
     <div class="row">
       <div class="col">
