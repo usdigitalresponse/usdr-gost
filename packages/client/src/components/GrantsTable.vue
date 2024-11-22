@@ -298,9 +298,9 @@ export default {
           : grant.viewed_by_agencies
             .map((v) => v.agency_abbreviation)
             .join(', '),
-        followed_by_agencies: grant.followed_by_agencies
+        followed_by_agencies: grant.followed_by_agencies && followNotesEnabled() ? grant.followed_by_agencies
           .map((v) => v.agency_name)
-          .join(', '),
+          .join(', ') : [],
         status: grant.opportunity_status,
         award_ceiling: grant.award_ceiling,
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
