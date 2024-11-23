@@ -1,22 +1,123 @@
-// override theme variables here
+/**
+ * custom.scss
+ * 
+ * Theme definition file, based on USDR style guide.
+ * Imports sub-files:
+ * - ./fonts.scss
+ * - ./colors-semantic-tokens.scss
+ *   - ./colors-base-tokens.scss
+ *
+ * Please refer to USDR style guide definition in Figma:
+ *   https://www.figma.com/file/HWu4iIjcoX2txuN543qzIB/USDR-Design-System?type=design&node-id=8%3A2&mode=design&t=8mml86X91f9FzVAE-1
+ */
 
+// IMPORT USDR DESIGN SYSTEM SEMANTIC TOKENS
+@import './colors-semantic-tokens.scss';
+
+// LIGHT THEME (SEMANTIC TOKEN) DEFINITION - SASS MAP
 $theme-colors: (
-  "primary": #1565c0,
-  "secondary": #607d8b,
+  ) !default;
+$theme-colors: map-merge(( // DEFAULT BOOTSTRAP COLORS
+      "blue": #007bff,
+      "indigo": #6610f2,
+      "purple": #6f42c1,
+      "pink": #e83e8c,
+      "red": #dc3545,
+      "orange": #fd7e14,
+      "yellow": #ffc107,
+      "green": #28a745,
+      "teal": #20c997,
+      "cyan": #17a2b8,
+      "white": #fff,
+      "gray": #6c757d,
+      "gray-dark": #343a40,
+
+      // USDR BRAND COLORS
+      "primary": $usdr-brand-primary,
+      "secondary": $usdr-brand-secondary,
+      "success": $positive-default,
+      "info": $info-default,
+      "warning": $warning-default,
+      "danger": $negative-default,
+      "light": $raw-gray-100,
+      "dark": $raw-gray-800,
+    ),
+    $theme-colors
 );
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
-
 
 @import 'bootstrap/scss/bootstrap.scss';
 @import 'bootstrap-vue/src/index.scss';
 @import 'vue-select/src/scss/vue-select.scss';
-// @import '@braid/vue-formulate/themes/snow/snow.scss';
 
+// SET USDR FONTS
+@import './fonts.scss';
 
-/* NOTE: This file was copied from scss/index.scss (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z */
+/* Dropshadow for the header */
+.header-dropshadow {
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Card with dropshadow - used on login screen */
+.dropshadow-card {
+  box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0px 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #DFE1E6, 1px solid white;
+  border-radius: 16px;
+}
+
+hr {
+  border-color: $border;
+}
+
+/* Dashboard colors */
+.color-gray {
+  color: $text-placeholder;
+}
+
+.color-yellow {
+  color: $warning-default;
+}
+
+.color-red {
+  color: $negative-default;
+}
+
+.color-green {
+  color: $positive-default;
+}
+
+.usdr-tab-nav-link {
+  color: #305CE0;
+}
+
+.usdr-nav-link {
+  color: rgba(0,0,0);
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.usdr-navbar-text {
+  color: rgba(0,0,0)
+}
+
+.btn.usdr-btn-primary,
+.btn-usdr-btn-primary:hover {
+  color: #ffff;
+  background-color: $usdr-brand-primary;
+  border-color: $usdr-brand-primary;
+}
+
+.btn.usdr-btn-info,
+.btn.usdr-btn-info:hover {
+  color: #ffffff;
+  background-color: #045D6A;
+  border-color: #045D6A;
+}
+
+/* Allows truncation (text-truncate) for flex items */
+.has-flexi-truncate {
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 0%;
+  flex: 1 1 0%;
+  min-width: 0;
+}

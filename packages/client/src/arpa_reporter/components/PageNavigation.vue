@@ -14,7 +14,7 @@
 
       <span
         v-if="viewPeriod"
-        class="navbar-text"
+        class="usdr-navbar-text"
       >Reporting Period Ending:</span>
 
       <div
@@ -54,7 +54,7 @@
           </li>
         </ul>
 
-        <span class="navbar-text">{{ email }}</span>
+        <span class="usdr-navbar-text">{{ email }}</span>
 
         <ul class="navbar-nav">
           <li
@@ -63,7 +63,7 @@
           >
             <a
               href="#"
-              class="nav-link"
+              class="usdr-nav-link"
               @click="logout"
             >Logout</a>
           </li>
@@ -222,9 +222,9 @@ export default {
     },
     navLinkClass(to) {
       if (this.$route.path === to) {
-        return 'nav-link active';
+        return 'nav-link usdr-tab-nav-link active';
       }
-      return 'nav-link';
+      return 'nav-link usdr-tab-nav-link';
     },
     dateFormat(d) {
       return moment(d)
