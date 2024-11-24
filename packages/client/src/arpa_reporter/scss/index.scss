@@ -101,7 +101,7 @@ hr {
 }
 
 .btn.usdr-btn-primary,
-.btn-usdr-btn-primary:hover {
+.btn.usdr-btn-primary:hover {
   color: #ffff;
   background-color: $usdr-brand-primary;
   border-color: $usdr-brand-primary;
@@ -110,8 +110,8 @@ hr {
 .btn.usdr-btn-info,
 .btn.usdr-btn-info:hover {
   color: #ffffff;
-  background-color: #045D6A;
-  border-color: #045D6A;
+  background-color: #008299;
+  border-color: #008299;
 }
 
 /* Allows truncation (text-truncate) for flex items */
