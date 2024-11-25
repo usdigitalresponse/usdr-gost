@@ -128,6 +128,12 @@ autolabeler:
     files:
       - '.github/**'
       - '**/.gitignore'
+  - label: accessibility
+    branch:
+      - '/^accessibility\/.+$/i'
+      - '/^a11y\/.+$/i'
+    title:
+      - '/\ba11y\b/i'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&'
 no-contributors-template: >-
