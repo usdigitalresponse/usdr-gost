@@ -55,6 +55,10 @@ jobs:
         with:
           languages: javascript-typescript
           queries: security-extended,security-and-quality
+          config: |
+            query-filters:
+              - exclude:
+                  id: js/missing-rate-limiting  # We manage this in our infra
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@8e0b1c74b1d5a0077b04d064c76ee714d3da7637 # v2.14.6
         with:
@@ -79,4 +83,4 @@ jobs:
           show-progress: 'false'
           persist-credentials: 'false'
       - name: Ensure GitHub action versions are pinned to SHAs
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@38608ef4fb69adae7f1eac6eeb88e67b7d083bfd # v3.0.16
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@5d6ac37a4cef8b8df67f482a8e384987766f0213 # v3.0.17
