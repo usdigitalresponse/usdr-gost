@@ -30,6 +30,9 @@ updates:
       timezone: "America/New_York"
     commit-message:
       prefix: 'Chore [deps:terraform]'
+    ignore:
+      - dependency-name: cloudposse/*
+      - dependency-name: terraform-aws-modules/*
   # Dependabot can't inspect nested directories so we need to list all local modules individually.
   # TODO: Consider switching to Rennovate.
   - package-ecosystem: "terraform"
@@ -40,6 +43,9 @@ updates:
       timezone: "America/New_York"
     commit-message:
       prefix: 'Chore [deps:terraform]'
+    ignore:
+      - dependency-name: cloudposse/*
+      - dependency-name: terraform-aws-modules/*
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_consume_grants"
     schedule:
@@ -48,6 +54,9 @@ updates:
       timezone: "America/New_York"
     commit-message:
       prefix: 'Chore [deps:terraform]'
+    ignore:
+      - dependency-name: cloudposse/*
+      - dependency-name: terraform-aws-modules/*
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_website"
     schedule:
@@ -56,6 +65,9 @@ updates:
       timezone: "America/New_York"
     commit-message:
       prefix: 'Chore [deps:terraform]'
+    ignore:
+      - dependency-name: cloudposse/*
+      - dependency-name: terraform-aws-modules/*
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/gost_postgres"
     schedule:
@@ -64,6 +76,9 @@ updates:
       timezone: "America/New_York"
     commit-message:
       prefix: 'Chore [deps:terraform]'
+    ignore:
+      - dependency-name: cloudposse/*
+      - dependency-name: terraform-aws-modules/*
   - package-ecosystem: "terraform"
     directory: "/terraform/modules/scheduled_ecs_task"
     schedule:
