@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Subrecipient {{ recipientId }}</h2>
+    <h1>Subrecipient {{ recipientId }}</h1>
 
     <div
       v-if="!recipient"

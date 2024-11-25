@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Uploads</h2>
+    <h1>Uploads</h1>
 
     <div class="row mb-4">
       <div class="col">

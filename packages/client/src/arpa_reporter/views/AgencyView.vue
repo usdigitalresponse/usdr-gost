@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Agency</h2>
+    <h1>Agency</h1>
 
     <div
       v-if="agency === null"

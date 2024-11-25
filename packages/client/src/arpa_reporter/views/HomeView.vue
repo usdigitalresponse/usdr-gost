@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1>Dashboard</h1>
     <div class="row">
       <AlertBox
         v-if="alert"
@@ -31,7 +32,7 @@
       >
         <button
           id="sendTreasuryReportButton"
-          class="btn btn-primary btn-block"
+          class="btn usdr-btn-primary btn-block"
           :disabled="sending"
           @click="sendTreasuryReport"
         >
@@ -46,7 +47,7 @@
       >
         <button
           id="sendAuditReportButton"
-          class="btn btn-info btn-block"
+          class="btn usdr-btn-info btn-block"
           :disabled="sending"
           @click="sendAuditReport"
         >
@@ -61,7 +62,7 @@
       >
         <button
           id="submitWorkbookButton"
-          class="btn btn-primary btn-block"
+          class="btn usdr-btn-primary btn-block"
           :disabled="!viewingOpenPeriod"
           @click.prevent="startUpload"
         >
