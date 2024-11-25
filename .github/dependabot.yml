@@ -44,6 +44,7 @@ updates:
     commit-message:
       prefix: 'Chore [deps:terraform]'
     ignore:
+      # These should be un-ignored if/when the Terraform AWS provider is updated to a more recent version
       - dependency-name: cloudposse/*
       - dependency-name: terraform-aws-modules/*
   - package-ecosystem: "terraform"
