@@ -55,6 +55,10 @@ jobs:
         with:
           languages: javascript-typescript
           queries: security-extended,security-and-quality
+          config: |
+            query-filters:
+              - exclude:
+                  id: js/missing-rate-limiting  # We manage this in our infra
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@8e0b1c74b1d5a0077b04d064c76ee714d3da7637 # v2.14.6
         with:
