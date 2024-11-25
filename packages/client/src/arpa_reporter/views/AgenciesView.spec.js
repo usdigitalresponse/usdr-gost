@@ -28,6 +28,8 @@ describe('AgenciesView.vue', () => {
     const r = wrapper.find('tbody');
     expect(r.text()).toContain('Agency 1');
     expect(r.text()).toContain('Agency 2');
+    const header = wrapper.find('h1');
+    expect(header.text()).toContain('Agencies');
   });
 });
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Users</h2>
+    <h1>Users</h1>
     <div class="mb-4">
       <router-link
         to="/users/new"

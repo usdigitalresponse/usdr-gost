@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Reporting Periods</h2>
+    <h1>Reporting Periods</h1>
 
     <div class="mb-4">
       <router-link

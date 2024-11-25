@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Reporting Period</h2>
+    <h1>Reporting Period</h1>
 
     <div
       v-if="reportingPeriod === null"
