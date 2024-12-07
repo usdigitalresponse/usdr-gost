@@ -40,16 +40,14 @@
               class="dropdown-menu"
               aria-labelledby="periodDropdown"
             >
-              <a
+              <button
                 v-for="period in viewablePeriods"
                 :key="period.id"
                 class="dropdown-item"
+                @click="() => setViewPeriodID(period.id)"
               >
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-                <div @click="() => setViewPeriodID(period.id)">
-                  {{ period.name }}
-                </div>
-              </a>
+                {{ period.name }}
+              </button>
             </div>
           </li>
         </ul>
