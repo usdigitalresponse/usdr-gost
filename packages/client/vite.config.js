@@ -57,6 +57,7 @@ export default defineConfig({
     sourcemap: true,
   },
   test: {
+    exclude: ['**/*.browser.spec.{js,jsx}'],
     setupFiles: ['vitest.setup.ts'],
     alias: {
       vue: 'vue',
@@ -65,6 +66,12 @@ export default defineConfig({
     coverage: {
       provider: 'istanbul',
       include: ['src/**'],
+      pool: 'vmThreads',
+      poolOptions: {
+        vmThreads: {
+          useAtomics: true,
+        },
+      },
       reporter: [
         ['text', { file: process.env.CI ? 'coverage.txt' : null }], // Direct to file in CI; direct to stdout otherwise
         'html',
