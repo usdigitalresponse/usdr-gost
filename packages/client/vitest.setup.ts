@@ -1,4 +1,8 @@
 import { config } from '@vue/test-utils';
+import * as matchers from '@testing-library/jest-dom/matchers';
+import { expect } from 'vitest';
+
+expect.extend(matchers);
 
 const stubs = [
   'v-select',
