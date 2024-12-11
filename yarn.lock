@@ -1426,25 +1426,25 @@
     debug "^3.1.0"
     lodash.once "^4.1.1"
 
-"@datadog/browser-core@5.32.0":
-  version "5.32.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.32.0.tgz#2b13051588db0b6f5616f7f28d59df4ff527ebec"
-  integrity sha512-+RnQZRda/XwjP2v8TZHIIbZItS1xlRYVs7OmueaA+/MItj0DiL8hZ4uIj7eLsNUXGS0qsiGHXWkaBZE2HfWuvQ==
+"@datadog/browser-core@5.33.0":
+  version "5.33.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-5.33.0.tgz#0afa51758645d9453b0aa89f71e675a6dc11660e"
+  integrity sha512-JsYGgp4FMN2gzjaeayd4VQK9kx7bsPYOXbzFTe1XtbKiIjhYnG3nmG0/HHl7kIPQgqZ5Z2DFxj3r39YK2F2V6Q==
 
-"@datadog/browser-rum-core@5.32.0":
-  version "5.32.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.32.0.tgz#2c0aac18e80668fe70f70c9e367939ee36c83f3e"
-  integrity sha512-SJb8Qmixc82+m613kR3aO31qOD+EhbVY8eMEJ8hYMs1r0LrWGbmEWFWmA86239W5pD4QyRy9ruvs5O/I0S6c1A==
+"@datadog/browser-rum-core@5.33.0":
+  version "5.33.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-5.33.0.tgz#7a9188fdcf484e1c2b8c9d15adae4063e4e55c48"
+  integrity sha512-s0G8xYQtJ7lbDiHKa3dTzq2RDBxr6EWReu7cZuKR7Pa5YiH7nhQORry8VGviKWNR0/KSs5LWQfNC0LsFH/DFng==
   dependencies:
-    "@datadog/browser-core" "5.32.0"
+    "@datadog/browser-core" "5.33.0"
 
 "@datadog/browser-rum@^5.5.0":
-  version "5.32.0"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.32.0.tgz#676690d74c1c9b42fd573695e4ffd73f5535387c"
-  integrity sha512-Okiu/zTV/sgglGsMAtznqcoy+iwXDjGQ3PkHwZw2jAY/clDcoLbaOPGXeIHXh15E/zk8YALHkC/RW58DFv29lg==
+  version "5.33.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-5.33.0.tgz#18554d3d530c4d5730b571219ab178112fd82d47"
+  integrity sha512-mbqw7wUti0GK+N8zZqFnGJ28XP0Lt2FAdoK31DJClUfgOAxZ0z8RVaPL+2nEABEpYEXkS6+V25UxRAXPjfyzsA==
   dependencies:
-    "@datadog/browser-core" "5.32.0"
-    "@datadog/browser-rum-core" "5.32.0"
+    "@datadog/browser-core" "5.33.0"
+    "@datadog/browser-rum-core" "5.33.0"
 
 "@datadog/libdatadog@^0.2.2":
   version "0.2.2"
