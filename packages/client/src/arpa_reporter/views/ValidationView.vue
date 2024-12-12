@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Validation</h2>
+    <h1>Validation</h1>
 
     <div class="row">
       <div class="col">
@@ -18,6 +18,7 @@
             class="form-check-input"
             type="checkbox"
           >
+          <!-- eslint-disable-next-line vuejs-accessibility/label-has-for  -->
           <label
             class="form-check-label"
             for="commitRevalidate"

@@ -96,6 +96,7 @@
                 </p>
               &nbsp;
                 <p>
+                  <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
                   <a
                     class="link"
                     @click="initEditSearch(searchId);"
@@ -147,7 +148,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { datadogRum } from '@datadog/browser-rum';
-import { newTerminologyEnabled, newGrantsDetailPageEnabled } from '@/helpers/featureFlags';
+import { newTerminologyEnabled, newGrantsDetailPageEnabled, followNotesEnabled } from '@/helpers/featureFlags';
 import { titleize } from '@/helpers/form-helpers';
 import { daysUntil } from '@/helpers/dates';
 import { defaultCloseDateThresholds } from '@/helpers/constants';
@@ -174,6 +175,10 @@ export default {
       type: String,
       default: undefined,
     },
+    showFollowedByAgency: {
+      type: String,
+      default: undefined,
+    },
     showSearchControls: {
       type: Boolean,
       default: true,
@@ -196,8 +201,9 @@ export default {
           key: 'viewed_by',
         },
         {
-          key: 'interested_agencies',
-          label: `Interested ${newTerminologyEnabled() ? 'Teams' : 'Agencies'}`,
+          key: `${followNotesEnabled() ? 'followed_by_agencies' : 'interested_agencies'}`,
+          // eslint-disable-next-line no-nested-ternary -- can clean up once we remove newTerminologyEnabled feature flag
+          label: `${followNotesEnabled() ? 'Followed by' : newTerminologyEnabled() ? 'Interested Teams' : 'Interested Agencies'}`,
         },
         {
           // opportunity_status
@@ -285,9 +291,16 @@ export default {
         interested_agencies: grant.interested_agencies
           .map((v) => v.agency_abbreviation)
           .join(', '),
-        viewed_by: grant.viewed_by_agencies
-          .map((v) => v.agency_abbreviation)
-          .join(', '),
+        viewed_by: followNotesEnabled()
+          ? grant.viewed_by_agencies
+            .map((v) => v.agency_name)
+            .join(', ')
+          : grant.viewed_by_agencies
+            .map((v) => v.agency_abbreviation)
+            .join(', '),
+        followed_by_agencies: grant.followed_by_agencies && followNotesEnabled() ? grant.followed_by_agencies
+          .map((v) => v.agency_name)
+          .join(', ') : [],
         status: grant.opportunity_status,
         award_ceiling: grant.award_ceiling,
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
@@ -309,6 +322,12 @@ export default {
     },
     newGrantsDetailPageEnabled() {
       return newGrantsDetailPageEnabled();
+    },
+    followedByColumnTitle() {
+      if (followNotesEnabled()) {
+        return 'Followed by';
+      }
+      return `Interested ${newTerminologyEnabled() ? 'Teams' : 'Agencies'}`;
     },
   },
   watch: {
@@ -432,6 +451,7 @@ export default {
               `${this.showResult ? 'Applied' : ''}`,
               `${this.showRejected ? 'Not Applying' : ''}`,
               `${this.showAssignedToAgency ? 'Assigned' : ''}`,
+              `${this.showFollowedByAgency ? 'Followed' : ''}`,
             ].filter((r) => r),
           });
         }
@@ -444,6 +464,7 @@ export default {
           showResult: this.showResult,
           showRejected: this.showRejected,
           assignedToAgency: this.showAssignedToAgency,
+          followedByAgency: this.showFollowedByAgency,
         });
         // Clamp currentPage to valid range
         const clampedPage = Math.max(Math.min(this.currentPage, this.lastPage), 1);
@@ -549,6 +570,7 @@ export default {
         showResult: this.showResult,
         showRejected: this.showRejected,
         assignedToAgency: this.showAssignedToAgency,
+        followedByAgency: this.showFollowedByAgency,
       });
     },
   },

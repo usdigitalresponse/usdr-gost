@@ -1,0 +1,61 @@
+/**
+ * fonts.scss
+ *
+ * Set font styles across GOST frontend.
+ */
+
+// IMPORT FONTS FROM GOOGLE FONTS:
+// INTER MEDIUM 500 (BODY FONT)
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap');
+
+// SET BODY FONTS TO INTER
+body {
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 150%;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+// Setting the same styles for heading elements and heading classes so there's flexibility in separating semantic headings from visual heading style
+h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
+  font-weight: 700;
+  line-height: 120%;
+}
+
+h1, .h1 { // called 'headingXL' in USDR Design System
+  font-size: 2.375rem; // 38px
+}
+
+h2, .h2 { // 'headingLarge'
+  font-size: 1.875rem; // 30px
+}
+
+h3, .h3 { // 'headingMedium'
+  font-size: 1.25rem;
+}
+
+h4, .h4 { // 'headingSmall'
+  font-size: 1rem;
+}
+
+h5, .h5, p { // 'headingXS' and 'body'
+  font-size: 0.875rem; // 14px
+}
+
+h6, .h6, .caption { // 'caption'
+  font-size: 0.8125rem; // 13px
+}
+
+// SET BODY FONTS TO INTER
+body {
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 150%;
+  font-weight: 500;
+}
+
+/* Bold text of active tabs and grant detail labels */
+.nav-tabs .nav-link.active, .data-label {
+  font-weight: 700;
+}

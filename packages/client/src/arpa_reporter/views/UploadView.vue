@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1>Uploads</h1>
     <div class="row">
       <AlertBox
         v-if="alert"

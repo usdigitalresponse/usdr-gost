@@ -53,7 +53,7 @@ function criteriaToFiltersObj(criteria, agencyId) {
     };
 
     return {
-        reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned').map((r) => r.trim()) || [],
+        reviewStatuses: filters.reviewStatus?.split(',').filter((r) => r !== 'Assigned' && r !== 'Followed').map((r) => r.trim()) || [],
         eligibilityCodes: filters.eligibility?.split(',') || [],
         fundingActivityCategories: filters.fundingActivityCategories?.split(',') || [],
         includeKeywords: filters.includeKeywords?.split(',').map((k) => k.trim()) || [],
@@ -66,6 +66,7 @@ function criteriaToFiltersObj(criteria, agencyId) {
         agencyCode: filters.agency || '',
         postedWithinDays: postedWithinOptions[filters.postedWithin] || 0,
         assignedToAgencyId: filters.reviewStatus?.includes('Assigned') ? agencyId : null,
+        followedByAgencyId: filters.reviewStatus?.includes('Followed') ? agencyId : null,
         bill: filters.bill || null,
     };
 }
@@ -85,6 +86,7 @@ router.get('/next', requireUser, async (req, res) => {
     } catch {
         return res.status(400).send('Invalid pagination parameters');
     }
+
     const grants = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         paginationParams,
@@ -118,6 +120,7 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
     } catch {
         return res.status(400).send('Invalid ordering parameter');
     }
+
     const { data, pagination } = await db.getGrantsNew(
         criteriaToFiltersObj(req.query.criteria, user.agency_id),
         await db.buildPaginationParams({
@@ -137,8 +140,15 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
         interested_agencies: grant.interested_agencies
             .map((v) => v.agency_abbreviation)
             .join(', '),
-        viewed_by: grant.viewed_by_agencies
-            .map((v) => v.agency_abbreviation)
+        viewed_by: process.env.ENABLE_FOLLOW_NOTES === 'true'
+            ? grant.viewed_by_agencies
+                .map((v) => v.agency_name)
+                .join(', ')
+            : grant.viewed_by_agencies
+                .map((v) => v.agency_abbreviation)
+                .join(', '),
+        followed_by_agencies: grant.followed_by_agencies
+            .map((v) => v.agency_name)
             .join(', '),
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
@@ -156,13 +166,16 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
         });
     }
 
+    const interestedHeader = process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies';
+    const followed_by_column = process.env.ENABLE_FOLLOW_NOTES === 'true' ? { key: 'followed_by_agencies', header: 'Followed By' } : { key: 'interested_agencies', header: interestedHeader };
+
     const csv = csvStringify(formattedData, {
         header: true,
         columns: [
             { key: 'grant_number', header: 'Opportunity Number' },
             { key: 'title', header: 'Title' },
             { key: 'viewed_by', header: 'Viewed By' },
-            { key: 'interested_agencies', header: process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies' },
+            followed_by_column,
             { key: 'opportunity_status', header: 'Opportunity Status' },
             { key: 'opportunity_category', header: 'Opportunity Category' },
             { key: 'cost_sharing', header: 'Cost Sharing' },

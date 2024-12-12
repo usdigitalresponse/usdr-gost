@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Agencies</h2>
+    <h1>Agencies</h1>
 
     <div class="mb-4">
       <router-link

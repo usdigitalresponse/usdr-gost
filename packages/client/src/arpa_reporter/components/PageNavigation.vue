@@ -14,7 +14,7 @@
 
       <span
         v-if="viewPeriod"
-        class="navbar-text"
+        class="usdr-navbar-text"
       >Reporting Period Ending:</span>
 
       <div
@@ -45,6 +45,7 @@
                 :key="period.id"
                 class="dropdown-item"
               >
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
                 <div @click="() => setViewPeriodID(period.id)">
                   {{ period.name }}
                 </div>
@@ -53,7 +54,7 @@
           </li>
         </ul>
 
-        <span class="navbar-text">{{ email }}</span>
+        <span class="usdr-navbar-text">{{ email }}</span>
 
         <ul class="navbar-nav">
           <li
@@ -62,105 +63,106 @@
           >
             <a
               href="#"
-              class="nav-link"
+              class="usdr-nav-link"
               @click="logout"
             >Logout</a>
           </li>
         </ul>
       </div>
     </nav>
-
-    <ul
-      v-if="loggedIn"
-      class="row nav nav-tabs mb-2"
-    >
-      <li class="nav-item">
-        <router-link
-          :class="navLinkClass('/')"
-          to="/"
-        >
-          Dashboard
-        </router-link>
-      </li>
-
-      <li class="nav-item">
-        <router-link
-          :class="navLinkClass('/uploads')"
-          to="/uploads"
-        >
-          Uploads
-        </router-link>
-      </li>
-
-      <li
-        v-if="role === 'admin'"
-        class="nav-item"
+    <main>
+      <ul
+        v-if="loggedIn"
+        class="row nav nav-tabs mb-2"
       >
-        <router-link
-          :class="navLinkClass('/agencies')"
-          to="/agencies"
+        <li class="nav-item">
+          <router-link
+            :class="navLinkClass('/')"
+            to="/"
+          >
+            Dashboard
+          </router-link>
+        </li>
+
+        <li class="nav-item">
+          <router-link
+            :class="navLinkClass('/uploads')"
+            to="/uploads"
+          >
+            Uploads
+          </router-link>
+        </li>
+
+        <li
+          v-if="role === 'admin'"
+          class="nav-item"
         >
-          Agencies
-        </router-link>
-      </li>
+          <router-link
+            :class="navLinkClass('/agencies')"
+            to="/agencies"
+          >
+            Agencies
+          </router-link>
+        </li>
 
-      <li
-        v-if="role === 'admin'"
-        class="nav-item"
-      >
-        <router-link
-          :class="navLinkClass('/subrecipients')"
-          to="/subrecipients"
+        <li
+          v-if="role === 'admin'"
+          class="nav-item"
         >
-          Subrecipients
-        </router-link>
-      </li>
+          <router-link
+            :class="navLinkClass('/subrecipients')"
+            to="/subrecipients"
+          >
+            Subrecipients
+          </router-link>
+        </li>
 
-      <li
-        v-if="role === 'admin'"
-        class="nav-item"
-      >
-        <router-link
-          :class="navLinkClass('/users')"
-          to="/users"
+        <li
+          v-if="role === 'admin'"
+          class="nav-item"
         >
-          Users
-        </router-link>
-      </li>
+          <router-link
+            :class="navLinkClass('/users')"
+            to="/users"
+          >
+            Users
+          </router-link>
+        </li>
 
-      <li
-        v-if="role === 'admin'"
-        class="nav-item"
-      >
-        <router-link
-          :class="navLinkClass('/reporting_periods')"
-          to="/reporting_periods"
+        <li
+          v-if="role === 'admin'"
+          class="nav-item"
         >
-          Reporting Periods
-        </router-link>
-      </li>
+          <router-link
+            :class="navLinkClass('/reporting_periods')"
+            to="/reporting_periods"
+          >
+            Reporting Periods
+          </router-link>
+        </li>
 
-      <li
-        v-if="role === 'admin'"
-        class="nav-item"
-      >
-        <router-link
-          :class="navLinkClass('/validation')"
-          to="/validation"
+        <li
+          v-if="role === 'admin'"
+          class="nav-item"
         >
-          Validation
-        </router-link>
-      </li>
-    </ul>
+          <router-link
+            :class="navLinkClass('/validation')"
+            to="/validation"
+          >
+            Validation
+          </router-link>
+        </li>
+      </ul>
 
-    <AlertBox
-      v-for="(alert, alertId) in alerts"
-      v-bind="alert"
-      :key="alertId"
-      @dismiss="dismissAlert(alertId)"
-    />
+      <AlertBox
+        v-for="(alert, alertId) in alerts"
+        v-bind="alert"
+        :key="alertId"
+        @dismiss="dismissAlert(alertId)"
+      />
 
-    <router-view />
+      <router-view />
+    </main>
   </div>
 </template>
 
@@ -220,9 +222,9 @@ export default {
     },
     navLinkClass(to) {
       if (this.$route.path === to) {
-        return 'nav-link active';
+        return 'nav-link usdr-tab-nav-link active';
       }
-      return 'nav-link';
+      return 'nav-link usdr-tab-nav-link';
     },
     dateFormat(d) {
       return moment(d)

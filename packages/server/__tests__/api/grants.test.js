@@ -561,11 +561,16 @@ describe('`/api/grants` endpoint', () => {
             expect(response.headers.get('Content-Type')).to.include('text/csv');
             expect(response.headers.get('Content-Disposition')).to.include('attachment');
 
+            // eslint-disable-next-line no-nested-ternary -- will remove ternary when remove feature flag
+            const followedByColumnHeaderName = process.env.ENABLE_FOLLOW_NOTES === 'true'
+                ? 'Followed By' : process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true'
+                    ? 'Interested Teams' : 'Interested Agencies';
+
             const expectedCsvHeaders = [
                 'Opportunity Number',
                 'Title',
                 'Viewed By',
-                process.env.ENABLE_NEW_TEAM_TERMINOLOGY === 'true' ? 'Interested Teams' : 'Interested Agencies',
+                followedByColumnHeaderName,
                 'Opportunity Status',
                 'Opportunity Category',
                 'Cost Sharing',
