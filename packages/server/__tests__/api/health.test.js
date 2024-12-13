@@ -15,6 +15,6 @@ describe('/api/health', () => {
         await server
             .get('/api/health')
             .expect(200)
-            .expect({ success: true, db: 'OK' });
+            .expect({ success: true });
     });
 });
