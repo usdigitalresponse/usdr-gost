@@ -8,7 +8,7 @@
 
         <router-link
           to="/new_upload"
-          class="btn btn-primary ml-2"
+          class="btn usdr-btn-primary ml-2"
         >
           Submit Workbook
         </router-link>

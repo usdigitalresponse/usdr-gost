@@ -122,7 +122,7 @@ export default {
   computed: {
     revalidateBtnClass() {
       return {
-        'btn-primary': !this.commit,
+        'usdr-btn-primary': !this.commit,
         'btn-danger': this.commit,
       };
     },
