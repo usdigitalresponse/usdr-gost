@@ -86,7 +86,7 @@ hr {
   color: $positive-default;
 }
 
-.usdr-tab-nav-link {
+.usdr-link {
   color: #305CE0;
 }
 
@@ -100,6 +100,14 @@ hr {
   color: rgba(0,0,0)
 }
 
+.btn.usdr-btn-outline-primary,
+.btn.usdr-btn-outline-primary:hover {
+  color: $usdr-brand-primary; 
+  background-color: #ffffff;
+  border-color: $usdr-brand-primary;
+}
+
+a.usdr-btn-primary,
 .btn.usdr-btn-primary,
 .btn.usdr-btn-primary:hover {
   color: #ffff;
@@ -120,4 +128,8 @@ hr {
   -ms-flex: 1 1 0%;
   flex: 1 1 0%;
   min-width: 0;
+}
+
+.usdr-table-danger {
+  background-color: #FDD3D6;
 }

@@ -132,7 +132,7 @@
               class="float-right"
             >
               <button
-                class="btn btn-primary ml-2"
+                class="btn usdr-btn-primary ml-2"
                 :disabled="validating"
                 @click="validateUpload"
               >
@@ -148,14 +148,14 @@
                 :small="false"
               />
               <button
-                class="btn btn-outline-primary ml-2"
+                class="btn usdr-btn-outline-primary ml-2"
                 :disabled="upload.invalidated_at"
                 @click="invalidateUpload"
               >
                 Invalidate
               </button>
               <button
-                class="btn btn-outline-primary ml-2"
+                class="btn usdr-btn-outline-primary ml-2"
                 :disabled="validating"
                 @click="validateUpload"
               >
@@ -178,7 +178,7 @@
                 Invalidate
               </button>
               <button
-                class="btn btn-primary ml-2"
+                class="btn usdr-btn-primary ml-2"
                 :disabled="validating"
                 @click="validateUpload"
               >
@@ -187,7 +187,7 @@
             </span>
 
             <!--
-            <button class="btn btn-primary ml-2" @click="validateUpload" :disabled="validating">
+            <button class="btn usdr-btn-primary ml-2" @click="validateUpload" :disabled="validating">
               <span v-if="validating">Validating...</span>
               <span v-else-if="upload.validated_at">Re-validate</span>
               <span v-else>Validate</span>

@@ -4,7 +4,7 @@
     <div class="mb-4">
       <router-link
         to="/users/new"
-        class="btn btn-primary"
+        class="btn usdr-btn-primary"
       >
         Create New User
       </router-link>

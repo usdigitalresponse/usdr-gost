@@ -79,7 +79,7 @@ export default {
               name: 'submit',
               type: 'submit',
               label: 'Submit',
-              inputClass: ['btn', 'btn-primary'],
+              inputClass: ['btn', 'usdr-btn-primary'],
             },
             {
               type: 'button',

@@ -5,7 +5,7 @@
     <div class="mb-4">
       <router-link
         to="/reporting_periods/new"
-        class="btn btn-primary"
+        class="btn usdr-btn-primary"
       >
         Create New Reporting Period
       </router-link>
@@ -36,6 +36,7 @@
             <router-link
               v-if="!p.certified_at"
               :to="`/new_template/${p.id}`"
+              class="usdr-link"
             >
               Upload Template
             </router-link>
@@ -43,7 +44,7 @@
           <td>
             <span v-if="isCurrentReportingPeriod(p)">
               <button
-                class="btn btn-primary"
+                class="btn usdr-btn-primary"
                 data-toggle="modal"
                 data-target="#certify-reporting-period"
                 :disabled="certifying"
@@ -97,7 +98,7 @@
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-primary"
+              class="btn usdr-btn-primary"
               @click="handleCertify"
             >
               Certify
