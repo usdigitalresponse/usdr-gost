@@ -1,9 +1,7 @@
 {
-  "name": "cares-grant-opportunities",
+  "name": "usdr-gost",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/usdigitalresponse/cares-grant-opportunities.git",
-  "author": "Pol Abellas, Rafael A <rafael.polabellas@dematic.com>",
   "license": "Apache-2.0",
   "private": true,
   "workspaces": [

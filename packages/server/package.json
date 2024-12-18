@@ -2,8 +2,6 @@
   "name": "server",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/usdigitalresponse/cares-grant-opportunities.git",
-  "author": "Pol Abellas, Rafael A <rafael.polabellas@dematic.com>",
   "license": "Apache-2.0",
   "engines": {
     "node": "20.11.1",
