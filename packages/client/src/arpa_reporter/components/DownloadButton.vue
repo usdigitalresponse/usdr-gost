@@ -2,7 +2,7 @@
   <a
     download
     :href="href"
-    class="btn btn-primary"
+    class="btn usdr-btn-primary"
     :class="computedClasses"
     @click="setLoadingState"
   >
