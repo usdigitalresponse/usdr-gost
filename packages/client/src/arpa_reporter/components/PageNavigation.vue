@@ -138,18 +138,6 @@
             Reporting Periods
           </router-link>
         </li>
-
-        <li
-          v-if="role === 'admin'"
-          class="nav-item"
-        >
-          <router-link
-            :class="navLinkClass('/validation')"
-            to="/validation"
-          >
-            Validation
-          </router-link>
-        </li>
       </ul>
 
       <AlertBox

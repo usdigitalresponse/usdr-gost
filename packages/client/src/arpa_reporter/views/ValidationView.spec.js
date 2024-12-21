@@ -6,6 +6,7 @@ import {
 import { shallowMount } from '@vue/test-utils';
 import { createStore } from 'vuex';
 
+// Git #2362 - ValidationView is obsolete - functionality is available in UploadView
 describe('ValidationView component', () => {
   const store = createStore({
     state: {
