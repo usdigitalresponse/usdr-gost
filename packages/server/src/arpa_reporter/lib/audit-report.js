@@ -465,6 +465,30 @@ async function createReportsGroupedBySubAward(periodId, tenantId, dateFormat = R
     return rowsFormatted;
 }
 
+function getMostRecentRecordForProject(records, logger = log) {
+    let mostRecentRecord = {};
+    // Ensures we are only looking at records that are in the EC-tabs rather than the other tabs
+    records = records.filter((record) => Object.keys(EXPENDITURE_CATEGORIES).includes(record.type));
+
+    for (const record of records) {
+        if (Object.keys(mostRecentRecord).length === 0) {
+            logger.debug(`found first record: ${JSON.stringify(record)}`);
+            mostRecentRecord = record;
+        } else if (new Date(record.upload.created_at) > new Date(mostRecentRecord.upload.created_at)) {
+            logger.debug(`found a more recent record: ${new Date(record.upload.created_at)} is greater than ${new Date(mostRecentRecord.upload.created_at)}`);
+            mostRecentRecord = record;
+        }
+    }
+
+    if (Object.keys(mostRecentRecord).length === 0) {
+        logger.warn('no records found for project');
+    }
+
+    logger.debug(`most recent record is: ${JSON.stringify(mostRecentRecord)}`);
+
+    return mostRecentRecord;
+}
+
 async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
     logger.info('building rows for spreadsheet');
     const records = await recordsForProject(periodId, tenantId);
@@ -478,12 +502,13 @@ async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
         const projectLogger = logger.child({
             project: { id: projectId, totalRecords: projectRecords.length },
         });
+        const mostRecentRecord = getMostRecentRecordForProject(projectRecords, projectLogger);
         projectLogger.debug('populating row from records in project');
         const row = {
             'Project ID': projectId,
             'Number of Subawards': 0,
             'Number of Expenditures': 0,
-            'Evidence Based Total Spend': 0,
+            'Evidence Based Total Spend': mostRecentRecord?.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0,
         };
 
         projectRecords.forEach((r) => {
@@ -493,7 +518,6 @@ async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
             if ((r.content.Current_Period_Expenditures__c || 0) > 0) {
                 row['Number of Expenditures'] += 1;
             }
-            row['Evidence Based Total Spend'] += (r.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0);
         });
 
         projectLogger.info('finished populating row');
@@ -767,6 +791,7 @@ module.exports = {
 
     // export for testing
     getRecordsByProject,
+    getMostRecentRecordForProject,
 };
 
 // NOTE: This file was copied from src/server/lib/audit-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
