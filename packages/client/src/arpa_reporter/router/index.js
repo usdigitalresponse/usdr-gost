@@ -12,7 +12,6 @@ import SubrecipientView from '@/arpa_reporter/views/SubrecipientView.vue';
 import SubrecipientsView from '@/arpa_reporter/views/SubrecipientsView.vue';
 import UserView from '@/arpa_reporter/views/UserView.vue';
 import UsersView from '@/arpa_reporter/views/UsersView.vue';
-import ValidationView from '@/arpa_reporter/views/ValidationView.vue';
 import UploadView from '@/arpa_reporter/views/UploadView.vue';
 import UploadsView from '@/arpa_reporter/views/UploadsView.vue';
 import store from '@/arpa_reporter/store';
@@ -95,12 +94,6 @@ const routes = [
     path: '/users/:id',
     name: 'User',
     component: UserView,
-    meta: { requiresLogin: true },
-  },
-  {
-    path: '/validation',
-    name: 'Validation',
-    component: ValidationView,
     meta: { requiresLogin: true },
   },
 ];
