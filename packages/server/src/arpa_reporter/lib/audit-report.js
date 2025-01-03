@@ -467,12 +467,12 @@ async function createReportsGroupedBySubAward(periodId, tenantId, dateFormat = R
 
 function getMostRecentRecordForProject(records, logger = log) {
 
-    let mostRecentRecord;
+    let mostRecentRecord = {};
     // Ensures we are only looking at records that are in the EC-tabs rather than the other tabs
     records = records.filter((record) => Object.keys(EXPENDITURE_CATEGORIES).includes(record.type));
 
     for (const record of records) {
-        if (mostRecentRecord == null || mostRecentRecord === undefined) {
+        if (Object.keys(mostRecentRecord).length === 0) {
             logger.debug(`found first record: ${JSON.stringify(record)}`);
             mostRecentRecord = record;
             continue;
@@ -483,7 +483,7 @@ function getMostRecentRecordForProject(records, logger = log) {
         }
     }
 
-    if (mostRecentRecord == null || mostRecentRecord === undefined || Object.keys(mostRecentRecord).length === 0) {
+    if (Object.keys(mostRecentRecord).length === 0) {
         logger.warn('no records found for project');
     }
 
