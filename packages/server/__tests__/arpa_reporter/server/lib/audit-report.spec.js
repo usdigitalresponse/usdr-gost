@@ -438,7 +438,7 @@ describe('audit report generation', () => {
                     invalidated_at: null,
                     invalidated_by: null,
                     created_by: 'asridhar@usdigitalresponse.org',
-                    agency_code: 'USDR'
+                    agency_code: 'USDR',
                 },
                 content: {
                     Name: 'Test Claire 10.15',
@@ -457,7 +457,7 @@ describe('audit report generation', () => {
                     Spending_Allocated_Toward_Evidence_Based_Interventions: 100000,
                     Does_Project_Include_Capital_Expenditure__c: 'Yes',
                     Total_Cost_Capital_Expenditure__c: 2000,
-                    Type_of_Capital_Expenditure__c: 'Parks, green spaces, recreational facilities, sidewalks'
+                    Type_of_Capital_Expenditure__c: 'Parks, green spaces, recreational facilities, sidewalks',
                 },
             },
             {
@@ -478,7 +478,7 @@ describe('audit report generation', () => {
                     invalidated_at: null,
                     invalidated_by: null,
                     created_by: 'asridhar@usdigitalresponse.org',
-                    agency_code: 'USDR'
+                    agency_code: 'USDR',
                 },
                 content: {
                     Name: 'Test Claire 10.15',
@@ -497,7 +497,7 @@ describe('audit report generation', () => {
                     Spending_Allocated_Toward_Evidence_Based_Interventions: 35000,
                     Does_Project_Include_Capital_Expenditure__c: 'Yes',
                     Total_Cost_Capital_Expenditure__c: 2000,
-                    Type_of_Capital_Expenditure__c: 'Parks, green spaces, recreational facilities, sidewalks'
+                    Type_of_Capital_Expenditure__c: 'Parks, green spaces, recreational facilities, sidewalks',
                 },
             },
         ];
