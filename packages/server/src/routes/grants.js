@@ -147,9 +147,9 @@ router.get('/exportCSVNew', requireUser, async (req, res) => {
             : grant.viewed_by_agencies
                 .map((v) => v.agency_abbreviation)
                 .join(', '),
-        followed_by_agencies: grant.followed_by_agencies
+        followed_by_agencies: process.env.ENABLE_FOLLOW_NOTES === 'true' ? grant.followed_by_agencies
             .map((v) => v.agency_name)
-            .join(', '),
+            .join(', ') : [],
         open_date: new Date(grant.open_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         close_date: new Date(grant.close_date).toLocaleDateString('en-US', { timeZone: 'UTC' }),
         url: `https://www.grants.gov/search-results-detail/${grant.grant_id}`,
