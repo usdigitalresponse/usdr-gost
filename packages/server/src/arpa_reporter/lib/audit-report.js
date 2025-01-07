@@ -466,7 +466,7 @@ async function createReportsGroupedBySubAward(periodId, tenantId, dateFormat = R
 }
 
 function getMostRecentRecordForProject(records, logger = log) {
-    let mostRecentRecord = {};
+    let mostRecentRecord;
     // Ensures we are only looking at records that are in the EC-tabs rather than the other tabs
     records = records.filter((record) => Object.keys(EXPENDITURE_CATEGORIES).includes(record.type));
 
@@ -478,10 +478,6 @@ function getMostRecentRecordForProject(records, logger = log) {
             logger.debug(`found a more recent record: ${new Date(record.upload.created_at)} is greater than ${new Date(mostRecentRecord.upload.created_at)}`);
             mostRecentRecord = record;
         }
-    }
-
-    if (Object.keys(mostRecentRecord).length === 0) {
-        logger.warn('no records found for project');
     }
 
     logger.debug(`most recent record is: ${JSON.stringify(mostRecentRecord)}`);
@@ -503,6 +499,9 @@ async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
             project: { id: projectId, totalRecords: projectRecords.length },
         });
         const mostRecentRecord = getMostRecentRecordForProject(projectRecords, projectLogger);
+        if (!mostRecentRecord) {
+            projectLogger.warn(`project has no EC records ${projectId}`)
+        }
         projectLogger.debug('populating row from records in project');
         const row = {
             'Project ID': projectId,
