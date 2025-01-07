@@ -466,22 +466,18 @@ async function createReportsGroupedBySubAward(periodId, tenantId, dateFormat = R
 }
 
 function getMostRecentRecordForProject(records, logger = log) {
-    let mostRecentRecord = {};
+    let mostRecentRecord;
     // Ensures we are only looking at records that are in the EC-tabs rather than the other tabs
     records = records.filter((record) => Object.keys(EXPENDITURE_CATEGORIES).includes(record.type));
 
     for (const record of records) {
-        if (Object.keys(mostRecentRecord).length === 0) {
+        if (!mostRecentRecord) {
             logger.debug(`found first record: ${JSON.stringify(record)}`);
             mostRecentRecord = record;
         } else if (new Date(record.upload.created_at) > new Date(mostRecentRecord.upload.created_at)) {
             logger.debug(`found a more recent record: ${new Date(record.upload.created_at)} is greater than ${new Date(mostRecentRecord.upload.created_at)}`);
             mostRecentRecord = record;
         }
-    }
-
-    if (Object.keys(mostRecentRecord).length === 0) {
-        logger.warn('no records found for project');
     }
 
     logger.debug(`most recent record is: ${JSON.stringify(mostRecentRecord)}`);
@@ -503,12 +499,17 @@ async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
             project: { id: projectId, totalRecords: projectRecords.length },
         });
         const mostRecentRecord = getMostRecentRecordForProject(projectRecords, projectLogger);
+        if (!mostRecentRecord) {
+            projectLogger.warn(`Unexpected error - project has no EC records ${projectId}`);
+        } else if (!mostRecentRecord.content) {
+            projectLogger.warn(`Unexpected error - project record has no content ${projectId}`);
+        }
         projectLogger.debug('populating row from records in project');
         const row = {
             'Project ID': projectId,
             'Number of Subawards': 0,
             'Number of Expenditures': 0,
-            'Evidence Based Total Spend': mostRecentRecord?.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0,
+            'Evidence Based Total Spend': mostRecentRecord?.content?.Spending_Allocated_Toward_Evidence_Based_Interventions || 0,
         };
 
         projectRecords.forEach((r) => {
