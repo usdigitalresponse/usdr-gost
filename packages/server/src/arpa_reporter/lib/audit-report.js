@@ -500,14 +500,16 @@ async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
         });
         const mostRecentRecord = getMostRecentRecordForProject(projectRecords, projectLogger);
         if (!mostRecentRecord) {
-            projectLogger.warn(`project has no EC records ${projectId}`)
+            projectLogger.warn(`Unexpected error - project has no EC records ${projectId}`)
+        } else if (!mostRecentRecord.content) {
+            projectLogger.warn(`Unexpected error - project record has no content ${projectId}`)
         }
         projectLogger.debug('populating row from records in project');
         const row = {
             'Project ID': projectId,
             'Number of Subawards': 0,
             'Number of Expenditures': 0,
-            'Evidence Based Total Spend': mostRecentRecord?.content.Spending_Allocated_Toward_Evidence_Based_Interventions || 0,
+            'Evidence Based Total Spend': mostRecentRecord?.content?.Spending_Allocated_Toward_Evidence_Based_Interventions || 0,
         };
 
         projectRecords.forEach((r) => {
