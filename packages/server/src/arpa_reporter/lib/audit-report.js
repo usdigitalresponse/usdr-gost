@@ -471,7 +471,7 @@ function getMostRecentRecordForProject(records, logger = log) {
     records = records.filter((record) => Object.keys(EXPENDITURE_CATEGORIES).includes(record.type));
 
     for (const record of records) {
-        if (Object.keys(mostRecentRecord).length === 0) {
+        if (!mostRecentRecord) {
             logger.debug(`found first record: ${JSON.stringify(record)}`);
             mostRecentRecord = record;
         } else if (new Date(record.upload.created_at) > new Date(mostRecentRecord.upload.created_at)) {
