@@ -500,9 +500,9 @@ async function createKpiDataGroupedByProject(periodId, tenantId, logger = log) {
         });
         const mostRecentRecord = getMostRecentRecordForProject(projectRecords, projectLogger);
         if (!mostRecentRecord) {
-            projectLogger.warn(`Unexpected error - project has no EC records ${projectId}`)
+            projectLogger.warn(`Unexpected error - project has no EC records ${projectId}`);
         } else if (!mostRecentRecord.content) {
-            projectLogger.warn(`Unexpected error - project record has no content ${projectId}`)
+            projectLogger.warn(`Unexpected error - project record has no content ${projectId}`);
         }
         projectLogger.debug('populating row from records in project');
         const row = {
