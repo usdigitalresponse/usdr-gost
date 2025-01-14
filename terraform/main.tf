@@ -307,8 +307,8 @@ module "arpa_audit_report" {
   # TODO: Tune these values after observing usage in different environments.
   #       See also: --max_old_space_size in NODE_OPTIONS env var.
   consumer_task_size = {
-    cpu    = 1024 # 1 vCPU
-    memory = 4096 # 4 GB
+    cpu    = 2048 # 2 vCPU
+    memory = 8192 # 8 GB
   }
 
   # Messaging
@@ -394,8 +394,8 @@ module "arpa_treasury_report" {
   # TODO: Tune these values after observing usage in different environments.
   #       See also: --max_old_space_size in NODE_OPTIONS env var.
   consumer_task_size = {
-    cpu    = 1024 # 1 vCPU
-    memory = 4096 # 4 GB
+    cpu    = 2048 # 2 vCPU
+    memory = 8192 # 8 GB
   }
 
   # Messaging
