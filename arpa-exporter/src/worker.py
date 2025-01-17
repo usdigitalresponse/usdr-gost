@@ -37,7 +37,7 @@ def get_entry_path(source_path):
     return source_path
 
 
-def build_zip(fh, source_paths: list[str]):
+def build_zip(fh, source_paths):
     # TODO: for each source file:
     #   1. figure out its destination path for the archive
     #   2. if the archive does not already contain an entry at the destination path, add it
@@ -46,9 +46,9 @@ def build_zip(fh, source_paths: list[str]):
 
     with zipfile.ZipFile(fh, "a") as archive:
         for source_path in source_paths:
-            entry_path = get_entry_path()
+            entry_path = get_entry_path(source_path)
             entry_logger = logger.bind(source_path=source_path, entry_path=entry_path)
-            if entry_path := get_entry_path not in archive.namelist():
+            if entry_path not in archive.namelist():
                 try:
                     archive.write(source_path, arcname=entry_path)
                 except:
@@ -83,7 +83,7 @@ def process_sqs_message_request(s3, message_data, local_file):
 
     # TODO: use message_data to determine source files that should be in the archive
     try:
-        build_zip(local_file, source_paths=[])
+        build_zip(local_file, source_paths=message_data["sources"])
     except:
         get_logger().exception("error building zip archive")
         raise
@@ -126,10 +126,10 @@ def handle_work(s3, sqs):
 
     with tempfile.NamedTemporaryFile() as tfh:
         try:
-            with structlog.contextvars.bind_contextvars(
+            with structlog.contextvars.bound_contextvars(
                 s3_bucket=data["s3"]["bucket"],
                 s3_key=data["s3"]["key"],
-                destination_file_path=tfh.path,
+                destination_file_path=tfh.name,
                 destination_file_mode=tfh.mode,
             ):
                 process_sqs_message_request(s3, data, tfh)
@@ -137,7 +137,6 @@ def handle_work(s3, sqs):
             logger.info("error processing SQS message request for ARPA data export")
             raise
 
-    logger.info("deleting succcessfully-processed SQS message")
     try:
         sqs.delete_message(
             QueueUrl=TASK_QUEUE_URL, ReceiptHandle=message["ReceiptHandle"]
