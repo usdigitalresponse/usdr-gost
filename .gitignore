@@ -137,9 +137,5 @@ venv/
 __pycache__/
 
 # Python test and coverage output
-python/.coverage
-python/htmlcov/
-python/_tmp_test.zip
-
-# Python build artifacts
-python/dist/
+arpa-exporter/.coverage
+arpa-exporter/htmlcov/
