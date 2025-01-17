@@ -128,3 +128,18 @@ terraform/.terraform/
 
 # Local overrides for docker compose
 docker-compose.override.yml
+
+# Python virtual environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+
+# Python test and coverage output
+python/.coverage
+python/htmlcov/
+python/_tmp_test.zip
+
+# Python build artifacts
+python/dist/
