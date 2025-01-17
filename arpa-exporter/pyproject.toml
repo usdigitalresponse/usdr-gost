@@ -6,7 +6,7 @@ readme = "../README.md"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.13"
 boto3 = "^1.36.0"
 ddtrace = "^2.19.0"
 structlog = "^25.1.0"
@@ -15,6 +15,9 @@ structlog = "^25.1.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
 ruff = "^0.9.2"
+ipython = "^8.31.0"
+pytest-cov = "^6.0.0"
+mypy = "^1.14.1"
 
 [build-system]
 requires = ["poetry-core"]
