@@ -40,6 +40,7 @@ jobs:
       server-image-tag-latest: true
       build-website: true
       website-artifact-retention-days: 14
+      build-arpa-exporter-image: true
 
   aws-auth:
     name: Configure AWS Credentials

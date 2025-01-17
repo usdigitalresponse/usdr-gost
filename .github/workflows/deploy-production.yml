@@ -45,6 +45,7 @@ jobs:
       server-image-artifacts-retention-days: 90
       build-website: true
       website-artifact-retention-days: 90
+      build-arpa-exporter-image: true
 
   aws-auth-plan:
     name: Configure AWS Credentials
