@@ -31,6 +31,10 @@ jobs:
       eslint-outcome: ${{ needs.qa.outputs.eslint-outcome }}
       tflint-outcome: ${{ needs.qa.outputs.tflint-outcome }}
       e2e-test-outcome: ${{ needs.qa.outputs.e2e-test-outcome }}
+      arpa-exporter-test-outcome: ${{ needs.qa.outputs.arpa-exporter-test-outcome }}
+      arpa-exporter-test-coverage-markdown-report: ${{ needs.qa.outputs.arpa-exporter-test-coverage-markdown-report }}
+      ruff-outcome: ${{ needs.qa.outputs.ruff-outcome }}
+      mypy-outcome: ${{ needs.qa.outputs.mypy-outcome }}
       pr-number: ${{ github.event.pull_request.number }}
       write-summary: true
       write-comment: true
@@ -53,6 +57,7 @@ jobs:
       server-image-artifacts-retention-days: 14
       build-website: true
       website-artifact-retention-days: 14
+      build-arpa-exporter-image: true
 
   aws-auth:
     name: Configure AWS Credentials

@@ -18,10 +18,22 @@ on:
       e2e-test-outcome:
         type: string
         required: true
+      arpa-exporter-test-outcome:
+        type: string
+        required: true
+      arpa-exporter-coverage-markdown-report:
+        type: string
+        required: true
       eslint-outcome:
         type: string
         required: true
       tflint-outcome:
+        type: string
+        required: true
+      ruff-outcome:
+        type: string
+        required: true
+      mypy-outcome:
         type: string
         required: true
       pr-number:
@@ -50,6 +62,16 @@ jobs:
         with:
           disable-sudo: true
           egress-policy: audit
+      - name: Create URL to workflow run
+        id: workflow-run-summary-url
+        run: |
+          RUN_URL="$GH_SERVER/$GH_REPO/actions/runs/$GH_RUN_ID"
+          echo "url=$RUN_URL" >> $GITHUB_OUTPUT
+          echo "attempt-url=$RUN_URL/attempts/${{ github.run_attempt }}" >> $GITHUB_OUTPUT
+        env:
+          GH_SERVER: ${{ github.server_url }}
+          GH_REPO: ${{ github.repository }}
+          GH_RUN_ID: ${{ github.run_id }}
       - name: Write the report markdown file
         run: |
           REPORT_FILE=$(mktemp -t summary.md.XXXXX)
@@ -57,13 +79,18 @@ jobs:
           cat >> $REPORT_FILE << 'ENDOFREPORT'
           ## QA Summary
 
+          _View the [workflow summary](${{ env.WORKFLOW_RUN_SUMMARY_ATTEMPT_URL }}) for individual coverage reports if this comment is truncated._
+
           | QA Check        | Result  |
           |:----------------|:-------:|
           | 🌐 Client Tests | ${{ (env.CLIENT_TEST_OUTCOME == 'success' && '✅') || (env.CLIENT_TEST_OUTCOME == 'skipped' && '➖') || '❌' }} |
           | 🔗 Server Tests | ${{ (env.SERVER_TEST_OUTCOME == 'success' && '✅') || (env.SERVER_TEST_OUTCOME == 'skipped' && '➖') || '❌' }} |
           | 🤝 E2E Tests    | ${{ (env.E2E_TEST_OUTCOME == 'success' && '✅') || (env.E2E_TEST_OUTCOME == 'skipped' && '➖') || '❌' }} |
+          | 🐍 ARPA Exporter Tests | ${{ (env.ARPA_EXPORTER_TEST_OUTCOME == 'success' && '✅') || (env.ARPA_EXPORTER_TEST_OUTCOME == 'skipped' && '➖') || '❌' }} |
           | 📏 ESLint       | ${{ (env.ESLINT_OUTCOME == 'success' && '✅') || (env.ESLINT_OUTCOME == 'skipped' && '➖') || '❌' }} |
           | 🧹 TFLint       | ${{ (env.TFLINT_OUTCOME == 'success' && '✅') || (env.TFLINT_OUTCOME == 'skipped' && '➖') || '❌' }} |
+          | 🧼 Ruff      | ${{ (env.RUFF_OUTCOME == 'success' && '✅')  || (env.RUFF_OUTCOME == 'skipped' && '➖') || '❌' }} |
+          | 🛁 mypy      | ${{ (env.MYPY_OUTCOME == 'success' && '✅')  || (env.MYPY_OUTCOME == 'skipped' && '➖') || '❌' }} |
 
           ### Test Coverage
 
@@ -80,6 +107,12 @@ jobs:
           ${{ env.SERVER_COVERAGE_REPORT }}
 
           </details>
+          <details>
+          <summary>Coverage report for <code>arpa-exporter</code> suite</summary>
+
+          ${{ env.ARPA_EXPORTER_COVERAGE_REPORT }}
+
+          </details>
 
           *Pusher: @${{ env.GH_ACTOR }}, Action: `${{ env.GH_ACTION }}`, Workflow: [`${{ env.GH_WORKFLOW }}`](${{ env.GH_SERVER}}/${{ env.GH_REPO }}/actions/runs/${{ env.GH_RUN_ID }})*
           ENDOFREPORT
@@ -89,8 +122,14 @@ jobs:
           SERVER_TEST_OUTCOME: ${{ inputs.server-test-outcome }}
           SERVER_COVERAGE_REPORT: ${{ inputs.server-test-coverage-markdown-report }}
           E2E_TEST_OUTCOME: ${{ inputs.e2e-test-outcome }}
+          ARPA_EXPORTER_TEST_OUTCOME: ${{ inputs.arpa-exporter-test-outcome }}
+          ARPA_EXPORTER_COVERAGE_REPORT: ${{ inputs.arpa-exporter-coverage-markdown-report }}
           ESLINT_OUTCOME: ${{ inputs.eslint-outcome }}
           TFLINT_OUTCOME: ${{ inputs.tflint-outcome }}
+          RUFF_OUTCOME: ${{ inputs.ruff-outcome }}
+          MYPY_OUTCOME: ${{ inputs.mypy-outcome }}
+          WORKFLOW_RUN_SUMMARY_URL: ${{ steps.workflow-run-summary-url.outputs.url }}
+          WORKFLOW_RUN_SUMMARY_ATTEMPT_URL: ${{ steps.workflow-run-summary-url.outputs.attempt-url }}
           GH_ACTOR: ${{ github.actor }}
           GH_ACTION: ${{ github.event_name }}
           GH_WORKFLOW: ${{ github.workflow }}
