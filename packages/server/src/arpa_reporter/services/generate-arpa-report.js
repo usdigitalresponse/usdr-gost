@@ -916,6 +916,14 @@ async function generateSubaward(records) {
                     record.content.Description__c,
                     record.content.Edited_Subaward_Amount_Explanation__c,
                     record.content.Loan_Expiration_Date__c,
+                    record.content.IAA_Basic_Conditions__c,
+                    record.content.IAA_Requirements_Attestation__c,
+                    record.content.Personnel_Cost_Estimates__c,
+                    record.content.Personnel_Estimated_Expended,
+                    record.content.Personnel_Expended_FTE_Count,
+                    record.content.Personnel_Expended_Justification,
+                    record.content.Contract_Estimated_Expended,
+                    record.content.Contract_Expended_Justification,
                 ];
             }
             default:
