@@ -272,3 +272,11 @@ variable "email_enable_tracking" {
   description = "Feature flag for email tracking. When false, disables link rewriting for click tracking in emails."
   type        = bool
 }
+
+# ARPA Exporter
+variable "arpa_exporter_image_tag" {
+  description = "Docker image tag to pull for ARPA Exporter task consumer. When null/empty, consumer is not provisioned and website feature flag is false."
+  type        = string
+  nullable    = true
+  default     = null
+}
