@@ -102,6 +102,14 @@ module "datadog_container_definition" {
   readonly_root_filesystem = "false"
   stop_timeout             = var.stop_timeout_seconds
 
+  healthcheck = {
+    command     = ["CMD-SHELL", "agent health"]
+    startPeriod = 15
+    interval    = 30
+    timeout     = 5
+    retries     = 3
+  }
+
   container_cpu                = var.datadog_container_resources.cpu
   container_memory             = var.datadog_container_resources.hard_memory_limit
   container_memory_reservation = var.datadog_container_resources.memory_reservation
