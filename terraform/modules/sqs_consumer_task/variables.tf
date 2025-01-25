@@ -31,8 +31,9 @@ variable "queue_url_environment_variable_name" {
 }
 
 variable "consumer_task_command" {
-  description = "The command to execute when starting an ECS task's consumer container."
+  description = "The command to execute when starting an ECS task's consumer container. If null, uses the consumers docker image CMD."
   type        = list(string)
+  default     = null
 }
 
 variable "consumer_task_efs_volume_mounts" {
