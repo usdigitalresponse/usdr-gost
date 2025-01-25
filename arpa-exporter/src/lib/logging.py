@@ -1,10 +1,13 @@
 import functools
 import logging
+import os
 import sys
 from typing import Any, Callable, Dict, List
 
 import structlog
 
+
+LOG_LEVEL = getattr(logging, os.environ.get("LOG_LEVEL", "INFO").upper())
 
 shared_processors: List[Callable] = [
     structlog.contextvars.merge_contextvars,
@@ -33,7 +36,7 @@ else:
 
 structlog.configure(
     processors=processors,
-    wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+    wrapper_class=structlog.make_filtering_bound_logger(LOG_LEVEL),
     cache_logger_on_first_use=True,
 )
 
