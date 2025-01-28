@@ -39,6 +39,7 @@ class MessageSchema(BaseModel):
     s3: S3Schema
     organization_id: int
     metadata_filename: str
+    user_email: str
 
 
 class ShutdownHandler:
@@ -96,6 +97,10 @@ def get_metadata_filepath(organization_id: int, metadata_filename: str):
     return os.path.join(METADATA_DIR, organization_id, metadata_filename)
 
 
+def build_and_send_email(user_email: str, download_link: str):
+    pass
+
+
 def process_sqs_message_request(s3, message_data: MessageSchema, local_file):
     # Get the S3 object if it already exists (if 404, assume it doesn't & create from scratch)
     # Note:
@@ -141,6 +146,13 @@ def process_sqs_message_request(s3, message_data: MessageSchema, local_file):
         s3.upload_fileobj(local_file, s3_bucket, s3_key)
     except:
         get_logger().exception("error uploading zip archive to s3")
+        raise
+
+    # Step 5 - Send Email to user with the download link
+    try:
+        build_and_send_email(message_data.user_email, download_link=f"/api/uploads/{message_data.organization_id}/{s3_key.split('/')[-1]}")
+    except:
+        get_logger().exception("error sending email to user")
         raise
 
 
