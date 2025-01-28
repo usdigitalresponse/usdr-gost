@@ -61,14 +61,15 @@ class ShutdownHandler:
 def build_zip(fh, source_paths: List[UploadInfo]):
     logger = get_logger(total_source_files=len(source_paths))
     files_added = 0
-    with zipfile.ZipFile(fh, 'a') as zipf:
+    with zipfile.ZipFile(fh, 'a') as archive:
         for upload in source_paths:
-            entry_logger = logger.bind(source_path=os.path.join(DATA_DIR, f'{upload.upload_id}.xlsm'), entry_path=upload.directory_location)
-            if upload.directory_location in zipf.namelist():
+            source_path = os.path.join(DATA_DIR, f'{upload.upload_id}.xlsm')
+            entry_logger = logger.bind(source_path=source_path, entry_path=upload.directory_location)
+            if upload.directory_location in archive.namelist():
                 entry_logger.info("file already exists in archive")
             else:
                 try:
-                    zipf.write(os.path.join(DATA_DIR, f'{upload.upload_id}.xlsm'), arcname=upload.directory_location)
+                    archive.write(source_path, arcname=upload.directory_location)
                 except:
                     entry_logger.exception(
                         "error writing source file to entry in archive"
