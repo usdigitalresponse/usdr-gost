@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const { generateReport, generateSubaward } = require('../../../../src/arpa_reporter/services/generate-arpa-report');
+const { generateReport, generateSubaward, generateProjectBaseline } = require('../../../../src/arpa_reporter/services/generate-arpa-report');
 const { withTenantId } = require('../helpers/with-tenant-id');
 const { getTemplate } = require('../../../../src/arpa_reporter/services/get-template');
 
@@ -149,6 +149,160 @@ describe('arpa report generation', () => {
 
         // verifies that the latest treasury output template has the same amount of columns as the funciton output
         assert.equal(result[0].length, subawardBulkUploadTemplate[3].length);
+    });
+    it('generates all the columns of projectBaselineBulkUpload correctly', async () => {
+        const records = [
+            {
+                type: 'ec7',
+                subcategory: '7.1-Administrative Expenses',
+                upload: {
+                    filename: '24Q4 7.1.xlsm',
+                    created_at: '2025-01-21T20:55:14.883Z',
+                    reporting_period_id: 64,
+                    user_id: 4,
+                    agency_id: 0,
+                    validated_at: '2025-01-21T20:55:16.369Z',
+                    validated_by: 4,
+                    ec_code: '7.1',
+                    tenant_id: 1,
+                    id: 'ff4d3f49-e6a0-4229-848b-c6899790e2f1',
+                    notes: null,
+                    invalidated_at: null,
+                    invalidated_by: null,
+                    created_by: 'asridhar@usdigitalresponse.org',
+                    agency_code: 'USDR',
+                },
+                content: {
+                    Name: 'Audit - Trails',
+                    __rowNum__: 20,
+                    Project_Identification_Number__c: 'X725X5XXXXX71',
+                    Completion_Status__c: 'Completed less than 50%',
+                    Adopted_Budget__c: 4562.61,
+                    Total_Obligations__c: 4562.61,
+                    Total_Expenditures__c: 0,
+                    Current_Period_Obligations__c: 4562.61,
+                    Current_Period_Expenditures__c: 0,
+                    Project_Description__c: 'State audit costs for the administration of ARPA funds for Trails projects.',
+                    Project_Start_Date__c: '2023-01-01T00:00:00.000Z',
+                },
+            },
+            {
+                type: 'ec7',
+                subcategory: '7.3-Costs Associated with Satisfying Certain Legal and Administrative Requirements of the SLFRF Program After December 31, 2024',
+                upload: {
+                    filename: '24Q4 7.1.xlsm',
+                    created_at: '2025-01-21T20:55:14.883Z',
+                    reporting_period_id: 64,
+                    user_id: 4,
+                    agency_id: 0,
+                    validated_at: '2025-01-21T20:55:16.369Z',
+                    validated_by: 4,
+                    ec_code: '7.1',
+                    tenant_id: 1,
+                    id: 'ff4d3f49-e6a0-4229-848b-c6899790e2f1',
+                    notes: null,
+                    invalidated_at: null,
+                    invalidated_by: null,
+                    created_by: 'asridhar@usdigitalresponse.org',
+                    agency_code: 'USDR',
+                },
+                content: {
+                    Name: 'Test 7.3',
+                    __rowNum__: 21,
+                    Project_Identification_Number__c: 'X725X6XXXXX71',
+                    Completion_Status__c: 'Completed less than 50%',
+                    Adopted_Budget__c: 5609.47,
+                    Total_Obligations__c: 5609.47,
+                    Total_Expenditures__c: 0,
+                    Current_Period_Obligations__c: 5609.47,
+                    Current_Period_Expenditures__c: 0,
+                    Project_Description__c: 'State audit costs for the adminstration of SLFRF funds.',
+                    Project_Start_Date__c: '2023-01-01T00:00:00.000Z',
+                    Admin_Estimated_Expended__c: 35,
+                    Admin_Actual_Expended__c: 77,
+                    Admin_Expended_Description__c: 'Test admin expended description',
+                    Admin_Expended_Justification__c: 'Test admin expended justification',
+                },
+            },
+        ];
+        const expectedResult = [
+            [
+                null,
+                "7-Administrative",
+                "7.1-Administrative Expenses",
+                "Audit - Trails",
+                "X725X5XXXXX71",
+                "Completed less than 50%",
+                null,
+                "2023-01-01T00:00:00.000Z",
+                null,
+                "4562.61",
+                "4562.61",
+                "0",
+                "4562.61",
+                "0",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "State audit costs for the administration of ARPA funds for Trails projects.",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+            ],
+            [
+                null,
+                "7-Administrative",
+                "7.3-Costs Associated with Satisfying Certain Legal and Administrative Requirements of the SLFRF Program After December 31, 2024",
+                "Test 7.3",
+                "X725X6XXXXX71",
+                "Completed less than 50%",
+                null,
+                "2023-01-01T00:00:00.000Z",
+                null,
+                "5609.47",
+                "5609.47",
+                "0",
+                "5609.47",
+                "0",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "State audit costs for the adminstration of SLFRF funds.",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                35,
+                77,
+                "Test admin expended description",
+                "Test admin expended justification",
+            ],
+        ];
+        const result = await generateProjectBaseline(records);
+        const projectBaselineBulkUploadTemplate = await getTemplate('projectBaselineBulkUploadTemplate');
+        assert.equal(JSON.stringify(result), JSON.stringify(expectedResult));
+        assert.equal(result[0].length, projectBaselineBulkUploadTemplate[3].length);
     });
 });
 

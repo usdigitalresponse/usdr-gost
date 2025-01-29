@@ -757,10 +757,13 @@ async function generateProject519521(records) {
 }
 
 async function generateProjectBaseline(records) {
+    console.log(records);
     return records
         .filter(isProjectRecord)
         .map((record) => {
             const detailedEcCode = getDetailedEcCode(record);
+            console.log('----------------------------');
+            console.log(detailedEcCode);
             switch (detailedEcCode) {
                 case '1.1':
                 case '1.2':
@@ -788,6 +791,7 @@ async function generateProjectBaseline(records) {
                 case '7.1':
                 case '7.2':
                 case '7.3': {
+                    console.log(detailedEcCode);
                     return [
                         null, // first col is blank
                         ec(record.type),
@@ -1156,6 +1160,7 @@ module.exports = {
     generateAndSendEmail,
     processSQSMessageRequest,
     generateSubaward, // exporting for testing purposes
+    generateProjectBaseline, // exporting for testing purposes
 };
 
 // NOTE: This file was copied from src/server/services/generate-arpa-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
