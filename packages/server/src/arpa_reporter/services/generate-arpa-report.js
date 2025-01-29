@@ -819,6 +819,10 @@ async function generateProjectBaseline(records) {
                         record.content.Tertiary_Proj_Demographics_Explanation__c,
                         record.content.Structure_Objectives_of_Asst_Programs__c,
                         record.content.Recipient_Approach_Description__c,
+                        record.content.Admin_Estimated_Expended__c,
+                        record.content.Admin_Actual_Expended__c,
+                        record.content.Admin_Expended_Description__c,
+                        record.content.Admin_Expended_Justification__c,
                     ];
                 }
                 default:
