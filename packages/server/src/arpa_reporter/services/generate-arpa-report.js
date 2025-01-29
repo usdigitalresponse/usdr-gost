@@ -757,13 +757,10 @@ async function generateProject519521(records) {
 }
 
 async function generateProjectBaseline(records) {
-    console.log(records);
     return records
         .filter(isProjectRecord)
         .map((record) => {
             const detailedEcCode = getDetailedEcCode(record);
-            console.log('----------------------------');
-            console.log(detailedEcCode);
             switch (detailedEcCode) {
                 case '1.1':
                 case '1.2':
@@ -791,7 +788,6 @@ async function generateProjectBaseline(records) {
                 case '7.1':
                 case '7.2':
                 case '7.3': {
-                    console.log(detailedEcCode);
                     return [
                         null, // first col is blank
                         ec(record.type),
