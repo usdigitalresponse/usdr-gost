@@ -819,6 +819,10 @@ async function generateProjectBaseline(records) {
                         record.content.Tertiary_Proj_Demographics_Explanation__c,
                         record.content.Structure_Objectives_of_Asst_Programs__c,
                         record.content.Recipient_Approach_Description__c,
+                        record.content.Admin_Estimated_Expended__c,
+                        record.content.Admin_Actual_Expended__c,
+                        record.content.Admin_Expended_Description__c,
+                        record.content.Admin_Expended_Justification__c,
                     ];
                 }
                 default:
@@ -1152,6 +1156,7 @@ module.exports = {
     generateAndSendEmail,
     processSQSMessageRequest,
     generateSubaward, // exporting for testing purposes
+    generateProjectBaseline, // exporting for testing purposes
 };
 
 // NOTE: This file was copied from src/server/services/generate-arpa-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
