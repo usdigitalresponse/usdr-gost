@@ -21,7 +21,7 @@ on:
       arpa-exporter-test-outcome:
         type: string
         required: true
-      arpa-exporter-coverage-markdown-report:
+      arpa-exporter-test-coverage-markdown-report:
         type: string
         required: true
       eslint-outcome:
