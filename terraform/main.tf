@@ -467,7 +467,7 @@ module "arpa_exporter" {
   ecs_cluster_name     = join("", aws_ecs_cluster.default[*].name)
   docker_tag           = var.arpa_exporter_image_tag
   unified_service_tags = local.unified_service_tags
-  stop_timeout_seconds = 300 # 5 minutes, in seconds
+  stop_timeout_seconds = 120 # 2 minutes, in seconds
   consumer_container_environment = {
     API_DOMAIN                    = "https://${local.api_domain_name}"
     ARPA_DATA_EXPORT_BUCKET       = module.api.arpa_audit_reports_bucket_id
