@@ -233,7 +233,7 @@ jobs:
       run:
         working-directory: arpa-exporter
     outputs:
-      coverage-markdown-report: ${{ steps.coverage-markdown.outputs.stdout }}
+      coverage-markdown-report: ${{ steps.coverage-markdown.outputs.markdownReport }}
     steps:
       - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
         with:
@@ -256,7 +256,10 @@ jobs:
         run: poetry run pytest
       - name: Generate coverage markdown report
         id: coverage-markdown
-        run: poetry run coverage report --format markdown
+        run: |
+          markdown=$(poetry run coverage report --format markdown)
+          echo $markdown
+          echo "markdownReport=$markdown" >> $GITHUB_OUTPUT
       - name: Publish coverage markdown report to step summary
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'ENDOFREPORT'
@@ -270,7 +273,7 @@ jobs:
           </details>
           ENDOFREPORT
         env:
-          COVERAGE_REPORT: ${{ steps.coverage-markdown.outputs.stdout }}
+          COVERAGE_REPORT: ${{ steps.coverage-markdown.outputs.markdownReport }}
 
   eslint:
     name: Lint JavaScript
