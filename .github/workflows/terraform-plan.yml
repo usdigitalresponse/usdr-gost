@@ -44,6 +44,10 @@ on:
       website-artifacts-path:
         type: string
         required: true
+      arpa-exporter-image-tag:
+        type: string
+      arpa-exporter-image-digest:
+        type: string
     secrets:
       aws-access-key-id:
         required: true
@@ -202,6 +206,7 @@ jobs:
           TF_VAR_datadog_api_key: ${{ secrets.datadog-api-key }}
           TF_VAR_datadog_app_key: ${{ secrets.datadog-app-key }}
           TF_VAR_api_container_image_tag: "${{ inputs.server-image-tag }}@${{ inputs.server-image-digest }}"
+          TF_VAR_arpa_exporter_image_tag: "${{ inputs.arpa-exporter-image-tag }}@${{ inputs.arpa-exporter-image-digest }}"
           TF_VAR_website_origin_artifacts_dist_path: "${{ inputs.website-artifacts-path }}"
       - name: Generate plaintext plan
         id: show_plan
