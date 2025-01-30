@@ -257,8 +257,11 @@ jobs:
       - name: Generate coverage markdown report
         id: coverage-markdown
         run: |
-          markdown=$(poetry run coverage report --format markdown)
-          echo $markdown
+          MARKDOWN="$(poetry run coverage report --format markdown)"
+          echo "$MARKDOWN"
+          echo "markdownReport<<ENDOFMARKDOWNREPORT" >> $GITHUB_OUTPUT
+          echo "$MARKDOWN" >> $GITHUB_OUTPUT
+          echo "ENDOFMARKDOWNREPORT" >> $GITHUB_OUTPUT
           echo "markdownReport=$markdown" >> $GITHUB_OUTPUT
       - name: Publish coverage markdown report to step summary
         run: |
