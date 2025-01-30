@@ -1,6 +1,5 @@
 import json
 import os
-import signal
 import tempfile
 import zipfile
 
@@ -10,26 +9,10 @@ import botocore.exceptions
 import structlog
 
 from src.lib.logging import get_logger, reset_contextvars
+from src.lib.shutdown_handler import ShutdownHandler
 
 
 TASK_QUEUE_URL = os.environ["TASK_QUEUE_URL"]
-
-
-class ShutdownHandler:
-    def __init__(self):
-        self._shutdown_requested = False
-        signal.signal(signal.SIGINT, self._handle_signal)
-        signal.signal(signal.SIGTERM, self._handle_signal)
-
-    def _handle_signal(self, signum, frame):
-        get_logger().warn(
-            "shutdown signal received; requesting shutdown...",
-            signal=signal.strsignal(signum),
-        )
-        self._shutdown_requested = True
-
-    def is_shutdown_requested(self):
-        return self._shutdown_requested
 
 
 def get_entry_path(source_path):
@@ -152,7 +135,7 @@ def main():
     s3 = boto3.client("s3")
     sqs = boto3.client("sqs")
 
-    shutdown_handler = ShutdownHandler()
+    shutdown_handler = ShutdownHandler(logger=get_logger())
     while shutdown_handler.is_shutdown_requested() is False:
         handle_work(s3, sqs)
     get_logger().warn("shutting down")
