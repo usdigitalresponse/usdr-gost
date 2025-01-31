@@ -258,7 +258,6 @@ jobs:
         id: coverage-markdown
         run: |
           MARKDOWN="$(poetry run coverage report --format markdown)"
-          echo "$MARKDOWN"
           echo "markdownReport<<ENDOFMARKDOWNREPORT" >> $GITHUB_OUTPUT
           echo "$MARKDOWN" >> $GITHUB_OUTPUT
           echo "ENDOFMARKDOWNREPORT" >> $GITHUB_OUTPUT
