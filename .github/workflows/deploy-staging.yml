@@ -68,10 +68,10 @@ jobs:
     with:
       ref: ${{ github.sha }}
       concurrency-group: run_terraform-staging
-      server-image-tag: ${{ github.sha }}
-      server-image-digest: ${{ needs.build.outputs.server-image-digest }}
+      server-image: "${{ github.sha }}@${{ needs.build.outputs.server-image-digest }}"
       website-artifacts-key: ${{ needs.build.outputs.website-artifacts-key }}
       website-artifacts-path: ${{ needs.build.outputs.website-artifacts-path }}
+      arpa-exporter-image: "${{ github.sha }}@${{ needs.build.outputs.server-image-digest }}"
       aws-region: us-west-2
       environment-key: staging
       tf-backend-config-file: staging.s3.tfbackend

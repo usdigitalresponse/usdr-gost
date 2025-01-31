@@ -74,8 +74,12 @@ module "website" {
   gost_api_domain   = local.api_domain_name
   managed_waf_rules = var.website_managed_waf_rules
   feature_flags = merge(
-    { arpa_exporter_enabled = local.arpa_exporter_enabled },
+    // Defaults:
+    {},
+    // Configured flags:
     var.website_feature_flags,
+    // Overrides:
+    {},
   )
   origin_artifacts_dist_path = coalesce(
     var.website_origin_artifacts_dist_path, "${path.root}/../packages/client/dist"
@@ -465,6 +469,7 @@ module "arpa_exporter" {
 
   # Task configuration
   ecs_cluster_name     = join("", aws_ecs_cluster.default[*].name)
+  docker_repository    = var.arpa_exporter_docker_repository
   docker_tag           = var.arpa_exporter_image_tag
   unified_service_tags = local.unified_service_tags
   stop_timeout_seconds = 120 # 2 minutes, in seconds
