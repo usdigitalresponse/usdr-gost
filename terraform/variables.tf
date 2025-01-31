@@ -281,7 +281,7 @@ variable "arpa_exporter_docker_repository" {
 }
 
 variable "arpa_exporter_image_tag" {
-  description = "Docker image tag to pull for ARPA Exporter task consumer. When null/empty, consumer is not provisioned and website feature flag is false."
+  description = "Docker image tag to pull for ARPA Exporter task consumer. If null/empty, disables task consumer provisioning."
   type        = string
   nullable    = true
   default     = null
