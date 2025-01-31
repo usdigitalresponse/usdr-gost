@@ -272,3 +272,17 @@ variable "email_enable_tracking" {
   description = "Feature flag for email tracking. When false, disables link rewriting for click tracking in emails."
   type        = bool
 }
+
+# ARPA Exporter
+variable "arpa_exporter_docker_repository" {
+  description = "Docker repository that provides arpa-exporter container images."
+  type        = string
+  default     = "ghcr.io/usdigitalresponse/usdr-gost-arpa-exporter"
+}
+
+variable "arpa_exporter_image_tag" {
+  description = "Docker image tag to pull for ARPA Exporter task consumer. If null/empty, disables task consumer provisioning."
+  type        = string
+  nullable    = true
+  default     = null
+}

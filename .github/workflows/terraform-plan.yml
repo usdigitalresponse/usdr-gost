@@ -32,18 +32,20 @@ on:
         description: Name of the concurrency group (avoids simultaneous Terraform execution against the same environment)
         type: string
         default: run_terraform
-      server-image-tag:
+      server-image:
+        description: Image to pull for api server tasks. Should be in the form of "<tag>@sha256:<digest>".
         type: string
-        required: true
-      server-image-digest:
-        type: string
-        required: true
+        default: ""
       website-artifacts-key:
         type: string
         required: true
       website-artifacts-path:
         type: string
         required: true
+      arpa-exporter-image:
+        description: Image to pull for arpa-exporter task consumers. Should be in the form of "<tag>@sha256:<digest>".
+        type: string
+        default: ""
     secrets:
       aws-access-key-id:
         required: true
@@ -201,7 +203,8 @@ jobs:
           TF_VAR_git_commit_sha: ${{ inputs.ref }}
           TF_VAR_datadog_api_key: ${{ secrets.datadog-api-key }}
           TF_VAR_datadog_app_key: ${{ secrets.datadog-app-key }}
-          TF_VAR_api_container_image_tag: "${{ inputs.server-image-tag }}@${{ inputs.server-image-digest }}"
+          TF_VAR_api_container_image_tag: "${{ inputs.server-image }}"
+          TF_VAR_arpa_exporter_image_tag: "${{ inputs.arpa-exporter-image }}"
           TF_VAR_website_origin_artifacts_dist_path: "${{ inputs.website-artifacts-path }}"
       - name: Generate plaintext plan
         id: show_plan

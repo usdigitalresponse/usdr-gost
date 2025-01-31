@@ -31,8 +31,9 @@ variable "queue_url_environment_variable_name" {
 }
 
 variable "consumer_task_command" {
-  description = "The command to execute when starting an ECS task's consumer container."
+  description = "The command to execute when starting an ECS task's consumer container. If null, uses the consumers docker image CMD."
   type        = list(string)
+  default     = null
 }
 
 variable "consumer_task_efs_volume_mounts" {
@@ -116,19 +117,28 @@ variable "ssm_path_prefix" {
   }
 }
 
+variable "postgres_enabled" {
+  description = "Whether to configure access to Postgres. Set to false if task consumers do not connect to Postgres."
+  type        = bool
+  default     = true
+}
+
 variable "rds_db_connect_resources" {
   description = "Resource ARNs for which rds-db:connect access should be allowed."
   type        = list(string)
+  default     = []
 }
 
 variable "postgres_username" {
   description = "Username for authenticated connecting to the Postgres db."
   type        = string
+  default     = ""
 }
 
 variable "postgres_endpoint" {
   description = "Endpoint for connecting to the Postgres db."
   type        = string
+  default     = ""
 }
 
 variable "postgres_port" {
@@ -140,6 +150,7 @@ variable "postgres_port" {
 variable "postgres_db_name" {
   description = "Name of the Postgres db to which the API will connect."
   type        = string
+  default     = ""
 }
 
 variable "subnet_ids" {

@@ -56,6 +56,7 @@ locals {
   permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_policy_name}"
   api_domain_name          = coalesce(var.api_domain_name, "api.${var.website_domain_name}")
   unified_service_tags     = { service = "gost", env = var.env, version = var.version_identifier }
+  arpa_exporter_enabled    = can(coalesce(var.arpa_exporter_image_tag))
 }
 
 data "aws_ssm_parameter" "public_dns_zone_id" {
@@ -72,7 +73,14 @@ module "website" {
   domain_name       = var.website_domain_name
   gost_api_domain   = local.api_domain_name
   managed_waf_rules = var.website_managed_waf_rules
-  feature_flags     = var.website_feature_flags
+  feature_flags = merge(
+    // Defaults:
+    {},
+    // Configured flags:
+    var.website_feature_flags,
+    // Overrides:
+    {},
+  )
   origin_artifacts_dist_path = coalesce(
     var.website_origin_artifacts_dist_path, "${path.root}/../packages/client/dist"
   )
@@ -129,6 +137,17 @@ module "arpa_treasury_report_security_group" {
   namespace        = var.namespace
   vpc_id           = data.aws_ssm_parameter.vpc_id.value
   attributes       = ["arpa_treasury_report"]
+  allow_all_egress = true
+}
+
+module "arpa_exporter_security_group" {
+  count   = local.arpa_exporter_enabled ? 1 : 0
+  source  = "cloudposse/security-group/aws"
+  version = "2.2.0"
+
+  namespace        = var.namespace
+  vpc_id           = data.aws_ssm_parameter.vpc_id.value
+  attributes       = ["arpa_exporter"]
   allow_all_egress = true
 }
 
@@ -435,6 +454,72 @@ resource "aws_iam_role_policy" "api_task-publish_to_arpa_treasury_report_queue" 
   name_prefix = "send-arpa-treasury-report-requests"
   role        = module.api.ecs_task_role_name
   policy      = data.aws_iam_policy_document.publish_to_arpa_treasury_report_queue.json
+}
+
+module "arpa_exporter" {
+  count                    = local.arpa_exporter_enabled ? 1 : 0
+  source                   = "./modules/sqs_consumer_task"
+  namespace                = "${var.namespace}-arpa_exporter"
+  permissions_boundary_arn = local.permissions_boundary_arn
+  depends_on               = [aws_ecs_cluster.default]
+
+  # Networking
+  subnet_ids         = local.private_subnet_ids
+  security_group_ids = module.arpa_exporter_security_group[*].id
+
+  # Task configuration
+  ecs_cluster_name     = join("", aws_ecs_cluster.default[*].name)
+  docker_repository    = var.arpa_exporter_docker_repository
+  docker_tag           = var.arpa_exporter_image_tag
+  unified_service_tags = local.unified_service_tags
+  stop_timeout_seconds = 120 # 2 minutes, in seconds
+  consumer_container_environment = {
+    API_DOMAIN                    = "https://${local.api_domain_name}"
+    ARPA_DATA_EXPORT_BUCKET       = module.api.arpa_audit_reports_bucket_id
+    DATA_DIR                      = "/var/data"
+    LOG_LEVEL                     = "INFO"
+    NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
+    SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
+    WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
+  }
+  datadog_environment_variables = var.default_datadog_environment_variables
+  consumer_task_efs_volume_mounts = [{
+    name            = "data"
+    container_path  = "/var/data"
+    read_only       = false
+    file_system_id  = module.api.efs_data_volume_id
+    access_point_id = module.api.efs_data_volume_access_point_id
+  }]
+  additional_task_role_json_policies = {
+    rw-audit-reports-bucket = data.aws_iam_policy_document.arpa_audit_report_rw_reports_bucket.json
+    send-emails             = module.api.send_emails_policy_json
+  }
+
+  # Task resource configuration
+  consumer_task_size = {
+    cpu    = 1024 # 1 vCPU
+    memory = 2048 # 2 GB
+  }
+
+  # Messaging
+  autoscaling_message_thresholds = [1, 3, 5]
+  sqs_publisher = {
+    principal_type       = "Service"
+    principal_identifier = "ecs-tasks.amazonaws.com"
+    source_arn           = module.api.ecs_service_arn
+  }
+  sqs_max_receive_count             = 2
+  sqs_visibility_timeout_seconds    = 900     # 15 minutes, in seconds
+  sqs_dlq_message_retention_seconds = 1209600 # 14 days, in seconds
+
+  # Logging
+  log_retention = var.api_log_retention_in_days
+
+  # Secrets
+  ssm_path_prefix = var.ssm_service_parameters_path_prefix
+
+  # Postgres
+  postgres_enabled = false
 }
 
 module "postgres" {
