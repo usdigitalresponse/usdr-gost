@@ -465,6 +465,7 @@ module "arpa_exporter" {
 
   # Task configuration
   ecs_cluster_name     = join("", aws_ecs_cluster.default[*].name)
+  docker_repository    = var.arpa_exporter_docker_repository
   docker_tag           = var.arpa_exporter_image_tag
   unified_service_tags = local.unified_service_tags
   stop_timeout_seconds = 120 # 2 minutes, in seconds
