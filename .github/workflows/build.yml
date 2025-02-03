@@ -66,6 +66,10 @@ on:
         description: Value to set for the `org.opencontainers.image.version label`.
         type: string
         default: ""
+      arpa-exporter-image-name:
+        description: Name of the arpa-exporter docker image. Use caution when setting a non-default value.
+        type: string
+        default: ${{ github.repository }}-arpa-exporter
       website-artifact-retention-days:
         description: Number of days to retain website build artifacts.
         type: number
@@ -277,14 +281,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # v5.6.1
         with:
-          images: ${{ inputs.server-image-registry }}/${{ inputs.server-image-name }}
+          images: ${{ inputs.server-image-registry }}/${{ inputs.arpa-exporter-image-name }}
           tags: |
             type=raw,enable=true,priority=100,prefix=sha-,value=${{ steps.commit-sha.outputs.long }}
             type=raw,enable=${{ inputs.server-image-tag-release != '' }},priority=200,value=${{ inputs.server-image-tag-release }}
             type=raw,enable=${{ inputs.server-image-tag-latest }},priority=300,value=latest
             type=raw,enable=${{ inputs.server-image-tag-pr != '' }},priority=600,prefix=pr-,value=${{ inputs.server-image-tag-pr }}
           labels: |
-            org.opencontainers.image.title=${{ inputs.server-image-name }}
+            org.opencontainers.image.title=${{ inputs.arpa-exporter-image-name }}
             org.opencontainers.image.version=${{ inputs.server-image-version }}
             org.opencontainers.image.revision=${{ steps.commit-sha.outputs.long }}
             com.datadoghq.tags.service=gost
@@ -354,7 +358,7 @@ jobs:
           docker buildx imagetools inspect "$INSPECT_NAME" --format "{{ json .SBOM }}" > $ATTESTATIONS_DIR/sbom.sdpx.json
           docker buildx imagetools inspect "$INSPECT_NAME" --format "{{ json .Provenance }}" > $ATTESTATIONS_DIR/provenance.json
         env:
-          INSPECT_NAME: ${{ inputs.server-image-registry }}/${{ inputs.server-image-name }}@${{ steps.build-push.outputs.digest }}
+          INSPECT_NAME: ${{ inputs.server-image-registry }}/${{ inputs.arpa-exporter-image-name }}@${{ steps.build-push.outputs.digest }}
       - name: Upload attestations
         if: steps.store-attestations.outcome == 'success'
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0

@@ -21,7 +21,7 @@ on:
       arpa-exporter-test-outcome:
         type: string
         required: true
-      arpa-exporter-coverage-markdown-report:
+      arpa-exporter-test-coverage-markdown-report:
         type: string
         required: true
       eslint-outcome:
@@ -123,7 +123,7 @@ jobs:
           SERVER_COVERAGE_REPORT: ${{ inputs.server-test-coverage-markdown-report }}
           E2E_TEST_OUTCOME: ${{ inputs.e2e-test-outcome }}
           ARPA_EXPORTER_TEST_OUTCOME: ${{ inputs.arpa-exporter-test-outcome }}
-          ARPA_EXPORTER_COVERAGE_REPORT: ${{ inputs.arpa-exporter-coverage-markdown-report }}
+          ARPA_EXPORTER_COVERAGE_REPORT: ${{ inputs.arpa-exporter-test-coverage-markdown-report }}
           ESLINT_OUTCOME: ${{ inputs.eslint-outcome }}
           TFLINT_OUTCOME: ${{ inputs.tflint-outcome }}
           RUFF_OUTCOME: ${{ inputs.ruff-outcome }}

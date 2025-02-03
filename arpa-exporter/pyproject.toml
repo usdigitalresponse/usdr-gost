@@ -19,6 +19,7 @@ ipython = "^8.31.0"
 pytest-cov = "^6.0.0"
 mypy = "^1.14.1"
 boto3-stubs = "^1.36.6"
+pytest-timeout = "^2.3.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -34,6 +35,9 @@ addopts = "--cov=src --cov-report term --cov-report html"
 
 [tool.coverage.run]
 branch = true
+parallel = true
+concurrency = ["multiprocessing"]
+omit = ["./tests/*"]
 
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
@@ -53,4 +57,5 @@ exclude_also = [
     "@(abc\\.)?abstractmethod",
 ]
 
+skip_empty = true
 ignore_errors = true

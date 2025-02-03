@@ -74,8 +74,12 @@ module "website" {
   gost_api_domain   = local.api_domain_name
   managed_waf_rules = var.website_managed_waf_rules
   feature_flags = merge(
-    { arpa_exporter_enabled = local.arpa_exporter_enabled },
+    // Defaults:
+    {},
+    // Configured flags:
     var.website_feature_flags,
+    // Overrides:
+    {},
   )
   origin_artifacts_dist_path = coalesce(
     var.website_origin_artifacts_dist_path, "${path.root}/../packages/client/dist"
@@ -465,14 +469,15 @@ module "arpa_exporter" {
 
   # Task configuration
   ecs_cluster_name     = join("", aws_ecs_cluster.default[*].name)
+  docker_repository    = var.arpa_exporter_docker_repository
   docker_tag           = var.arpa_exporter_image_tag
   unified_service_tags = local.unified_service_tags
-  stop_timeout_seconds = 300 # 5 minutes, in seconds
+  stop_timeout_seconds = 120 # 2 minutes, in seconds
   consumer_container_environment = {
     API_DOMAIN                    = "https://${local.api_domain_name}"
     ARPA_DATA_EXPORT_BUCKET       = module.api.arpa_audit_reports_bucket_id
     DATA_DIR                      = "/var/data"
-    LOG_LEVEL                     = "DEBUG"
+    LOG_LEVEL                     = "INFO"
     NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
     SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
     WEBSITE_DOMAIN                = "https://${var.website_domain_name}"

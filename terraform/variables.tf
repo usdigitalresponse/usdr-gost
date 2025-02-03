@@ -274,8 +274,14 @@ variable "email_enable_tracking" {
 }
 
 # ARPA Exporter
+variable "arpa_exporter_docker_repository" {
+  description = "Docker repository that provides arpa-exporter container images."
+  type        = string
+  default     = "ghcr.io/usdigitalresponse/usdr-gost-arpa-exporter"
+}
+
 variable "arpa_exporter_image_tag" {
-  description = "Docker image tag to pull for ARPA Exporter task consumer. When null/empty, consumer is not provisioned and website feature flag is false."
+  description = "Docker image tag to pull for ARPA Exporter task consumer. If null/empty, disables task consumer provisioning."
   type        = string
   nullable    = true
   default     = null
