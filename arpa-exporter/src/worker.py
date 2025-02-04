@@ -5,6 +5,7 @@ import zipfile
 from typing import List, Dict
 from pydantic import BaseModel
 import csv
+import io
 
 import boto3
 import botocore.client
@@ -13,7 +14,9 @@ import structlog
 
 from src.lib.logging import get_logger, reset_contextvars
 from src.lib.shutdown_handler import ShutdownHandler
+from src.lib.email import send_email, generate_email
 
+from memory_profiler import profile
 
 TASK_QUEUE_URL = os.environ["TASK_QUEUE_URL"]
 DATA_DIR = os.getenv('DATA_DIR', 'arpa-exporter/src/data')
@@ -32,21 +35,21 @@ class UploadInfo(BaseModel):
 
 class S3Schema(BaseModel):
     bucket: str
-    key: str
+    zip_key: str
+    metadata_key: str
 
 
 class MessageSchema(BaseModel):
     s3: S3Schema
     organization_id: int
-    metadata_filename: str
     user_email: str
 
 
-def build_zip(fh, source_paths):
-    logger = get_logger(total_source_files=len(source_paths))
+def build_zip(s3, fh, bucket_name: str, metadata_filename: str):
+    logger = get_logger()
     files_added = 0
     with zipfile.ZipFile(fh, 'a') as archive:
-        for upload in source_paths:
+        for upload in load_source_paths_from_csv(s3, bucket_name, metadata_filename):
             source_path = os.path.join(DATA_DIR, f'{upload.upload_id}.xlsm')
             entry_logger = logger.bind(source_path=source_path, entry_path=upload.directory_location)
             if upload.directory_location in archive.namelist():
@@ -70,29 +73,41 @@ def add_metadata_csv_to_zip(fh, metadata_filepath: str, metadata_filename: str):
         zipf.write(metadata_filepath, arcname=f'/metadata/{metadata_filename}')
 
 
-def load_source_paths_from_csv(metadata_filepath: str):
-    with open(metadata_filepath, 'r') as f:
-        reader = csv.DictReader(f)
-        return [UploadInfo(**row) for row in reader]
+def load_source_paths_from_csv(s3, bucket, file_key: str):
+    response = s3.get_object(
+            Bucket=bucket,
+            Key=file_key,
+        )
+    bytes_stream = response["Body"]
+    csv_file_stream = io.TextIOWrapper(bytes_stream, encoding="utf-8")
+    reader = csv.DictReader(
+        csv_file_stream, delimiter=",", fieldnames=["upload_id", "filename_in_zip", "directory_location", "agency_name", "ec_code", "reporting_period_name", "validity"]
+    )
+
+    for row in reader:
+        yield UploadInfo(**row)
 
 
-def get_metadata_filepath(organization_id: int, metadata_filename: str):
-    return os.path.join(METADATA_DIR, organization_id, metadata_filename)
+def build_and_send_email(logger: structlog.stdlib.BoundLogger, user_email: str, download_link: str):
+    email_html, email_text, subject = generate_email(logger, download_link)
+    send_email(
+        dest_email=user_email,
+        email_html=email_html,
+        email_text=email_text or "",
+        subject=subject or "",
+        logger=logger,
+    )
 
-
-def build_and_send_email(user_email: str, download_link: str):
-    pass
-
-
-def process_sqs_message_request(s3, message_data: MessageSchema, local_file):
+def process_sqs_message_request(s3, ses, message_data: MessageSchema, local_file):
     # Get the S3 object if it already exists (if 404, assume it doesn't & create from scratch)
     # Note:
     #   Fargate ephemeral storage is free up to 20GB, so we should download and/or build
     #   the S3 file using tempfile storage. We have a good pattern for doing that using context
     #   managers in CPF Reporter.
     s3_bucket = message_data.s3.bucket
-    s3_key = message_data.s3.key
+    s3_key = message_data.s3.zip_key
 
+    # Step 1 - Download the existing zip archive from S3 if exists
     try:
         s3.download_fileobj(s3_bucket, s3_key, local_file)
     except botocore.exceptions.ClientError as e:
@@ -100,30 +115,14 @@ def process_sqs_message_request(s3, message_data: MessageSchema, local_file):
             get_logger().exception("error downloading S3 object")
             raise
 
-    metadata_filepath = get_metadata_filepath(message_data.organization_id, message_data.metadata_filename)
-
-    # Step 1 - Load all the source paths from the metadata CSV file
+    # Step 2 - Add or update contents of the zipfile with the new metadata
     try:
-        source_paths = load_source_paths_from_csv(metadata_filepath)
-    except:
-        get_logger().exception("error loading source paths from CSV")
-        raise
-
-    # Step 2 - Add the metadata CSV to the zip archive
-    try:
-        add_metadata_csv_to_zip(local_file, metadata_filepath, message_data.metadata_filename)
-    except:
-        get_logger().exception("error adding metadata CSV to zip archive")
-        raise
-
-    # Step 3 - Add any files listed in the metadata CSV that are not already in the zip archive
-    try:
-        build_zip(local_file, source_paths=source_paths)
+        build_zip(s3, local_file, message_data.s3.bucket, message_data.s3.metadata_key)
     except:
         get_logger().exception("error building zip archive")
         raise
 
-    # Step 4 - Upload the zip archive back to S3
+    # Step 3 - Upload the zip archive back to S3
     try:
         local_file.seek(0)
         s3.upload_fileobj(local_file, s3_bucket, s3_key)
@@ -131,16 +130,16 @@ def process_sqs_message_request(s3, message_data: MessageSchema, local_file):
         get_logger().exception("error uploading zip archive to s3")
         raise
 
-    # Step 5 - Send Email to user with the download link
+    # Step 4 - Send Email to user with the download link
     try:
-        build_and_send_email(message_data.user_email, download_link=f"/api/uploads/{message_data.organization_id}/{s3_key.split('/')[-1]}")
+        build_and_send_email(ses, message_data.user_email, download_link=f"/api/uploads/{message_data.organization_id}/{s3_key.split('/')[-1]}")
     except:
         get_logger().exception("error sending email to user")
         raise
 
 
 @reset_contextvars
-def handle_work(s3, sqs):
+def handle_work(s3, sqs, ses):
     logger = get_logger()
     logger.info("long-polling next SQS message batch")
     try:
@@ -181,7 +180,7 @@ def handle_work(s3, sqs):
                 destination_file_path=tfh.name,
                 destination_file_mode=tfh.mode,
             ):
-                process_sqs_message_request(s3, data, tfh)
+                process_sqs_message_request(s3, ses, data, tfh)
         except:
             logger.info("error processing SQS message request for ARPA data export")
             raise
@@ -200,10 +199,11 @@ def handle_work(s3, sqs):
 def main():
     s3 = boto3.client("s3")
     sqs = boto3.client("sqs")
+    ses = boto3.client("ses")
 
     shutdown_handler = ShutdownHandler(logger=get_logger())
     while shutdown_handler.is_shutdown_requested() is False:
-        handle_work(s3, sqs)
+        handle_work(s3, sqs, ses)
     get_logger().warn("shutting down")
 
 
