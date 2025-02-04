@@ -16,7 +16,7 @@ from src.lib.logging import get_logger, reset_contextvars
 from src.lib.shutdown_handler import ShutdownHandler
 from src.lib.email import send_email, generate_email
 
-from memory_profiler import profile
+# from memory_profiler import profile
 
 TASK_QUEUE_URL = os.environ["TASK_QUEUE_URL"]
 DATA_DIR = os.getenv('DATA_DIR', 'arpa-exporter/src/data')
@@ -68,11 +68,6 @@ def build_zip(s3, fh, bucket_name: str, metadata_filename: str):
     logger.info("updated zip archive", files_added=files_added)
 
 
-def add_metadata_csv_to_zip(fh, metadata_filepath: str, metadata_filename: str):
-    with zipfile.ZipFile(fh, 'a') as zipf:
-        zipf.write(metadata_filepath, arcname=f'/metadata/{metadata_filename}')
-
-
 def load_source_paths_from_csv(s3, bucket, file_key: str):
     response = s3.get_object(
             Bucket=bucket,
@@ -81,7 +76,7 @@ def load_source_paths_from_csv(s3, bucket, file_key: str):
     bytes_stream = response["Body"]
     csv_file_stream = io.TextIOWrapper(bytes_stream, encoding="utf-8")
     reader = csv.DictReader(
-        csv_file_stream, delimiter=",", fieldnames=["upload_id", "filename_in_zip", "directory_location", "agency_name", "ec_code", "reporting_period_name", "validity"]
+        csv_file_stream, delimiter=","
     )
 
     for row in reader:
