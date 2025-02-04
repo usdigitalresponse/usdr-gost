@@ -79,6 +79,11 @@ autolabeler:
       - '**/lerna.json'
       - '**/eslintrc.js'
       - '**/.browserslistrc'
+  - label: python
+    files:
+      - '**/*.py'
+      - '**/pyproject.toml'
+      - '**/poetry.lock'
   - label: database-changes
     files:
       - 'packages/server/migrations/**'
@@ -98,6 +103,7 @@ autolabeler:
     files:
       - '**/yarn.lock'
       - '**/.terraform.lock.hcl'
+      - '**/poetry.lock'
     branch:
       - '/^dependabot\/.+$/i'
   - label: documentation
