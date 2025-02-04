@@ -88,9 +88,11 @@ def load_source_paths_from_csv(s3, bucket, file_key: str):
         yield UploadInfo(**row)
 
 
-def build_and_send_email(logger: structlog.stdlib.BoundLogger, user_email: str, download_link: str):
+def build_and_send_email(email_client, user_email: str, download_link: str):
+    logger = get_logger()
     email_html, email_text, subject = generate_email(logger, download_link)
     send_email(
+        email_client,
         dest_email=user_email,
         email_html=email_html,
         email_text=email_text or "",

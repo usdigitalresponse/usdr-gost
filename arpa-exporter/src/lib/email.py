@@ -57,15 +57,13 @@ def generate_email(
 
 
 def send_email(
+    email_client: boto3.client,
     dest_email: str,
     email_html: str,
     email_text: str,
     subject: str,
     logger: structlog.stdlib.BoundLogger,
 ) -> bool:
-    # Email user
-    email_client = boto3.client("ses")
-
     # Try to send the email.
     try:
         # Provide the contents of the email.
