@@ -25,13 +25,6 @@ CMD ["python", "-m", "src.worker"]
 # Production runtime
 FROM python:3.13-slim-bookworm AS app_runtime
 
-# Inject build-time environment variables
-ARG GIT_COMMIT=""
-ARG GIT_REF=""
-ARG TIMESTAMP=""
-ENV BUILD_GIT_COMMIT=${GIT_COMMIT}
-ENV BUILD_GIT_REF=${GIT_REF}
-ENV BUILD_TIMESTAMP=${TIMESTAMP}
 ENV VIRTUAL_ENV=/app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 

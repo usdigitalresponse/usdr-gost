@@ -318,10 +318,6 @@ jobs:
           cache-to: type=gha,mode=max
           provenance: true
           sbom: true
-          build-args: |
-            GIT_COMMIT=${{ inputs.ref }}
-            GIT_REF=${{ inputs.server-image-args-ref }}
-            TIMESTAMP=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
       - name: Publish build results
         run: |
           REPORT_FILE=$(mktemp -t summary.md.XXXXX)
