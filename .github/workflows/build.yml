@@ -226,7 +226,7 @@ jobs:
           INSPECT_NAME: ${{ inputs.server-image-registry }}/${{ inputs.server-image-name }}@${{ steps.build-push.outputs.digest }}
       - name: Upload attestations
         if: steps.store-attestations.outcome == 'success'
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: ${{ env.ATTESTATION_ARTIFACTS_KEY }}
           path: ${{ steps.store-attestations.outputs.path }}
@@ -357,7 +357,7 @@ jobs:
           INSPECT_NAME: ${{ inputs.server-image-registry }}/${{ inputs.arpa-exporter-image-name }}@${{ steps.build-push.outputs.digest }}
       - name: Upload attestations
         if: steps.store-attestations.outcome == 'success'
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: ${{ env.ATTESTATION_ARTIFACTS_KEY }}
           path: ${{ steps.store-attestations.outputs.path }}
@@ -424,7 +424,7 @@ jobs:
           ENDOFREPORT
           cat "$REPORT_FILE" >> $GITHUB_STEP_SUMMARY
       - name: Upload build artifact
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: ${{ env.ARTIFACTS_KEY }}
           path: ${{ env.ARTIFACTS_PATH }}
