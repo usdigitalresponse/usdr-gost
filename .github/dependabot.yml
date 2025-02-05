@@ -14,6 +14,14 @@ updates:
       timezone: "America/New_York"
     commit-message:
       prefix: 'Chore [deps:npm]'
+  - package-ecosystem: pip
+    directory: /arpa-exporter
+    schedule:
+      interval: daily
+      time: "03:00"
+      timezone: America/New_York
+    commit-message:
+      prefix: 'Chore [deps:pip]'
   - package-ecosystem: github-actions
     directory: /
     schedule:

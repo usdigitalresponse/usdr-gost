@@ -88,6 +88,14 @@ module "datadog_container_definition" {
   readonly_root_filesystem = "false"
   stop_timeout             = local.stop_timeout_seconds
 
+  healthcheck = {
+    command     = ["CMD-SHELL", "agent health"]
+    startPeriod = 15
+    interval    = 30
+    timeout     = 5
+    retries     = 3
+  }
+
   map_environment = merge(
     {
       ECS_FARGATE    = "true",
