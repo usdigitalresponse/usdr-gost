@@ -8,7 +8,7 @@ terraform {
     }
     datadog = {
       source  = "DataDog/datadog"
-      version = "~> 3.50.0"
+      version = "~> 3.53.0"
     }
   }
 
