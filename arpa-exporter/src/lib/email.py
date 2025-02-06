@@ -57,7 +57,7 @@ def generate_email(
 
 
 def send_email(
-    email_client: boto3.client,
+    email_client,
     dest_email: str,
     email_html: str,
     email_text: str,
