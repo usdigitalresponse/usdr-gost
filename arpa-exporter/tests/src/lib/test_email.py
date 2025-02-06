@@ -18,8 +18,9 @@ class TestEmail:
     @mock_aws
     def test_send_email(self):
         os.environ["NOTIFICATIONS_EMAIL"] = "grants-notifications@usdigitalresponse.org"
+        region = "us-west-2"
 
-        email_client = boto3.client("ses")
+        email_client = boto3.client("ses", region_name=region)
 
         # Verify the email address otherwise SES will throw an error
         email_client.verify_email_address(EmailAddress=os.getenv("NOTIFICATIONS_EMAIL"))
