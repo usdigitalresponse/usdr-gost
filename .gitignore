@@ -140,3 +140,4 @@ __pycache__/
 arpa-exporter/.coverage
 arpa-exporter/.coverage.*
 arpa-exporter/htmlcov/
+arpa-exporter/src/data/*
