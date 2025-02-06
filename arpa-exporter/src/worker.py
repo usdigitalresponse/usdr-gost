@@ -18,8 +18,8 @@ from src.lib.email import send_email, generate_email
 # from memory_profiler import profile
 
 TASK_QUEUE_URL = os.environ["TASK_QUEUE_URL"]
-DATA_DIR = os.getenv('DATA_DIR', 'arpa-exporter/src/data')
-METADATA_DIR = os.path.join(DATA_DIR, 'archive_metadata')
+DATA_DIR = os.getenv("DATA_DIR", "arpa-exporter/src/data")
+METADATA_DIR = os.path.join(DATA_DIR, "archive_metadata")
 
 
 class UploadInfo(BaseModel):
@@ -47,10 +47,15 @@ class MessageSchema(BaseModel):
 def build_zip(s3, fh, bucket_name: str, metadata_filename: str):
     logger = get_logger()
     files_added = 0
-    with zipfile.ZipFile(fh, 'a') as archive:
+    with zipfile.ZipFile(fh, "a") as archive:
         for upload in load_source_paths_from_csv(s3, bucket_name, metadata_filename):
-            source_path = os.path.join(os.getenv('DATA_DIR', 'arpa-exporter/src/data'), f'{upload.upload_id}.xlsm')
-            entry_logger = logger.bind(source_path=source_path, entry_path=upload.directory_location)
+            source_path = os.path.join(
+                os.getenv("DATA_DIR", "arpa-exporter/src/data"),
+                f"{upload.upload_id}.xlsm",
+            )
+            entry_logger = logger.bind(
+                source_path=source_path, entry_path=upload.directory_location
+            )
             if upload.directory_location in archive.namelist():
                 entry_logger.info("file already exists in archive")
             else:
@@ -69,14 +74,12 @@ def build_zip(s3, fh, bucket_name: str, metadata_filename: str):
 
 def load_source_paths_from_csv(s3, bucket, file_key: str):
     response = s3.get_object(
-            Bucket=bucket,
-            Key=file_key,
-        )
+        Bucket=bucket,
+        Key=file_key,
+    )
     bytes_stream = response["Body"]
     csv_file_stream = io.TextIOWrapper(bytes_stream, encoding="utf-8")
-    reader = csv.DictReader(
-        csv_file_stream, delimiter=","
-    )
+    reader = csv.DictReader(csv_file_stream, delimiter=",")
 
     for row in reader:
         yield UploadInfo(**row)
@@ -93,6 +96,7 @@ def build_and_send_email(email_client, user_email: str, download_link: str):
         subject=subject or "",
         logger=logger,
     )
+
 
 def process_sqs_message_request(s3, ses, message_data: MessageSchema, local_file):
     # Get the S3 object if it already exists (if 404, assume it doesn't & create from scratch)
@@ -128,7 +132,11 @@ def process_sqs_message_request(s3, ses, message_data: MessageSchema, local_file
 
     # Step 4 - Send Email to user with the download link
     try:
-        build_and_send_email(ses, message_data.user_email, download_link=f"/api/uploads/{message_data.organization_id}/getFullFileExport")
+        build_and_send_email(
+            ses,
+            message_data.user_email,
+            download_link=f"/api/uploads/{message_data.organization_id}/getFullFileExport",
+        )
     except:
         get_logger().exception("error sending email to user")
         raise

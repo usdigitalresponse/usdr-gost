@@ -5,15 +5,16 @@ import boto3
 
 from src.lib import email
 
+
 class TestEmail:
     def test_generate_email(self):
         email_html, email_text, subject = email.generate_email(
             logger=structlog.get_logger(),
             url="https://example.com",
         )
-        assert 'https://example.com' in email_html
-        assert 'https://example.com' in email_text
-        assert 'USDR Full File Export' == subject
+        assert "https://example.com" in email_html
+        assert "https://example.com" in email_text
+        assert "USDR Full File Export" == subject
 
     @mock_aws
     def test_send_email(self):

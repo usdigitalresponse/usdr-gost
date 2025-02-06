@@ -1,4 +1,3 @@
-
 from typing import Tuple, Optional
 
 import chevron
@@ -15,6 +14,7 @@ Hello,
 Your full file export can be downloaded here: {url}.
 """
 CHARSET = "UTF-8"
+
 
 def generate_email(
     logger: structlog.stdlib.BoundLogger,
