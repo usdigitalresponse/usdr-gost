@@ -3,11 +3,15 @@ from moto import mock_aws
 import tempfile
 import os
 
+from unittest import mock
 from src import worker
+import structlog
+from unittest.mock import patch
 
 class TestWorker:
+    @patch("src.worker.get_logger")
     @mock_aws
-    def test_build_zip(self):
+    def test_build_zip(self, mock_get_logger):
         region = "us-west-2"
         bucket_name = "test-apra-audit-reports"
         os.environ["DATA_DIR"] = "tests/src/data"
@@ -26,7 +30,9 @@ e9c689db-33fc-470e-a16d-a814c1630da1,ARPA SFRF Reporting Workbook _10.15errortes
         with tempfile.NamedTemporaryFile() as tmp:
             worker.build_zip(s3_client, tmp, bucket_name, "test_metadata.csv")
 
-            # Check that the zip file has 4 files listed above in the appropriate directories
+        # Check that the zip file has 4 files listed above in the appropriate directories
+        assert mock_get_logger().bind().info.call_count == 4
+        assert mock_get_logger().info.call_count == 1
 
     @mock_aws
     def test_load_source_paths_from_csv(self):
