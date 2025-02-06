@@ -128,7 +128,7 @@ def process_sqs_message_request(s3, ses, message_data: MessageSchema, local_file
 
     # Step 4 - Send Email to user with the download link
     try:
-        build_and_send_email(ses, message_data.user_email, download_link=f"/api/uploads/{message_data.organization_id}/{message_data.s3.metadata_key.split('/')[-1]}")
+        build_and_send_email(ses, message_data.user_email, download_link=f"/api/uploads/{message_data.organization_id}/getFullFileExport")
     except:
         get_logger().exception("error sending email to user")
         raise
