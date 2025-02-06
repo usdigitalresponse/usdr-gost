@@ -88,7 +88,7 @@ def build_and_send_email(email_client, user_email: str, download_link: str):
     send_email(
         email_client,
         dest_email=user_email,
-        email_html=email_html,
+        email_html=email_html or "",
         email_text=email_text or "",
         subject=subject or "",
         logger=logger,
