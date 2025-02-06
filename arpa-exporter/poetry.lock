@@ -68,6 +68,7 @@ mypy-boto3-ec2 = {version = ">=1.36.0,<1.37.0", optional = true, markers = "extr
 mypy-boto3-lambda = {version = ">=1.36.0,<1.37.0", optional = true, markers = "extra == \"essential\""}
 mypy-boto3-rds = {version = ">=1.36.0,<1.37.0", optional = true, markers = "extra == \"essential\""}
 mypy-boto3-s3 = {version = ">=1.36.0,<1.37.0", optional = true, markers = "extra == \"essential\""}
+mypy-boto3-ses = {version = ">=1.36.0,<1.37.0", optional = true, markers = "extra == \"ses\""}
 mypy-boto3-sqs = {version = ">=1.36.0,<1.37.0", optional = true, markers = "extra == \"essential\""}
 types-s3transfer = "*"
 
@@ -1435,6 +1436,18 @@ files = [
 ]
 
 [[package]]
+name = "mypy-boto3-ses"
+version = "1.36.0"
+description = "Type annotations for boto3 SES 1.36.0 service generated with mypy-boto3-builder 8.8.0"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "mypy_boto3_ses-1.36.0-py3-none-any.whl", hash = "sha256:5e4ea24072f8e31ab93e25f54e2b08a82739d76cc04f3772e7f34fbff3e5e4a6"},
+    {file = "mypy_boto3_ses-1.36.0.tar.gz", hash = "sha256:4484112304f5b3ded7151df7bb0c2e1cd6bbb3e527dc04aa3a63ab0bc7da8bbc"},
+]
+
+[[package]]
 name = "mypy-boto3-sqs"
 version = "1.36.0"
 description = "Type annotations for boto3 SQS 1.36.0 service generated with mypy-boto3-builder 8.8.0"
@@ -2255,4 +2268,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "f1ae08aa2bb9e0aa340ffcf30174b81634338a045f5dc775d307a791f600308b"
+content-hash = "3c1e630ca5bf06334c870bce23da9d162172559a4d38596af215f2d9ffb1fc02"

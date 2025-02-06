@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import csv
 import io
 import json
 import os
 import tempfile
+import typing
 import zipfile
 
 import boto3
@@ -15,7 +18,10 @@ from src.lib.email import generate_email, send_email
 from src.lib.logging import get_logger, reset_contextvars
 from src.lib.shutdown_handler import ShutdownHandler
 
-# from memory_profiler import profile
+if typing.TYPE_CHECKING:
+    from mypy_boto3_s3 import S3Client
+    from mypy_boto3_ses import SESClient
+    from mypy_boto3_sqs import SQSClient
 
 TASK_QUEUE_URL = os.environ["TASK_QUEUE_URL"]
 DATA_DIR = os.environ["DATA_DIR"]
@@ -44,7 +50,7 @@ class MessageSchema(BaseModel):
     user_email: str
 
 
-def build_zip(s3, fh, bucket_name: str, metadata_filename: str):
+def build_zip(s3: S3Client, fh, bucket_name: str, metadata_filename: str):
     logger = get_logger()
     files_added = 0
     with zipfile.ZipFile(fh, "a") as archive:
@@ -72,7 +78,7 @@ def build_zip(s3, fh, bucket_name: str, metadata_filename: str):
     logger.info("updated zip archive", files_added=files_added)
 
 
-def load_source_paths_from_csv(s3, bucket, file_key: str):
+def load_source_paths_from_csv(s3: S3Client, bucket: str, file_key: str):
     response = s3.get_object(
         Bucket=bucket,
         Key=file_key,
@@ -85,7 +91,7 @@ def load_source_paths_from_csv(s3, bucket, file_key: str):
         yield UploadInfo(**row)
 
 
-def build_and_send_email(email_client, user_email: str, download_link: str):
+def build_and_send_email(email_client: SESClient, user_email: str, download_link: str):
     logger = get_logger()
     email_html, email_text, subject = generate_email(logger, download_link)
     send_email(
@@ -98,8 +104,11 @@ def build_and_send_email(email_client, user_email: str, download_link: str):
     )
 
 
-def process_sqs_message_request(s3, ses, message_data: MessageSchema, local_file):
-    # Get the S3 object if it already exists (if 404, assume it doesn't & create from scratch)
+def process_sqs_message_request(
+    s3: S3Client, ses: SESClient, message_data: MessageSchema, local_file
+):
+    # Get the S3 object if it already exists.
+    # If 404, assume it doesn't & create from scratch.
     # Note:
     #   Fargate ephemeral storage is free up to 20GB, so we should download and/or build
     #   the S3 file using tempfile storage. We have a good pattern for doing that using context
@@ -143,7 +152,7 @@ def process_sqs_message_request(s3, ses, message_data: MessageSchema, local_file
 
 
 @reset_contextvars
-def handle_work(s3, sqs, ses):
+def handle_work(s3: S3Client, sqs: SQSClient, ses: SESClient):
     logger = get_logger()
     logger.info("long-polling next SQS message batch")
     try:
@@ -201,9 +210,9 @@ def handle_work(s3, sqs, ses):
 
 
 def main():
-    s3 = boto3.client("s3")
-    sqs = boto3.client("sqs")
-    ses = boto3.client("ses")
+    s3: S3Client = boto3.client("s3")
+    sqs: SQSClient = boto3.client("sqs")
+    ses: SESClient = boto3.client("ses")
 
     shutdown_handler = ShutdownHandler(logger=get_logger())
     while shutdown_handler.is_shutdown_requested() is False:
