@@ -50,45 +50,51 @@ class MessageSchema(BaseModel):
     user_email: str
 
 
-def build_zip(s3: S3Client, fh, bucket_name: str, metadata_filename: str):
+def build_zip(fh, source_uploads):
     logger = get_logger()
     files_added = 0
     with zipfile.ZipFile(fh, "a") as archive:
-        for upload in load_source_paths_from_csv(s3, bucket_name, metadata_filename):
-            source_path = os.path.join(
-                os.getenv("DATA_DIR", "arpa-exporter/src/data"),
-                f"{upload.upload_id}.xlsm",
-            )
+        for upload in source_uploads:
+            source_path = os.path.join(DATA_DIR, f"{upload.upload_id}.xlsm")
             entry_logger = logger.bind(
                 source_path=source_path, entry_path=upload.directory_location
             )
+
             if upload.directory_location in archive.namelist():
                 entry_logger.info("file already exists in archive")
-            else:
-                try:
-                    archive.write(source_path, arcname=upload.directory_location)
-                except:
-                    entry_logger.exception(
-                        "error writing source file to entry in archive"
-                    )
-                    raise
-                files_added += 1
-                entry_logger.info("Added file to the archive.")
+                continue
+
+            try:
+                archive.write(source_path, arcname=upload.directory_location)
+            except:
+                entry_logger.exception("error writing source file to entry in archive")
+                raise
+
+            files_added += 1
+            entry_logger.info("Added file to the archive.")
 
     logger.info("updated zip archive", files_added=files_added)
 
 
-def load_source_paths_from_csv(s3: S3Client, bucket: str, file_key: str):
-    response = s3.get_object(
-        Bucket=bucket,
-        Key=file_key,
-    )
-    bytes_stream = response["Body"]
-    csv_file_stream = io.TextIOWrapper(bytes_stream, encoding="utf-8")
-    reader = csv.DictReader(csv_file_stream, delimiter=",")
+def load_source_uploads_from_csv(s3: S3Client, bucket: str, file_key: str):
+    logger = get_logger(csv_bucket=bucket, csv_file_key=file_key)
+    try:
+        response = s3.get_object(
+            Bucket=bucket,
+            Key=file_key,
+        )
+        bytes_stream = response["Body"]
+        csv_file_stream = io.TextIOWrapper(bytes_stream, encoding="utf-8")
+        reader = csv.DictReader(csv_file_stream, delimiter=",")
 
-    for row in reader:
-        yield UploadInfo(**row)
+        for row in reader:
+            yield UploadInfo(**row)
+    except botocore.exceptions.ClientError:
+        logger.exception("error retrieving CSV file from S3")
+        raise
+    except:
+        logger.exception("error reading CSV file from S3")
+        raise
 
 
 def build_and_send_email(email_client: SESClient, user_email: str, download_link: str):
@@ -126,7 +132,10 @@ def process_sqs_message_request(
 
     # Step 2 - Add or update contents of the zipfile with the new metadata
     try:
-        build_zip(s3, local_file, message_data.s3.bucket, message_data.s3.metadata_key)
+        source_data = load_source_uploads_from_csv(
+            s3, message_data.s3.bucket, message_data.s3.metadata_key
+        )
+        build_zip(local_file, source_data)
     except:
         get_logger().exception("error building zip archive")
         raise
