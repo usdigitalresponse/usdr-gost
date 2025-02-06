@@ -177,17 +177,17 @@ def handle_work(s3, sqs, ses):
         raise
 
     with tempfile.NamedTemporaryFile() as tfh:
-        try:
-            with structlog.contextvars.bound_contextvars(
-                s3_bucket=data.s3.bucket,
-                s3_key=data.s3.key,
-                destination_file_path=tfh.name,
-                destination_file_mode=tfh.mode,
-            ):
+        with structlog.contextvars.bound_contextvars(
+            s3_bucket=data.s3.bucket,
+            s3_key=data.s3.key,
+            destination_file_path=tfh.name,
+            destination_file_mode=tfh.mode,
+        ):
+            try:
                 process_sqs_message_request(s3, ses, data, tfh)
-        except:
-            logger.info("error processing SQS message request for ARPA data export")
-            raise
+            except:
+                logger.info("error processing SQS message request for ARPA data export")
+                raise
 
     try:
         sqs.delete_message(
