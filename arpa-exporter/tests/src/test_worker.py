@@ -6,7 +6,8 @@ import os
 from unittest import mock
 from src import worker
 import structlog
-from unittest.mock import patch
+from unittest.mock import patch, call
+import zipfile
 
 class TestWorker:
     @patch("src.worker.get_logger")
@@ -30,9 +31,27 @@ e9c689db-33fc-470e-a16d-a814c1630da1,ARPA SFRF Reporting Workbook _10.15errortes
         with tempfile.NamedTemporaryFile() as tmp:
             worker.build_zip(s3_client, tmp, bucket_name, "test_metadata.csv")
 
-        # Check that the zip file has 4 files listed above in the appropriate directories
+            # Open the zip-file and make sure it has the correct files
+            with zipfile.ZipFile(tmp, 'r') as archive:
+                print(archive.namelist())
+                assert set(archive.namelist()) == {
+                    "Quarterly 1/Final Treasury/ARPA SFRF Reporting Workbook _10.15errortest--c93c6251-c1e0-49ab-8f04-d7cc9e1ac22b.xlsm",
+                    "Quarterly 1/Final Treasury/ARPA SFRF Reporting Workbook _10.15errortest--eb97b891-66c7-4faf-8ea6-67b94d76d28b.xlsm",
+                    "Quarterly 1/Not Final Treasury/Valid files/ARPA SFRF Reporting Workbook _10.15errortest4--e9c689db-33fc-470e-a16d-a814c1630da1.xlsm",
+                    "Quarterly 1/Not Final Treasury/Invalid files/ARPA SFRF Reporting Workbook _10.15errortest--9e6c295e-bd48-4827-9efb-ec91f0bd7607.xlsm"
+                }
+
+        mock_get_logger().bind().info.assert_has_calls(
+            [
+                call("Added file to the archive.",),
+                call("Added file to the archive.",),
+                call("Added file to the archive.",),
+                call("Added file to the archive.",)
+            ]
+        )
         assert mock_get_logger().bind().info.call_count == 4
         assert mock_get_logger().info.call_count == 1
+        assert mock_get_logger().info.call_args == call("updated zip archive", files_added=4)
 
     @mock_aws
     def test_load_source_paths_from_csv(self):
