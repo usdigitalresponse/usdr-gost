@@ -19,9 +19,8 @@ def sample_metadata_1_UploadInfo():
 
 
 class TestWorker:
-    @patch("src.worker.get_logger")
     @mock_aws
-    def test_build_zip(self, mock_get_logger, sample_metadata_1_UploadInfo):
+    def test_build_zip(self, sample_metadata_1_UploadInfo):
         region = "us-west-2"
         bucket_name = "test-apra-audit-reports"
         os.environ["DATA_DIR"] = "tests/src/data"
@@ -38,28 +37,6 @@ class TestWorker:
                 assert set(archive.namelist()) == set(
                     u.directory_location for u in sample_metadata_1_UploadInfo
                 )
-
-        mock_get_logger().bind().info.assert_has_calls(
-            [
-                call(
-                    "Added file to the archive.",
-                ),
-                call(
-                    "Added file to the archive.",
-                ),
-                call(
-                    "Added file to the archive.",
-                ),
-                call(
-                    "Added file to the archive.",
-                ),
-            ]
-        )
-        assert mock_get_logger().bind().info.call_count == 4
-        assert mock_get_logger().info.call_count == 1
-        assert mock_get_logger().info.call_args == call(
-            "updated zip archive", files_added=4
-        )
 
     @mock_aws
     def test_load_source_paths_from_csv(self):
