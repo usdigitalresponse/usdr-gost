@@ -4,7 +4,6 @@ from typing import Tuple, Optional
 import chevron
 import structlog
 import os
-import boto3
 from botocore.exceptions import ClientError
 
 EMAIL_HTML = """
