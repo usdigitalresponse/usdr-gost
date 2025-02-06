@@ -1,24 +1,24 @@
+import csv
+import io
 import json
 import os
 import tempfile
 import zipfile
-from pydantic import BaseModel
-import csv
-import io
 
 import boto3
 import botocore.client
 import botocore.exceptions
 import structlog
+from pydantic import BaseModel
 
+from src.lib.email import generate_email, send_email
 from src.lib.logging import get_logger, reset_contextvars
 from src.lib.shutdown_handler import ShutdownHandler
-from src.lib.email import send_email, generate_email
 
 # from memory_profiler import profile
 
 TASK_QUEUE_URL = os.environ["TASK_QUEUE_URL"]
-DATA_DIR = os.getenv("DATA_DIR", "arpa-exporter/src/data")
+DATA_DIR = os.environ["DATA_DIR"]
 METADATA_DIR = os.path.join(DATA_DIR, "archive_metadata")
 
 
