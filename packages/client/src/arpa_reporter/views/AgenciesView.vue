@@ -5,7 +5,7 @@
     <div class="mb-4">
       <router-link
         to="/agencies/new"
-        class="btn btn-primary"
+        class="btn usdr-btn-primary"
       >
         Create New Agency
       </router-link>
