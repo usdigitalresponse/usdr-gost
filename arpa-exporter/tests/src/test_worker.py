@@ -1,13 +1,16 @@
 import boto3
 from moto import mock_aws
 import tempfile
+import os
 
 from src import worker
 
 class TestWorker:
+    @mock_aws
     def test_build_zip(self):
         region = "us-west-2"
         bucket_name = "test-apra-audit-reports"
+        os.environ["DATA_DIR"] = "tests/src/data"
         s3_client = boto3.client("s3", region_name=region)
         s3_client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint": region})
         s3_client.put_object(
@@ -19,11 +22,6 @@ eb97b891-66c7-4faf-8ea6-67b94d76d28b,ARPA SFRF Reporting Workbook _10.15errortes
 e9c689db-33fc-470e-a16d-a814c1630da1,ARPA SFRF Reporting Workbook _10.15errortest4--e9c689db-33fc-470e-a16d-a814c1630da1.xlsm,Quarterly 1/Not Final Treasury/Valid files/ARPA SFRF Reporting Workbook _10.15errortest4--e9c689db-33fc-470e-a16d-a814c1630da1.xlsm,USDR,EC2.2,Quarterly 1,Validated at 2025-01-03 04:27:32.920426+00 by asridhar@usdigitalresponse.org
 9e6c295e-bd48-4827-9efb-ec91f0bd7607,ARPA SFRF Reporting Workbook _10.15errortest--9e6c295e-bd48-4827-9efb-ec91f0bd7607.xlsm,Quarterly 1/Not Final Treasury/Invalid files/ARPA SFRF Reporting Workbook _10.15errortest--9e6c295e-bd48-4827-9efb-ec91f0bd7607.xlsm,USDR,EC2.2,Quarterly 1,Invalidated at 2025-01-13 13:57:24.54424+00 by asridhar@usdigitalresponse.org"""
         )
-        # Create 4 files into DATA_DIR with names:
-        # c93c6251-c1e0-49ab-8f04-d7cc9e1ac22b.xlsm
-        # eb97b891-66c7-4faf-8ea6-67b94d76d28b.xlsm
-        # e9c689db-33fc-470e-a16d-a814c1630da1.xlsm
-        # 9e6c295e-bd48-4827-9efb-ec91f0bd7607.xlsm
 
         with tempfile.NamedTemporaryFile() as tmp:
             worker.build_zip(s3_client, tmp, bucket_name, "test_metadata.csv")

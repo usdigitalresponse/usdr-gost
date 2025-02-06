@@ -49,7 +49,7 @@ def build_zip(s3, fh, bucket_name: str, metadata_filename: str):
     files_added = 0
     with zipfile.ZipFile(fh, 'a') as archive:
         for upload in load_source_paths_from_csv(s3, bucket_name, metadata_filename):
-            source_path = os.path.join(DATA_DIR, f'{upload.upload_id}.xlsm')
+            source_path = os.path.join(os.getenv('DATA_DIR', 'arpa-exporter/src/data'), f'{upload.upload_id}.xlsm')
             entry_logger = logger.bind(source_path=source_path, entry_path=upload.directory_location)
             if upload.directory_location in archive.namelist():
                 entry_logger.info("file already exists in archive")
