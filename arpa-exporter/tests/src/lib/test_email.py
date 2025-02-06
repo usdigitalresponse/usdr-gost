@@ -1,12 +1,5 @@
-import multiprocessing
-import multiprocessing.connection
-import multiprocessing.spawn
 import os
-import signal
-import time
-from unittest import mock
 from moto import mock_aws
-import pytest
 import structlog
 import boto3
 
