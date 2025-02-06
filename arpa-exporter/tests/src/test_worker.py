@@ -3,9 +3,7 @@ from moto import mock_aws
 import tempfile
 import os
 
-from unittest import mock
 from src import worker
-import structlog
 from unittest.mock import patch, call
 import zipfile
 
