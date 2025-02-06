@@ -22,6 +22,12 @@ updates:
       timezone: America/New_York
     commit-message:
       prefix: 'Chore [deps:pip]'
+    groups:
+      boto3:
+        # Update boto3 and boto3-stubs in the same pull request
+        patterns:
+          - boto3
+          - boto3-stubs
   - package-ecosystem: github-actions
     directory: /
     schedule:
