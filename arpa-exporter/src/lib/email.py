@@ -15,18 +15,22 @@ deferring to conventions established elsewhere.
 """
 
 import os
+import typing
 import urllib
-from typing import Optional, Tuple
 
 import chevron
 
+if typing.TYPE_CHECKING:  # pragma: nocover
+    from mypy_boto3_ses import SESClient
+
 CHARSET = "UTF-8"
 TEMPLATES_DIR = os.path.abspath("src/static/email_templates")
+NOTIFICATIONS_EMAIL = os.environ["NOTIFICATIONS_EMAIL"]
 
 
 def generate_email(
     download_url: str,
-) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+) -> typing.Tuple[str, str, str]:
     # Level 3:
     with open(os.path.join(TEMPLATES_DIR, "messages", "full_file_export.html")) as tpl:
         message_html = chevron.render(tpl, {"url": urllib.parse.quote(download_url)})
@@ -58,20 +62,20 @@ def generate_email(
 
 
 def send_email(
-    email_client,
+    email_client: SESClient,
     dest_email: str,
     email_html: str,
     email_text: str,
     subject: str,
-) -> bool:
-    # Provide the contents of the email.
+) -> str:
     response = email_client.send_email(
-        Destination={
-            "ToAddresses": [
-                dest_email,
-            ],
-        },
+        Source=NOTIFICATIONS_EMAIL,
+        Destination={"ToAddresses": [dest_email]},
         Message={
+            "Subject": {
+                "Charset": CHARSET,
+                "Data": subject,
+            },
             "Body": {
                 "Html": {
                     "Charset": CHARSET,
@@ -82,11 +86,6 @@ def send_email(
                     "Data": email_text,
                 },
             },
-            "Subject": {
-                "Charset": CHARSET,
-                "Data": subject,
-            },
         },
-        Source=os.getenv("NOTIFICATIONS_EMAIL"),
     )
     return response["MessageId"]

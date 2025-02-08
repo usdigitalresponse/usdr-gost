@@ -53,7 +53,7 @@ class MessageSchema(pydantic.BaseModel):
     user_email: str
 
 
-def build_zip(fh, source_uploads):
+def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) -> bool:
     logger = get_logger()
     files_added = 0
     files_checked = 0
@@ -100,7 +100,9 @@ def build_zip(fh, source_uploads):
     return True
 
 
-def load_source_uploads_from_csv(s3: S3Client, bucket: str, file_key: str):
+def load_source_uploads_from_csv(
+    s3: S3Client, bucket: str, file_key: str
+) -> typing.Iterator[UploadInfo]:
     logger = get_logger(csv_bucket=bucket, csv_file_key=file_key)
     try:
         response = s3.get_object(
@@ -113,7 +115,7 @@ def load_source_uploads_from_csv(s3: S3Client, bucket: str, file_key: str):
 
     try:
         bytes_stream = response["Body"]
-        csv_file_stream = io.TextIOWrapper(bytes_stream, encoding="utf-8")
+        csv_file_stream = io.TextIOWrapper(bytes_stream, encoding="utf-8")  # type: ignore
         reader = csv.DictReader(csv_file_stream, delimiter=",")
         for row in reader:
             yield UploadInfo(**row)
@@ -132,7 +134,7 @@ def notify_user(
     logger = get_logger(
         download_bucket=download_bucket,
         download_key=download_key,
-        download_expiration_seconds=DOWNLOAD_URL_EXPIRATION_SECONDS,
+        download_expiration=f"{DOWNLOAD_URL_EXPIRATION_SECONDS} seconds",
     )
     try:
         download_url = s3.generate_presigned_url(
