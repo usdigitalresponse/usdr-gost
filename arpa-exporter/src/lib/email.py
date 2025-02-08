@@ -1,58 +1,60 @@
-from typing import Tuple, Optional
+"""
+Email template structure:
+
+    ```
+    <<Level 1: base.html>>
+        (Common parameterized elements go here)
+        <<Level 2: formatted_body.html>>
+            Title param value
+            <<Level 3: inner body text (or more HTML)>>
+    ```
+
+Each inner level is rendered and provided as a parameter ("partial") of its outer level.
+Arguably, levels 1 & 2 should be combined in the arpa-exporter project, but we are
+deferring to conventions established elsewhere.
+"""
+
+import os
+import urllib
+from typing import Optional, Tuple
 
 import chevron
-import structlog
-import os
-from botocore.exceptions import ClientError
 
-EMAIL_HTML = """
-Your full file export can be downloaded <a href={url}>here</a>.
-"""
-
-EMAIL_TEXT = """
-Hello,
-Your full file export can be downloaded here: {url}.
-"""
 CHARSET = "UTF-8"
+TEMPLATES_DIR = os.path.abspath("src/static/email_templates")
 
 
 def generate_email(
-    logger: structlog.stdlib.BoundLogger,
-    url: str = "",
+    download_url: str,
 ) -> Tuple[Optional[str], Optional[str], Optional[str]]:
-    try:
-        with open("src/static/email_templates/formatted_body.html") as g:
-            email_body = chevron.render(
-                g,
-                {
-                    "body_title": "Hello,",
-                    "body_detail": EMAIL_HTML.format(url=url),
-                },
-            )
-            with open("src/static/email_templates/base.html") as f:
-                email_html = chevron.render(
-                    f,
-                    {
-                        "tool_name": "ARPA Reporter",
-                        "title": "Full File Export",
-                        "preheader": False,
-                        "webview_available": False,
-                        "base_url_safe": "",
-                        "usdr_logo_url": "https://grants.usdigitalresponse.org/usdr_logo_transparent.png",
-                        "presigned_url": url,
-                        "notifications_url_safe": False,
-                        "email_body": email_body,
-                    },
-                    partials_dict={
-                        "email_body": email_body,
-                    },
-                )
-                email_text = EMAIL_TEXT.format(url=url)
-                subject = "USDR Full File Export"
-                return email_html, email_text, subject
-    except Exception as e:
-        logger.error(f"Failed to generate full file export email: {e}")
-    return None, None, None
+    # Level 3:
+    with open(os.path.join(TEMPLATES_DIR, "messages", "full_file_export.html")) as tpl:
+        message_html = chevron.render(tpl, {"url": urllib.parse.quote(download_url)})
+
+    # Level 2:
+    with open(os.path.join(TEMPLATES_DIR, "formatted_body.html")) as tpl:
+        formatted_body_html = chevron.render(
+            tpl, {"body_title": "Hello,", "body_detail": message_html}
+        )
+
+    # Level 1:
+    with open(os.path.join(TEMPLATES_DIR, "base.html")) as tpl:
+        email_html = chevron.render(
+            tpl,
+            {
+                "tool_name": "ARPA Reporter",
+                "title": "Full File Export",
+                "usdr_logo_url": "https://grants.usdigitalresponse.org/usdr_logo_transparent.png",
+            },
+            partials_dict={"email_body": formatted_body_html},
+        )
+
+    # Alternate plaintext content
+    with open(os.path.join(TEMPLATES_DIR, "messages", "full_file_export.txt")) as tpl:
+        email_plaintext = chevron.render(tpl, {"url": download_url})
+
+    subject = "USDR Full File Export"
+    return email_html, email_plaintext, subject
 
 
 def send_email(
@@ -61,42 +63,30 @@ def send_email(
     email_html: str,
     email_text: str,
     subject: str,
-    logger: structlog.stdlib.BoundLogger,
 ) -> bool:
-    # Try to send the email.
-    try:
-        # Provide the contents of the email.
-        response = email_client.send_email(
-            Destination={
-                "ToAddresses": [
-                    dest_email,
-                ],
-            },
-            Message={
-                "Body": {
-                    "Html": {
-                        "Charset": CHARSET,
-                        "Data": email_html,
-                    },
-                    "Text": {
-                        "Charset": CHARSET,
-                        "Data": email_text,
-                    },
-                },
-                "Subject": {
+    # Provide the contents of the email.
+    response = email_client.send_email(
+        Destination={
+            "ToAddresses": [
+                dest_email,
+            ],
+        },
+        Message={
+            "Body": {
+                "Html": {
                     "Charset": CHARSET,
-                    "Data": subject,
+                    "Data": email_html,
+                },
+                "Text": {
+                    "Charset": CHARSET,
+                    "Data": email_text,
                 },
             },
-            Source=os.getenv("NOTIFICATIONS_EMAIL"),
-        )
-    # Display an error if something goes wrong.
-    except ClientError as e:
-        error = e.response.get("Error") or {}
-        message = error.get("Message")
-        logger.error(message)
-        return False
-    else:
-        logger.info("Email sent! Message ID:")
-        logger.info(response["MessageId"])
-    return True
+            "Subject": {
+                "Charset": CHARSET,
+                "Data": subject,
+            },
+        },
+        Source=os.getenv("NOTIFICATIONS_EMAIL"),
+    )
+    return response["MessageId"]

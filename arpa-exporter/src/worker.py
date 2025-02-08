@@ -107,31 +107,61 @@ def load_source_uploads_from_csv(s3: S3Client, bucket: str, file_key: str):
             Bucket=bucket,
             Key=file_key,
         )
-        bytes_stream = response["Body"]
-        csv_file_stream = io.TextIOWrapper(bytes_stream, encoding="utf-8")
-        reader = csv.DictReader(csv_file_stream, delimiter=",")
-
-        for row in reader:
-            yield UploadInfo(**row)
     except botocore.exceptions.ClientError:
         logger.exception("error retrieving CSV file from S3")
         raise
+
+    try:
+        bytes_stream = response["Body"]
+        csv_file_stream = io.TextIOWrapper(bytes_stream, encoding="utf-8")
+        reader = csv.DictReader(csv_file_stream, delimiter=",")
+        for row in reader:
+            yield UploadInfo(**row)
     except:
-        logger.exception("error reading CSV file from S3")
+        logger.exception("error reading CSV data from S3")
         raise
 
 
-def build_and_send_email(email_client: SESClient, user_email: str, download_link: str):
-    logger = get_logger()
-    email_html, email_text, subject = generate_email(logger, download_link)
-    send_email(
-        email_client,
-        dest_email=user_email,
-        email_html=email_html or "",
-        email_text=email_text or "",
-        subject=subject or "",
-        logger=logger,
+def notify_user(
+    s3: S3Client,
+    ses: SESClient,
+    download_bucket: str,
+    download_key: str,
+    user_email: str,
+):
+    logger = get_logger(
+        download_bucket=download_bucket,
+        download_key=download_key,
+        download_expiration_seconds=DOWNLOAD_URL_EXPIRATION_SECONDS,
     )
+    try:
+        download_url = s3.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": download_bucket, "Key": download_key},
+            ExpiresIn=DOWNLOAD_URL_EXPIRATION_SECONDS,
+        )
+    except:
+        logger.exception("error generating presigned s3 get_object URL for email")
+        raise
+
+    try:
+        email_html, email_text, subject = generate_email(download_url)
+    except:
+        logger.exception("error generating content for email")
+        raise
+
+    try:
+        message_id = send_email(
+            ses,
+            dest_email=user_email,
+            email_html=email_html,
+            email_text=email_text,
+            subject=subject,
+        )
+        logger.info("email notification sent", ses_message_id=message_id)
+    except:
+        logger.exception("error sending email")
+        raise
 
 
 def process_sqs_message_request(
@@ -145,42 +175,52 @@ def process_sqs_message_request(
     #   managers in CPF Reporter.
     s3_bucket = message_data.s3.bucket
     s3_key = message_data.s3.zip_key
+    logger = get_logger()
 
     # Step 1 - Download the existing zip archive from S3 if exists
     try:
         s3.download_fileobj(s3_bucket, s3_key, local_file)
+        logger = logger.bind(updating_existing_zip_file_from_s3=True)
+        logger.info("downloaded existing s3 object for zip file")
     except botocore.exceptions.ClientError as e:
         if e.response["Error"]["Code"] != "404":
-            get_logger().exception("error downloading S3 object")
+            logger.exception("error downloading S3 object")
             raise
+        else:
+            logger = logger.bind(updating_existing_zip_file_from_s3=False)
+            logger.info("no existing s3 object found for zip file")
 
     # Step 2 - Add or update contents of the zipfile with the new metadata
     try:
         source_data = load_source_uploads_from_csv(
             s3, message_data.s3.bucket, message_data.s3.metadata_key
         )
-        build_zip(local_file, source_data)
+        zip_has_updates = build_zip(local_file, source_data)
+        logger.info(
+            "local zip file contains all entries from CSV metadata",
+            zip_updated=zip_has_updates,
+        )
     except:
-        get_logger().exception("error building zip archive")
+        logger.exception("error building zip archive")
         raise
 
     # Step 3 - Upload the zip archive back to S3
-    try:
-        local_file.seek(0)
-        s3.upload_fileobj(local_file, s3_bucket, s3_key)
-    except:
-        get_logger().exception("error uploading zip archive to s3")
-        raise
+    if zip_has_updates:
+        try:
+            local_file.seek(0)
+            s3.upload_fileobj(local_file, s3_bucket, s3_key)
+            logger.info("zip file uploaded to s3")
+        except:
+            logger.exception("error uploading zip archive to s3")
+            raise
+    else:
+        logger.info("skipped uploading zip file to s3 because there are no changes")
 
-    # Step 4 - Send Email to user with the download link
+    # Step 4 - Notify user and download link via email
     try:
-        build_and_send_email(
-            ses,
-            message_data.user_email,
-            download_link=f"/api/uploads/{message_data.organization_id}/getFullFileExport",
-        )
+        notify_user(s3, ses, s3_bucket, s3_key, message_data.user_email)
     except:
-        get_logger().exception("error sending email to user")
+        get_logger().exception("error sending user notification")
         raise
 
 
@@ -190,9 +230,11 @@ def handle_work(s3: S3Client, sqs: SQSClient, ses: SESClient):
     logger.info("long-polling next SQS message batch")
     try:
         response = sqs.receive_message(
-            QueueUrl=TASK_QUEUE_URL, MaxNumberOfMessages=1, WaitTimeSeconds=20
+            QueueUrl=TASK_QUEUE_URL,
+            MaxNumberOfMessages=1,
+            WaitTimeSeconds=TASK_QUEUE_RECEIVE_TIMEOUT,
         )
-        message = response["Messages"][0]
+        message = response.get("Messages", [])[0]
     except botocore.exceptions.ClientError:
         logger.exception("error polling SQS for messages")
         raise
@@ -214,14 +256,16 @@ def handle_work(s3: S3Client, sqs: SQSClient, ses: SESClient):
 
     try:
         data = MessageSchema(**raw_data)
-    except:
+    except pydantic.ValidationError:
+        # This is potentially a problem with the message, not the worker, so don't re-raise
         logger.exception("SQS message data did not match expected schema")
-        raise
+        return
 
     with tempfile.NamedTemporaryFile() as tfh:
         with structlog.contextvars.bound_contextvars(
             s3_bucket=data.s3.bucket,
-            s3_key=data.s3.key,
+            s3_zip_key=data.s3.zip_key,
+            s3_metadata_key=data.s3.metadata_key,
             destination_file_path=tfh.name,
             destination_file_mode=tfh.mode,
         ):
