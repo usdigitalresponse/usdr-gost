@@ -333,13 +333,13 @@ class TestHandleWork:
 
     def test_fails_on_error_receiving_sqs_message(self, s3, sqs, ses):
         with pytest.raises(sqs.exceptions.QueueDoesNotExist):
-            worker.handle_work(s3, sqs, ses)
+            worker.handle_work(sqs, s3, ses)
 
     def test_returns_early_when_queue_is_empty(self, s3, sqs, ses, create_sqs_queue):
         with mock.patch(
             "src.worker.process_sqs_message_request"
         ) as mock_process_sqs_message_request:
-            assert worker.handle_work(s3, sqs, ses) is None
+            assert worker.handle_work(sqs, s3, ses) is None
             assert mock_process_sqs_message_request.call_count == 0
 
     def test_resturns_early_when_message_is_not_valid_json(
@@ -351,7 +351,7 @@ class TestHandleWork:
         with mock.patch(
             "src.worker.process_sqs_message_request"
         ) as mock_process_sqs_message_request:
-            assert worker.handle_work(s3, sqs, ses) is None
+            assert worker.handle_work(sqs, s3, ses) is None
             assert mock_process_sqs_message_request.call_count == 0
 
     def test_returns_early_when_message_json_does_not_match_schema(
@@ -364,7 +364,7 @@ class TestHandleWork:
         with mock.patch(
             "src.worker.process_sqs_message_request"
         ) as mock_process_sqs_message_request:
-            assert worker.handle_work(s3, sqs, ses) is None
+            assert worker.handle_work(sqs, s3, ses) is None
             assert mock_process_sqs_message_request.call_count == 0
 
     def test_fails_when_sqs_message_cannot_be_processed(
@@ -388,7 +388,7 @@ class TestHandleWork:
             process_error = ValueError("maybe the bucket didn't exist or something")
             mock_process_sqs_message_request.side_effect = process_error
             with pytest.raises(ValueError) as raised:
-                worker.handle_work(s3, sqs, ses)
+                worker.handle_work(sqs, s3, ses)
             assert raised.value == process_error
 
     def test_fails_when_sqs_message_cannot_be_deleted(
@@ -412,7 +412,7 @@ class TestHandleWork:
                 mock_sqs_delete_message.side_effect = delete_message_error
 
                 with pytest.raises(ValueError) as raised:
-                    worker.handle_work(s3, sqs, ses)
+                    worker.handle_work(sqs, s3, ses)
                 assert raised.value is delete_message_error
 
     def test_deletes_successfully_processed_sqs_message(
@@ -434,7 +434,7 @@ class TestHandleWork:
             "src.worker.process_sqs_message_request"
         ) as mock_process_sqs_message_request:
             with mock.patch.object(sqs, "delete_message") as mock_delete_message:
-                assert worker.handle_work(s3, sqs, ses) is None
+                assert worker.handle_work(sqs, s3, ses) is None
                 assert mock_process_sqs_message_request.called
                 assert mock_delete_message.called
 

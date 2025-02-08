@@ -54,6 +54,18 @@ class MessageSchema(pydantic.BaseModel):
 
 
 def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) -> bool:
+    """Appends file entries named by ``source_uploads`` to an open zip archive,
+    skipping those whose names are already present in the zip.
+
+    Args:
+        fh: Open, writeable zip file handler or file-like object
+        source_uploads: Iterator of ``UploadInfo`` used to map source files from
+            a local filesystem to entries of the zip file.
+
+    Returns:
+        bool indicating whether any new entries were appended to the zip file.
+        If False, no writes were made to the zip file and it is unmodified.
+    """
     logger = get_logger()
     files_added = 0
     files_checked = 0
@@ -103,6 +115,23 @@ def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) 
 def load_source_uploads_from_csv(
     s3: S3Client, bucket: str, file_key: str
 ) -> typing.Iterator[UploadInfo]:
+    """Downloads a CSV file from S3 and yields instances of ``UploadInfo``
+    populated from its rows.
+
+    This function streams CSV data from S3; requests will potentially be made to S3
+    until the returned iterator is exhausted.
+
+    Args:
+        s3: S3 client for downloading the CSV file
+        bucket: Name of the S3 bucket containing the CSV file object
+        file_key: S3 key for the CSV file object
+
+    Returns:
+        Generator of ``UploadInfo``
+
+    Yields:
+        Instances of ``UploadInfo`` built from CSV row data
+    """
     logger = get_logger(csv_bucket=bucket, csv_file_key=file_key)
     try:
         response = s3.get_object(
@@ -131,6 +160,16 @@ def notify_user(
     download_key: str,
     user_email: str,
 ):
+    """Generates and sends an email notification that provides a URL for
+    downloading a zip file from S3.
+
+    Args:
+        s3: S3 client used to generate the presigned URL for the downloadable object
+        ses: SES client used to send the email
+        download_bucket: S3 bucket containing the downloadable object
+        download_key: S3 key of the downloadable object
+        user_email: The email address of the user to notify
+    """
     logger = get_logger(
         download_bucket=download_bucket,
         download_key=download_key,
@@ -169,6 +208,23 @@ def notify_user(
 def process_sqs_message_request(
     s3: S3Client, ses: SESClient, message_data: MessageSchema, local_file
 ):
+    """Handles work for a single SQS message, orchestrating the following steps:
+
+    1. Downloads a zip file S3 object (if it exists) to ``local_file``
+    2. Streams a CSV object from S3 and uses its contents to determine
+        updates to the downloaded zip file.
+    3. If changes were made to the downloaded zip file, it is uploaded to S3,
+        potentially replacing an extant S3 object.
+    4. Notifies a user identified in the SQS message that the new/updated zip file
+        is ready for download.
+
+    Args:
+        s3: S3 client used to download, upload, and stream objects
+        ses: SES client used to send email
+        message_data: Work parameters provided by SQS
+        local_file: An open, read/write binary file-like object that will be used
+            to store zip file contents while the function is running.
+    """
     # Get the S3 object if it already exists.
     # If 404, assume it doesn't & create from scratch.
     # Note:
@@ -227,7 +283,15 @@ def process_sqs_message_request(
 
 
 @reset_contextvars
-def handle_work(s3: S3Client, sqs: SQSClient, ses: SESClient):
+def handle_work(sqs: SQSClient, s3: S3Client, ses: SESClient):
+    """Receives up to 1 message from SQS, processes it, and then deletes it
+    if no unhandled errors occurred during processing.
+
+    Args:
+        sqs: SQS client used to receive and delete a message from the queue at ``TASK_QUEUE_URL``
+        s3: S3 client used for processing work indicated by a received  SQS message
+        ses: SES client used to notify users that work is complete
+    """
     logger = get_logger()
     logger.info("long-polling next SQS message batch")
     try:
@@ -289,13 +353,17 @@ def handle_work(s3: S3Client, sqs: SQSClient, ses: SESClient):
 
 
 def main():
-    s3: S3Client = boto3.client("s3")
+    """Main work loop that calls ``handle_work()`` until a shutdown is requested
+    by SIGINT or SIGTERM. When a shutdown is requested, any in-flight work is finished
+    before this function returns.
+    """
     sqs: SQSClient = boto3.client("sqs")
+    s3: S3Client = boto3.client("s3")
     ses: SESClient = boto3.client("ses")
 
     shutdown_handler = ShutdownHandler(logger=get_logger())
     while shutdown_handler.is_shutdown_requested() is False:
-        handle_work(s3, sqs, ses)
+        handle_work(sqs, s3, ses)
     get_logger().warn("shutting down")
 
 
