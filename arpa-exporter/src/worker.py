@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import datetime
 import io
 import json
 import os
@@ -11,40 +12,42 @@ import zipfile
 import boto3
 import botocore.client
 import botocore.exceptions
+import pydantic
 import structlog
-from pydantic import BaseModel
 
 from src.lib.email import generate_email, send_email
 from src.lib.logging import get_logger, reset_contextvars
 from src.lib.shutdown_handler import ShutdownHandler
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: nocover
     from mypy_boto3_s3 import S3Client
     from mypy_boto3_ses import SESClient
     from mypy_boto3_sqs import SQSClient
 
 TASK_QUEUE_URL = os.environ["TASK_QUEUE_URL"]
+TASK_QUEUE_RECEIVE_TIMEOUT = int(os.getenv("TASK_QUEUE_RECEIVE_TIMEOUT", 20))
 DATA_DIR = os.environ["DATA_DIR"]
 METADATA_DIR = os.path.join(DATA_DIR, "archive_metadata")
+DOWNLOAD_URL_EXPIRATION_SECONDS = int(datetime.timedelta(hours=24).total_seconds())
 
 
-class UploadInfo(BaseModel):
+class UploadInfo(pydantic.BaseModel):
     upload_id: str
-    filename_in_zip: str
-    directory_location: str
+    filename_in_zip: str  # Drop this
+    directory_location: str  # Rename to path_in_zip
     agency_name: str
     ec_code: str
     reporting_period_name: str
     validity: str
 
 
-class S3Schema(BaseModel):
+class S3Schema(pydantic.BaseModel):
     bucket: str
     zip_key: str
     metadata_key: str
 
 
-class MessageSchema(BaseModel):
+class MessageSchema(pydantic.BaseModel):
     s3: S3Schema
     organization_id: int
     user_email: str
@@ -53,11 +56,14 @@ class MessageSchema(BaseModel):
 def build_zip(fh, source_uploads):
     logger = get_logger()
     files_added = 0
+    files_checked = 0
     with zipfile.ZipFile(fh, "a") as archive:
         for upload in source_uploads:
+            files_checked += 1
             source_path = os.path.join(DATA_DIR, f"{upload.upload_id}.xlsm")
             entry_logger = logger.bind(
-                source_path=source_path, entry_path=upload.directory_location
+                source_path=source_path,
+                entry_path=upload.directory_location,
             )
 
             if upload.directory_location in archive.namelist():
@@ -71,9 +77,27 @@ def build_zip(fh, source_uploads):
                 raise
 
             files_added += 1
-            entry_logger.info("Added file to the archive.")
+            entry_logger.info(
+                "Added file to the archive.",
+                files_added=files_added,
+                files_checked=files_checked,
+            )
 
-    logger.info("updated zip archive", files_added=files_added)
+    logger = logger.bind(files_added=files_added, files_checked=files_checked)
+    if files_added == 0:
+        if files_checked == 0:
+            logger.info(
+                "zip archive not updated because metadata provided no source files"
+            )
+        else:
+            logger.info(
+                "zip archive not updated because entries already exist "
+                "for all files named in metadata"
+            )
+        return False
+
+    logger.info("updated zip archive")
+    return True
 
 
 def load_source_uploads_from_csv(s3: S3Client, bucket: str, file_key: str):
