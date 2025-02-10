@@ -6,7 +6,6 @@ from typing import Any, Callable, Dict, List
 
 import structlog
 
-
 LOG_LEVEL = getattr(logging, os.environ.get("LOG_LEVEL", "INFO").upper())
 
 shared_processors: List[Callable] = [
@@ -42,6 +41,7 @@ structlog.configure(
 
 
 def get_logger(*args: str, **kwargs: str) -> structlog.stdlib.BoundLogger:
+    """Convenience wrapper for ``structlog.get_logger()`` function."""
     return structlog.get_logger(*args, **kwargs)
 
 
