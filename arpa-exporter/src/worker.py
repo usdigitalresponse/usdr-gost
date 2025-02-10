@@ -37,8 +37,8 @@ class UploadInfo(pydantic.BaseModel):
     """
 
     upload_id: str
-    filename_in_zip: str  # Drop this
-    directory_location: str  # Rename to path_in_zip
+    filename_in_zip: str  # TODO: Drop this
+    directory_location: str  # TODO: Rename to path_in_zip
     agency_name: str
     ec_code: str
     reporting_period_name: str
