@@ -220,6 +220,7 @@ def _main():  # pragma: nocover
         except:  # noqa: E722
             log_fn("Error writing email HTML content to file", filename=args.html.name)
             exit_code = 1
+
     if args.text:
         try:
             args.text.write(plaintext)
