@@ -214,7 +214,8 @@ def _main():  # pragma: nocover
         try:
             args.html.write(html)
             get_logger().info(
-                "Email HTML content written to file", filename=args.html.name
+                "Email HTML content written to file",
+                filename=args.html.name,
             )
         except:  # noqa: E722
             log_fn("Error writing email HTML content to file", filename=args.html.name)
@@ -223,11 +224,13 @@ def _main():  # pragma: nocover
         try:
             args.text.write(plaintext)
             get_logger().info(
-                "Email plaintext content written to file", filename=args.text.name
+                "Email plaintext content written to file",
+                filename=args.text.name,
             )
         except:  # noqa: E722
             log_fn(
-                "Error writing email plaintext content to file", filename=args.text.name
+                "Error writing email plaintext content to file",
+                filename=args.text.name,
             )
             exit_code = 1
 
