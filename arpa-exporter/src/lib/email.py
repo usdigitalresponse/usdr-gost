@@ -126,7 +126,7 @@ def send_email(
 
 
 def _main():  # pragma: nocover
-    """Runs a CLI interface for debugging email content generation.
+    """Runs a command-line interface for debugging email content generation.
 
     Returns:
         Exit code for the process. ``1`` if any error(s) occurred, else ``0``.
@@ -139,7 +139,8 @@ def _main():  # pragma: nocover
     from src.lib.logging import get_logger
 
     parser = argparse.ArgumentParser(
-        description="CLI interface for debugging email content generation"
+        prog=f"python -m {__loader__.name}",
+        description="CLI tool for debugging email content generation.",
     )
     parser.add_argument(
         "-v",
