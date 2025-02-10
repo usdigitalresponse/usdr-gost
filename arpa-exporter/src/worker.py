@@ -360,7 +360,7 @@ def handle_work(sqs: SQSClient, s3: S3Client, ses: SESClient):
         raise
 
 
-def main():
+def main() -> None:
     """Main work loop that calls ``handle_work()`` until a shutdown is requested
     by SIGINT or SIGTERM. When a shutdown is requested, any in-flight work is finished
     before this function returns.
