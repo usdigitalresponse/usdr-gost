@@ -14,6 +14,8 @@ Arguably, levels 1 & 2 should be combined in the arpa-exporter project, but we a
 deferring to conventions established elsewhere.
 """
 
+from __future__ import annotations
+
 import os
 import typing
 import urllib

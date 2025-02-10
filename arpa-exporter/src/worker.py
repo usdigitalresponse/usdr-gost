@@ -32,6 +32,10 @@ DOWNLOAD_URL_EXPIRATION_SECONDS = int(datetime.timedelta(hours=24).total_seconds
 
 
 class UploadInfo(pydantic.BaseModel):
+    """Maps information about local, user-uploaded files
+    to corresponding entry locations in a zip file.
+    """
+
     upload_id: str
     filename_in_zip: str  # Drop this
     directory_location: str  # Rename to path_in_zip
@@ -42,12 +46,16 @@ class UploadInfo(pydantic.BaseModel):
 
 
 class S3Schema(pydantic.BaseModel):
+    """Provides information about S3-hosted resources accessed during worker execution."""
+
     bucket: str
     zip_key: str
     metadata_key: str
 
 
 class MessageSchema(pydantic.BaseModel):
+    """Schema for messages received from the SQS queue"""
+
     s3: S3Schema
     organization_id: int
     user_email: str
