@@ -145,24 +145,24 @@ def _main():  # pragma: nocover
     parser.add_argument(
         "-v",
         "--verbose",
-        help="Raise exception tracebacks",
+        help="If provided, includes exception tracebacks in error log output",
         action="store_true",
         default=False,
     )
     parser.add_argument(
         "-u",
         "--url",
-        help="URL for the downloadable S3 object to include in generated email content",
+        help="URL for the downloadable S3 object to include in generated email content (default: %(default)s)",
         default="https://s3.example.com/fake-bucket/not-a-real-key.zip",
     )
     parser.add_argument(
         "--host",
-        help="Hostname (e.g. for mailpit) where SMTP will connect when sending",
+        help="Hostname (e.g. for mailpit) where SMTP will connect when sending (default: %(default)s)",
         default="localhost",
     )
     parser.add_argument(
         "--port",
-        help="Localhost port (e.g. for mailpit) where SMTP will connect when sending",
+        help="Localhost port (e.g. for mailpit) where SMTP will connect when sending (default: %(default)s)",
         type=int,
         default=1025,
     )
@@ -173,13 +173,13 @@ def _main():  # pragma: nocover
     )
     parser.add_argument(
         "--html",
-        help="(Optional) Filename to save HTML email content",
+        help="(Optional) Filename to save generated HTML email content",
         metavar="FILENAME",
         type=argparse.FileType("w"),
     )
     parser.add_argument(
         "--text",
-        help="(Optional) Filename to save plaintext email content",
+        help="(Optional) Filename to save generated plaintext email content",
         metavar="FILENAME",
         type=argparse.FileType("w"),
     )
