@@ -22,6 +22,7 @@ mypy = "^1.15.0"
 boto3-stubs = {extras = ["essential", "ses"], version = "^1.36.14"}
 pytest-timeout = "^2.3.1"
 moto = "^5.0.28"
+types-chevron = "^0.14.2.20250103"
 
 [build-system]
 requires = ["poetry-core"]

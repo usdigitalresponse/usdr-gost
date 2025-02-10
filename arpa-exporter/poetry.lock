@@ -2073,6 +2073,18 @@ files = [
 ]
 
 [[package]]
+name = "types-chevron"
+version = "0.14.2.20250103"
+description = "Typing stubs for chevron"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "types_chevron-0.14.2.20250103-py3-none-any.whl", hash = "sha256:b255b2a71d83d9c548183d4eeadea874fbaec64b09f00d3bf3f43d3731c1c255"},
+    {file = "types_chevron-0.14.2.20250103.tar.gz", hash = "sha256:9dacdc9b01bdf717bcb7930f0602b9b74add054ebf3cf38d282b7e2b64c9d076"},
+]
+
+[[package]]
 name = "types-s3transfer"
 version = "0.11.2"
 description = "Type annotations and code completion for s3transfer"
@@ -2268,4 +2280,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "3c1e630ca5bf06334c870bce23da9d162172559a4d38596af215f2d9ffb1fc02"
+content-hash = "ca9f5b2fbd70b6c17fcd404f6f2d7386e2982b0a52e64c398f41206ee6101ae1"
