@@ -12,6 +12,11 @@ Email template structure:
 Each inner level is rendered and provided as a parameter ("partial") of its outer level.
 Arguably, levels 1 & 2 should be combined in the arpa-exporter project, but we are
 deferring to conventions established elsewhere.
+
+Note:
+    This module provides a CLI interface for testing email generation.
+    When run, it will generate sample email content and, depending on the provided options,
+    sends the email using SMTP and/or writes html and/or plaintext content to a file.
 """
 
 from __future__ import annotations
