@@ -118,3 +118,113 @@ def send_email(
         },
     )
     return response["MessageId"]
+
+
+def _main():  # pragma: nocover
+    """Runs a CLI interface for debugging email content generation.
+
+    Returns:
+        Exit code for the process. ``1`` if any error(s) occurred, else ``0``.
+    """
+    import argparse
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    from src.lib.logging import get_logger
+
+    parser = argparse.ArgumentParser(
+        description="CLI interface for debugging email content generation"
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Raise exception tracebacks",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-u",
+        "--url",
+        help="URL for the downloadable S3 object to include in generated email content",
+        default="https://s3.example.com/fake-bucket/not-a-real-key.zip",
+    )
+    parser.add_argument(
+        "--host",
+        help="Hostname (e.g. for mailpit) where SMTP will connect when sending",
+        default="localhost",
+    )
+    parser.add_argument(
+        "--port",
+        help="Localhost port (e.g. for mailpit) where SMTP will connect when sending",
+        type=int,
+        default=1025,
+    )
+    parser.add_argument(
+        "--no-send",
+        help="If provided, skips sending the email over SMTP",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--html",
+        help="(Optional) Filename to save HTML email content",
+        type=argparse.FileType("w"),
+    )
+    parser.add_argument(
+        "--text",
+        help="(Optional) Filename to save plaintext email content",
+        type=argparse.FileType("w"),
+    )
+
+    args = parser.parse_args()
+    log_fn = get_logger().error
+    if args.verbose:
+        log_fn = get_logger().exception
+
+    try:
+        html, plaintext, subject = generate_email(args.url)
+    except:  # noqa: E722
+        log_fn("Error generating email")
+        return 1
+
+    exit_code = 0
+    if not args.no_send:
+        message = MIMEMultipart("alternative")
+        message["From"] = NOTIFICATIONS_EMAIL
+        message["To"] = "test@example.com"
+        message["Subject"] = subject
+        message.attach(MIMEText(plaintext, "plain"))
+        message.attach(MIMEText(html, "html"))
+        try:
+            smtplib.SMTP(args.host, args.port).send_message(message)
+            get_logger().info("Email sent", host=args.host, port=args.port)
+        except:  # noqa: E722
+            log_fn("Error sending email")
+            exit_code = 1
+
+    if args.html:
+        try:
+            args.html.write(html)
+            get_logger().info(
+                "Email HTML content written to file", filename=args.html.name
+            )
+        except:  # noqa: E722
+            log_fn("Error writing email HTML content to file", filename=args.html.name)
+            exit_code = 1
+    if args.text:
+        try:
+            args.text.write(plaintext)
+            get_logger().info(
+                "Email plaintext content written to file", filename=args.text.name
+            )
+        except:  # noqa: E722
+            log_fn(
+                "Error writing email plaintext content to file", filename=args.text.name
+            )
+            exit_code = 1
+
+    return exit_code
+
+
+if __name__ == "__main__":
+    exit(_main())
