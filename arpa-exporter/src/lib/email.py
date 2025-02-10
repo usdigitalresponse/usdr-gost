@@ -33,6 +33,20 @@ NOTIFICATIONS_EMAIL = os.environ["NOTIFICATIONS_EMAIL"]
 def generate_email(
     download_url: str,
 ) -> typing.Tuple[str, str, str]:
+    """Generates content to send for a notification email, informing the recipient
+    that a zip file is ready to download.
+
+    Args:
+        download_url: The URL where the downloadable zip file is hosted.
+            This should generally be a presigned S3 object URL.
+
+    Returns:
+        A 3-tuple containing (email_html, email_plaintext, subject), where:
+            email_html: Generated HTML content for the email body
+            email_plaintext: Generated alternative plaintext content for email
+                clients that do not support HTML
+            subject: Subject line to use when sending the email
+    """
     # Level 3:
     with open(os.path.join(TEMPLATES_DIR, "messages", "full_file_export.html")) as tpl:
         message_html = chevron.render(tpl, {"url": urllib.parse.quote(download_url)})
@@ -70,6 +84,19 @@ def send_email(
     email_text: str,
     subject: str,
 ) -> str:
+    """Sends an email to a single recipient via SES.
+
+    Args:
+        email_client: SES client for sending the email.
+        dest_email: Email address of the intended recipient (a ``TO`` destination address).
+        email_html: Rich HTML content generated for the email body.
+        email_text: Alternative plaintext content generated for the email body
+            (for compatibility with recipient email clients that do not support HTML).
+        subject: Subject line for the outgoing email.
+
+    Returns:
+        The SES message ID generated for the outgoing email.
+    """
     response = email_client.send_email(
         Source=NOTIFICATIONS_EMAIL,
         Destination={"ToAddresses": [dest_email]},
