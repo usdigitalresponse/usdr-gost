@@ -174,11 +174,13 @@ def _main():  # pragma: nocover
     parser.add_argument(
         "--html",
         help="(Optional) Filename to save HTML email content",
+        metavar="FILENAME",
         type=argparse.FileType("w"),
     )
     parser.add_argument(
         "--text",
         help="(Optional) Filename to save plaintext email content",
+        metavar="FILENAME",
         type=argparse.FileType("w"),
     )
 
