@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import typing
-import urllib
 
 from src.lib import email
 
@@ -12,12 +11,16 @@ if typing.TYPE_CHECKING:
 
 class TestEmail:
     def test_generate_email(self):
-        test_download_url = "https://example.org/your/download/is/here.zip"
+        test_zip_url = "https://example.org/your/download/is/here.zip"
+        test_csv_url = "https://example.org/your/download/is/here.csv"
         email_html, email_text, subject = email.generate_email(
-            download_url=test_download_url,
+            archive_download_url=test_zip_url,
+            metadata_download_url=test_csv_url,
         )
-        assert test_download_url in email_text
-        assert urllib.parse.quote(test_download_url) in email_html
+        assert test_zip_url in email_text
+        assert test_zip_url in email_html
+        assert test_csv_url in email_text
+        assert test_csv_url in email_html
         assert "USDR Full File Export" == subject
 
     def test_send_email(self, ses, ses_sent_messages: list[moto.ses.models.Message]):

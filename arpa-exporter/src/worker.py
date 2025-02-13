@@ -202,11 +202,9 @@ def build_url(base_url: str, endpoint: str = ""):
 
 
 def notify_user(
-    s3: S3Client,
     ses: SESClient,
-    download_bucket: str,
-    download_key: str,
     user_email: str,
+    user_organization_id: int | str,
 ):
     """Generates and sends an email notification that provides a URL for
     downloading a zip file from S3.
@@ -218,23 +216,25 @@ def notify_user(
         download_key: S3 key of the downloadable object
         user_email: The email address of the user to notify
     """
-    logger = get_logger(
-        download_bucket=download_bucket,
-        download_key=download_key,
-        download_expiration=f"{DOWNLOAD_URL_EXPIRATION_SECONDS} seconds",
-    )
+    logger = get_logger(organization_id=user_organization_id)
     try:
-        download_url = s3.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": download_bucket, "Key": download_key},
-            ExpiresIn=DOWNLOAD_URL_EXPIRATION_SECONDS,
+        zip_download_url = build_url(
+            API_DOMAIN,
+            f"/api/fullFileExport/{user_organization_id}/archive.zip",
         )
+        csv_download_url = build_url(
+            API_DOMAIN,
+            f"/api/fullFileExport/{user_organization_id}/archive_metadata.csv",
+        )
+        logger = logger.bind(zip_download_url=zip_download_url)
     except:
-        logger.exception("error generating presigned s3 get_object URL for email")
+        logger.exception("error generating download URLs for email")
         raise
 
     try:
-        email_html, email_text, subject = generate_email(download_url)
+        email_html, email_text, subject = generate_email(
+            zip_download_url, csv_download_url
+        )
     except:
         logger.exception("error generating content for email")
         raise
@@ -324,7 +324,7 @@ def process_sqs_message_request(
 
     # Step 4 - Notify user and download link via email
     try:
-        notify_user(s3, ses, s3_bucket, s3_key, message_data.user_email)
+        notify_user(ses, message_data.user_email, message_data.organization_id)
     except:
         get_logger().exception("error sending user notification")
         raise

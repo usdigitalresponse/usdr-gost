@@ -3,13 +3,10 @@ import io
 import json
 import os
 import tempfile
-import urllib
 import zipfile
 import zlib
 from unittest import mock
 
-import botocore.client
-import botocore.exceptions
 import pydantic
 import pytest
 
@@ -172,45 +169,47 @@ class TestLoadSourceUploadsFromCSV:
 
 
 class TestNotifyUser:
-    def test_sends_email_with_presigned_url(self, s3, ses, ses_sent_messages):
-        expect_bucket = "bucket"
-        expect_key = "key.zip"
-        expect_email = "person@example.gov"
-        expect_presigned_url = s3.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": "bucket", "Key": "key.zip"},
-            ExpiresIn=86400,
+    @mock.patch("src.worker.API_DOMAIN", new="https://api.example.org")
+    def test_sends_email_with_download_urls(self, ses, ses_sent_messages):
+        organization_id = "123"
+        download_url_base = (
+            f"https://api.example.org/api/fullFileExport/{organization_id}"
         )
+        expect_zip_url = f"{download_url_base}/archive.zip"
+        expect_csv_url = f"{download_url_base}/archive_metadata.csv"
+        expect_email = "person@example.gov"
 
-        worker.notify_user(s3, ses, expect_bucket, expect_key, expect_email)
+        worker.notify_user(ses, expect_email, organization_id)
 
         assert len(ses_sent_messages) == 1
         sent_message = ses_sent_messages[0]
         assert sent_message.destinations["ToAddresses"] == [expect_email]
-        assert urllib.parse.quote(expect_presigned_url) in sent_message.body
+        assert expect_zip_url in sent_message.body
+        assert expect_csv_url in sent_message.body
 
-    def test_fails_when_error_generating_presigned_url(self, s3, ses):
-        with pytest.raises(botocore.exceptions.ParamValidationError):
-            worker.notify_user(
-                s3,
-                ses,
-                "invalid bucket name",
-                "does-not-matter.zip",
-                "person@example.gov",
-            )
+    def test_fails_when_error_generating_zip_url(self, ses):
+        expect_error = ValueError("oh no!")
+        with mock.patch("src.worker.build_url", side_effect=expect_error):
+            with pytest.raises(ValueError) as raised:
+                worker.notify_user(
+                    ses,
+                    "person@example.gov",
+                    "123",
+                )
+        assert raised.value == expect_error
 
     @mock.patch("src.worker.generate_email")
-    def test_fails_when_error_generating_email(self, mock_generate_email, s3, ses):
+    def test_fails_when_error_generating_email(self, mock_generate_email, ses):
         expect_error = FileNotFoundError("could not find the template")
         mock_generate_email.side_effect = expect_error
         with pytest.raises(FileNotFoundError) as raised:
-            worker.notify_user(s3, ses, "bucket", "key.zip", "person@example.gov")
+            worker.notify_user(ses, "person@example.gov", "123")
             assert mock_generate_email.called
         assert raised.value == expect_error
 
-    def test_fails_when_error_sending_email(self, s3, ses):
+    def test_fails_when_error_sending_email(self, ses):
         with pytest.raises(ses.exceptions.ClientError):
-            worker.notify_user(s3, ses, "bucket", "key.zip", "invalid email")
+            worker.notify_user(ses, "invalid email", "123")
 
 
 class TestProcessSQSMessageRequest:

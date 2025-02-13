@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import os
 import typing
-import urllib
 
 import chevron
 
@@ -36,14 +35,17 @@ NOTIFICATIONS_EMAIL = os.environ["NOTIFICATIONS_EMAIL"]
 
 
 def generate_email(
-    download_url: str,
+    archive_download_url: str,
+    metadata_download_url: str,
 ) -> typing.Tuple[str, str, str]:
     """Generates content to send for a notification email, informing the recipient
     that a zip file is ready to download.
 
     Args:
-        download_url: The URL where the downloadable zip file is hosted.
+        archive_download_url: The URL where the downloadable zip file is hosted.
             This should generally be a presigned S3 object URL.
+        metadata_download_url: The URL where a downloadable file providing a manifest
+            of the contents of the file available at ``archive_download_url``
 
     Returns:
         A 3-tuple containing (email_html, email_plaintext, subject), where:
@@ -54,7 +56,13 @@ def generate_email(
     """
     # Level 3:
     with open(os.path.join(TEMPLATES_DIR, "messages", "full_file_export.html")) as tpl:
-        message_html = chevron.render(tpl, {"url": urllib.parse.quote(download_url)})
+        message_html = chevron.render(
+            tpl,
+            {
+                "zip_url": archive_download_url,
+                "csv_url": metadata_download_url,
+            },
+        )
 
     # Level 2:
     with open(os.path.join(TEMPLATES_DIR, "formatted_body.html")) as tpl:
@@ -76,7 +84,13 @@ def generate_email(
 
     # Alternate plaintext content
     with open(os.path.join(TEMPLATES_DIR, "messages", "full_file_export.txt")) as tpl:
-        email_plaintext = chevron.render(tpl, {"url": download_url})
+        email_plaintext = chevron.render(
+            tpl,
+            {
+                "zip_url": archive_download_url,
+                "csv_url": metadata_download_url,
+            },
+        )
 
     subject = "USDR Full File Export"
     return email_html, email_plaintext, subject
@@ -150,10 +164,14 @@ def _main():  # pragma: nocover
         default=False,
     )
     parser.add_argument(
-        "-u",
-        "--url",
-        help="URL for the downloadable S3 object to include in generated email content (default: %(default)s)",
-        default="https://s3.example.com/fake-bucket/not-a-real-key.zip",
+        "--zip-url",
+        help="URL for the zip file download link to include in generated email content (default: %(default)s)",
+        default="https://example.com/path/to/archive.zip",
+    )
+    parser.add_argument(
+        "--csv-url",
+        help="URL for the csv file download link to include in generated email content (default: %(default)s)",
+        default="https://example.com/path/to/metadata.csv",
     )
     parser.add_argument(
         "--host",
@@ -190,7 +208,7 @@ def _main():  # pragma: nocover
         log_fn = get_logger().exception
 
     try:
-        html, plaintext, subject = generate_email(args.url)
+        html, plaintext, subject = generate_email(args.zip_url, args.csv_url)
     except:  # noqa: E722
         log_fn("Error generating email")
         return 1
