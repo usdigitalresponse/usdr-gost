@@ -7,6 +7,7 @@ import json
 import os
 import tempfile
 import typing
+import urllib.parse
 import zipfile
 
 import boto3
@@ -29,6 +30,7 @@ TASK_QUEUE_RECEIVE_TIMEOUT = int(os.getenv("TASK_QUEUE_RECEIVE_TIMEOUT", 20))
 DATA_DIR = os.environ["DATA_DIR"]
 METADATA_DIR = os.path.join(DATA_DIR, "archive_metadata")
 DOWNLOAD_URL_EXPIRATION_SECONDS = int(datetime.timedelta(hours=24).total_seconds())
+API_DOMAIN = os.environ["API_DOMAIN"]
 
 
 class UploadInfo(pydantic.BaseModel):
@@ -159,6 +161,44 @@ def load_source_uploads_from_csv(
     except:
         logger.exception("error reading CSV data from S3")
         raise
+
+
+def build_url(base_url: str, endpoint: str = ""):
+    """Combines a base URL or domain name with a given endpoint.
+
+    Essentially a more robust version of ``f"{base_url}/{endpoint}"``
+    or ``urljoin(base_url, endpoint)``, which handles the following edge cases:
+
+        - Default to ``https://`` scheme when missing in ``base_url``
+        - Ensure that ``base_url`` and ``endpoint`` are separated
+            by exactly 1 forward slash character, regardless of trailing/leading
+            forward slashes present (respectively) in either argument,
+            without dropping any segments from either argument.
+
+    Args:
+        base_url: A base URL (like ``http://example.com``) or domain name (like ``example.com``).
+            This value may include path segments, which will be prepended
+            to any ``endpoint`` path segments in the return value.
+        endpoint: (Optional) A URL path of zero or more ``/``-separated path segments.
+
+    Returns:
+        A URL joined from the two parameters that always has a scheme,
+        which includes no parameters, query arguments, or fragments.
+    """
+    if "//" not in base_url:
+        base_url = f"https://{base_url}"
+
+    scheme, netloc, path, _, _, _ = urllib.parse.urlparse(base_url)
+    if not path.startswith("/"):
+        path = f"/{path}"
+    if not path.endswith("/"):
+        path = f"{path}/"
+    endpoint = endpoint.lstrip("/")
+
+    return urllib.parse.urljoin(
+        urllib.parse.ParseResult(scheme, netloc, path, "", "", "").geturl(),
+        endpoint,
+    )
 
 
 def notify_user(

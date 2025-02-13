@@ -452,3 +452,60 @@ class TestMain:
         with mock.patch("src.worker.ShutdownHandler", mock_ShutdownHandler):
             worker.main()
         assert mock_handle_work.call_count == 3
+
+
+class TestBuildDownloadURL:
+    @pytest.mark.parametrize(
+        ("base_url", "expected"),
+        (
+            (
+                "example.com",
+                "https://example.com/api/uploads/123/getFullFileExport",
+            ),
+            (
+                "https://example.com",
+                "https://example.com/api/uploads/123/getFullFileExport",
+            ),
+            (
+                "https://example.com/some/prefix",
+                "https://example.com/some/prefix/api/uploads/123/getFullFileExport",
+            ),
+            (
+                "https://example.com/some/prefix/",
+                "https://example.com/some/prefix/api/uploads/123/getFullFileExport",
+            ),
+            (
+                "example.com/some/prefix",
+                "https://example.com/some/prefix/api/uploads/123/getFullFileExport",
+            ),
+            (
+                "example.com/some/prefix/",
+                "https://example.com/some/prefix/api/uploads/123/getFullFileExport",
+            ),
+            (
+                "example.com:443/some/prefix",
+                "https://example.com:443/some/prefix/api/uploads/123/getFullFileExport",
+            ),
+            (
+                "example.com:443/some/prefix/",
+                "https://example.com:443/some/prefix/api/uploads/123/getFullFileExport",
+            ),
+            (
+                "https://example.com:443/some/prefix",
+                "https://example.com:443/some/prefix/api/uploads/123/getFullFileExport",
+            ),
+            (
+                "https://example.com:443/some/prefix/",
+                "https://example.com:443/some/prefix/api/uploads/123/getFullFileExport",
+            ),
+        ),
+    )
+    def test_base_url_normalization(self, base_url, expected):
+        bare_endpoint = "api/uploads/123/getFullFileExport"
+
+        assert expected == worker.build_url(base_url, endpoint=bare_endpoint), (
+            "Unexpected result using endpoint without leading slash"
+        )
+        assert expected == worker.build_url(base_url, endpoint=f"/{bare_endpoint}"), (
+            "Unexpected result using endpoint with leading slash"
+        )
