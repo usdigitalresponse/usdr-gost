@@ -208,9 +208,9 @@ export default {
     },
     navLinkClass(to) {
       if (this.$route.path === to) {
-        return 'nav-link usdr-tab-nav-link active';
+        return 'nav-link usdr-link active';
       }
-      return 'nav-link usdr-tab-nav-link';
+      return 'nav-link usdr-link';
     },
     dateFormat(d) {
       return moment(d)
