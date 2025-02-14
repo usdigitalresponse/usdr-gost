@@ -4,6 +4,7 @@ const router = express.Router();
 const { HeadObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 const _ = require('lodash');
 const { SendMessageCommand } = require('@aws-sdk/client-sqs');
+const { DateTime } = require('luxon');
 
 const aws = require('../../lib/gost-aws');
 const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
@@ -107,6 +108,68 @@ router.get('/', requireUser, async (req, res) => {
     res.send(Buffer.from(report.content, 'binary'));
 });
 
-module.exports = router;
+router.get('/:tenantId/getFullFileExport/:downloadType', requireUser, async (req, res) => {
+    const s3 = aws.getS3Client();
+    const { user } = req.session;
+    const { downloadType } = req.params;
+    let logger = req.log.child({ S3Bucket: process.env.AUDIT_REPORT_BUCKET, downloadType });
 
-// NOTE: This file was copied from src/server/routes/exports.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
+    const archiveS3Key = `fullFileExport/${user.tenant_id}/archive.zip`;
+    const metadataS3Key = `fullFileExport/${user.tenant_id}/archive_metadata.csv`;
+    let downloadS3Key;
+    let downloadFilenameBase;
+    let downloadExtension;
+    if (downloadType === 'archive' || downloadType !== 'metadata') {
+        downloadS3Key = archiveS3Key;
+        downloadFilenameBase = `FullFileExport`;
+        downloadExtension = 'zip';
+    } else if (downloadType === 'metadata') {
+        downloadS3Key = metadataS3Key;
+        downloadFilenameBase = 'FullFileExportMetadata';
+        downloadExtension = 'csv';
+    } else {
+        logger.error('aborting request because user requested download of unknown type');
+        res.status(404).json({ error: 'invalid download type' });
+    }
+    logger = logger.child({ downloadS3Key, archiveS3Key, metadataS3Key });
+    logger.info('preparing redirect to pre-signed url for requested download');
+
+    const alertText = `The export you requested has expired. Please try again by clicking the 'Send Full File Export by Email'.`;
+    const errorRedirectUrl = encodeURI(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=${alertText}&alert_level=err`);
+
+    let metadataLastModified;
+    try {
+        metadataLastModified = (await s3.send(new HeadObjectCommand({
+            Bucket: process.env.AUDIT_REPORT_BUCKET, Key: metadataS3Key,
+        }))).LastModified;
+        logger.info({ metadataLastModified }, 'retrieved last-modified date for metadata S3 object');
+    } catch (err) {
+        logger.error(err, 'error retrieving HeadObject output for metadata S3 object');
+        res.redirect(errorRedirectUrl);
+        return;
+    }
+
+    const downloadFilenameDate = DateTime.fromJSDate(metadataLastModified).toFormat('MM.dd.yyyy.HH.mm.ss');
+    const fullFilename = `${downloadFilenameBase}-${downloadFilenameDate}.${downloadExtension}`;
+    logger = logger.child({ attachmentFilename: fullFilename });
+
+    let signedUrl;
+    const downloadExpiresInSeconds = 60;
+    try {
+        signedUrl = await aws.getSignedUrl(s3, new GetObjectCommand({
+            Bucket: process.env.AUDIT_REPORT_BUCKET,
+            Key: downloadS3Key,
+            ResponseContentDisposition: `attachment; filename="${fullFilename}"`,
+        }), { expiresIn: downloadExpiresInSeconds });
+    } catch (err) {
+        logger.error(err, 'error retrieving signed URL for requested S3 object');
+        res.redirect(errorRedirectUrl);
+        return;
+    }
+
+    logger.info({ downloadExpiresInSeconds },
+        'redirecting to pre-signed url for S3 GetObject command');
+    res.redirect(signedUrl);
+});
+
+module.exports = router;
