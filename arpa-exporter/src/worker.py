@@ -40,7 +40,7 @@ class UploadInfo(pydantic.BaseModel):
 
     upload_id: str
     filename_in_zip: str  # TODO: Drop this
-    directory_location: str  # TODO: Rename to path_in_zip
+    path_in_zip: str
     agency_name: str
     ec_code: str
     reporting_period_name: str
@@ -85,15 +85,15 @@ def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) 
             source_path = os.path.join(DATA_DIR, f"{upload.upload_id}.xlsm")
             entry_logger = logger.bind(
                 source_path=source_path,
-                entry_path=upload.directory_location,
+                entry_path=upload.path_in_zip,
             )
 
-            if upload.directory_location in archive.namelist():
+            if upload.path_in_zip in archive.namelist():
                 entry_logger.info("file already exists in archive")
                 continue
 
             try:
-                archive.write(source_path, arcname=upload.directory_location)
+                archive.write(source_path, arcname=upload.path_in_zip)
             except:
                 entry_logger.exception("error writing source file to entry in archive")
                 raise

@@ -34,12 +34,12 @@ class TestBuildZip:
             # Open the zip-file and make sure it has the correct files
             with zipfile.ZipFile(tmp, "r") as archive:
                 assert set(archive.namelist()) == set(
-                    _.directory_location for _ in sample_metadata_1_UploadInfo
+                    _.path_in_zip for _ in sample_metadata_1_UploadInfo
                 )
 
                 # Compare checksums to ensure sources and destinations were mapped correctly
                 for ui in sample_metadata_1_UploadInfo:
-                    zipped_file_checksum = archive.getinfo(ui.directory_location).CRC
+                    zipped_file_checksum = archive.getinfo(ui.path_in_zip).CRC
                     source_path = os.path.join(
                         os.environ["DATA_DIR"], f"{ui.upload_id}.xlsm"
                     )
@@ -49,7 +49,7 @@ class TestBuildZip:
 
     def test_skips_source_file_when_present_in_zip(self, sample_metadata_1_UploadInfo):
         extant_file_data = b"this is some test data"
-        extant_file_entry_path = sample_metadata_1_UploadInfo[0].directory_location
+        extant_file_entry_path = sample_metadata_1_UploadInfo[0].path_in_zip
         extant_file_checksum = zlib.crc32(extant_file_data)
 
         with tempfile.NamedTemporaryFile() as tmp:
@@ -80,7 +80,7 @@ class TestBuildZip:
         with tempfile.NamedTemporaryFile() as tmp:
             with zipfile.ZipFile(tmp, "w") as archive:
                 for u in sample_metadata_1_UploadInfo:
-                    archive.writestr(u.directory_location, "does not matter")
+                    archive.writestr(u.path_in_zip, "does not matter")
             updated = worker.build_zip(tmp, (_ for _ in sample_metadata_1_UploadInfo))
             assert updated is False
             with zipfile.ZipFile(tmp, "r") as archive:
@@ -97,10 +97,10 @@ class TestBuildZip:
 
             # Open the zip-file and make sure it has the correct files
             with zipfile.ZipFile(tmp, "r") as archive:
-                assert second_to_last_entry.directory_location not in archive.namelist()
-                assert last_entry.directory_location not in archive.namelist()
+                assert second_to_last_entry.path_in_zip not in archive.namelist()
+                assert last_entry.path_in_zip not in archive.namelist()
                 assert set(archive.namelist()) == set(
-                    ui.directory_location for ui in sample_metadata_1_UploadInfo[:-2]
+                    ui.path_in_zip for ui in sample_metadata_1_UploadInfo[:-2]
                 )
 
 
@@ -271,7 +271,7 @@ class TestProcessSQSMessageRequest:
             with zipfile.ZipFile(tmp, "r") as resulting_archive:
                 actual_namelist = resulting_archive.namelist()
                 expected_namelist = set(
-                    _.directory_location for _ in sample_metadata_1_UploadInfo
+                    _.path_in_zip for _ in sample_metadata_1_UploadInfo
                 )
                 for additional_entry in extant_zip_entries:
                     expected_namelist.add(additional_entry)
@@ -287,7 +287,7 @@ class TestProcessSQSMessageRequest:
         with tempfile.NamedTemporaryFile() as tmp:
             with zipfile.ZipFile(tmp, "w") as archive:
                 for ui in sample_metadata_1_UploadInfo:
-                    archive.writestr(ui.directory_location, b"some placeholder content")
+                    archive.writestr(ui.path_in_zip, b"some placeholder content")
             tmp.seek(0)
             s3.upload_fileobj(tmp, self.BUCKET_NAME, sqs_message.s3.zip_key)
 
