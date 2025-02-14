@@ -39,12 +39,7 @@ class UploadInfo(pydantic.BaseModel):
     """
 
     upload_id: str
-    filename_in_zip: str  # TODO: Drop this
     path_in_zip: str
-    agency_name: str
-    ec_code: str
-    reporting_period_name: str
-    validity: str
 
 
 class S3Schema(pydantic.BaseModel):
