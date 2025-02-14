@@ -215,11 +215,11 @@ def notify_user(
     try:
         zip_download_url = build_url(
             API_DOMAIN,
-            f"/api/fullFileExport/{user_organization_id}/archive.zip",
+            f"/api/uploads/{user_organization_id}/getFullFileExport/archive",
         )
         csv_download_url = build_url(
             API_DOMAIN,
-            f"/api/fullFileExport/{user_organization_id}/archive_metadata.csv",
+            f"/api/uploads/{user_organization_id}/getFullFileExport/metadata",
         )
         logger = logger.bind(zip_download_url=zip_download_url)
     except:

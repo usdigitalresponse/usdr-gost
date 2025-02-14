@@ -173,10 +173,10 @@ class TestNotifyUser:
     def test_sends_email_with_download_urls(self, ses, ses_sent_messages):
         organization_id = "123"
         download_url_base = (
-            f"https://api.example.org/api/fullFileExport/{organization_id}"
+            f"https://api.example.org/api/uploads/{organization_id}/getFullFileExport"
         )
-        expect_zip_url = f"{download_url_base}/archive.zip"
-        expect_csv_url = f"{download_url_base}/archive_metadata.csv"
+        expect_zip_url = f"{download_url_base}/archive"
+        expect_csv_url = f"{download_url_base}/metadata"
         expect_email = "person@example.gov"
 
         worker.notify_user(ses, expect_email, organization_id)
