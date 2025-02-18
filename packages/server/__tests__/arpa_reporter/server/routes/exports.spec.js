@@ -157,7 +157,7 @@ describe('/api/exports', () => {
         const objReturnFake = sandbox.fake.returns('some_return');
         objReturnFake.promise = sandbox.fake.returns('promise return');
         const headObject = sandbox.fake.returns(objReturnFake);
-        s3InstanceFake.send = sandbox.fake(('success', headObject));
+        s3InstanceFake.send = sandbox.fake(headObjectFake('success', headObject));
         sandbox.replace(aws, 'getSignedUrl', sandbox.fake(signedUrlFake('success')));
         const s3Fake = sandbox.fake.returns(s3InstanceFake);
         sandbox.replace(aws, 'getS3Client', s3Fake);
