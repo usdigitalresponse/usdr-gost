@@ -172,9 +172,7 @@ class TestNotifyUser:
     @mock.patch("src.worker.API_DOMAIN", new="https://api.example.org")
     def test_sends_email_with_download_urls(self, ses, ses_sent_messages):
         organization_id = "123"
-        download_url_base = (
-            f"https://api.example.org/api/uploads/{organization_id}/getFullFileExport"
-        )
+        download_url_base = "https://api.example.org/api/exports/getFullFileExport"
         expect_zip_url = f"{download_url_base}/archive"
         expect_csv_url = f"{download_url_base}/metadata"
         expect_email = "person@example.gov"
