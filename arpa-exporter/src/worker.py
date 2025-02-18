@@ -221,7 +221,10 @@ def notify_user(
             API_DOMAIN,
             "/api/exports/getFullFileExport/metadata",
         )
-        logger = logger.bind(zip_download_url=zip_download_url)
+        logger = logger.bind(
+            zip_download_url=zip_download_url,
+            csv_download_url=csv_download_url,
+        )
     except:
         logger.exception("error generating download URLs for email")
         raise
