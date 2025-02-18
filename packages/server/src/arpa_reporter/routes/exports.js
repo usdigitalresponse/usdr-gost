@@ -130,9 +130,19 @@ router.get('/getFullFileExport/:downloadType(archive|metadata)', requireUser, as
     logger = logger.child({ downloadS3Key, archiveS3Key, metadataS3Key });
     logger.info('preparing redirect to pre-signed url for requested download');
 
-    const alertText = `The export you requested has expired. Please try again by clicking the 'Send Full File Export by Email'.`;
-    const errorRedirectUrl = encodeURI(`${process.env.WEBSITE_DOMAIN}/arpa_reporter?alert_text=${alertText}&alert_level=err`);
+    const errRedirect = () => {
+        const url = new URL(process.env.WEBSITE_DOMAIN);
+        url.pathname = 'arpa_reporter';
+        const alertText = 'The export you requested has expired or does not exist. '
+            + 'Please try again by clicking the "Send Full File Export by Email" button.';
+        url.searchParams.set('alert_text', alertText);
+        url.searchParams.set('alert_level', 'err');
+        logger.info({ redirectUrl: url.toString(), alertText },
+            'redirecting user to home page with error message');
+        return res.redirect(url.toString());
+    };
 
+    const s3 = aws.getS3Client();
     let metadataLastModified;
     try {
         metadataLastModified = (await s3.send(new HeadObjectCommand({
@@ -141,8 +151,7 @@ router.get('/getFullFileExport/:downloadType(archive|metadata)', requireUser, as
         logger.info({ metadataLastModified }, 'retrieved last-modified date for metadata S3 object');
     } catch (err) {
         logger.error(err, 'error retrieving HeadObject output for metadata S3 object');
-        res.redirect(errorRedirectUrl);
-        return;
+        return errRedirect();
     }
 
     const downloadFilenameDate = DateTime.fromJSDate(metadataLastModified).toFormat('MM.dd.yyyy.HH.mm.ss');
@@ -159,8 +168,7 @@ router.get('/getFullFileExport/:downloadType(archive|metadata)', requireUser, as
         }), { expiresIn: downloadExpiresInSeconds });
     } catch (err) {
         logger.error(err, 'error retrieving signed URL for requested S3 object');
-        res.redirect(errorRedirectUrl);
-        return;
+        return errRedirect();
     }
 
     logger.info({ downloadExpiresInSeconds },
