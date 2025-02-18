@@ -108,8 +108,7 @@ router.get('/', requireUser, async (req, res) => {
     res.send(Buffer.from(report.content, 'binary'));
 });
 
-router.get('/:tenantId/getFullFileExport/:downloadType', requireUser, async (req, res) => {
-    const s3 = aws.getS3Client();
+router.get('/getFullFileExport/:downloadType(archive|metadata)', requireUser, async (req, res) => {
     const { user } = req.session;
     const { downloadType } = req.params;
     let logger = req.log.child({ S3Bucket: process.env.AUDIT_REPORT_BUCKET, downloadType });
@@ -119,7 +118,7 @@ router.get('/:tenantId/getFullFileExport/:downloadType', requireUser, async (req
     let downloadS3Key;
     let downloadFilenameBase;
     let downloadExtension;
-    if (downloadType === 'archive' || downloadType !== 'metadata') {
+    if (downloadType === 'archive') {
         downloadS3Key = archiveS3Key;
         downloadFilenameBase = `FullFileExport`;
         downloadExtension = 'zip';
@@ -127,9 +126,6 @@ router.get('/:tenantId/getFullFileExport/:downloadType', requireUser, async (req
         downloadS3Key = metadataS3Key;
         downloadFilenameBase = 'FullFileExportMetadata';
         downloadExtension = 'csv';
-    } else {
-        logger.error('aborting request because user requested download of unknown type');
-        res.status(404).json({ error: 'invalid download type' });
     }
     logger = logger.child({ downloadS3Key, archiveS3Key, metadataS3Key });
     logger.info('preparing redirect to pre-signed url for requested download');
