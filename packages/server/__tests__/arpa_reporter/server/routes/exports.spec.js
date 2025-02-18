@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 
+const { NotFound } = require('@aws-sdk/client-s3');
 const { makeTestServer, getSessionCookie } = require('./route_test_helpers');
 const arpa = require('../../../../src/arpa_reporter/services/generate-arpa-report');
 const aws = require('../../../../src/lib/gost-aws');
@@ -156,7 +157,7 @@ describe('/api/exports', () => {
         const objReturnFake = sandbox.fake.returns('some_return');
         objReturnFake.promise = sandbox.fake.returns('promise return');
         const headObject = sandbox.fake.returns(objReturnFake);
-        s3InstanceFake.send = sandbox.fake(headObjectFake('success', headObject));
+        s3InstanceFake.send = sandbox.fake(('success', headObject));
         sandbox.replace(aws, 'getSignedUrl', sandbox.fake(signedUrlFake('success')));
         const s3Fake = sandbox.fake.returns(s3InstanceFake);
         sandbox.replace(aws, 'getS3Client', s3Fake);
@@ -167,6 +168,92 @@ describe('/api/exports', () => {
 
         expect(response.status).to.equal(302);
         expect(response.headers.location).to.equal(`http://s3.amazonaws.com/sample.xlsx`);
+    });
+
+    describe('/api/exports/getFullFileExport/:downloadType', async () => {
+        it('redirects to download for full file export archive', async () => {
+            sandbox.replace(aws, 'getS3Client', sandbox.fake.returns({
+                send: sandbox.fake.returns({ LastModified: new Date('2025-01-02T03:04:05.000Z') }),
+            }));
+
+            const signedUrl = 'https://s3.amazonaws.com/archive.zip';
+            const getSignedUrlFake = sandbox.fake.returns(signedUrl);
+            sandbox.replace(aws, 'getSignedUrl', getSignedUrlFake);
+
+            const response = await server
+                .get('/api/exports/getFullFileExport/archive')
+                .set('Cookie', tenantACookie);
+
+            expect(response.status).to.equal(302);
+            expect(response.headers.location).to.equal(signedUrl);
+            expect(getSignedUrlFake.calledOnce).to.be.true;
+            expect(getSignedUrlFake.lastCall.args[1].input.Key).to.equal('fullFileExport/0/archive.zip');
+            expect(getSignedUrlFake.lastCall.args[1].input.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
+            expect(getSignedUrlFake.lastCall.args[1].input.ResponseContentDisposition).to.equal(
+                'attachment; filename="FullFileExport-01.02.2025.03.04.05.zip"',
+            );
+            expect(getSignedUrlFake.lastCall.args[2].expiresIn).to.equal(60);
+        });
+        it('redirects to download for full fil export metadata', async () => {
+            sandbox.replace(aws, 'getS3Client', sandbox.fake.returns({
+                send: sandbox.fake.returns({ LastModified: new Date('2025-01-02T03:04:05.000Z') }),
+            }));
+
+            const signedUrl = 'https://s3.amazonaws.com/metadata.csv';
+            const getSignedUrlFake = sandbox.fake.returns(signedUrl);
+            sandbox.replace(aws, 'getSignedUrl', getSignedUrlFake);
+
+            const response = await server
+                .get('/api/exports/getFullFileExport/metadata')
+                .set('Cookie', tenantACookie);
+
+            expect(response.status).to.equal(302);
+            expect(response.headers.location).to.equal(signedUrl);
+            expect(getSignedUrlFake.calledOnce).to.be.true;
+            expect(getSignedUrlFake.lastCall.args[1].input.Key).to.equal('fullFileExport/0/archive_metadata.csv');
+            expect(getSignedUrlFake.lastCall.args[1].input.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
+            expect(getSignedUrlFake.lastCall.args[1].input.ResponseContentDisposition).to.equal(
+                'attachment; filename="FullFileExportMetadata-01.02.2025.03.04.05.csv"',
+            );
+            expect(getSignedUrlFake.lastCall.args[2].expiresIn).to.equal(60);
+        });
+        it('redirects to error when HeadObject throws not found for metadata file', async () => {
+            sandbox.replace(aws, 'getS3Client', sandbox.fake.returns({
+                send: sandbox.fake.throws(new NotFound()),
+            }));
+
+            const signedUrl = 'https://s3.amazonaws.com/metadata.csv';
+            const getSignedUrlFake = sandbox.fake.returns(signedUrl);
+            sandbox.replace(aws, 'getSignedUrl', getSignedUrlFake);
+
+            const response = await server
+                .get('/api/exports/getFullFileExport/metadata')
+                .set('Cookie', tenantACookie);
+
+            expect(response.status).to.equal(302);
+            expect(response.headers.location).to.match(
+                new RegExp(/^http:\/\/localhost:\d+\/arpa_reporter\?alert_text=.+&alert_level=.+/g),
+            );
+            expect(getSignedUrlFake.calledOnce).to.be.false;
+        });
+        it('redirects to error when getSignedUrl fails', async () => {
+            sandbox.replace(aws, 'getS3Client', sandbox.fake.returns({
+                send: sandbox.fake.returns({ LastModified: new Date('2025-01-02T03:04:05.000Z') }),
+            }));
+
+            const getSignedUrlFake = sandbox.fake.throws({ error: 'there was a problem' });
+            sandbox.replace(aws, 'getSignedUrl', getSignedUrlFake);
+
+            const response = await server
+                .get('/api/exports/getFullFileExport/metadata')
+                .set('Cookie', tenantACookie);
+
+            expect(response.status).to.equal(302);
+            expect(response.headers.location).to.match(
+                new RegExp(/^http:\/\/localhost:\d+\/arpa_reporter\?alert_text=.+&alert_level=.+/g),
+            );
+            expect(getSignedUrlFake.calledOnce).to.be.true;
+        });
     });
 });
 
