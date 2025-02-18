@@ -153,7 +153,7 @@ def _main():  # pragma: nocover
     from src.lib.logging import get_logger
 
     parser = argparse.ArgumentParser(
-        prog=f"python -m {__loader__.name}",
+        prog=f"python -m {__loader__.name}",  # type: ignore[name-defined]
         description="CLI tool for debugging email content generation.",
     )
     parser.add_argument(
