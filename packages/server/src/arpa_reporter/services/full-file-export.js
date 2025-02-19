@@ -4,8 +4,8 @@ const knex = require('../../db/connection');
 const aws = require('../../lib/gost-aws');
 const { bunyanLogger: log } = require('../../lib/logging');
 
-const metadataFsName = (organizationId) => `/fullFileExport/${organizationId}/metadata.csv`;
-const zipFileKey = (organizationId) => `/fullFileExport/${organizationId}/archive.zip`;
+const metadataFsName = (organizationId) => `full-file-export/org_${organizationId}/metadata.csv`;
+const zipFileKey = (organizationId) => `full-file-export/org_${organizationId}/archive.zip`;
 
 async function getUploadsForArchive(organizationId) {
     const uploads = await knex.raw(`
@@ -33,7 +33,7 @@ async function getUploadsForArchive(organizationId) {
                 WHEN u1.validated_at IS NOT NULL
                 AND ue.id IS NULL THEN '/' || rp.name || '/Not Final Treasury/Valid files/' || SPLIT_PART(u1.filename, '.xlsm', 1) || '--' || u1.id || '.xlsm'
                 ELSE NULL
-            END AS directory_location,
+            END AS path_in_zip,
             a.name AS agency_name,
             'EC' || u1.ec_code AS ec_code,
             rp.name AS reporting_period_name,
@@ -56,21 +56,21 @@ async function getUploadsForArchive(organizationId) {
             ue.id,
             u1.validated_at ASC
     `, [organizationId, organizationId]);
-    console.log('uploads', uploads);
     return uploads.rows;
 }
 
 async function generateAndUploadMetadata(organizationId, s3Key, logger = log) {
     const uploads = await getUploadsForArchive(organizationId);
-    let data = ``;
+    let data = `upload_id,path_in_zip,agency_name,ec_code,reporting_period_name,validity`;
     for (const upload of uploads) {
-        data = data.concat('\n', `${upload.filename_in_zip},${upload.directory_location},${upload.agency_name},${upload.ec_code},${upload.reporting_period_name},${upload.validity}`);
+        data = data.concat('\n', `${upload.upload_id},${upload.path_in_zip},${upload.agency_name},${upload.ec_code},${upload.reporting_period_name},${upload.validity}`);
     }
     const s3 = aws.getS3Client();
     const fileExportParams = {
         Bucket: process.env.AUDIT_REPORT_BUCKET,
         Key: s3Key,
         Body: Buffer.from(data),
+        ContentType: 'text/plain',
         ServerSideEncryption: 'AES256',
     };
     logger.info('fileExportParams', fileExportParams);
