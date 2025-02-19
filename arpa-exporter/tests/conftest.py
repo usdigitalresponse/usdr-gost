@@ -16,6 +16,7 @@ os.environ.setdefault(
 os.environ.setdefault(
     "NOTIFICATIONS_EMAIL", "grants-notifications@usdigitalresponse.org"
 )
+os.environ.setdefault("API_DOMAIN", "https://api.example.org")
 
 # Configure mock AWS SDK and fixtures
 AWS_REGION = "us-west-2"

@@ -7,6 +7,7 @@ import json
 import os
 import tempfile
 import typing
+import urllib.parse
 import zipfile
 
 import boto3
@@ -29,6 +30,7 @@ TASK_QUEUE_RECEIVE_TIMEOUT = int(os.getenv("TASK_QUEUE_RECEIVE_TIMEOUT", 20))
 DATA_DIR = os.environ["DATA_DIR"]
 METADATA_DIR = os.path.join(DATA_DIR, "archive_metadata")
 DOWNLOAD_URL_EXPIRATION_SECONDS = int(datetime.timedelta(hours=24).total_seconds())
+API_DOMAIN = os.environ["API_DOMAIN"]
 
 
 class UploadInfo(pydantic.BaseModel):
@@ -37,12 +39,7 @@ class UploadInfo(pydantic.BaseModel):
     """
 
     upload_id: str
-    filename_in_zip: str  # TODO: Drop this
-    directory_location: str  # TODO: Rename to path_in_zip
-    agency_name: str
-    ec_code: str
-    reporting_period_name: str
-    validity: str
+    path_in_zip: str
 
 
 class S3Schema(pydantic.BaseModel):
@@ -83,15 +80,15 @@ def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) 
             source_path = os.path.join(DATA_DIR, f"{upload.upload_id}.xlsm")
             entry_logger = logger.bind(
                 source_path=source_path,
-                entry_path=upload.directory_location,
+                entry_path=upload.path_in_zip,
             )
 
-            if upload.directory_location in archive.namelist():
+            if upload.path_in_zip in archive.namelist():
                 entry_logger.info("file already exists in archive")
                 continue
 
             try:
-                archive.write(source_path, arcname=upload.directory_location)
+                archive.write(source_path, arcname=upload.path_in_zip)
             except:
                 entry_logger.exception("error writing source file to entry in archive")
                 raise
@@ -161,12 +158,48 @@ def load_source_uploads_from_csv(
         raise
 
 
+def build_url(base_url: str, endpoint: str = ""):
+    """Combines a base URL or domain name with a given endpoint.
+
+    Essentially a more robust version of ``f"{base_url}/{endpoint}"``
+    or ``urljoin(base_url, endpoint)``, which handles the following edge cases:
+
+        - Default to ``https://`` scheme when missing in ``base_url``
+        - Ensure that ``base_url`` and ``endpoint`` are separated
+            by exactly 1 forward slash character, regardless of trailing/leading
+            forward slashes present (respectively) in either argument,
+            without dropping any segments from either argument.
+
+    Args:
+        base_url: A base URL (like ``http://example.com``) or domain name (like ``example.com``).
+            This value may include path segments, which will be prepended
+            to any ``endpoint`` path segments in the return value.
+        endpoint: (Optional) A URL path of zero or more ``/``-separated path segments.
+
+    Returns:
+        A URL joined from the two parameters that always has a scheme,
+        which includes no parameters, query arguments, or fragments.
+    """
+    if "//" not in base_url:
+        base_url = f"https://{base_url}"
+
+    scheme, netloc, path, _, _, _ = urllib.parse.urlparse(base_url)
+    if not path.startswith("/"):
+        path = f"/{path}"
+    if not path.endswith("/"):
+        path = f"{path}/"
+    endpoint = endpoint.lstrip("/")
+
+    return urllib.parse.urljoin(
+        urllib.parse.ParseResult(scheme, netloc, path, "", "", "").geturl(),
+        endpoint,
+    )
+
+
 def notify_user(
-    s3: S3Client,
     ses: SESClient,
-    download_bucket: str,
-    download_key: str,
     user_email: str,
+    user_organization_id: int | str,
 ):
     """Generates and sends an email notification that provides a URL for
     downloading a zip file from S3.
@@ -178,23 +211,28 @@ def notify_user(
         download_key: S3 key of the downloadable object
         user_email: The email address of the user to notify
     """
-    logger = get_logger(
-        download_bucket=download_bucket,
-        download_key=download_key,
-        download_expiration=f"{DOWNLOAD_URL_EXPIRATION_SECONDS} seconds",
-    )
+    logger = get_logger(organization_id=user_organization_id)
     try:
-        download_url = s3.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": download_bucket, "Key": download_key},
-            ExpiresIn=DOWNLOAD_URL_EXPIRATION_SECONDS,
+        zip_download_url = build_url(
+            API_DOMAIN,
+            "/api/exports/getFullFileExport/archive",
+        )
+        csv_download_url = build_url(
+            API_DOMAIN,
+            "/api/exports/getFullFileExport/metadata",
+        )
+        logger = logger.bind(
+            zip_download_url=zip_download_url,
+            csv_download_url=csv_download_url,
         )
     except:
-        logger.exception("error generating presigned s3 get_object URL for email")
+        logger.exception("error generating download URLs for email")
         raise
 
     try:
-        email_html, email_text, subject = generate_email(download_url)
+        email_html, email_text, subject = generate_email(
+            zip_download_url, csv_download_url
+        )
     except:
         logger.exception("error generating content for email")
         raise
@@ -284,7 +322,7 @@ def process_sqs_message_request(
 
     # Step 4 - Notify user and download link via email
     try:
-        notify_user(s3, ses, s3_bucket, s3_key, message_data.user_email)
+        notify_user(ses, message_data.user_email, message_data.organization_id)
     except:
         get_logger().exception("error sending user notification")
         raise
