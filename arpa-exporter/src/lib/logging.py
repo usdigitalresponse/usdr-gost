@@ -40,9 +40,9 @@ structlog.configure(
 )
 
 
-def get_logger(*args: str, **kwargs: str) -> structlog.stdlib.BoundLogger:
+def get_logger(*args: Any, **initial_values: Any) -> structlog.stdlib.BoundLogger:
     """Convenience wrapper for ``structlog.get_logger()`` function."""
-    return structlog.get_logger(*args, **kwargs)
+    return structlog.get_logger(*args, **initial_values)
 
 
 def reset_contextvars(func: Callable) -> Callable:
