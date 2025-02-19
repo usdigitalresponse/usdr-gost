@@ -79,30 +79,12 @@ async function generateAndUploadMetadata(organizationId, s3Key, logger = log) {
             'uploading full file export metadata to S3');
         await s3.send(new PutObjectCommand(fileExportParams));
     } catch (err) {
-        console.log('error uploading full file export metadata to S3');
-        console.log(err);
         logger.error({ err }, 'failed to upload full file export metadata to S3');
         throw err;
     }
-    console.log('Successfully generated and uploaded ARPA full file export metadata');
     logger.info('finished generating and uploading ARPA full file export metadata');
 }
 
-/*
-class S3Schema(pydantic.BaseModel):
-    """Provides information about S3-hosted resources accessed during worker execution."""
-
-    bucket: str
-    zip_key: str
-    metadata_key: str
-
-class MessageSchema(pydantic.BaseModel):
-    """Schema for messages received from the SQS queue"""
-
-    s3: S3Schema
-    organization_id: int
-    user_email: str
-*/
 async function addMessageToQueue(organizationId, email) {
     const archiveKey = zipFileKey(organizationId);
     const metadataKey = metadataFsName(organizationId);
