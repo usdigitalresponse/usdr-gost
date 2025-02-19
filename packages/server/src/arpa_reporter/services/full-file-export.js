@@ -62,9 +62,9 @@ async function getUploadsForArchive(organizationId) {
 
 async function generateAndUploadMetadata(organizationId, s3Key, logger = log) {
     const uploads = await getUploadsForArchive(organizationId);
-    const data = ``;
+    let data = ``;
     for (const upload of uploads) {
-        data.concat('\n', `${upload.filename_in_zip},${upload.directory_location},${upload.agency_name},${upload.ec_code},${upload.reporting_period_name},${upload.validity}`);
+        data = data.concat('\n', `${upload.filename_in_zip},${upload.directory_location},${upload.agency_name},${upload.ec_code},${upload.reporting_period_name},${upload.validity}`);
     }
     const s3 = aws.getS3Client();
     const fileExportParams = {
