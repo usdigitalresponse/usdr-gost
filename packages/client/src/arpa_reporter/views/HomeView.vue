@@ -55,7 +55,20 @@
           <span v-else>Send Audit Report by Email</span>
         </button>
       </div>
-
+      <div
+        v-if="isAdmin"
+        class="col"
+      >
+        <button
+          id="sendFullFileExportButton"
+          class="btn usdr-btn-info btn-block"
+          :disabled="sendingFulLFileExport"
+          @click="sendFullFileExport"
+        >
+          <span v-if="sendingFulLFileExport">Sending...</span>
+          <span v-else>Send Full File Export by Email</span>
+        </button>
+      </div>
       <div
         v-if="viewingOpenPeriod"
         class="col"
@@ -120,6 +133,7 @@ export default {
     return {
       alert,
       sending: false,
+      sendingFulLFileExport: false,
     };
   },
   computed: {
@@ -136,6 +150,34 @@ export default {
   methods: {
     clearAlert() {
       this.alert = null;
+    },
+    async sendFullFileExport() {
+      this.sendingFulLFileExport = true;
+
+      try {
+        const result = await getJson('/api/exports/fullFileExport');
+
+        if (result.error) {
+          this.alert = {
+            text: 'Something went wrong. Unable to send an email containing the full file export. Reach out to grants-helpdesk@usdigitalresponse.org if this happens again.',
+            level: 'err',
+          };
+          console.log(result.error);
+        } else {
+          this.alert = {
+            text: 'Sent. Please note, it could take up to 1 hour for this email to arrive.',
+            level: 'ok',
+          };
+        }
+      } catch (error) {
+        // we got an error from the backend, but the backend didn't send reasons
+        this.alert = {
+          text: 'Something went wrong. Unable to send an email containing the full file export. Reach out to grants-helpdesk@usdigitalresponse.org if this happens again.',
+          level: 'err',
+        };
+      }
+
+      this.sendingFulLFileExport = false;
     },
     async sendAuditReport() {
       this.sending = true;

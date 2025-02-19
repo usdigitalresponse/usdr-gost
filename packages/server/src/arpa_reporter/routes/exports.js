@@ -6,8 +6,9 @@ const _ = require('lodash');
 const { SendMessageCommand } = require('@aws-sdk/client-sqs');
 
 const aws = require('../../lib/gost-aws');
-const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
+const { requireUser, getAdminAuthInfo, requireAdminUser } = require('../../lib/access-helpers');
 const arpa = require('../services/generate-arpa-report');
+const fullFileExport = require('../services/full-file-export');
 const { getReportingPeriodID, getReportingPeriod } = require('../db/reporting-periods');
 const { useTenantId, useUser } = require('../use-request');
 
@@ -105,6 +106,19 @@ router.get('/', requireUser, async (req, res) => {
     );
     res.header('Content-Type', 'application/octet-stream');
     res.send(Buffer.from(report.content, 'binary'));
+});
+
+router.get('/fullFileExport', requireAdminUser, async (req, res) => {
+    const user = useUser();
+    const organizationId = user.tenant_id;
+    // const response = await fullFileExport.getUploadsForArchive(organizationId);
+    try {
+        await fullFileExport.addMessageToQueue(organizationId, user.email);
+        res.json({ success: true });
+    } catch (error) {
+        console.log(`Failed to generate and send full file export ${error}`);
+        res.status(500).json({ error: 'Unable to generate full file export and send email.' });
+    }
 });
 
 module.exports = router;
