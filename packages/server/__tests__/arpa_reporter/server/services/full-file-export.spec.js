@@ -31,7 +31,7 @@ describe('FullFileExport', () => {
 
         // stub sqs client and SendMessageCommand
         const messageFake = sandbox.fake.returns('just sqs');
-        messageFake.send = sandbox.fake(() => { true; });
+        messageFake.send = sandbox.fake(() => {});
         const sqsFake = sandbox.fake.returns(messageFake);
         sandbox.replace(aws, 'getSQSClient', sqsFake);
 
@@ -62,7 +62,7 @@ abcdef,Approved File.xlsm,/Quarter 1/Approved File_abcdef.xlsm,Agency 1,99.1,Qua
 
         // stub S3 client and PutObjectCommand
         const uploadFake = sandbox.fake.returns('just s3');
-        uploadFake.send = sandbox.fake(() => { true; });
+        uploadFake.send = sandbox.fake(() => {});
         const s3Fake = sandbox.fake.returns(uploadFake);
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
