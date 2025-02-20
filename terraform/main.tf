@@ -56,7 +56,6 @@ locals {
   permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_policy_name}"
   api_domain_name          = coalesce(var.api_domain_name, "api.${var.website_domain_name}")
   unified_service_tags     = { service = "gost", env = var.env, version = var.version_identifier }
-  arpa_exporter_enabled    = can(coalesce(var.arpa_exporter_image_tag))
 }
 
 data "aws_ssm_parameter" "public_dns_zone_id" {
@@ -141,7 +140,6 @@ module "arpa_treasury_report_security_group" {
 }
 
 module "arpa_exporter_security_group" {
-  count   = local.arpa_exporter_enabled ? 1 : 0
   source  = "cloudposse/security-group/aws"
   version = "2.2.0"
 
@@ -459,7 +457,6 @@ resource "aws_iam_role_policy" "api_task-publish_to_arpa_treasury_report_queue" 
 }
 
 module "arpa_exporter" {
-  count                    = local.arpa_exporter_enabled ? 1 : 0
   source                   = "./modules/sqs_consumer_task"
   namespace                = "${var.namespace}-arpa_exporter"
   permissions_boundary_arn = local.permissions_boundary_arn
@@ -467,7 +464,7 @@ module "arpa_exporter" {
 
   # Networking
   subnet_ids         = local.private_subnet_ids
-  security_group_ids = module.arpa_exporter_security_group[*].id
+  security_group_ids = [module.arpa_exporter_security_group.id]
 
   # Task configuration
   ecs_cluster_name     = join("", aws_ecs_cluster.default[*].name)
