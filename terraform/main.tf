@@ -189,6 +189,7 @@ module "api" {
     module.consume_grants_to_postgres_security_group.id,
     module.arpa_audit_report_security_group.id,
     module.arpa_treasury_report_security_group.id,
+    module.arpa_exporter_security_group.id
   ]
 
   # Cluster
@@ -211,7 +212,7 @@ module "api" {
   api_container_environment = merge(var.api_container_environment, {
     ARPA_AUDIT_REPORT_SQS_QUEUE_URL     = module.arpa_audit_report.sqs_queue_url
     ARPA_TREASURY_REPORT_SQS_QUEUE_URL  = module.arpa_treasury_report.sqs_queue_url
-    ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL = module.arpa_exporter.sqs_queue_url
+    ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL = module.arpa_exporter[*].sqs_queue_url
   })
 
   # DNS
