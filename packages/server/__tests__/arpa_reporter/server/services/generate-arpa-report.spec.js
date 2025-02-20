@@ -188,7 +188,7 @@ describe('arpa report generation', () => {
             },
             {
                 type: 'ec7',
-                subcategory: '7.3-Costs Associated with Satisfying Certain Legal and Administrative Requirements of the SLFRF Program After December 31, 2024',
+                subcategory: '7.3-Costs Associated with Satisfying the Administrative and Other Legal Requirements of the SLFRF Program After the Obligation Deadline has Passed',
                 upload: {
                     filename: '24Q4 7.1.xlsm',
                     created_at: '2025-01-21T20:55:14.883Z',
@@ -265,7 +265,7 @@ describe('arpa report generation', () => {
             [
                 null,
                 '7-Administrative',
-                '7.3-Costs Associated with Satisfying Certain Legal and Administrative Requirements of the SLFRF Program After December 31, 2024',
+                '7.3-Costs Associated with Satisfying the Administrative and Other Legal Requirements of the SLFRF Program After the Obligation Deadline has Passed',
                 'Test 7.3',
                 'X725X6XXXXX71',
                 'Completed less than 50%',
