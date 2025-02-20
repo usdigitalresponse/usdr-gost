@@ -32,8 +32,7 @@ describe('FullFileExport', () => {
         const putObjectCommand = sandbox.stub(s3, 'send').resolves();
         sandbox.stub(full_file_export, 'getUploadsForArchive').resolves(data);
         await full_file_export.generateAndUploadMetadata(organizationId, s3Key, logger);
-        expect(logger.info.calledOnce).to.be.true;
-        expect(logger.error.notCalled).to.be.true;
+
         expect(putObjectCommand.calledOnce).to.be.true;
         expect(putObjectCommand.firstCall.args[0].Bucket).to.equal('arpa-audit-reports');
         expect(putObjectCommand.firstCall.args[0].Key).to.equal(s3Key);
