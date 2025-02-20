@@ -56,20 +56,6 @@
         </button>
       </div>
       <div
-        v-if="isAdmin"
-        class="col"
-      >
-        <button
-          id="sendFullFileExportButton"
-          class="btn usdr-btn-info btn-block"
-          :disabled="sendingFulLFileExport"
-          @click="sendFullFileExport"
-        >
-          <span v-if="sendingFulLFileExport">Sending...</span>
-          <span v-else>Send Full File Export by Email</span>
-        </button>
-      </div>
-      <div
         v-if="viewingOpenPeriod"
         class="col"
       >
@@ -88,6 +74,21 @@
         class="col"
       >
         <DownloadTemplateBtn :block="true" />
+      </div>
+
+      <div
+        v-if="isAdmin && enableFullFileExport"
+        class="col"
+      >
+        <button
+          id="sendFullFileExportButton"
+          class="btn usdr-btn-info btn-block"
+          :disabled="sendingFulLFileExport"
+          @click="sendFullFileExport"
+        >
+          <span v-if="sendingFulLFileExport">Sending...</span>
+          <span v-else>Send Full File Export by Email</span>
+        </button>
       </div>
     </div>
 
@@ -113,6 +114,7 @@
 import AlertBox from '@/arpa_reporter/components/AlertBox.vue';
 import DownloadTemplateBtn from '@/arpa_reporter/components/DownloadTemplateBtn.vue';
 import { getJson } from '@/arpa_reporter/store';
+import { enableFullFileExport } from '@/helpers/featureFlags';
 
 export default {
   name: 'HomeView',
@@ -146,6 +148,7 @@ export default {
     viewingOpenPeriod() {
       return this.$store.getters.viewPeriodIsCurrent;
     },
+    enableFullFileExport,
   },
   methods: {
     clearAlert() {
