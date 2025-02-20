@@ -1,3 +1,5 @@
 Hello,
 
-Your full file export can be downloaded here: {{url}}.
+Your full file export can be downloaded here: {{zip_url}}
+
+A CSV file describing the contents of this export can be downloaded here: {{csv_url}}
