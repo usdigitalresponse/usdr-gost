@@ -209,8 +209,9 @@ module "api" {
     var.api_datadog_environment_variables,
   )
   api_container_environment = merge(var.api_container_environment, {
-    ARPA_AUDIT_REPORT_SQS_QUEUE_URL    = module.arpa_audit_report.sqs_queue_url
-    ARPA_TREASURY_REPORT_SQS_QUEUE_URL = module.arpa_treasury_report.sqs_queue_url
+    ARPA_AUDIT_REPORT_SQS_QUEUE_URL     = module.arpa_audit_report.sqs_queue_url
+    ARPA_TREASURY_REPORT_SQS_QUEUE_URL  = module.arpa_treasury_report.sqs_queue_url
+    ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL = module.arpa_exporter.sqs_queue_url
   })
 
   # DNS

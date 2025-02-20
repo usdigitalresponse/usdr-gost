@@ -102,7 +102,7 @@ async function addMessageToQueue(organizationId, email, logger = log) {
     const sqs = aws.getSQSClient();
     try {
         await sqs.send(new SendMessageCommand({
-            QueueUrl: process.env.FULL_FILE_EXPORT_SQS_QUEUE_URL,
+            QueueUrl: process.env.ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL,
             MessageBody: JSON.stringify(message),
         }));
     } catch (err) {
