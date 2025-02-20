@@ -109,14 +109,15 @@ router.get('/', requireUser, async (req, res) => {
 });
 
 router.get('/fullFileExport', requireAdminUser, async (req, res) => {
-    const user = useUser();
+    const { user } = req.session;
     const organizationId = user.tenant_id;
-    // const response = await fullFileExport.getUploadsForArchive(organizationId);
+    const logger = req.log.child({ organizationId, userId: user.id });
+
     try {
-        await fullFileExport.addMessageToQueue(organizationId, user.email);
+        await fullFileExport.addMessageToQueue(organizationId, user.email, logger);
         res.json({ success: true });
     } catch (error) {
-        console.log(`Failed to generate and send full file export ${error}`);
+        logger.error(error, 'Failed to generate and send full file export');
         res.status(500).json({ error: 'Unable to generate full file export and send email.' });
     }
 });

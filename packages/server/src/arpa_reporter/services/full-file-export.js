@@ -2,7 +2,7 @@ const { SendMessageCommand } = require('@aws-sdk/client-sqs');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const knex = require('../../db/connection');
 const aws = require('../../lib/gost-aws');
-const { bunyanLogger: log } = require('../../lib/logging');
+const { log } = require('../../lib/logging');
 
 const metadataFsName = (organizationId) => `full-file-export/org_${organizationId}/metadata.csv`;
 const zipFileKey = (organizationId) => `full-file-export/org_${organizationId}/archive.zip`;
@@ -65,7 +65,6 @@ async function generateAndUploadMetadata(organizationId, s3Key, logger = log) {
     for (const upload of uploads) {
         data = data.concat('\n', `${upload.upload_id},${upload.path_in_zip},${upload.agency_name},${upload.ec_code},${upload.reporting_period_name},${upload.validity}`);
     }
-    const s3 = aws.getS3Client();
     const fileExportParams = {
         Bucket: process.env.AUDIT_REPORT_BUCKET,
         Key: s3Key,
@@ -73,22 +72,23 @@ async function generateAndUploadMetadata(organizationId, s3Key, logger = log) {
         ContentType: 'text/plain',
         ServerSideEncryption: 'AES256',
     };
-    logger.info('fileExportParams', fileExportParams);
+
+    const s3 = aws.getS3Client();
     try {
-        logger.info({ fileExportParams: { Bucket: fileExportParams.Bucket, Key: fileExportParams.Key } },
-            'uploading full file export metadata to S3');
         await s3.send(new PutObjectCommand(fileExportParams));
     } catch (err) {
-        logger.error({ err }, 'failed to upload full file export metadata to S3');
+        logger.error(err, 'failed to upload full file export metadata to S3');
         throw err;
     }
     logger.info('finished generating and uploading ARPA full file export metadata');
 }
 
-async function addMessageToQueue(organizationId, email) {
+async function addMessageToQueue(organizationId, email, logger = log) {
     const archiveKey = zipFileKey(organizationId);
     const metadataKey = metadataFsName(organizationId);
-    await generateAndUploadMetadata(organizationId, metadataKey);
+    logger.child({ archiveKey, metadataKey });
+
+    await generateAndUploadMetadata(organizationId, metadataKey, logger);
     const message = {
         s3: {
             bucket: process.env.AUDIT_REPORT_BUCKET,
@@ -100,10 +100,15 @@ async function addMessageToQueue(organizationId, email) {
     };
 
     const sqs = aws.getSQSClient();
-    await sqs.send(new SendMessageCommand({
-        QueueUrl: process.env.FULL_FILE_EXPORT_SQS_QUEUE_URL,
-        MessageBody: JSON.stringify(message),
-    }));
+    try {
+        await sqs.send(new SendMessageCommand({
+            QueueUrl: process.env.FULL_FILE_EXPORT_SQS_QUEUE_URL,
+            MessageBody: JSON.stringify(message),
+        }));
+    } catch (err) {
+        logger.error({ err }, 'failed to add full file export message to SQS queue');
+        throw err;
+    }
 }
 
 module.exports = {
