@@ -16,8 +16,8 @@ describe('FullFileExport', () => {
     const sandbox = sinon.createSandbox();
     beforeEach(() => {
         // Override environment variables for testing
-        process.env.AUDIT_REPORT_BUCKET = 'arpa-audit-reports';
-        process.env.ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL = 'http://sqs.us-west-2.localhost.localstack.cloud:4566/000000000000/full-file-export-queue';
+        process.env.AUDIT_REPORT_BUCKET = 'example-bucket-name';
+        process.env.ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL = 'http://sqs.example.com/full-file-export-queue';
     });
     afterEach(() => {
         // Restore environment variables as not doing so could impact other tests outside of this module
@@ -40,8 +40,8 @@ describe('FullFileExport', () => {
         // Check if SQS client was called with correct parameters
         expect(messageFake.send.calledOnce).to.equal(true);
         const command = messageFake.send.firstCall.firstArg.input;
-        expect(command.QueueUrl).to.equal('http://sqs.us-west-2.localhost.localstack.cloud:4566/000000000000/full-file-export-queue');
-        expect(command.MessageBody).to.contain('{"s3":{"bucket":"arpa-audit-reports","zip_key":"full-file-export/org_1/archive.zip","metadata_key":"full-file-export/org_1/metadata.csv"},"organization_id":1,"user_email":"person@example.com"}');
+        expect(command.QueueUrl).to.equal(process.env.ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL);
+        expect(command.MessageBody).to.contain('{"s3":{"bucket":"example-bucket-name","zip_key":"full-file-export/org_1/archive.zip","metadata_key":"full-file-export/org_1/metadata.csv"},"organization_id":1,"user_email":"person@example.com"}');
     });
     it('should generate and upload metadata', async () => {
         const organizationId = 1;
@@ -76,7 +76,7 @@ abcdef,Approved File.xlsm,/Quarter 1/Approved File_abcdef.xlsm,Agency 1,99.1,Qua
         const command = uploadFake.send.firstCall.firstArg.input;
         expect(command.Key).to.equal(s3Key);
         expect(command.ContentType).to.equal('text/plain');
-        expect(command.Bucket).to.equal('arpa-audit-reports');
+        expect(command.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
         expect(command.Body.toString()).to.equal(expectedCSV);
         expect(command.ServerSideEncryption).to.equal('AES256');
     });
