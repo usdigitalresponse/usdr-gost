@@ -521,6 +521,20 @@ module "arpa_exporter" {
   postgres_enabled = false
 }
 
+data "aws_iam_policy_document" "publish_to_arpa_exporter_queue" {
+  statement {
+    sid       = "AllowPublishToQueue"
+    actions   = ["sqs:SendMessage"]
+    resources = [module.arpa_exporter.sqs_queue_arn]
+  }
+}
+
+resource "aws_iam_role_policy" "api_task-publish_to_arpa_exporter_queue" {
+  name_prefix = "send-arpa-audit-report-requests"
+  role        = module.api.ecs_task_role_name
+  policy      = data.aws_iam_policy_document.publish_to_arpa_exporter_queue.json
+}
+
 module "postgres" {
   enabled                  = var.postgres_enabled
   source                   = "./modules/gost_postgres"
