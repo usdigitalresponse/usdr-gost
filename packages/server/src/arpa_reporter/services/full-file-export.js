@@ -33,7 +33,7 @@ async function getUploadsForArchive(organizationId) {
                 WHEN ue.id IS NOT NULL THEN '/' || rp.name || '/Final Treasury/' || SPLIT_PART(u1.filename, '.xlsm', 1) || '--' || u1.id || '.xlsm'
                 WHEN u1.validated_at IS NOT NULL
                 AND ue.id IS NULL THEN '/' || rp.name || '/Not Final Treasury/Valid files/' || SPLIT_PART(u1.filename, '.xlsm', 1) || '--' || u1.id || '.xlsm'
-                ELSE NULL
+                ELSE '/' || rp.name || '/Not Final Treasury/Unknown Validity/' || SPLIT_PART(u1.filename, '.xlsm', 1) || '--' || u1.id || '.xlsm'
             END AS path_in_zip,
             a.name AS agency_name,
             'EC' || u1.ec_code AS ec_code,
