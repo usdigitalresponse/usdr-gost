@@ -14,7 +14,7 @@ jobs:
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: block
@@ -22,7 +22,7 @@ jobs:
             api.github.com:443
       - name: Dependabot metadata
         id: dependabot-metadata
-        uses: dependabot/fetch-metadata@dbb049abf0d677abbd7f7eee0375145b417fdd34 # v2.2.0
+        uses: dependabot/fetch-metadata@d7267f607e9d3fb96fc2fbe83e0af444713e90b7 # v2.3.0
       - name: Approve a PR if dependency semver changes are minor or patch
         if: ${{ contains(fromJson('["version-update:semver-patch", "version-update:semver-minor"]'), steps.dependabot-metadata.outputs.update-type) }}
         run: gh pr review --approve "$PR_URL"

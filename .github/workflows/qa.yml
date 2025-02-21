@@ -38,7 +38,7 @@ jobs:
     name: Prepare for QA
     runs-on: ubuntu-latest
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -80,7 +80,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -127,7 +127,7 @@ jobs:
     outputs:
       coverage-markdown-report: ${{ steps.coverage-markdown.outputs.markdownReport }}
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -180,7 +180,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -218,7 +218,7 @@ jobs:
           DATA_DIR: './data'
         run: yarn serve &
       - name: Run e2e tests
-        uses: cypress-io/github-action@57b70560982e6a11d23d4b8bec7f8a487cdbb71b # v6.7.8
+        uses: cypress-io/github-action@18a6541367f4580a515371905f499a27a44e8dbe # v6.7.12
         env:
           CYPRESS_BASE_URL: 'http://localhost:8080'
         with:
@@ -235,7 +235,7 @@ jobs:
     outputs:
       coverage-markdown-report: ${{ steps.coverage-markdown.outputs.markdownReport }}
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -282,7 +282,7 @@ jobs:
     needs:
       - prepare-qa
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -308,7 +308,7 @@ jobs:
     name: Lint terraform
     runs-on: ubuntu-latest
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -341,7 +341,7 @@ jobs:
     name: Lint arpa-exporter python
     runs-on: ubuntu-latest
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -361,7 +361,7 @@ jobs:
       run:
         working-directory: arpa-exporter
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: audit
