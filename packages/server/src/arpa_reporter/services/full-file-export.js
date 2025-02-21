@@ -107,7 +107,7 @@ async function addMessageToQueue(organizationId, email, logger = log) {
             MessageBody: JSON.stringify(message),
         }));
     } catch (err) {
-        logger.error({ err }, 'failed to add full file export message to SQS queue');
+        logger.error(err, 'failed to add full file export message to SQS queue');
         throw err;
     }
 }
