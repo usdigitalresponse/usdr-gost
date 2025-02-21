@@ -9,6 +9,9 @@ const sinon = require('sinon');
 const full_file_export = require('../../../../src/arpa_reporter/services/full-file-export');
 const aws = require('../../../../src/lib/gost-aws');
 
+const { knex } = require('../mocha_init');
+const fixtures = require('../fixtures/fixtures');
+
 const OLD_AUDIT_REPORT_BUCKET = process.env.AUDIT_REPORT_BUCKET;
 const OLD_ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL = process.env.ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL;
 
@@ -24,6 +27,66 @@ describe('FullFileExport', () => {
         process.env.AUDIT_REPORT_BUCKET = OLD_AUDIT_REPORT_BUCKET;
         process.env.ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL = OLD_ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL;
         sandbox.restore();
+    });
+    it('ensures getUploadsForArchive queries the database and returns only uploads for one tenant', async () => {
+        await fixtures.seed(knex);
+
+        // These results are based on the fixtures data within fixtures.js file.
+        const expectedResult = [
+            // fixtures.uploads.upload1
+            {
+                upload_id: '00000000-0000-0000-0000-000000000000',
+                original_filename: 'test-filename-1.xlsm',
+                filename_in_zip: 'test-filename-1--00000000-0000-0000-0000-000000000000.xlsm',
+                path_in_zip: '/Quarterly 1/Final Treasury/test-filename-1--00000000-0000-0000-0000-000000000000.xlsm',
+                agency_name: 'State Board of Accountancy',
+                ec_code: 'EC1.1',
+                reporting_period_name: 'Quarterly 1',
+                validity: 'Validated at 2022-01-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org',
+            },
+            // fixtures.uploads.upload2
+            {
+                upload_id: '00000000-0000-0000-0000-000000000001',
+                original_filename: 'test-filename-2.xlsm',
+                filename_in_zip: 'test-filename-2--00000000-0000-0000-0000-000000000001.xlsm',
+                path_in_zip: '/Quarterly 1/Not Final Treasury/Unknown Validity/test-filename-2--00000000-0000-0000-0000-000000000001.xlsm',
+                agency_name: 'State Board of Accountancy',
+                ec_code: 'EC1.1',
+                reporting_period_name: 'Quarterly 1',
+                validity: null,
+            },
+            // fixtures.uploads.upload4_invalidated
+            {
+                upload_id: '00000000-0000-0000-0000-000000000003',
+                original_filename: 'test-filename-4.xlsm',
+                filename_in_zip: 'test-filename-4--00000000-0000-0000-0000-000000000003.xlsm',
+                path_in_zip: '/Quarterly 1/Not Final Treasury/Invalid files/test-filename-4--00000000-0000-0000-0000-000000000003.xlsm',
+                agency_name: 'State Board of Accountancy',
+                ec_code: 'EC1.1',
+                reporting_period_name: 'Quarterly 1',
+                validity: 'Invalidated at 2023-03-02 00:00:00+00 by mbroussard+unit-test-user2@usdigitalresponse.org',
+            },
+            // fixtures.uploads.upload5_new_quarter
+            {
+                upload_id: '00000000-0000-0000-0000-000000000004',
+                original_filename: 'test-filename-5.xlsm',
+                filename_in_zip: 'test-filename-5--00000000-0000-0000-0000-000000000004.xlsm',
+                path_in_zip: '/Quarterly 2/Not Final Treasury/Unknown Validity/test-filename-5--00000000-0000-0000-0000-000000000004.xlsm',
+                agency_name: 'State Board of Accountancy',
+                ec_code: 'EC1.1',
+                reporting_period_name: 'Quarterly 2',
+                validity: null,
+            },
+        ];
+
+        // Get uploads for the tenant with ID `TENANT_ID`
+        const uploads = await full_file_export.getUploadsForArchive(fixtures.TENANT_ID);
+
+        // Ensures that `upload3` which belongs in a different tenant is not included in the results
+        expect(uploads).to.deep.equal(expectedResult);
+
+        // Clean up and remove fixtures
+        await fixtures.clean(knex);
     });
     it('should add message to the queue', async () => {
         // stub generateAndUploadMetadata as the unit test is not testing the database query and s3 upload functionality
