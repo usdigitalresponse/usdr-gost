@@ -5,6 +5,7 @@ const { NotFound } = require('@aws-sdk/client-s3');
 const { makeTestServer, getSessionCookie } = require('./route_test_helpers');
 const arpa = require('../../../../src/arpa_reporter/services/generate-arpa-report');
 const aws = require('../../../../src/lib/gost-aws');
+const fullFileExport = require('../../../../src/arpa_reporter/services/full-file-export');
 const { ARPA_REPORTER_BASE_URL } = require('../../../../src/arpa_reporter/environment');
 
 function headObjectFake(type, callback) {
@@ -168,6 +169,33 @@ describe('/api/exports', () => {
 
         expect(response.status).to.equal(302);
         expect(response.headers.location).to.equal(`http://s3.amazonaws.com/sample.xlsx`);
+    });
+
+    describe('api/exports/fullFileExport', async () => {
+        it('returns sucess if the sqs queuing succeeds for an admin user', async () => {
+            sandbox.replace(fullFileExport, 'addMessageToQueue', sandbox.fake.returns(true));
+            const response = await server
+                .get('/api/exports/fullFileExport')
+                .set('Cookie', tenantACookie);
+            expect(response.status).to.equal(200);
+            expect(response.body.success).to.equal(true);
+            expect(fullFileExport.addMessageToQueue.calledOnce).to.be.true;
+        });
+        it('returns 403 for a non-admin user', async () => {
+            sandbox.replace(fullFileExport, 'addMessageToQueue', sandbox.fake.returns(true));
+            const response = await server
+                .get('/api/exports/fullFileExport')
+                .set('Cookie', tenantBCookie);
+            expect(response.status).to.equal(403);
+        });
+        it('returns error if the sqs queuing fails for an admin user', async () => {
+            sandbox.replace(fullFileExport, 'addMessageToQueue', sandbox.fake.throws(new Error('failed to add message')));
+            const response = await server
+                .get('/api/exports/fullFileExport')
+                .set('Cookie', tenantACookie);
+            expect(response.status).to.equal(500);
+            expect(response.body.error).to.equal('Unable to generate full file export and send email.');
+        });
     });
 
     describe('/api/exports/getFullFileExport/:downloadType', async () => {
