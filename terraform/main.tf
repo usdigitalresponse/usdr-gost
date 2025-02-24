@@ -276,6 +276,7 @@ data "aws_iam_policy_document" "arpa_audit_report_rw_reports_bucket" {
     sid = "ReadWriteBucketObjects"
     actions = [
       "s3:GetObject",
+      "s3:HeadObject",
       "s3:PutObject",
     ]
     resources = ["${module.api.arpa_audit_reports_bucket_arn}/*"]
