@@ -86,21 +86,20 @@ class TestBuildZip:
             with zipfile.ZipFile(tmp, "r") as archive:
                 assert len(archive.namelist()) == len(sample_metadata_1_UploadInfo)
 
-    def test_fails_when_source_file_does_not_exist(self, sample_metadata_1_UploadInfo):
+    def test_ignores_missing_file_when_source_file_does_not_exist(self, sample_metadata_1_UploadInfo):
         with tempfile.NamedTemporaryFile() as tmp:
             second_to_last_entry = sample_metadata_1_UploadInfo[-2]
             second_to_last_entry.upload_id = "this file does not exist"
             last_entry = sample_metadata_1_UploadInfo[-1]
 
-            with pytest.raises(FileNotFoundError):
-                worker.build_zip(tmp, (_ for _ in sample_metadata_1_UploadInfo))
+            worker.build_zip(tmp, (_ for _ in sample_metadata_1_UploadInfo))
 
             # Open the zip-file and make sure it has the correct files
             with zipfile.ZipFile(tmp, "r") as archive:
                 assert second_to_last_entry.path_in_zip not in archive.namelist()
-                assert last_entry.path_in_zip not in archive.namelist()
+                assert last_entry.path_in_zip in archive.namelist()
                 assert set(archive.namelist()) == set(
-                    ui.path_in_zip for ui in sample_metadata_1_UploadInfo[:-2]
+                    ui.path_in_zip for ui in sample_metadata_1_UploadInfo if ui.upload_id != "this file does not exist"
                 )
 
 
