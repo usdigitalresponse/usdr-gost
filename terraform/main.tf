@@ -283,6 +283,16 @@ data "aws_iam_policy_document" "arpa_audit_report_rw_reports_bucket" {
   }
 }
 
+data "aws_iam_policy_document" "arpa_audit_report_list_bucket" {
+  statement {
+    sid = "ListBucketObjects"
+    actions = [
+      "s3:ListBucket",
+    ]
+    resources = [module.api.arpa_audit_reports_bucket_arn]
+  }
+}
+
 module "arpa_audit_report" {
   source                   = "./modules/sqs_consumer_task"
   namespace                = "${var.namespace}-arpa_audit_report"
@@ -476,7 +486,7 @@ module "arpa_exporter" {
   consumer_container_environment = {
     API_DOMAIN                    = "https://${local.api_domain_name}"
     ARPA_DATA_EXPORT_BUCKET       = module.api.arpa_audit_reports_bucket_id
-    DATA_DIR                      = "/var/data"
+    DATA_DIR                      = "/var/data/uploads"
     LOG_LEVEL                     = "INFO"
     NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
     SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
@@ -491,8 +501,9 @@ module "arpa_exporter" {
     access_point_id = module.api.efs_data_volume_access_point_id
   }]
   additional_task_role_json_policies = {
-    rw-audit-reports-bucket = data.aws_iam_policy_document.arpa_audit_report_rw_reports_bucket.json
-    send-emails             = module.api.send_emails_policy_json
+    list-audit-reports-bucket = data.aws_iam_policy_document.arpa_audit_report_list_bucket.json
+    rw-audit-reports-bucket   = data.aws_iam_policy_document.arpa_audit_report_rw_reports_bucket.json
+    send-emails               = module.api.send_emails_policy_json
   }
 
   # Task resource configuration
