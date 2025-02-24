@@ -28,7 +28,6 @@ if typing.TYPE_CHECKING:  # pragma: nocover
 TASK_QUEUE_URL = os.environ["TASK_QUEUE_URL"]
 TASK_QUEUE_RECEIVE_TIMEOUT = int(os.getenv("TASK_QUEUE_RECEIVE_TIMEOUT", 20))
 DATA_DIR = os.environ["DATA_DIR"]
-METADATA_DIR = os.path.join(DATA_DIR, "archive_metadata")
 DOWNLOAD_URL_EXPIRATION_SECONDS = int(datetime.timedelta(hours=24).total_seconds())
 API_DOMAIN = os.environ["API_DOMAIN"]
 

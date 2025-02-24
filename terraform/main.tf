@@ -486,7 +486,7 @@ module "arpa_exporter" {
   consumer_container_environment = {
     API_DOMAIN                    = "https://${local.api_domain_name}"
     ARPA_DATA_EXPORT_BUCKET       = module.api.arpa_audit_reports_bucket_id
-    DATA_DIR                      = "/var/data"
+    DATA_DIR                      = "/var/data/uploads"
     LOG_LEVEL                     = "INFO"
     NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
     SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
