@@ -89,6 +89,9 @@ def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) 
 
             try:
                 archive.write(source_path, arcname=upload.path_in_zip)
+            except FileNotFoundError:
+                entry_logger.exception("source file not found")
+                continue
             except:
                 entry_logger.exception("error writing source file to entry in archive")
                 raise
