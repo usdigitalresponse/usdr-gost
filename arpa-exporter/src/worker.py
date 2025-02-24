@@ -15,6 +15,7 @@ import botocore.client
 import botocore.exceptions
 import pydantic
 import structlog
+from ddtrace import tracer
 
 from src.lib.email import generate_email, send_email
 from src.lib.logging import get_logger, reset_contextvars
@@ -58,6 +59,7 @@ class MessageSchema(pydantic.BaseModel):
     user_email: str
 
 
+@tracer.wrap()
 def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) -> bool:
     """Appends file entries named by ``source_uploads`` to an open zip archive,
     skipping those whose names are already present in the zip.
@@ -251,6 +253,7 @@ def notify_user(
         raise
 
 
+@tracer.wrap()
 def process_sqs_message_request(
     s3: S3Client, ses: SESClient, message_data: MessageSchema, local_file
 ):
@@ -328,6 +331,7 @@ def process_sqs_message_request(
         raise
 
 
+@tracer.wrap()
 @reset_contextvars
 def handle_work(sqs: SQSClient, s3: S3Client, ses: SESClient):
     """Receives up to 1 message from SQS, processes it, and then deletes it
@@ -398,6 +402,7 @@ def handle_work(sqs: SQSClient, s3: S3Client, ses: SESClient):
         raise
 
 
+@tracer.wrap(name="arpa_exporter.worker", span_type="consumer")
 def main() -> None:
     """Main work loop that calls ``handle_work()`` until a shutdown is requested
     by SIGINT or SIGTERM. When a shutdown is requested, any in-flight work is finished
@@ -408,8 +413,9 @@ def main() -> None:
     ses: SESClient = boto3.client("ses")
 
     shutdown_handler = ShutdownHandler(logger=get_logger())
-    while shutdown_handler.is_shutdown_requested() is False:
-        handle_work(sqs, s3, ses)
+    with tracer.trace(name="arpa_exporter.worker.main_loop"):
+        while shutdown_handler.is_shutdown_requested() is False:
+            handle_work(sqs, s3, ses)
     get_logger().warn("shutting down")
 
 
