@@ -283,6 +283,16 @@ data "aws_iam_policy_document" "arpa_audit_report_rw_reports_bucket" {
   }
 }
 
+data "aws_iam_policy_document" "arpa_audit_report_list_bucket" {
+  statement {
+    sid = "ListBucketObjects"
+    actions = [
+      "s3:ListBucket",
+    ]
+    resources = [module.api.arpa_audit_reports_bucket_arn]
+  }
+}
+
 module "arpa_audit_report" {
   source                   = "./modules/sqs_consumer_task"
   namespace                = "${var.namespace}-arpa_audit_report"
@@ -319,8 +329,9 @@ module "arpa_audit_report" {
     access_point_id = module.api.efs_data_volume_access_point_id
   }]
   additional_task_role_json_policies = {
-    rw-audit-reports-bucket = data.aws_iam_policy_document.arpa_audit_report_rw_reports_bucket.json
-    send-emails             = module.api.send_emails_policy_json
+    list-audit-reports-bucket = data.aws_iam_policy_document.arpa_audit_report_list_bucket.json
+    rw-audit-reports-bucket   = data.aws_iam_policy_document.arpa_audit_report_rw_reports_bucket.json
+    send-emails               = module.api.send_emails_policy_json
   }
 
   # Task resource configuration
@@ -520,6 +531,20 @@ module "arpa_exporter" {
 
   # Postgres
   postgres_enabled = false
+}
+
+data "aws_iam_policy_document" "publish_to_arpa_exporter_queue" {
+  statement {
+    sid       = "AllowPublishToQueue"
+    actions   = ["sqs:SendMessage"]
+    resources = [module.arpa_exporter.sqs_queue_arn]
+  }
+}
+
+resource "aws_iam_role_policy" "api_task-publish_to_arpa_exporter_queue" {
+  name_prefix = "send-arpa-audit-report-requests"
+  role        = module.api.ecs_task_role_name
+  policy      = data.aws_iam_policy_document.publish_to_arpa_exporter_queue.json
 }
 
 module "postgres" {
