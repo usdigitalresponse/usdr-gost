@@ -283,16 +283,6 @@ data "aws_iam_policy_document" "arpa_audit_report_rw_reports_bucket" {
   }
 }
 
-data "aws_iam_policy_document" "arpa_audit_report_list_bucket" {
-  statement {
-    sid = "ListBucketObjects"
-    actions = [
-      "s3:ListBucket",
-    ]
-    resources = [module.api.arpa_audit_reports_bucket_arn]
-  }
-}
-
 module "arpa_audit_report" {
   source                   = "./modules/sqs_consumer_task"
   namespace                = "${var.namespace}-arpa_audit_report"
@@ -329,7 +319,6 @@ module "arpa_audit_report" {
     access_point_id = module.api.efs_data_volume_access_point_id
   }]
   additional_task_role_json_policies = {
-    list-audit-reports-bucket = data.aws_iam_policy_document.arpa_audit_report_list_bucket.json
     rw-audit-reports-bucket   = data.aws_iam_policy_document.arpa_audit_report_rw_reports_bucket.json
     send-emails               = module.api.send_emails_policy_json
   }
