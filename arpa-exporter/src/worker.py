@@ -311,7 +311,7 @@ def process_sqs_message_request(
     if zip_has_updates:
         try:
             local_file.seek(0)
-            s3.upload_fileobj(local_file, s3_bucket, s3_key)
+            s3.upload_fileobj(local_file, s3_bucket, s3_key, ExtraArgs={"ServerSideEncryption": "AES256"})
             logger.info("zip file uploaded to s3")
         except:
             logger.exception("error uploading zip archive to s3")
