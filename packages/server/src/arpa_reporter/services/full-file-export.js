@@ -4,7 +4,7 @@ const knex = require('../../db/connection');
 const aws = require('../../lib/gost-aws');
 const { log } = require('../../lib/logging');
 
-const metadataFsName = (organizationId) => `full-file-export/org_${organizationId}/metadata.csv`;
+const metadataFileKey = (organizationId) => `full-file-export/org_${organizationId}/metadata.csv`;
 const zipFileKey = (organizationId) => `full-file-export/org_${organizationId}/archive.zip`;
 
 async function getUploadsForArchive(organizationId) {
@@ -70,7 +70,6 @@ async function generateAndUploadMetadata(organizationId, s3Key, logger = log) {
         Bucket: process.env.AUDIT_REPORT_BUCKET,
         Key: s3Key,
         Body: Buffer.from(data),
-        ContentType: 'text/plain',
         ServerSideEncryption: 'AES256',
     };
 
@@ -86,7 +85,7 @@ async function generateAndUploadMetadata(organizationId, s3Key, logger = log) {
 
 async function addMessageToQueue(organizationId, email, logger = log) {
     const archiveKey = zipFileKey(organizationId);
-    const metadataKey = metadataFsName(organizationId);
+    const metadataKey = metadataFileKey(organizationId);
     logger.child({ archiveKey, metadataKey });
 
     await module.exports.generateAndUploadMetadata(organizationId, metadataKey, logger);
@@ -116,4 +115,6 @@ module.exports = {
     addMessageToQueue,
     getUploadsForArchive,
     generateAndUploadMetadata,
+    metadataFileKey,
+    zipFileKey,
 };

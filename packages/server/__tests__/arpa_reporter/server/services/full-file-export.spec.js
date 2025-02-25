@@ -138,7 +138,6 @@ abcdef,Approved File.xlsm,/Quarter 1/Approved File_abcdef.xlsm,Agency 1,99.1,Qua
         expect(uploadFake.send.calledOnce).to.equal(true);
         const command = uploadFake.send.firstCall.firstArg.input;
         expect(command.Key).to.equal(s3Key);
-        expect(command.ContentType).to.equal('text/plain');
         expect(command.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
         expect(command.Body.toString()).to.equal(expectedCSV);
         expect(command.ServerSideEncryption).to.equal('AES256');
