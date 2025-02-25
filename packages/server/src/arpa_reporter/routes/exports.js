@@ -128,8 +128,8 @@ router.get('/getFullFileExport/:downloadType(archive|metadata)', requireUser, as
     const { downloadType } = req.params;
     let logger = req.log.child({ S3Bucket: process.env.AUDIT_REPORT_BUCKET, downloadType });
 
-    const archiveS3Key = `fullFileExport/${user.tenant_id}/archive.zip`;
-    const metadataS3Key = `fullFileExport/${user.tenant_id}/archive_metadata.csv`;
+    const archiveS3Key = fullFileExport.zipFileKey(user.tenant_id);
+    const metadataS3Key = fullFileExport.metadataFileKey(user.tenant_id);
     let downloadS3Key;
     let downloadFilenameBase;
     let downloadExtension;
