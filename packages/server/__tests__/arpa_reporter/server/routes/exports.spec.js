@@ -215,7 +215,7 @@ describe('/api/exports', () => {
             expect(response.status).to.equal(302);
             expect(response.headers.location).to.equal(signedUrl);
             expect(getSignedUrlFake.calledOnce).to.be.true;
-            expect(getSignedUrlFake.lastCall.args[1].input.Key).to.equal('fullFileExport/0/archive.zip');
+            expect(getSignedUrlFake.lastCall.args[1].input.Key).to.equal('full-file-export/org_0/archive.zip');
             expect(getSignedUrlFake.lastCall.args[1].input.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
             expect(getSignedUrlFake.lastCall.args[1].input.ResponseContentDisposition).to.equal(
                 'attachment; filename="FullFileExport-01.02.2025.03.04.05.zip"',
@@ -238,7 +238,7 @@ describe('/api/exports', () => {
             expect(response.status).to.equal(302);
             expect(response.headers.location).to.equal(signedUrl);
             expect(getSignedUrlFake.calledOnce).to.be.true;
-            expect(getSignedUrlFake.lastCall.args[1].input.Key).to.equal('fullFileExport/0/archive_metadata.csv');
+            expect(getSignedUrlFake.lastCall.args[1].input.Key).to.equal('full-file-export/org_0/metadata.csv');
             expect(getSignedUrlFake.lastCall.args[1].input.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
             expect(getSignedUrlFake.lastCall.args[1].input.ResponseContentDisposition).to.equal(
                 'attachment; filename="FullFileExportMetadata-01.02.2025.03.04.05.csv"',
