@@ -114,14 +114,14 @@ describe('FullFileExport', () => {
                 upload_id: 'abcdef',
                 original_filename: 'Approved File.xlsm',
                 path_in_zip: '/Quarter 1/Approved File_abcdef.xlsm',
-                agency_name: 'Agency 1',
+                agency_name: 'Agency 1, with comma',
                 ec_code: '99.1',
-                reporting_period_name: 'Quarter 1',
+                reporting_period_name: 'Quarter 1, with comma',
                 validity: 'Validated on 2025-01-01 by person@example.com',
             },
         ];
         const expectedCSV = `upload_id,original_filename,path_in_zip,agency_name,ec_code,reporting_period_name,validity
-abcdef,Approved File.xlsm,/Quarter 1/Approved File_abcdef.xlsm,Agency 1,99.1,Quarter 1,Validated on 2025-01-01 by person@example.com`;
+abcdef,Approved File.xlsm,/Quarter 1/Approved File_abcdef.xlsm,"Agency 1, with comma",99.1,"Quarter 1, with comma",Validated on 2025-01-01 by person@example.com`;
 
         // stub S3 client and PutObjectCommand
         const uploadFake = sandbox.fake.returns('just s3');
