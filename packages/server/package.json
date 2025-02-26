@@ -66,6 +66,7 @@
     "got": "^11.1.4",
     "inquirer": "^8.2.2",
     "inquirer-search-list": "^1.2.6",
+    "json-2-csv": "^5.5.8",
     "knex": "^1.0.4",
     "knex-paginate": "^1.2.3",
     "lodash": "^4.17.21",
