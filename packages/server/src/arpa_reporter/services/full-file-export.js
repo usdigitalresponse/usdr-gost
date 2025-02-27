@@ -1,5 +1,6 @@
 const { SendMessageCommand } = require('@aws-sdk/client-sqs');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const converter = require('json-2-csv');
 const knex = require('../../db/connection');
 const aws = require('../../lib/gost-aws');
 const { log } = require('../../lib/logging');
@@ -62,10 +63,8 @@ async function getUploadsForArchive(organizationId) {
 
 async function generateAndUploadMetadata(organizationId, s3Key, logger = log) {
     const uploads = await module.exports.getUploadsForArchive(organizationId);
-    let data = `upload_id,original_filename,path_in_zip,agency_name,ec_code,reporting_period_name,validity`;
-    for (const upload of uploads) {
-        data = data.concat('\n', `${upload.upload_id},${upload.original_filename},${upload.path_in_zip},${upload.agency_name},${upload.ec_code},${upload.reporting_period_name},${upload.validity}`);
-    }
+    const data = await converter.json2csv(uploads);
+
     const fileExportParams = {
         Bucket: process.env.AUDIT_REPORT_BUCKET,
         Key: s3Key,

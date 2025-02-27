@@ -196,7 +196,7 @@ jobs:
             "$SERVER_PROVENANCE_FILE#Server Docker image provenance attestations" \
             "$SERVER_SBOM_FILE#Server Docker image SBOM attestations" \
             "$ARPA_EXPORTER_PROVENANCE_FILE#Full File Export Docker image provenance attestations" \
-            "$ARPA_EXPORTER_SBOM_FILE#Full File Export image SBOM attestations" \
+            "$ARPA_EXPORTER_SBOM_FILE#Full File Export image SBOM attestations"
         env:
           WEBSITE_DIST_PATH: ${{ needs.build.outputs.website-artifacts-path }}
           SERVER_PROVENANCE_FILE: ${{ needs.build.outputs.server-attestation-artifacts-path }}/provenance.json
