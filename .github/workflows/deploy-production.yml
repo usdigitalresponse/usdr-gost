@@ -187,6 +187,16 @@ jobs:
         with:
           name: ${{ needs.build.outputs.arpa-exporter-attestation-artifacts-key }}
           path: ${{ needs.build.outputs.arpa-exporter-attestation-artifacts-path }}
+      - name: Ensure attestation artifacts have unique (base) filenames
+        # Uploads with conflicting filenames are rejected by GitHub with a 404 response
+        run: |
+          mv "$SERVER_PATH/provenance.json" "$SERVER_PATH/usdr-gost-api.provenance.json"
+          mv "$SERVER_PATH/sbom.sdpx.json" "$SERVER_PATH/usdr-gost-api.sbom.sdpx.json"
+          mv "$ARPA_EXPORTER_PATH/provenance.json" "$ARPA_EXPORTER_PATH/usdr-gost-arpa-exporter.provenance.json"
+          mv "$ARPA_EXPORTER_PATH/sbom.sdpx.json" "$ARPA_EXPORTER_PATH/usdr-gost-arpa-exporter.sbom.sdpx.json"
+        env:
+          SERVER_PATH: ${{ needs.build.outputs.server-attestation-artifacts-path }}
+          ARPA_EXPORTER_PATH: ${{ needs.build.outputs.arpa-exporter-attestation-artifacts-path }}
       - name: Upload release assets
         run: |
           WEBSITE_TAR_FILE="client-dist.tar.gz"
@@ -199,10 +209,10 @@ jobs:
             "$ARPA_EXPORTER_SBOM_FILE#Full File Export image SBOM attestations"
         env:
           WEBSITE_DIST_PATH: ${{ needs.build.outputs.website-artifacts-path }}
-          SERVER_PROVENANCE_FILE: ${{ needs.build.outputs.server-attestation-artifacts-path }}/provenance.json
-          SERVER_SBOM_FILE: ${{ needs.build.outputs.server-attestation-artifacts-path }}/sbom.sdpx.json
-          ARPA_EXPORTER_PROVENANCE_FILE: ${{ needs.build.outputs.arpa-exporter-attestation-artifacts-path }}/provenance.json
-          ARPA_EXPORTER_SBOM_FILE: ${{ needs.build.outputs.arpa-exporter-attestation-artifacts-path }}/sbom.sdpx.json
+          SERVER_PROVENANCE_FILE: ${{ needs.build.outputs.server-attestation-artifacts-path }}/usdr-gost-api.provenance.json
+          SERVER_SBOM_FILE: ${{ needs.build.outputs.server-attestation-artifacts-path }}/usdr-gost-api.sbom.sdpx.json
+          ARPA_EXPORTER_PROVENANCE_FILE: ${{ needs.build.outputs.arpa-exporter-attestation-artifacts-path }}/usdr-gost-arpa-exporter.provenance.json
+          ARPA_EXPORTER_SBOM_FILE: ${{ needs.build.outputs.arpa-exporter-attestation-artifacts-path }}/usdr-gost-arpa-exporter.sbom.sdpx.json
       - name: Get release notes
         id: get
         continue-on-error: true
