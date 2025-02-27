@@ -53,7 +53,7 @@ def reset_contextvars(func: Callable) -> Callable:
 
     @functools.wraps(func)
     def inner(*args: List[Any], **kwargs: Dict[str, Any]) -> Any:
-        structlog.contextvars.unbind_contextvars()
+        structlog.contextvars.clear_contextvars()
         return func(*args, **kwargs)
 
     return inner
