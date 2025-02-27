@@ -190,10 +190,10 @@ jobs:
       - name: Ensure attestation artifacts have unique (base) filenames
         # Uploads with conflicting filenames are rejected by GitHub with a 404 response
         run: |
-          mv "$SERVER_PATH/provenance.json" "$SERVER_PATH/server.provenance.json"
-          mv "$SERVER_PATH/sbom.sdpx.json" "$SERVER_PATH/server.sbom.sdpx.json"
-          mv "$ARPA_EXPORTER_PATH/provenance.json" "$ARPA_EXPORTER_PATH/arpa-exporter.provenance.json"
-          mv "$ARPA_EXPORTER_PATH/sbom.sdpx.json" "$ARPA_EXPORTER_PATH/arpa-exporter.sbom.sdpx.json"
+          mv "$SERVER_PATH/provenance.json" "$SERVER_PATH/usdr-gost-api.provenance.json"
+          mv "$SERVER_PATH/sbom.sdpx.json" "$SERVER_PATH/usdr-gost-api.sbom.sdpx.json"
+          mv "$ARPA_EXPORTER_PATH/provenance.json" "$ARPA_EXPORTER_PATH/usdr-gost-arpa-exporter.provenance.json"
+          mv "$ARPA_EXPORTER_PATH/sbom.sdpx.json" "$ARPA_EXPORTER_PATH/usdr-gost-arpa-exporter.sbom.sdpx.json"
         env:
           SERVER_PATH: ${{ needs.build.outputs.server-attestation-artifacts-path }}
           ARPA_EXPORTER_PATH: ${{ needs.build.outputs.arpa-exporter-attestation-artifacts-path }}
