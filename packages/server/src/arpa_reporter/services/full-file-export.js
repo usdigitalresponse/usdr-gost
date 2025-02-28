@@ -29,13 +29,13 @@ async function getUploadsForArchive(organizationId) {
         SELECT
             u1.id as upload_id,
             u1.filename as original_filename,
-            regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || SPLIT_PART(u1.filename, '.', -1) AS filename_in_zip,
+            regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || split_part(filename, '.', array_length(string_to_array(filename, '.'), 1)) AS filename_in_zip,
             CASE
-                WHEN u1.invalidated_at IS NOT NULL THEN '/' || rp.name || '/Not Final Treasury/Invalid files/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || SPLIT_PART(u1.filename, '.', -1)
-                WHEN ue.id IS NOT NULL THEN '/' || rp.name || '/Final Treasury/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || SPLIT_PART(u1.filename, '.', -1)
+                WHEN u1.invalidated_at IS NOT NULL THEN '/' || rp.name || '/Not Final Treasury/Invalid files/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || split_part(filename, '.', array_length(string_to_array(filename, '.'), 1))
+                WHEN ue.id IS NOT NULL THEN '/' || rp.name || '/Final Treasury/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || split_part(filename, '.', array_length(string_to_array(filename, '.'), 1))
                 WHEN u1.validated_at IS NOT NULL
-                AND ue.id IS NULL THEN '/' || rp.name || '/Not Final Treasury/Valid files/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || SPLIT_PART(u1.filename, '.', -1)
-                ELSE '/' || rp.name || '/Not Final Treasury/Unknown Validity/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || SPLIT_PART(u1.filename, '.', -1)
+                AND ue.id IS NULL THEN '/' || rp.name || '/Not Final Treasury/Valid files/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || split_part(filename, '.', array_length(string_to_array(filename, '.'), 1))
+                ELSE '/' || rp.name || '/Not Final Treasury/Unknown Validity/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || split_part(filename, '.', array_length(string_to_array(filename, '.'), 1))
             END AS path_in_zip,
             a.name AS agency_name,
             'EC' || u1.ec_code AS ec_code,
