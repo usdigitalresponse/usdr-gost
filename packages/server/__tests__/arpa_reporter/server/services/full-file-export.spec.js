@@ -30,6 +30,37 @@ describe('FullFileExport', () => {
     });
     it('ensures getUploadsForArchive queries the database and returns only uploads for one tenant', async () => {
         await fixtures.seed(knex);
+        const testSpecificUploads = {
+            xlsUpload: {
+                filename: 'test-filename-1.xls',
+                reporting_period_id: fixtures.reportingPeriods.q1_2021.id,
+                user_id: fixtures.users.adminUser.id,
+                agency_id: fixtures.agencies.accountancy.id,
+                ec_code: '1.134',
+                tenant_id: fixtures.TENANT_ID,
+                id: '00000000-0000-0000-0000-000000000098',
+                notes: null,
+                validated_at: '2022-01-01',
+                validated_by: fixtures.users.adminUser.id,
+                invalidated_at: null,
+                invalidated_by: null,
+            },
+            xlsxUpload: {
+                filename: 'test-filename-1.xlsx',
+                reporting_period_id: fixtures.reportingPeriods.q1_2021.id,
+                user_id: fixtures.users.adminUser.id,
+                agency_id: fixtures.agencies.accountancy.id,
+                ec_code: '1.1456',
+                tenant_id: fixtures.TENANT_ID,
+                id: '00000000-0000-0000-0000-000000000099',
+                notes: null,
+                validated_at: '2022-01-01',
+                validated_by: fixtures.users.adminUser.id,
+                invalidated_at: null,
+                invalidated_by: null,
+            },
+        };
+        await knex('uploads').insert(Object.values(testSpecificUploads));
 
         // These results are based on the fixtures data within fixtures.js file.
         const expectedResult = [
@@ -41,6 +72,26 @@ describe('FullFileExport', () => {
                 path_in_zip: '/Quarterly 1/Final Treasury/test-filename-1--00000000-0000-0000-0000-000000000000.xlsm',
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
+                reporting_period_name: 'Quarterly 1',
+                validity: 'Validated at 2022-01-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org',
+            },
+            {
+                upload_id: '00000000-0000-0000-0000-000000000098',
+                original_filename: 'test-filename-1.xls',
+                filename_in_zip: 'test-filename-1--00000000-0000-0000-0000-000000000098.xls',
+                path_in_zip: '/Quarterly 1/Final Treasury/test-filename-1--00000000-0000-0000-0000-000000000098.xls',
+                agency_name: 'State Board of Accountancy',
+                ec_code: 'EC1.134',
+                reporting_period_name: 'Quarterly 1',
+                validity: 'Validated at 2022-01-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org',
+            },
+            {
+                upload_id: '00000000-0000-0000-0000-000000000099',
+                original_filename: 'test-filename-1.xlsx',
+                filename_in_zip: 'test-filename-1--00000000-0000-0000-0000-000000000099.xlsx',
+                path_in_zip: '/Quarterly 1/Final Treasury/test-filename-1--00000000-0000-0000-0000-000000000099.xlsx',
+                agency_name: 'State Board of Accountancy',
+                ec_code: 'EC1.1456',
                 reporting_period_name: 'Quarterly 1',
                 validity: 'Validated at 2022-01-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },

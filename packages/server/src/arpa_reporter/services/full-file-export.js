@@ -9,6 +9,7 @@ const metadataFileKey = (organizationId) => `full-file-export/org_${organization
 const zipFileKey = (organizationId) => `full-file-export/org_${organizationId}/archive.zip`;
 
 async function getUploadsForArchive(organizationId) {
+    /* eslint-disable */
     const uploads = await knex.raw(`
         WITH uploads_for_treasury_export AS (
             SELECT DISTINCT
@@ -28,13 +29,13 @@ async function getUploadsForArchive(organizationId) {
         SELECT
             u1.id as upload_id,
             u1.filename as original_filename,
-            SPLIT_PART(u1.filename, '.xlsm', 1) || '--' || u1.id || '.xlsm' AS filename_in_zip,
+            regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || SPLIT_PART(u1.filename, '.', -1) AS filename_in_zip,
             CASE
-                WHEN u1.invalidated_at IS NOT NULL THEN '/' || rp.name || '/Not Final Treasury/Invalid files/' || SPLIT_PART(u1.filename, '.xlsm', 1) || '--' || u1.id || '.xlsm'
-                WHEN ue.id IS NOT NULL THEN '/' || rp.name || '/Final Treasury/' || SPLIT_PART(u1.filename, '.xlsm', 1) || '--' || u1.id || '.xlsm'
+                WHEN u1.invalidated_at IS NOT NULL THEN '/' || rp.name || '/Not Final Treasury/Invalid files/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || SPLIT_PART(u1.filename, '.', -1)
+                WHEN ue.id IS NOT NULL THEN '/' || rp.name || '/Final Treasury/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || SPLIT_PART(u1.filename, '.', -1)
                 WHEN u1.validated_at IS NOT NULL
-                AND ue.id IS NULL THEN '/' || rp.name || '/Not Final Treasury/Valid files/' || SPLIT_PART(u1.filename, '.xlsm', 1) || '--' || u1.id || '.xlsm'
-                ELSE '/' || rp.name || '/Not Final Treasury/Unknown Validity/' || SPLIT_PART(u1.filename, '.xlsm', 1) || '--' || u1.id || '.xlsm'
+                AND ue.id IS NULL THEN '/' || rp.name || '/Not Final Treasury/Valid files/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || SPLIT_PART(u1.filename, '.', -1)
+                ELSE '/' || rp.name || '/Not Final Treasury/Unknown Validity/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || SPLIT_PART(u1.filename, '.', -1)
             END AS path_in_zip,
             a.name AS agency_name,
             'EC' || u1.ec_code AS ec_code,
@@ -58,6 +59,7 @@ async function getUploadsForArchive(organizationId) {
             ue.id,
             u1.validated_at ASC
     `, [organizationId, organizationId]);
+    /* eslint-enable */
     return uploads.rows;
 }
 
