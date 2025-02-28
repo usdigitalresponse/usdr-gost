@@ -44,6 +44,7 @@ const uploads = {
         validated_by: users.adminUser.id,
         invalidated_at: null,
         invalidated_by: null,
+        created_at: '2023-03-01',
     },
     upload2: {
         filename: 'test-filename-2.xlsm',
@@ -58,6 +59,7 @@ const uploads = {
         validated_by: null,
         invalidated_at: null,
         invalidated_by: null,
+        created_at: '2023-03-01',
     },
     upload3: {
         filename: 'test-filename-3.xlsm',
@@ -72,6 +74,7 @@ const uploads = {
         validated_by: null,
         invalidated_at: null,
         invalidated_by: null,
+        created_at: '2023-03-01',
     },
     upload4_invalidated: {
         filename: 'test-filename-4.xlsm',
@@ -86,6 +89,7 @@ const uploads = {
         validated_by: null,
         invalidated_at: '2023-03-02',
         invalidated_by: users.staffUser.id,
+        created_at: '2023-03-01',
     },
     upload5_new_quarter: {
         filename: 'test-filename-5.xlsm',
@@ -100,6 +104,7 @@ const uploads = {
         validated_by: null,
         invalidated_at: null,
         invalidated_by: null,
+        created_at: '2023-03-01',
     },
 };
 

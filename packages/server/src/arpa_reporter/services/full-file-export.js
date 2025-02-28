@@ -35,7 +35,7 @@ async function getUploadsForArchive(organizationId) {
                 WHEN ue.id IS NOT NULL THEN '/' || rp.name || '/Final Treasury/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || split_part(filename, '.', array_length(string_to_array(filename, '.'), 1))
                 WHEN u1.validated_at IS NOT NULL
                 AND ue.id IS NULL THEN '/' || rp.name || '/Not Final Treasury/Valid files/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || split_part(filename, '.', array_length(string_to_array(filename, '.'), 1))
-                ELSE '/' || rp.name || '/Not Final Treasury/Unknown Validity/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || split_part(filename, '.', array_length(string_to_array(filename, '.'), 1))
+                ELSE '/' || rp.name || '/Not Final Treasury/Invalid files/' || regexp_replace(u1.filename, '\.[^.]+$', '') || '--' || u1.id || '.' || split_part(filename, '.', array_length(string_to_array(filename, '.'), 1))
             END AS path_in_zip,
             a.name AS agency_name,
             'EC' || u1.ec_code AS ec_code,
@@ -43,13 +43,14 @@ async function getUploadsForArchive(organizationId) {
             CASE
                 WHEN u1.invalidated_at IS NOT NULL THEN 'Invalidated at ' || invalidated_at || ' by ' || ui.email
                 WHEN u1.validated_at IS NOT NULL THEN 'Validated at ' || validated_at || ' by ' || uv.email
-                ELSE NULL
+                ELSE 'Did not pass validation at ' || u1.created_at || ' by ' || uc.email
             END AS validity
         FROM
             uploads u1
             LEFT JOIN uploads_for_treasury_export ue ON ue.id = u1.id
             LEFT JOIN users uv ON uv.id = u1.validated_by
             LEFT JOIN users ui ON ui.id = u1.invalidated_by
+            LEFT JOIN users uc ON uc.id = u1.user_id
             JOIN reporting_periods rp ON rp.id = u1.reporting_period_id
             JOIN agencies a ON a.id = u1.agency_id
         WHERE
