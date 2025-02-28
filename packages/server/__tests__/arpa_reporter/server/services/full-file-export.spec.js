@@ -49,11 +49,11 @@ describe('FullFileExport', () => {
                 upload_id: '00000000-0000-0000-0000-000000000001',
                 original_filename: 'test-filename-2.xlsm',
                 filename_in_zip: 'test-filename-2--00000000-0000-0000-0000-000000000001.xlsm',
-                path_in_zip: '/Quarterly 1/Not Final Treasury/Unknown Validity/test-filename-2--00000000-0000-0000-0000-000000000001.xlsm',
+                path_in_zip: '/Quarterly 1/Not Final Treasury/Invalid files/test-filename-2--00000000-0000-0000-0000-000000000001.xlsm',
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
                 reporting_period_name: 'Quarterly 1',
-                validity: null,
+                validity: `Did not pass validation at 2023-03-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org`,
             },
             // fixtures.uploads.upload4_invalidated
             {
@@ -71,11 +71,11 @@ describe('FullFileExport', () => {
                 upload_id: '00000000-0000-0000-0000-000000000004',
                 original_filename: 'test-filename-5.xlsm',
                 filename_in_zip: 'test-filename-5--00000000-0000-0000-0000-000000000004.xlsm',
-                path_in_zip: '/Quarterly 2/Not Final Treasury/Unknown Validity/test-filename-5--00000000-0000-0000-0000-000000000004.xlsm',
+                path_in_zip: '/Quarterly 2/Not Final Treasury/Invalid files/test-filename-5--00000000-0000-0000-0000-000000000004.xlsm',
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
                 reporting_period_name: 'Quarterly 2',
-                validity: null,
+                validity: `Did not pass validation at 2023-03-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org`,
             },
         ];
 
