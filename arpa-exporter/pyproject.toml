@@ -7,21 +7,21 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.13"
-boto3 = "^1.37.2"
+boto3 = "^1.37.4"
 ddtrace = "^2.21.3"
 structlog = "^25.1.0"
 pydantic = "^2.10.3"
 chevron="^0.14.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
-ruff = "^0.9.7"
+pytest = "^8.3.5"
+ruff = "^0.9.9"
 ipython = "^8.32.0"
 pytest-cov = "^6.0.0"
 mypy = "^1.15.0"
-boto3-stubs = {extras = ["essential", "ses"], version = "^1.37.2"}
+boto3-stubs = {extras = ["essential", "ses"], version = "^1.37.4"}
 pytest-timeout = "^2.3.1"
-moto = "^5.1.0"
+moto = "^5.1.1"
 types-chevron = "^0.14.2.20250103"
 
 [build-system]
