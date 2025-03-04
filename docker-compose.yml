@@ -65,7 +65,7 @@ services:
   postgres:
     container_name: gost-postgres
     hostname: postgres
-    image: 'bitnami/postgresql:14.4.0'
+    image: 'bitnami/postgresql:13.3.0'
     platform: linux/amd64
     networks:
       - postgres

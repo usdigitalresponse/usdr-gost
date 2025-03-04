@@ -114,6 +114,7 @@ module.exports = {
     uploads,
     TENANT_ID,
     users,
+    agencies,
 };
 
 module.exports.clean = async (knex) => {
