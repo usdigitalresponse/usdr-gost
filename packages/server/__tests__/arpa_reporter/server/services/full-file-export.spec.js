@@ -73,7 +73,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
                 reporting_period_name: 'Quarterly 1',
-                validity: 'Validated at 2022-01-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org',
+                validity: 'Validated at 2022-01-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },
             {
                 upload_id: '00000000-0000-0000-0000-000000000098',
@@ -83,7 +83,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.134',
                 reporting_period_name: 'Quarterly 1',
-                validity: 'Validated at 2022-01-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org',
+                validity: 'Validated at 2022-01-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },
             {
                 upload_id: '00000000-0000-0000-0000-000000000099',
@@ -93,7 +93,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1456',
                 reporting_period_name: 'Quarterly 1',
-                validity: 'Validated at 2022-01-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org',
+                validity: 'Validated at 2022-01-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },
             // fixtures.uploads.upload2
             {
@@ -104,7 +104,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
                 reporting_period_name: 'Quarterly 1',
-                validity: `Did not pass validation at 2023-03-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org`,
+                validity: `Did not pass validation at 2023-03-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org`,
             },
             // fixtures.uploads.upload4_invalidated
             {
@@ -115,7 +115,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
                 reporting_period_name: 'Quarterly 1',
-                validity: 'Invalidated at 2023-03-02 00:00:00+00 by mbroussard+unit-test-user2@usdigitalresponse.org',
+                validity: 'Invalidated at 2023-03-02T00:00:00 by mbroussard+unit-test-user2@usdigitalresponse.org',
             },
             // fixtures.uploads.upload5_new_quarter
             {
@@ -126,7 +126,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
                 reporting_period_name: 'Quarterly 2',
-                validity: `Did not pass validation at 2023-03-01 00:00:00+00 by mbroussard+unit-test-admin@usdigitalresponse.org`,
+                validity: `Did not pass validation at 2023-03-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org`,
             },
         ];
 
