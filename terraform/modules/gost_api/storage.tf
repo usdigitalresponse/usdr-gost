@@ -76,7 +76,7 @@ module "access_arpa_reports_bucket_policy" {
 }
 
 module "data_migration_policy" {
-  count   = len(var.data_migration_bucket_names) > 0 ? 1 : 0
+  count   = length(var.data_migration_bucket_names) > 0 ? 1 : 0
   source  = "cloudposse/iam-policy/aws"
   version = "2.0.1"
   context = module.s3_label.context
