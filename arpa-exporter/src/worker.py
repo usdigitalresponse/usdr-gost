@@ -15,6 +15,7 @@ import botocore.client
 import botocore.exceptions
 import pydantic
 import structlog
+from ddtrace import tracer
 
 from src.lib.email import generate_email, send_email
 from src.lib.logging import get_logger, reset_contextvars
@@ -57,6 +58,7 @@ class MessageSchema(pydantic.BaseModel):
     user_email: str
 
 
+@tracer.wrap()
 def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) -> bool:
     """Appends file entries named by ``source_uploads`` to an open zip archive,
     skipping those whose names are already present in the zip.
@@ -251,6 +253,7 @@ def notify_user(
         raise
 
 
+@tracer.wrap()
 def process_sqs_message_request(
     s3: S3Client, ses: SESClient, message_data: MessageSchema, local_file
 ):
@@ -328,6 +331,7 @@ def process_sqs_message_request(
         raise
 
 
+@tracer.wrap()
 @reset_contextvars
 def handle_work(sqs: SQSClient, s3: S3Client, ses: SESClient):
     """Receives up to 1 message from SQS, processes it, and then deletes it
@@ -355,49 +359,55 @@ def handle_work(sqs: SQSClient, s3: S3Client, ses: SESClient):
         logger.info("empty message batch received from SQS")
         return
 
-    structlog.contextvars.bind_contextvars(
-        sqs_message_receipt_handle=message["ReceiptHandle"]
-    )
-    logger.info("received message from SQS")
-    try:
-        raw_data = json.loads(message["Body"])
-    except json.JSONDecodeError:
-        # This is a problem with the message, not the worker, so don't re-raise
-        logger.exception("error parsing request data from SQS message")
-        return
-
-    try:
-        data = MessageSchema(**raw_data)
-    except pydantic.ValidationError:
-        # This is potentially a problem with the message, not the worker, so don't re-raise
-        logger.exception("SQS message data did not match expected schema")
-        return
-
-    with tempfile.NamedTemporaryFile() as tfh:
-        with structlog.contextvars.bound_contextvars(
-            s3_bucket=data.s3.bucket,
-            s3_zip_key=data.s3.zip_key,
-            s3_metadata_key=data.s3.metadata_key,
-            destination_file_path=tfh.name,
-            destination_file_mode=tfh.mode,
-        ):
-            try:
-                process_sqs_message_request(s3, ses, data, tfh)
-            except:
-                logger.info("error processing SQS message request for ARPA data export")
-                raise
-
-    try:
-        sqs.delete_message(
-            QueueUrl=TASK_QUEUE_URL, ReceiptHandle=message["ReceiptHandle"]
+    with tracer.trace("arpa_exporter.handle_message", span_type="process"):
+        structlog.contextvars.bind_contextvars(
+            sqs_message_receipt_handle=message["ReceiptHandle"]
         )
-    except:
-        logger.exception(
-            "could not delete SQS message after it was succcessfully processed"
-        )
-        raise
+        logger.info("received message from SQS")
+        try:
+            raw_data = json.loads(message["Body"])
+        except json.JSONDecodeError:
+            # This is a problem with the message, not the worker, so don't re-raise
+            logger.exception("error parsing request data from SQS message")
+            return
+
+        try:
+            data = MessageSchema(**raw_data)
+        except pydantic.ValidationError:
+            # This is potentially a problem with the message, not the worker,
+            # so don't re-raise
+            logger.exception("SQS message data did not match expected schema")
+            return
+
+        with tempfile.NamedTemporaryFile() as tfh:
+            with structlog.contextvars.bound_contextvars(
+                s3_bucket=data.s3.bucket,
+                s3_zip_key=data.s3.zip_key,
+                s3_metadata_key=data.s3.metadata_key,
+                destination_file_path=tfh.name,
+                destination_file_mode=tfh.mode,
+            ):
+                try:
+                    process_sqs_message_request(s3, ses, data, tfh)
+                except:
+                    logger.info(
+                        "error processing SQS message request for ARPA data export"
+                    )
+                    raise
+
+    with tracer.trace("cleanup_message", span_type="settle"):
+        try:
+            sqs.delete_message(
+                QueueUrl=TASK_QUEUE_URL, ReceiptHandle=message["ReceiptHandle"]
+            )
+        except:
+            logger.exception(
+                "could not delete SQS message after it was succcessfully processed"
+            )
+            raise
 
 
+@tracer.wrap(name="arpa_exporter.worker", span_type="consumer")
 def main() -> None:
     """Main work loop that calls ``handle_work()`` until a shutdown is requested
     by SIGINT or SIGTERM. When a shutdown is requested, any in-flight work is finished
@@ -408,8 +418,9 @@ def main() -> None:
     ses: SESClient = boto3.client("ses")
 
     shutdown_handler = ShutdownHandler(logger=get_logger())
-    while shutdown_handler.is_shutdown_requested() is False:
-        handle_work(sqs, s3, ses)
+    with tracer.trace(name="arpa_exporter.worker.main_loop"):
+        while shutdown_handler.is_shutdown_requested() is False:
+            handle_work(sqs, s3, ses)
     get_logger().warn("shutting down")
 
 
