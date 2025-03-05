@@ -240,7 +240,7 @@ resource "aws_iam_role_policy" "task" {
       send-emails           = module.send_emails_policy.json
       rw-arpa-audit-reports = module.access_arpa_reports_bucket_policy.json
     },
-    len(var.data_migration_bucket_names) == 0 ? {} : {
+    length(var.data_migration_bucket_names) == 0 ? {} : {
       rw-data-migration-buckets = module.data_migration_bucket_names[0].json
     },
   )
