@@ -286,3 +286,10 @@ variable "arpa_exporter_image_tag" {
   nullable    = true
   default     = null
 }
+
+# Data migration
+variable "data_migration_destination_bucket_names" {
+  description = "List of S3 bucket names used for data storage during a data migration."
+  type        = list(string)
+  default     = []
+}

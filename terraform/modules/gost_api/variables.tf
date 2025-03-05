@@ -203,3 +203,9 @@ variable "autoscaling_desired_count_maximum" {
   description = "Maximum desired auto-scaling group capacity"
   type        = number
 }
+
+variable "data_migration_bucket_names" {
+  description = "List of S3 bucket names for which API tasks will be granted grant read/write access."
+  type        = list(string)
+  default     = []
+}

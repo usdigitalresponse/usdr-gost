@@ -92,3 +92,8 @@ consume_grants_source_event_bus_name = "default"
 
 // Email
 email_enable_tracking = true
+
+// Data migration
+data_migration_destination_bucket_names = [
+  "741448944595-data-migration",
+]
