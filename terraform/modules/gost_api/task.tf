@@ -233,7 +233,7 @@ resource "aws_iam_role" "task" {
 }
 
 resource "aws_iam_role_policy" "task" {
-  for_each = !var.enabled ? {} : concat(
+  for_each = !var.enabled ? {} : merge(
     {
       connect-to-postgres   = module.connect_to_postgres_policy.json
       ecs-exec              = module.ecs_exec_policy.json
