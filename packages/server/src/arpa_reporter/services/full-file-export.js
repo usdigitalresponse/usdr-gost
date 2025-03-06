@@ -35,13 +35,13 @@ function getPathInZip(upload, filename_in_zip) {
     let path_in_zip = '';
 
     if (upload.invalidated_at) {
-        path_in_zip = path.join('/', upload.reporting_period_name, 'Not Final Treasury', 'Invalid files', filename_in_zip);
+        path_in_zip = path.join(upload.reporting_period_name, 'Not Final Treasury', 'Invalid files', filename_in_zip);
     } else if (upload.is_included_in_treasury_export) {
-        path_in_zip = path.join('/', upload.reporting_period_name, 'Final Treasury', filename_in_zip);
+        path_in_zip = path.join(upload.reporting_period_name, 'Final Treasury', filename_in_zip);
     } else if (upload.validated_at && !upload.is_included_in_treasury_export) {
-        path_in_zip = path.join('/', upload.reporting_period_name, 'Not Final Treasury', 'Valid files', filename_in_zip);
+        path_in_zip = path.join(upload.reporting_period_name, 'Not Final Treasury', 'Valid files', filename_in_zip);
     } else {
-        path_in_zip = path.join('/', upload.reporting_period_name, 'Not Final Treasury', 'Invalid files', filename_in_zip);
+        path_in_zip = path.join(upload.reporting_period_name, 'Not Final Treasury', 'Invalid files', filename_in_zip);
     }
 
     return path_in_zip;

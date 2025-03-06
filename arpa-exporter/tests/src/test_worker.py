@@ -67,6 +67,30 @@ class TestBuildZip:
                 zipped_file_checksum = archive.getinfo(extant_file_entry_path).CRC
                 assert extant_file_checksum == zipped_file_checksum
 
+    def test_no_duplicates_when_metadata_provides_incompatible_path_in_zip(
+        self, sample_metadata_1_UploadInfo
+    ):
+        # Make path_in_zip an absolute path, which is incompatible but should be normalized
+        sample_metadata_1_UploadInfo[0].path_in_zip = os.path.join(
+            os.path.sep, sample_metadata_1_UploadInfo[0].path_in_zip
+        )
+
+        with tempfile.NamedTemporaryFile() as tmp:
+            updated = worker.build_zip(tmp, (_ for _ in sample_metadata_1_UploadInfo))
+            assert updated is True
+            with zipfile.ZipFile(tmp, "r") as archive:
+                # Ensure the zip now contains all files named in the CSV entries
+                assert len(archive.namelist()) == len(sample_metadata_1_UploadInfo)
+
+            updated_again = worker.build_zip(
+                tmp, (_ for _ in sample_metadata_1_UploadInfo)
+            )
+            assert updated_again is False
+
+            with zipfile.ZipFile(tmp, "r") as archive:
+                # Ensure the zip contains no additional (duplicate) entries
+                assert len(archive.namelist()) == len(sample_metadata_1_UploadInfo)
+
     def test_returns_False_without_modifying_zip_when_source_files_is_empty(self):
         with tempfile.NamedTemporaryFile() as tmp:
             updated = worker.build_zip(tmp, (_ for _ in []))
