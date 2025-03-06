@@ -78,7 +78,8 @@ def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) 
     with zipfile.ZipFile(fh, "a") as archive:
         for upload in source_uploads:
             files_checked += 1
-            source_path = os.path.join(DATA_DIR, f"{upload.upload_id}.xlsm")
+            _, file_extension = os.path.splitext(upload.path_in_zip)
+            source_path = os.path.join(DATA_DIR, f"{upload.upload_id}{file_extension}")
             entry_logger = logger.bind(
                 source_path=source_path,
                 entry_path=upload.path_in_zip,
