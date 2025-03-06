@@ -241,7 +241,7 @@ resource "aws_iam_role_policy" "task" {
       rw-arpa-audit-reports = module.access_arpa_reports_bucket_policy.json
     },
     length(var.data_migration_bucket_names) == 0 ? {} : {
-      rw-data-migration-buckets = module.data_migration_bucket_names[0].json
+      rw-data-migration-buckets = module.data_migration_policy[0].json
     },
   )
 
