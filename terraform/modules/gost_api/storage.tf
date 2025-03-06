@@ -74,3 +74,34 @@ module "access_arpa_reports_bucket_policy" {
     }
   ]
 }
+
+module "data_migration_policy" {
+  count   = length(var.data_migration_bucket_names) > 0 ? 1 : 0
+  source  = "cloudposse/iam-policy/aws"
+  version = "2.0.1"
+  context = module.s3_label.context
+
+  iam_policy = [
+    {
+      statements = [
+        {
+          sid    = "ReadWriteS3BucketObjects"
+          effect = "Allow"
+          actions = [
+            "s3:PutObject",
+            "s3:GetObject",
+            "s3:GetObjectAttributes",
+            "s3:ListBucket",
+            "s3:DeleteObject",
+          ]
+          resources = flatten([
+            for bucket_name in var.data_migration_bucket_names : [
+              "arn:aws:s3:::${bucket_name}",
+              "arn:aws:s3:::${bucket_name}/*",
+            ]
+          ]),
+        },
+      ]
+    }
+  ]
+}

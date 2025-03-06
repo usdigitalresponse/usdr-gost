@@ -235,6 +235,9 @@ module "api" {
   # Email
   notifications_email_address   = "grants-notifications@${var.website_domain_name}"
   ses_configuration_set_default = aws_sesv2_configuration_set.default.configuration_set_name
+
+  # Migration
+  data_migration_bucket_names = var.data_migration_destination_bucket_names
 }
 
 module "consume_grants" {
