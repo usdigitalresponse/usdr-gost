@@ -23,7 +23,7 @@ shared_processors: List[Callable] = [
 ]
 
 processors: List[Callable] = shared_processors + []
-if sys.stderr.isatty():
+if sys.stderr.isatty():  # pragma: nocover
     processors += [
         structlog.dev.ConsoleRenderer(),
     ]
