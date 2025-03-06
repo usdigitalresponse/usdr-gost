@@ -80,17 +80,26 @@ def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) 
             files_checked += 1
             _, file_extension = os.path.splitext(upload.path_in_zip)
             source_path = os.path.join(DATA_DIR, f"{upload.upload_id}{file_extension}")
+            # Use ZipInfo filename to pre-normalize the destination path:
+            path_in_zip = zipfile.ZipInfo.from_file(
+                source_path, upload.path_in_zip
+            ).filename
             entry_logger = logger.bind(
                 source_path=source_path,
-                entry_path=upload.path_in_zip,
+                entry_path=path_in_zip,
             )
+            if path_in_zip != upload.path_in_zip:  # pragma: nocover
+                entry_logger.warn(
+                    "received and normalized an entry path that was not zipfile compatible",
+                    incompatible_entry_path=upload.path_in_zip,
+                )
 
-            if upload.path_in_zip in archive.namelist():
+            if path_in_zip in archive.namelist():
                 entry_logger.info("file already exists in archive")
                 continue
 
             try:
-                archive.write(source_path, arcname=upload.path_in_zip)
+                archive.write(source_path, arcname=path_in_zip)
             except:
                 entry_logger.exception("error writing source file to entry in archive")
                 raise
