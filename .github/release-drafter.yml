@@ -19,6 +19,7 @@ tag-prefix: 'release/'
 version-resolver:
   default: minor
 prerelease: true
+include-pre-releases: true
 categories:
   - title: 🚀 New features and enhancements
     collapse-after: 10
