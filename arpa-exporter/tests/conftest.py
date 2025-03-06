@@ -7,6 +7,7 @@ import moto.ses
 import moto.ses.models
 import pytest
 
+os.environ.setdefault("DD_TRACE_ENABLED", "false")
 os.environ.setdefault("TASK_QUEUE_URL", "https://example.com/queue")
 os.environ.setdefault("TASK_QUEUE_RECEIVE_TIMEOUT", "1")
 os.environ.setdefault(
