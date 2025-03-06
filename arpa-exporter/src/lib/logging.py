@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, List
 import structlog
 
 LOG_LEVEL = getattr(logging, os.environ.get("LOG_LEVEL", "INFO").upper())
+LOG_NAME = os.environ.get("LOG_NAME", "gost-arpa-exporter")
 
 shared_processors: List[Callable] = [
     structlog.contextvars.merge_contextvars,
@@ -42,7 +43,7 @@ structlog.configure(
 
 def get_logger(*args: Any, **initial_values: Any) -> structlog.stdlib.BoundLogger:
     """Convenience wrapper for ``structlog.get_logger()`` function."""
-    return structlog.get_logger(*args, **initial_values)
+    return structlog.get_logger(*args, **initial_values, name=LOG_NAME)
 
 
 def reset_contextvars(func: Callable) -> Callable:
@@ -52,7 +53,7 @@ def reset_contextvars(func: Callable) -> Callable:
 
     @functools.wraps(func)
     def inner(*args: List[Any], **kwargs: Dict[str, Any]) -> Any:
-        structlog.contextvars.unbind_contextvars()
+        structlog.contextvars.clear_contextvars()
         return func(*args, **kwargs)
 
     return inner
