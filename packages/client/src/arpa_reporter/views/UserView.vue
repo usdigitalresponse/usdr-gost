@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>User</h2>
+    <h1>User</h1>
 
     <div
       v-if="user === null"

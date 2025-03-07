@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Upload Period Template</h2>
+    <h1>Upload Period Template</h1>
 
     <p>
       This upload will be used as the template for period <em>{{ reportingPeriod.name }}</em>
@@ -24,7 +24,7 @@
       </div>
       <div class="form-group">
         <button
-          class="btn btn-primary"
+          class="btn usdr-btn-primary"
           type="submit"
           :disabled="uploadDisabled"
           @click.prevent="uploadTemplate"
@@ -32,7 +32,7 @@
           {{ uploadButtonLabel }}
         </button>
         <a
-          class="ml-3"
+          class="ml-3 usdr-link"
           href="#"
           @click="cancelUpload"
         >Cancel</a>
