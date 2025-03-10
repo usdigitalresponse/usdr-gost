@@ -218,7 +218,7 @@ jobs:
           DATA_DIR: './data'
         run: yarn serve &
       - name: Run e2e tests
-        uses: cypress-io/github-action@9c318d4f950c2f0ff2e96fa4dc4279e5706efd8e # v6.7.14
+        uses: cypress-io/github-action@01ab638e25de36956e276fd37e34446273874399 # v6.7.15
         env:
           CYPRESS_BASE_URL: 'http://localhost:8080'
         with:
