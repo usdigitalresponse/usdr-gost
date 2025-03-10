@@ -9,6 +9,7 @@ import tempfile
 import typing
 import urllib.parse
 import zipfile
+from tempfile import _TemporaryFileWrapper
 
 import boto3
 import botocore.client
@@ -56,6 +57,7 @@ class MessageSchema(pydantic.BaseModel):
     s3: S3Schema
     organization_id: int
     user_email: str
+    recreate_archive: bool
 
 
 @tracer.wrap()
@@ -264,7 +266,7 @@ def notify_user(
 
 @tracer.wrap()
 def process_sqs_message_request(
-    s3: S3Client, ses: SESClient, message_data: MessageSchema, local_file
+    s3: S3Client, ses: SESClient, message_data: MessageSchema, local_file: _TemporaryFileWrapper
 ):
     """Handles work for a single SQS message, orchestrating the following steps:
 
@@ -293,18 +295,21 @@ def process_sqs_message_request(
     s3_key = message_data.s3.zip_key
     logger = get_logger()
 
-    # Step 1 - Download the existing zip archive from S3 if exists
-    try:
-        s3.download_fileobj(s3_bucket, s3_key, local_file)
-        logger = logger.bind(updating_existing_zip_file_from_s3=True)
-        logger.info("downloaded existing s3 object for zip file")
-    except botocore.exceptions.ClientError as e:
-        if e.response["Error"]["Code"] != "404":
-            logger.exception("error downloading S3 object")
-            raise
-        else:
-            logger = logger.bind(updating_existing_zip_file_from_s3=False)
-            logger.info("no existing s3 object found for zip file")
+    # Step 1 - Download the existing zip archive from S3 if exists and not force recreating
+    if message_data.recreate_archive:
+        logger.info("Zip file recreation requested, skipping download from S3")
+    else:
+        try:
+            s3.download_fileobj(s3_bucket, s3_key, local_file)
+            logger = logger.bind(updating_existing_zip_file_from_s3=True)
+            logger.info("downloaded existing s3 object for zip file")
+        except botocore.exceptions.ClientError as e:
+            if e.response["Error"]["Code"] != "404":
+                logger.exception("error downloading S3 object")
+                raise
+            else:
+                logger = logger.bind(updating_existing_zip_file_from_s3=False)
+                logger.info("no existing s3 object found for zip file")
 
     # Step 2 - Add or update contents of the zipfile with the new metadata
     try:
@@ -400,6 +405,7 @@ def handle_work(sqs: SQSClient, s3: S3Client, ses: SESClient):
                 s3_metadata_key=data.s3.metadata_key,
                 destination_file_path=tfh.name,
                 destination_file_mode=tfh.mode,
+                recreate_archive=data.recreate_archive,
             ):
                 try:
                     process_sqs_message_request(s3, ses, data, tfh)

@@ -247,6 +247,7 @@ class TestProcessSQSMessageRequest:
             ),
             organization_id=1234,
             user_email="fake@example.gov",
+            recreate_archive=False,
         )
 
     @pytest.fixture(scope="function", autouse=True)
@@ -401,6 +402,7 @@ class TestHandleWork:
                 ),
                 organization_id=1234,
                 user_email="fake@example.gov",
+                recreate_archive=False,
             ).model_dump_json(),
         )
         with mock.patch(
@@ -425,6 +427,7 @@ class TestHandleWork:
                 ),
                 organization_id=1234,
                 user_email="fake@example.gov",
+                recreate_archive=False,
             ).model_dump_json(),
         )
         with mock.patch("src.worker.process_sqs_message_request"):
@@ -449,6 +452,7 @@ class TestHandleWork:
                 ),
                 organization_id=1234,
                 user_email="fake@example.gov",
+                recreate_archive=False,
             ).model_dump_json(),
         )
         with mock.patch(
