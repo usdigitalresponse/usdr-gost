@@ -33,6 +33,7 @@ if typing.TYPE_CHECKING:  # pragma: nocover
 
 CHARSET = "UTF-8"
 TEMPLATES_DIR = os.path.abspath("src/static/email_templates")
+DEFAULT_CONFIGURATION_SET_NAME = os.getenv("SES_CONFIGURATION_SET_DEFAULT")
 NOTIFICATIONS_EMAIL = os.environ["NOTIFICATIONS_EMAIL"]
 
 
@@ -192,6 +193,10 @@ def send_email(
             },
         },
     }
+
+    if DEFAULT_CONFIGURATION_SET_NAME:
+        message["ConfigurationSetName"] = DEFAULT_CONFIGURATION_SET_NAME
+
     response = email_client.send_email(
         **tag_ses_message(message, "full_file_export", **additional_tags)
     )
