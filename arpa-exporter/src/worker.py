@@ -61,7 +61,7 @@ class MessageSchema(pydantic.BaseModel):
 
 
 @tracer.wrap()
-def build_zip(fh: typing.BinaryIO, source_uploads: typing.Iterator[UploadInfo]) -> bool:
+def build_zip(fh: _TemporaryFileWrapper, source_uploads: typing.Iterator[UploadInfo]) -> bool:
     """Appends file entries named by ``source_uploads`` to an open zip archive,
     skipping those whose names are already present in the zip.
 
