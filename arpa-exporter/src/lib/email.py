@@ -35,6 +35,12 @@ CHARSET = "UTF-8"
 TEMPLATES_DIR = os.path.abspath("src/static/email_templates")
 DEFAULT_CONFIGURATION_SET_NAME = os.getenv("SES_CONFIGURATION_SET_DEFAULT")
 NOTIFICATIONS_EMAIL = os.environ["NOTIFICATIONS_EMAIL"]
+NOTIFICATIONS_EMAIL_DISPLAY_NAME = os.getenv(
+    "NOTIFICATIONS_EMAIL_DISPLAY_NAME", "USDR ARPA Reporter"
+)
+NOTIFICATIONS_EMAIL_SENDER = (
+    f"{NOTIFICATIONS_EMAIL_DISPLAY_NAME} <{NOTIFICATIONS_EMAIL}>"
+)
 
 
 def generate_email(
@@ -174,7 +180,7 @@ def send_email(
         The SES message ID generated for the outgoing email.
     """
     message: SendEmailRequestTypeDef = {
-        "Source": NOTIFICATIONS_EMAIL,
+        "Source": NOTIFICATIONS_EMAIL_SENDER,
         "Destination": {"ToAddresses": [dest_email]},
         "Message": {
             "Subject": {
