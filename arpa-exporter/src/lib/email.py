@@ -25,9 +25,11 @@ import os
 import typing
 
 import chevron
+from ddtrace import tracer
 
 if typing.TYPE_CHECKING:  # pragma: nocover
     from mypy_boto3_ses import SESClient
+    from mypy_boto3_ses.type_defs import SendEmailRequestTypeDef
 
 CHARSET = "UTF-8"
 TEMPLATES_DIR = os.path.abspath("src/static/email_templates")
@@ -96,12 +98,65 @@ def generate_email(
     return email_html, email_plaintext, subject
 
 
+def tag_ses_message(
+    message: SendEmailRequestTypeDef,
+    notification_type: str,
+    **extra: str,
+) -> SendEmailRequestTypeDef:
+    """Adds/updates the "Tags" param on configuration for an outgoing SES message
+    with the (gost-standard) ``notification_type`` tag and any given ``extra``
+    key/value pairs.
+
+    The following tags are conditionally added for observability:
+    - ``dd_trace_id`` and ``dd_span_id`` are added if a trace is active at call-time
+    - Universal service monitoring tags ``service``, ``env``, and ``version``
+        from ``DD_SERVICE``, ``DD_ENV``, and ``DD_VERSION`` environment variables,
+        respectively, as long as the corresponding env var is defined.
+
+    Notes:
+        - When a tag that is automatically added by this function has the same name
+            as a tag provided as a keyword argument in ``**extra``,
+            the value provided for the keyword argument takes precedence.
+        - The given ``message`` dict is both updated in-place and returned
+            by this function.
+
+    Args:
+        message: Configuration parameters for calling ``SESClient.send_email()``.
+        notification_type: The name of this email notification, i.e. which disambiguates
+            email events for Full-File Export emails from others sent on behalf
+            of the gost service.
+
+    Returns:
+        The config dict of parameters provided in the ``message`` argument,
+            updated with new tag definitions.
+    """
+    tags = {"notification_type": notification_type}
+    if span := tracer.current_span():
+        tags.update(dd_trace_id=span.trace_id, dd_span_id=span.span_id)
+    tags.update(
+        **{
+            k: v
+            for k, v in {
+                "service": os.getenv("DD_SERVICE"),
+                "env": os.getenv("DD_ENV"),
+                "version": os.getenv("DD_VERSION"),
+            }.items()
+            if v is not None
+        }
+    )
+    tags.update(**extra)
+    message["Tags"] = message.get("Tags", [])
+    message["Tags"] += [{"Name": k, "Value": str(v)} for k, v in tags.items()]
+    return message
+
+
 def send_email(
     email_client: SESClient,
     dest_email: str,
     email_html: str,
     email_text: str,
     subject: str,
+    additional_tags: dict[str, str] = None,
 ) -> str:
     """Sends an email to a single recipient via SES.
 
@@ -112,14 +167,15 @@ def send_email(
         email_text: Alternative plaintext content generated for the email body
             (for compatibility with recipient email clients that do not support HTML).
         subject: Subject line for the outgoing email.
+        additional_tags: Key/value pairs to add as tags on the outgoing SES email.
 
     Returns:
         The SES message ID generated for the outgoing email.
     """
-    response = email_client.send_email(
-        Source=NOTIFICATIONS_EMAIL,
-        Destination={"ToAddresses": [dest_email]},
-        Message={
+    message: SendEmailRequestTypeDef = {
+        "Source": NOTIFICATIONS_EMAIL,
+        "Destination": {"ToAddresses": [dest_email]},
+        "Message": {
             "Subject": {
                 "Charset": CHARSET,
                 "Data": subject,
@@ -135,6 +191,9 @@ def send_email(
                 },
             },
         },
+    }
+    response = email_client.send_email(
+        **tag_ses_message(message, "full_file_export", **additional_tags)
     )
     return response["MessageId"]
 
