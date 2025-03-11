@@ -297,7 +297,7 @@ def process_sqs_message_request(
 
     # Step 1 - Download the existing zip archive from S3 if exists and not force recreating
     if message_data.recreate_archive:
-        logger.info("Zip file recreation requested, skipping download from S3")
+        logger.info("zip file recreation requested, skipping download from S3")
     else:
         try:
             s3.download_fileobj(s3_bucket, s3_key, local_file)
