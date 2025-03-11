@@ -267,8 +267,13 @@ class TestProcessSQSMessageRequest:
             worker.process_sqs_message_request(s3, ses, sqs_message, io.BytesIO())
 
     @pytest.mark.parametrize(
-        "extant_zip_entries",
-        ([], ["extra1.xlsm", "extra2.xlsm"]),
+        ("extant_zip_entries", "recreate_archive", "expected_namelist"),
+        [
+            ([], True, set()),
+            ([], False, set()),
+            (["extra1.xlsm", "extra2.xlsm"], True, set()),
+            (["extra1.xlsm", "extra2.xlsm"], False, set(["extra1.xlsm", "extra2.xlsm"])),
+        ],
     )
     def test_uploads_populated_zip(
         self,
@@ -276,8 +281,13 @@ class TestProcessSQSMessageRequest:
         ses,
         sample_metadata_1_UploadInfo,
         extant_zip_entries,
+        recreate_archive,
+        expected_namelist,
         sqs_message,
     ):
+        if recreate_archive:
+            sqs_message.recreate_archive = True
+
         if len(extant_zip_entries) > 0:
             with tempfile.NamedTemporaryFile() as tmp:
                 with zipfile.ZipFile(tmp, "w") as archive:
@@ -293,11 +303,10 @@ class TestProcessSQSMessageRequest:
             s3.download_fileobj(self.BUCKET_NAME, sqs_message.s3.zip_key, tmp)
             with zipfile.ZipFile(tmp, "r") as resulting_archive:
                 actual_namelist = resulting_archive.namelist()
-                expected_namelist = set(
-                    _.path_in_zip for _ in sample_metadata_1_UploadInfo
-                )
-                for additional_entry in extant_zip_entries:
-                    expected_namelist.add(additional_entry)
+
+                for entry in sample_metadata_1_UploadInfo:
+                    expected_namelist.add(entry.path_in_zip)
+
                 assert expected_namelist == set(actual_namelist)
 
     def test_skips_upload_when_no_files_added_to_zip(
