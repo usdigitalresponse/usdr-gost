@@ -78,6 +78,13 @@ module "access_arpa_reports_bucket_policy" {
             "s3:ListBucket",
           ]
           resources = [module.arpa_audit_reports_bucket.bucket_arn]
+          conditions = [
+            {
+              test     = "StringLike"
+              variable = "s3:prefix"
+              values   = ["full-file-export/"]
+            }
+          ]
         }
       ]
     }
