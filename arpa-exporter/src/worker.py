@@ -257,6 +257,9 @@ def notify_user(
             email_html=email_html,
             email_text=email_text,
             subject=subject,
+            additional_tags={
+                "organization_id": user_organization_id,
+            },
         )
         logger.info("email notification sent", ses_message_id=message_id)
     except:
