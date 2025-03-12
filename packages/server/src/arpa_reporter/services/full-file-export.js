@@ -47,6 +47,12 @@ function getPathInZip(upload, filename_in_zip) {
     return path_in_zip;
 }
 
+function getUploadLastUpdate(upload) {
+    if (upload.validated_at) return upload.validated_at;
+    if (upload.invalidated_at) return upload.invalidated_at;
+    return upload.created_at;
+}
+
 async function addUploadInfo(uploads) {
     const uploadsWithInfo = uploads.map((upload) => {
         const filename_in_zip = getFilenameInZip(upload);
@@ -60,6 +66,7 @@ async function addUploadInfo(uploads) {
             agency_name: upload.agency_name,
             ec_code: upload.ec_code,
             reporting_period_name: upload.reporting_period_name,
+            updated_at: getUploadLastUpdate(upload).toISOString(),
             validity,
         };
         return uploadInfo;
@@ -92,18 +99,12 @@ async function getMetadataLastModified(organizationId, logger = log) {
     return null;
 }
 
-function getUploadLastUpdate(upload) {
-    if (upload.validated_at) return upload.validated_at;
-    if (upload.invalidated_at) return upload.invalidated_at;
-    return upload.created_at;
-}
-
 async function shouldRecreateArchive(organizationId, uploads, logger = log) {
     const metadataLastModified = await getMetadataLastModified(organizationId, logger);
 
     if (metadataLastModified) {
         const metadataLastModifiedMoment = moment(metadataLastModified);
-        return uploads.some((upload) => moment(getUploadLastUpdate(upload)).isAfter(metadataLastModifiedMoment));
+        return uploads.some((upload) => moment(upload.updated_at).isAfter(metadataLastModifiedMoment));
     }
     return true;
 }
