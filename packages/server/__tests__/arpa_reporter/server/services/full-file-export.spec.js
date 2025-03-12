@@ -115,7 +115,7 @@ describe('FullFileExport', () => {
         expect(command.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
     });
 
-    it('shouldRecreateArchive should return false if the S3 client throws an unknown error', async () => {
+    it('shouldRecreateArchive throw an error if the S3 client throws an unknown error', async () => {
         const uploads = [
             fixtures.uploads.upload1,
             fixtures.uploads.upload2,
@@ -130,8 +130,7 @@ describe('FullFileExport', () => {
         const s3Fake = sandbox.fake.returns(uploadFake);
         sandbox.replace(aws, 'getS3Client', s3Fake);
 
-        const result = await full_file_export.shouldRecreateArchive(fixtures.TENANT_ID, uploads);
-        expect(result).to.equal(false);
+        await expect(full_file_export.shouldRecreateArchive(fixtures.TENANT_ID, uploads)).to.be.rejectedWith(S3ServiceException);
 
         // Checks to make sure s3 client was called with correct parameters
         expect(uploadFake.send.calledOnce).to.equal(true);

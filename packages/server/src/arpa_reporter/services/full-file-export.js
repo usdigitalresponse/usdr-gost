@@ -1,6 +1,6 @@
 const { SendMessageCommand } = require('@aws-sdk/client-sqs');
 const {
-    HeadObjectCommand, PutObjectCommand, NotFound, S3ServiceException,
+    HeadObjectCommand, PutObjectCommand, NotFound,
 } = require('@aws-sdk/client-s3');
 const converter = require('json-2-csv');
 const path = require('path');
@@ -92,10 +92,7 @@ async function getMetadataLastModified(organizationId, logger = log) {
             logger.info('metadata file does not exist');
             return null;
         }
-        if (error instanceof S3ServiceException) {
-            logger.error(error, 'failed to get metadata file due to an exception with s3');
-            return null;
-        }
+        logger.error(error, 'failed to get metadata file due to an exception with s3');
         throw error;
     }
 
