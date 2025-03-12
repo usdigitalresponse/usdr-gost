@@ -1,10 +1,12 @@
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
+const { NotFound, S3ServiceException } = require('@aws-sdk/client-s3');
 
 chai.use(chaiAsPromised);
 
 const { expect } = require('chai');
 const sinon = require('sinon');
+const moment = require('moment');
 
 const full_file_export = require('../../../../src/arpa_reporter/services/full-file-export');
 const aws = require('../../../../src/lib/gost-aws');
@@ -28,6 +30,115 @@ describe('FullFileExport', () => {
         process.env.ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL = OLD_ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL;
         sandbox.restore();
     });
+    it('getUploadLastUpdate should return the last updated date of the upload', async () => {
+        await fixtures.seed(knex);
+        const upload1 = await full_file_export.getUploadLastUpdate(fixtures.uploads.upload1);
+        expect(upload1).to.equal('2022-01-01');
+
+        const upload2 = await full_file_export.getUploadLastUpdate(fixtures.uploads.upload2);
+        expect(upload2).to.equal('2023-03-01');
+
+        const upload4 = await full_file_export.getUploadLastUpdate(fixtures.uploads.upload4_invalidated);
+        expect(upload4).to.equal('2023-03-02');
+
+        await fixtures.clean(knex);
+    });
+
+    it('shouldRecreateArchive should return true if metadata does not exist in S3', async () => {
+        const uploads = [
+            fixtures.uploads.upload1,
+            fixtures.uploads.upload2,
+            fixtures.uploads.upload4_invalidated,
+        ];
+
+        // stub S3 client and HeadObjectCommand
+        const uploadFake = sandbox.fake.returns('just s3');
+        uploadFake.send = sandbox.fake(() => {
+            throw new NotFound('Not found');
+        });
+        const s3Fake = sandbox.fake.returns(uploadFake);
+        sandbox.replace(aws, 'getS3Client', s3Fake);
+
+        const result = await full_file_export.shouldRecreateArchive(fixtures.TENANT_ID, uploads);
+        expect(result).to.equal(true);
+
+        // Checks to make sure s3 client was called with correct parameters
+        expect(uploadFake.send.calledOnce).to.equal(true);
+        const command = uploadFake.send.firstCall.firstArg.input;
+        expect(command.Key).to.equal('full-file-export/org_0/metadata.csv');
+        expect(command.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
+    });
+
+    it('shouldRecreateArchive should return true if metadata is older than the uploads', async () => {
+        const uploads = [
+            fixtures.uploads.upload1,
+            fixtures.uploads.upload2,
+            fixtures.uploads.upload4_invalidated,
+        ];
+
+        // stub S3 client and HeadObjectCommand
+        const uploadFake = sandbox.fake.returns('just s3');
+        uploadFake.send = sandbox.fake(() => ({ LastModified: new Date('2023-03-01') }));
+        const s3Fake = sandbox.fake.returns(uploadFake);
+        sandbox.replace(aws, 'getS3Client', s3Fake);
+
+        const result = await full_file_export.shouldRecreateArchive(fixtures.TENANT_ID, uploads);
+        expect(result).to.equal(true);
+
+        // Checks to make sure s3 client was called with correct parameters
+        expect(uploadFake.send.calledOnce).to.equal(true);
+        const command = uploadFake.send.firstCall.firstArg.input;
+        expect(command.Key).to.equal('full-file-export/org_0/metadata.csv');
+        expect(command.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
+    });
+
+    it('shouldRecreateArchive should return false if metadata is newer than the uploads', async () => {
+        const uploads = [
+            fixtures.uploads.upload1,
+            fixtures.uploads.upload2,
+            fixtures.uploads.upload4_invalidated,
+        ];
+
+        // stub S3 client and HeadObjectCommand
+        const uploadFake = sandbox.fake.returns('just s3');
+        uploadFake.send = sandbox.fake(() => ({ LastModified: new Date('2027-01-01') }));
+        const s3Fake = sandbox.fake.returns(uploadFake);
+        sandbox.replace(aws, 'getS3Client', s3Fake);
+
+        const result = await full_file_export.shouldRecreateArchive(fixtures.TENANT_ID, uploads);
+        expect(result).to.equal(false);
+
+        // Checks to make sure s3 client was called with correct parameters
+        expect(uploadFake.send.calledOnce).to.equal(true);
+        const command = uploadFake.send.firstCall.firstArg.input;
+        expect(command.Key).to.equal('full-file-export/org_0/metadata.csv');
+        expect(command.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
+    });
+
+    it('shouldRecreateArchive raises an error if the S3 client throws an unknown error', async () => {
+        const uploads = [
+            fixtures.uploads.upload1,
+            fixtures.uploads.upload2,
+            fixtures.uploads.upload4_invalidated,
+        ];
+
+        // stub S3 client and HeadObjectCommand
+        const uploadFake = sandbox.fake.returns('just s3');
+        uploadFake.send = sandbox.fake(() => {
+            throw new S3ServiceException('Unknown error');
+        });
+        const s3Fake = sandbox.fake.returns(uploadFake);
+        sandbox.replace(aws, 'getS3Client', s3Fake);
+
+        await expect(full_file_export.shouldRecreateArchive(fixtures.TENANT_ID, uploads)).to.be.rejectedWith(S3ServiceException);
+
+        // Checks to make sure s3 client was called with correct parameters
+        expect(uploadFake.send.calledOnce).to.equal(true);
+        const command = uploadFake.send.firstCall.firstArg.input;
+        expect(command.Key).to.equal('full-file-export/org_0/metadata.csv');
+        expect(command.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
+    });
+
     it('ensures getUploadsForArchive queries the database and returns only uploads for one tenant', async () => {
         await fixtures.seed(knex);
         const testSpecificUploads = {
@@ -73,6 +184,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
                 reporting_period_name: 'Quarterly 1',
+                updated_at: moment('2022-01-01').toISOString(),
                 validity: 'Validated at 2022-01-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },
             {
@@ -83,6 +195,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.134',
                 reporting_period_name: 'Quarterly 1',
+                updated_at: moment('2022-01-01').toISOString(),
                 validity: 'Validated at 2022-01-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },
             {
@@ -93,6 +206,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1456',
                 reporting_period_name: 'Quarterly 1',
+                updated_at: moment('2022-01-01').toISOString(),
                 validity: 'Validated at 2022-01-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },
             // fixtures.uploads.upload2
@@ -104,6 +218,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
                 reporting_period_name: 'Quarterly 1',
+                updated_at: moment('2023-03-01').toISOString(),
                 validity: `Did not pass validation at 2023-03-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org`,
             },
             // fixtures.uploads.upload4_invalidated
@@ -115,6 +230,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
                 reporting_period_name: 'Quarterly 1',
+                updated_at: moment('2023-03-02').toISOString(),
                 validity: 'Invalidated at 2023-03-02T00:00:00 by mbroussard+unit-test-user2@usdigitalresponse.org',
             },
             // fixtures.uploads.upload5_new_quarter
@@ -126,6 +242,7 @@ describe('FullFileExport', () => {
                 agency_name: 'State Board of Accountancy',
                 ec_code: 'EC1.1',
                 reporting_period_name: 'Quarterly 2',
+                updated_at: moment('2023-03-01').toISOString(),
                 validity: `Did not pass validation at 2023-03-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org`,
             },
         ];
@@ -141,7 +258,7 @@ describe('FullFileExport', () => {
     });
     it('should add message to the queue', async () => {
         // stub generateAndUploadMetadata as the unit test is not testing the database query and s3 upload functionality
-        sandbox.stub(full_file_export, 'generateAndUploadMetadata').resolves(undefined);
+        sandbox.stub(full_file_export, 'generateAndUploadMetadata').resolves(true);
 
         // stub sqs client and SendMessageCommand
         const messageFake = sandbox.fake.returns('just sqs');
@@ -155,7 +272,8 @@ describe('FullFileExport', () => {
         expect(messageFake.send.calledOnce).to.equal(true);
         const command = messageFake.send.firstCall.firstArg.input;
         expect(command.QueueUrl).to.equal(process.env.ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL);
-        expect(command.MessageBody).to.contain('{"s3":{"bucket":"example-bucket-name","zip_key":"full-file-export/org_1/archive.zip","metadata_key":"full-file-export/org_1/metadata.csv"},"organization_id":1,"user_email":"person@example.com"}');
+        console.log(command.MessageBody);
+        expect(command.MessageBody).to.contain('{"s3":{"bucket":"example-bucket-name","zip_key":"full-file-export/org_1/archive.zip","metadata_key":"full-file-export/org_1/metadata.csv"},"organization_id":1,"user_email":"person@example.com","recreate_archive":true}');
     });
     it('should generate and upload metadata', async () => {
         const organizationId = 1;
@@ -186,8 +304,8 @@ abcdef,Approved File.xlsm,Quarter 1/Approved File_abcdef.xlsm,"Agency 1, with co
         await full_file_export.generateAndUploadMetadata(organizationId, s3Key);
 
         // Check if S3 client was called with correct parameters
-        expect(uploadFake.send.calledOnce).to.equal(true);
-        const command = uploadFake.send.firstCall.firstArg.input;
+        expect(uploadFake.send.calledTwice).to.equal(true);
+        const command = uploadFake.send.secondCall.firstArg.input;
         expect(command.Key).to.equal(s3Key);
         expect(command.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
         expect(command.Body.toString()).to.equal(expectedCSV);

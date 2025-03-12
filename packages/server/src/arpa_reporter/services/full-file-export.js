@@ -1,5 +1,5 @@
 const { SendMessageCommand } = require('@aws-sdk/client-sqs');
-const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const { HeadObjectCommand, PutObjectCommand, NotFound } = require('@aws-sdk/client-s3');
 const converter = require('json-2-csv');
 const path = require('path');
 const moment = require('moment');
@@ -47,6 +47,12 @@ function getPathInZip(upload, filename_in_zip) {
     return path_in_zip;
 }
 
+function getUploadLastUpdate(upload) {
+    if (upload.validated_at) return upload.validated_at;
+    if (upload.invalidated_at) return upload.invalidated_at;
+    return upload.created_at;
+}
+
 async function addUploadInfo(uploads) {
     const uploadsWithInfo = uploads.map((upload) => {
         const filename_in_zip = getFilenameInZip(upload);
@@ -60,11 +66,47 @@ async function addUploadInfo(uploads) {
             agency_name: upload.agency_name,
             ec_code: upload.ec_code,
             reporting_period_name: upload.reporting_period_name,
+            updated_at: getUploadLastUpdate(upload).toISOString(),
             validity,
         };
         return uploadInfo;
     });
     return uploadsWithInfo;
+}
+
+async function getMetadataLastModified(organizationId, logger = log) {
+    // check if metadata file already exists
+    const s3 = aws.getS3Client();
+    const Key = metadataFileKey(organizationId);
+    const baseParams = { Bucket: process.env.AUDIT_REPORT_BUCKET, Key };
+
+    let headObject;
+
+    try {
+        headObject = await s3.send(new HeadObjectCommand(baseParams));
+    } catch (error) {
+        if (error instanceof NotFound) {
+            logger.info('metadata file does not exist');
+            return null;
+        }
+        logger.error(error, 'failed to get existing metadata file');
+        throw error;
+    }
+
+    if (headObject && headObject.LastModified) {
+        return headObject.LastModified;
+    }
+    return null;
+}
+
+async function shouldRecreateArchive(organizationId, uploads, logger = log) {
+    const metadataLastModified = await getMetadataLastModified(organizationId, logger);
+
+    if (metadataLastModified) {
+        const metadataLastModifiedMoment = moment(metadataLastModified);
+        return uploads.some((upload) => moment(upload.updated_at).isAfter(metadataLastModifiedMoment));
+    }
+    return true;
 }
 
 async function getUploadsForArchive(organizationId) {
@@ -121,6 +163,7 @@ async function getUploadsForArchive(organizationId) {
 
 async function generateAndUploadMetadata(organizationId, s3Key, logger = log) {
     const uploads = await module.exports.getUploadsForArchive(organizationId);
+    const archiveIsStale = await module.exports.shouldRecreateArchive(organizationId, uploads, logger);
     const data = await converter.json2csv(uploads);
 
     const fileExportParams = {
@@ -138,6 +181,8 @@ async function generateAndUploadMetadata(organizationId, s3Key, logger = log) {
         throw err;
     }
     logger.info('finished generating and uploading ARPA full file export metadata');
+
+    return archiveIsStale;
 }
 
 async function addMessageToQueue(organizationId, email, logger = log) {
@@ -145,7 +190,7 @@ async function addMessageToQueue(organizationId, email, logger = log) {
     const metadataKey = metadataFileKey(organizationId);
     logger.child({ archiveKey, metadataKey });
 
-    await module.exports.generateAndUploadMetadata(organizationId, metadataKey, logger);
+    const archiveIsStale = await module.exports.generateAndUploadMetadata(organizationId, metadataKey, logger);
     const message = {
         s3: {
             bucket: process.env.AUDIT_REPORT_BUCKET,
@@ -154,6 +199,7 @@ async function addMessageToQueue(organizationId, email, logger = log) {
         },
         organization_id: organizationId,
         user_email: email,
+        recreate_archive: archiveIsStale || false,
     };
 
     const sqs = aws.getSQSClient();
@@ -174,4 +220,6 @@ module.exports = {
     generateAndUploadMetadata,
     metadataFileKey,
     zipFileKey,
+    shouldRecreateArchive, // for testing
+    getUploadLastUpdate, // for testing
 };
