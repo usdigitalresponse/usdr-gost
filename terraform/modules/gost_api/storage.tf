@@ -82,7 +82,7 @@ module "access_arpa_reports_bucket_policy" {
             {
               test     = "StringLike"
               variable = "s3:prefix"
-              values   = ["full-file-export/"]
+              values   = ["full-file-export"]
             }
           ]
         }
