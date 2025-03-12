@@ -29,7 +29,7 @@ from ddtrace import tracer
 
 if typing.TYPE_CHECKING:  # pragma: nocover
     from mypy_boto3_ses import SESClient
-    from mypy_boto3_ses.type_defs import SendEmailRequestTypeDef
+    from mypy_boto3_ses.type_defs import SendEmailRequestRequestTypeDef
 
 CHARSET = "UTF-8"
 TEMPLATES_DIR = os.path.abspath("src/static/email_templates")
@@ -106,10 +106,10 @@ def generate_email(
 
 
 def tag_ses_message(
-    message: SendEmailRequestTypeDef,
+    message: SendEmailRequestRequestTypeDef,
     notification_type: str,
-    **extra: str,
-) -> SendEmailRequestTypeDef:
+    **extra: typing.Any,
+) -> SendEmailRequestRequestTypeDef:
     """Adds/updates the "Tags" param on configuration for an outgoing SES message
     with the (gost-standard) ``notification_type`` tag and any given ``extra``
     key/value pairs.
@@ -132,12 +132,14 @@ def tag_ses_message(
         notification_type: The name of this email notification, i.e. which disambiguates
             email events for Full-File Export emails from others sent on behalf
             of the gost service.
+        **extra: Additional key/value pairs that represent the name and value of a tag.
+            Values can be any type but will be cast to ``str`` when used as a tag value.
 
     Returns:
         The config dict of parameters provided in the ``message`` argument,
             updated with new tag definitions.
     """
-    tags = {"notification_type": notification_type}
+    tags: dict[str, typing.Any] = {"notification_type": notification_type}
     if span := tracer.current_span():
         tags.update(dd_trace_id=span.trace_id, dd_span_id=span.span_id)
     tags.update(
@@ -152,8 +154,9 @@ def tag_ses_message(
         }
     )
     tags.update(**extra)
-    message["Tags"] = message.get("Tags", [])
-    message["Tags"] += [{"Name": k, "Value": str(v)} for k, v in tags.items()]
+    ses_tags = list(message.get("Tags", []))
+    ses_tags += [{"Name": k, "Value": str(v)} for k, v in tags.items()]
+    message["Tags"] = ses_tags
     return message
 
 
@@ -163,7 +166,7 @@ def send_email(
     email_html: str,
     email_text: str,
     subject: str,
-    additional_tags: dict[str, str] = None,
+    additional_tags: typing.Optional[dict[str, typing.Any]] = None,
 ) -> str:
     """Sends an email to a single recipient via SES.
 
@@ -179,7 +182,7 @@ def send_email(
     Returns:
         The SES message ID generated for the outgoing email.
     """
-    message: SendEmailRequestTypeDef = {
+    message: SendEmailRequestRequestTypeDef = {
         "Source": NOTIFICATIONS_EMAIL_SENDER,
         "Destination": {"ToAddresses": [dest_email]},
         "Message": {
@@ -204,7 +207,7 @@ def send_email(
         message["ConfigurationSetName"] = DEFAULT_CONFIGURATION_SET_NAME
 
     response = email_client.send_email(
-        **tag_ses_message(message, "full_file_export", **additional_tags)
+        **tag_ses_message(message, "full_file_export", **additional_tags or {})
     )
     return response["MessageId"]
 
