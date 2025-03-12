@@ -29,7 +29,7 @@ from ddtrace import tracer
 
 if typing.TYPE_CHECKING:  # pragma: nocover
     from mypy_boto3_ses import SESClient
-    from mypy_boto3_ses.type_defs import SendEmailRequestRequestTypeDef
+    from mypy_boto3_ses.type_defs import SendEmailRequestTypeDef
 
 CHARSET = "UTF-8"
 TEMPLATES_DIR = os.path.abspath("src/static/email_templates")
@@ -106,10 +106,10 @@ def generate_email(
 
 
 def tag_ses_message(
-    message: SendEmailRequestRequestTypeDef,
+    message: SendEmailRequestTypeDef,
     notification_type: str,
     **extra: typing.Any,
-) -> SendEmailRequestRequestTypeDef:
+) -> SendEmailRequestTypeDef:
     """Adds/updates the "Tags" param on configuration for an outgoing SES message
     with the (gost-standard) ``notification_type`` tag and any given ``extra``
     key/value pairs.
@@ -182,7 +182,7 @@ def send_email(
     Returns:
         The SES message ID generated for the outgoing email.
     """
-    message: SendEmailRequestRequestTypeDef = {
+    message: SendEmailRequestTypeDef = {
         "Source": NOTIFICATIONS_EMAIL_SENDER,
         "Destination": {"ToAddresses": [dest_email]},
         "Message": {
