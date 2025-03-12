@@ -115,7 +115,7 @@ describe('FullFileExport', () => {
         expect(command.Bucket).to.equal(process.env.AUDIT_REPORT_BUCKET);
     });
 
-    it('shouldRecreateArchive raises an error if the S3 client throws an unknown error', async () => {
+    it('shouldRecreateArchive throw an error if the S3 client throws an unknown error', async () => {
         const uploads = [
             fixtures.uploads.upload1,
             fixtures.uploads.upload2,

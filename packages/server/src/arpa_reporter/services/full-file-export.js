@@ -1,5 +1,7 @@
 const { SendMessageCommand } = require('@aws-sdk/client-sqs');
-const { HeadObjectCommand, PutObjectCommand, NotFound } = require('@aws-sdk/client-s3');
+const {
+    HeadObjectCommand, PutObjectCommand, NotFound,
+} = require('@aws-sdk/client-s3');
 const converter = require('json-2-csv');
 const path = require('path');
 const moment = require('moment');
@@ -79,6 +81,7 @@ async function getMetadataLastModified(organizationId, logger = log) {
     const s3 = aws.getS3Client();
     const Key = metadataFileKey(organizationId);
     const baseParams = { Bucket: process.env.AUDIT_REPORT_BUCKET, Key };
+    logger.child(baseParams);
 
     let headObject;
 
@@ -89,7 +92,7 @@ async function getMetadataLastModified(organizationId, logger = log) {
             logger.info('metadata file does not exist');
             return null;
         }
-        logger.error(error, 'failed to get existing metadata file');
+        logger.error(error, 'failed to get metadata file due to an exception with s3');
         throw error;
     }
 
