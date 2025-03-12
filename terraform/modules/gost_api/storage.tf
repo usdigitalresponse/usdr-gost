@@ -67,6 +67,7 @@ module "access_arpa_reports_bucket_policy" {
           actions = [
             "s3:PutObject",
             "s3:GetObject",
+            "s3:HeadObject",
           ]
           resources = ["${module.arpa_audit_reports_bucket.bucket_arn}/*"]
         }
