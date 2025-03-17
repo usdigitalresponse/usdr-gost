@@ -57,6 +57,7 @@ website_feature_flags = {
   newGrantsDetailPageEnabled = true,
   shareTerminologyEnabled    = true,
   followNotesEnabled         = false,
+  enableFullFileExport       = true,
 }
 
 // Google Analytics Account ID: 233192355, Property ID: 321194851, Stream ID: 3802896350
@@ -91,3 +92,9 @@ consume_grants_source_event_bus_name = "default"
 
 // Email
 email_enable_tracking = true
+
+
+// Data migration
+data_migration_destination_bucket_names = [
+  "588738567097-data-migration",
+]

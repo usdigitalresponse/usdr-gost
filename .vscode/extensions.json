@@ -5,6 +5,10 @@
     "ms-azuretools.vscode-docker",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "vitest.explorer"
+    "vitest.explorer",
+    "charliermarsh.ruff",
+    "ms-python.python",
+    "njpwerner.autodocstring",
+    "tamasfe.even-better-toml",
   ]
 }

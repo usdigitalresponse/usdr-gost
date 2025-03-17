@@ -819,6 +819,10 @@ async function generateProjectBaseline(records) {
                         record.content.Tertiary_Proj_Demographics_Explanation__c,
                         record.content.Structure_Objectives_of_Asst_Programs__c,
                         record.content.Recipient_Approach_Description__c,
+                        record.content.Admin_Estimated_Expended__c,
+                        record.content.Admin_Actual_Expended__c,
+                        record.content.Admin_Expended_Description__c,
+                        record.content.Admin_Expended_Justification__c,
                     ];
                 }
                 default:
@@ -916,6 +920,14 @@ async function generateSubaward(records) {
                     record.content.Description__c,
                     record.content.Edited_Subaward_Amount_Explanation__c,
                     record.content.Loan_Expiration_Date__c,
+                    record.content.IAA_Basic_Conditions__c,
+                    record.content.IAA_Requirements_Attestation__c,
+                    record.content.Personnel_Cost_Estimates__c,
+                    record.content.Personnel_Estimated_Expended,
+                    record.content.Personnel_Expended_FTE_Count,
+                    record.content.Personnel_Expended_Justification,
+                    record.content.Contract_Estimated_Expended,
+                    record.content.Contract_Expended_Justification,
                 ];
             }
             default:
@@ -1143,6 +1155,8 @@ module.exports = {
     sendEmailWithLink,
     generateAndSendEmail,
     processSQSMessageRequest,
+    generateSubaward, // exporting for testing purposes
+    generateProjectBaseline, // exporting for testing purposes
 };
 
 // NOTE: This file was copied from src/server/services/generate-arpa-report.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z

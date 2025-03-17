@@ -32,18 +32,20 @@ on:
         description: Name of the concurrency group (avoids simultaneous Terraform execution against the same environment)
         type: string
         default: run_terraform
-      server-image-tag:
+      server-image:
+        description: Image to pull for api server tasks. Should be in the form of "<tag>@sha256:<digest>".
         type: string
-        required: true
-      server-image-digest:
-        type: string
-        required: true
+        default: ""
       website-artifacts-key:
         type: string
         required: true
       website-artifacts-path:
         type: string
         required: true
+      arpa-exporter-image:
+        description: Image to pull for arpa-exporter task consumers. Should be in the form of "<tag>@sha256:<digest>".
+        type: string
+        default: ""
     secrets:
       aws-access-key-id:
         required: true
@@ -117,7 +119,7 @@ jobs:
       group: ${{ inputs.concurrency-group }}
       cancel-in-progress: false
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: audit
@@ -136,7 +138,7 @@ jobs:
         env:
           GPG_PASSPHRASE: ${{ secrets.gpg-passphrase }}
       - name: Download website artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
         with:
           name: ${{ inputs.website-artifacts-key }}
           path: ${{ inputs.website-artifacts-path }}
@@ -201,7 +203,8 @@ jobs:
           TF_VAR_git_commit_sha: ${{ inputs.ref }}
           TF_VAR_datadog_api_key: ${{ secrets.datadog-api-key }}
           TF_VAR_datadog_app_key: ${{ secrets.datadog-app-key }}
-          TF_VAR_api_container_image_tag: "${{ inputs.server-image-tag }}@${{ inputs.server-image-digest }}"
+          TF_VAR_api_container_image_tag: "${{ inputs.server-image }}"
+          TF_VAR_arpa_exporter_image_tag: "${{ inputs.arpa-exporter-image }}"
           TF_VAR_website_origin_artifacts_dist_path: "${{ inputs.website-artifacts-path }}"
       - name: Generate plaintext plan
         id: show_plan
@@ -227,7 +230,7 @@ jobs:
           rm tfplan
       - name: Store terraform artifacts
         if: success() && inputs.upload-artifacts
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:
           name: ${{ env.ARTIFACTS_KEY }}
           path: |

@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: block
@@ -32,7 +32,7 @@ jobs:
             api.github.com:443
             github.com:443
       - name: "Run auto-labeler"
-        uses: release-drafter/release-drafter@3f0f87098bd6b5c5b9a36d49c41d998ea58f9348 # v6.0.0
+        uses: release-drafter/release-drafter@b1476f6e6eb133afa41ed8589daba6dc69b4d3f5 # v6.1.0
         with:
           disable-releaser: true
           disable-autolabeler: false
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
         with:
           disable-sudo: true
           egress-policy: block
@@ -72,7 +72,7 @@ jobs:
         env:
           LATEST_TAG: ${{ steps.latest_release.outputs.tag || '' }}
       - name: "Generate release notes and label pull requests"
-        uses: release-drafter/release-drafter@3f0f87098bd6b5c5b9a36d49c41d998ea58f9348 # v6.0.0
+        uses: release-drafter/release-drafter@b1476f6e6eb133afa41ed8589daba6dc69b4d3f5 # v6.1.0
         with:
           version: ${{ steps.next_release.outputs.version }}
           publish: false

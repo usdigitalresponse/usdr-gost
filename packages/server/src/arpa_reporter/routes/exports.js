@@ -4,10 +4,12 @@ const router = express.Router();
 const { HeadObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 const _ = require('lodash');
 const { SendMessageCommand } = require('@aws-sdk/client-sqs');
+const { DateTime } = require('luxon');
 
 const aws = require('../../lib/gost-aws');
-const { requireUser, getAdminAuthInfo } = require('../../lib/access-helpers');
+const { requireUser, getAdminAuthInfo, requireAdminUser } = require('../../lib/access-helpers');
 const arpa = require('../services/generate-arpa-report');
+const fullFileExport = require('../services/full-file-export');
 const { getReportingPeriodID, getReportingPeriod } = require('../db/reporting-periods');
 const { useTenantId, useUser } = require('../use-request');
 
@@ -107,6 +109,86 @@ router.get('/', requireUser, async (req, res) => {
     res.send(Buffer.from(report.content, 'binary'));
 });
 
-module.exports = router;
+router.get('/fullFileExport', requireAdminUser, async (req, res) => {
+    const { user } = req.session;
+    const organizationId = user.tenant_id;
+    const logger = req.log.child({ organizationId, userId: user.id });
 
-// NOTE: This file was copied from src/server/routes/exports.js (git @ ada8bfdc98) in the arpa-reporter repo on 2022-09-23T20:05:47.735Z
+    try {
+        await fullFileExport.addMessageToQueue(organizationId, user.email, logger);
+        res.json({ success: true });
+    } catch (error) {
+        logger.error(error, 'Failed to generate and send full file export');
+        res.status(500).json({ error: 'Unable to generate full file export and send email.' });
+    }
+});
+
+router.get('/getFullFileExport/:downloadType(archive|metadata)', requireUser, async (req, res) => {
+    const { user } = req.session;
+    const { downloadType } = req.params;
+    let logger = req.log.child({ S3Bucket: process.env.AUDIT_REPORT_BUCKET, downloadType });
+
+    const archiveS3Key = fullFileExport.zipFileKey(user.tenant_id);
+    const metadataS3Key = fullFileExport.metadataFileKey(user.tenant_id);
+    let downloadS3Key;
+    let downloadFilenameBase;
+    let downloadExtension;
+    if (downloadType === 'archive') {
+        downloadS3Key = archiveS3Key;
+        downloadFilenameBase = `FullFileExport`;
+        downloadExtension = 'zip';
+    } else if (downloadType === 'metadata') {
+        downloadS3Key = metadataS3Key;
+        downloadFilenameBase = 'FullFileExportMetadata';
+        downloadExtension = 'csv';
+    }
+    logger = logger.child({ downloadS3Key, archiveS3Key, metadataS3Key });
+    logger.info('preparing redirect to pre-signed url for requested download');
+
+    const errRedirect = () => {
+        const url = new URL(process.env.WEBSITE_DOMAIN);
+        url.pathname = 'arpa_reporter';
+        const alertText = 'The export you requested has expired or does not exist. '
+            + 'Please try again by clicking the "Send Full File Export by Email" button.';
+        url.searchParams.set('alert_text', alertText);
+        url.searchParams.set('alert_level', 'err');
+        logger.info({ redirectUrl: url.toString(), alertText },
+            'redirecting user to home page with error message');
+        return res.redirect(url.toString());
+    };
+
+    const s3 = aws.getS3Client();
+    let metadataLastModified;
+    try {
+        metadataLastModified = (await s3.send(new HeadObjectCommand({
+            Bucket: process.env.AUDIT_REPORT_BUCKET, Key: metadataS3Key,
+        }))).LastModified;
+        logger.info({ metadataLastModified }, 'retrieved last-modified date for metadata S3 object');
+    } catch (err) {
+        logger.error(err, 'error retrieving HeadObject output for metadata S3 object');
+        return errRedirect();
+    }
+
+    const downloadFilenameDate = DateTime.fromJSDate(metadataLastModified).toFormat('MM.dd.yyyy.HH.mm.ss');
+    const fullFilename = `${downloadFilenameBase}-${downloadFilenameDate}.${downloadExtension}`;
+    logger = logger.child({ attachmentFilename: fullFilename });
+
+    let signedUrl;
+    const downloadExpiresInSeconds = 60;
+    try {
+        signedUrl = await aws.getSignedUrl(s3, new GetObjectCommand({
+            Bucket: process.env.AUDIT_REPORT_BUCKET,
+            Key: downloadS3Key,
+            ResponseContentDisposition: `attachment; filename="${fullFilename}"`,
+        }), { expiresIn: downloadExpiresInSeconds });
+    } catch (err) {
+        logger.error(err, 'error retrieving signed URL for requested S3 object');
+        return errRedirect();
+    }
+
+    logger.info({ downloadExpiresInSeconds },
+        'redirecting to pre-signed url for S3 GetObject command');
+    res.redirect(signedUrl);
+});
+
+module.exports = router;

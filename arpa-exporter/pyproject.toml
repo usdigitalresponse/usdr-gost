@@ -1,0 +1,64 @@
+[tool.poetry]
+name = "arpa-exporter"
+version = "0.1.0"
+description = ""
+readme = "../README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.13"
+boto3 = "^1.37.13"
+ddtrace = "^2.21.3"
+structlog = "^25.2.0"
+pydantic = "^2.10.3"
+chevron="^0.14.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+ruff = "^0.11.0"
+ipython = "^9.0.2"
+pytest-cov = "^6.0.0"
+mypy = "^1.15.0"
+boto3-stubs = {extras = ["essential", "ses"], version = "^1.37.13"}
+pytest-timeout = "^2.3.1"
+moto = "^5.1.1"
+types-chevron = "^0.14.2.20250103"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+# Set the maximum line length to 88 (per black recoomendation).
+line-length = 88
+target-version = "py312"
+
+[tool.pytest.ini_options]
+addopts = "--cov=src --cov-report term --cov-report html"
+
+[tool.coverage.run]
+branch = true
+parallel = true
+concurrency = ["multiprocessing"]
+omit = ["./tests/*"]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+]
+
+skip_empty = true
+ignore_errors = true

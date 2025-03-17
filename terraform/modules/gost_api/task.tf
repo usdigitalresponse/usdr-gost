@@ -114,6 +114,14 @@ module "datadog_container_definition" {
   readonly_root_filesystem = "false"
   stop_timeout             = 60
 
+  healthcheck = {
+    command     = ["CMD-SHELL", "agent health"]
+    startPeriod = 15
+    interval    = 30
+    timeout     = 5
+    retries     = 3
+  }
+
   map_environment = merge(
     {
       ECS_FARGATE    = "true",
@@ -225,12 +233,17 @@ resource "aws_iam_role" "task" {
 }
 
 resource "aws_iam_role_policy" "task" {
-  for_each = !var.enabled ? {} : {
-    connect-to-postgres   = module.connect_to_postgres_policy.json
-    ecs-exec              = module.ecs_exec_policy.json
-    send-emails           = module.send_emails_policy.json
-    rw-arpa-audit-reports = module.access_arpa_reports_bucket_policy.json
-  }
+  for_each = !var.enabled ? {} : merge(
+    {
+      connect-to-postgres   = module.connect_to_postgres_policy.json
+      ecs-exec              = module.ecs_exec_policy.json
+      send-emails           = module.send_emails_policy.json
+      rw-arpa-audit-reports = module.access_arpa_reports_bucket_policy.json
+    },
+    length(var.data_migration_bucket_names) == 0 ? {} : {
+      rw-data-migration-buckets = module.data_migration_policy[0].json
+    },
+  )
 
   name   = each.key
   role   = join("", aws_iam_role.task[*].name)
