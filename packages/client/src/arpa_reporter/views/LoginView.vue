@@ -2,7 +2,7 @@
 <!-- eslint-disable vuejs-accessibility/no-autofocus -->
 <template>
   <div class="my-3">
-    <h2>ARPA Reporter Login</h2>
+    <h1>ARPA Reporter Login</h1>
     <form @submit="login">
       <div class="form-group">
         <input
@@ -16,7 +16,7 @@
       </div>
       <div class="form-group">
         <button
-          class="btn btn-primary"
+          class="btn usdr-btn-primary"
           type="Submit"
           @click="login"
         >
