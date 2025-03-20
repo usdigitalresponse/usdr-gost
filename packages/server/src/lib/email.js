@@ -577,7 +577,13 @@ function yesterday() {
 }
 
 async function buildAndSendGrantDigestEmails(userId, openDate = yesterday()) {
-    console.log(`Building and sending Grants Digest email for user: ${userId} on ${openDate}`);
+    if (!ENABLED_EMAIL_TYPES.includes(tags.emailTypes.grantDigest)) {
+        log.info({ enabledEmailTypes: ENABLED_EMAIL_TYPES, thisEmailType: tags.emailTypes.grantDigest },
+            'aborting buildAndSendGrantDigestEmails() because this email type is not enabled');
+        return;
+    }
+    log.info({ userId, openDate }, 'building and sending Grants Digest email for user');
+
     /*
     1. get all saved searches mapped to each user
     2. call getAndSendGrantForSavedSearch to find new grants and send the digest
@@ -593,6 +599,8 @@ async function buildAndSendGrantDigestEmails(userId, openDate = yesterday()) {
     });
 
     await asyncBatch(inputs, getAndSendGrantForSavedSearch, 2);
+    log.info({ sentCount: inputs.length, openDate },
+        'successfully built and sent grant digest emails for saved searches');
 
     console.log(`Successfully built and sent grants digest emails for ${inputs.length} saved searches on ${openDate}`);
 }
