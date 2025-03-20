@@ -30,6 +30,44 @@ const HELPDESK_EMAIL = 'grants-helpdesk@usdigitalresponse.org';
 const GENERIC_FROM_NAME = 'USDR Grants';
 const GRANT_FINDER_EMAIL_FROM_NAME = 'USDR Federal Grant Finder';
 const ARPA_EMAIL_FROM_NAME = 'USDR ARPA Reporter';
+const ENABLED_EMAIL_TYPES = Object.freeze((() => {
+    let logger = log.child({
+        env: {
+            ENABLED_EMAIL_TYPES: process.env.ENABLED_EMAIL_TYPES,
+            DISABLE_ALL_EMAILS: process.env.DISABLE_ALL_EMAILS,
+        },
+    });
+    if (process.env.DISABLE_ALL_EMAILS) {
+        logger.warn('all emails are disabled because DISABLE_ALL_EMAILS env var is set and not empty');
+        return [];
+    }
+
+    const validTypes = Object.values(tags.emailTypes);
+    logger = logger.child({ validTypes });
+    if (!process.env.ENABLED_EMAIL_TYPES) {
+        logger.info('all emails are enabled because ENABLED_EMAIL_TYPES env var is unset or empty');
+        return validTypes;
+    }
+
+    const enabledTypes = process.env.ENABLED_EMAIL_TYPES
+        .split(',')
+        .map((name) => name.trim())
+        .filter((name) => {
+            const isValid = validTypes.includes(name);
+            if (!isValid && name !== '') {
+                logger.warn({ unknownType: name }, 'cannot enable an unknown email type');
+            }
+            return isValid;
+        });
+
+    if (enabledTypes.length === 0) {
+        logger.warn({ hint: 'check environment configuration for typos' },
+            'no email types are enabled but ENABLED_EMAIL_TYPES env var is set and not empty');
+    } else {
+        logger.info({ enabledTypes }, 'only some email types are enabled');
+    }
+    return enabledTypes;
+})());
 
 function getUserRoleTag(user) {
     if (isUSDRSuperAdmin(user)) {
