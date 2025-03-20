@@ -85,6 +85,12 @@ async function deliverEmail({
     subject,
     emailType,
 }) {
+    if (!ENABLED_EMAIL_TYPES.includes(emailType)) {
+        log.info({ emailType, enabledEmailTypes: ENABLED_EMAIL_TYPES },
+            'this type of email is not enabled so it will not be sent');
+        return null;
+    }
+
     let userTags = [];
     const recipientId = await db.getUserIdForEmail(toAddress);
     const activeContext = tracer.scope().active()?.context();
