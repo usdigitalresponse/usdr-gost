@@ -30,6 +30,44 @@ const HELPDESK_EMAIL = 'grants-helpdesk@usdigitalresponse.org';
 const GENERIC_FROM_NAME = 'USDR Grants';
 const GRANT_FINDER_EMAIL_FROM_NAME = 'USDR Federal Grant Finder';
 const ARPA_EMAIL_FROM_NAME = 'USDR ARPA Reporter';
+const ENABLED_EMAIL_TYPES = Object.freeze((() => {
+    let logger = log.child({
+        env: {
+            ENABLED_EMAIL_TYPES: process.env.ENABLED_EMAIL_TYPES,
+            DISABLE_ALL_EMAILS: process.env.DISABLE_ALL_EMAILS,
+        },
+    });
+    if (process.env.DISABLE_ALL_EMAILS) {
+        logger.warn('all emails are disabled because DISABLE_ALL_EMAILS env var is set and not empty');
+        return [];
+    }
+
+    const validTypes = Object.values(tags.emailTypes);
+    logger = logger.child({ validTypes });
+    if (!process.env.ENABLED_EMAIL_TYPES) {
+        logger.info('all emails are enabled because ENABLED_EMAIL_TYPES env var is unset or empty');
+        return validTypes;
+    }
+
+    const enabledTypes = process.env.ENABLED_EMAIL_TYPES
+        .split(',')
+        .map((name) => name.trim())
+        .filter((name) => {
+            const isValid = validTypes.includes(name);
+            if (!isValid && name !== '') {
+                logger.warn({ unknownType: name }, 'cannot enable an unknown email type');
+            }
+            return isValid;
+        });
+
+    if (enabledTypes.length === 0) {
+        logger.warn({ hint: 'check environment configuration for typos' },
+            'no email types are enabled but ENABLED_EMAIL_TYPES env var is set and not empty');
+    } else {
+        logger.info({ enabledTypes }, 'only some email types are enabled');
+    }
+    return enabledTypes;
+})());
 
 function getUserRoleTag(user) {
     if (isUSDRSuperAdmin(user)) {
@@ -47,6 +85,12 @@ async function deliverEmail({
     subject,
     emailType,
 }) {
+    if (!ENABLED_EMAIL_TYPES.includes(emailType)) {
+        log.info({ emailType, enabledEmailTypes: ENABLED_EMAIL_TYPES },
+            'this type of email is not enabled so it will not be sent');
+        return null;
+    }
+
     let userTags = [];
     const recipientId = await db.getUserIdForEmail(toAddress);
     const activeContext = tracer.scope().active()?.context();
@@ -533,7 +577,13 @@ function yesterday() {
 }
 
 async function buildAndSendGrantDigestEmails(userId, openDate = yesterday()) {
-    console.log(`Building and sending Grants Digest email for user: ${userId} on ${openDate}`);
+    if (!ENABLED_EMAIL_TYPES.includes(tags.emailTypes.grantDigest)) {
+        log.info({ enabledEmailTypes: ENABLED_EMAIL_TYPES, thisEmailType: tags.emailTypes.grantDigest },
+            'aborting buildAndSendGrantDigestEmails() because this email type is not enabled');
+        return;
+    }
+    log.info({ userId, openDate }, 'building and sending Grants Digest email for user');
+
     /*
     1. get all saved searches mapped to each user
     2. call getAndSendGrantForSavedSearch to find new grants and send the digest
@@ -549,6 +599,8 @@ async function buildAndSendGrantDigestEmails(userId, openDate = yesterday()) {
     });
 
     await asyncBatch(inputs, getAndSendGrantForSavedSearch, 2);
+    log.info({ sentCount: inputs.length, openDate },
+        'successfully built and sent grant digest emails for saved searches');
 
     console.log(`Successfully built and sent grants digest emails for ${inputs.length} saved searches on ${openDate}`);
 }
