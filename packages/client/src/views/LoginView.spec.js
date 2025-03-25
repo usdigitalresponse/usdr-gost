@@ -1,7 +1,7 @@
 import LoginView from '@/views/LoginView.vue';
 
 import {
-  describe, it, expect, beforeEach, vi
+  describe, it, expect, beforeEach, vi,
 } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 
