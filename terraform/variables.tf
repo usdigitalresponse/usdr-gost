@@ -293,3 +293,15 @@ variable "data_migration_destination_bucket_names" {
   type        = list(string)
   default     = []
 }
+
+variable "enabled_email_types" {
+  description = "Allow-lists emails by name (all are enabled by default)"
+  type        = list(string)
+  default     = []
+}
+
+variable "disable_all_emails" {
+  description = "When true, disables all emails"
+  type        = bool
+  default     = false
+}
