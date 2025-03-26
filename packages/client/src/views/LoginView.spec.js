@@ -1,9 +1,14 @@
 import LoginView from '@/views/LoginView.vue';
 
 import {
-  describe, it, expect, beforeEach,
+  describe, it, expect, beforeEach, vi,
 } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
+
+vi.mock('@/helpers/featureFlags', async (importOriginal) => ({
+  ...await importOriginal(),
+  grantsLoginEnabled: () => true,
+}));
 
 describe('LoginView', () => {
   const $route = {
