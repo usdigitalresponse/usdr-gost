@@ -15,6 +15,19 @@
         class="mx-auto mb-3"
         top
       />
+
+      <div
+        v-if="transitionMessageEnabled"
+        class="mt-3"
+        :class="{
+          'alert alert-info': transitionMessageEnabled,
+        }"
+      >
+        <h2 class="h2">
+          The Grant Finder is now managed by Nava PBC.  Please access the tool at:
+          <a href="https://grants.navapbc.com">grants.navapbc.com</a>
+        </h2>
+      </div>
       <b-card-text class="mt-4 p-3 dropshadow-card">
         <h1 class="h3 my-4">
           Log in to Federal Grant Finder
@@ -33,6 +46,7 @@
               name="email"
               placeholder="Email address"
               autofocus
+              :disabled="!loginEnabled"
             >
           </div>
           <div
@@ -42,6 +56,7 @@
               variant="primary"
               class="btn-block"
               type="Submit"
+              :disabled="!loginEnabled"
               @click="login"
             >
               Send me the link
@@ -106,6 +121,7 @@
 import { useVuelidate } from '@vuelidate/core';
 import { required, email, helpers } from '@vuelidate/validators';
 import { apiURL } from '@/helpers/fetchApi';
+import { grantsLoginEnabled, grantsTransitionMessageEnabled } from '@/helpers/featureFlags';
 import logo from '@/assets/usdr_logo_standard_wide.svg';
 
 export default {
@@ -123,6 +139,14 @@ export default {
       serverResponse,
       logo,
     };
+  },
+  computed: {
+    loginEnabled() {
+      return grantsLoginEnabled();
+    },
+    transitionMessageEnabled() {
+      return grantsTransitionMessageEnabled();
+    },
   },
   validations: {
     email: {

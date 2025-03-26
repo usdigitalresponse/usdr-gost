@@ -52,11 +52,15 @@ website_datadog_rum_options = {
   trackLongTasks          = true
 }
 website_feature_flags = {
-  newTerminologyEnabled      = true,
-  newGrantsDetailPageEnabled = true,
-  shareTerminologyEnabled    = true,
-  followNotesEnabled         = false,
-  enableFullFileExport       = true,
+  newTerminologyEnabled          = true,
+  newGrantsDetailPageEnabled     = true,
+  shareTerminologyEnabled        = true,
+  followNotesEnabled             = false,
+  enableFullFileExport           = true,
+  arpaTransitionMessageEnabled   = true,
+  grantsTransitionMessageEnabled = true,
+  arpaLoginEnabled               = false,
+  grantsLoginEnabled             = true,
 }
 
 // Google Analytics Account ID: 233192355, Property ID: 429910307, Stream ID: 7590745080

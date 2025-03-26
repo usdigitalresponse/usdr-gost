@@ -3,6 +3,17 @@
 <template>
   <div class="my-3">
     <h1>ARPA Reporter Login</h1>
+    <div
+      v-if="transitionMessageEnabled"
+      :class="{
+        'alert alert-info': transitionMessageEnabled,
+      }"
+    >
+      <h2 class="h2">
+        The ARPA Reporter is now managed by Nava PBC.  Please access the tool at:
+        <a href="https://grants.navapbc.com/arpa_reporter">grants.navapbc.com/arpa_reporter</a>
+      </h2>
+    </div>
     <form @submit="login">
       <div class="form-group">
         <input
@@ -12,12 +23,14 @@
           name="email"
           placeholder="Email address"
           autofocus
+          :disabled="!loginEnabled"
         >
       </div>
       <div class="form-group">
         <button
           class="btn usdr-btn-primary"
           type="Submit"
+          :disabled="!loginEnabled"
           @click="login"
         >
           Send email with login link
@@ -47,6 +60,7 @@
 import { useVuelidate } from '@vuelidate/core';
 import { required, email, helpers } from '@vuelidate/validators';
 import { apiURL } from '@/helpers/fetchApi';
+import { arpaLoginEnabled, arpaTransitionMessageEnabled } from '@/helpers/featureFlags';
 
 export default {
   name: 'LoginView',
@@ -62,6 +76,14 @@ export default {
       email: '',
       serverResponse,
     };
+  },
+  computed: {
+    transitionMessageEnabled() {
+      return arpaTransitionMessageEnabled();
+    },
+    loginEnabled() {
+      return arpaLoginEnabled();
+    },
   },
   validations: {
     email: {

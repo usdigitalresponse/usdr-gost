@@ -142,6 +142,34 @@ describe('FullFileExport', () => {
     it('ensures getUploadsForArchive queries the database and returns only uploads for one tenant', async () => {
         await fixtures.seed(knex);
         const testSpecificUploads = {
+            missingAgencyUpload: {
+                filename: '1.9918 Missing Agency Name Upload.xls',
+                reporting_period_id: fixtures.reportingPeriods.q1_2021.id,
+                user_id: fixtures.users.adminUser.id,
+                agency_id: null,
+                ec_code: '1.134',
+                tenant_id: fixtures.TENANT_ID,
+                id: '00000000-0000-0000-0000-000000000096',
+                notes: null,
+                validated_at: null,
+                validated_by: null,
+                invalidated_at: '2021-07-03',
+                invalidated_by: fixtures.users.adminUser.id,
+            },
+            missingECCodeUpload: {
+                filename: '1.7829 Missing EC Code Upload.xlsx',
+                reporting_period_id: fixtures.reportingPeriods.q1_2021.id,
+                user_id: fixtures.users.adminUser.id,
+                agency_id: fixtures.agencies.accountancy.id,
+                ec_code: null,
+                tenant_id: fixtures.TENANT_ID,
+                id: '00000000-0000-0000-0000-000000000097',
+                notes: null,
+                validated_at: '2023-05-01',
+                validated_by: fixtures.users.adminUser.id,
+                invalidated_at: null,
+                invalidated_by: null,
+            },
             xlsUpload: {
                 filename: '1.134 Signed Off Report. ARPA Projects.xls',
                 reporting_period_id: fixtures.reportingPeriods.q1_2021.id,
@@ -187,6 +215,19 @@ describe('FullFileExport', () => {
                 updated_at: moment('2022-01-01').toISOString(),
                 validity: 'Validated at 2022-01-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },
+            // missingECCodeUpload
+            {
+                upload_id: '00000000-0000-0000-0000-000000000097',
+                original_filename: '1.7829 Missing EC Code Upload.xlsx',
+                filename_in_zip: '1.7829 Missing EC Code Upload--00000000-0000-0000-0000-000000000097.xlsx',
+                path_in_zip: 'Quarterly 1/Final Treasury/1.7829 Missing EC Code Upload--00000000-0000-0000-0000-000000000097.xlsx',
+                agency_name: 'State Board of Accountancy',
+                ec_code: 'Missing EC code',
+                reporting_period_name: 'Quarterly 1',
+                updated_at: '2023-05-01T00:00:00.000Z',
+                validity: 'Validated at 2023-05-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
+            },
+            // xlsUpload
             {
                 upload_id: '00000000-0000-0000-0000-000000000098',
                 original_filename: '1.134 Signed Off Report. ARPA Projects.xls',
@@ -198,6 +239,7 @@ describe('FullFileExport', () => {
                 updated_at: moment('2022-01-01').toISOString(),
                 validity: 'Validated at 2022-01-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },
+            // xlsxUpload
             {
                 upload_id: '00000000-0000-0000-0000-000000000099',
                 original_filename: '1.1456 Report XLSX Type Example.xlsx',
@@ -209,17 +251,17 @@ describe('FullFileExport', () => {
                 updated_at: moment('2022-01-01').toISOString(),
                 validity: 'Validated at 2022-01-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },
-            // fixtures.uploads.upload2
+            // missingAgencyUpload
             {
-                upload_id: '00000000-0000-0000-0000-000000000001',
-                original_filename: 'test-filename-2.xlsm',
-                filename_in_zip: 'test-filename-2--00000000-0000-0000-0000-000000000001.xlsm',
-                path_in_zip: 'Quarterly 1/Not Final Treasury/Invalid files/test-filename-2--00000000-0000-0000-0000-000000000001.xlsm',
-                agency_name: 'State Board of Accountancy',
-                ec_code: 'EC1.1',
+                upload_id: '00000000-0000-0000-0000-000000000096',
+                original_filename: '1.9918 Missing Agency Name Upload.xls',
+                filename_in_zip: '1.9918 Missing Agency Name Upload--00000000-0000-0000-0000-000000000096.xls',
+                path_in_zip: 'Quarterly 1/Not Final Treasury/Invalid files/1.9918 Missing Agency Name Upload--00000000-0000-0000-0000-000000000096.xls',
+                agency_name: 'Missing agency name',
+                ec_code: 'EC1.134',
                 reporting_period_name: 'Quarterly 1',
-                updated_at: moment('2023-03-01').toISOString(),
-                validity: `Did not pass validation at 2023-03-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org`,
+                updated_at: '2021-07-03T00:00:00.000Z',
+                validity: 'Invalidated at 2021-07-03T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org',
             },
             // fixtures.uploads.upload4_invalidated
             {
@@ -232,6 +274,18 @@ describe('FullFileExport', () => {
                 reporting_period_name: 'Quarterly 1',
                 updated_at: moment('2023-03-02').toISOString(),
                 validity: 'Invalidated at 2023-03-02T00:00:00 by mbroussard+unit-test-user2@usdigitalresponse.org',
+            },
+            // fixtures.uploads.upload2
+            {
+                upload_id: '00000000-0000-0000-0000-000000000001',
+                original_filename: 'test-filename-2.xlsm',
+                filename_in_zip: 'test-filename-2--00000000-0000-0000-0000-000000000001.xlsm',
+                path_in_zip: 'Quarterly 1/Not Final Treasury/Invalid files/test-filename-2--00000000-0000-0000-0000-000000000001.xlsm',
+                agency_name: 'State Board of Accountancy',
+                ec_code: 'EC1.1',
+                reporting_period_name: 'Quarterly 1',
+                updated_at: moment('2023-03-01').toISOString(),
+                validity: `Did not pass validation at 2023-03-01T00:00:00 by mbroussard+unit-test-admin@usdigitalresponse.org`,
             },
             // fixtures.uploads.upload5_new_quarter
             {

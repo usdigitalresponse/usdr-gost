@@ -60,13 +60,19 @@ async function addUploadInfo(uploads) {
         const filename_in_zip = getFilenameInZip(upload);
         const path_in_zip = getPathInZip(upload, filename_in_zip);
         const validity = getValidity(upload);
+        let ec_code;
+        if (upload.ec_code) {
+            ec_code = `EC${upload.ec_code}`;
+        } else {
+            ec_code = 'Missing EC code';
+        }
         const uploadInfo = {
             upload_id: upload.upload_id,
             original_filename: upload.original_filename,
             filename_in_zip,
             path_in_zip,
-            agency_name: upload.agency_name,
-            ec_code: upload.ec_code,
+            agency_name: upload.agency_name || 'Missing agency name',
+            ec_code,
             reporting_period_name: upload.reporting_period_name,
             updated_at: getUploadLastUpdate(upload).toISOString(),
             validity,
@@ -134,7 +140,7 @@ async function getUploadsForArchive(organizationId) {
             u1.id as upload_id,
             u1.filename as original_filename,
             a.name AS agency_name,
-            'EC' || u1.ec_code AS ec_code,
+            u1.ec_code AS ec_code,
             rp.name AS reporting_period_name,
             u1.created_at,
             u1.validated_at,
@@ -149,8 +155,8 @@ async function getUploadsForArchive(organizationId) {
             LEFT JOIN users uv ON uv.id = u1.validated_by
             LEFT JOIN users ui ON ui.id = u1.invalidated_by
             LEFT JOIN users uc ON uc.id = u1.user_id
+            LEFT JOIN agencies a ON a.id = u1.agency_id
             JOIN reporting_periods rp ON rp.id = u1.reporting_period_id
-            JOIN agencies a ON a.id = u1.agency_id
         WHERE
             u1.tenant_id = ?
         ORDER BY
