@@ -83,6 +83,11 @@ api_container_environment = {
   NEW_GRANT_DETAILS_PAGE_ENABLED = true
   SHARE_TERMINOLOGY_ENABLED      = true
 }
+enabled_email_types = [
+  "welcome",
+  "passcode",
+]
+disable_all_emails = false
 
 // Postgres
 postgres_enabled                   = true
