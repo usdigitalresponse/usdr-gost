@@ -87,7 +87,7 @@ enabled_email_types = [
   "welcome",
   "passcode",
 ]
-disable_all_emails = false
+disable_all_emails = true
 
 // Postgres
 postgres_enabled                   = true
