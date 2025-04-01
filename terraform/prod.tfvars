@@ -61,7 +61,7 @@ website_feature_flags = {
   arpaTransitionMessageEnabled   = true,
   grantsTransitionMessageEnabled = true,
   arpaLoginEnabled               = false,
-  grantsLoginEnabled             = true,
+  grantsLoginEnabled             = false,
 }
 
 // Google Analytics Account ID: 233192355, Property ID: 321194851, Stream ID: 3802896350
