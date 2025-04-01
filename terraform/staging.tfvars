@@ -60,7 +60,7 @@ website_feature_flags = {
   arpaTransitionMessageEnabled   = true,
   grantsTransitionMessageEnabled = true,
   arpaLoginEnabled               = false,
-  grantsLoginEnabled             = true,
+  grantsLoginEnabled             = false,
 }
 
 // Google Analytics Account ID: 233192355, Property ID: 429910307, Stream ID: 7590745080
@@ -86,7 +86,7 @@ enabled_email_types = [
   "welcome",
   "passcode",
 ]
-disable_all_emails = false
+disable_all_emails = true
 
 // Postgres
 postgres_enabled                   = true
