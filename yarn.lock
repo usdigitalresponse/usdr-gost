@@ -457,10 +457,10 @@
     "@smithy/types" "^4.2.0"
     tslib "^2.6.2"
 
-"@aws-sdk/credential-providers@3.777.0":
-  version "3.777.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-providers/-/credential-providers-3.777.0.tgz#3a7f81a375721666b34b406af384cc67688e19fc"
-  integrity sha512-t1UyC1dUa4aph+kFixR0+5naKtDYZEtN2+PrDig4l1IvxJlD5rRRGodcVqi1duQjqfvhBwa7UPiHz5M4eRli7g==
+"@aws-sdk/credential-providers@3.778.0":
+  version "3.778.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-providers/-/credential-providers-3.778.0.tgz#1c302f974e385cef5f91a8fab09ab807b4a187ea"
+  integrity sha512-Yy1RSBvoDp/iqGDpmgy5/YnSP2ac9NxTv3wdAjKlqVVStlKWU9nG8MPHZRfy01oPNJ5YWZL9stxHjNKC9hg9eg==
   dependencies:
     "@aws-sdk/client-cognito-identity" "3.777.0"
     "@aws-sdk/core" "3.775.0"
@@ -474,8 +474,10 @@
     "@aws-sdk/credential-provider-web-identity" "3.777.0"
     "@aws-sdk/nested-clients" "3.777.0"
     "@aws-sdk/types" "3.775.0"
+    "@smithy/config-resolver" "^4.1.0"
     "@smithy/core" "^3.2.0"
     "@smithy/credential-provider-imds" "^4.0.2"
+    "@smithy/node-config-provider" "^4.0.2"
     "@smithy/property-provider" "^4.0.2"
     "@smithy/types" "^4.2.0"
     tslib "^2.6.2"
@@ -659,13 +661,13 @@
     tslib "^2.6.2"
 
 "@aws-sdk/rds-signer@^3.315.0":
-  version "3.777.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/rds-signer/-/rds-signer-3.777.0.tgz#42c5fb48d85e6c15dd0c08eb4342ccc1fbf06ae7"
-  integrity sha512-pHBx0r2BLv0xwCxXXKY/PIwMS891bqdoEgDCxucIb5ym5mqe2QMpSc2wVThfzh8fXN6s2uy+KquhSnmHiPjrJg==
+  version "3.778.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/rds-signer/-/rds-signer-3.778.0.tgz#9ff82e6aeae50dc937b3d67b9978a75405516156"
+  integrity sha512-msyi4ajRfMXJdIeLkNutME8DkL0e2X4Gc2VmJB5cMP1B9ealNUlZ7O9NeWABVxSUIEmxuOrQoQLmL3KHhEYBkQ==
   dependencies:
     "@aws-crypto/sha256-browser" "5.2.0"
     "@aws-crypto/sha256-js" "5.2.0"
-    "@aws-sdk/credential-providers" "3.777.0"
+    "@aws-sdk/credential-providers" "3.778.0"
     "@aws-sdk/util-format-url" "3.775.0"
     "@smithy/config-resolver" "^4.1.0"
     "@smithy/hash-node" "^4.0.2"
