@@ -8,7 +8,7 @@
 
         <router-link
           to="/new_upload"
-          class="btn btn-primary ml-2"
+          class="btn usdr-btn-primary ml-2"
         >
           Submit Workbook
         </router-link>
@@ -71,7 +71,10 @@
 
       <template #table-row="props">
         <span v-if="props.column.field === 'id'">
-          <router-link :to="`/uploads/${props.row.id}`">
+          <router-link
+            :to="`/uploads/${props.row.id}`"
+            class="usdr-link"
+          >
             {{ shortUuid(props.row.id) }}
           </router-link>
         </span>
@@ -172,7 +175,7 @@ export default {
 
           return moment(validatedAt).local().format('MMM Do YYYY, h:mm:ss A');
         },
-        tdClass: (row) => ((!row.validated_at || row.invalidated_at) ? 'table-danger' : undefined),
+        tdClass: (row) => ((!row.validated_at || row.invalidated_at) ? 'usdr-table-danger' : undefined),
         filterOptions: {
           enabled: !this.onlyExported,
           placeholder: 'Any validation status',
@@ -205,7 +208,7 @@ export default {
         {
           label: 'Agency',
           field: 'agency_code',
-          tdClass: (row) => (!row.agency_code ? 'table-danger' : undefined),
+          tdClass: (row) => (!row.agency_code ? 'usdr-table-danger' : undefined),
           filterOptions: {
             enabled: true,
             placeholder: 'Any agency',
@@ -215,7 +218,7 @@ export default {
         {
           label: 'EC Code',
           field: 'ec_code',
-          tdClass: (row) => (!row.ec_code ? 'table-danger' : undefined),
+          tdClass: (row) => (!row.ec_code ? 'usdr-table-danger' : undefined),
           width: '120px',
           filterOptions: {
             enabled: true,

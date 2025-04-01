@@ -8,7 +8,7 @@ terraform {
     }
     datadog = {
       source  = "DataDog/datadog"
-      version = "~> 3.50.0"
+      version = "~> 3.57.0"
     }
   }
 
@@ -56,6 +56,10 @@ locals {
   permissions_boundary_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_policy_name}"
   api_domain_name          = coalesce(var.api_domain_name, "api.${var.website_domain_name}")
   unified_service_tags     = { service = "gost", env = var.env, version = var.version_identifier }
+  email_environment_toggles = merge(
+    var.disable_all_emails ? { "DISABLE_ALL_EMAILS" : "true" } : {},
+    length(var.enabled_email_types) > 0 ? { "ENABLED_EMAIL_TYPES" : join(",", var.enabled_email_types) } : {},
+  )
 }
 
 data "aws_ssm_parameter" "public_dns_zone_id" {
@@ -207,11 +211,15 @@ module "api" {
     var.default_datadog_environment_variables,
     var.api_datadog_environment_variables,
   )
-  api_container_environment = merge(var.api_container_environment, {
-    ARPA_AUDIT_REPORT_SQS_QUEUE_URL     = module.arpa_audit_report.sqs_queue_url
-    ARPA_TREASURY_REPORT_SQS_QUEUE_URL  = module.arpa_treasury_report.sqs_queue_url
-    ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL = module.arpa_exporter.sqs_queue_url
-  })
+  api_container_environment = merge(
+    var.api_container_environment,
+    local.email_environment_toggles,
+    {
+      ARPA_AUDIT_REPORT_SQS_QUEUE_URL     = module.arpa_audit_report.sqs_queue_url
+      ARPA_TREASURY_REPORT_SQS_QUEUE_URL  = module.arpa_treasury_report.sqs_queue_url
+      ARPA_FULL_FILE_EXPORT_SQS_QUEUE_URL = module.arpa_exporter.sqs_queue_url
+    },
+  )
 
   # DNS
   domain_name         = local.api_domain_name
@@ -312,7 +320,7 @@ module "arpa_audit_report" {
   unified_service_tags  = local.unified_service_tags
   stop_timeout_seconds  = 120
   consumer_task_command = ["node", "./src/scripts/arpaAuditReport.js"]
-  consumer_container_environment = {
+  consumer_container_environment = merge(local.email_environment_toggles, {
     API_DOMAIN                    = "https://${local.api_domain_name}"
     AUDIT_REPORT_BUCKET           = module.api.arpa_audit_reports_bucket_id
     DATA_DIR                      = "/var/data"
@@ -322,7 +330,7 @@ module "arpa_audit_report" {
     NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
     SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
     WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
-  }
+  })
   datadog_environment_variables = var.default_datadog_environment_variables
   consumer_task_efs_volume_mounts = [{
     name            = "data"
@@ -399,7 +407,7 @@ module "arpa_treasury_report" {
   unified_service_tags  = local.unified_service_tags
   stop_timeout_seconds  = 120
   consumer_task_command = ["node", "./src/scripts/arpaTreasuryReport.js"]
-  consumer_container_environment = {
+  consumer_container_environment = merge(local.email_environment_toggles, {
     API_DOMAIN                    = "https://${local.api_domain_name}"
     AUDIT_REPORT_BUCKET           = module.api.arpa_audit_reports_bucket_id
     DATA_DIR                      = "/var/data"
@@ -409,7 +417,7 @@ module "arpa_treasury_report" {
     NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
     SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
     WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
-  }
+  })
   datadog_environment_variables = var.default_datadog_environment_variables
   consumer_task_efs_volume_mounts = [{
     name            = "data"
@@ -486,7 +494,7 @@ module "arpa_exporter" {
   docker_tag           = var.arpa_exporter_image_tag
   unified_service_tags = local.unified_service_tags
   stop_timeout_seconds = 120 # 2 minutes, in seconds
-  consumer_container_environment = {
+  consumer_container_environment = merge(local.email_environment_toggles, {
     API_DOMAIN                    = "https://${local.api_domain_name}"
     ARPA_DATA_EXPORT_BUCKET       = module.api.arpa_audit_reports_bucket_id
     DATA_DIR                      = "/var/data/uploads"
@@ -494,7 +502,7 @@ module "arpa_exporter" {
     NOTIFICATIONS_EMAIL           = "grants-notifications@${var.website_domain_name}"
     SES_CONFIGURATION_SET_DEFAULT = aws_sesv2_configuration_set.default.configuration_set_name
     WEBSITE_DOMAIN                = "https://${var.website_domain_name}"
-  }
+  })
   datadog_environment_variables = var.default_datadog_environment_variables
   consumer_task_efs_volume_mounts = [{
     name            = "data"
