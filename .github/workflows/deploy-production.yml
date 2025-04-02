@@ -173,17 +173,17 @@ jobs:
             github.com:443
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Download website build artifacts
-        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           name: ${{ needs.build.outputs.website-artifacts-key }}
           path: ${{ needs.build.outputs.website-artifacts-path }}
       - name: Download docker server image build attestation artifacts
-        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           name: ${{ needs.build.outputs.server-attestation-artifacts-key }}
           path: ${{ needs.build.outputs.server-attestation-artifacts-path }}
       - name: Download docker arpa-exporter build attestation artifacts
-        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           name: ${{ needs.build.outputs.arpa-exporter-attestation-artifacts-key }}
           path: ${{ needs.build.outputs.arpa-exporter-attestation-artifacts-path }}
