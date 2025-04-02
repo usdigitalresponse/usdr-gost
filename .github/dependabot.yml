@@ -36,6 +36,15 @@ updates:
       timezone: "America/New_York"
     commit-message:
       prefix: 'Chore [deps:github-actions]'
+    groups:
+      version-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
   - package-ecosystem: "terraform"
     directory: "/terraform"
     schedule:
