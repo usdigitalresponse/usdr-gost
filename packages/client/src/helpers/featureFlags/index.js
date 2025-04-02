@@ -24,3 +24,19 @@ export function grantNotesLimit() {
 export function enableFullFileExport() {
   return getFeatureFlags().enableFullFileExport === true;
 }
+
+export function grantsTransitionMessageEnabled() {
+  return getFeatureFlags().grantsTransitionMessageEnabled === true;
+}
+
+export function arpaTransitionMessageEnabled() {
+  return getFeatureFlags().arpaTransitionMessageEnabled === true;
+}
+
+export function grantsLoginEnabled() {
+  return getFeatureFlags().grantsLoginEnabled === true;
+}
+
+export function arpaLoginEnabled() {
+  return getFeatureFlags().arpaLoginEnabled === true;
+}

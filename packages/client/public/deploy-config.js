@@ -28,6 +28,10 @@ window.APP_CONFIG.featureFlags = {
   shareTerminologyEnabled: true,
   followNotesEnabled: true,
   enableFullFileExport: true,
+  grantsTransitionMessageEnabled: true,
+  arpaTransitionMessageEnabled: true,
+  grantsLoginEnabled: true,
+  arpaLoginEnabled: true,
 };
 
 // Setting a GOOGLE_TAG_ID enables Google Analytics.
