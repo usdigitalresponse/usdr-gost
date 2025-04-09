@@ -10,7 +10,7 @@ python = "^3.13"
 boto3 = "^1.37.30"
 ddtrace = "^3.3.2"
 structlog = "^25.2.0"
-pydantic = "^2.11.2"
+pydantic = "^2.11.3"
 chevron="^0.14.0"
 
 [tool.poetry.group.dev.dependencies]
