@@ -83,24 +83,24 @@
     "@smithy/util-utf8" "^2.0.0"
     tslib "^2.6.2"
 
-"@aws-sdk/client-cognito-identity@3.798.0":
-  version "3.798.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-cognito-identity/-/client-cognito-identity-3.798.0.tgz#45030534f2f84802707038eb8160f9a277d9b655"
-  integrity sha512-36vZT6hyYRJRNGBdxintkIZwq8hWsMCTKmi6ZqtcV4Jt65yNjQZTXuGui6/NdGj7KAmOh/RoyTpJzWKwIA5sTA==
+"@aws-sdk/client-cognito-identity@3.799.0":
+  version "3.799.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-cognito-identity/-/client-cognito-identity-3.799.0.tgz#80fd73c4e664427e86026f9a302f6b646d935d46"
+  integrity sha512-gg1sncxYDpYWetey3v/nw9zSkL/Vj2potpeO9sYWY2brcm8SbGh106I6IM/gX6KnY9Y2Bre8xb+JoZGz6ntcnw==
   dependencies:
     "@aws-crypto/sha256-browser" "5.2.0"
     "@aws-crypto/sha256-js" "5.2.0"
-    "@aws-sdk/core" "3.798.0"
-    "@aws-sdk/credential-provider-node" "3.798.0"
+    "@aws-sdk/core" "3.799.0"
+    "@aws-sdk/credential-provider-node" "3.799.0"
     "@aws-sdk/middleware-host-header" "3.775.0"
     "@aws-sdk/middleware-logger" "3.775.0"
     "@aws-sdk/middleware-recursion-detection" "3.775.0"
-    "@aws-sdk/middleware-user-agent" "3.798.0"
+    "@aws-sdk/middleware-user-agent" "3.799.0"
     "@aws-sdk/region-config-resolver" "3.775.0"
     "@aws-sdk/types" "3.775.0"
     "@aws-sdk/util-endpoints" "3.787.0"
     "@aws-sdk/util-user-agent-browser" "3.775.0"
-    "@aws-sdk/util-user-agent-node" "3.798.0"
+    "@aws-sdk/util-user-agent-node" "3.799.0"
     "@smithy/config-resolver" "^4.1.0"
     "@smithy/core" "^3.3.0"
     "@smithy/fetch-http-handler" "^5.0.2"
@@ -405,12 +405,12 @@
     fast-xml-parser "4.4.1"
     tslib "^2.6.2"
 
-"@aws-sdk/credential-provider-cognito-identity@3.798.0":
-  version "3.798.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-provider-cognito-identity/-/credential-provider-cognito-identity-3.798.0.tgz#a7338d0c505489441e522854dc2399fb4d461822"
-  integrity sha512-uZ204ov8uQFRYNp8NGGP/oVBkE+PDzyFBlCpluBHsnOUZtVL2QJRcBHZqYWbHfoJ8x+WuD6VNU2pG4kxzQCSyw==
+"@aws-sdk/credential-provider-cognito-identity@3.799.0":
+  version "3.799.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-provider-cognito-identity/-/credential-provider-cognito-identity-3.799.0.tgz#eba1a19bb7bacd37371e2e0dbd3f126145ef9d88"
+  integrity sha512-qHOqGsvt/z1bvjJRzndW8VaRfbGBhoETZpoRYNbfCbrNH2IRM98KRUlYH1EJ1wFFkT0gUDJr+oIOUCvRlgRW1Q==
   dependencies:
-    "@aws-sdk/client-cognito-identity" "3.798.0"
+    "@aws-sdk/client-cognito-identity" "3.799.0"
     "@aws-sdk/types" "3.775.0"
     "@smithy/property-provider" "^4.0.2"
     "@smithy/types" "^4.2.0"
@@ -620,22 +620,22 @@
     "@smithy/types" "^4.2.0"
     tslib "^2.6.2"
 
-"@aws-sdk/credential-providers@3.798.0":
-  version "3.798.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-providers/-/credential-providers-3.798.0.tgz#db9f8aaf8d4455dc0f3a0b631fbc3065d9733ea5"
-  integrity sha512-xHEroRdp01YSZ6zi/SrYLoN2faUfkZqgA1kvcv/z+3kl5R6OVNBvMsfoO/jYtuovsw/ve7zDg/62ezAZrdbV3g==
+"@aws-sdk/credential-providers@3.799.0":
+  version "3.799.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/credential-providers/-/credential-providers-3.799.0.tgz#f86cff0bdaef9762b56132977186c4ec1e3249cd"
+  integrity sha512-Gk10skoEri6zsCPxn34Zpu6Z1B5R3RLwqDw1krNl+B1P749gB6i7XULXZUOotqpum0T0q4euOwAB8XWuTOkKew==
   dependencies:
-    "@aws-sdk/client-cognito-identity" "3.798.0"
-    "@aws-sdk/core" "3.798.0"
-    "@aws-sdk/credential-provider-cognito-identity" "3.798.0"
-    "@aws-sdk/credential-provider-env" "3.798.0"
-    "@aws-sdk/credential-provider-http" "3.798.0"
-    "@aws-sdk/credential-provider-ini" "3.798.0"
-    "@aws-sdk/credential-provider-node" "3.798.0"
-    "@aws-sdk/credential-provider-process" "3.798.0"
-    "@aws-sdk/credential-provider-sso" "3.798.0"
-    "@aws-sdk/credential-provider-web-identity" "3.798.0"
-    "@aws-sdk/nested-clients" "3.798.0"
+    "@aws-sdk/client-cognito-identity" "3.799.0"
+    "@aws-sdk/core" "3.799.0"
+    "@aws-sdk/credential-provider-cognito-identity" "3.799.0"
+    "@aws-sdk/credential-provider-env" "3.799.0"
+    "@aws-sdk/credential-provider-http" "3.799.0"
+    "@aws-sdk/credential-provider-ini" "3.799.0"
+    "@aws-sdk/credential-provider-node" "3.799.0"
+    "@aws-sdk/credential-provider-process" "3.799.0"
+    "@aws-sdk/credential-provider-sso" "3.799.0"
+    "@aws-sdk/credential-provider-web-identity" "3.799.0"
+    "@aws-sdk/nested-clients" "3.799.0"
     "@aws-sdk/types" "3.775.0"
     "@smithy/config-resolver" "^4.1.0"
     "@smithy/core" "^3.3.0"
@@ -881,13 +881,13 @@
     tslib "^2.6.2"
 
 "@aws-sdk/rds-signer@^3.315.0":
-  version "3.798.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/rds-signer/-/rds-signer-3.798.0.tgz#91c7ee6b9d631a010d6be9f7e7b0dc49ef798568"
-  integrity sha512-UPAhGOTDSFr+zWkx40EjUn39QRNytERhtNQTK8BqAzidOdJxZPdfb2sjhCsAJp9vxHcpZLdlCFsJH2H6+WQQ0Q==
+  version "3.799.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/rds-signer/-/rds-signer-3.799.0.tgz#47f4f79512f2299cc5bc761eed931399de5b3f35"
+  integrity sha512-Z4Q7qPJiwlTRhUkL4UO/JrH4bCPAU/DY5Z4UuAk3XIFyJrqCVkLmS4WyfHItuTYE5Bq+uvjTuo57p9Xulgt4KA==
   dependencies:
     "@aws-crypto/sha256-browser" "5.2.0"
     "@aws-crypto/sha256-js" "5.2.0"
-    "@aws-sdk/credential-providers" "3.798.0"
+    "@aws-sdk/credential-providers" "3.799.0"
     "@aws-sdk/util-format-url" "3.775.0"
     "@smithy/config-resolver" "^4.1.0"
     "@smithy/hash-node" "^4.0.2"
