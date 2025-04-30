@@ -237,24 +237,24 @@
     tslib "^2.6.2"
 
 "@aws-sdk/client-sqs@^3.345.0":
-  version "3.798.0"
-  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sqs/-/client-sqs-3.798.0.tgz#372d443b684a0167aeb348c51e6a05b6649caa31"
-  integrity sha512-H2vgi3sIO6etUzcsJvDbQ8Pi1C4Jzgx3481L8xueBXP0Gev3wwEbj1kiDnr8+8m3LBHt1tSACCIZ9aegMZiN2g==
+  version "3.799.0"
+  resolved "https://registry.yarnpkg.com/@aws-sdk/client-sqs/-/client-sqs-3.799.0.tgz#2a60ba60067efa7fe3644a13cdab137ef5706bd9"
+  integrity sha512-2GEiwR2SO74AtSakEAQqHQdcWQsofUFeBGv5HVJeu/ewhKuKb8T6cm0RJ+Xhr7BWqOTRbP8sTQYPV+XVV6cn7A==
   dependencies:
     "@aws-crypto/sha256-browser" "5.2.0"
     "@aws-crypto/sha256-js" "5.2.0"
-    "@aws-sdk/core" "3.798.0"
-    "@aws-sdk/credential-provider-node" "3.798.0"
+    "@aws-sdk/core" "3.799.0"
+    "@aws-sdk/credential-provider-node" "3.799.0"
     "@aws-sdk/middleware-host-header" "3.775.0"
     "@aws-sdk/middleware-logger" "3.775.0"
     "@aws-sdk/middleware-recursion-detection" "3.775.0"
     "@aws-sdk/middleware-sdk-sqs" "3.798.0"
-    "@aws-sdk/middleware-user-agent" "3.798.0"
+    "@aws-sdk/middleware-user-agent" "3.799.0"
     "@aws-sdk/region-config-resolver" "3.775.0"
     "@aws-sdk/types" "3.775.0"
     "@aws-sdk/util-endpoints" "3.787.0"
     "@aws-sdk/util-user-agent-browser" "3.775.0"
-    "@aws-sdk/util-user-agent-node" "3.798.0"
+    "@aws-sdk/util-user-agent-node" "3.799.0"
     "@smithy/config-resolver" "^4.1.0"
     "@smithy/core" "^3.3.0"
     "@smithy/fetch-http-handler" "^5.0.2"
