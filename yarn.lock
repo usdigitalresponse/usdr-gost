@@ -1237,7 +1237,7 @@
     js-tokens "^4.0.0"
     picocolors "^1.0.0"
 
-"@babel/parser@^7.23.9", "@babel/parser@^7.24.4", "@babel/parser@^7.24.7", "@babel/parser@^7.25.3", "@babel/parser@^7.25.4", "@babel/parser@^7.26.9", "@babel/parser@^7.27.2":
+"@babel/parser@^7.23.9", "@babel/parser@^7.24.4", "@babel/parser@^7.24.7", "@babel/parser@^7.25.4", "@babel/parser@^7.26.9", "@babel/parser@^7.27.2":
   version "7.27.2"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.27.2.tgz#577518bedb17a2ce4212afd052e01f7df0941127"
   integrity sha512-QYLs8299NA7WM/bZAdp+CviYYkVoYXlDW2rzliy3chxd1PQjej7JORuMJDJXJUb9g0TT+B99EwaVLKmX+sPXWw==
@@ -3155,13 +3155,13 @@
     tinyrainbow "^1.2.0"
 
 "@vue/compat@^3.4.27":
-  version "3.5.13"
-  resolved "https://registry.yarnpkg.com/@vue/compat/-/compat-3.5.13.tgz#b8f715dc4ff0b4964165d51e0023bd2631de5ae5"
-  integrity sha512-Q3xRdTPN4l+kddxU98REyUBgvc0meAo9CefCWE2lW8Fg3dyPn3vSCce52b338ihrJAx1RQQhO5wMWhJ/PAKUpA==
+  version "3.5.14"
+  resolved "https://registry.yarnpkg.com/@vue/compat/-/compat-3.5.14.tgz#50c4401d45ccb53ec87ffc24ee7438be077c9af4"
+  integrity sha512-mghYsCnPgrkfy0UKAT8ILYykGIqPdtOpF5VWdHqJAdUbdggdEqLMVylkFkhGrtgaxG29z6kdzukvLRYn4MPo/Q==
   dependencies:
-    "@babel/parser" "^7.25.3"
+    "@babel/parser" "^7.27.2"
     estree-walker "^2.0.2"
-    source-map-js "^1.2.0"
+    source-map-js "^1.2.1"
 
 "@vue/compiler-core@3.4.27":
   version "3.4.27"
