@@ -38,14 +38,14 @@ jobs:
       aws-secret-access-key: ${{ steps.encrypt-aws-secret-access-key.outputs.out }}
       aws-session-token: ${{ steps.encrypt-aws-session-token.outputs.out }}
     steps:
-      - uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf # v2.11.1
+      - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
         with:
           disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
             sts.us-west-2.amazonaws.com:443
       - id: auth
-        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
+        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df # v4.2.1
         with:
           aws-region: us-west-2
           role-to-assume: "${{ secrets.role-to-assume }}"
